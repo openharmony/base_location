@@ -1,0 +1,47 @@
+{
+    "name": "@ohos/location_passive",
+    "version": "3.1.0",
+    "description": "Passive Location Capability in Location Service.",
+    "homePage": "https://gitee.com/openharmony",
+    "license": "Apache License 2.0",
+    "repository": "",
+    "domain": "os",
+    "language": "",
+    "publishAs": "code-segment",
+    "private": false,
+    "segment": {
+        "destPath": "base/location/location_passive"
+    },
+    "component": {
+        "name": "location_passive",
+        "subsystem": "location",
+        "syscap": [
+            "SystemCapability.Location.Location"
+        ],
+        "features": [],
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "",
+        "ram": "",
+        "deps": {
+            "components": [
+                "ipc",
+                "safwk",
+                "ces_standard",
+                "hiviewdfx_hilog_native",
+                "appexecfwk_standard",
+                "hisysevent_native"
+            ],
+            "third_party": []
+        },
+        "build": {
+            "sub_component": [
+                "//base/location/location_passive/passive:lbsservice_passive",
+                "//base/location/etc:etc",
+                "//base/location/profile:location_sa_profile"
+            ],
+            "test": []
+        }
+    }
+}

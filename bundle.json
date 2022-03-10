@@ -1,0 +1,46 @@
+{
+    "name": "@ohos/location",
+    "version": "3.1.0",
+    "description": "Location service, providing location and geocoding capabilities.",
+    "homePage": "https://gitee.com/openharmony",
+    "license": "Apache License 2.0",
+    "repository": "",
+    "domain": "os",
+    "language": "",
+    "publishAs": "code-segment",
+    "private": false,
+    "segment": {
+        "destPath": "base/location/location"
+    },
+    "component": {
+        "name": "location",
+        "subsystem": "location",
+        "syscap": [
+            "SystemCapability.Location.Location"
+        ],
+        "features": [],
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "",
+        "ram": "",
+        "deps": {
+            "components": [
+                "ipc",
+                "ces_standard",
+                "hiviewdfx_hilog_native",
+                "access_token"
+            ],
+            "third_party": []
+        },
+        "build": {
+            "sub_component": [
+                "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
+                "//base/location/interfaces/innerkits/napi:geolocation",
+                "//base/location/etc:etc",
+                "//base/location/profile:location_sa_profile"
+            ],
+            "test": []
+        }
+    }
+}
