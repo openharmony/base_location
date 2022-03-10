@@ -1,0 +1,68 @@
+# Copyright (C) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+SUBSYSTEM_DIR = "//base/location"
+
+ohos_shared_library("geolocation") {
+  install_enable = true
+  include_dirs = [
+    "//third_party/node/src",
+    "//native_engine",
+    "//utils/native/base/include",
+    "//utils/system/safwk/native/include",
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
+    "//base/location/interfaces/innerkits/napi",
+    "//base/location/interfaces/innerkits/locator_standard/include",
+    "//base/location/location_common/common/include",
+    "//base/location/location_locator/callback/include",
+    "//base/location/utils/include",
+    "//base/security/permission/interfaces/innerkits/permission_standard/permissionsdk/main/cpp/include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include"
+  ]
+
+  sources = [
+    "location_napi_adapter.cpp" ,
+    "location_napi_entry.cpp" ,
+    "location_napi_event.cpp" ,
+    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
+  ]
+
+  deps = [
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//foundation/ace/napi:ace_napi",
+    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
+    "//base/location/location_common/common:lbsservice_common",
+    "//utils/native/base:utils",
+    "//third_party/libuv:uv_static",
+  ]
+
+  external_deps = [
+    "ipc:ipc_core",
+    "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "hisysevent_native:libhisysevent",
+    "samgr_standard:samgr_proxy",
+    "startup_l2:syspara",
+    "permission_standard:libpermissionsdk_standard",
+    "access_token:libaccesstoken_sdk",
+    "ability_base:want",
+    "ability_runtime:wantagent_innerkits",
+  ]
+
+  relative_install_dir = "module"
+  part_name = "location"
+  subsystem_name = "location"
+}
