@@ -51,7 +51,7 @@ public:
     void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterCachedCallback(const std::unique_ptr<CachedGnssLoactionsRequest>& request,
+    void RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) override;
     void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;

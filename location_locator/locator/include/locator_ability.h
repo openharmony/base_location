@@ -79,7 +79,7 @@ public:
     bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) override;
     void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) override;
 
-    int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+    int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) override;
     int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
 

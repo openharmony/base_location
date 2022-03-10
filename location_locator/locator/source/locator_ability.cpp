@@ -460,7 +460,7 @@ void LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& ca
     }
 }
 
-int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
     auto remoteObject = proxyMap_->find(GNSS_ABILITY);

@@ -102,7 +102,7 @@ void GnssAbilityProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& 
     LBSLOGD(GNSS, "UnregisterNmeaMessageCallback Transact ErrCode = %{public}d", error);
 }
 
-void GnssAbilityProxy::RegisterCachedCallback(const std::unique_ptr<CachedGnssLoactionsRequest>& request,
+void GnssAbilityProxy::RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
     const sptr<IRemoteObject>& callback)
 {
     MessageParcel data;
@@ -278,7 +278,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case REG_CACHED: {
-            std::unique_ptr<CachedGnssLoactionsRequest> requestConfig = std::make_unique<CachedGnssLoactionsRequest>();
+            std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
             requestConfig->reportingPeriodSec = data.ReadInt32();
             requestConfig->wakeUpCacheQueueFull = data.ReadBool();
             sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();

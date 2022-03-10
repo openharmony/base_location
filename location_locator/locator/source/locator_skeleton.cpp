@@ -80,7 +80,7 @@ int LocatorAbilityStub::ReportStatus(MessageParcel& data, int type)
 
 void LocatorAbilityStub::ParseDataAndStartCacheLocating(MessageParcel& data, MessageParcel& reply)
 {
-    std::unique_ptr<CachedGnssLoactionsRequest> requestConfig = std::make_unique<CachedGnssLoactionsRequest>();
+    std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
     requestConfig->reportingPeriodSec = data.ReadInt32();
     requestConfig->wakeUpCacheQueueFull = data.ReadBool();
     sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();

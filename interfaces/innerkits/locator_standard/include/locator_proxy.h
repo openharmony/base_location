@@ -83,7 +83,7 @@ public:
     virtual bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) = 0;
     virtual void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) = 0;
 
-    virtual int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+    virtual int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) = 0;
     virtual int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
 
@@ -120,7 +120,7 @@ public:
     bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) override;
     void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) override;
 
-    int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+    int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) override;
     int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
 

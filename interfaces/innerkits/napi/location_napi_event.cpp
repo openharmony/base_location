@@ -194,7 +194,7 @@ void EventManager::SubscribeCacheLocationChange(const std::string& name, const n
     m_cachedCallbackHost->m_handlerCb = handlerRef;
     m_cachedCallbackHost->m_thisVarRef = m_thisVarRef;
 
-    std::unique_ptr<CachedGnssLoactionsRequest> request = std::make_unique<CachedGnssLoactionsRequest>();
+    std::unique_ptr<CachedGnssLocationsRequest> request = std::make_unique<CachedGnssLocationsRequest>();
     JsObjToCachedLocationRequest(m_env, object, request);
     g_locatorNapiPtr->RegisterCachedLocationCallback(request, m_cachedCallback);
 }

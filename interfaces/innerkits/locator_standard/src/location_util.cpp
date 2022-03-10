@@ -56,7 +56,6 @@ void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteSta
     napi_value altitudesArray;
     napi_value azimuthsArray;
     napi_value carrierFrequenciesArray;
-
     SetValueDouble(env, "satellitesNumber", statusInfo->GetSatellitesNumber(), result);
     if (statusInfo->GetSatellitesNumber() > 0) {
         napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &satelliteIdsArray);
@@ -145,7 +144,6 @@ bool GeoAddressesToJsObj(const napi_env& env,
         SetValueUtf8String(env, "phoneNumber", geoAddress->m_phoneNumber.c_str(), eachObj);
         SetValueUtf8String(env, "addressUrl", geoAddress->m_addressUrl.c_str(), eachObj);
         napi_value descriptionArray;
-        
         if (geoAddress->m_descriptionsSize > 0) {
             napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray);
             uint32_t idx1 = 0;
@@ -171,7 +169,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
 }
 
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
-    std::unique_ptr<CachedGnssLoactionsRequest>& request)
+    std::unique_ptr<CachedGnssLocationsRequest>& request)
 {
     int value = 0;
     bool valueBool;
