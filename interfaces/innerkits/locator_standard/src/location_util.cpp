@@ -56,7 +56,7 @@ void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteSta
     napi_value altitudesArray;
     napi_value azimuthsArray;
     napi_value carrierFrequenciesArray;
-    uint32_t idx1 = 0;
+
     SetValueDouble(env, "satellitesNumber", statusInfo->GetSatellitesNumber(), result);
     if (statusInfo->GetSatellitesNumber() > 0) {
         napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &satelliteIdsArray);
@@ -64,6 +64,7 @@ void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteSta
         napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &altitudesArray);
         napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &azimuthsArray);
         napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &carrierFrequenciesArray);
+        uint32_t idx1 = 0;
         for (int index = 0; index < statusInfo->GetSatellitesNumber(); index++) {
             napi_value value = nullptr;
             napi_status status = napi_ok;
@@ -144,9 +145,10 @@ bool GeoAddressesToJsObj(const napi_env& env,
         SetValueUtf8String(env, "phoneNumber", geoAddress->m_phoneNumber.c_str(), eachObj);
         SetValueUtf8String(env, "addressUrl", geoAddress->m_addressUrl.c_str(), eachObj);
         napi_value descriptionArray;
-        uint32_t idx1 = 0;
+        
         if (geoAddress->m_descriptionsSize > 0) {
             napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray);
+            uint32_t idx1 = 0;
             for (int index = 0; index < geoAddress->m_descriptionsSize; index++) {
                 napi_value value;
                 status = napi_create_string_utf8(env, geoAddress->GetDescriptions(index).c_str(),

@@ -41,19 +41,6 @@ RequestManager::~RequestManager() {}
 
 bool RequestManager::InitSystemListeners()
 {
-    if (!isPermissionRegistered_) {
-        int error = -1;
-        if (error == 0) {
-            isPermissionRegistered_ = true;
-        }
-    }
-
-    if (!isPowerRegistered_) {
-        bool ret = false;
-        if (ret) {
-            isPowerRegistered_ = true;
-        }
-    }
     LBSLOGI(REQUEST_MANAGER, "register permissions change::%{public}d, register suspend listener:%{public}d",
         isPermissionRegistered_, isPowerRegistered_);
     return (isPermissionRegistered_ && isPowerRegistered_);

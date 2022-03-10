@@ -254,7 +254,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
         if (g_locatorPtr->IsLocationEnabled()) {
             g_locatorPtr->GetAddressByCoordinate(context->reverseGeoCodeRequest, context->replyList);
         }
-        if (context->replyList.size() <= 0) {
+        if (context->replyList.empty()) {
             context->errCode = REVERSE_GEOCODE_ERROR;
         } else {
             context->errCode = SUCCESS;
@@ -298,7 +298,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
             g_locatorPtr->GetAddressByLocationName(context->geoCodeRequest,
                 context->replyList);
         }
-        if (context->replyList.size() <= 0) {
+        if (context->replyList.empty()) {
             context->errCode = REVERSE_GEOCODE_ERROR;
         } else {
             context->errCode = SUCCESS;

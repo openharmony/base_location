@@ -46,17 +46,16 @@ void SatelliteStatus::ReadFromParcel(Parcel& parcel)
 
 bool SatelliteStatus::Marshalling(Parcel& parcel) const
 {
-    bool ret = false;
-    ret = parcel.WriteInt64(satellitesNumber_);
+    parcel.WriteInt64(satellitesNumber_);
     for (int i = 0; i < satellitesNumber_; i++) {
-        ret = parcel.WriteInt64(satelliteIds_[i]);
-        ret = parcel.WriteInt64(satelliteIds_[i]);
-        ret = parcel.WriteDouble(carrierToNoiseDensitys_[i]);
-        ret = parcel.WriteDouble(altitudes_[i]);
-        ret = parcel.WriteDouble(azimuths_[i]);
-        ret = parcel.WriteDouble(carrierFrequencies_[i]);
+        parcel.WriteInt64(satelliteIds_[i]);
+        parcel.WriteInt64(satelliteIds_[i]);
+        parcel.WriteDouble(carrierToNoiseDensitys_[i]);
+        parcel.WriteDouble(altitudes_[i]);
+        parcel.WriteDouble(azimuths_[i]);
+        parcel.WriteDouble(carrierFrequencies_[i]);
     }
-    return ret;
+    return true;
 }
 
 std::unique_ptr<SatelliteStatus> SatelliteStatus::Unmarshalling(Parcel& parcel)

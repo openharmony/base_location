@@ -73,18 +73,7 @@ void LocatorBackgroundProxy::InitArgsFromProp()
 {
     featureSwitch_ = 1;
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "feature switch %{public}d", featureSwitch_);
-    char timeData[92] = {'\0'};
-    int len = 0;
-    if (len <= 0) {
-        timeInterval_ = DEFAULT_TIME_INTERVAL;
-    } else {
-        timeInterval_ = std::atoi(timeData); // std::stoi will throw exception.
-        if (timeInterval_ <= DEFAULT_WORK_TIME) {
-            // the time app stays awake is DEFAULT_WORK_TIME(6 seconds)
-            // timeInerval should set greater than DEFAULT_WORK_TIME
-            timeInterval_ = DEFAULT_TIME_INTERVAL;
-        }
-    }
+    timeInterval_ = DEFAULT_TIME_INTERVAL;
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "set time interval %{public}d", timeInterval_);
 }
 
