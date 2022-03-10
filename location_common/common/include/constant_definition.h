@@ -51,7 +51,7 @@ enum class LocationPrivacyType {
 typedef struct {
     int reportingPeriodSec;
     bool wakeUpCacheQueueFull;
-} CachedGnssLoactionsRequest;
+} CachedGnssLocationsRequest;
 
 typedef struct {
     int scenario;

@@ -191,7 +191,7 @@ void GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
         uid, std::to_string(nmeaCallback_->size()).c_str());
 }
 
-void GnssAbility::RegisterCachedCallback(const std::unique_ptr<CachedGnssLoactionsRequest>& request,
+void GnssAbility::RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
     const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {

@@ -368,7 +368,7 @@ void LocatorProxy::SetLocationPrivacyConfirmStatus(const LocationPrivacyType typ
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SetLocationPrivacyConfirmStatus Transact ErrCodes = %{public}d", error);
 }
 
-int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
     MessageParcel data;

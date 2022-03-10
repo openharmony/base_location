@@ -43,7 +43,7 @@ public:
     bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+    void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) override;
     void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
     bool IsGeoServiceAvailable() override;

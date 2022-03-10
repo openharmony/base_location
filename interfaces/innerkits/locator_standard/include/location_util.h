@@ -118,7 +118,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig);
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
-    std::unique_ptr<CachedGnssLoactionsRequest>& request);
+    std::unique_ptr<CachedGnssLocationsRequest>& request);
 void JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig);
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,

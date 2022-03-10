@@ -128,7 +128,7 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     return true;
 }
 
-void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
     client_->RegisterCachedLocationCallback(request, callback, "location.ILocator");

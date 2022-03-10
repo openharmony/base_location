@@ -71,7 +71,7 @@ public:
     virtual bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
     virtual bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
 
-    virtual void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoactionsRequest>& request,
+    virtual void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) = 0;
 
     virtual void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
