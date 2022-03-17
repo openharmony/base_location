@@ -13,27 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
-#define OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
+#ifndef OHOS_LOCATION_GEO_CONVERT_PROXY_H
+#define OHOS_LOCATION_GEO_CONVERT_PROXY_H
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
-#include "subability_common.h"
+
+#include "common_utils.h"
+#include "geo_convert_skeleton.h"
 
 namespace OHOS {
 namespace Location {
-class INetworkAbility : public ISubAbility {
+class GeoConvertProxy : public IRemoteProxy<IGeoConvert> {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.INetworkAbility");
-    virtual void SelfRequest(bool state) = 0;
-};
-
-class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
-public:
-    int32_t OnRemoteRequest(uint32_t code,
-        MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    explicit GeoConvertProxy(const sptr<IRemoteObject> &impl);
+    ~GeoConvertProxy() = default;
+    int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) override;
+    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
+    int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
+private:
+    static inline BrokerDelegator<GeoConvertProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
+#endif // OHOS_LOCATION_GEO_CONVERT_PROXY_H

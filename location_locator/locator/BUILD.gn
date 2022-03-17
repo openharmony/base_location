@@ -36,6 +36,10 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
     "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
     "$SUBSYSTEM_DIR/utils/source/common_hisysevent.cpp",
   ]

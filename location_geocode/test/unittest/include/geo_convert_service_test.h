@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include "geo_convert_skeleton.h"
+#include "geo_convert_proxy.h"
 
 class GeoConvertServiceTest : public testing::Test {
 public:

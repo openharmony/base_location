@@ -13,27 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
-#define OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
+#ifndef OHOS_LOCATION_PASSIVE_ABILITY_PROXY_H
+#define OHOS_LOCATION_PASSIVE_ABILITY_PROXY_H
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
-#include "subability_common.h"
+
+#include "passive_ability_skeleton.h"
 
 namespace OHOS {
 namespace Location {
-class INetworkAbility : public ISubAbility {
+class PassiveAbilityProxy : public IRemoteProxy<IPassiveAbility> {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.INetworkAbility");
-    virtual void SelfRequest(bool state) = 0;
-};
-
-class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
-public:
-    int32_t OnRemoteRequest(uint32_t code,
-        MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    explicit PassiveAbilityProxy(const sptr<IRemoteObject> &impl);
+    ~PassiveAbilityProxy() = default;
+    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
+    std::unique_ptr<Location> GetCachedLocation() override;
+    void SetEnable(bool state) override;
+private:
+    static inline BrokerDelegator<PassiveAbilityProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
+#endif // OHOS_LOCATION_PASSIVE_ABILITY_PROXY_H

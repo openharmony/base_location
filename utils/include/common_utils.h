@@ -56,6 +56,7 @@ const int SYSTEM_UID = 1000;
 const int EX_HAS_REPLY_HEADER = -128;
 const int REPLY_NO_EXCEPTION = 0;
 const int EXCEPTION = -1;
+const int MSG_UNPROCESSED = -2;
 const int SECURITY_EXCEPTION = 1000;
 
 const int EVENT_REGITERED_MAX_TRY_TIME = 30;
@@ -108,15 +109,14 @@ public:
     static sptr<IRemoteObject> GetRemoteObject(int abilityId);
     static sptr<IRemoteObject> GetRemoteObject(int abilityId, std::string deviceId);
     static std::string InitDeviceId();
-    static bool CheckLocationPermission(pid_t pid, pid_t uid);
-    static bool CheckBackgroundPermission(pid_t pid, pid_t uid);
-    static bool CheckSecureSettings(pid_t pid, pid_t uid);
+    static bool CheckLocationPermission();
+    static bool CheckBackgroundPermission();
+    static bool CheckPermission(const std::string &permission);
+    static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
     static bool CheckLocatorInterfaceToken(std::u16string descripter, MessageParcel &data);
     static int GetPrivacyType(LocationPrivacyType type);
     static LocationPrivacyType GetPrivacyTypeByInt(int type);
-private:
-    static bool CheckLocationPermission(const std::string& permissionName, const std::string& appIdInfo);
 };
 } // namespace Location
 } // namespace OHOS

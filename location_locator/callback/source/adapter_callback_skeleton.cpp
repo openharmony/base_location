@@ -28,10 +28,14 @@ namespace OHOS {
 namespace Location {
 LocationCallbackStub::LocationCallbackStub(std::string abilityName)
 {
-    isInitForProxy_ = false;
-    localDeviceId_ = CommonUtils::InitDeviceId();
     abilityName_ = abilityName;
+    isInitForProxy_ = false;
     label_ = CommonUtils::GetLabel(abilityName);
+}
+
+void LocationCallbackStub::init(std::string abilityName)
+{
+    localDeviceId_ = CommonUtils::InitDeviceId();
     GetRemoteLocatorProxy(localDeviceId_);
 }
 
@@ -43,6 +47,10 @@ std::string LocationCallbackStub::GetAbilityName()
 int LocationCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(label_, "invalid token.");
+        return -1;
+    }
     int ret = EXCEPTION;
     pid_t lastCallingPid = IPCSkeleton::GetCallingPid();
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
@@ -78,8 +86,36 @@ void LocationCallbackStub::GetRemoteLocatorProxy(std::string deviceId)
 void LocationCallbackStub::OnLocationChange(const std::unique_ptr<Location>& location)
 {
     LBSLOGI(label_, "LocationCallbackStub::onLocationChange");
+    init(abilityName_);
     if (proxyLocator_ != nullptr) {
         proxyLocator_->ReportLocation(location, abilityName_);
+    }
+}
+
+void LocationCallbackStub::OnStatusChange(unsigned int gnssSessionStatus)
+{
+    LBSLOGI(label_, "LocationCallbackStub::OnStatusChange");
+    init(abilityName_);
+    if (proxyLocator_ != nullptr) {
+        proxyLocator_->ReportGnssSessionStatus(gnssSessionStatus);
+    }
+}
+
+void LocationCallbackStub::OnSvStatusChange(const std::unique_ptr<SatelliteStatus> &sv)
+{
+    LBSLOGI(label_, "LocationCallbackStub::OnSvStatusChange");
+    init(abilityName_);
+    if (proxyLocator_ != nullptr) {
+        proxyLocator_->ReportSv(sv);
+    }
+}
+
+void LocationCallbackStub::OnNmeaChange(int64_t timestamp, const std::string &nmea)
+{
+    LBSLOGI(label_, "LocationCallbackStub::OnNmeaChange");
+    init(abilityName_);
+    if (proxyLocator_ != nullptr) {
+        proxyLocator_->ReportNmea(nmea);
     }
 }
 } // namespace Location

@@ -52,7 +52,7 @@ ohos_unittest("GeocodeServiceAbilityTest") {
 
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
-    "$SUBSYSTEM_DIR/location_geocode/geocode:lbsservice_geocode",
+    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "${aafwk_path}/interfaces/innerkits/base:base",
     "${aafwk_path}/interfaces/innerkits/want:want",
     "//utils/native/base:utils",

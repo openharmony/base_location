@@ -45,17 +45,6 @@ private:
     static pid_t lastCallingPid;
     static pid_t lastCallinguid;
 };
-
-class GeoConvertProxy : public IRemoteProxy<IGeoConvert> {
-public:
-    explicit GeoConvertProxy(const sptr<IRemoteObject> &impl);
-    ~GeoConvertProxy() = default;
-    int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) override;
-    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
-    int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
-private:
-    static inline BrokerDelegator<GeoConvertProxy> delegator_;
-};
 } // namespace OHOS
 } // namespace Location
 #endif // OHOS_LOCATION_GEO_CONVERT_SKELETON_H

@@ -29,6 +29,9 @@ void NmeaMessageCallbackProxy::OnMessageChange(const std::string msg)
 {
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteString16(Str8ToStr16(msg));
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_NMEA_MESSAGE_EVENT, data, reply, option);

@@ -26,6 +26,7 @@
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "location.h"
+#include "locator_proxy.h"
 #include "message_parcel.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"

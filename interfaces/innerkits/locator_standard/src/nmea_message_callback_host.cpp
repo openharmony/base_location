@@ -25,7 +25,6 @@ NmeaMessageCallbackHost::NmeaMessageCallbackHost()
 {
     m_env = nullptr;
     m_handlerCb = nullptr;
-    m_thisVarRef = nullptr;
     m_remoteDied = false;
     m_lastCallingPid = 0;
     m_lastCallingUid = 0;
@@ -39,6 +38,10 @@ int NmeaMessageCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     LBSLOGD(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackHost::OnRemoteRequest!");
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "invalid token.");
+        return -1;
+    }
     if (m_remoteDied) {
         LBSLOGD(NMEA_MESSAGE_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
@@ -91,10 +94,12 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "work == nullptr.");
         return false;
     }
-
     JsContext *context = new (std::nothrow) JsContext(m_env);
+    if (context == nullptr) {
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
+        return false;
+    }
     context->m_env = m_env;
-    context->m_thisVarRef = m_thisVarRef;
     context->m_handlerCb = m_handlerCb;
     context->m_jsEvent = jsEvent;
     work->data = context;
@@ -123,13 +128,11 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
                 return;
             }
             if (context->m_handlerCb != nullptr) {
-                napi_value thisVar = nullptr;
-                napi_get_reference_value(context->m_env, context->m_thisVarRef, &thisVar);
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->m_env, &undefine);
                 napi_get_reference_value(context->m_env, context->m_handlerCb, &handler);
-                if (napi_call_function(context->m_env, thisVar, handler, 1,
+                if (napi_call_function(context->m_env, nullptr, handler, 1,
                     &context->m_jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(NMEA_MESSAGE_CALLBACK, "Report event failed");
                 }

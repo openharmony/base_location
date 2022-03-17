@@ -32,6 +32,9 @@ int LocatorProxy::GetSwitchState()
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -53,6 +56,9 @@ void LocatorProxy::EnableAbility(bool isEnabled)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteBool(isEnabled);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -68,6 +74,9 @@ void LocatorProxy::UpdateSaAbility()
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "UpdateSaAbility remote is null");
@@ -83,6 +92,9 @@ void LocatorProxy::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, p
 {
     LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d", uid);
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteObject<IRemoteObject>(callback);
 
     MessageParcel reply;
@@ -99,6 +111,9 @@ void LocatorProxy::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, p
 void LocatorProxy::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 {
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteObject<IRemoteObject>(callback);
 
     MessageParcel reply;
@@ -116,6 +131,9 @@ void LocatorProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callbac
 {
     LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d", uid);
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteObject<IRemoteObject>(callback);
 
     MessageParcel reply;
@@ -132,6 +150,9 @@ void LocatorProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callbac
 void LocatorProxy::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteObject<IRemoteObject>(callback);
 
     MessageParcel reply;
@@ -149,6 +170,9 @@ void LocatorProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callba
 {
     LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d", uid);
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteObject<IRemoteObject>(callback);
 
     MessageParcel reply;
@@ -165,6 +189,9 @@ void LocatorProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callba
 void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteObject<IRemoteObject>(callback);
 
     MessageParcel reply;
@@ -183,6 +210,9 @@ int LocatorProxy::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 {
     LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d, pid is: %{public}d", uid, pid);
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     if (requestConfig != nullptr) {
         requestConfig->Marshalling(data);
     }
@@ -206,6 +236,9 @@ int LocatorProxy::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 int LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
 {
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     if (callback != nullptr) {
         data.WriteObject<IRemoteObject>(callback->AsObject());
     }
@@ -222,11 +255,73 @@ int LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
     return error;
 }
 
+int LocatorProxy::ReportGnssSessionStatus(int status)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
+    data.WriteInt32(status);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "ReportGnssSessionStatus remote is null");
+        return EXCEPTION;
+    }
+    int error = remote->SendRequest(REPORT_GNSS_SESSION_STATUS, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportGnssSessionStatus Transact ErrCodes = %{public}d", error);
+    return error;
+}
+
+int LocatorProxy::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
+    if (sv != nullptr) {
+        sv->Marshalling(data);
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "ReportSvStatus remote is null");
+        return EXCEPTION;
+    }
+    int error = remote->SendRequest(REPORT_SV, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportSvStatus Transact ErrCodes = %{public}d", error);
+    return error;
+}
+
+int LocatorProxy::ReportNmea(const std::string &nmea)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
+    data.WriteString(nmea);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "ReportNmea remote is null");
+        return EXCEPTION;
+    }
+    int error = remote->SendRequest(REPORT_NMEA, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportNmea Transact ErrCodes = %{public}d", error);
+    return error;
+}
+
 int LocatorProxy::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     data.WriteString(abilityName);
     if (location != nullptr) {
         location->Marshalling(data);
@@ -246,6 +341,9 @@ int LocatorProxy::ReportLocationStatus(sptr<ILocatorCallback>& callback, int res
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     data.WriteObject<IRemoteObject>(callback->AsObject());
     data.WriteInt32(result);
     sptr<IRemoteObject> remote = Remote();
@@ -263,6 +361,9 @@ int LocatorProxy::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     data.WriteObject<IRemoteObject>(callback->AsObject());
     data.WriteInt32(result);
     sptr<IRemoteObject> remote = Remote();
@@ -277,6 +378,9 @@ int LocatorProxy::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result
 
 int LocatorProxy::GetCacheLocation(MessageParcel &data, MessageParcel &reply)
 {
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -291,6 +395,9 @@ int LocatorProxy::GetCacheLocation(MessageParcel &data, MessageParcel &reply)
 int LocatorProxy::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply)
 {
     int error;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -335,6 +442,9 @@ bool LocatorProxy::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -357,6 +467,9 @@ void LocatorProxy::SetLocationPrivacyConfirmStatus(const LocationPrivacyType typ
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteInt32(CommonUtils::GetPrivacyType(type));
     data.WriteBool(isConfirmed);
     sptr<IRemoteObject> remote = Remote();
@@ -372,6 +485,9 @@ int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocat
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     if (request != nullptr) {
         data.WriteInt32(request->reportingPeriodSec);
         data.WriteBool(request->wakeUpCacheQueueFull);
@@ -396,6 +512,9 @@ int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocat
 int LocatorProxy::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
 {
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
     if (callback != nullptr) {
         data.WriteRemoteObject(callback->AsObject());
     }
@@ -417,6 +536,9 @@ int LocatorProxy::GetCachedGnssLocationsSize()
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return EXCEPTION;
+    }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -439,6 +561,9 @@ void LocatorProxy::FlushCachedGnssLocations()
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "FlushCachedGnssLocations remote is null");
@@ -453,6 +578,9 @@ void LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteInt32(commands->scenario);
     data.WriteString16(Str8ToStr16(commands->command));
     sptr<IRemoteObject> remote = Remote();
@@ -469,6 +597,9 @@ void LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
@@ -489,6 +620,9 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);

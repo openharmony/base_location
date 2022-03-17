@@ -39,7 +39,6 @@ public:
     pid_t m_lastCallingPid;
     pid_t m_lastCallingUid;
     napi_env m_env;
-    napi_ref m_thisVarRef;
     napi_ref m_handlerCb;
     int m_fixNumber;
     bool m_remoteDied;

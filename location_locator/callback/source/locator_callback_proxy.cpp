@@ -35,6 +35,9 @@ void LocatorCallbackProxy::OnLocationReport(const std::unique_ptr<Location>& loc
     }
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     location->Marshalling(data);
     MessageOption option;
     if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsCallbackInProxy(this)) {
@@ -52,6 +55,9 @@ void LocatorCallbackProxy::OnLocatingStatusChange(const int status)
 {
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteInt32(status);
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_LOCATION_STATUS_EVENT, data, reply, option);
@@ -62,6 +68,9 @@ void LocatorCallbackProxy::OnErrorReport(const int errorCode)
 {
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteInt32(errorCode);
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_ERROR_INFO_EVENT, data, reply, option);
@@ -72,6 +81,10 @@ void LocatorCallbackProxy::OnErrorReport(const int errorCode)
 int LocatorCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
+        return -1;
+    }
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     LBSLOGI(LOCATOR_CALLBACK, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",

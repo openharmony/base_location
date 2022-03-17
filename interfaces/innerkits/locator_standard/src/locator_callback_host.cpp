@@ -27,7 +27,6 @@ LocatorCallbackHost::LocatorCallbackHost()
 {
     m_env = nullptr;
     m_handlerCb = nullptr;
-    m_thisVarRef = nullptr;
     m_deferred = nullptr;
     m_lastCallingUid = 0;
     m_lastCallingPid = 0;
@@ -41,10 +40,14 @@ LocatorCallbackHost::~LocatorCallbackHost()
 int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
+        return -1;
+    }
     int uid = IPCSkeleton::GetCallingUid();
     if (uid > SYSTEM_UID) {
-        LBSLOGE(SWITCH_CALLBACK, "invalid uid!");
-        return false;
+        LBSLOGE(LOCATOR_CALLBACK, "invalid uid!");
+        return -1;
     }
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
@@ -82,8 +85,11 @@ bool LocatorCallbackHost::Send(const std::unique_ptr<Location>& location)
         return false;
     }
     JsContext *context = new (std::nothrow) JsContext(m_env);
+    if (context == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        return false;
+    }
     context->m_env = m_env;
-    context->m_thisVarRef = m_thisVarRef;
     context->m_handlerCb = m_handlerCb;
     context->m_deferred = m_deferred;
     context->m_jsEvent = jsEvent;
@@ -113,13 +119,11 @@ bool LocatorCallbackHost::Send(const std::unique_ptr<Location>& location)
                 return;
             }
             if (context->m_handlerCb != nullptr) {
-                napi_value thisVar = nullptr;
-                napi_get_reference_value(context->m_env, context->m_thisVarRef, &thisVar);
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->m_env, &undefine);
                 napi_get_reference_value(context->m_env, context->m_handlerCb, &handler);
-                if (napi_call_function(context->m_env, thisVar, handler, 1,
+                if (napi_call_function(context->m_env, nullptr, handler, 1,
                     &context->m_jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report event failed");
                 }

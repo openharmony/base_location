@@ -28,6 +28,9 @@ void GnssStatusCallbackProxy::OnStatusChange(const std::unique_ptr<SatelliteStat
 {
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     if (statusInfo != nullptr) {
         statusInfo->Marshalling(data);
     }

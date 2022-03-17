@@ -193,11 +193,9 @@ void LocatorBackgroundProxy::OnDeleteRequestRecord(const std::shared_ptr<Request
     }
 }
 
-bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& request) const
+bool LocatorBackgroundProxy::CheckPermission() const
 {
-    pid_t pid = request->GetPid();
-    pid_t uid = request->GetUid();
-    return (CommonUtils::CheckLocationPermission(pid, uid) && CommonUtils::CheckBackgroundPermission(pid, uid));
+    return (CommonUtils::CheckLocationPermission() && CommonUtils::CheckBackgroundPermission());
 }
 
 void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
@@ -211,7 +209,7 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
     }
     auto requestsList = iter->second;
     for (auto request = requestsList->begin(); request != requestsList->end(); ) {
-        if ((uid1 == (*request)->GetUid()) && !CheckPermission(*request)) {
+        if ((uid1 == (*request)->GetUid()) && !CheckPermission()) {
             request = requestsList->erase(request);
         } else {
             request++;
@@ -230,13 +228,13 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
     auto requestsList = iter->second;
     auto it = find(requestsList->begin(), requestsList->end(), request);
     if (it != requestsList->end()) {
-        if (active || !CheckPermission(request)) {
+        if (active || !CheckPermission()) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "remove request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);
             requestsList->remove(request);
         }
     } else {
-        if (!active && CheckPermission(request) && request->GetRequestConfig()->GetFixNumber() == 0
+        if (!active && CheckPermission() && request->GetRequestConfig()->GetFixNumber() == 0
             && CheckMaxRequestNum(request->GetUid(), request->GetPackageName())) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);

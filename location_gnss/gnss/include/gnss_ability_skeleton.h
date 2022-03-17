@@ -42,38 +42,16 @@ public:
     virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-};
 
-class GnssAbilityProxy : public IRemoteProxy<IGnssAbility>, public SubAbilityProxy {
-public:
-    explicit GnssAbilityProxy(const sptr<IRemoteObject> &impl);
-    ~GnssAbilityProxy() = default;
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
-    void SetEnable(bool state) override;
-    void RemoteRequest(bool state) override;
-    void RefrashRequirements() override;
-    void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
-        const sptr<IRemoteObject>& callback) override;
-    void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
-
-    int GetCachedGnssLocationsSize() override;
-    void FlushCachedGnssLocations() override;
-    void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
-    void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
-    void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    virtual void ReportGnssSessionStatus(int status) = 0;
+    virtual void ReportNmea(const std::string &nmea) = 0;
+    virtual void ReportSv(const std::unique_ptr<SatelliteStatus> &sv) = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-private:
-    static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS

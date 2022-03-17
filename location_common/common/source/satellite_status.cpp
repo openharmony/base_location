@@ -36,26 +36,26 @@ void SatelliteStatus::ReadFromParcel(Parcel& parcel)
 {
     satellitesNumber_ = parcel.ReadInt64();
     for (int i = 0; i < satellitesNumber_; i++) {
-        satelliteIds_[i] = parcel.ReadInt64();
-        carrierToNoiseDensitys_[i] = parcel.ReadDouble();
-        altitudes_[i] = parcel.ReadDouble();
-        azimuths_[i] = parcel.ReadDouble();
-        carrierFrequencies_[i] = parcel.ReadDouble();
+        satelliteIds_.push_back(parcel.ReadInt64());
+        carrierToNoiseDensitys_.push_back(parcel.ReadDouble());
+        altitudes_.push_back(parcel.ReadDouble());
+        azimuths_.push_back(parcel.ReadDouble());
+        carrierFrequencies_.push_back(parcel.ReadDouble());
     }
 }
 
 bool SatelliteStatus::Marshalling(Parcel& parcel) const
 {
-    parcel.WriteInt64(satellitesNumber_);
+    bool ret = false;
+    ret = parcel.WriteInt64(satellitesNumber_);
     for (int i = 0; i < satellitesNumber_; i++) {
-        parcel.WriteInt64(satelliteIds_[i]);
-        parcel.WriteInt64(satelliteIds_[i]);
-        parcel.WriteDouble(carrierToNoiseDensitys_[i]);
-        parcel.WriteDouble(altitudes_[i]);
-        parcel.WriteDouble(azimuths_[i]);
-        parcel.WriteDouble(carrierFrequencies_[i]);
+        ret = parcel.WriteInt64(satelliteIds_[i]);
+        ret = parcel.WriteDouble(carrierToNoiseDensitys_[i]);
+        ret = parcel.WriteDouble(altitudes_[i]);
+        ret = parcel.WriteDouble(azimuths_[i]);
+        ret = parcel.WriteDouble(carrierFrequencies_[i]);
     }
-    return true;
+    return ret;
 }
 
 std::unique_ptr<SatelliteStatus> SatelliteStatus::Unmarshalling(Parcel& parcel)
