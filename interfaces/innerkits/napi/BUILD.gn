@@ -32,10 +32,10 @@ ohos_shared_library("geolocation") {
   ]
 
   sources = [
-    "//base/location/utils/source/common_utils.cpp",
     "location_napi_adapter.cpp",
     "location_napi_entry.cpp",
     "location_napi_event.cpp",
+    "//base/location/utils/source/common_utils.cpp",
   ]
 
   deps = [
