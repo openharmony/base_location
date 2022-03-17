@@ -32,7 +32,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_passive/passive/include",
     "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/include",
     "$SUBSYSTEM_DIR/utils/include",
-
     "//base/notification/ces_standard/frameworks/core/include",
     "//base/notification/ces_standard/interfaces/innerkits/native/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",

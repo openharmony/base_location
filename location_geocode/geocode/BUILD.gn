@@ -32,7 +32,6 @@ ohos_shared_library("lbsservice_geocode") {
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
     "$SUBSYSTEM_DIR/utils/include",
-    
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//utils/native/base/include",
