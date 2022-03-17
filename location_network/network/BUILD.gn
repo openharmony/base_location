@@ -25,8 +25,7 @@ ohos_shared_library("lbsservice_network") {
   ]
 
   include_dirs = [
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
+    "$SUBSYSTEM_DIR/adapter/services/include",
     "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_common/common/include",
@@ -38,8 +37,7 @@ ohos_shared_library("lbsservice_network") {
     "$SUBSYSTEM_DIR/location_passive/passive/include",
     "$LOCATION_SERVICE_ROOT/visibility/include",
     "$SUBSYSTEM_DIR/utils/include",
-    "$SUBSYSTEM_DIR/adapter/services/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
+    "//base/notification/ces_standard/frameworks/core/include",
     "${aafwk_path}/interfaces/innerkits/want/include",
     "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
@@ -47,7 +45,9 @@ ohos_shared_library("lbsservice_network") {
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
-    "//base/notification/ces_standard/frameworks/core/include",
+    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
+    "//utils/native/base/include",
+    "//utils/system/safwk/native/include",
   ]
 
   deps = [

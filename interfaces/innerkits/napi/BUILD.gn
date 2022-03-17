@@ -18,10 +18,6 @@ SUBSYSTEM_DIR = "//base/location"
 ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
-    "//third_party/node/src",
-    "//native_engine",
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
     "//base/location/interfaces/innerkits/napi",
     "//base/location/interfaces/innerkits/locator_standard/include",
@@ -30,10 +26,14 @@ ohos_shared_library("geolocation") {
     "//base/location/utils/include",
     "//base/security/permission/interfaces/innerkits/permission_standard/permissionsdk/main/cpp/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
+    "//native_engine",
+    "//third_party/node/src",
+    "//utils/native/base/include",
+    "//utils/system/safwk/native/include",
   ]
 
   sources = [
-    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
+    "//base/location/utils/source/common_utils.cpp",
     "location_napi_adapter.cpp",
     "location_napi_entry.cpp",
     "location_napi_event.cpp",
