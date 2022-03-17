@@ -15,18 +15,16 @@ import("//build/ohos.gni")
 
 ################################################################################
 
-SUBSYSTEM_DIR = "//base/location"
-
 ohos_shared_library("locator_sdk") {
   install_enable = true
 
   include_dirs = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/location/interfaces/innerkits/napi",
     "//base/location/interfaces/innerkits/locator_standard/include",
+    "//base/location/interfaces/innerkits/napi",
+    "//base/location/location_common/common/include",
     "//base/location/location_geocode/geocode/include",
     "//base/location/location_locator/callback/include",
-    "//base/location/location_common/common/include",
     "//base/location/utils/include",
     "//base/notification/ces_standard/frameworks/core/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
@@ -50,8 +48,8 @@ ohos_shared_library("locator_sdk") {
   ]
 
   deps = [
-    "//base/location/location_common/common:lbsservice_common",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/location/location_common/common:lbsservice_common",
     "//foundation/ace/napi:ace_napi",
     "//third_party/libuv:uv_static",
     "//utils/native/base:utils",

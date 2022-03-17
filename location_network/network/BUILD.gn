@@ -16,7 +16,6 @@ import("//foundation/appexecfwk/standard/appexecfwk.gni")
 
 SUBSYSTEM_DIR = "//base/location"
 LOCATION_NETWORK_ROOT = "$SUBSYSTEM_DIR/location_network/network"
-LOCATION_SERVICE_ROOT = "$SUBSYSTEM_DIR/services"
 
 ohos_shared_library("lbsservice_network") {
   sources = [
@@ -25,35 +24,33 @@ ohos_shared_library("lbsservice_network") {
   ]
 
   include_dirs = [
-    "$SUBSYSTEM_DIR/adapter/services/include",
     "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/include",
-    "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_common/common/include",
+    "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_locator/distribute/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$LOCATION_SERVICE_ROOT/visibility/include",
     "$SUBSYSTEM_DIR/utils/include",
     "//base/notification/ces_standard/frameworks/core/include",
+    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "${aafwk_path}/interfaces/innerkits/want/include",
     "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",    
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
   ]
 
   deps = [
+    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "//base/notification/ces_standard/frameworks/core:cesfwk_core",
     "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",

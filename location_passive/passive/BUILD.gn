@@ -14,9 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/appexecfwk/standard/appexecfwk.gni")
 
-SUBSYSTEM_DIR = "//base/location"
 LOCATION_PASSIVE_ROOT = "//base/location/location_passive/passive"
-LOCATION_SERVICE_ROOT = "//base/location/services"
 
 ohos_shared_library("lbsservice_passive") {
   sources = [
@@ -26,25 +24,24 @@ ohos_shared_library("lbsservice_passive") {
 
   include_dirs = [
     "//base/location/interfaces/innerkits/locator_standard/include",
-    "//base/location/location_locator/callback/include",
     "//base/location/location_common/common/include",
-    "//base/location/location_locator/distribute/include",
     "//base/location/location_geocode/geocode/include",
     "//base/location/location_gnss/gnss/include",
+    "//base/location/location_locator/callback/include",
+    "//base/location/location_locator/distribute/include",
     "//base/location/location_locator/locator/include",
     "//base/location/location_network/network/include",
     "//base/location/location_passive/passive/include",
     "//base/location/location_passive/passive/visibility/include",
     "//base/location/utils/include",
-    "//base/location/adapter/services/include",
     "//base/notification/ces_standard/frameworks/core/include",
     "//distributedschedule/safwk/include",
+    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
+   "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "${aafwk_path}/interfaces/innerkits/want/include",
     "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//utils/native/base/include",
@@ -52,9 +49,9 @@ ohos_shared_library("lbsservice_passive") {
   ]
 
   deps = [
+    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "//base/location/location_common/common:lbsservice_common",
     "//base/location/location_locator/locator:lbsservice_locator",
-    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "//base/notification/ces_standard/frameworks/core:cesfwk_core",
     "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",

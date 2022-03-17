@@ -15,7 +15,6 @@ import("//build/ohos.gni")
 
 SUBSYSTEM_DIR = "//base/location"
 LOCATION_GEOCONVERT_ROOT = "$SUBSYSTEM_DIR/location_geocode/geocode"
-LOCATION_SERVICE_ROOT = "$SUBSYSTEM_DIR/services"
 
 ohos_shared_library("lbsservice_geocode") {
   sources = [
@@ -24,21 +23,20 @@ ohos_shared_library("lbsservice_geocode") {
   ]
 
   include_dirs = [
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
-    "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_common/common/include",
-    "$SUBSYSTEM_DIR/location_locator/distribute/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
+    "$SUBSYSTEM_DIR/location_locator/callback/include",
+    "$SUBSYSTEM_DIR/location_locator/distribute/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$LOCATION_SERVICE_ROOT/visibility/include",
     "$SUBSYSTEM_DIR/utils/include",
-    "$SUBSYSTEM_DIR/adapter/services/include",
+    
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//utils/native/base/include",
+    "//utils/system/safwk/native/include",
   ]
 
   deps = [

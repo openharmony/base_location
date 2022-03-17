@@ -13,19 +13,18 @@
 
 import("//build/ohos.gni")
 
-SUBSYSTEM_DIR = "//base/location"
-
 ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/location/interfaces/innerkits/napi",
     "//base/location/interfaces/innerkits/locator_standard/include",
+    "//base/location/interfaces/innerkits/napi",
+    
     "//base/location/location_common/common/include",
     "//base/location/location_locator/callback/include",
     "//base/location/utils/include",
-    "//base/security/permission/interfaces/innerkits/permission_standard/permissionsdk/main/cpp/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
+    "//base/security/permission/interfaces/innerkits/permission_standard/permissionsdk/main/cpp/include",
     "//native_engine",
     "//third_party/node/src",
     "//utils/native/base/include",
