@@ -19,7 +19,6 @@ ohos_shared_library("geolocation") {
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
     "//base/location/interfaces/innerkits/locator_standard/include",
     "//base/location/interfaces/innerkits/napi",
-    
     "//base/location/location_common/common/include",
     "//base/location/location_locator/callback/include",
     "//base/location/utils/include",
