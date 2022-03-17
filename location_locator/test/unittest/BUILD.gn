@@ -39,7 +39,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "${aafwk_path}/interfaces/innerkits/want/include",
     "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
