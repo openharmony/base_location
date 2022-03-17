@@ -19,13 +19,13 @@ LOCATION_SERVICE_ROOT = "$SUBSYSTEM_DIR/services"
 
 ohos_shared_library("lbsservice_common") {
   sources = [
-    "$LOCATION_COMMON_ROOT/source/location.cpp",
-    "$LOCATION_COMMON_ROOT/source/request_config.cpp",
     "$LOCATION_COMMON_ROOT/source/geo_address.cpp",
-    "$LOCATION_COMMON_ROOT/source/location_config_manager.cpp",
-    "$LOCATION_COMMON_ROOT/source/satellite_status.cpp",
     "$LOCATION_COMMON_ROOT/source/geofence_state.cpp",
+    "$LOCATION_COMMON_ROOT/source/location.cpp",
+    "$LOCATION_COMMON_ROOT/source/location_config_manager.cpp",
     "$LOCATION_COMMON_ROOT/source/location_dumper.cpp",
+    "$LOCATION_COMMON_ROOT/source/request_config.cpp",
+    "$LOCATION_COMMON_ROOT/source/satellite_status.cpp",
     "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
   ]
 
@@ -47,19 +47,19 @@ ohos_shared_library("lbsservice_common") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
-    "access_token:libaccesstoken_sdk",
-    "startup_l2:syspara",
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "startup_l2:syspara",
   ]
 
   part_name = "location_common"

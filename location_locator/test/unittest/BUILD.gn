@@ -48,32 +48,32 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "//base/notification/ces_standard/interfaces/innerkits/native/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include",
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include"
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
-    "//third_party/googletest:gtest_main",
     "${aafwk_path}/interfaces/innerkits/base:base",
     "${aafwk_path}/interfaces/innerkits/want:want",
-    "//utils/native/base:utils",
+    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
+    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
+    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
+    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//foundation/ace/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
+    "//third_party/googletest:gtest_main",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "ipc:ipc_core",
     "ces_standard:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
   ]

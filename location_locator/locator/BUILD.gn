@@ -20,28 +20,28 @@ LOCATION_SERVICE_ROOT = "$SUBSYSTEM_DIR/services"
 ohos_shared_library("lbsservice_locator") {
   sources = [
     "$SUBSYSTEM_DIR/location_locator/callback/source/adapter_callback_skeleton.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_ability.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_background_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_subscriber.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_skeleton.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/request.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
-    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
     "$SUBSYSTEM_DIR/utils/source/common_hisysevent.cpp",
+    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
   ]
 
   include_dirs = [
@@ -71,34 +71,34 @@ ohos_shared_library("lbsservice_locator") {
     "//base/notification/ces_standard/interfaces/innerkits/native/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include",
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include"
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
-    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "${aafwk_path}/interfaces/innerkits/base:base",
     "${aafwk_path}/interfaces/innerkits/want:want",
-    "//utils/native/base:utils",
+    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
+    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
+    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
+    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//foundation/ace/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "ipc:ipc_core",
+    "access_token:libaccesstoken_sdk",
     "ces_standard:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "permission_standard:libpermissionsdk_standard",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
-    "permission_standard:libpermissionsdk_standard",
-    "access_token:libaccesstoken_sdk",
   ]
 
   part_name = "location_locator"

@@ -29,37 +29,37 @@ ohos_shared_library("geolocation") {
     "//base/location/location_locator/callback/include",
     "//base/location/utils/include",
     "//base/security/permission/interfaces/innerkits/permission_standard/permissionsdk/main/cpp/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include"
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
   sources = [
-    "location_napi_adapter.cpp" ,
-    "location_napi_entry.cpp" ,
-    "location_napi_event.cpp" ,
     "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
+    "location_napi_adapter.cpp",
+    "location_napi_entry.cpp",
+    "location_napi_event.cpp",
   ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//foundation/ace/napi:ace_napi",
     "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "//base/location/location_common/common:lbsservice_common",
-    "//utils/native/base:utils",
+    "//foundation/ace/napi:ace_napi",
     "//third_party/libuv:uv_static",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "ipc:ipc_core",
-    "ces_standard:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
-    "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
-    "permission_standard:libpermissionsdk_standard",
-    "access_token:libaccesstoken_sdk",
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "permission_standard:libpermissionsdk_standard",
+    "samgr_standard:samgr_proxy",
+    "startup_l2:syspara",
   ]
 
   relative_install_dir = "module"

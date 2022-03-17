@@ -38,20 +38,20 @@ ohos_shared_library("lbsservice_geocode") {
     "$SUBSYSTEM_DIR/utils/include",
     "$SUBSYSTEM_DIR/adapter/services/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include"
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
-    "//utils/native/base:utils",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
     "samgr_standard:samgr_proxy",
   ]
 

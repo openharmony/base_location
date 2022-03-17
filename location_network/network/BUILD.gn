@@ -54,19 +54,19 @@ ohos_shared_library("lbsservice_network") {
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
-    "//utils/native/base:utils",
+    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
+    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ces_standard:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
   ]
   part_name = "location_network"
   subsystem_name = "location"
