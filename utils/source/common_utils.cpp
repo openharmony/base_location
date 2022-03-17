@@ -102,7 +102,6 @@ bool CommonUtils::CheckPermission(const std::string &permission)
         LBSLOGD(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
         return false;
     }
-    return true;
 }
 
 bool CommonUtils::CheckBackgroundPermission()
