@@ -41,16 +41,16 @@ ohos_shared_library("lbsservice_network") {
     "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
     "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",    
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
   ]
 
   deps = [
-    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+    "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "//base/notification/ces_standard/frameworks/core:cesfwk_core",
     "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",

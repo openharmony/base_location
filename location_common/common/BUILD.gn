@@ -18,8 +18,8 @@ LOCATION_COMMON_ROOT = "$SUBSYSTEM_DIR/location_common/common"
 
 ohos_shared_library("lbsservice_common") {
   sources = [
-    "$LOCATION_COMMON_ROOT/source/geofence_state.cpp",
     "$LOCATION_COMMON_ROOT/source/geo_address.cpp",
+    "$LOCATION_COMMON_ROOT/source/geofence_state.cpp",
     "$LOCATION_COMMON_ROOT/source/location.cpp",
     "$LOCATION_COMMON_ROOT/source/location_config_manager.cpp",
     "$LOCATION_COMMON_ROOT/source/location_dumper.cpp",

@@ -37,7 +37,7 @@ ohos_shared_library("lbsservice_passive") {
     "//base/notification/ces_standard/frameworks/core/include",
     "//distributedschedule/safwk/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
-   "//foundation/aafwk/standard/interfaces/innerkits/base/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "${aafwk_path}/interfaces/innerkits/want/include",
     "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
     "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",

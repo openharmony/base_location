@@ -44,6 +44,7 @@ const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_2_SECONDS = 2 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
+const uint32_t SET_ENABLE = 3;
 const uint32_t GET_CACHED_LOCATION = 2;
 const uint32_t REG_GNSS_STATUS = 7;
 const uint32_t UNREG_GNSS_STATUS = 8;
@@ -299,20 +300,22 @@ void LocatorAbility::UpdateSaAbilityHandler()
         return;
     }
     DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnProviderSwitch(isEnabled_);
-    std::unique_ptr<GnssAbilityProxy> gnssProxy =
-        std::make_unique<GnssAbilityProxy>(CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
-    std::unique_ptr<NetworkAbilityProxy> networkProxy =
-        std::make_unique<NetworkAbilityProxy>(CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
-    std::unique_ptr<PassiveAbilityProxy> passiveProxy =
-        std::make_unique<PassiveAbilityProxy>(CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
-    if (gnssProxy != nullptr) {
-        gnssProxy->SetEnable(isEnabled_);
-    }
-    if (networkProxy != nullptr) {
-        networkProxy->SetEnable(isEnabled_);
-    }
-    if (passiveProxy != nullptr) {
-        passiveProxy->SetEnable(isEnabled_);
+    for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
+        sptr<IRemoteObject> remoteObject = iter->second;
+        MessageParcel data;
+        if (iter->first == GNSS_ABILITY) {
+            data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+        } else if (iter->first == NETWORK_ABILITY) {
+            data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
+        } else if (iter->first == PASSIVE_ABILITY) {
+            data.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
+        }
+        data.WriteBool(isEnabled_);
+
+        MessageParcel reply;
+        MessageOption option;
+        int error = remoteObject->SendRequest(SET_ENABLE, data, reply, option);
+        LBSLOGD(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
     }
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
