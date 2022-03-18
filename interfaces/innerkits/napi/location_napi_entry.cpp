@@ -21,27 +21,6 @@
 namespace OHOS {
 namespace Location {
 /*
- * Event class initialization function
- */
-static void InitEventClass(napi_env& env, napi_value& exports)
-{
-    const char className[] = "LocationEventListener";
-    napi_property_descriptor properties[] = {
-        DECLARE_NAPI_FUNCTION("on", On),
-        DECLARE_NAPI_FUNCTION("off", Off),
-        DECLARE_NAPI_FUNCTION("getCurrentLocation", GetCurrentLocation),
-    };
-
-    napi_value locationEventListenerClass = nullptr;
-    napi_define_class(env, className, sizeof(className), LocationEventListenerConstructor, nullptr,
-        sizeof(properties) / sizeof(napi_property_descriptor), properties, &locationEventListenerClass);
-    napi_status status = napi_set_named_property(env, exports, "LocationEventListener", locationEventListenerClass);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATION_NAPI, "Init event class set property error.");
-    }
-}
-
-/*
  * Module initialization function
  */
 static napi_value Init(napi_env env, napi_value exports)
@@ -61,11 +40,13 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setLocationPrivacyConfirmStatus", SetLocationPrivacyConfirmStatus),
         DECLARE_NAPI_FUNCTION("getCachedGnssLocationsSize", GetCachedGnssLocationsSize),
         DECLARE_NAPI_FUNCTION("flushCachedGnssLocations", FlushCachedGnssLocations),
-        DECLARE_NAPI_FUNCTION("sendCommand", SendCommand)
+        DECLARE_NAPI_FUNCTION("sendCommand", SendCommand),
+        DECLARE_NAPI_FUNCTION("on", On),
+        DECLARE_NAPI_FUNCTION("off", Off),
+        DECLARE_NAPI_FUNCTION("getCurrentLocation", GetCurrentLocation),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
-    InitEventClass(env, exports);
     return exports;
 }
 

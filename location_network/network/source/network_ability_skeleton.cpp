@@ -21,37 +21,6 @@
 
 namespace OHOS {
 namespace Location {
-NetworkAbilityProxy::NetworkAbilityProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<INetworkAbility>(impl)
-{
-    SetProxy(NETWORK_ABILITY, AsObject());
-}
-
-void NetworkAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
-{
-    SendRequest(interval, workrecord);
-}
-
-std::unique_ptr<Location> NetworkAbilityProxy::GetCachedLocation()
-{
-    return GetCache();
-}
-
-void NetworkAbilityProxy::SetEnable(bool state)
-{
-    Enable(state);
-}
-
-void NetworkAbilityProxy::SelfRequest(bool state)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    data.WriteBool(state);
-    int error = Remote()->SendRequest(SELF_REQUEST, data, reply, option);
-    LBSLOGD(NETWORK, "Proxy::SelfRequest Transact ErrCodes = %{public}d", error);
-}
-
 int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -61,6 +30,10 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
     if (lastCallinguid > SYSTEM_UID) {
         LBSLOGE(NETWORK, "this remote request is not allowed");
+        return EXCEPTION;
+    }
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(NETWORK, "invalid token.");
         return EXCEPTION;
     }
 

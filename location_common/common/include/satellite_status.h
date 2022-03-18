@@ -49,16 +49,26 @@ public:
         }
     }
 
+    inline void SetSatelliteId(int id)
+    {
+        satelliteIds_.push_back(id);
+    }
+
     inline std::vector<double> GetCarrierToNoiseDensitys() const
     {
         return carrierToNoiseDensitys_;
     }
 
-    inline void SetCarrierToNoiseDensitys(std::vector<double> ids)
+    inline void SetCarrierToNoiseDensitys(std::vector<double> cn0)
     {
-        for (std::vector<double>::iterator it = ids.begin(); it != ids.end(); ++it) {
+        for (std::vector<double>::iterator it = cn0.begin(); it != cn0.end(); ++it) {
             carrierToNoiseDensitys_.push_back(*it);
         }
+    }
+
+    inline void SetCarrierToNoiseDensity(double cn0)
+    {
+        carrierToNoiseDensitys_.push_back(cn0);
     }
 
     inline std::vector<double> GetAltitudes() const
@@ -73,6 +83,11 @@ public:
         }
     }
 
+    inline void SetAltitude(double altitude)
+    {
+        altitudes_.push_back(altitude);
+    }
+
     inline std::vector<double> GetAzimuths() const
     {
         return azimuths_;
@@ -85,17 +100,28 @@ public:
         }
     }
 
+    inline void SetAzimuth(double azimuth)
+    {
+        azimuths_.push_back(azimuth);
+    }
+
     inline std::vector<double> GetCarrierFrequencies() const
     {
         return carrierFrequencies_;
     }
 
-    inline void SetCarrierFrequencies(std::vector<double> ids)
+    inline void SetCarrierFrequencies(std::vector<double> cfs)
     {
-        for (std::vector<double>::iterator it = ids.begin(); it != ids.end(); ++it) {
+        for (std::vector<double>::iterator it = cfs.begin(); it != cfs.end(); ++it) {
             carrierFrequencies_.push_back(*it);
         }
     }
+
+    inline void SetCarrierFrequencie(double cf)
+    {
+        carrierFrequencies_.push_back(cf);
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<SatelliteStatus> Unmarshalling(Parcel& parcel);

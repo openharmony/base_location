@@ -83,10 +83,10 @@ void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteSta
             idx1++;
         }
         SetValueStringArray(env, "satelliteIds", satelliteIdsArray, result);
-        SetValueStringArray(env, "carrierToNoiseDensitys", satelliteIdsArray, result);
-        SetValueStringArray(env, "altitudes", satelliteIdsArray, result);
-        SetValueStringArray(env, "azimuths", satelliteIdsArray, result);
-        SetValueStringArray(env, "carrierFrequencies", satelliteIdsArray, result);
+        SetValueStringArray(env, "carrierToNoiseDensitys", cn0Array, result);
+        SetValueStringArray(env, "altitudes", altitudesArray, result);
+        SetValueStringArray(env, "azimuths", azimuthsArray, result);
+        SetValueStringArray(env, "carrierFrequencies", carrierFrequenciesArray, result);
     }
 }
 
@@ -116,6 +116,8 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt64(env, "timeStamp", locationInfo->GetTimeStamp(), result);
     SetValueDouble(env, "direction", locationInfo->GetDirection(), result);
     SetValueInt64(env, "timeSinceBoot", locationInfo->GetTimeSinceBoot(), result);
+    SetValueUtf8String(env, "additions", "GNSS", result);
+    SetValueInt64(env, "additionSize", 1, result);
 }
 
 bool GeoAddressesToJsObj(const napi_env& env,
@@ -256,6 +258,9 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
     if (maxLongitude < -180.0 || maxLongitude > 180.0) {
         return false;
     }
+    if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
+        return false;
+    }
     std::string str = "";
     dataParcel.WriteString(description);
     dataParcel.WriteDouble(minLatitude); // latitude
@@ -290,6 +295,9 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
         return false;
     }
     std::string str = "";
+    if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
+        return false;
+    }
     dataParcel.WriteDouble(latitude); // latitude
     dataParcel.WriteDouble(longitude); // longitude
     dataParcel.WriteInt32(maxItems); // maxItems

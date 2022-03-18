@@ -21,27 +21,6 @@
 
 namespace OHOS {
 namespace Location {
-PassiveAbilityProxy::PassiveAbilityProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<IPassiveAbility>(impl)
-{
-    SetProxy(PASSIVE_ABILITY, AsObject());
-}
-
-void PassiveAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
-{
-    SendRequest(interval, workrecord);
-}
-
-std::unique_ptr<Location> PassiveAbilityProxy::GetCachedLocation()
-{
-    return GetCache();
-}
-
-void PassiveAbilityProxy::SetEnable(bool state)
-{
-    Enable(state);
-}
-
 int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -51,6 +30,10 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
     if (lastCallinguid > SYSTEM_UID) {
         LBSLOGE(PASSIVE, "this remote request is not allowed");
+        return EXCEPTION;
+    }
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(PASSIVE, "invalid token.");
         return EXCEPTION;
     }
 

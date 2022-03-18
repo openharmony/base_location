@@ -25,7 +25,6 @@ GnssStatusCallbackHost::GnssStatusCallbackHost()
 {
     m_env = nullptr;
     m_handlerCb = nullptr;
-    m_thisVarRef = nullptr;
     m_remoteDied = false;
     m_lastCallingPid = 0;
     m_lastCallingUid = 0;
@@ -39,6 +38,10 @@ int GnssStatusCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     LBSLOGD(GNSS_STATUS_CALLBACK, "GnssStatusCallbackHost::OnRemoteRequest!");
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(GNSS_STATUS_CALLBACK, "invalid token.");
+        return -1;
+    }
     if (m_remoteDied) {
         LBSLOGD(GNSS_STATUS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
@@ -91,8 +94,11 @@ bool GnssStatusCallbackHost::Send(const std::unique_ptr<SatelliteStatus>& status
         return false;
     }
     JsContext *context = new (std::nothrow) JsContext(m_env);
+    if (context == nullptr) {
+        LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
+        return false;
+    }
     context->m_env = m_env;
-    context->m_thisVarRef = m_thisVarRef;
     context->m_handlerCb = m_handlerCb;
     context->m_jsEvent = jsEvent;
     work->data = context;
@@ -121,13 +127,11 @@ bool GnssStatusCallbackHost::Send(const std::unique_ptr<SatelliteStatus>& status
                 return;
             }
             if (context->m_handlerCb != nullptr) {
-                napi_value thisVar = nullptr;
-                napi_get_reference_value(context->m_env, context->m_thisVarRef, &thisVar);
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->m_env, &undefine);
                 napi_get_reference_value(context->m_env, context->m_handlerCb, &handler);
-                if (napi_call_function(context->m_env, thisVar, handler, 1,
+                if (napi_call_function(context->m_env, nullptr, handler, 1,
                     &context->m_jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(GNSS_STATUS_CALLBACK, "Report event failed");
                 }

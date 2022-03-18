@@ -21,202 +21,6 @@
 
 namespace OHOS {
 namespace Location {
-GnssAbilityProxy::GnssAbilityProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<IGnssAbility>(impl)
-{
-    SetProxy(GNSS_ABILITY, AsObject());
-}
-
-void GnssAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
-{
-    SendRequest(interval, workrecord);
-}
-
-std::unique_ptr<Location> GnssAbilityProxy::GetCachedLocation()
-{
-    return GetCache();
-}
-
-void GnssAbilityProxy::SetEnable(bool state)
-{
-    Enable(state);
-}
-
-void GnssAbilityProxy::RemoteRequest(bool state)
-{
-    MessageParcel data;
-    data.WriteBool(state);
-
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    int error = Remote()->SendRequest(ISubAbility::HANDLE_REMOTE_REQUEST, data, reply, option);
-    LBSLOGD(GNSS, "RemoteRequest Transact ErrCode = %{public}d", error);
-}
-
-void GnssAbilityProxy::RefrashRequirements()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    int error = Remote()->SendRequest(ISubAbility::REFRESH_REQUESTS, data, reply, option);
-    LBSLOGD(GNSS, "RefrashRequirements Transact ErrCode = %{public}d", error);
-}
-
-void GnssAbilityProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::REG_GNSS_STATUS, data, reply, option);
-    LBSLOGD(GNSS, "RegisterGnssStatusCallback Transact ErrCode = %{public}d", error);
-}
-
-void GnssAbilityProxy::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::UNREG_GNSS_STATUS, data, reply, option);
-    LBSLOGD(GNSS, "UnregisterGnssStatusCallback Transact ErrCode = %{public}d", error);
-}
-
-void GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::REG_NMEA, data, reply, option);
-    LBSLOGD(GNSS, "RegisterNmeaMessageCallback Transact ErrCode = %{public}d", error);
-}
-
-void GnssAbilityProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::UNREG_NMEA, data, reply, option);
-    LBSLOGD(GNSS, "UnregisterNmeaMessageCallback Transact ErrCode = %{public}d", error);
-}
-
-void GnssAbilityProxy::RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
-    const sptr<IRemoteObject>& callback)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    data.WriteInt32(request->reportingPeriodSec);
-    data.WriteBool(request->wakeUpCacheQueueFull);
-    data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::REG_CACHED, data, reply, option);
-    LBSLOGD(GNSS, "RegisterCachedCallback Transact ErrCode = %{public}d", error);
-}
-
-void GnssAbilityProxy::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::UNREG_CACHED, data, reply, option);
-    LBSLOGD(GNSS, "UnregisterCachedCallback Transact ErrCode = %{public}d", error);
-}
-
-int GnssAbilityProxy::GetCachedGnssLocationsSize()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "GetCachedGnssLocationsSize remote is null");
-        return EXCEPTION;
-    }
-
-    int error = remote->SendRequest(ISubAbility::GET_CACHED_SIZE, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetCachedGnssLocationsSize Transact ErrCode = %{public}d", error);
-    int size = 0;
-    if (error == NO_ERROR) {
-        size = reply.ReadInt32();
-    }
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetCachedGnssLocationsSize return  %{public}d", size);
-    return size;
-}
-
-void GnssAbilityProxy::FlushCachedGnssLocations()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "FlushCachedGnssLocations remote is null");
-        return;
-    }
-    int error = remote->SendRequest(ISubAbility::FLUSH_CACHED, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", error);
-}
-
-void GnssAbilityProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    data.WriteInt32(commands->scenario);
-    data.WriteString16(Str8ToStr16(commands->command));
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "SendCommand remote is null");
-        return;
-    }
-    int error = remote->SendRequest(ISubAbility::SEND_COMMANDS, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::SendCommand Transact ErrCodes = %{public}d", error);
-}
-
-void GnssAbilityProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    data.WriteInt32(request->priority);
-    data.WriteInt32(request->scenario);
-    data.WriteDouble(request->geofence.latitude);
-    data.WriteDouble(request->geofence.longitude);
-    data.WriteDouble(request->geofence.radius);
-    data.WriteDouble(request->geofence.expiration);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "AddFence remote is null");
-        return;
-    }
-    int error = remote->SendRequest(ISubAbility::ADD_FENCE_INFO, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::AddFence Transact ErrCodes = %{public}d", error);
-}
-
-void GnssAbilityProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    data.WriteInt32(request->priority);
-    data.WriteInt32(request->scenario);
-    data.WriteDouble(request->geofence.latitude);
-    data.WriteDouble(request->geofence.longitude);
-    data.WriteDouble(request->geofence.radius);
-    data.WriteDouble(request->geofence.expiration);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "RemoveFence remote is null");
-        return;
-    }
-    int error = remote->SendRequest(ISubAbility::REMOVE_FENCE_INFO, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
-}
-
 int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -226,6 +30,10 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
     if (lastCallinguid > SYSTEM_UID) {
         LBSLOGE(GNSS, "this remote request is not allowed");
+        return EXCEPTION;
+    }
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(GNSS, "invalid token.");
         return EXCEPTION;
     }
 
@@ -303,6 +111,21 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             locationCommand->scenario =  data.ReadInt32();
             locationCommand->command = data.ReadBool();
             SendCommand(locationCommand);
+            break;
+        }
+        case REPORT_GNSS_SESSION_STATUS: {
+            int status = data.ReadInt32();
+            ReportGnssSessionStatus(status);
+            break;
+        }
+        case REPORT_NMEA: {
+            std::string nmea = data.ReadString();
+            ReportNmea(nmea);
+            break;
+        }
+        case REPORT_SV: {
+            std::unique_ptr<SatelliteStatus> sv = SatelliteStatus::Unmarshalling(data);
+            ReportSv(sv);
             break;
         }
         default:

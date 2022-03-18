@@ -36,7 +36,6 @@ public:
     void DeleteHandler();
 
     napi_env m_env;
-    napi_ref m_thisVarRef;
     napi_ref m_handlerCb;
     bool m_remoteDied;
     std::shared_mutex m_mutex;

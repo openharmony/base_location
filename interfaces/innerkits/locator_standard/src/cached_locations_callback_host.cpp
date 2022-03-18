@@ -25,7 +25,6 @@ CachedLocationsCallbackHost::CachedLocationsCallbackHost()
 {
     m_env = nullptr;
     m_handlerCb = nullptr;
-    m_thisVarRef = nullptr;
     m_remoteDied = false;
 }
 
@@ -37,6 +36,10 @@ int CachedLocationsCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     LBSLOGD(CACHED_LOCATIONS_CALLBACK, "CachedLocationsCallbackHost::OnRemoteRequest!");
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "invalid token.");
+        return -1;
+    }
     if (m_remoteDied) {
         LBSLOGD(CACHED_LOCATIONS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
@@ -89,8 +92,11 @@ bool CachedLocationsCallbackHost::Send(const std::vector<std::unique_ptr<Locatio
         return false;
     }
     JsContext *context = new (std::nothrow) JsContext(m_env);
+    if (context == nullptr) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
+        return false;
+    }
     context->m_env = m_env;
-    context->m_thisVarRef = m_thisVarRef;
     context->m_handlerCb = m_handlerCb;
     context->m_jsEvent = jsEvent;
     work->data = context;
@@ -118,13 +124,11 @@ bool CachedLocationsCallbackHost::Send(const std::vector<std::unique_ptr<Locatio
                 return;
             }
             if (context->m_handlerCb != nullptr) {
-                napi_value thisVar = nullptr;
-                napi_get_reference_value(context->m_env, context->m_thisVarRef, &thisVar);
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->m_env, &undefine);
                 napi_get_reference_value(context->m_env, context->m_handlerCb, &handler);
-                if (napi_call_function(context->m_env, thisVar, handler, 1,
+                if (napi_call_function(context->m_env, nullptr, handler, 1,
                     &context->m_jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(CACHED_LOCATIONS_CALLBACK, "Report event failed");
                 }
