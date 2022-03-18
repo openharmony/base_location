@@ -45,8 +45,12 @@ public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     void OnLocationChange(const std::unique_ptr<Location>& location) override;
+    void OnSvStatusChange(const std::unique_ptr<SatelliteStatus> &sv);
+    void OnStatusChange(unsigned int gnssSessionStatus);
+    void OnNmeaChange(int64_t timestamp, const std::string &nmea);
     std::string GetAbilityName();
     void GetRemoteLocatorProxy(std::string deviceId);
+    void init(std::string abilityName);
 private:
     OHOS::HiviewDFX::HiLogLabel label_;
     std::unique_ptr<LocatorProxy> proxyLocator_;

@@ -74,38 +74,44 @@ bool CommonUtils::CheckLocatorInterfaceToken(std::u16string descripter, MessageP
     return true;
 }
 
-bool CommonUtils::CheckLocationPermission(pid_t pid, pid_t uid)
+bool CommonUtils::CheckLocationPermission()
 {
-    auto tokenCaller = IPCSkeleton::GetCallingTokenID();
-    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, ACCESS_LOCATION);
-    if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+    return CheckPermission(ACCESS_LOCATION);
+}
+
+bool CommonUtils::CheckPermission(const std::string &permission)
+{
+    auto callerToken = IPCSkeleton::GetCallingTokenID();
+    auto tokenFirstCaller = IPCSkeleton::GetFirstTokenID();
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
+    int result = Security::AccessToken::PERMISSION_DENIED;
+    if (tokenFirstCaller == 0) {
+        if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+            result = Security::AccessToken::AccessTokenKit::VerifyNativeToken(callerToken, permission);
+        } else if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
+            result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
+        } else {
+            LBSLOGE(COMMON_UTILS, "invalid callerToken");
+        }
+    } else {
+        result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, tokenFirstCaller, permission);
+    }
+    if (result == Security::AccessToken::PERMISSION_GRANTED) {
         return true;
     } else {
-        LBSLOGD(COMMON_UTILS, "callerToken=0x%{public}x has no permission_name=ACCESS_LOCATION", tokenCaller);
+        LBSLOGD(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
         return false;
     }
 }
 
-bool CommonUtils::CheckBackgroundPermission(pid_t pid, pid_t uid)
+bool CommonUtils::CheckBackgroundPermission()
 {
-    auto tokenCaller = IPCSkeleton::GetCallingTokenID();
-    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, ACCESS_BACKGROUND_LOCATION);
-    if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-        return true;
-    } else {
-        LBSLOGD(COMMON_UTILS, "callerToken=0x%{public}x has no permission_name=ACCESS_BACKGROUND_LOCATION", tokenCaller);
-        return false;
-    }
+    return CheckPermission(ACCESS_BACKGROUND_LOCATION);
 }
 
-bool CommonUtils::CheckLocationPermission(const std::string& permissionName, const std::string& appIdInfo)
+bool CommonUtils::CheckSecureSettings()
 {
-    return true;
-}
-
-bool CommonUtils::CheckSecureSettings(pid_t pid, pid_t uid)
-{
-    return true;
+    return CheckPermission(MANAGE_SECURE_SETTINGS);
 }
 
 int CommonUtils::AbilityConvertToId(const std::string ability)

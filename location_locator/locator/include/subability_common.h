@@ -50,22 +50,13 @@ public:
         SEND_COMMANDS = 15,
         ADD_FENCE_INFO = 16,
         REMOVE_FENCE_INFO = 17,
+        REPORT_GNSS_SESSION_STATUS = 18,
+        REPORT_SV = 19,
+        REPORT_NMEA = 20,
     };
     virtual void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) = 0;
     virtual std::unique_ptr<Location> GetCachedLocation() = 0;
     virtual void SetEnable(bool state) = 0;
-};
-
-class SubAbilityProxy {
-public:
-    void SetProxy(std::string name, sptr<IRemoteObject> proxy);
-    void SendRequest(uint64_t interval, WorkRecord &workrecord);
-    std::unique_ptr<Location> GetCache();
-    void Enable(bool state);
-
-private:
-    OHOS::HiviewDFX::HiLogLabel label_;
-    sptr<IRemoteObject> proxy_;
 };
 
 class SubAbility {

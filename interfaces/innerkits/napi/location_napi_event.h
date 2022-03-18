@@ -29,55 +29,39 @@
 
 namespace OHOS {
 namespace Location {
-class EventManager {
-public:
-    EventManager(napi_env env, napi_value thisVar);
-    virtual ~EventManager();
-    void SubscribeLocationServiceState(const std::string& name, napi_value& handler);
-    bool IsCallbackEquals(napi_value& handler, napi_ref& savedCallback);
-    void UnSubscribeLocationServiceState();
-    void SubscribeLocationChange(const std::string& name, const napi_value& object, napi_value& handler, int fixNumber);
-    void GetCallbackType(napi_env env, const size_t argc, const napi_value* argv, bool& isCallbackType,
-        size_t& nonCallbackArgNum);
-    void GenRequestConfig(napi_env env, const napi_value* argv,
-        size_t& nonCallbackArgNum, std::unique_ptr<RequestConfig>& requestConfig);
-    void GetTimeoutParam(napi_env env, const napi_value* argv,
-        size_t& nonCallbackArgNum, int& timeout);
-    napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value* argv);
-    void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback);
-    void DeleteHanderRef(napi_value& handler);
+void SubscribeLocationServiceState(napi_env env, const std::string& name,
+    napi_value& handler, sptr<LocationSwitchCallbackHost>& switchCallbackHost);
+void SubscribeGnssStatus(napi_env env, napi_value& handler,
+    sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
+void SubscribeNmeaMessage(napi_env env, napi_value& handler,
+    sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
+void SubscribeLocationChange(napi_env env, const napi_value& object,
+    napi_value& handler, int fixNumber, sptr<LocatorCallbackHost>& locatorCallbackHost);
+void SubscribeCacheLocationChange(napi_env env, const napi_value& object,
+    napi_value& handler, sptr<CachedLocationsCallbackHost>& cachedCallbackHost);
+void SubscribeFenceStatusChange(napi_env env, const napi_value& object, napi_value& handler);
 
-    void SubscribeGnssStatus(const std::string& name, napi_value& handler);
-    void SubscribeNmeaMessage(const std::string& name, napi_value& handler);
-    void UnSubscribeGnssStatus();
-    void UnSubscribeNmeaMessage();
 
-    void SubscribeCacheLocationChange(const std::string& name, const napi_value& object, napi_value& handler);
-    void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback);
+void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback);
+void UnSubscribeFenceStatusChange(napi_env env, const napi_value& object, napi_value& handler);
+void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback);
+void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost);
+void UnSubscribeGnssStatus(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
+void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
 
-    void SubscribeFenceStatusChange(const std::string& name, const napi_value& object, napi_value& handler);
-    void UnSubscribeFenceStatusChange(const std::string& name, const napi_value& object, napi_value& handler);
 
-    napi_env m_env;
-    napi_ref m_thisVarRef;
-    sptr<LocatorCallbackHost> m_locatorCallbackHost;
-    sptr<LocatorCallbackHost> m_singleLocatorCallbackHost;
-    sptr<LocationSwitchCallbackHost> m_switchCallbackHost;
-    sptr<ILocatorCallback> m_locatorCallback;
-    sptr<ILocatorCallback> m_singleLocatorCallback;
-    sptr<ISwitchCallback> m_switchCallback;
-    sptr<GnssStatusCallbackHost> m_gnssStatusCallbackHost;
-    sptr<NmeaMessageCallbackHost> m_nmeaMessageCallbackHost;
-    sptr<CachedLocationsCallbackHost> m_cachedCallbackHost;
-    sptr<ICachedLocationsCallback> m_cachedCallback;
+bool IsCallbackEquals(napi_env env, napi_value& handler, napi_ref& savedCallback);
+void GetTimeoutParam(napi_env env, const napi_value* argv,
+    size_t& nonCallbackArgNum, int& timeout);
+void GenRequestConfig(napi_env env, const napi_value* argv,
+    size_t& nonCallbackArgNum, std::unique_ptr<RequestConfig>& requestConfig);
+void GetCallbackType(napi_env env, const size_t argc, const napi_value* argv, bool& isCallbackType,
+    size_t& nonCallbackArgNum);
 
-    std::vector<GeoFenceState*> mFences;
-};
-
+napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value* argv);
 napi_value On(napi_env env, napi_callback_info cbinfo);
 napi_value Off(napi_env env, napi_callback_info cbinfo);
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo);
-napi_value LocationEventListenerConstructor(napi_env env, napi_callback_info cbinfo);
 }  // namespace Location
 }  // namespace OHOS
 

@@ -49,7 +49,7 @@ private:
     void SubscribeUserSwtichThread();
     void InitArgsFromProp();
 
-    bool CheckPermission(const std::shared_ptr<Request>& request) const;
+    bool CheckPermission() const;
     bool CheckMaxRequestNum(int32_t uid, const std::string& packageName) const;
     int32_t GetUserId(int32_t uid) const;
     const std::list<std::shared_ptr<Request>>& GetRequestsInProxy() const;

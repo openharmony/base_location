@@ -20,38 +20,6 @@
 
 namespace OHOS {
 namespace Location {
-GeoConvertProxy::GeoConvertProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<IGeoConvert>(impl)
-{
-}
-
-int GeoConvertProxy::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply)
-{
-    int error;
-    MessageOption option;
-    error = Remote()->SendRequest(IS_AVAILABLE, data, reply, option);
-    LBSLOGI(GEO_CONVERT, "IsGeoConvertAvailable result from server");
-    return error;
-}
-
-int GeoConvertProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
-{
-    int error;
-    MessageOption option;
-    error = Remote()->SendRequest(GET_FROM_COORDINATE, data, reply, option);
-    LBSLOGI(GEO_CONVERT, "GetAddressByCoordinate result from server.");
-    return error;
-}
-
-int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
-{
-    int error;
-    MessageOption option;
-    error = Remote()->SendRequest(GET_FROM_LOCATION_NAME_BY_BOUNDARY, data, reply, option);
-    LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
-    return error;
-}
-
 int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -62,6 +30,10 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     if (callingUid > SYSTEM_UID) {
         LBSLOGE(GEO_CONVERT, "this remote request is not allowed");
         return -1;
+    }
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(PASSIVE, "invalid token.");
+        return EXCEPTION;
     }
 
     int ret;

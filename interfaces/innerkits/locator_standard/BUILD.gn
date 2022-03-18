@@ -15,57 +15,55 @@ import("//build/ohos.gni")
 
 ################################################################################
 
-SUBSYSTEM_DIR = "//base/location"
-
 ohos_shared_library("locator_sdk") {
   install_enable = true
 
   include_dirs = [
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
+    "//base/location/interfaces/innerkits/locator_standard/include",
+    "//base/location/interfaces/innerkits/napi",
+    "//base/location/location_common/common/include",
+    "//base/location/location_geocode/geocode/include",
+    "//base/location/location_locator/callback/include",
+    "//base/location/utils/include",
+    "//base/notification/ces_standard/frameworks/core/include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
     "//distributedschedule/safwk/include",
     "//native_engine",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/notification/ces_standard/frameworks/core/include",
-    "//base/location/interfaces/innerkits/napi",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/include",
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "$SUBSYSTEM_DIR/location_locator/callback/include",
-    "$SUBSYSTEM_DIR/location_common/common/include",
-    "$SUBSYSTEM_DIR/utils/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include"
   ]
 
   sources = [
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/locator.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/locator_proxy.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/locator_callback_host.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/location_switch_callback_host.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/locator_impl.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/location_util.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/gnss_status_callback_host.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/nmea_message_callback_host.cpp",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/src/cached_locations_callback_host.cpp",
-    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/cached_locations_callback_host.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/gnss_status_callback_host.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/location_switch_callback_host.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/location_util.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/locator.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/locator_callback_host.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/locator_impl.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/locator_proxy.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/nmea_message_callback_host.cpp",
+    "//base/location/utils/source/common_utils.cpp",
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/location/location_common/common:lbsservice_common",
     "//foundation/ace/napi:ace_napi",
-    "//utils/native/base:utils",
     "//third_party/libuv:uv_static",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "ipc:ipc_core",
+    "access_token:libaccesstoken_sdk",
     "ces_standard:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
-    "access_token:libaccesstoken_sdk",
   ]
 
   cflags_cc = [

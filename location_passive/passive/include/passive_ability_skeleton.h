@@ -28,21 +28,10 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IPassiveAbility");
 };
 
-class PassiveAbilityProxy : public IRemoteProxy<IPassiveAbility>, public SubAbilityProxy {
-public:
-    explicit PassiveAbilityProxy(const sptr<IRemoteObject> &impl);
-    ~PassiveAbilityProxy() = default;
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
-    void SetEnable(bool state) override;
-};
-
 class PassiveAbilityStub : public IRemoteStub<IPassiveAbility> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-private:
-    static inline BrokerDelegator<PassiveAbilityProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -20,6 +20,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "lbs_log.h"
+#include "network_ability_proxy.h"
 
 namespace OHOS {
 namespace Location {
@@ -77,6 +78,9 @@ void FusionController::RequestQuickFix(bool state)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (!data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor())) {
+        return;
+    }
     data.WriteBool(state);
     remoteObject->SendRequest(NETWORK_SELF_REQUEST, data, reply, option);
 }
