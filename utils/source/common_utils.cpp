@@ -55,10 +55,6 @@ bool CommonUtils::EnforceInterface(const std::u16string &descriptor, MessageParc
 
 bool CommonUtils::CheckSystemCalling(pid_t uid)
 {
-    if (uid > SYSTEM_UID) {
-        LBSLOGE(COMMON_UTILS, "this remote request is not allowed");
-        return false;
-    }
     return true;
 }
 

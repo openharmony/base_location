@@ -43,8 +43,8 @@ public:
     void ParseDataAndStartCacheLocating(MessageParcel& data, MessageParcel& reply);
     void ParseDataAndStopCacheLocating(MessageParcel& data, MessageParcel& reply);
 private:
-    static pid_t lastCallingPid;
-    static pid_t lastCallingUid;
+    pid_t lastCallingPid;
+    pid_t lastCallingUid;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

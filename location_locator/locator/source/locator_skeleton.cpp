@@ -112,12 +112,10 @@ void LocatorAbilityStub::ParseDataAndStopCacheLocating(MessageParcel& data, Mess
 int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int ret = REPLY_NO_EXCEPTION;
     if (!CommonUtils::CheckLocationPermission()) {
         LBSLOGI(LOCATOR, "pid:%{public}d uid:%{public}d has no access permission,CheckLocationPermission return false",
-                callingPid, callingUid);
+                lastCallingPid, lastCallingUid);
         reply.WriteInt32(SECURITY_EXCEPTION);
         reply.WriteString("should grant location permission");
         ret = SECURITY_EXCEPTION;
@@ -130,7 +128,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case REG_SWITCH_CALLBACK: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterSwitchCallback(client, callingUid);
+            RegisterSwitchCallback(client, lastCallingUid);
             break;
         }
         case UNREG_SWITCH_CALLBACK: {
@@ -140,7 +138,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case REG_GNSS_STATUS_CALLBACK: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterGnssStatusCallback(client, callingUid);
+            RegisterGnssStatusCallback(client, lastCallingUid);
             break;
         }
         case UNREG_GNSS_STATUS_CALLBACK: {
@@ -150,7 +148,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case REG_NMEA_CALLBACK: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterNmeaMessageCallback(client, callingUid);
+            RegisterNmeaMessageCallback(client, lastCallingUid);
             break;
         }
         case UNREG_NMEA_CALLBACK: {
@@ -159,7 +157,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case START_LOCATING: {
-            ParseDataAndStartLocating(data, reply, callingPid, callingUid);
+            ParseDataAndStartLocating(data, reply, lastCallingPid, lastCallingUid);
             break;
         }
         case STOP_LOCATING: {
@@ -244,12 +242,10 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
 int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int ret = REPLY_NO_EXCEPTION;
     if (!CommonUtils::CheckSecureSettings()) {
         LBSLOGI(LOCATOR, "pid:%{public}d uid:%{public}d has no access permission,CheckSecureSettings return false",
-                callingPid, callingUid);
+                lastCallingPid, lastCallingUid);
         reply.WriteInt32(SECURITY_EXCEPTION);
         reply.WriteString("should grant location permission");
         ret = SECURITY_EXCEPTION;
@@ -257,7 +253,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
     }
     switch (code) {
         case ENABLE_ABILITY: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -274,12 +270,11 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
 int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int ret = REPLY_NO_EXCEPTION;
 
     switch (code) {
         case REPORT_LOCATION: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -289,7 +284,7 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_GNSS_SESSION_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -298,7 +293,7 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_SV: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -307,7 +302,7 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_NMEA: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -316,7 +311,7 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_LOCATION_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -324,7 +319,7 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_ERROR_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -332,7 +327,7 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case UPDATE_SA_ABILITY: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
+            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -348,11 +343,11 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    lastCallingPid = IPCSkeleton::GetCallingPid();
+    lastCallingUid = IPCSkeleton::GetCallingUid();
     IPCSkeleton::ResetCallingIdentity();
     LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
-        code, option.GetFlags(), callingPid, callingUid);
+        code, option.GetFlags(), lastCallingPid, lastCallingUid);
     int ret = REPLY_NO_EXCEPTION;
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR, "invalid token.");

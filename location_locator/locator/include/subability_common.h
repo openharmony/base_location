@@ -20,10 +20,10 @@
 #include <map>
 #include <unistd.h>
 
-#include "adapter_callback_skeleton.h"
 #include "common_hisysevent.h"
 #include "iremote_broker.h"
 #include "lbs_log.h"
+#include "location_callback_host.h"
 #include "work_record.h"
 
 #define HIGNSS_ADAPTER_PATH "/system/lib/libgnss.default.so"
