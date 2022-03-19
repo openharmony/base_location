@@ -28,17 +28,9 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void* data = nullptr;
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorPtr != nullptr, "locator instance is null.");
-    if (!CommonUtils::CheckLocationPermission(callingPid, callingUid)) {
-        LBSLOGE(LOCATION_NAPI, "pid:%{public}d uid:%{public}d has no access permission to get cache location",
-                callingPid, callingUid);
-        g_locatorPtr->RequestPermission(env);
-        return thisVar;
-    }
 
     LocationAsyncContext* asyncContext = new LocationAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
@@ -108,11 +100,6 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorPtr != nullptr, "locator instance is null.");
-    if (!CommonUtils::CheckLocationPermission(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid())) {
-        LBSLOGE(LOCATION_NAPI, "pid:%{public}d uid:%{public}d has no access permission to EnableLocation",
-                IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid());
-        return thisVar;
-    }
 
     SwitchAsyncContext* asyncContext = new SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
@@ -142,11 +129,6 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorPtr != nullptr, "locator instance is null.");
-    if (!CommonUtils::CheckLocationPermission(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid())) {
-        LBSLOGE(LOCATION_NAPI, "pid:%{public}d uid:%{public}d has no access permission to DisableLocation",
-                IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid());
-        return thisVar;
-    }
 
     SwitchAsyncContext* asyncContext = new SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");

@@ -233,14 +233,14 @@ void RequestManager::HandleRequest(std::string abilityName)
 
     // generate work record, and calculate interval
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
-    int timeInterval = -1;
+    int timeInterval = 0;
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
         pid_t uid = request->GetUid();
         pid_t pid = request->GetPid();
         std::string packageName = request->GetPackageName();
         // if location access permission granted, add request info to work record
-        if (!CommonUtils::CheckLocationPermission(pid, uid) || !request->GetIsRequesting()) {
+        if (!CommonUtils::CheckLocationPermission() || !request->GetIsRequesting()) {
             continue;
         }
         workRecord->Add(uid, pid, packageName);
@@ -266,12 +266,16 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         return;
     }
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    data.WriteInt64(timeInterval);
-    workRecord.Marshalling(data);
-    remoteObject->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
+    if (abilityName == GNSS_ABILITY) {
+        std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(remoteObject);
+        gnssProxy->SendLocationRequest(timeInterval, workRecord);
+    } else if (abilityName == NETWORK_ABILITY) {
+        std::unique_ptr<NetworkAbilityProxy> networkProxy = std::make_unique<NetworkAbilityProxy>(remoteObject);
+        networkProxy->SendLocationRequest(timeInterval, workRecord);
+    } else if (abilityName == PASSIVE_ABILITY) {
+        std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
+        passiveProxy->SendLocationRequest(timeInterval, workRecord);
+    }
     DelayedSingleton<FusionController>::GetInstance()->Process(abilityName);
 }
 

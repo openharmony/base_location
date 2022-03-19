@@ -33,8 +33,8 @@ const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
 
 GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 {
-    gnssStatusCallback_ = std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>>();
-    nmeaCallback_ = std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>>();
+    gnssStatusCallback_ = std::make_unique<std::map<pid_t, sptr<IGnssStatusCallback>>>();
+    nmeaCallback_ = std::make_unique<std::map<pid_t, sptr<INmeaMessageCallback>>>();
     SetAbility(GNSS_ABILITY);
     sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr != nullptr) {
@@ -242,6 +242,26 @@ void GnssAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
 
 void GnssAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
+}
+
+void GnssAbility::ReportGnssSessionStatus(int status)
+{
+}
+
+void GnssAbility::ReportNmea(const std::string &nmea)
+{
+    for (auto iter = nmeaCallback_->begin(); iter != nmeaCallback_->end(); iter++) {
+        sptr<INmeaMessageCallback> nmeaCallback = (iter->second);
+        nmeaCallback->OnMessageChange(nmea);
+    }
+}
+
+void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
+{
+    for (auto iter = gnssStatusCallback_->begin(); iter != gnssStatusCallback_->end(); iter++) {
+        sptr<IGnssStatusCallback> callback = (iter->second);
+        callback->OnStatusChange(sv);
+    }
 }
 
 void GnssAbility::SaDumpInfo(std::string& result)

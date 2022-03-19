@@ -14,9 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/appexecfwk/standard/appexecfwk.gni")
 
-SUBSYSTEM_DIR = "//base/location"
-LOCATION_PASSIVE_ROOT = "$SUBSYSTEM_DIR/location_passive/passive"
-LOCATION_SERVICE_ROOT = "$SUBSYSTEM_DIR/services"
+LOCATION_PASSIVE_ROOT = "//base/location/location_passive/passive"
 
 ohos_shared_library("lbsservice_passive") {
   sources = [
@@ -25,50 +23,48 @@ ohos_shared_library("lbsservice_passive") {
   ]
 
   include_dirs = [
+    "//base/location/interfaces/innerkits/locator_standard/include",
+    "//base/location/location_common/common/include",
+    "//base/location/location_geocode/geocode/include",
+    "//base/location/location_gnss/gnss/include",
+    "//base/location/location_locator/callback/include",
+    "//base/location/location_locator/distribute/include",
+    "//base/location/location_locator/locator/include",
+    "//base/location/location_network/network/include",
+    "//base/location/location_passive/passive/include",
+    "//base/location/location_passive/passive/visibility/include",
+    "//base/location/utils/include",
+    "//base/notification/ces_standard/frameworks/core/include",
     "//distributedschedule/safwk/include",
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
-    "$SUBSYSTEM_DIR/interfaces/innerkits/locator_standard/include",
-    "$SUBSYSTEM_DIR/location_locator/callback/include",
-    "$SUBSYSTEM_DIR/location_common/common/include",
-    "$SUBSYSTEM_DIR/location_locator/distribute/include",
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "$SUBSYSTEM_DIR/location_gnss/gnss/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
-    "$SUBSYSTEM_DIR/location_network/network/include",
-    "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$LOCATION_SERVICE_ROOT/visibility/include",
-    "$SUBSYSTEM_DIR/utils/include",
-    "$SUBSYSTEM_DIR/adapter/services/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
+    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "${aafwk_path}/interfaces/innerkits/want/include",
     "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
-    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
-    "//base/notification/ces_standard/frameworks/core/include",
+    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
+    "//utils/native/base/include",
+    "//utils/system/safwk/native/include",
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
-    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
-    "//utils/native/base:utils",
+    "//base/location/location_common/common:lbsservice_common",
+    "//base/location/location_locator/locator:lbsservice_locator",
+    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
+    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ces_standard:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]

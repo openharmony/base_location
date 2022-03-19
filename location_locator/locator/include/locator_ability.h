@@ -26,6 +26,7 @@
 
 #include "common_hisysevent.h"
 #include "common_utils.h"
+#include "geo_convert_proxy.h"
 #include "locator_callback_proxy.h"
 #include "locator_event_subscriber.h"
 #include "locator_skeleton.h"
@@ -94,7 +95,9 @@ public:
     int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-
+    int ReportGnssSessionStatus(int status) override;
+    int ReportNmea(const std::string &nmea) override;
+    int ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> GetProxyMap();

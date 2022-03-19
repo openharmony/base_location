@@ -26,6 +26,7 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "request_config.h"
+#include "satellite_status.h"
 
 namespace OHOS {
 namespace Location {
@@ -58,7 +59,10 @@ public:
         FLUSH_CACHED_LOCATIONS = 25,
         SEND_COMMAND = 26,
         ADD_FENCE = 27,
-        REMOVE_FENCE = 28
+        REMOVE_FENCE = 28,
+        REPORT_GNSS_SESSION_STATUS = 29,
+        REPORT_SV = 30,
+        REPORT_NMEA = 31
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
     virtual void UpdateSaAbility() = 0;
@@ -92,6 +96,9 @@ public:
     virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+    virtual int ReportGnssSessionStatus(int status) = 0;
+    virtual int ReportNmea(const std::string &nmea) = 0;
+    virtual int ReportSv(const std::unique_ptr<SatelliteStatus> &sv) = 0;
 };
 
 class LocatorProxy : public IRemoteProxy<ILocator> {
@@ -130,6 +137,10 @@ public:
 
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    int ReportGnssSessionStatus(int status) override;
+    int ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
+    int ReportNmea(const std::string &nmea) override;
+
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };

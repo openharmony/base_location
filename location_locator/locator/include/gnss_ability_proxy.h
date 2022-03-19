@@ -13,35 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GNSS_ABILITY_H
-#define OHOS_LOCATION_GNSS_ABILITY_H
+#ifndef OHOS_LOCATION_GNSS_ABILITY_PROXY_H
+#define OHOS_LOCATION_GNSS_ABILITY_PROXY_H
 
-#include <mutex>
-#include <singleton.h>
-#include "i_gnss_status_callback.h"
-#include "i_nmea_message_callback.h"
-#include "if_system_ability_manager.h"
-#include "system_ability.h"
+#include "iremote_object.h"
+#include "iremote_proxy.h"
+#include "iremote_stub.h"
 
 #include "common_utils.h"
 #include "gnss_ability_skeleton.h"
-#include "subability_common.h"
 
 namespace OHOS {
 namespace Location {
-class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility, DelayedSingleton<GnssAbility> {
-DECLEAR_SYSTEM_ABILITY(GnssAbility);
-
+class GnssAbilityProxy : public IRemoteProxy<IGnssAbility> {
 public:
-    DISALLOW_COPY_AND_MOVE(GnssAbility);
-    GnssAbility();
-    ~GnssAbility();
-    void OnStart() override;
-    void OnStop() override;
-    ServiceRunningState QueryServiceState() const
-    {
-        return state_;
-    }
+    explicit GnssAbilityProxy(const sptr<IRemoteObject> &impl);
+    ~GnssAbilityProxy() = default;
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
     std::unique_ptr<Location> GetCachedLocation() override;
     void SetEnable(bool state) override;
@@ -54,24 +41,19 @@ public:
     void RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) override;
     void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
-    int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 
     int GetCachedGnssLocationsSize() override;
     void FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+
     void ReportGnssSessionStatus(int status) override;
     void ReportNmea(const std::string &nmea) override;
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
 private:
-    std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
-    std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
-    bool Init();
-    static void SaDumpInfo(std::string& result);
-    bool registerToAbility_ = false;
-    ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
+    static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_GNSS_ABILITY_H
+#endif // OHOS_LOCATION_GNSS_ABILITY_PROXY_H

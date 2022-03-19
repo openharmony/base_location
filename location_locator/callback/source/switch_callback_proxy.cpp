@@ -28,6 +28,9 @@ void SwitchCallbackProxy::OnSwitchChange(const int state)
 {
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     data.WriteInt32(state);
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_SWITCH_STATE_EVENT, data, reply, option);

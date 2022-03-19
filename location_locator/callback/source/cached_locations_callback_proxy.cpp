@@ -28,6 +28,9 @@ void CachedLocationsCallbackProxy::OnCacheLocationsReport(const std::vector<std:
 {
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
     for (int i = 0; i < locations.size(); i++) {
         locations[i]->Marshalling(data);
     }

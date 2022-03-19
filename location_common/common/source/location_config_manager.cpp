@@ -71,7 +71,7 @@ bool LocationConfigManager::CreateFile(const std::string& filename, const std::s
     std::ofstream outFile;
     outFile.open(filename.c_str());
     if (!outFile) {
-        LBSLOGE(LOCATION_NAPI, "file open failed, %{public}s", strerror(errno));
+        LBSLOGE(LOCATION_NAPI, "file open failed");
         return false;
     }
     outFile.flush();

@@ -24,48 +24,7 @@
 
 namespace OHOS {
 namespace Location {
-void SubAbilityProxy::SetProxy(std::string name, sptr<IRemoteObject> proxy)
-{
-    proxy_ = proxy;
-    label_ = CommonUtils::GetLabel(name);
-}
-
-void SubAbilityProxy::SendRequest(uint64_t interval, WorkRecord &workRecord)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInt64(interval);
-    workRecord.Marshalling(data);
-    MessageOption option = { MessageOption::TF_ASYNC };
-    if (proxy_ == nullptr) {
-        return;
-    }
-    int error = proxy_->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
-    LBSLOGD(label_, "SendRequest Transact ErrCode = %{public}d", error);
-}
-
-std::unique_ptr<Location> SubAbilityProxy::GetCache()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    int error = proxy_->SendRequest(ISubAbility::GET_CACHED_LOCATION, data, reply, option);
-    std::unique_ptr<Location> location = Location::Unmarshalling(reply);
-    LBSLOGD(label_, "GetCache Transact ErrCode = %{public}d", error);
-    return location;
-}
-
-void SubAbilityProxy::Enable(bool state)
-{
-    MessageParcel data;
-    data.WriteBool(state);
-
-    MessageParcel reply;
-    MessageOption option;
-    int error = proxy_->SendRequest(ISubAbility::SET_ENABLE, data, reply, option);
-    LBSLOGD(label_, "Enable Transact ErrCode = %{public}d", error);
-}
-
+sptr<LocationCallbackStub> g_gnssLocationCallback = new LocationCallbackStub(GNSS_ABILITY);
 void SubAbility::SetAbility(std::string name)
 {
     name_ = name;
@@ -130,6 +89,9 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
         if (!isFind) {
             sptr<LocationCallbackStub> addCallback = new LocationCallbackStub(name_);
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
+            if (addCallback == nullptr || workRecord == nullptr) {
+                continue;
+            }
             workRecord->Add(uid, newRecord.GetPid(i), newRecord.GetName(i));
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(addCallback, *workRecord, true);

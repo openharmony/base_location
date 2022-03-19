@@ -31,14 +31,20 @@ class LocatorAbilityStub : public IRemoteStub<ILocator> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    int32_t ProcessMsgRequirLocationPermission(uint32_t &code,
+        MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t ProcessMsg(uint32_t &code,
+        MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t ProcessMsgRequirSecureSettingsPermission(uint32_t &code,
+        MessageParcel &data, MessageParcel &reply, MessageOption &option);
     void ParseDataAndStartLocating(MessageParcel& data, MessageParcel& reply, pid_t pid, pid_t uid);
     void ParseDataAndStopLocating(MessageParcel& data, MessageParcel& reply);
     int ReportStatus(MessageParcel& data, int type);
     void ParseDataAndStartCacheLocating(MessageParcel& data, MessageParcel& reply);
     void ParseDataAndStopCacheLocating(MessageParcel& data, MessageParcel& reply);
 private:
-    static pid_t lastCallingPid;
-    static pid_t lastCallingUid;
+    pid_t lastCallingPid;
+    pid_t lastCallingUid;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

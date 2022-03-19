@@ -57,6 +57,10 @@ const uint32_t FLUSH_CACHED = 14;
 const uint32_t SEND_COMMANDS = 15;
 const uint32_t ADD_FENCE_INFO = 16;
 const uint32_t REMOVE_FENCE_INFO = 17;
+const uint32_t SEND_GNSS_SESSION_STATUS = 18;
+const uint32_t SEND_SV = 19;
+const uint32_t SEND_NMEA = 20;
+
 const float_t PRECISION = 0.000001;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
@@ -299,6 +303,13 @@ void LocatorAbility::UpdateSaAbilityHandler()
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
         MessageParcel data;
+        if (iter->first == GNSS_ABILITY) {
+            data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+        } else if (iter->first == NETWORK_ABILITY) {
+            data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
+        } else if (iter->first == PASSIVE_ABILITY) {
+            data.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
+        }
         data.WriteBool(isEnabled_);
 
         MessageParcel reply;
@@ -402,6 +413,9 @@ void LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callb
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
         dataToStub.WriteRemoteObject(callback);
         MessageParcel replyToStub;
         MessageOption option;
@@ -418,6 +432,10 @@ void LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& cal
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
+
         dataToStub.WriteRemoteObject(callback);
         MessageParcel replyToStub;
         MessageOption option;
@@ -434,6 +452,10 @@ void LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& call
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
+
         dataToStub.WriteRemoteObject(callback);
         MessageParcel replyToStub;
         MessageOption option;
@@ -450,6 +472,10 @@ void LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& ca
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
+
         dataToStub.WriteRemoteObject(callback);
         MessageParcel replyToStub;
         MessageOption option;
@@ -467,6 +493,10 @@ int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoc
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return EXCEPTION;
+        }
+
         dataToStub.WriteInt32(request->reportingPeriodSec);
         dataToStub.WriteBool(request->wakeUpCacheQueueFull);
         dataToStub.WriteRemoteObject(callback->AsObject());
@@ -487,6 +517,10 @@ int LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallba
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return EXCEPTION;
+        }
+
         dataToStub.WriteRemoteObject(callback->AsObject());
         MessageParcel replyToStub;
         MessageOption option;
@@ -510,6 +544,10 @@ int LocatorAbility::GetCachedGnssLocationsSize()
         if (obj == nullptr) {
             return EXCEPTION;
         }
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return EXCEPTION;
+        }
+
         int error = obj->SendRequest(GET_CACHED_SIZE, dataToStub, replyToStub, option);
         if (error == NO_ERROR) {
             size = replyToStub.ReadInt32();
@@ -529,6 +567,10 @@ void LocatorAbility::FlushCachedGnssLocations()
         if (obj == nullptr) {
             return;
         }
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
+
         obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
     }
 }
@@ -539,6 +581,9 @@ void LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
         dataToStub.WriteInt32(commands->scenario);
         dataToStub.WriteString16(Str8ToStr16(commands->command));
         MessageParcel replyToStub;
@@ -556,6 +601,9 @@ void LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
         dataToStub.WriteInt32(request->priority);
         dataToStub.WriteInt32(request->scenario);
         dataToStub.WriteDouble(request->geofence.latitude);
@@ -577,6 +625,9 @@ void LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     if (remoteObject != proxyMap_->end()) {
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return;
+        }
         dataToStub.WriteInt32(request->priority);
         dataToStub.WriteInt32(request->scenario);
         dataToStub.WriteDouble(request->geofence.latitude);
@@ -635,6 +686,10 @@ int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
         if (obj == nullptr) {
             return EXCEPTION;
         }
+        if (!data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return EXCEPTION;
+        }
+
         obj->SendRequest(GET_CACHED_LOCATION, dataToStub, replyToStub, option);
         std::unique_ptr<Location> location = Location::Unmarshalling(replyToStub);
         if (location != nullptr && fabs(location->GetLatitude() - 0.0) > PRECISION
@@ -660,6 +715,69 @@ int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, st
         return REPLY_NO_EXCEPTION;
     }
     return EXCEPTION;
+}
+
+int LocatorAbility::ReportGnssSessionStatus(int status)
+{
+    LBSLOGD(LOCATOR, "ReportGnssSessionStatus");
+    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
+    if (remoteObject != proxyMap_->end()) {
+        auto obj = remoteObject->second;
+        MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return EXCEPTION;
+        }
+        dataToStub.WriteInt32(status);
+        MessageParcel replyToStub;
+        MessageOption option;
+        if (obj == nullptr) {
+            return EXCEPTION;
+        }
+        obj->SendRequest(SEND_GNSS_SESSION_STATUS, dataToStub, replyToStub, option);
+    }
+    return REPLY_NO_EXCEPTION;
+}
+
+int LocatorAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
+{
+    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
+    if (remoteObject != proxyMap_->end()) {
+        auto obj = remoteObject->second;
+        MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return EXCEPTION;
+        }
+        if (sv != nullptr) {
+            sv->Marshalling(dataToStub);
+        }
+        MessageParcel replyToStub;
+        MessageOption option;
+        if (obj == nullptr) {
+            return EXCEPTION;
+        }
+        obj->SendRequest(SEND_SV, dataToStub, replyToStub, option);
+    }
+    return REPLY_NO_EXCEPTION;
+}
+
+int LocatorAbility::ReportNmea(const std::string &nmea)
+{
+    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
+    if (remoteObject != proxyMap_->end()) {
+        auto obj = remoteObject->second;
+        MessageParcel dataToStub;
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            return EXCEPTION;
+        }
+        dataToStub.WriteString(nmea);
+        MessageParcel replyToStub;
+        MessageOption option;
+        if (obj == nullptr) {
+            return EXCEPTION;
+        }
+        obj->SendRequest(SEND_NMEA, dataToStub, replyToStub, option);
+    }
+    return REPLY_NO_EXCEPTION;
 }
 
 int LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
@@ -702,6 +820,9 @@ void LocatorAbility::RegisterAction()
 int LocatorAbility::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay)
 {
     MessageParcel dataParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return EXCEPTION;
+    }
     return SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replay);
 }
 
@@ -709,6 +830,9 @@ int LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &r
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return EXCEPTION;
+    }
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
@@ -723,6 +847,9 @@ int LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &r
 int LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &replay)
 {
     MessageParcel dataParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return EXCEPTION;
+    }
     dataParcel.WriteString16(data.ReadString16()); // description
     dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // minLongitude
