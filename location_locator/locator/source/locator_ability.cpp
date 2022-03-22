@@ -686,7 +686,7 @@ int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
         if (obj == nullptr) {
             return EXCEPTION;
         }
-        if (!data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
             return EXCEPTION;
         }
 
