@@ -234,7 +234,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         default:
-            ret = MSG_UNPROCESSED;
+            ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return ret;
 }
@@ -243,16 +243,15 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     int ret = REPLY_NO_EXCEPTION;
-    if (!CommonUtils::CheckSecureSettings()) {
-        LBSLOGI(LOCATOR, "pid:%{public}d uid:%{public}d has no access permission,CheckSecureSettings return false",
-                lastCallingPid, lastCallingUid);
-        reply.WriteInt32(SECURITY_EXCEPTION);
-        reply.WriteString("should grant location permission");
-        ret = SECURITY_EXCEPTION;
-        return ret;
-    }
     switch (code) {
         case ENABLE_ABILITY: {
+            if (!CommonUtils::CheckSecureSettings()) {
+                LBSLOGI(LOCATOR, "has no access permission,CheckSecureSettings return false");
+                reply.WriteInt32(SECURITY_EXCEPTION);
+                reply.WriteString("should grant location permission");
+                ret = SECURITY_EXCEPTION;
+                return ret;
+            }
             if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
@@ -335,7 +334,7 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         default:
-            ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+            ret = MSG_UNPROCESSED;
     }
     return ret;
 }
@@ -354,12 +353,12 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         return -1;
     }
 
-    ret = ProcessMsgRequirLocationPermission(code, data, reply, option);
+    ret = ProcessMsg(code, data, reply, option);
     if (ret == MSG_UNPROCESSED) {
         ret = ProcessMsgRequirSecureSettingsPermission(code, data, reply, option);
     }
     if (ret == MSG_UNPROCESSED) {
-        ret = ProcessMsg(code, data, reply, option);
+        ret = ProcessMsgRequirLocationPermission(code, data, reply, option);
     }
     return ret;
 }
