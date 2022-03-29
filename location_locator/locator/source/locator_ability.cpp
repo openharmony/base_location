@@ -70,9 +70,6 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     InitRequestManagerMap();
-    sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr != nullptr) {
-    }
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
@@ -368,7 +365,7 @@ void LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>& callback,
         LBSLOGE(LOCATOR, "register an invalid switch callback");
         return;
     }
-    sptr<IRemoteObject::DeathRecipient> death(new SwitchCallbackDeathRecipient());
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) SwitchCallbackDeathRecipient());
     callback->AddDeathRecipient(death.GetRefPtr());
     sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
     if (switchCallback == nullptr) {
@@ -686,13 +683,18 @@ int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
         if (obj == nullptr) {
             return EXCEPTION;
         }
-        if (!data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
             return EXCEPTION;
         }
-
         obj->SendRequest(GET_CACHED_LOCATION, dataToStub, replyToStub, option);
         std::unique_ptr<Location> location = Location::Unmarshalling(replyToStub);
-        if (location != nullptr && fabs(location->GetLatitude() - 0.0) > PRECISION
+        if (location == nullptr) {
+            reply.WriteInt32(EXCEPTION);
+            reply.WriteString("get no cached result");
+            LBSLOGI(LOCATOR, "GetCacheLocation location is null");
+            return EXCEPTION;
+        }
+        if (fabs(location->GetLatitude() - 0.0) > PRECISION
             && fabs(location->GetLongitude() - 0.0) > PRECISION) {
             reply.WriteInt32(REPLY_NO_EXCEPTION);
             location->Marshalling(reply);
@@ -702,7 +704,7 @@ int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
     reply.WriteInt32(EXCEPTION);
     reply.WriteString("get no cached result");
     LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-    return REPLY_NO_EXCEPTION;
+    return EXCEPTION;
 }
 
 int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)

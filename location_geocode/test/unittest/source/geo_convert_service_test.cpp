@@ -55,15 +55,6 @@ void GeoConvertServiceTest::TearDown()
     proxy_ = nullptr;
 }
 
-bool GeoConvertServiceTest::IsDeviceSupport()
-{
-    std::string result = OHOS::system::GetParameter(BUILD_INFO, "unknown");
-    if (DEVICE_PLATE.compare(result) == 0 || DEVICE_UNKOWN.compare(result) == 0) {
-        return false;
-    }
-    return true;
-}
-
 bool GeoConvertServiceTest::Available()
 {
     MessageParcel dataParcel;
@@ -84,7 +75,7 @@ bool GeoConvertServiceTest::Available()
  */
 HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
 {
-    if (!IsDeviceSupport() || !available_) {
+    if (!available_) {
         return;
     }
 
@@ -103,7 +94,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
  */
 HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
 {
-    if (!IsDeviceSupport() || !available_) {
+    if (!available_) {
         return;
     }
 
@@ -141,7 +132,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
  */
 HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
 {
-    if (!IsDeviceSupport() || !available_) {
+    if (!available_) {
         return;
     }
 

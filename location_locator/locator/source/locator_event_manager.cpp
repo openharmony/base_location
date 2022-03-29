@@ -69,6 +69,9 @@ void LocatorDftManager::IpcCallingErr(int error)
 void LocatorDftManager::LocationSessionStart(std::shared_ptr<Request> request)
 {
     std::shared_ptr<AppRequestCount> requestCount = nullptr;
+    if (request == nullptr) {
+        return;
+    }
     for (auto appRequest : appRequests_) {
         if (appRequest->packageName.compare(request->GetPackageName()) == 0) {
             requestCount = appRequest;
@@ -84,6 +87,9 @@ void LocatorDftManager::LocationSessionStart(std::shared_ptr<Request> request)
     }
 
     unsigned index = INVALID_VALUE;
+    if (request->GetRequestConfig() == nullptr) {
+        return;
+    }
     int scenario = request->GetRequestConfig()->GetScenario();
     int priority = request->GetRequestConfig()->GetPriority();
     for (unsigned i = 0; i < requestCount->requestType.size(); i++) {

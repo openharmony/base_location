@@ -79,6 +79,21 @@ public:
     virtual ~LocationAsyncContext(){}
 };
 
+class LocatorAsyncContext : public AsyncContext {
+public:
+    std::shared_ptr<Location> loc;
+
+    LocatorAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
+        AsyncContext(env, work, deferred)
+        {
+            loc = nullptr;
+        }
+
+    LocatorAsyncContext() = delete;
+
+    virtual ~LocatorAsyncContext(){}
+};
+
 class SwitchAsyncContext : public AsyncContext {
 public:
     bool enable;

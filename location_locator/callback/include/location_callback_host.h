@@ -35,7 +35,7 @@ public:
         RECEIVE_LOCATION_CHANGE_EVENT = 1,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.location.ILocationListener");
-    virtual void OnLocationChange(const std::unique_ptr<Location>& location) = 0;
+    virtual void OnLocationUpdate(const std::unique_ptr<Location>& location) = 0;
 };
 
 class LocationCallbackStub : public IRemoteStub<ILocationCallback> {
@@ -44,10 +44,10 @@ public:
     ~LocationCallbackStub() = default;
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-    void OnLocationChange(const std::unique_ptr<Location>& location) override;
-    void OnSvStatusChange(const std::unique_ptr<SatelliteStatus> &sv);
-    void OnStatusChange(unsigned int gnssSessionStatus);
-    void OnNmeaChange(int64_t timestamp, const std::string &nmea);
+    void OnLocationUpdate(const std::unique_ptr<Location>& location) override;
+    void OnSvStatusUpdate(const std::unique_ptr<SatelliteStatus> &sv);
+    void OnStatusUpdate(unsigned int gnssSessionStatus);
+    void OnNmeaUpdate(int64_t timestamp, const std::string &nmea);
     std::string GetAbilityName();
     void GetRemoteLocatorProxy(std::string deviceId);
     void init(std::string abilityName);

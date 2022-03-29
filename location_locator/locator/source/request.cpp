@@ -31,14 +31,17 @@ Request::Request()
     this->uid_ = -1;
     this->packageName_ = "";
     this->isRequesting_ = false;
-    requestConfig_ = new RequestConfig();
-    lastLocation_ = new Location();
+    requestConfig_ = new (std::nothrow) RequestConfig();
+    lastLocation_ = new (std::nothrow) Location();
 }
 
 Request::~Request() {}
 
 void Request::SetRequestConfig(RequestConfig& requestConfig)
 {
+    if (this->requestConfig_ == nullptr) {
+        return;
+    }
     this->requestConfig_->Set(requestConfig);
 }
 
@@ -104,6 +107,9 @@ sptr<Location> Request::GetLastLocation()
 
 void Request::SetLastLocation(const std::unique_ptr<Location>& location)
 {
+    if (this->lastLocation_ == nullptr) {
+        return;
+    }
     this->lastLocation_->SetLatitude(location->GetLatitude());
     this->lastLocation_->SetLongitude(location->GetLongitude());
     this->lastLocation_->SetAltitude(location->GetAltitude());
@@ -116,6 +122,9 @@ void Request::SetLastLocation(const std::unique_ptr<Location>& location)
 
 void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
 {
+    if (requestConfig_ == nullptr || proxys == nullptr) {
+        return;
+    }
     switch (requestConfig_->GetScenario()) {
         case SCENE_NAVIGATION:
         case SCENE_TRAJECTORY_TRACKING:
@@ -142,6 +151,9 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
 
 void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys)
 {
+    if (requestConfig_ == nullptr || proxys == nullptr) {
+        return;
+    }
     switch (requestConfig_->GetPriority()) {
         case PRIORITY_ACCURACY:
             proxys->push_back(GNSS_ABILITY);
@@ -160,6 +172,9 @@ void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> pro
 
 std::string Request::ToString() const
 {
+    if (requestConfig_ == nullptr) {
+        return "";
+    }
     std::stringstream str;
     str << "[request config: ";
     str << requestConfig_->ToString();

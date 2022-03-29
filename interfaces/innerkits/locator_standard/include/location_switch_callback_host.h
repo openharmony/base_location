@@ -31,7 +31,7 @@ public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     bool IsRemoteDied();
-    napi_value PackResult(int switchState);
+    napi_value PackResult(bool switchState);
     bool Send(int switchState);
     void OnSwitchChange(int switchState) override;
     void DeleteHandler();
