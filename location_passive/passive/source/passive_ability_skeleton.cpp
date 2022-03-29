@@ -42,14 +42,18 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
         case SEND_LOCATION_REQUEST: {
             int64_t interval = data.ReadInt64();
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
-            SendLocationRequest((uint64_t)interval, *workrecord);
-            break;
+            if (workrecord != nullptr) {
+	        SendLocationRequest((uint64_t)interval, *workrecord);
+	    }
+	    break;
         }
         case GET_CACHED_LOCATION: {
             std::unique_ptr<Location> location = GetCachedLocation();
-            location->Marshalling(reply);
-            LBSLOGD(PASSIVE, "result:%{private}s", location->ToString().c_str());
-            break;
+            if (location != nullptr) {
+	        location->Marshalling(reply);
+                LBSLOGD(PASSIVE, "result:%{private}s", location->ToString().c_str());
+	    }
+	    break;
         }
         case SET_ENABLE: {
             SetEnable(data.ReadBool());
