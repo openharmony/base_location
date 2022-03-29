@@ -26,7 +26,7 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
 {
     pid_t lastCallingPid = IPCSkeleton::GetCallingPid();
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
-    LBSLOGI(PASSIVE, "OnRemoteRequest cmd = %{public}d, flags= %{public}d, pid= %{public}d, uid= %{public}d",
+    LBSLOGI(PASSIVE, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
     if (lastCallinguid > SYSTEM_UID) {
         LBSLOGE(PASSIVE, "this remote request is not allowed");
@@ -43,17 +43,17 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             int64_t interval = data.ReadInt64();
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             if (workrecord != nullptr) {
-	        SendLocationRequest((uint64_t)interval, *workrecord);
-	    }
-	    break;
+                SendLocationRequest((uint64_t)interval, *workrecord);
+            }
+            break;
         }
         case GET_CACHED_LOCATION: {
             std::unique_ptr<Location> location = GetCachedLocation();
             if (location != nullptr) {
-	        location->Marshalling(reply);
+                location->Marshalling(reply);
                 LBSLOGD(PASSIVE, "result:%{private}s", location->ToString().c_str());
-	    }
-	    break;
+            }
+            break;
         }
         case SET_ENABLE: {
             SetEnable(data.ReadBool());

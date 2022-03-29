@@ -24,7 +24,8 @@
 
 namespace OHOS {
 namespace Location {
-sptr<LocationCallbackStub> g_gnssLocationCallback = new LocationCallbackStub(GNSS_ABILITY);
+sptr<LocationCallbackStub> g_gnssLocationCallback = new (std::nothrow) LocationCallbackStub(GNSS_ABILITY);
+sptr<LocationCallbackStub> g_passiveLocationCallback = new (std::nothrow) LocationCallbackStub(PASSIVE_ABILITY);
 void SubAbility::SetAbility(std::string name)
 {
     name_ = name;
@@ -87,7 +88,7 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
         LBSLOGD(label_, "add record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
-            sptr<LocationCallbackStub> addCallback = new LocationCallbackStub(name_);
+            sptr<LocationCallbackStub> addCallback = new (std::nothrow) LocationCallbackStub(name_);
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
             if (addCallback == nullptr || workRecord == nullptr) {
                 continue;
@@ -165,6 +166,9 @@ void SubAbility::HandleRemoteRequest(bool state, std::string deviceId)
 
 void SubAbility::WriteCallbackToParcel(sptr<LocationCallbackStub> callback, MessageParcel &data)
 {
+    if (callback == nullptr) {
+        return;
+    }
     // generate object of ILocationListener
     data.WriteObject<IRemoteObject>(callback->AsObject());
 }

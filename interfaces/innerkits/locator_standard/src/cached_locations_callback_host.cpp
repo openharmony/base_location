@@ -75,8 +75,6 @@ bool CachedLocationsCallbackHost::IsRemoteDied()
 bool CachedLocationsCallbackHost::Send(const std::vector<std::unique_ptr<Location>>& locations)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(m_env, &scope);
     napi_value jsEvent = nullptr;
     napi_create_object(m_env, &jsEvent);
     LocationsToJs(m_env, locations, jsEvent);
@@ -86,7 +84,7 @@ bool CachedLocationsCallbackHost::Send(const std::vector<std::unique_ptr<Locatio
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
         return false;
     }
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
         return false;
@@ -114,6 +112,8 @@ bool CachedLocationsCallbackHost::Send(const std::vector<std::unique_ptr<Locatio
             context = static_cast<JsContext *>(work->data);
             if (context == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context is nullptr");
+                delete work;
+                work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->m_env, &scope);
@@ -121,6 +121,10 @@ bool CachedLocationsCallbackHost::Send(const std::vector<std::unique_ptr<Locatio
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "scope is nullptr");
                 // close handle scope, release napi_value
                 napi_close_handle_scope(context->m_env, scope);
+                delete context;
+                context = nullptr;
+                delete work;
+                work = nullptr;
                 return;
             }
             if (context->m_handlerCb != nullptr) {

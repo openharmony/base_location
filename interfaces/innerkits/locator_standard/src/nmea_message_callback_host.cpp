@@ -89,7 +89,7 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "loop == nullptr.");
         return false;
     }
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "work == nullptr.");
         return false;

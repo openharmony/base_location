@@ -29,7 +29,7 @@ public:
     virtual ~LocatorCallbackHost();
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    bool Send(const std::unique_ptr<Location>& location);
+    bool Send(std::unique_ptr<Location>& location);
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;

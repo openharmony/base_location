@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_UTILS_H
-#define OHOS_LOCATION_UTILS_H
+#ifndef OHOS_COMMON_UTILS_H
+#define OHOS_COMMON_UTILS_H
 
 #include "iremote_object.h"
 #include "string_ex.h"
@@ -35,19 +35,6 @@ const std::string ACCESS_BACKGROUND_LOCATION = "ohos.permission.LOCATION_IN_BACK
 const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTINGS";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
-const std::string TEST_SIMULATE_DEVICE = "persist.sys.location.simulate.device"; // value: watch
-const std::string DEVICE_PHONE = "default";
-const std::string DEVICE_WEAR = "watch";
-const std::string DEVICE_PLATE = "tv";
-const std::string DEVICE_UNKOWN = "unknown";
-
-const uint32_t CAP_DEFAULT = 0;
-const uint32_t CAP_GNSS_MIN = 0x0100;
-const uint32_t CAP_GNSS_IVI = CAP_GNSS_MIN + 1;
-const uint32_t CAP_GNSS_PHONE = CAP_GNSS_MIN + 2;
-const uint32_t CAP_GNSS_WEAR = CAP_GNSS_MIN + 3;
-const uint32_t CAP_GNSS_MAX = CAP_GNSS_MIN + 4;
-
 const int SA_NUM = 3;
 const int DEFAULT_UID = 1000;
 const int DEFAULT_PID = 1000;
@@ -57,6 +44,7 @@ const int EX_HAS_REPLY_HEADER = -128;
 const int REPLY_NO_EXCEPTION = 0;
 const int EXCEPTION = -1;
 const int MSG_UNPROCESSED = -2;
+const int SWITCH_OFF_EXCEPTION = -3;
 const int SECURITY_EXCEPTION = 1000;
 
 const int EVENT_REGITERED_MAX_TRY_TIME = 30;
@@ -102,7 +90,6 @@ public:
     static void WriteInterfaceToken(const std::u16string &descriptor, MessageParcel &data);
     static bool EnforceInterface(const std::u16string &descriptor, MessageParcel &data);
     static int AbilityConvertToId(const std::string ability);
-    static uint32_t GetCapabilityValue(std::string ability);
     static std::u16string GetCapabilityToString(std::string ability, uint32_t capability);
     static std::u16string GetCapability(std::string ability);
     static OHOS::HiviewDFX::HiLogLabel GetLabel(std::string name);
@@ -120,4 +107,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_UTILS_H
+#endif // OHOS_COMMON_UTILS_H

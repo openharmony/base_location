@@ -54,7 +54,7 @@ int LocationCallbackStub::OnRemoteRequest(uint32_t code,
     int ret = EXCEPTION;
     pid_t lastCallingPid = IPCSkeleton::GetCallingPid();
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
-    LBSLOGI(label_, "OnReceived cmd = %{public}d, flags= %{public}d, pid= %{public}d, uid= %{public}d",
+    LBSLOGI(label_, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
 
     switch (code) {

@@ -37,7 +37,7 @@ void LocatorAbilityStub::ParseDataAndStartLocating(MessageParcel& data, MessageP
         return;
     }
 
-    sptr<IRemoteObject::DeathRecipient> death(new LocatorCallbackDeathRecipient());
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
     remoteObject->AddDeathRecipient(death.GetRefPtr());
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     StartLocating(requestConfig, callback, bundleName, pid, uid);
@@ -112,33 +112,22 @@ void LocatorAbilityStub::ParseDataAndStopCacheLocating(MessageParcel& data, Mess
 int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int ret = REPLY_NO_EXCEPTION;
     if (!CommonUtils::CheckLocationPermission()) {
         LBSLOGI(LOCATOR, "pid:%{public}d uid:%{public}d has no access permission,CheckLocationPermission return false",
-                lastCallingPid, lastCallingUid);
+                callingPid, callingUid);
         reply.WriteInt32(SECURITY_EXCEPTION);
         reply.WriteString("should grant location permission");
         ret = SECURITY_EXCEPTION;
         return ret;
     }
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
     switch (code) {
-        case GET_SWITCH_STATE: {
-            reply.WriteInt32(GetSwitchState());
-            break;
-        }
-        case REG_SWITCH_CALLBACK: {
-            sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterSwitchCallback(client, lastCallingUid);
-            break;
-        }
-        case UNREG_SWITCH_CALLBACK: {
-            sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            UnregisterSwitchCallback(client);
-            break;
-        }
         case REG_GNSS_STATUS_CALLBACK: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterGnssStatusCallback(client, lastCallingUid);
+            RegisterGnssStatusCallback(client, callingUid);
             break;
         }
         case UNREG_GNSS_STATUS_CALLBACK: {
@@ -148,7 +137,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case REG_NMEA_CALLBACK: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterNmeaMessageCallback(client, lastCallingUid);
+            RegisterNmeaMessageCallback(client, callingUid);
             break;
         }
         case UNREG_NMEA_CALLBACK: {
@@ -157,7 +146,11 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case START_LOCATING: {
-            ParseDataAndStartLocating(data, reply, lastCallingPid, lastCallingUid);
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
+            ParseDataAndStartLocating(data, reply, callingPid, callingUid);
             break;
         }
         case STOP_LOCATING: {
@@ -165,18 +158,34 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case GET_CACHE_LOCATION: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             ret = GetCacheLocation(data, reply);
             break;
         }
         case GEO_IS_AVAILABLE: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             ret = IsGeoConvertAvailable(data, reply);
             break;
         }
         case GET_FROM_COORDINATE: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             ret = GetAddressByCoordinate(data, reply);
             break;
         }
         case GET_FROM_LOCATION_NAME: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             ret = GetAddressByLocationName(data, reply);
             break;
         }
@@ -189,6 +198,10 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case REG_CACHED_CALLBACK: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             ParseDataAndStartCacheLocating(data, reply);
             break;
         }
@@ -197,14 +210,26 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case GET_CACHED_LOCATION_SIZE: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             reply.WriteInt32(GetCachedGnssLocationsSize());
             break;
         }
         case FLUSH_CACHED_LOCATIONS: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             FlushCachedGnssLocations();
             break;
         }
         case SEND_COMMAND: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
             locationCommand->scenario =  data.ReadInt32();
             locationCommand->command = data.ReadBool();
@@ -212,6 +237,10 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case ADD_FENCE: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
             request->priority = data.ReadInt32();
             request->scenario = data.ReadInt32();
@@ -223,6 +252,10 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case REMOVE_FENCE: {
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
+                break;
+            }
             std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
             request->priority = data.ReadInt32();
             request->scenario = data.ReadInt32();
@@ -236,23 +269,42 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
+    IPCSkeleton::SetCallingIdentity(identity);
     return ret;
 }
 
 int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int ret = REPLY_NO_EXCEPTION;
+    if (code == REG_SWITCH_CALLBACK || code == UNREG_SWITCH_CALLBACK || code == ENABLE_ABILITY) {
+        if (!CommonUtils::CheckSecureSettings()) {
+            LBSLOGI(LOCATOR, "has no access permission,CheckSecureSettings return false");
+            reply.WriteInt32(SECURITY_EXCEPTION);
+            reply.WriteString("should grant location permission");
+            ret = SECURITY_EXCEPTION;
+            return ret;
+        }
+    }
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
     switch (code) {
+        case GET_SWITCH_STATE: {
+            reply.WriteInt32(GetSwitchState());
+            break;
+        }
+        case REG_SWITCH_CALLBACK: {
+            sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+            RegisterSwitchCallback(client, callingUid);
+            break;
+        }
+        case UNREG_SWITCH_CALLBACK: {
+            sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+            UnregisterSwitchCallback(client);
+            break;
+        }
         case ENABLE_ABILITY: {
-            if (!CommonUtils::CheckSecureSettings()) {
-                LBSLOGI(LOCATOR, "has no access permission,CheckSecureSettings return false");
-                reply.WriteInt32(SECURITY_EXCEPTION);
-                reply.WriteString("should grant location permission");
-                ret = SECURITY_EXCEPTION;
-                return ret;
-            }
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -263,18 +315,24 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
         default:
             ret = MSG_UNPROCESSED;
     }
+    IPCSkeleton::SetCallingIdentity(identity);
     return ret;
 }
 
 int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int ret = REPLY_NO_EXCEPTION;
-
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
     switch (code) {
         case REPORT_LOCATION: {
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
+                break;
+            }
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
                 break;
             }
             std::string abilityName = data.ReadString();
@@ -283,8 +341,12 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_GNSS_SESSION_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
+                break;
+            }
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
                 break;
             }
             int status = data.ReadInt32();
@@ -292,8 +354,12 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_SV: {
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
+                break;
+            }
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
                 break;
             }
             std::unique_ptr<SatelliteStatus> sv = SatelliteStatus::Unmarshalling(data);
@@ -301,8 +367,12 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_NMEA: {
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
+                break;
+            }
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
                 break;
             }
             std::string nmea = data.ReadString();
@@ -310,23 +380,31 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
             break;
         }
         case REPORT_LOCATION_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
+                break;
+            }
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
                 break;
             }
             ReportStatus(data, REPORT_LOCATION_STATUS);
             break;
         }
         case REPORT_ERROR_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
+                break;
+            }
+            if (GetSwitchState() == DISABLED) {
+                ret = SWITCH_OFF_EXCEPTION;
                 break;
             }
             ReportStatus(data, REPORT_ERROR_STATUS);
             break;
         }
         case UPDATE_SA_ABILITY: {
-            if (!CommonUtils::CheckSystemCalling(lastCallingUid)) {
+            if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;
                 break;
             }
@@ -336,17 +414,18 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
         default:
             ret = MSG_UNPROCESSED;
     }
+    IPCSkeleton::SetCallingIdentity(identity);
     return ret;
 }
 
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    lastCallingPid = IPCSkeleton::GetCallingPid();
-    lastCallingUid = IPCSkeleton::GetCallingUid();
-    IPCSkeleton::ResetCallingIdentity();
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+
     LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
-        code, option.GetFlags(), lastCallingPid, lastCallingUid);
+        code, option.GetFlags(), callingPid, callingUid);
     int ret = REPLY_NO_EXCEPTION;
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR, "invalid token.");

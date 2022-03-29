@@ -18,6 +18,7 @@
 #include "ipc_skeleton.h"
 #include "i_locator_callback.h"
 #include "lbs_log.h"
+#include "location_napi_adapter.h"
 #include "location_util.h"
 #include "locator.h"
 
@@ -52,7 +53,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
-            OnLocationReport(location);
+            Send(location);
             break;
         }
         default: {
@@ -63,36 +64,29 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     return 0;
 }
 
-bool LocatorCallbackHost::Send(const std::unique_ptr<Location>& location)
+bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-
-    napi_value jsEvent = nullptr;
-    if (location != nullptr) {
-        napi_create_object(m_env, &jsEvent);
-        LocationToJs(m_env, location, jsEvent);
-    }
-
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
         return false;
     }
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "work == nullptr.");
         return false;
     }
-    JsContext *context = new (std::nothrow) JsContext(m_env);
+    LocatorAsyncContext *context = new (std::nothrow) LocatorAsyncContext(m_env);
     if (context == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return false;
     }
-    context->m_env = m_env;
-    context->m_handlerCb = m_handlerCb;
-    context->m_deferred = m_deferred;
-    context->m_jsEvent = jsEvent;
+    context->env = m_env;
+    context->callback[0] = m_handlerCb;
+    context->deferred = m_deferred;
+    context->loc = std::move(location);
     work->data = context;
 
     uv_queue_work(
@@ -100,41 +94,53 @@ bool LocatorCallbackHost::Send(const std::unique_ptr<Location>& location)
         work,
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            JsContext *context = nullptr;
+            LocationAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
                 return;
             }
-            context = static_cast<JsContext *>(work->data);
+            context = static_cast<LocationAsyncContext *>(work->data);
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
+                delete work;
+                work = nullptr;
                 return;
             }
-            napi_open_handle_scope(context->m_env, &scope);
+            napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
                 // close handle scope, release napi_value
-                napi_close_handle_scope(context->m_env, scope);
+                napi_close_handle_scope(context->env, scope);
+                delete context;
+                context = nullptr;
+                delete work;
+                work = nullptr;
                 return;
             }
-            if (context->m_handlerCb != nullptr) {
+            napi_value jsEvent = nullptr;
+            if (context->loc != nullptr) {
+                napi_create_object(context->env, &jsEvent);
+                LocationToJs(context->env, context->loc, jsEvent);
+            }
+
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                napi_get_undefined(context->m_env, &undefine);
-                napi_get_reference_value(context->m_env, context->m_handlerCb, &handler);
-                if (napi_call_function(context->m_env, nullptr, handler, 1,
-                    &context->m_jsEvent, &undefine) != napi_ok) {
+                napi_get_undefined(context->env, &undefine);
+                napi_get_reference_value(context->env, context->callback[0], &handler);
+                if (napi_call_function(context->env, nullptr, handler, 1,
+                    &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report event failed");
                 }
-            } else if (context->m_deferred != nullptr) {
-                if (context->m_jsEvent != nullptr) {
-                    napi_resolve_deferred(context->m_env, context->m_deferred, context->m_jsEvent);
+            } else if (context->deferred != nullptr) {
+                if (jsEvent != nullptr) {
+                    napi_resolve_deferred(context->env, context->deferred, jsEvent);
                 } else {
-                    napi_reject_deferred(context->m_env, context->m_deferred, context->m_jsEvent);
+                    napi_reject_deferred(context->env, context->deferred, jsEvent);
                 }
             }
-            napi_close_handle_scope(context->m_env, scope);
+            napi_close_handle_scope(context->env, scope);
             delete context;
             context = nullptr;
             delete work;
@@ -146,7 +152,6 @@ bool LocatorCallbackHost::Send(const std::unique_ptr<Location>& location)
 
 void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    Send(location);
 }
 
 void LocatorCallbackHost::OnLocatingStatusChange(const int status)
@@ -155,7 +160,6 @@ void LocatorCallbackHost::OnLocatingStatusChange(const int status)
 
 void LocatorCallbackHost::OnErrorReport(const int errorCode)
 {
-    Send(nullptr);
 }
 
 void LocatorCallbackHost::DeleteHandler()
