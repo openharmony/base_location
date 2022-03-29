@@ -70,6 +70,6 @@ typedef struct {
     int scenario;
     GeoFence geofence;
 } GeofenceRequest;
-} // Location
-} // OHOS
+} // namespace Location
+} // namespace OHOS
 #endif // OHOS_LOCATION_CONSTANT_DEFINITION_H

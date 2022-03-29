@@ -28,6 +28,9 @@
 
 namespace OHOS {
 namespace Location {
+static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
+    std::make_shared<std::map<int, sptr<IRemoteObject>>>();
+std::mutex g_proxyMutex;
 sptr<IRemoteObject> CommonUtils::GetLocationService()
 {
     return nullptr;
@@ -127,25 +130,6 @@ int CommonUtils::AbilityConvertToId(const std::string ability)
     return -1;
 }
 
-uint32_t CommonUtils::GetCapabilityValue(std::string ability)
-{
-    std::string device = OHOS::system::GetParameter(BUILD_INFO, DEVICE_UNKOWN);
-    std::string simulateDevice = OHOS::system::GetParameter(TEST_SIMULATE_DEVICE, DEVICE_UNKOWN);
-    uint32_t capability = CAP_DEFAULT;
-    if (DEVICE_WEAR.compare(simulateDevice) == 0) {
-        capability = CAP_GNSS_WEAR;
-    } else if (DEVICE_PHONE.compare(device) == 0) {
-        if (GNSS_ABILITY.compare(ability) == 0) {
-            capability = CAP_GNSS_PHONE;
-        }
-    } else if (DEVICE_WEAR.compare(device) == 0) {
-        if (GNSS_ABILITY.compare(ability) == 0) {
-            capability = CAP_GNSS_WEAR;
-        }
-    }
-    return capability;
-}
-
 std::u16string CommonUtils::GetCapabilityToString(std::string ability, uint32_t capability)
 {
     std::string value = "{\"Capabilities\":{\"" + ability + "\":" + std::to_string(capability) + "}}";
@@ -154,7 +138,7 @@ std::u16string CommonUtils::GetCapabilityToString(std::string ability, uint32_t 
 
 std::u16string CommonUtils::GetCapability(std::string ability)
 {
-    uint32_t capability = GetCapabilityValue(ability);
+    uint32_t capability = 0x102;
     return GetCapabilityToString(ability, capability);
 }
 
@@ -183,20 +167,30 @@ sptr<IRemoteObject> CommonUtils::GetRemoteObject(int abilityId)
 
 sptr<IRemoteObject> CommonUtils::GetRemoteObject(int abilityId, std::string deviceId)
 {
-    sptr<ISystemAbilityManager> manager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (manager == nullptr) {
-        return nullptr;
+    std::lock_guard<std::mutex> lock(g_proxyMutex);
+    auto objectGnss = g_proxyMap->find(abilityId);
+    if (objectGnss == g_proxyMap->end()) {
+        auto manager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (manager == nullptr) {
+            LBSLOGE(COMMON_UTILS, "GetSystemAbilityManager is null.");
+            return nullptr;
+        }
+        sptr<IRemoteObject> object = manager->GetSystemAbility(abilityId, deviceId);
+        if (object == nullptr) {
+            LBSLOGE(COMMON_UTILS, "GetSystemAbility is null.");
+            return nullptr;
+        }
+        g_proxyMap->insert(std::make_pair(abilityId, object));
+        return object;
+    } else {
+        sptr<IRemoteObject> remoteObject = objectGnss->second;
+        return remoteObject;
     }
-    sptr<IRemoteObject> object = manager->GetSystemAbility(abilityId, deviceId);
-    return object;
 }
 
 std::string CommonUtils::InitDeviceId()
 {
     std::string deviceId;
-    sptr<ISystemAbilityManager> manager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (manager != nullptr) {
-    }
     return deviceId;
 }
 

@@ -73,9 +73,6 @@ bool GnssStatusCallbackHost::IsRemoteDied()
 bool GnssStatusCallbackHost::Send(const std::unique_ptr<SatelliteStatus>& statusInfo)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(m_env, &scope);
-
     napi_value jsEvent = nullptr;
     if (statusInfo != nullptr) {
         napi_create_object(m_env, &jsEvent);
@@ -88,7 +85,7 @@ bool GnssStatusCallbackHost::Send(const std::unique_ptr<SatelliteStatus>& status
         LBSLOGE(GNSS_STATUS_CALLBACK, "loop == nullptr.");
         return false;
     }
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "work == nullptr.");
         return false;
@@ -117,6 +114,8 @@ bool GnssStatusCallbackHost::Send(const std::unique_ptr<SatelliteStatus>& status
             context = static_cast<JsContext *>(work->data);
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
+                delete work;
+                work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->m_env, &scope);
@@ -124,6 +123,10 @@ bool GnssStatusCallbackHost::Send(const std::unique_ptr<SatelliteStatus>& status
                 LBSLOGE(GNSS_STATUS_CALLBACK, "scope is nullptr");
                 // close handle scope, release napi_value
                 napi_close_handle_scope(context->m_env, scope);
+                delete context;
+                context = nullptr;
+                delete work;
+                work = nullptr;
                 return;
             }
             if (context->m_handlerCb != nullptr) {

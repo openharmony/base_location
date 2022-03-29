@@ -25,7 +25,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
 {
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    LBSLOGI(GEO_CONVERT, "OnRemoteRequest cmd = %{public}d, flags= %{public}d, pid= %{public}d, uid= %{public}d",
+    LBSLOGI(GEO_CONVERT, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
     if (callingUid > SYSTEM_UID) {
         LBSLOGE(GEO_CONVERT, "this remote request is not allowed");

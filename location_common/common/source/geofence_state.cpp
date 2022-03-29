@@ -21,6 +21,7 @@ GeoFenceState::GeoFenceState(const GeoFence fence, const AbilityRuntime::WantAge
 {
     mFence = fence;
     mWantAgent = wantAgent;
+    mState = 0;
 }
 } // namespace Location
 } // namespace OHOS

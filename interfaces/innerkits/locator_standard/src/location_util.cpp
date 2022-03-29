@@ -163,7 +163,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
         SetValueInt32(env, "descriptionsSize", geoAddress->m_descriptionsSize, eachObj);
         status = napi_set_element(env, arrayResult, idx++, eachObj);
         if (status != napi_ok) {
-            LBSLOGE(LOCATOR_STANDARD, "napi set element error: %{public}d, idx: %{public}d", status, idx - 1);
+            LBSLOGE(LOCATOR_STANDARD, "napi set element error: %{public}d, idx: %{public}u", status, idx - 1);
             return false;
         }
     }
@@ -484,6 +484,9 @@ napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool b
 static napi_value InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum)
 {
+    if (asyncContext == nullptr || argv == nullptr) {
+        return nullptr;
+    }
     for (size_t i = nonCallbackArgNum; i != argc; ++i) {
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[i], &valuetype));
@@ -496,6 +499,9 @@ static napi_value InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncC
 static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext, napi_value& promise)
 {
     napi_deferred deferred;
+    if (asyncContext == nullptr) {
+        return nullptr;
+    }
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     asyncContext->deferred = deferred;
     return nullptr;
@@ -503,6 +509,9 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
 
 static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncContext)
 {
+    if (asyncContext == nullptr) {
+        return nullptr;
+    }
     napi_create_async_work(
         env,
         nullptr,
@@ -554,6 +563,9 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
 
 static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncContext)
 {
+    if (asyncContext == nullptr) {
+        return nullptr;
+    }
     napi_create_async_work(
         env,
         nullptr,
@@ -596,6 +608,10 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum)
 {
+    if (asyncContext == nullptr || argv == nullptr) {
+        return nullptr;
+    }
+
     if (argc > nonCallbackArgNum) {
         InitAsyncCallBackEnv(env, asyncContext, argc, argv, nonCallbackArgNum);
         return DoCallBackAsyncWork(env, asyncContext);
