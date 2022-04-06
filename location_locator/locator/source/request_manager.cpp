@@ -67,7 +67,7 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
         return false;
     }
     auto receivers = locatorAbility->GetReceivers();
-    if (receivers->empty()) {
+    if (receivers == nullptr) {
         return false;
     }
     if (newRequest == nullptr) {
@@ -133,7 +133,7 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
         return;
     }
     auto requests = locatorAbility->GetRequests();
-    if (requests->empty()) {
+    if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         return;
     }
@@ -178,7 +178,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         return;
     }
     auto receivers = locatorAbility->GetReceivers();
-    if (receivers->empty()) {
+    if (receivers == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "receivers map is empty");
         return;
     }
@@ -249,7 +249,7 @@ void RequestManager::HandleRequest(std::string abilityName)
         return;
     }
     auto requests = locatorAbility->GetRequests();
-    if (requests->empty()) {
+    if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         return;
     }
@@ -319,7 +319,7 @@ sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
         return remoteObject;
     }
     auto remoteManagerMap = locatorAbility->GetProxyMap();
-    if (remoteManagerMap->empty()) {
+    if (remoteManagerMap == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "proxy map is empty");
         return remoteObject;
     }
@@ -354,7 +354,7 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         return;
     }
     auto requests = locatorAbility->GetRequests();
-    if (requests->empty()) {
+    if (requests == nullptr || requests->empty()) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         return;
     }

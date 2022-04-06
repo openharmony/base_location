@@ -35,7 +35,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         return false;
     }
     auto requestMap = locatorAbility->GetRequests();
-    if (requestMap->empty()) {
+    if (requestMap == nullptr) {
         return false;
     }
     auto requestListIter = requestMap->find(abilityName);
