@@ -60,7 +60,7 @@ public:
 
     LocationRequestAsyncContext() = delete;
 
-    virtual ~LocationRequestAsyncContext(){}
+    virtual ~LocationRequestAsyncContext() {}
 };
 
 class LocationAsyncContext : public AsyncContext {
@@ -75,7 +75,7 @@ public:
 
     LocationAsyncContext() = delete;
 
-    virtual ~LocationAsyncContext(){}
+    virtual ~LocationAsyncContext() {}
 };
 
 class LocatorAsyncContext : public AsyncContext {
@@ -90,7 +90,7 @@ public:
 
     LocatorAsyncContext() = delete;
 
-    virtual ~LocatorAsyncContext(){}
+    virtual ~LocatorAsyncContext() {}
 };
 
 class SwitchAsyncContext : public AsyncContext {
@@ -105,7 +105,7 @@ public:
 
     SwitchAsyncContext() = delete;
 
-    virtual ~SwitchAsyncContext(){}
+    virtual ~SwitchAsyncContext() {}
 };
 
 class PrivacyAsyncContext : public AsyncContext {
@@ -122,7 +122,7 @@ public:
 
     PrivacyAsyncContext() = delete;
 
-    virtual ~PrivacyAsyncContext(){}
+    virtual ~PrivacyAsyncContext() {}
 };
 
 class CachedAsyncContext : public AsyncContext {
@@ -139,7 +139,7 @@ public:
 
     CachedAsyncContext() = delete;
 
-    virtual ~CachedAsyncContext(){}
+    virtual ~CachedAsyncContext() {}
 };
 
 class CommandAsyncContext : public AsyncContext {
@@ -156,7 +156,7 @@ public:
 
     CommandAsyncContext() = delete;
 
-    virtual ~CommandAsyncContext(){}
+    virtual ~CommandAsyncContext() {}
 };
 
 class ReverseGeoCodeAsyncContext : public AsyncContext {
@@ -169,7 +169,7 @@ public:
 
     ReverseGeoCodeAsyncContext() = delete;
 
-    virtual ~ReverseGeoCodeAsyncContext(){}
+    virtual ~ReverseGeoCodeAsyncContext() {}
 };
 
 class GeoCodeAsyncContext : public AsyncContext {
@@ -182,7 +182,7 @@ public:
 
     GeoCodeAsyncContext() = delete;
 
-    virtual ~GeoCodeAsyncContext(){}
+    virtual ~GeoCodeAsyncContext() {}
 };
 }  // namespace Location
 }  // namespace OHOS

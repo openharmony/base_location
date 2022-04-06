@@ -236,9 +236,10 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
     double maxLatitude = 0.0;
     double maxLongitude = 0.0;
     std::string locale = "";
+	int bufLen = 100;
 
-    JsObjectToString(env, object, "locale", 100, locale);
-    JsObjectToString(env, object, "description", 100, description);
+    JsObjectToString(env, object, "locale", bufLen, locale);
+    JsObjectToString(env, object, "description", bufLen, description);
     JsObjectToInt(env, object, "maxItems", maxItems);
     JsObjectToDouble(env, object, "minLatitude", minLatitude);
     JsObjectToDouble(env, object, "minLongitude", minLongitude);

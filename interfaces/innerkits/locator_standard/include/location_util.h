@@ -99,7 +99,7 @@ public:
         m_jsEvent = nullptr;
     }
 
-    virtual ~JsContext(){}
+    virtual ~JsContext() {}
 };
 
 napi_value UndefinedNapiValue(const napi_env& env);
