@@ -14,9 +14,6 @@
  */
 
 #include "geo_convert_service_test.h"
-
-#include <string>
-
 #include "common_utils.h"
 #include "geo_convert_service.h"
 #include "geo_convert_skeleton.h"

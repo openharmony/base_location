@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "location_util.h"
-#include <string>
 #include "common_utils.h"
 #include "geo_address.h"
 #include "lbs_log.h"

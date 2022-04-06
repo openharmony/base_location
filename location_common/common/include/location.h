@@ -17,7 +17,6 @@
 #define OHOS_LOCATION_OBJECT_H
 
 #include <parcel.h>
-#include <string>
 
 namespace OHOS {
 namespace Location {

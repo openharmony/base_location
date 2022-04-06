@@ -20,9 +20,7 @@
 #include <mutex>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include <vector>
-
 #include <constant_definition.h>
 
 constexpr int STATE_OPEN = 1;

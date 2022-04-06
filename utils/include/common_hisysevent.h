@@ -16,8 +16,6 @@
 #ifndef OHOS_LOCATION_HISYSEVENT_H
 #define OHOS_LOCATION_HISYSEVENT_H
 
-#include <string>
-
 namespace OHOS {
 namespace Location {
 void WriteGnssStateEvent(const std::string& state);

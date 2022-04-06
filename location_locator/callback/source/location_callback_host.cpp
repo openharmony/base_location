@@ -14,14 +14,11 @@
  */
 
 #include "location_callback_host.h"
-
-#include <string>
 #include "if_system_ability_manager.h"
 #include "ipc_file_descriptor.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-
 #include "common_utils.h"
 
 namespace OHOS {

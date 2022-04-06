@@ -17,7 +17,6 @@
 #define OHOS_LOCATION_GEO_ADDRESS_H
 
 #include <parcel.h>
-#include <string>
 #include <set>
 #include <map>
 

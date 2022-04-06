@@ -16,8 +16,6 @@
 #ifndef OHOS_LOCATION_CONSTANT_DEFINITION_H
 #define OHOS_LOCATION_CONSTANT_DEFINITION_H
 
-#include <string>
-
 namespace OHOS {
 namespace Location {
 // error type
