@@ -18,6 +18,7 @@
 
 #include <map>
 #include <singleton.h>
+#include <string>
 #include "common_event_subscriber.h"
 #include "iremote_stub.h"
 #include "i_locator_callback.h"

@@ -19,6 +19,8 @@
 #include <iostream>
 #include <map>
 #include <singleton.h>
+#include <string>
+
 #include "event_handler.h"
 #include "request.h"
 

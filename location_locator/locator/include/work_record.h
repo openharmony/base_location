@@ -17,6 +17,7 @@
 #define LOCATION_WORK_RECORD_H
 
 #include <parcel.h>
+#include <string>
 #include <vector>
 
 namespace OHOS {

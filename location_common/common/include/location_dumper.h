@@ -17,6 +17,7 @@
 #define OHOS_LOCATION_DUMPER_H
 
 #include <vector>
+#include <string>
 
 namespace OHOS {
 namespace Location {

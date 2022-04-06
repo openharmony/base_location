@@ -21,6 +21,8 @@
 #include <ctime>
 #include <list>
 #include <mutex>
+#include <string>
+
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "location.h"

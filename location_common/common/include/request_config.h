@@ -17,6 +17,7 @@
 #define OHOS_LOCATION_REQUEST_CONFIGRATION_H
 
 #include <parcel.h>
+#include <string>
 
 namespace OHOS {
 namespace Location {

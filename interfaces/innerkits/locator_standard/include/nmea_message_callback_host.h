@@ -17,6 +17,7 @@
 #define OHOS_NMEA_MESSAGE_CALLBACK_HOST_H
 
 #include <shared_mutex>
+#include <string>
 #include "i_nmea_message_callback.h"
 #include "iremote_stub.h"
 #include "location_util.h"

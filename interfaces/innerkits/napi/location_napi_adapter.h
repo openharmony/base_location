@@ -17,6 +17,7 @@
 #define LOCATION_NAPI_ADAPTER_H
 
 #include <array>
+#include <string>
 #include "constant_definition.h"
 #include "location.h"
 #include "location_util.h"
