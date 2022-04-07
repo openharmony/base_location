@@ -52,11 +52,19 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
+    if (requestConfig == nullptr) {
+        return;
+    }
     requestConfig->SetPriority(PRIORITY_LOW_POWER);
     requestConfig->SetTimeInterval(timeInterval_);
-
-    callback_ = sptr<mLocatorCallback>(new LocatorBackgroundProxy::mLocatorCallback());
+    callback_ = sptr<mLocatorCallback>(new (std::nothrow) LocatorBackgroundProxy::mLocatorCallback());
+    if (callback_ == nullptr) {
+        return;
+    }
     request_ = std::make_shared<Request>();
+    if (request_ == nullptr) {
+        return;
+    }
     request_->SetUid(SYSTEM_UID);
     request_->SetPid(getpid());
     request_->SetPackageName(PROC_NAME);
@@ -220,6 +228,9 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
 void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active)
 {
     std::lock_guard lock(requestListMutex_);
+    if (request == nullptr) {
+        return;
+    }
     auto userId = GetUserId(request->GetUid());
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
@@ -234,6 +245,9 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
             requestsList->remove(request);
         }
     } else {
+        if (request->GetRequestConfig() == nullptr) {
+            return;
+        }
         if (!active && CheckPermission() && request->GetRequestConfig()->GetFixNumber() == 0
             && CheckMaxRequestNum(request->GetUid(), request->GetPackageName())) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",

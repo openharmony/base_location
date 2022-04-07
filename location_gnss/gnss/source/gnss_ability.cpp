@@ -36,9 +36,6 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     gnssStatusCallback_ = std::make_unique<std::map<pid_t, sptr<IGnssStatusCallback>>>();
     nmeaCallback_ = std::make_unique<std::map<pid_t, sptr<INmeaMessageCallback>>>();
     SetAbility(GNSS_ABILITY);
-    sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr != nullptr) {
-    }
     LBSLOGI(GNSS, "ability constructed.");
 }
 

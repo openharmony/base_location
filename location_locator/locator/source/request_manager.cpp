@@ -92,7 +92,13 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
     std::list<std::shared_ptr<Request>> requestWithSameCallback = iterator->second;
     for (auto iter = requestWithSameCallback.begin(); iter != requestWithSameCallback.end(); ++iter) {
         auto request = *iter;
+        if (request == nullptr) {
+            continue;
+        }
         auto requestConfig = request->GetRequestConfig();
+        if (requestConfig == nullptr || newConfig == nullptr) {
+            continue;
+        }
         if (newConfig->IsSame(*requestConfig)) {
             request->SetRequestConfig(*requestConfig);
             LBSLOGI(REQUEST_MANAGER, "find same type request, update request configuration");
@@ -122,7 +128,15 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, bool 
 void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return;
+    }
     auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        return;
+    }
     auto mapIter = requests->find(abilityName);
     if (mapIter == requests->end()) {
         LBSLOGE(REQUEST_MANAGER, "can not find %{public}s ability request list.", abilityName.c_str());
@@ -159,7 +173,15 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         return;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return;
+    }
     auto receivers = locatorAbility->GetReceivers();
+    if (receivers == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "receivers map is empty");
+        return;
+    }
     sptr<IRemoteObject> deadCallback = callback->AsObject();
     // get dead request list
     LBSLOGD(REQUEST_MANAGER, "stop callback %{public}p", &deadCallback);
@@ -212,7 +234,6 @@ void RequestManager::HandleRequest()
         LBSLOGE(REQUEST_MANAGER, "proxy map is empty");
         return;
     }
-
     std::map<std::string, sptr<IRemoteObject>>::iterator iter;
     for (iter = proxyMap->begin(); iter != proxyMap->end(); ++iter) {
         std::string abilityName = iter->first;
@@ -223,7 +244,15 @@ void RequestManager::HandleRequest()
 void RequestManager::HandleRequest(std::string abilityName)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return;
+    }
     auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        return;
+    }
     auto mapIter = requests->find(abilityName);
     if (mapIter == requests->end()) {
         LBSLOGE(REQUEST_MANAGER, "can not find %{public}s ability request list.", abilityName.c_str());
@@ -236,16 +265,18 @@ void RequestManager::HandleRequest(std::string abilityName)
     int timeInterval = 0;
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
+        if (request == nullptr || !request->GetIsRequesting()) {
+            continue;
+        }
         pid_t uid = request->GetUid();
         pid_t pid = request->GetPid();
         std::string packageName = request->GetPackageName();
-        // if location access permission granted, add request info to work record
-        if (!CommonUtils::CheckLocationPermission() || !request->GetIsRequesting()) {
+        // add request info to work record
+        workRecord->Add(uid, pid, packageName);
+        auto requestConfig = request->GetRequestConfig();
+        if (requestConfig == nullptr) {
             continue;
         }
-        workRecord->Add(uid, pid, packageName);
-
-        auto requestConfig = request->GetRequestConfig();
         timeInterval = requestConfig->GetTimeInterval();
         int requestType = requestConfig->GetScenario();
         if (requestType == SCENE_UNSET) {
@@ -283,7 +314,15 @@ sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
 {
     sptr<IRemoteObject> remoteObject = nullptr;
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return remoteObject;
+    }
     auto remoteManagerMap = locatorAbility->GetProxyMap();
+    if (remoteManagerMap == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "proxy map is empty");
+        return remoteObject;
+    }
     auto remoteObjectIter = remoteManagerMap->find(abilityName);
     if (remoteObjectIter == remoteManagerMap->end()) {
         LBSLOGE(REQUEST_MANAGER, "sa init fail!");
@@ -310,7 +349,15 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         return;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return;
+    }
     auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr || requests->empty()) {
+        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        return;
+    }
     for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
         auto list = mapIter->second;
         for (auto request : list) {

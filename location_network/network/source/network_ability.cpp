@@ -31,9 +31,6 @@ const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
 NetworkAbility::NetworkAbility() : SystemAbility(LOCATION_NETWORK_LOCATING_SA_ID, true)
 {
     SetAbility(NETWORK_ABILITY);
-    sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr != nullptr) {
-    }
     LBSLOGI(NETWORK, "ability constructed.");
 }
 

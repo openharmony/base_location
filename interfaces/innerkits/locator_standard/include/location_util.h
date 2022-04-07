@@ -91,23 +91,17 @@ public:
 class JsContext : public AsyncContext {
 public:
     napi_env m_env;
-    napi_deferred m_deferred;
-    napi_ref m_thisVarRef;
     napi_ref m_handlerCb;
     napi_value m_jsEvent;
-    napi_value resourceName;
     JsContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
         AsyncContext(env, work, deferred)
     {
         m_env = nullptr;
-        m_deferred = nullptr;
-        m_thisVarRef = nullptr;
         m_handlerCb = nullptr;
         m_jsEvent = nullptr;
-        resourceName = nullptr;
     }
 
-    virtual ~JsContext(){}
+    virtual ~JsContext() {}
 };
 
 napi_value UndefinedNapiValue(const napi_env& env);

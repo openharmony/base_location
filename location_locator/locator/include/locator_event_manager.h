@@ -22,7 +22,6 @@
 #include <string>
 
 #include "event_handler.h"
-
 #include "request.h"
 
 namespace OHOS {

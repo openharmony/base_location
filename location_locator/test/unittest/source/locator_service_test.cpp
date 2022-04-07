@@ -172,7 +172,12 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
      */
     MessageParcel data;
     MessageParcel reply;
-    bool ret = (proxy_->GetCacheLocation(data, reply) == REPLY_NO_EXCEPTION) ? true : false;
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        ret = (proxy_->GetCacheLocation(data, reply) == REPLY_NO_EXCEPTION) ? true : false;
+    } else {
+        ret = (proxy_->GetCacheLocation(data, reply) != REPLY_NO_EXCEPTION) ? true : false;
+    }
     EXPECT_EQ(true, ret);
 }
 

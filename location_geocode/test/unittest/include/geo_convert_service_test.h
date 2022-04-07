@@ -24,7 +24,6 @@ class GeoConvertServiceTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool IsDeviceSupport();
     bool Available();
     OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
     bool available_;

@@ -151,7 +151,7 @@ bool LocatorImpl::IsGeoServiceAvailable()
     } else if (exception != REPLY_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
-        result = reply.ReadInt32() == 1;
+        result = (reply.ReadInt32() == 1);
     }
     return result;
 }

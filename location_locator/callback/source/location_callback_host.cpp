@@ -13,15 +13,12 @@
  * limitations under the License.
  */
 
-#include "adapter_callback_skeleton.h"
-
-#include <string>
+#include "location_callback_host.h"
 #include "if_system_ability_manager.h"
 #include "ipc_file_descriptor.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-
 #include "common_utils.h"
 
 namespace OHOS {
@@ -54,13 +51,13 @@ int LocationCallbackStub::OnRemoteRequest(uint32_t code,
     int ret = EXCEPTION;
     pid_t lastCallingPid = IPCSkeleton::GetCallingPid();
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
-    LBSLOGI(label_, "OnReceived cmd = %{public}d, flags= %{public}d, pid= %{public}d, uid= %{public}d",
+    LBSLOGI(label_, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
 
     switch (code) {
         case RECEIVE_LOCATION_CHANGE_EVENT: {
             std::unique_ptr<Location> location = Location::UnmarshallingLocation(data);
-            OnLocationChange(location);
+            OnLocationUpdate(location);
             break;
         }
         default:
@@ -83,36 +80,36 @@ void LocationCallbackStub::GetRemoteLocatorProxy(std::string deviceId)
     proxyLocator_ = std::make_unique<LocatorProxy>(CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, deviceId));
 }
 
-void LocationCallbackStub::OnLocationChange(const std::unique_ptr<Location>& location)
+void LocationCallbackStub::OnLocationUpdate(const std::unique_ptr<Location>& location)
 {
-    LBSLOGI(label_, "LocationCallbackStub::onLocationChange");
+    LBSLOGI(label_, "LocationCallbackStub::OnLocationUpdate");
     init(abilityName_);
     if (proxyLocator_ != nullptr) {
         proxyLocator_->ReportLocation(location, abilityName_);
     }
 }
 
-void LocationCallbackStub::OnStatusChange(unsigned int gnssSessionStatus)
+void LocationCallbackStub::OnStatusUpdate(unsigned int gnssSessionStatus)
 {
-    LBSLOGI(label_, "LocationCallbackStub::OnStatusChange");
+    LBSLOGI(label_, "LocationCallbackStub::OnStatusUpdate");
     init(abilityName_);
     if (proxyLocator_ != nullptr) {
         proxyLocator_->ReportGnssSessionStatus(gnssSessionStatus);
     }
 }
 
-void LocationCallbackStub::OnSvStatusChange(const std::unique_ptr<SatelliteStatus> &sv)
+void LocationCallbackStub::OnSvStatusUpdate(const std::unique_ptr<SatelliteStatus> &sv)
 {
-    LBSLOGI(label_, "LocationCallbackStub::OnSvStatusChange");
+    LBSLOGI(label_, "LocationCallbackStub::OnSvStatusUpdate");
     init(abilityName_);
     if (proxyLocator_ != nullptr) {
         proxyLocator_->ReportSv(sv);
     }
 }
 
-void LocationCallbackStub::OnNmeaChange(int64_t timestamp, const std::string &nmea)
+void LocationCallbackStub::OnNmeaUpdate(int64_t timestamp, const std::string &nmea)
 {
-    LBSLOGI(label_, "LocationCallbackStub::OnNmeaChange");
+    LBSLOGI(label_, "LocationCallbackStub::OnNmeaUpdate");
     init(abilityName_);
     if (proxyLocator_ != nullptr) {
         proxyLocator_->ReportNmea(nmea);

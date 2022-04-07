@@ -31,7 +31,13 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         abilityName.c_str(), location->ToString().c_str());
     DelayedSingleton<FusionController>::GetInstance()->FuseResult(abilityName, location);
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        return false;
+    }
     auto requestMap = locatorAbility->GetRequests();
+    if (requestMap == nullptr) {
+        return false;
+    }
     auto requestListIter = requestMap->find(abilityName);
     if (requestListIter == requestMap->end()) {
         return false;
@@ -39,9 +45,13 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
 
     auto requestList = requestListIter->second;
     auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
+    if (deadRequests == nullptr) {
+        return false;
+    }
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
-        if (!request->GetIsRequesting()) {
+        if (request == nullptr || request->GetRequestConfig() == nullptr ||
+            !request->GetIsRequesting()) {
             continue;
         }
         if (!ReportIntervalCheck(location, request) ||
@@ -55,7 +65,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         }
 
         int fixTime = request->GetRequestConfig()->GetFixNumber();
-        if (fixTime > 0 && deadRequests != nullptr) {
+        if (fixTime > 0) {
             deadRequests->push_back(request);
             continue;
         }
@@ -63,12 +73,13 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
 
     for (auto iter = deadRequests->begin(); iter != deadRequests->end(); ++iter) {
         auto request = *iter;
+        if (request == nullptr) {
+            continue;
+        }
         DelayedSingleton<RequestManager>::GetInstance()->UpdateRequestRecord(request, false);
     }
     locatorAbility->ApplyRequests();
-    if (deadRequests != nullptr) {
-        deadRequests->clear();
-    }
+    deadRequests->clear();
     return true;
 }
 
@@ -92,7 +103,7 @@ bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback
 bool ReportManager::MaxAccuracyCheck(const std::unique_ptr<Location>& location,
     const std::shared_ptr<Request>& request)
 {
-    if (request->GetRequestConfig() == nullptr) {
+    if (request == nullptr || request->GetRequestConfig() == nullptr) {
         return true;
     }
     float maxAcc = request->GetRequestConfig()->GetMaxAccuracy();
@@ -108,7 +119,7 @@ bool ReportManager::MaxAccuracyCheck(const std::unique_ptr<Location>& location,
 bool ReportManager::ReportIntervalCheck(const std::unique_ptr<Location>& location,
     const std::shared_ptr<Request>& request)
 {
-    if (request->GetLastLocation() == nullptr) {
+    if (request == nullptr || request->GetLastLocation() == nullptr) {
         return true;
     }
     int minTime = request->GetRequestConfig()->GetTimeInterval();
