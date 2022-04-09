@@ -26,8 +26,11 @@
 #include "location_callback_host.h"
 #include "work_record.h"
 
+#ifdef __aarch64__
+#define HIGNSS_ADAPTER_PATH "/system/lib64/libgnss.default.so"
+#else
 #define HIGNSS_ADAPTER_PATH "/system/lib/libgnss.default.so"
-
+#endif
 namespace OHOS {
 namespace Location {
 class ISubAbility : public IRemoteBroker {
