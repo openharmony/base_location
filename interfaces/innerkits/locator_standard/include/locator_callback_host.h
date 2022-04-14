@@ -29,16 +29,26 @@ public:
     virtual ~LocatorCallbackHost();
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+    void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
     bool Send(std::unique_ptr<Location>& location);
+    void DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work);
+    bool SendErrorCode(const int& errorCode);
+
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
     void DeleteHandler();
+    void DeleteSuccessHandler();
+    void DeleteFailHandler();
+    void DeleteCompleteHandler();
 
     pid_t m_lastCallingPid;
     pid_t m_lastCallingUid;
     napi_env m_env;
     napi_ref m_handlerCb;
+    napi_ref m_successHandlerCb;
+    napi_ref m_failHandlerCb;
+    napi_ref m_completeHandlerCb;
     int m_fixNumber;
     napi_deferred m_deferred;
     std::shared_mutex m_mutex;
