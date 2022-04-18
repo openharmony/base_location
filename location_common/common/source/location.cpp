@@ -83,6 +83,13 @@ std::unique_ptr<Location> Location::UnmarshallingLocation(Parcel& parcel)
     return location;
 }
 
+std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
+{
+    std::shared_ptr<Location> location = std::make_shared<Location>();
+    location->ReadFromParcel(parcel);
+    return location;
+}
+
 std::unique_ptr<Location> Location::Unmarshalling(Parcel& parcel)
 {
     std::unique_ptr<Location> location = std::make_unique<Location>();

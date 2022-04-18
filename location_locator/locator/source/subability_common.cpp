@@ -20,12 +20,20 @@
 #include "iservice_registry.h"
 
 #include "common_utils.h"
+#include "gnss_ability_proxy.h"
+#include "locator_ability.h"
 #include "string_ex.h"
 
 namespace OHOS {
 namespace Location {
-sptr<LocationCallbackStub> g_gnssLocationCallback = new (std::nothrow) LocationCallbackStub(GNSS_ABILITY);
-sptr<LocationCallbackStub> g_passiveLocationCallback = new (std::nothrow) LocationCallbackStub(PASSIVE_ABILITY);
+SubAbility::SubAbility()
+{
+}
+
+SubAbility::~SubAbility()
+{
+}
+
 void SubAbility::SetAbility(std::string name)
 {
     name_ = name;
@@ -105,17 +113,6 @@ sptr<LocationCallbackStub> SubAbility::GetCallback(int uid)
 {
     auto iter = requestMap_->find(uid);
     return (iter != requestMap_->end()) ? iter->second : nullptr;
-}
-
-void SubAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
-{
-    if (isAdded) {
-        LBSLOGD(LOCATOR, "Start navigation.");
-    } else {
-        LBSLOGD(LOCATOR, "Stop navigation.");
-    }
-    std::string state = isAdded ? "start" : "stop";
-    WriteGnssStateEvent(state);
 }
 
 std::unique_ptr<Location> SubAbility::GetCache()

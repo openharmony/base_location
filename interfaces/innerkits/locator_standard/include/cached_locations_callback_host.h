@@ -31,7 +31,7 @@ public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     bool IsRemoteDied();
-    bool Send(const std::vector<std::unique_ptr<Location>>& locations);
+    bool Send(std::vector<std::shared_ptr<Location>>& locations);
     void OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations) override;
     void DeleteHandler();
 

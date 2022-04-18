@@ -25,7 +25,10 @@
 
 #include "common_utils.h"
 #include "gnss_ability_skeleton.h"
+#include "gnss_vendor.h"
 #include "subability_common.h"
+
+#define HIGNSS_ADAPTER_PATH "/system/lib/libgnss.default.so"
 
 namespace OHOS {
 namespace Location {
@@ -64,7 +67,20 @@ public:
     void ReportGnssSessionStatus(int status) override;
     void ReportNmea(const std::string &nmea) override;
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
+
+    void RequestRecord(sptr<LocationCallbackStub> addCallback, WorkRecord &workRecord, bool isAdded) override;
+    void NativeStart();
+    void NativeStop();
+    bool NativeInit();
+    void NativeClear();
+    static void StatusCallback(GnssStatus* status);
+    static void LocationUpdate(GnssLocation* location);
+    static void NmeaCallback(GnssUtcTimestamp timestamp, const char* nmea, int length);
+    static void SvStatusCallback(GnssSatelliteStatus* sv_info);
 private:
+    bool nativeInitFlag_;
+    void* handle;
+    GnssInterface* g_gpsInterface;
     std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
     std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     bool Init();

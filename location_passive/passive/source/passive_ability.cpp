@@ -84,6 +84,11 @@ void PassiveAbility::SetEnable(bool state)
     Enable(state, AsObject());
 }
 
+void PassiveAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+{
+    LBSLOGE(PASSIVE, "enter RequestRecord");
+}
+
 void PassiveAbility::SaDumpInfo(std::string& result)
 {
     result += "Passive Location enable status: true";
@@ -101,7 +106,7 @@ int32_t PassiveAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
     std::string result;
     dumper.PassiveDump(SaDumpInfo, vecArgs, result);
     if (!SaveStringToFd(fd, result)) {
-        LBSLOGE(GEO_CONVERT, "Passive save string to fd failed!");
+        LBSLOGE(PASSIVE, "Passive save string to fd failed!");
         return ERR_OK;
     }
     return ERR_OK;

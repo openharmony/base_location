@@ -32,7 +32,7 @@ public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     bool IsRemoteDied();
-    bool Send(const std::unique_ptr<SatelliteStatus>& statusInfo);
+    bool Send(std::unique_ptr<SatelliteStatus>& statusInfo);
     void OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo) override;
     void DeleteHandler();
 

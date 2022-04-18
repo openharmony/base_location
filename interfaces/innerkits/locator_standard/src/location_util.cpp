@@ -49,7 +49,7 @@ napi_value UndefinedNapiValue(const napi_env& env)
     return result;
 }
 
-void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteStatus>& statusInfo, napi_value& result)
+void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result)
 {
     napi_value satelliteIdsArray;
     napi_value cn0Array;
@@ -90,13 +90,22 @@ void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteSta
     }
 }
 
-void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Location>>& locations, napi_value& result)
+void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result)
 {
     if (locations.size() > 0) {
         for (int index = 0; index < locations.size(); index++) {
             napi_value value;
             napi_status status;
-            LocationToJs(env, locations[index], value);
+            SetValueDouble(env, "latitude", locations[index]->GetLatitude(), value);
+            SetValueDouble(env, "longitude", locations[index]->GetLongitude(), value);
+            SetValueDouble(env, "altitude", locations[index]->GetAltitude(), value);
+            SetValueDouble(env, "accuracy", locations[index]->GetAccuracy(), value);
+            SetValueDouble(env, "speed", locations[index]->GetSpeed(), value);
+            SetValueInt64(env, "timeStamp", locations[index]->GetTimeStamp(), value);
+            SetValueDouble(env, "direction", locations[index]->GetDirection(), value);
+            SetValueInt64(env, "timeSinceBoot", locations[index]->GetTimeSinceBoot(), value);
+            SetValueUtf8String(env, "additions", "GNSS", value);
+            SetValueInt64(env, "additionSize", 1, value);
             status = napi_set_element(env, result, index, value);
             if (status != napi_ok) {
                 LBSLOGE(LOCATOR_STANDARD, "napi set element error: %{public}d, idx: %{public}d", status, index - 1);

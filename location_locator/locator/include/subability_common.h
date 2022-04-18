@@ -64,6 +64,8 @@ public:
 
 class SubAbility {
 public:
+    SubAbility();
+    virtual ~SubAbility();
     void SetAbility(std::string name);
     void LocationRequest(uint64_t interval, WorkRecord &workrecord);
     std::unique_ptr<Location> GetCache();
@@ -76,7 +78,7 @@ private:
     void HandleLocalRequest(WorkRecord &record);
     void HandleRemoveRecord(WorkRecord &record);
     void HandleAddRecord(WorkRecord &record);
-    void RequestRecord(sptr<LocationCallbackStub> addCallback, WorkRecord &workRecord, bool isAdded);
+    virtual void RequestRecord(sptr<LocationCallbackStub> addCallback, WorkRecord &workRecord, bool isAdded) = 0;
     sptr<LocationCallbackStub> GetCallback(int uid);
     void WriteCallbackToParcel(sptr<LocationCallbackStub> callback, MessageParcel &data);
     void WriteInfoToParcel(WorkRecord &workRecord, MessageParcel &data);

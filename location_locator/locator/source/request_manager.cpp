@@ -68,9 +68,11 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
     }
     auto receivers = locatorAbility->GetReceivers();
     if (receivers == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "receivers is empty");
         return false;
     }
     if (newRequest == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "newRequest is empty");
         return false;
     }
     newRequest->SetRequesting(true);
