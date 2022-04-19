@@ -37,6 +37,7 @@ ohos_shared_library("geolocation") {
     "location_napi_adapter.cpp",
     "location_napi_entry.cpp",
     "location_napi_event.cpp",
+    "location_napi_system.cpp",
   ]
 
   deps = [
