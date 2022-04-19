@@ -33,8 +33,8 @@ const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
 sptr<LocationCallbackStub> g_gnssLocationCallback = new (std::nothrow) LocationCallbackStub(GNSS_ABILITY);
 sptr<LocationCallbackStub> g_passiveLocationCallback = new (std::nothrow) LocationCallbackStub(PASSIVE_ABILITY);
 
-GnssCallbacks g_gpsCallbacks2 = {
-    .size = sizeof(GnssCallbacks),
+GnssBasicCallbackIfaces g_gnssBasicCb = {
+    .size = sizeof(GnssBasicCallbackIfaces),
     .location_update = GnssAbility::LocationUpdate,
     .status_update = GnssAbility::StatusCallback,
     .sv_status_update = GnssAbility::SvStatusCallback,
@@ -44,14 +44,14 @@ GnssCallbacks g_gpsCallbacks2 = {
     .download_request_cb = nullptr,
 };
 
-GnssCacheCallbacks g_gnssCacheCb = {
+GnssCacheCallbackIfaces g_gnssCacheCb = {
     .size = 0,
     .cached_location_cb = nullptr,
 };
 
 GnssCallbackStruct g_callbacks = {
     .size = sizeof(GnssCallbackStruct),
-    .gnss_cb = g_gpsCallbacks2,
+    .gnss_cb = g_gnssBasicCb,
     .gnss_cache_cb = g_gnssCacheCb,
 };
 
@@ -339,30 +339,30 @@ void GnssAbility::StatusCallback(GnssStatus* status)
     g_gnssLocationCallback->OnStatusUpdate(*status);
 }
 
-void GnssAbility::SvStatusCallback(GnssSatelliteStatus* sv_info)
+void GnssAbility::SvStatusCallback(GnssSatelliteStatus* svInfo)
 {
     std::unique_ptr<SatelliteStatus> svStatus = std::make_unique<SatelliteStatus>();
-    if (sv_info == nullptr || g_gnssLocationCallback == nullptr || svStatus == nullptr) {
+    if (svInfo == nullptr || g_gnssLocationCallback == nullptr || svStatus == nullptr) {
         LBSLOGE(GNSS, "SvStatusCallback, sv_info is null!");
         return;
     }
-    if (sv_info->satellites_num <= 0) {
+    if (svInfo->satellites_num <= 0) {
         LBSLOGD(GNSS, "SvStatusCallback, satellites_num <= 0!");
         return;
     }
     LBSLOGI(GNSS, "id  type   cn0");
 
-    svStatus->SetSatellitesNumber(sv_info->satellites_num);
-    for (unsigned int i = 0; i < sv_info->satellites_num; i++) {
+    svStatus->SetSatellitesNumber(svInfo->satellites_num);
+    for (unsigned int i = 0; i < svInfo->satellites_num; i++) {
         LBSLOGI(GNSS,
             "%{public}d    %{public}d  %{public}f",
-            sv_info->gnss_sv_list[i].satellite_ids, sv_info->gnss_sv_list[i].constellation,
-            sv_info->gnss_sv_list[i].cn0);
-        svStatus->SetAltitude(sv_info->gnss_sv_list[i].elevation);
-        svStatus->SetAzimuth(sv_info->gnss_sv_list[i].azimuths);
-        svStatus->SetCarrierFrequencie(sv_info->gnss_sv_list[i].carrier_frequencies);
-        svStatus->SetCarrierToNoiseDensity(sv_info->gnss_sv_list[i].cn0);
-        svStatus->SetSatelliteId(sv_info->gnss_sv_list[i].satellite_ids);
+            svInfo->gnss_sv_list[i].satellite_ids, svInfo->gnss_sv_list[i].constellation,
+            svInfo->gnss_sv_list[i].cn0);
+        svStatus->SetAltitude(svInfo->gnss_sv_list[i].elevation);
+        svStatus->SetAzimuth(svInfo->gnss_sv_list[i].azimuths);
+        svStatus->SetCarrierFrequencie(svInfo->gnss_sv_list[i].carrier_frequencies);
+        svStatus->SetCarrierToNoiseDensity(svInfo->gnss_sv_list[i].cn0);
+        svStatus->SetSatelliteId(svInfo->gnss_sv_list[i].satellite_ids);
     }
     g_gnssLocationCallback->OnSvStatusUpdate(svStatus);
 }
@@ -387,12 +387,12 @@ bool GnssAbility::NativeInit()
         return false;
     }
     dlerror();
-    GnssDevice* gnssDevice = static_cast<GnssDevice*>(dlsym(handle, "GnssInterface"));
+    GnssVendorDevice* gnssDevice = static_cast<GnssVendorDevice*>(dlsym(handle, "GnssInterface"));
     if (gnssDevice == nullptr) {
         LBSLOGE(GNSS, "dlsym failed : %{public}s", dlerror());
         return false;
     }
-    g_gpsInterface = const_cast<GnssInterface*>(gnssDevice->get_gnss_interface());
+    g_gpsInterface = const_cast<GnssVendorInterface*>(gnssDevice->get_gnss_interface());
     if (g_gpsInterface == nullptr) {
         LBSLOGE(GNSS, "get_gnss_interface failed.");
         return false;

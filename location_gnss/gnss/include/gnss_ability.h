@@ -77,14 +77,14 @@ public:
     void NativeStop();
     bool NativeInit();
     void NativeClear();
-    static void StatusCallback(GnssStatus* status);
+    static void StatusCallback(GnssWorkingStatus* status);
     static void LocationUpdate(GnssLocation* location);
     static void NmeaCallback(GnssUtcTimestamp timestamp, const char* nmea, int length);
-    static void SvStatusCallback(GnssSatelliteStatus* sv_info);
+    static void SvStatusCallback(GnssSatelliteStatus* svInfo);
 private:
     bool nativeInitFlag_;
     void* handle;
-    GnssInterface* g_gpsInterface;
+    GnssVendorInterface* g_gpsInterface;
     std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
     std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     bool Init();

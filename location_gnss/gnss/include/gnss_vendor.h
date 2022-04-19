@@ -433,7 +433,7 @@ typedef struct {
     GnssCacheCallbackIfaces      gnss_cache_cb;
 } GnssCallbackStruct;
 
-/** GNSS vendor interface.define */
+/** GNSS vendor interface definition. */
 typedef struct {
     size_t size;
 
