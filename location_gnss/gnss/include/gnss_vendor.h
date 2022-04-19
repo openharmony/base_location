@@ -23,72 +23,67 @@
 #include <stdbool.h>
 namespace OHOS {
 namespace Location {
-/**
- * The id of this module
- */
-#define GPS_HARDWARE_MODULE_ID "gnss"
-
 #define SV_NUM_MAX 64
 
 /** Milliseconds since January 1, 1970 */
 typedef int64_t GnssUtcTimestamp;
 
-typedef uint16_t AGnssSetIDType;
+typedef uint16_t AGnssSetIDClass;
 enum {
-    ANSS_SETID_TYPE_NONE = 0,
-    ANSS_SETID_TYPE_IMSI = 1,
-    ANSS_SETID_TYPE_MSISDM = 2,
+    AGNSS_SETID_CLASS_NONE = 0,
+    AGNSS_SETID_CLASS_IMSI = 1,
+    AGNSS_SETID_CLASS_MSISDM = 2,
 };
 
-typedef uint32_t AGnssRefLocType;
+typedef uint32_t AGnssRefLocClass;
 enum {
-    ANSS_REF_LOC_TYPE_CELLID = 1,
-    ANSS_REF_LOC_TYPE_MAC = 2,
+    AGNSS_REF_LOC_CLASS_CELLID = 1,
+    AGNSS_REF_LOC_CLASS_MAC = 2,
 };
 
-typedef uint32_t GnssStartType;
+typedef uint32_t GnssStartClass;
 enum {
-    GNSS_START_TYPE_NORMAL = 1,
-    GNSS_START_TYPE_GNSS_CACHE = 2,
+    GNSS_START_CLASS_NORMAL = 1,
+    GNSS_START_CLASS_GNSS_CACHE = 2,
 };
 
-typedef uint16_t CellIdType;
+typedef uint16_t CellIdClass;
 enum {
     GSM_CELLID   = 1,
     UMTS_CELLID  = 2,
     LTE_CELLID   = 3,
 };
 
-typedef uint16_t ApnIpType;
+typedef uint16_t ApnIpClass;
 enum {
-    APN_TYPE_INVALID  = 0,
-    APN_TYPE_IPV4     = 1,
-    APN_TYPE_IPV6     = 2,
-    APN_TYPE_IPV4V6   = 3
+    APN_CLASS_INVALID  = 0,
+    APN_CLASS_IPV4     = 1,
+    APN_CLASS_IPV6     = 2,
+    APN_CLASS_IPV4V6   = 3
 };
 
 typedef uint16_t AGnssDataConnStatus;
 enum  {
-    /** AGNSS data connecting . */
+    /** AGNSS data connecting. */
     AGNSS_DATA_CONN_CONNECTING  = 1,
-    /** AGNSS data connection initiated */
+    /** AGNSS data connection initiated. */
     AGNSS_DATA_CONN_CONNECTED     = 2,
     /** AGNSS data disconnecting. */
     AGNSS_DATA_CONN_DISCONNECTING  = 3,
-    /** AGNSS data disconnected */
+    /** AGNSS data disconnected. */
     AGNSS_DATA_CONN_DISCONNECTED   = 4
 };
 
-typedef uint16_t AGnssType;
+typedef uint16_t AGnssClass;
 enum {
-    AGNSS_TYPE_SUPL         = 1,
-    AGNSS_TYPE_C2K          = 2
+    AGNSS_CLASS_SUPL         = 1,
+    AGNSS_CLASS_C2K          = 2
 };
 
 /**
- * Constellation type of GnssSvInfo
+ * Constellation class
  */
-typedef uint8_t GnssConstellationType;
+typedef uint8_t ConstellationClass;
 enum {
     GNSS_CONSTELLATION_UNKNOWN = 0,
     /** Global Positioning System. */
@@ -107,8 +102,8 @@ enum {
     GNSS_CONSTELLATION_IRNSS   = 7,
 };
 
-/** GNSS status event values. */
-typedef uint16_t GnssStatus;
+/** GNSS working status values. */
+typedef uint16_t GnssWorkingStatus;
 enum {
     /** GNSS status unknown. */
     GNSS_STATUS_NONE           = 0,
@@ -147,38 +142,38 @@ enum {
     SATELLITES_STATUS_HAS_CARRIER_FREQUENCY = 1 << 3
 };
 
-typedef int GnssWorkMode;
+typedef int GnssWorkingMode;
 enum {
-    GNSS_MODE_STANDALONE = 1, // GNSS standalone (no assistance)
-    GNSS_MODE_MS_BASED = 2, // AGNSS MS-Based mode
-    GNSS_MODE_MS_ASSISTED = 3 // AGPS MS-Assisted mode
+    GNSS_WORKING_MODE_STANDALONE = 1, // GNSS standalone (no assistance)
+    GNSS_WORKING_MODE_MS_BASED = 2, // AGNSS MS-Based mode
+    GNSS_WORKING_MODE_MS_ASSISTED = 3 // AGPS MS-Assisted mode
 };
 
-typedef int GnssRefInfoType;
+typedef int GnssRefInfoClass;
 enum {
     GNSS_REF_INFO_TIME = 1,
     GNSS_REF_INFO_LOCATION = 2,
     GNSS_REF_INFO_BEST_LOCATION = 3,
 };
 
-typedef uint16_t GnssAidingData;
+typedef uint16_t GnssAuxiliaryDataClass;
 enum {
-    GNSS_AIDING_DATA_EPHEMERIS    = 0x0001,
-    GNSS_AIDING_DATA_ALMANAC      = 0x0002,
-    GNSS_AIDING_DATA_POSITION     = 0x0004,
-    GNSS_AIDING_DATA_TIME         = 0x0008,
-    GNSS_AIDING_DATA_IONO         = 0x0010,
-    GNSS_AIDING_DATA_UTC          = 0x0020,
-    GNSS_AIDING_DATA_HEALTH       = 0x0040,
-    GNSS_AIDING_DATA_SVDIR        = 0x0080,
-    GNSS_AIDING_DATA_SVSTEER      = 0x0100,
-    GNSS_AIDING_DATA_SADATA       = 0x0200,
-    GNSS_AIDING_DATA_RTI          = 0x0400,
-    GNSS_AIDING_DATA_CELLDB_INFO  = 0x8000,
-    GNSS_AIDING_DATA_ALL          = 0xFFFF
+    GNSS_AUXILIARY_DATA_CLASS_EPHEMERIS    = 0x0001,
+    GNSS_AUXILIARY_DATA_CLASS_ALMANAC      = 0x0002,
+    GNSS_AUXILIARY_DATA_CLASS_POSITION     = 0x0004,
+    GNSS_AUXILIARY_DATA_CLASS_TIME         = 0x0008,
+    GNSS_AUXILIARY_DATA_CLASS_IONO         = 0x0010,
+    GNSS_AUXILIARY_DATA_CLASS_UTC          = 0x0020,
+    GNSS_AUXILIARY_DATA_CLASS_HEALTH       = 0x0040,
+    GNSS_AUXILIARY_DATA_CLASS_SVDIR        = 0x0080,
+    GNSS_AUXILIARY_DATA_CLASS_SVSTEER      = 0x0100,
+    GNSS_AUXILIARY_DATA_CLASS_SADATA       = 0x0200,
+    GNSS_AUXILIARY_DATA_CLASS_RTI          = 0x0400,
+    GNSS_AUXILIARY_DATA_CLASS_CELLDB_INFO  = 0x8000,
+    GNSS_AUXILIARY_DATA_CLASS_ALL          = 0xFFFF
 };
 
-typedef int GnssIfaceType;
+typedef int GnssModuleIfaceClass;
 enum {
     AGPS_INTERFACE = 1,
     GNSS_GEOFENCING_INTERFACE = 2,
@@ -192,7 +187,7 @@ enum {
     GEOFENCE_EVENT_EXITED    = (1 << 2),
 };
 
-typedef int32_t GeofenceOperateType;
+typedef int32_t GeofenceOperateClass;
 enum {
     GEOFENCE_ADD    = 1,
     GEOFENCE_DELETE = 2,
@@ -207,58 +202,51 @@ enum {
     GEOFENCE_OPERATION_ERROR_PARAMS_INVALID     = -103,
 };
 
-/* CellID for 2G, 3G and LTE, used in AGNSS. */
+/* CellID info struct. */
 typedef struct {
     size_t size;
 
-    CellIdType type;
+    CellIdClass type;
     /** Mobile Country Code. */
     uint16_t mcc;
     /** Mobile Network Code. */
     uint16_t mnc;
-    /** Location Area Code in 2G, 3G and LTE. In 3G lac is discarded. In LTE,
-     * lac is populated with tac, to ensure that we don't break old clients that
-     * might rely in the old (wrong) behavior.
-     */
+    /** Location Area Code in 2G, 3G and LTE. */
     uint16_t lac;
-    /** Cell id in 2G. Utran Cell id in 3G. Cell Global Id EUTRA in LTE. */
+    /** 2G:Cell id. 3G:Utran Cell id. LTE:Cell Global Id EUTRA. */
     uint32_t cid;
     /** Tracking Area Code in LTE. */
     uint16_t tac;
-    /** Physical Cell id in LTE (not used in 2G and 3G) */
+    /** Physical Cell id in LTE. */
     uint16_t pcid;
-} AGnssRefCellId;
+} AGnssRefInfoCellId;
 
 typedef struct {
     size_t size;
     uint8_t mac[6];
-} AGnssRefMac;
+} AGnssRefInfoMac;
 
-/** Represents ref locations */
+/** Agnss reference location information structure */
 typedef struct {
     size_t size;
-    AGnssRefLocType type;
+    AGnssRefLocClass type;
     union {
-        AGnssRefCellId   cellId;
-        AGnssRefMac      mac;
+        AGnssRefInfoCellId   cellId;
+        AGnssRefInfoMac      mac;
     } u;
-} AGnssRefLoc;
+} AGnssRefLocInfo;
 
-/** Represents a location. */
+/** GNSS position structure. */
 typedef struct {
     size_t size;
     uint32_t flags;
-    /** Represents latitude in degrees. */
     double          latitude;
-    /** Represents longitude in degrees. */
     double          longitude;
-    /**
-     * Represents altitude in meters above the WGS 84 reference ellipsoid.
-     */
+    /** Altitude in meters. */
     double          altitude;
-    /** Represents speed in meters per second. */
+    /** Speed in meters per second. */
     float           speed;
-    /** Represents heading in degrees. */
+    /** Heading in degrees. */
     float           bearing;
     /**
      * Represents expected horizontal position accuracy, radial, in meters
@@ -297,7 +285,7 @@ typedef struct {
 } GnssCachingConfig;
 
 /**
- * Represents Satellite Status.
+ * Represents Satellite Statu info.
  */
 typedef struct {
     size_t size;
@@ -318,109 +306,71 @@ typedef struct {
      * - Beidou:  1-37
      * - IRNSS:   1-14
      */
-    int16_t satellite_ids;
+    int16_t satellite_id;
 
-    /**
-     * Defines the constellation of the given SV.
-     */
-    GnssConstellationType constellation;
+    /** Defines the constellation type. */
+    ConstellationClass constellationType;
 
-    /**
-     * Carrier-to-noise density in dB-Hz, typically in the range [0, 63].
-     * It contains the measured C/N0 value for the signal at the antenna port.
-     *
-     * This is a mandatory value.
-     */
+    /** Carrier-to-noise density in dB-Hz */
     float cn0;
 
     /** Elevation of SV in degrees. */
     float elevation;
 
     /** Azimuth of SV in degrees. */
-    float azimuths;
+    float azimuth;
 
-    /**
-     * Carrier frequency of the signal tracked, for example it can be the
-     * GPS central frequency for L1 = 1575.45 MHz, or L2 = 1227.60 MHz, L5 =
-     * 1176.45 MHz, varying GLO channels, etc. If the field is zero, it is
-     * the primary common use central frequency, e.g. L1 = 1575.45 MHz for
-     * GPS.
-     *
-     * For an L1, L5 receiver tracking a satellite on L1 and L5 at the same
-     * time, two GnssSvInfo structs must be reported for this same
-     * satellite, in one of the structs, all the values related
-     * to L1 must be filled, and in the other all of the values related to
-     * L5 must be filled.
-     *
-     * If the data is available, svFlag must contain HAS_CARRIER_FREQUENCY.
-     */
-    float carrier_frequencies;
+    /** Carrier frequency of the signal tracked. */
+    float carrier_frequencie;
 
-    SatellitesStatusFlag flags;
+    SatellitesStatusFlag flag;
 } SatelliteStatusInfo;
 
 /**
- * Represents SV status.
+ * Represents all satellite status info.
  */
 typedef struct {
-    /** set to sizeof(GnssSvStatus) */
+    /** set to sizeof(GnssSatelliteStatus) */
     size_t size;
 
-    /** Number of GPS SVs currently visible, refers to the SVs stored in sv_list */
+    /** Number of GNSS SVs currently visible. */
     uint32_t satellites_num;
 
-    /**
-     * Pointer to an array of SVs information for all GNSS constellations,
-     * except GPS, which is reported using sv_list
-     */
-    SatelliteStatusInfo gnss_sv_list[SV_NUM_MAX];
+    /** Pointer to an array of SVs information for all GNSS constellations. */
+    SatelliteStatusInfo satellites_list[SV_NUM_MAX];
 } GnssSatelliteStatus;
 
-
-/**
- * Callback with location information. Can only be called from a thread created
- * by create_thread_cb.
- */
+/**  Callback with location information. */
 typedef void (* on_location_change)(GnssLocation* location);
-/**
- * Callback with status information. Can only be called from a thread created by
- * create_thread_cb.
- */
-typedef void (* on_gnss_status_change)(GnssStatus* status);
-/**
- * Callback with satellite status information.
- * Can only be called from a thread created by create_thread_cb.
- */
-typedef void (* on_sv_status_change)(GnssSatelliteStatus* sv_info);
 
-/**
- * Callback for reporting NMEA sentences. Can only be called from a thread
- * created by create_thread_cb.
- */
+/** Callback with gnss working status information. */
+typedef void (* on_gnss_status_change)(GnssWorkingStatus* status);
+
+/** Callback with satellite status information. */
+typedef void (* on_sv_status_change)(GnssSatelliteStatus* status);
+
+/** Callback for reporting NMEA info. */
 typedef void (* on_gnss_nmea_change)(GnssUtcTimestamp timestamp, const char* nmea, int length);
 
-/**
- * Callback to inform framework of the GPS engine's capabilities. Capability
- * parameter is a bit field of GPS_CAPABILITY_* flags.
- */
+/** Callback to reporting the GNSS capabilities. */
 typedef void (* on_capabilities_change)(GnssCapabilities capabilities);
 
-typedef void (* request_reference_information)(GnssRefInfoType type);
+/** Request Delivery Reference Information. */
+typedef void (* request_reference_information)(GnssRefInfoClass type);
 
-
-/** Gnss config structure. */
+/** Gnss basic config structure. */
 typedef struct {
     size_t size;
     uint32_t min_interval; // min interval between locations in ms
-    GnssWorkMode gnssMode;
-} GnssNormalConfigPara;
+    GnssWorkingMode gnssMode;
+} GnssBasicConfigPara;
 
 /** GNSS config structure. */
 typedef struct {
     size_t size;
-    GnssStartType type;
+    GnssStartClass type;
     union {
-        GnssNormalConfigPara   gnss_config;
+        GnssBasicConfigPara   gnss_basic_config;
         GnssCachingConfig      gnss_cache_config;
     } u;
 } GnssConfigPara;
@@ -444,7 +394,7 @@ typedef struct {
 /** Gnss reference information structure. */
 typedef struct {
     size_t size;
-    GnssRefInfoType type; // min interval between locations in ms
+    GnssRefInfoClass type;
     union {
         GnssRefTime time;
         GnssRefLocation location;
@@ -452,17 +402,13 @@ typedef struct {
     } u;
 } GnssRefInfo;
 
-/**
- * Callback to request the client to download XTRA data. The client should
- * download XTRA data and inject it by calling inject_xtra_data(). Can only be
- * called from a thread created by create_thread_cb.
- */
+/** Callback to request the client to download XTRA data. */
 typedef void (* extended_ephemeris_download_request)();
 
+/** GNSS cache location information reporting. */
 typedef void (* on_cached_locations_change)(const GnssLocation** location_array, size_t len);
 
-
-/** GNSS callback structure. */
+/** GNSS basic callback functions. */
 typedef struct {
     size_t size;
     on_location_change location_update;
@@ -472,167 +418,131 @@ typedef struct {
     on_capabilities_change capabilities_update;
     request_reference_information ref_info_request;
     extended_ephemeris_download_request download_request_cb;
-} GnssCallbacks;
+} GnssBasicCallbackIfaces;
 
-/** GNSS cache callback structure. */
+/** GNSS cache callback functions. */
 typedef struct {
     size_t size;
     on_cached_locations_change cached_location_cb;
-} GnssCacheCallbacks;
+} GnssCacheCallbackIfaces;
 
 /** GNSS callback structure. */
 typedef struct {
     size_t size;
-    GnssCallbacks   gnss_cb;
-    GnssCacheCallbacks      gnss_cache_cb;
+    GnssBasicCallbackIfaces   gnss_cb;
+    GnssCacheCallbackIfaces      gnss_cache_cb;
 } GnssCallbackStruct;
 
-/** Represents the standard GPS interface. */
+/** GNSS vendor interface.define */
 typedef struct {
     size_t size;
 
-    /**
-     * Enable the GNSS function.Initializing the GNSS Chip.
-     */
+    /** Enable the GNSS function.Initializing the GNSS Chip. */
     int (* enable_gnss)(GnssCallbackStruct* callbacks);
 
     /** Disables the GNSS function. */
     int (* disable_gnss)(void);
 
-    /**
-     * Opens the interface and provides the callback routines
-     * to the implementation of this interface and start navigating.
-     */
-    int (* start_gnss)(GnssStartType type);
+    /** start navigating. */
+    int (* start_gnss)(GnssStartClass type);
 
-    /** Stops navigating and delete callback. */
-    int (* stop_gnss)(GnssStartType type);
+    /** Stops navigating */
+    int (* stop_gnss)(GnssStartClass type);
 
     /** Inject reference information into the GNSS chip. */
-    int (* injects_reference_information)(GnssRefInfoType type, GnssRefInfo* info);
+    int (* injects_reference_information)(GnssRefInfoClass type, GnssRefInfo* info);
 
-    /**
-     * Setting gnss configuration parameters.
-     */
+    /** Set gnss configuration parameters. */
     int (* set_gnss_config_para)(GnssConfigPara* para);
 
     /**
      * Specifies that the next call to start will not use the
-     * information defined in the flags. GNSS_AIDING_DATA_ALL is passed for
-     * a cold start.
+     * information defined in the flags.
      */
-    void (* delete_aiding_data)(GnssAidingData flags);
+    void (* remove_auxiliary_data)(GnssAuxiliaryDataClass flags);
 
-    /** Injects XTRA data into the GPS. */
+    /** Injects XTRA data into the GNSS. */
     int (* inject_extended_ephemeris)(char* data, int length);
 
-    /**
-     * Return the cached locations size.
-     */
+    /** Return the cached locations size. */
     int (* get_cached_locations_size)();
 
-    /**
-     * Retrieve all batched locations currently stored and clear the buffer.
-     * flp_location_callback MUST be called in response, even if there are
-     * no locations to flush (in which case num_locations should be 0).
-     * Subsequent calls to get_batched_location or flush_batched_locations
-     * should not return any of the locations returned in this call.
-     */
+    /** Retrieve all cached locations currently stored and clear the buffer. */
     void (* flush_cached_gnss_locations)();
 
     /** Get a pointer to gnss module interface. */
-    const void* (* get_gnss_module_iface)(GnssIfaceType iface);
-} GnssInterface;
+    const void* (* get_gnss_module_iface)(GnssModuleIfaceClass iface);
+} GnssVendorInterface;
 
-struct GnssDevice {
+struct GnssVendorDevice {
     size_t size;
-    const GnssInterface* (*get_gnss_interface)();
+    const GnssVendorInterface* (*get_gnss_interface)();
 };
 
-/*
- * Represents the status of AGPS augmented to support IPv4 and IPv6.
- */
+/* Status of AGNSS. */
 typedef struct {
     size_t size;
 
-    AGnssType                type;
-    AGnssDataConnStatus      status;
-    /**
-     * Must be set to a valid IPv4 address if the field 'addr' contains an IPv4
-     * address, or set to INADDR_NONE otherwise.
-     */
+    AGnssClass                agnss_type;
+    AGnssDataConnStatus      conn_status;
+    /** IPv4 address. */
     uint32_t                ipaddr;
-    /**
-     * Must contain the IPv4 (AF_INET) or IPv6 (AF_INET6) address to report.
-     * Any other value of addr.ss_family will be rejected.
-     */
-    struct sockaddr_storage addr;
-} AGnssStatus;
+    /** Contain the IPv4 (AF_INET) or IPv6 (AF_INET6) address to report. */
+    struct sockaddr_storage sock_addr;
+} AGnssStatusInfo;
 
-typedef void (* on_agnss_status_change)(const AGnssStatus* status);
+typedef void (* on_agnss_status_change)(const AGnssStatusInfo* status);
 
-typedef void (* get_setid_cb)(AGnssSetIDType type);
+typedef void (* get_setid_cb)(AGnssSetIDClass type);
 
-typedef void (* get_ref_location_cb)(AGnssRefLocType type);
+typedef void (* get_ref_location_cb)(AGnssRefLocClass type);
 
 typedef struct {
     size_t size;
     on_agnss_status_change agnss_status_change;
     get_setid_cb get_setid;
     get_ref_location_cb get_ref_loc;
-} AGnssCallbacks;
+} AGnssCallbackIfaces;
 
-/**
- * interface for AGNSS support
- */
+/** interface for AGNSS support */
 typedef struct {
     size_t size;
 
     /**
-     * Opens the AGNSS interface and provides the callback routines
-     * to the implementation of this interface.
+     * Opens the AGNSS interface and provides the callback interfaces
      */
-    bool (* set_agnss_callback)(AGnssCallbacks* callbacks);
+    bool (* set_agnss_callback)(AGnssCallbackIfaces* callbacks);
 
     /**
      * Sets the reference cell id.
      */
-    bool (* set_ref_location)(const AGnssRefLoc* reg_loc);
+    bool (* set_ref_location)(const AGnssRefLocInfo* reg_loc);
 
     /**
      * Sets the set ID.
      */
-    bool (* set_setid)(AGnssSetIDType type, const char* setid, size_t len);
+    bool (* set_setid)(AGnssSetIDClass type, const char* setid, size_t len);
 
     /**
      * Setting the Agnss Server Information.
      */
-    bool (* set_agnss_server)(AGnssType type, const char* server, size_t len, int32_t port);
-} AGnssInterface;
+    bool (* set_agnss_server)(AGnssClass type, const char* server, size_t len, int32_t port);
+} AGnssModuleInterface;
 
 /**
  * The callback associated with the geofence.
  * Parameters:
  *      geofence_id - The id associated with the add_gnss_geofence.
- *      location    - The current GPS location.
+ *      location    - The current GNSS location.
  *      event  - Can be one of GEOFENCE_EVENT_UNCERTAIN, GEOFENCE_EVENT_ENTERED,
  *                    GEOFENCE_EVENT_EXITED.
  *      timestamp   - Timestamp when the transition was detected.
- *
- * The callback should only be called when the caller is interested in that
- * particular transition. For instance, if the caller is interested only in
- * ENTERED transition, then the callback should NOT be called with the EXITED
- * transition.
- *
- * IMPORTANT: If a transition is triggered resulting in this callback, the GPS
- * subsystem will wake up the application processor, if its in suspend state.
  */
 typedef void (* geofence_event_callback)(int32_t geofence_id,  GnssLocation* location,
     GeofenceEvent event, GnssUtcTimestamp timestamp);
 
 /**
- * The callback associated with the availability of the GNSS system for geofencing
- * monitoring.
+ * Callback function that indicates whether the geofence service is available.
  *
  * Parameters:
  *  is_available is true when gnss geofence service is available.
@@ -640,7 +550,7 @@ typedef void (* geofence_event_callback)(int32_t geofence_id,  GnssLocation* loc
 typedef void (* geofence_availability_callback)(bool is_available);
 
 /**
- * The callback associated with the add_gnss_geofence/delete_gnss_geofence call.
+ * Callback function indicating the result of the geofence operation
  *
  * geofence_id - Id of the geofence.
  * operate_type - geofence operate type.
@@ -649,7 +559,7 @@ typedef void (* geofence_availability_callback)(bool is_available);
  *          GEOFENCE_OPERATION_ERROR_GEOFENCE_ID_EXISTS  - geofence with id already exists
  *          GEOFENCE_OPERATION_ERROR_PARAMS_INVALID - input params are invalid.
  */
-typedef void (* geofence_operate_result_callback)(int32_t geofence_id, GeofenceOperateType operate_type,
+typedef void (* geofence_operate_result_callback)(int32_t geofence_id, GeofenceOperateClass operate_type,
     GeofenceOperateResult result);
 
 typedef struct {
@@ -657,17 +567,16 @@ typedef struct {
     geofence_availability_callback on_geofence_availability_change;
     geofence_event_callback geofence_event_notify;
     geofence_operate_result_callback geofence_operate_result_cb;
-} GeofenceCallbacks;
+} GeofenceCallbackIfaces;
 
 /** Interface for GNSS Geofence */
 typedef struct {
     size_t size;
 
     /**
-     * Opens the geofence interface and provides the callback routines
-     * to the implementation of this interface.
+     * Opens the geofence interface and provides the callback interfaces.
      */
-    bool (* set_callback)(GeofenceCallbacks* callbacks);
+    bool (* set_callback)(GeofenceCallbackIfaces* callbacks);
 
     /**
      * Add a geofence area. This api currently supports circular geofences.
@@ -683,13 +592,12 @@ typedef struct {
        double radius, GeofenceEvent monitor_event);
 
     /**
-     * Remove a gnss geofence. After the function returns, no notifications
-     * should be sent.
+     * Remove a gnss geofence.
      * geofence_id - The id for the geofence.
      * Return true if delete successful.
      */
     bool (* delete_gnss_geofence)(int32_t geofence_id);
-} GnssGeofenceInterface;
+} GeofenceModuleInterface;
 } // namespace Location
 } // namespace OHOS
 #endif /* OHOS_GNSS_VENDOR_H */

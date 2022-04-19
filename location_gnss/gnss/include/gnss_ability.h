@@ -29,9 +29,9 @@
 #include "subability_common.h"
 
 #ifdef __aarch64__
-#define HIGNSS_ADAPTER_PATH "/system/lib64/libgnss.default.so"
+#define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib64/vendorGnssAdapter.so"
 #else
-#define HIGNSS_ADAPTER_PATH "/system/lib/libgnss.default.so"
+#define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib/vendorGnssAdapter.so"
 #endif
 
 namespace OHOS {

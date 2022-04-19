@@ -380,8 +380,8 @@ void GnssAbility::NmeaCallback(GnssUtcTimestamp timestamp, const char* nmea, int
 
 bool GnssAbility::NativeInit()
 {
-    LBSLOGI(GNSS, "start load hisi so");
-    handle = dlopen(HIGNSS_ADAPTER_PATH, RTLD_LAZY);
+    LBSLOGI(GNSS, "NativeInit");
+    handle = dlopen(VENDOR_GNSS_ADAPTER_SO_PATH, RTLD_LAZY);
     if (!handle) {
         LBSLOGE(GNSS, "dlopen failed : %{public}s", dlerror());
         return false;
