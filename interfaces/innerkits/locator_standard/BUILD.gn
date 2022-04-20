@@ -26,7 +26,7 @@ ohos_shared_library("locator_sdk") {
     "//base/location/location_geocode/geocode/include",
     "//base/location/location_locator/callback/include",
     "//base/location/utils/include",
-    "//base/notification/ces_standard/frameworks/core/include",
+    "//base/notification/common_event_service/frameworks/core/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
     "//distributedschedule/safwk/include",
     "//native_engine",
@@ -57,7 +57,7 @@ ohos_shared_library("locator_sdk") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
-    "ces_standard:cesfwk_innerkits",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
