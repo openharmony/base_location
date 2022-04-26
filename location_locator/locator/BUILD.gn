@@ -52,8 +52,6 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
     "$SUBSYSTEM_DIR/utils/include",
-    "//base/notification/common_event_service/frameworks/core/include",
-    "//base/notification/common_event_service/interfaces/innerkits/native/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
@@ -67,8 +65,6 @@ ohos_shared_library("lbsservice_locator") {
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
-    "//base/notification/common_event_service/frameworks/core:cesfwk_core",
-    "//base/notification/common_event_service/frameworks/native:cesfwk_innerkits",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
