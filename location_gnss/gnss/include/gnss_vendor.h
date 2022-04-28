@@ -208,7 +208,7 @@ typedef struct {
 /** Agnss reference location information structure */
 typedef struct {
     size_t size;
-	/** See AgnssRefLocClass for the definition of type. */
+    /** See AgnssRefLocClass for the definition of type. */
     uint32_t type;
     union {
         AGnssRefInfoCellId cellId;
@@ -289,7 +289,7 @@ typedef struct {
     int16_t satelliteId;
 
     /** Defines the constellation type.
-	 * See ConstellationClass for the definition of constellationType */
+     * See ConstellationClass for the definition of constellationType */
     uint8_t constellationType;
 
     /** Carrier-to-noise density in dB-Hz */
@@ -369,11 +369,11 @@ typedef struct {
 /** GNSS config structure. */
 typedef struct {
     size_t size;
-	/**
-	 * Indicates the method of location reporting,
-	 * whether to report immediately or after caching for a
-	 * period of time. See GnssStartClass for the definition of type.
-	 */
+    /**
+     * Indicates the method of location reporting,
+     * whether to report immediately or after caching for a
+     * period of time. See GnssStartClass for the definition of type.
+     */
     uint32_t type;
     union {
         GnssBasicConfigPara gnssBasicConfig;
@@ -401,9 +401,9 @@ typedef struct {
 typedef struct {
     size_t size;
     /**
-	 * Type of GNSS reference information,
-	 * See GnssRefInfoClass for the definition of type.
-	 */
+     * Type of GNSS reference information,
+     * See GnssRefInfoClass for the definition of type.
+     */
     int type;
     union {
         GnssRefTime time;
@@ -460,7 +460,7 @@ typedef struct {
     int (* stop_gnss)(uint32_t type);
 
     /** Inject reference information into the GNSS chip.
-	 * See GnssRefInfoClass for the definition of type.*/
+     * See GnssRefInfoClass for the definition of type. */
     int (* injects_reference_information)(int type, GnssRefInfo* info);
 
     /** Set gnss configuration parameters. */
@@ -469,7 +469,7 @@ typedef struct {
     /**
      * Specifies that the next call to start will not use the
      * information defined in the flags.
-	 * See GnssAuxiliaryDataClass for the definition of flags.
+     * See GnssAuxiliaryDataClass for the definition of flags.
      */
     void (* remove_auxiliary_data)(uint16_t flags);
 
@@ -484,7 +484,6 @@ typedef struct {
 
     /** Get a pointer to gnss module interface.See GnssModuleIfaceClass for the definition of iface*/
     const void* (* get_gnss_module_iface)(int iface);
-
 } GnssVendorInterface;
 
 struct GnssVendorDevice {
@@ -497,7 +496,7 @@ typedef struct {
     size_t size;
     /** See AgnssClass for the definition of agnss_type */
     uint16_t agnssType;
-	/** See AgnssDataConnStatus for the definition of conn_status. */
+    /** See AgnssDataConnStatus for the definition of conn_status. */
     uint16_t connStatus;
     /** IPv4 address. */
     uint32_t ipaddr;
@@ -546,18 +545,18 @@ typedef struct {
      * Sets the set ID.
      * Parameters:
      *      type   - Type of setid,See enum class agnssetidclass for the definition of type.
-	 *      setid  - String to hold setid.
-	 *      len    - length of setid.
+     *      setid  - String to hold setid.
+     *      len    - length of setid.
      */
     bool (* set_setid)(uint16_t type, const char* setid, size_t len);
 
     /**
      * Setting the Agnss Server Information.
      * Parameters:
-	 * type    - type of agnss.See AgnssClass for the definition of type.
-	 * server  - agnss server.
-	 * len     - length of server string.
-	 * port    - port of agnss server.
+     * type    - type of agnss.See AgnssClass for the definition of type.
+     * server  - agnss server.
+     * len     - length of server string.
+     * port    - port of agnss server.
      */
     bool (* set_agnss_server)(uint16_t type, const char* server, size_t len, int32_t port);
 } AGnssModuleInterface;

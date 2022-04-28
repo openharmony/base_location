@@ -97,6 +97,12 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& l
     context->callback[0] = m_handlerCb;
     context->locationList = locations;
     work->data = context;
+    uv_queue_work(loop, work)
+    return true;
+}
+
+void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s &loop, uv_work_t &work)
+{
     uv_queue_work(
         loop,
         work,
@@ -145,7 +151,6 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& l
             delete work;
             work = nullptr;
     });
-    return true;
 }
 
 void CachedLocationsCallbackHost::OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations)

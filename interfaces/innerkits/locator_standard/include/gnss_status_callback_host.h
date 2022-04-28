@@ -35,6 +35,7 @@ public:
     bool Send(std::unique_ptr<SatelliteStatus>& statusInfo);
     void OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo) override;
     void DeleteHandler();
+    void UvQueueWork(uv_loop_s& loop, uv_work_t& work);
 
     pid_t m_lastCallingPid;
     pid_t m_lastCallingUid;

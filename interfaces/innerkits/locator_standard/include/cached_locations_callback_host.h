@@ -34,6 +34,7 @@ public:
     bool Send(std::vector<std::shared_ptr<Location>>& locations);
     void OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations) override;
     void DeleteHandler();
+    void UvQueueWork(uv_loop_s& loop, uv_work_t& work);
 
     napi_env m_env;
     napi_ref m_handlerCb;
