@@ -95,7 +95,7 @@ bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
     context->callback[0] = m_handlerCb;
     context->statusInfo = std::move(statusInfo);
     work->data = context;
-
+    UvQueueWork(loop, work);
     return true;
 }
 

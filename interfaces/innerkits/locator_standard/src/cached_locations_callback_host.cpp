@@ -97,7 +97,7 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& l
     context->callback[0] = m_handlerCb;
     context->locationList = locations;
     work->data = context;
-    uv_queue_work(loop, work)
+    UvQueueWork(loop, work);
     return true;
 }
 
