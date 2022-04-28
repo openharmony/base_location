@@ -151,7 +151,6 @@ void GnssStatusCallbackHost::UvQueueWork(uv_loop_s& loop, uv_work_t& work)
             delete work;
             work = nullptr;
     });
-
 }
 
 void GnssStatusCallbackHost::OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo)
