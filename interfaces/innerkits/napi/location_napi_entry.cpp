@@ -17,6 +17,7 @@
 #include "lbs_log.h"
 #include "location_napi_adapter.h"
 #include "location_napi_event.h"
+#include "location_napi_system.h"
 
 namespace OHOS {
 namespace Location {
@@ -44,6 +45,12 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("on", On),
         DECLARE_NAPI_FUNCTION("off", Off),
         DECLARE_NAPI_FUNCTION("getCurrentLocation", GetCurrentLocation),
+
+        DECLARE_NAPI_FUNCTION("getLocation", GetLocation),
+        DECLARE_NAPI_FUNCTION("getLocationType", GetLocationType),
+        DECLARE_NAPI_FUNCTION("subscribe", Subscribe),
+        DECLARE_NAPI_FUNCTION("unsubscribe", Unsubscribe),
+        DECLARE_NAPI_FUNCTION("getSupportedCoordTypes", GetSupportedCoordTypes),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
