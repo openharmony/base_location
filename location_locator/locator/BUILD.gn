@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/appexecfwk/standard/appexecfwk.gni")
 
 SUBSYSTEM_DIR = "//base/location"
 
@@ -56,14 +55,8 @@ ohos_shared_library("lbsservice_locator") {
     "//base/notification/common_event_service/frameworks/core/include",
     "//base/notification/common_event_service/interfaces/innerkits/native/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-    "${aafwk_path}/interfaces/innerkits/want/include",
-    "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
-    "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
@@ -73,8 +66,6 @@ ohos_shared_library("lbsservice_locator") {
 
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
-    "${aafwk_path}/interfaces/innerkits/base:base",
-    "${aafwk_path}/interfaces/innerkits/want:want",
     "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "//base/notification/common_event_service/frameworks/core:cesfwk_core",
     "//base/notification/common_event_service/frameworks/native:cesfwk_innerkits",
@@ -87,6 +78,7 @@ ohos_shared_library("lbsservice_locator") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
