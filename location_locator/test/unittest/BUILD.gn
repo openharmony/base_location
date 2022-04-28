@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/appexecfwk/standard/appexecfwk.gni")
 
 SUBSYSTEM_DIR = "//base/location"
 module_output_path = "location/service"
@@ -36,12 +35,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "//base/notification/common_event_service/interfaces/innerkits/native/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
-    "${aafwk_path}/interfaces/innerkits/want/include",
-    "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
@@ -52,8 +45,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "${aafwk_path}/interfaces/innerkits/base:base",
-    "${aafwk_path}/interfaces/innerkits/want:want",
     "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
     "//base/notification/common_event_service/frameworks/core:cesfwk_core",
     "//base/notification/common_event_service/frameworks/native:cesfwk_innerkits",
@@ -67,6 +58,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",

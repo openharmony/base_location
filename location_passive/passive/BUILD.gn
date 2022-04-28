@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/appexecfwk/standard/appexecfwk.gni")
 
 LOCATION_PASSIVE_ROOT = "//base/location/location_passive/passive"
 
@@ -38,11 +37,6 @@ ohos_shared_library("lbsservice_passive") {
     "//distributedschedule/safwk/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
-    "${aafwk_path}/interfaces/innerkits/want/include",
-    "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/appexecfwk/adapter/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
