@@ -420,13 +420,14 @@ void GnssAbility::NativeClear()
 
 void GnssAbility::NativeStart()
 {
+    unsigned int sleepTime = 2 * 1000 * 1000;
     if (!nativeInitFlag_) {
         if (!NativeInit()) {
             LBSLOGE(GNSS, "init failed.");
             return;
         }
         LBSLOGD(GNSS, "init succ.");
-        usleep(2 * 1000 * 1000); // sleep for 2 second.
+        usleep(sleepTime); // sleep for 2 second.
     }
     if (g_gpsInterface == nullptr) {
         LBSLOGD(GNSS, "Error, g_gpsInterface is null!");

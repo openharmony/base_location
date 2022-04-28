@@ -14,11 +14,9 @@
  */
 
 #include "subability_common.h"
-#include <unistd.h>
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-
 #include "common_utils.h"
 #include "gnss_ability_proxy.h"
 #include "locator_ability.h"
