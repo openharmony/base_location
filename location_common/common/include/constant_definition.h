@@ -26,6 +26,8 @@ const int ERROR_SWITCH_UNOPEN = 0x0101;
 const int SESSION_START = 0x0002;
 const int SESSION_STOP = 0x0003;
 
+const int DEFAULT_TIMEOUT_30S = 30000;
+
 enum {
     SCENE_UNSET = 0x0300,
     SCENE_NAVIGATION = 0x0301,

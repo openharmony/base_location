@@ -14,7 +14,6 @@
  */
 
 #include "request_config.h"
-#include <sstream>
 #include "constant_definition.h"
 
 namespace OHOS {
@@ -88,20 +87,13 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
 
 std::string RequestConfig::ToString() const
 {
-    std::stringstream str;
-    str << "scenario : ";
-    str << scenario_;
-    str << ", location priority : ";
-    str << priority_;
-    str << ", timeInterval : ";
-    str << timeInterval_;
-    str << ", distanceInterval : ";
-    str << distanceInterval_;
-    str << ", maxAccuracy : ";
-    str << maxAccuracy_;
-    str << ", fixNumber : ";
-    str << fixNumber_;
-    return str.str();
+    std::string str = "scenario : " + std::to_string(scenario_) +
+        ", location priority : " + std::to_string(priority_) +
+        ", timeInterval : " + std::to_string(timeInterval_) +
+        ", distanceInterval : " + std::to_string(distanceInterval_) +
+        ", maxAccuracy : " + std::to_string(maxAccuracy_) +
+        ", fixNumber : " + std::to_string(fixNumber_);
+    return str;
 }
 } // Location
 } // OHOS
