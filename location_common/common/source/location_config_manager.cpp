@@ -58,6 +58,8 @@ bool LocationConfigManager::IsExistFile(const std::string& filename)
     ioFile.open(path, std::ios::in);
     if (ioFile) {
         bExist = true;
+    } else {
+        return false;
     }
     ioFile.clear();
     ioFile.close();
