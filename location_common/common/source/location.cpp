@@ -15,8 +15,6 @@
 
 #include "location.h"
 
-#include <sstream>
-
 namespace OHOS {
 namespace Location {
 Location::Location()

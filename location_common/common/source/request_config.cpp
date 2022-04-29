@@ -14,8 +14,6 @@
  */
 
 #include "request_config.h"
-
-#include <sstream>
 #include "constant_definition.h"
 
 namespace OHOS {

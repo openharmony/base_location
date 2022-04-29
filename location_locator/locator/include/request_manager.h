@@ -27,8 +27,8 @@
 #include "request.h"
 #include "work_record.h"
 
-#ifndef BASE_REQUEST_MANAGER_H
-#define BASE_REQUEST_MANAGER_H
+#ifndef REQUEST_MANAGER_H
+#define REQUEST_MANAGER_H
 
 namespace OHOS {
 namespace Location {
@@ -59,4 +59,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // BASE_REQUEST_MANAGER_H
+#endif // REQUEST_MANAGER_H
