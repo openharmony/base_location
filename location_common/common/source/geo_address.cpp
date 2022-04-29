@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include <sstream>
 #include "geo_address.h"
+#include <sstream>
 
 namespace OHOS {
 namespace Location {

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include <sstream>
 #include "location.h"
+#include <sstream>
 
 namespace OHOS {
 namespace Location {
