@@ -23,6 +23,11 @@
 
 namespace OHOS {
 namespace Location {
+static constexpr int MAX_BUF_LEN = 100;
+static constexpr double MIN_LATITUDE = -90.0;
+static constexpr double MAX_LATITUDE = 90.0;
+static constexpr double MIN_LONGITUDE = -180.0;
+static constexpr double MAX_LONGITUDE = 180.0;
 TraceFuncCall::TraceFuncCall(std::string funcName): m_funcName(funcName)
 {
     if (m_isTrace) {
@@ -242,16 +247,12 @@ void JsObjToCommand(const napi_env& env, const napi_value& object,
     std::string command = "";
     JsObjectToInt(env, object, "scenario", value);
     commandConfig->scenario = value;
-    JsObjectToString(env, object, "command", 100, command);
+    JsObjectToString(env, object, "command", MAX_BUF_LEN, command); // max bufLen
     commandConfig->command = command;
 }
 
 bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
-    const double MIN_LATITUDE = -90.0;
-    const double MAX_LATITUDE = 90.0;
-    const double MIN_LONGITUDE = -180.0;
-    const double MAX_LONGITUDE = 180.0;
     std::string description = "";
     int maxItems = 0;
     double minLatitude = 0.0;
@@ -259,7 +260,7 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
     double maxLatitude = 0.0;
     double maxLongitude = 0.0;
     std::string locale = "";
-    int bufLen = 100;
+    int bufLen = MAX_BUF_LEN;
     JsObjectToString(env, object, "locale", bufLen, locale);
     JsObjectToString(env, object, "description", bufLen, description);
     JsObjectToInt(env, object, "maxItems", maxItems);
@@ -307,12 +308,12 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     JsObjectToDouble(env, object, "latitude", latitude);
     JsObjectToDouble(env, object, "longitude", longitude);
     JsObjectToInt(env, object, "maxItems", maxItems);
-    JsObjectToString(env, object, "locale", 100, locale);
+    JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale); // max bufLen
 
-    if (latitude < -90.0 || latitude > 90.0) {
+    if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
         return false;
     }
-    if (longitude < -180.0 || longitude > 180.0) {
+    if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
         return false;
     }
     std::string str = "";
@@ -343,12 +344,12 @@ napi_value JsObjectToString(const napi_env& env, const napi_value& object,
         NAPI_CALL(env, napi_typeof(env, field, &valueType));
         NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
         if (bufLen <= 0) {
-            goto error;
+            return UndefinedNapiValue(env);
         }
         char *buf = (char *)malloc(bufLen);
         if (buf == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "Js object to str malloc failed!");
-            goto error;
+            return UndefinedNapiValue(env);
         }
         (void)memset_s(buf, bufLen, 0, bufLen);
         size_t result = 0;
@@ -359,8 +360,6 @@ napi_value JsObjectToString(const napi_env& env, const napi_value& object,
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js obj to str no property: %{public}s", fieldStr);
     }
-
-error:
     return UndefinedNapiValue(env);
 }
 

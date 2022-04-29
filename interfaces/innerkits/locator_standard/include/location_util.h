@@ -38,6 +38,8 @@ namespace OHOS {
 namespace Location {
 constexpr int32_t PARAM0 = 0;
 constexpr int32_t PARAM1 = 1;
+constexpr int32_t PARAM2 = 2;
+constexpr int32_t PARAM3 = 3;
 constexpr size_t RESULT_SIZE = 2;
 class TraceFuncCall final {
 public:
