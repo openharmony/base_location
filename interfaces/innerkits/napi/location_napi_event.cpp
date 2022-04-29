@@ -157,8 +157,6 @@ void SubscribeCacheLocationChange(napi_env env, const napi_value& object,
 
 void SubscribeFenceStatusChange(napi_env env, const napi_value& object, napi_value& handler)
 {
-    napi_ref handlerRef = nullptr;
-    napi_create_reference(env, handler, 1, &handlerRef);
     AbilityRuntime::WantAgent::WantAgent wantAgent = AbilityRuntime::WantAgent::WantAgent();
     napi_unwrap(env, handler, (void **)&wantAgent);
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
@@ -172,14 +170,14 @@ void SubscribeFenceStatusChange(napi_env env, const napi_value& object, napi_val
 
 void UnSubscribeFenceStatusChange(napi_env env, const napi_value& object, napi_value& handler)
 {
-    napi_ref handlerRef = nullptr;
-    napi_create_reference(env, handler, 1, &handlerRef);
     AbilityRuntime::WantAgent::WantAgent wantAgent = AbilityRuntime::WantAgent::WantAgent();
     napi_unwrap(env, handler, (void **)&wantAgent);
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, request);
-    mFences.erase(mFences.begin());
-    g_locatorNapiPtr->RemoveFence(request);
+    if (mFences.size() > 0) {
+        mFences.erase(mFences.begin());
+        g_locatorNapiPtr->RemoveFence(request);
+    }
 }
 
 void GetCallbackType(napi_env env, const size_t argc, const napi_value* argv, bool& isCallbackType,

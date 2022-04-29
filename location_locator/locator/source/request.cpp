@@ -14,9 +14,7 @@
  */
 
 #include "request.h"
-
 #include <sstream>
-
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "i_locator_callback.h"

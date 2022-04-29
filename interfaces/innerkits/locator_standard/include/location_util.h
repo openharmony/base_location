@@ -94,8 +94,8 @@ public:
     napi_env m_env;
     napi_ref m_handlerCb;
     napi_value m_jsEvent;
-    JsContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred)
+    JsContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred)
     {
         m_env = nullptr;
         m_handlerCb = nullptr;
@@ -107,9 +107,9 @@ public:
 
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
+void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result);
+void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result);
 void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
-void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Location>>& locations, napi_value& result);
-void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteStatus>& statusInfo, napi_value& result);
 bool GeoAddressesToJsObj(const napi_env& env,
     std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult);
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,

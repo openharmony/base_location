@@ -30,16 +30,47 @@ namespace OHOS {
 namespace Location {
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     DelayedSingleton<GnssAbility>::GetInstance().get());
+sptr<LocationCallbackStub> g_gnssLocationCallback = new (std::nothrow) LocationCallbackStub(GNSS_ABILITY);
+sptr<LocationCallbackStub> g_passiveLocationCallback = new (std::nothrow) LocationCallbackStub(PASSIVE_ABILITY);
+
+GnssBasicCallbackIfaces g_gnssBasicCb = {
+    .size = sizeof(GnssBasicCallbackIfaces),
+    .locationUpdate = GnssAbility::LocationUpdate,
+    .statusUpdate = GnssAbility::StatusCallback,
+    .svStatusUpdate = GnssAbility::SvStatusCallback,
+    .nmeaUpdate = GnssAbility::NmeaCallback,
+    .capabilitiesUpdate = nullptr,
+    .refInfoRequest = nullptr,
+    .downloadRequestCb = nullptr,
+};
+
+GnssCacheCallbackIfaces g_gnssCacheCb = {
+    .size = 0,
+    .cachedLocationCb = nullptr,
+};
+
+GnssCallbackStruct g_callbacks = {
+    .size = sizeof(GnssCallbackStruct),
+    .gnssCb = g_gnssBasicCb,
+    .gnssCacheCb = g_gnssCacheCb,
+};
 
 GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 {
     gnssStatusCallback_ = std::make_unique<std::map<pid_t, sptr<IGnssStatusCallback>>>();
     nmeaCallback_ = std::make_unique<std::map<pid_t, sptr<INmeaMessageCallback>>>();
     SetAbility(GNSS_ABILITY);
+    nativeInitFlag_ = false;
+    handle = nullptr;
+    g_gpsInterface = nullptr;
     LBSLOGI(GNSS, "ability constructed.");
 }
 
-GnssAbility::~GnssAbility() {}
+GnssAbility::~GnssAbility()
+{
+    NativeClear();
+    dlclose(handle);
+}
 
 void GnssAbility::OnStart()
 {
@@ -219,6 +250,22 @@ void GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
     }
 }
 
+void GnssAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+{
+    LBSLOGE(GNSS, "enter RequestRecord");
+    if (callback == nullptr) {
+        LBSLOGE(GNSS, "callback is  nullptr!");
+        return;
+    }
+    if (isAdded) {
+        NativeStart();
+    } else {
+        NativeStop();
+    }
+    std::string state = isAdded ? "start" : "stop";
+    WriteGnssStateEvent(state);
+}
+
 int GnssAbility::GetCachedGnssLocationsSize()
 {
     int size = 0;
@@ -259,6 +306,152 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         sptr<IGnssStatusCallback> callback = (iter->second);
         callback->OnStatusChange(sv);
     }
+}
+
+void GnssAbility::LocationUpdate(GnssLocation* location)
+{
+    std::unique_ptr<Location> locationNew = std::make_unique<Location>();
+    if (location == nullptr || locationNew == nullptr
+        || g_gnssLocationCallback == nullptr || g_passiveLocationCallback == nullptr) {
+        LBSLOGE(GNSS, "LocationUpdate : location or callback is nullptr");
+        return;
+    }
+    LBSLOGI(GNSS, "LocationUpdate");
+    locationNew->SetLatitude(location->latitude);
+    locationNew->SetLongitude(location->longitude);
+    locationNew->SetAltitude(location->altitude);
+    locationNew->SetAccuracy(location->horizontalAccuracy);
+    locationNew->SetSpeed(location->speed);
+    locationNew->SetDirection(0);
+    locationNew->SetTimeStamp(location->timestamp);
+    locationNew->SetTimeSinceBoot(location->timestampSinceBoot);
+    g_gnssLocationCallback->OnLocationUpdate(locationNew);
+    g_passiveLocationCallback->OnLocationUpdate(locationNew);
+}
+
+void GnssAbility::StatusCallback(uint16_t* status)
+{
+    if (status == nullptr || g_gnssLocationCallback == nullptr) {
+        LBSLOGE(GNSS, "StatusCallback: param is nullptr");
+        return;
+    }
+    LBSLOGI(GNSS, "StatusCallback, status : %{public}d", *status);
+    g_gnssLocationCallback->OnStatusUpdate(*status);
+}
+
+void GnssAbility::SvStatusCallback(GnssSatelliteStatus* svInfo)
+{
+    std::unique_ptr<SatelliteStatus> svStatus = std::make_unique<SatelliteStatus>();
+    if (svInfo == nullptr || g_gnssLocationCallback == nullptr || svStatus == nullptr) {
+        LBSLOGE(GNSS, "SvStatusCallback, sv_info is null!");
+        return;
+    }
+    if (svInfo->satellitesNum <= 0) {
+        LBSLOGD(GNSS, "SvStatusCallback, satellites_num <= 0!");
+        return;
+    }
+    LBSLOGI(GNSS, "id  type   cn0");
+
+    svStatus->SetSatellitesNumber(svInfo->satellitesNum);
+    for (unsigned int i = 0; i < svInfo->satellitesNum; i++) {
+        LBSLOGI(GNSS,
+            "%{public}d    %{public}d  %{public}f",
+            svInfo->satellitesList[i].satelliteId, svInfo->satellitesList[i].constellationType,
+            svInfo->satellitesList[i].cn0);
+        svStatus->SetAltitude(svInfo->satellitesList[i].elevation);
+        svStatus->SetAzimuth(svInfo->satellitesList[i].azimuth);
+        svStatus->SetCarrierFrequencie(svInfo->satellitesList[i].carrierFrequencie);
+        svStatus->SetCarrierToNoiseDensity(svInfo->satellitesList[i].cn0);
+        svStatus->SetSatelliteId(svInfo->satellitesList[i].satelliteId);
+    }
+    g_gnssLocationCallback->OnSvStatusUpdate(svStatus);
+}
+
+void GnssAbility::NmeaCallback(int64_t timestamp, const char* nmea, int length)
+{
+    if (nmea == nullptr || g_gnssLocationCallback == nullptr) {
+        LBSLOGE(GNSS, "StatusCallback: param is nullptr");
+        return;
+    }
+    std::string nmeaStr = nmea;
+    g_gnssLocationCallback->OnNmeaUpdate(timestamp, nmeaStr);
+}
+
+bool GnssAbility::NativeInit()
+{
+    LBSLOGI(GNSS, "NativeInit");
+    handle = dlopen(VENDOR_GNSS_ADAPTER_SO_PATH, RTLD_LAZY);
+    if (!handle) {
+        LBSLOGE(GNSS, "dlopen failed : %{public}s", dlerror());
+        return false;
+    }
+    dlerror();
+    GnssVendorDevice* gnssDevice = static_cast<GnssVendorDevice*>(dlsym(handle, "GnssInterface"));
+    if (gnssDevice == nullptr) {
+        LBSLOGE(GNSS, "dlsym failed : %{public}s", dlerror());
+        return false;
+    }
+    g_gpsInterface = const_cast<GnssVendorInterface*>(gnssDevice->get_gnss_interface());
+    if (g_gpsInterface == nullptr) {
+        LBSLOGE(GNSS, "get_gnss_interface failed.");
+        return false;
+    }
+    int ret = g_gpsInterface->enable_gnss(&g_callbacks);
+    if (ret != 0) {
+        LBSLOGE(GNSS, "Error, failed to init\n");
+        dlclose(handle);
+        return false;
+    }
+    nativeInitFlag_ = true;
+    LBSLOGI(GNSS, "Successfully enable_gnss!");
+    return true;
+}
+
+void GnssAbility::NativeClear()
+{
+    if (g_gpsInterface == nullptr) {
+        LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
+        return;
+    }
+    g_gpsInterface->disable_gnss();
+    LBSLOGD(GNSS, "disable_gnss succ.");
+}
+
+void GnssAbility::NativeStart()
+{
+    unsigned int sleepTime = 2 * 1000 * 1000;
+    if (!nativeInitFlag_) {
+        if (!NativeInit()) {
+            LBSLOGE(GNSS, "init failed.");
+            return;
+        }
+        LBSLOGD(GNSS, "init succ.");
+        usleep(sleepTime); // sleep for 2 second.
+    }
+    if (g_gpsInterface == nullptr) {
+        LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
+        return;
+    }
+    int ret = g_gpsInterface->start_gnss(1);
+    if (ret != 0) {
+        LBSLOGD(GNSS, "Error, failed to start!");
+        return;
+    }
+    LBSLOGD(GNSS, "Start navigation successfully, waiting for location/nmea...");
+}
+
+void GnssAbility::NativeStop()
+{
+    if (g_gpsInterface == nullptr) {
+        LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
+        return;
+    }
+    int ret = g_gpsInterface->stop_gnss(1);
+    if (ret != 0) {
+        LBSLOGD(GNSS, "Error, failed to stop!");
+        return;
+    }
+    LBSLOGD(GNSS, "Stop navigation successfully.");
 }
 
 void GnssAbility::SaDumpInfo(std::string& result)

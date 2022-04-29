@@ -14,7 +14,6 @@
  */
 
 #include "location.h"
-
 #include <sstream>
 
 namespace OHOS {
@@ -60,7 +59,7 @@ void Location::ReadFromParcelLocation(Parcel& parcel)
     if (parcel.ReadInt32() == 0) {
         return;
     }
-    parcel.ReadString16();               // read provider
+    parcel.ReadString16();               // read string
     timeStamp_ = parcel.ReadInt64();     // read time
     timeSinceBoot_ = parcel.ReadInt64(); // read mElapsedRealtimeNanos
     parcel.ReadDouble();                 // read mElapsedRealtimeUncertaintyNanos
@@ -80,6 +79,13 @@ std::unique_ptr<Location> Location::UnmarshallingLocation(Parcel& parcel)
 {
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcelLocation(parcel);
+    return location;
+}
+
+std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
+{
+    std::shared_ptr<Location> location = std::make_shared<Location>();
+    location->ReadFromParcel(parcel);
     return location;
 }
 

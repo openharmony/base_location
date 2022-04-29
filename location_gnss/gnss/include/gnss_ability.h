@@ -25,7 +25,14 @@
 
 #include "common_utils.h"
 #include "gnss_ability_skeleton.h"
+#include "gnss_vendor.h"
 #include "subability_common.h"
+
+#ifdef __aarch64__
+#define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib64/vendorGnssAdapter.so"
+#else
+#define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib/vendorGnssAdapter.so"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -64,7 +71,20 @@ public:
     void ReportGnssSessionStatus(int status) override;
     void ReportNmea(const std::string &nmea) override;
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
+
+    void RequestRecord(sptr<LocationCallbackStub> addCallback, WorkRecord &workRecord, bool isAdded) override;
+    void NativeStart();
+    void NativeStop();
+    bool NativeInit();
+    void NativeClear();
+    static void StatusCallback(uint16_t* status);
+    static void LocationUpdate(GnssLocation* location);
+    static void NmeaCallback(int64_t timestamp, const char* nmea, int length);
+    static void SvStatusCallback(GnssSatelliteStatus* svInfo);
 private:
+    bool nativeInitFlag_;
+    void* handle;
+    GnssVendorInterface* g_gpsInterface;
     std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
     std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     bool Init();

@@ -24,11 +24,10 @@ namespace OHOS {
 namespace Location {
 const long NANOS_PER_MILLI = 1000000L;
 const int SECOND_TO_MILLISECOND = 1000;
-const int MAX_PROVIDER_SCHEDULING_JITTER_MS = 200;
+const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    LBSLOGI(REPORT_MANAGER, "receive location : %{public}s - %{private}s",
-        abilityName.c_str(), location->ToString().c_str());
+    LBSLOGI(REPORT_MANAGER, "receive location : %{public}s", abilityName.c_str());
     DelayedSingleton<FusionController>::GetInstance()->FuseResult(abilityName, location);
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
@@ -126,7 +125,7 @@ bool ReportManager::ReportIntervalCheck(const std::unique_ptr<Location>& locatio
     long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
     LBSLOGD(REPORT_MANAGER, "ReportIntervalCheck : %{public}s %{public}d - %{public}ld",
         request->GetPackageName().c_str(), minTime, deltaMs);
-    if (deltaMs < (minTime * SECOND_TO_MILLISECOND - MAX_PROVIDER_SCHEDULING_JITTER_MS)) {
+    if (deltaMs < (minTime * SECOND_TO_MILLISECOND - MAX_SA_SCHEDULING_JITTER_MS)) {
         LBSLOGD(REPORT_MANAGER, "do not report location");
         return false;
     }

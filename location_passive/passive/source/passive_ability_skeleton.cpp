@@ -51,7 +51,6 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = GetCachedLocation();
             if (location != nullptr) {
                 location->Marshalling(reply);
-                LBSLOGD(PASSIVE, "result:%{private}s", location->ToString().c_str());
             }
             break;
         }
