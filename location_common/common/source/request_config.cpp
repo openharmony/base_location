@@ -87,8 +87,7 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
 
 std::string RequestConfig::ToString() const
 {
-    std::string str;
-    str = "scenario : " + scenario_ +
+    std::string str = "scenario : " + scenario_ +
         ", location priority : " + priority_ +
         ", timeInterval : " + timeInterval_ +
         ", distanceInterval : " + distanceInterval_ +

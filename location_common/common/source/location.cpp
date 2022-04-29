@@ -109,8 +109,7 @@ bool Location::Marshalling(Parcel& parcel) const
 
 std::string Location::ToString() const
 {
-    std::string str;
-    str = "latitude : " + std::to_string(latitude_) +
+     std::string str = "latitude : " + std::to_string(latitude_) +
         ", longitude : " + std::to_string(longitude_) +
         ", altitude : " + std::to_string(altitude_) +
         ", accuracy : " + std::to_string(accuracy_) +

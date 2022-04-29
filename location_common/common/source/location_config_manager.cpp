@@ -29,9 +29,9 @@ LocationConfigManager &LocationConfigManager::GetInstance()
 LocationConfigManager::LocationConfigManager()
 {
     mLocationSwitchState = STATE_CLOSE;
-    mPrivacyTypeState[0] = STATE_CLOSE; // for OTHERS
-    mPrivacyTypeState[1] = STATE_CLOSE; // for STARTUP
-    mPrivacyTypeState[2] = STATE_CLOSE; // for CORE_LOCATION
+    mPrivacyTypeState[PRIVACY_TYPE_OTHERS] = STATE_CLOSE; // for OTHERS
+    mPrivacyTypeState[PRIVACY_TYPE_STARTUP] = STATE_CLOSE; // for STARTUP
+    mPrivacyTypeState[PRIVACY_TYPE_CORE_LOCATION] = STATE_CLOSE; // for CORE_LOCATION
 }
 
 LocationConfigManager::~LocationConfigManager()

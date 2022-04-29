@@ -54,7 +54,7 @@ void SubscribeLocationServiceState(napi_env env, const std::string& name,
 
     switchCallbackHost->m_env = env;
     switchCallbackHost->m_handlerCb = handlerRef;
-    g_locatorNapiPtr->RegisterSwitchCallback(switchCallbackHost->AsObject(), 10001); // default uid
+    g_locatorNapiPtr->RegisterSwitchCallback(switchCallbackHost->AsObject(), 10001);
 }
 
 void SubscribeGnssStatus(napi_env env, napi_value& handler,
@@ -72,7 +72,7 @@ void SubscribeGnssStatus(napi_env env, napi_value& handler,
 
     gnssStatusCallbackHost->m_env = env;
     gnssStatusCallbackHost->m_handlerCb = handlerRef;
-    g_locatorNapiPtr->RegisterGnssStatusCallback(gnssStatusCallbackHost->AsObject(), 10001); // default uid
+    g_locatorNapiPtr->RegisterGnssStatusCallback(gnssStatusCallbackHost->AsObject(), 10001);
 }
 
 void SubscribeNmeaMessage(napi_env env, napi_value& handler,
@@ -90,7 +90,7 @@ void SubscribeNmeaMessage(napi_env env, napi_value& handler,
 
     nmeaMessageCallbackHost->m_env = env;
     nmeaMessageCallbackHost->m_handlerCb = handlerRef;
-    g_locatorNapiPtr->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), 10001); // default uid
+    g_locatorNapiPtr->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), 10001);
 }
 
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
@@ -223,7 +223,7 @@ void GetTimeoutParam(napi_env env, const napi_value* argv,
     if (nonCallbackArgNum > 0) {
         JsObjectToInt(env, argv[nonCallbackArgNum - 1], "timeoutMs", timeout);
     } else {
-        timeout = 30000; // default 30 second
+        timeout = DEFAULT_TIMEOUT_30S;
     }
 }
 
