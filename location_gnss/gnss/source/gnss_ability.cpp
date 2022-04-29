@@ -374,7 +374,7 @@ void GnssAbility::NmeaCallback(int64_t timestamp, const char* nmea, int length)
         return;
     }
     std::string nmeaStr = nmea;
-    LBSLOGI(GNSS, "NmeaCallback, timestamp : %{public}lld", timestamp);
+    LBSLOGI(GNSS, "NmeaCallback, timestamp : %{public}ld", timestamp);
     g_gnssLocationCallback->OnNmeaUpdate(timestamp, nmeaStr);
 }
 
