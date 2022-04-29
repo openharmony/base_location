@@ -14,7 +14,6 @@
  */
 
 #include "geo_address.h"
-#include <sstream>
 
 namespace OHOS {
 namespace Location {

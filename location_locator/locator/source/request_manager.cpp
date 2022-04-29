@@ -152,7 +152,7 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
         list->push_back(request);
         runningUids_.push_back(request->GetUid());
     } else {
-        for (auto iter = list->begin(); iter != list->end(); ) {
+        for (auto iter = list->begin(); iter != list->end();) {
             auto findRequest = *iter;
             if (request == findRequest) {
                 iter = list->erase(iter);

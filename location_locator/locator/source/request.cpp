@@ -14,7 +14,6 @@
  */
 
 #include "request.h"
-#include <sstream>
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "i_locator_callback.h"
@@ -173,18 +172,11 @@ std::string Request::ToString() const
     if (requestConfig_ == nullptr) {
         return "";
     }
-    std::stringstream str;
-    str << "[request config: ";
-    str << requestConfig_->ToString();
-    str << "] from pid:";
-    str << pid_;
-    str << ", uid:";
-    str << uid_;
-    str << ", ";
-    str << packageName_;
-    str << ", callback's address : ";
-    str << callBack_;
-    return str.str();
+    std::string str = "[request config: " + requestConfig_->ToString() +
+        "] from pid:" + pid_ +
+        ", uid:"+ uid_ + ", " + packageName_ +
+        ", callback's address : " + callBack_;
+    return str;
 }
 } // namespace Location
 } // namespace OHOS
