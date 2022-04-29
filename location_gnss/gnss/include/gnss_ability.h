@@ -77,9 +77,9 @@ public:
     void NativeStop();
     bool NativeInit();
     void NativeClear();
-    static void StatusCallback(GnssWorkingStatus* status);
+    static void StatusCallback(uint16_t* status);
     static void LocationUpdate(GnssLocation* location);
-    static void NmeaCallback(GnssUtcTimestamp timestamp, const char* nmea, int length);
+    static void NmeaCallback(int64_t timestamp, const char* nmea, int length);
     static void SvStatusCallback(GnssSatelliteStatus* svInfo);
 private:
     bool nativeInitFlag_;

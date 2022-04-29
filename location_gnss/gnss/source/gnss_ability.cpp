@@ -35,24 +35,24 @@ sptr<LocationCallbackStub> g_passiveLocationCallback = new (std::nothrow) Locati
 
 GnssBasicCallbackIfaces g_gnssBasicCb = {
     .size = sizeof(GnssBasicCallbackIfaces),
-    .location_update = GnssAbility::LocationUpdate,
-    .status_update = GnssAbility::StatusCallback,
-    .sv_status_update = GnssAbility::SvStatusCallback,
-    .nmea_update = GnssAbility::NmeaCallback,
-    .capabilities_update = nullptr,
-    .ref_info_request = nullptr,
-    .download_request_cb = nullptr,
+    .locationUpdate = GnssAbility::LocationUpdate,
+    .statusUpdate = GnssAbility::StatusCallback,
+    .svStatusUpdate = GnssAbility::SvStatusCallback,
+    .nmeaUpdate = GnssAbility::NmeaCallback,
+    .capabilitiesUpdate = nullptr,
+    .refInfoRequest = nullptr,
+    .downloadRequestCb = nullptr,
 };
 
 GnssCacheCallbackIfaces g_gnssCacheCb = {
     .size = 0,
-    .cached_location_cb = nullptr,
+    .cachedLocationCb = nullptr,
 };
 
 GnssCallbackStruct g_callbacks = {
     .size = sizeof(GnssCallbackStruct),
-    .gnss_cb = g_gnssBasicCb,
-    .gnss_cache_cb = g_gnssCacheCb,
+    .gnssCb = g_gnssBasicCb,
+    .gnssCacheCb = g_gnssCacheCb,
 };
 
 GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
@@ -320,16 +320,16 @@ void GnssAbility::LocationUpdate(GnssLocation* location)
     locationNew->SetLatitude(location->latitude);
     locationNew->SetLongitude(location->longitude);
     locationNew->SetAltitude(location->altitude);
-    locationNew->SetAccuracy(location->horizontal_accuracy);
+    locationNew->SetAccuracy(location->horizontalAccuracy);
     locationNew->SetSpeed(location->speed);
     locationNew->SetDirection(0);
     locationNew->SetTimeStamp(location->timestamp);
-    locationNew->SetTimeSinceBoot(location->timestamp_since_boot);
+    locationNew->SetTimeSinceBoot(location->timestampSinceBoot);
     g_gnssLocationCallback->OnLocationUpdate(locationNew);
     g_passiveLocationCallback->OnLocationUpdate(locationNew);
 }
 
-void GnssAbility::StatusCallback(GnssStatus* status)
+void GnssAbility::StatusCallback(uint16_t* status)
 {
     if (status == nullptr || g_gnssLocationCallback == nullptr) {
         LBSLOGE(GNSS, "StatusCallback: param is nullptr");
@@ -346,28 +346,28 @@ void GnssAbility::SvStatusCallback(GnssSatelliteStatus* svInfo)
         LBSLOGE(GNSS, "SvStatusCallback, sv_info is null!");
         return;
     }
-    if (svInfo->satellites_num <= 0) {
+    if (svInfo->satellitesNum <= 0) {
         LBSLOGD(GNSS, "SvStatusCallback, satellites_num <= 0!");
         return;
     }
     LBSLOGI(GNSS, "id  type   cn0");
 
-    svStatus->SetSatellitesNumber(svInfo->satellites_num);
-    for (unsigned int i = 0; i < svInfo->satellites_num; i++) {
+    svStatus->SetSatellitesNumber(svInfo->satellitesNum);
+    for (unsigned int i = 0; i < svInfo->satellitesNum; i++) {
         LBSLOGI(GNSS,
             "%{public}d    %{public}d  %{public}f",
-            svInfo->gnss_sv_list[i].satellite_ids, svInfo->gnss_sv_list[i].constellation,
-            svInfo->gnss_sv_list[i].cn0);
-        svStatus->SetAltitude(svInfo->gnss_sv_list[i].elevation);
-        svStatus->SetAzimuth(svInfo->gnss_sv_list[i].azimuths);
-        svStatus->SetCarrierFrequencie(svInfo->gnss_sv_list[i].carrier_frequencies);
-        svStatus->SetCarrierToNoiseDensity(svInfo->gnss_sv_list[i].cn0);
-        svStatus->SetSatelliteId(svInfo->gnss_sv_list[i].satellite_ids);
+            svInfo->satellitesList[i].satelliteId, svInfo->satellitesList[i].constellationType,
+            svInfo->satellitesList[i].cn0);
+        svStatus->SetAltitude(svInfo->satellitesList[i].elevation);
+        svStatus->SetAzimuth(svInfo->satellitesList[i].azimuth);
+        svStatus->SetCarrierFrequencie(svInfo->satellitesList[i].carrierFrequencie);
+        svStatus->SetCarrierToNoiseDensity(svInfo->satellitesList[i].cn0);
+        svStatus->SetSatelliteId(svInfo->satellitesList[i].satelliteId);
     }
     g_gnssLocationCallback->OnSvStatusUpdate(svStatus);
 }
 
-void GnssAbility::NmeaCallback(GnssUtcTimestamp timestamp, const char* nmea, int length)
+void GnssAbility::NmeaCallback(int64_t timestamp, const char* nmea, int length)
 {
     if (nmea == nullptr || g_gnssLocationCallback == nullptr) {
         LBSLOGE(GNSS, "StatusCallback: param is nullptr");
