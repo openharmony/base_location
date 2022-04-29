@@ -17,7 +17,6 @@
 #define OHOS_GNSS_VENDOR_H
 
 #include <stdint.h>
-#include <sys/cdefs.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdbool.h>

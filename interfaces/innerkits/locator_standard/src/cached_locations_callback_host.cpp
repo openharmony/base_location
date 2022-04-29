@@ -101,7 +101,7 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& l
     return true;
 }
 
-void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s &loop, uv_work_t &work)
+void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
     uv_queue_work(
         loop,
