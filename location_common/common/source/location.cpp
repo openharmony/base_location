@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <sstream>
 #include "location.h"
 
 namespace OHOS {
@@ -58,7 +59,7 @@ void Location::ReadFromParcelLocation(Parcel& parcel)
     if (parcel.ReadInt32() == 0) {
         return;
     }
-    parcel.ReadString16();               // read provider
+    parcel.ReadString16();               // read string
     timeStamp_ = parcel.ReadInt64();     // read time
     timeSinceBoot_ = parcel.ReadInt64(); // read mElapsedRealtimeNanos
     parcel.ReadDouble();                 // read mElapsedRealtimeUncertaintyNanos
