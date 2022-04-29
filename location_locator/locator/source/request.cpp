@@ -173,9 +173,8 @@ std::string Request::ToString() const
         return "";
     }
     std::string str = "[request config: " + requestConfig_->ToString() +
-        "] from pid:" + pid_ +
-        ", uid:"+ uid_ + ", " + packageName_ +
-        ", callback's address : " + callBack_;
+        "] from pid:" + std::to_string(pid_) +
+        ", uid:" + std::to_string(uid_) + ", " + packageName_;
     return str;
 }
 } // namespace Location

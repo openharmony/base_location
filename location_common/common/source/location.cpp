@@ -110,14 +110,14 @@ bool Location::Marshalling(Parcel& parcel) const
 std::string Location::ToString() const
 {
     std::string str;
-    str = "latitude : " + latitude_ +
-        ", longitude : " + longitude_ +
-        ", altitude : " + altitude_ +
-        ", accuracy : " + accuracy_ +
-        ", speed : " + speed_ +
-        ", direction : " + direction_ +
-        ", timeStamp : " + timeStamp_ +
-        ", timeSinceBoot : " + timeSinceBoot_;
+    str = "latitude : " + std::to_string(latitude_) +
+        ", longitude : " + std::to_string(longitude_) +
+        ", altitude : " + std::to_string(altitude_) +
+        ", accuracy : " + std::to_string(accuracy_) +
+        ", speed : " + std::to_string(speed_) +
+        ", direction : " + std::to_string(direction_) +
+        ", timeStamp : " + std::to_string(timeStamp_) +
+        ", timeSinceBoot : " + std::to_string(timeSinceBoot_);
     return str;
 }
 } // namespace Location
