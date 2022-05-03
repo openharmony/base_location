@@ -35,6 +35,14 @@ const int PRIVACY_TYPE_OTHERS = 0;
 const int PRIVACY_TYPE_STARTUP = 1;
 const int PRIVACY_TYPE_CORE_LOCATION = 2;
 
+const int32_t UNKNOW_USER_ID = -1;
+const int32_t SUBSCRIBE_TIME = 5;
+const int32_t DEFAULT_TIME_INTERVAL = 30 * 60; // app receive location every 30 minutes in frozen state
+const int32_t REQUESTS_NUM_MAX = 1;
+const std::string FEATURE_SWITCH_PROP = "ro.config.locator_background";
+const std::string TIME_INTERVAL_PROP = "ro.config.locator_background.timeInterval";
+const std::string PROC_NAME = "system";
+
 enum {
     SCENE_UNSET = 0x0300,
     SCENE_NAVIGATION = 0x0301,

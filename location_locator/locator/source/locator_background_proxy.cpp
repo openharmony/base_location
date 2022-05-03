@@ -29,16 +29,6 @@
 namespace OHOS {
 namespace Location {
 namespace {
-const int32_t UNKNOW_USER_ID = -1;
-const int32_t PER_USER_RANGE = 100000;
-const int32_t SUBSCRIBE_TIME = 5;
-const int32_t DEFAULT_TIME_INTERVAL = 30 * 60; // app receive location every 30 minutes in frozen state
-const int32_t REQUESTS_NUM_MAX = 1;
-const std::string FEATURE_SWITCH_PROP = "ro.config.locator_background";
-const std::string TIME_INTERVAL_PROP = "ro.config.locator_background.timeInterval";
-const std::string PROC_NAME = "system";
-}
-
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
 LocatorBackgroundProxy::LocatorBackgroundProxy()
