@@ -28,6 +28,13 @@ const int SESSION_STOP = 0x0003;
 
 const int DEFAULT_TIMEOUT_30S = 30000;
 
+const int STATE_OPEN = 1;
+const int STATE_CLOSE = 0;
+const int32_t PER_USER_RANGE = 100000;
+const int PRIVACY_TYPE_OTHERS = 0;
+const int PRIVACY_TYPE_STARTUP = 1;
+const int PRIVACY_TYPE_CORE_LOCATION = 2;
+
 enum {
     SCENE_UNSET = 0x0300,
     SCENE_NAVIGATION = 0x0301,

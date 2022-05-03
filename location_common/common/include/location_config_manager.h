@@ -24,13 +24,6 @@
 #include <vector>
 #include "constant_definition.h"
 
-constexpr int STATE_OPEN = 1;
-constexpr int STATE_CLOSE = 0;
-constexpr int32_t PER_USER_RANGE = 100000;
-constexpr int PRIVACY_TYPE_OTHERS = 0;
-constexpr int PRIVACY_TYPE_STARTUP = 1;
-constexpr int PRIVACY_TYPE_CORE_LOCATION = 2;
-
 namespace OHOS {
 namespace Location {
 class LocationConfigManager {

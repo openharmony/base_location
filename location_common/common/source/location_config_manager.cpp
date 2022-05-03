@@ -211,7 +211,7 @@ void LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
         LBSLOGI(LOCATION_NAPI, "SetPrivacyTypeState,invalid types");
-        return false;
+        return;
     }
     std::unique_lock<std::mutex> lock(mMutex);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
