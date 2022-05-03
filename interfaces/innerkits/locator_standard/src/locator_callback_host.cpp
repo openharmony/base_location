@@ -90,20 +90,16 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s *&loop, uv_work_t *&work)
             LocationAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
                 return;
             }
             context = static_cast<LocationAsyncContext *>(work->data);
             if (context == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
-                // close handle scope, release napi_value
                 napi_close_handle_scope(context->env, scope);
                 delete context;
                 context = nullptr;
@@ -145,11 +141,6 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s *&loop, uv_work_t *&work)
                     napi_resolve_deferred(context->env, context->deferred, jsOhosEvent);
                 } else {
                     napi_reject_deferred(context->env, context->deferred, jsOhosEvent);
-                }
-                if (jsSystemEvent != nullptr) {
-                    napi_resolve_deferred(context->env, context->deferred, jsSystemEvent);
-                } else {
-                    napi_reject_deferred(context->env, context->deferred, jsSystemEvent);
                 }
             }
             napi_close_handle_scope(context->env, scope);
@@ -197,6 +188,12 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
             JsContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             context = static_cast<JsContext *>(work->data);
+            if (context == nullptr) {
+                LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
+                delete work;
+                work = nullptr;
+                return;
+            }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");

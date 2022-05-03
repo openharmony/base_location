@@ -44,7 +44,7 @@ public:
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
 private:
-    bool RestorRequest(std::shared_ptr<Request> newRequest);
+    bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
     void DeleteRequestRecord(std::shared_ptr<std::list<std::shared_ptr<Request>>> requests);
     void HandleRequest(std::string abilityName);

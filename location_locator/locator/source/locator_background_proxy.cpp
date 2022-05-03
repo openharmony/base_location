@@ -79,9 +79,7 @@ LocatorBackgroundProxy::~LocatorBackgroundProxy() {}
 void LocatorBackgroundProxy::InitArgsFromProp()
 {
     featureSwitch_ = 1;
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "feature switch %{public}d", featureSwitch_);
     timeInterval_ = DEFAULT_TIME_INTERVAL;
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "set time interval %{public}d", timeInterval_);
 }
 
 void LocatorBackgroundProxy::SubscribeUserSwtich()
@@ -216,7 +214,7 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
         return;
     }
     auto requestsList = iter->second;
-    for (auto request = requestsList->begin(); request != requestsList->end(); ) {
+    for (auto request = requestsList->begin(); request != requestsList->end();) {
         if ((uid1 == (*request)->GetUid()) && !CheckPermission()) {
             request = requestsList->erase(request);
         } else {

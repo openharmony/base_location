@@ -349,12 +349,12 @@ int LocatorAbility::QuerySwitchState()
     return LocationConfigManager::GetInstance().GetLocationSwitchState();
 }
 
-bool LocatorAbility::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
+bool LocatorAbility::IsLocationPrivacyConfirmed(const int type)
 {
     return LocationConfigManager::GetInstance().GetPrivacyTypeState(type);
 }
 
-void LocatorAbility::SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed)
+void LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     LocationConfigManager::GetInstance().SetPrivacyTypeState(type, isConfirmed);
 }

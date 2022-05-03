@@ -14,10 +14,7 @@
  */
 
 #include "common_utils.h"
-
 #include <map>
-#include <thread>
-
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -192,54 +189,6 @@ std::string CommonUtils::InitDeviceId()
 {
     std::string deviceId;
     return deviceId;
-}
-
-int CommonUtils::GetPrivacyType(LocationPrivacyType type)
-{
-    int ret;
-    switch (type) {
-        case LocationPrivacyType::OTHERS: {
-            ret = 0;
-            break;
-        }
-        case LocationPrivacyType::STARTUP: {
-            ret = 1;
-            break;
-        }
-        case LocationPrivacyType::CORE_LOCATION: {
-            ret = 2;
-            break;
-        }
-        default: {
-            ret = -1;
-            break;
-        }
-    }
-    return ret;
-}
-
-LocationPrivacyType CommonUtils::GetPrivacyTypeByInt(int type)
-{
-    LocationPrivacyType ret;
-    switch (type) {
-        case 0: {
-            ret = LocationPrivacyType::OTHERS;
-            break;
-        }
-        case 1: {
-            ret = LocationPrivacyType::STARTUP;
-            break;
-        }
-        case 2: {
-            ret = LocationPrivacyType::CORE_LOCATION;
-            break;
-        }
-        default: {
-            ret = LocationPrivacyType::OTHERS;
-            break;
-        }
-    }
-    return ret;
 }
 } // namespace Location
 } // namespace OHOS

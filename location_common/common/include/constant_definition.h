@@ -44,12 +44,6 @@ enum {
     PRIORITY_FAST_FIRST_FIX = 0x0203
 };
 
-enum class LocationPrivacyType {
-    OTHERS = 0,
-    STARTUP,
-    CORE_LOCATION
-};
-
 typedef struct {
     int reportingPeriodSec;
     bool wakeUpCacheQueueFull;

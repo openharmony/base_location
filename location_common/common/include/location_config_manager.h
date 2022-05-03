@@ -63,9 +63,9 @@ public:
     bool IsExistFile(const std::string& filename);
     bool CreateFile(const std::string& filename, const std::string& filedata);
 
-    std::string GetPrivacyTypeConfigPath(const LocationPrivacyType type);
-    bool GetPrivacyTypeState(const LocationPrivacyType type);
-    void SetPrivacyTypeState(const LocationPrivacyType type, bool isConfirmed);
+    std::string GetPrivacyTypeConfigPath(const int type);
+    bool GetPrivacyTypeState(const int type);
+    void SetPrivacyTypeState(const int type, bool isConfirmed);
 
 private:
     LocationConfigManager();

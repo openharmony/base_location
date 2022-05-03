@@ -105,10 +105,10 @@
 | flushCachedGnssLocations()&nbsp;:&nbsp;Promise&lt;boolean&gt;; | 获取所有的GNSS缓存位置，并清空GNSS缓存队列，使用Promise方式异步返回结果。 | 
 | sendCommand(command:&nbsp;LocationCommand,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | 给位置服务子系统发送扩展命令，使用callback回调异步返回结果。 | 
 | sendCommand(command:&nbsp;LocationCommand)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | 给位置服务子系统发送扩展命令，使用Promise方式异步返回结果。 | 
-| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | 查询用户是否同意定位服务的隐私申明，使用callback回调异步返回结果。 | 
-| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;LocationPrivacyType,)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | 查询用户是否同意定位服务的隐私申明，使用Promise方式异步返回结果。 | 
-| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;isConfirmed&nbsp;:&nbsp;boolean,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | 设置并记录用户是否同意定位服务的隐私申明，使用callback回调异步返回结果。 | 
-| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;isConfirmed&nbsp;:&nbsp;boolean)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | 设置并记录用户是否同意定位服务的隐私申明，使用Promise方式异步返回结果。 | 
+| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;int,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | 查询用户是否同意定位服务的隐私申明，使用callback回调异步返回结果。 | 
+| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;int,)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | 查询用户是否同意定位服务的隐私申明，使用Promise方式异步返回结果。 | 
+| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;int,&nbsp;isConfirmed&nbsp;:&nbsp;boolean,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | 设置并记录用户是否同意定位服务的隐私申明，使用callback回调异步返回结果。 | 
+| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;int,&nbsp;isConfirmed&nbsp;:&nbsp;boolean)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | 设置并记录用户是否同意定位服务的隐私申明，使用Promise方式异步返回结果。 | 
 
 
 ### 使用说明<a name="section129654513264"></a>

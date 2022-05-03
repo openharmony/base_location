@@ -437,7 +437,7 @@ int LocatorProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel &r
     return error;
 }
 
-bool LocatorProxy::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
+bool LocatorProxy::IsLocationPrivacyConfirmed(const int type)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -451,7 +451,7 @@ bool LocatorProxy::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
         LBSLOGE(LOCATOR_STANDARD, "IsLocationPrivacyConfirmed remote is null");
         return EXCEPTION;
     }
-    data.WriteInt32(CommonUtils::GetPrivacyType(type));
+    data.WriteInt32(type);
     int error = remote->SendRequest(IS_PRIVACY_COMFIRMED, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::IsLocationPrivacyConfirmed Transact ErrCode = %{public}d", error);
     bool state = false;
@@ -462,7 +462,7 @@ bool LocatorProxy::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
     return state;
 }
 
-void LocatorProxy::SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed)
+void LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -470,7 +470,7 @@ void LocatorProxy::SetLocationPrivacyConfirmStatus(const LocationPrivacyType typ
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    data.WriteInt32(CommonUtils::GetPrivacyType(type));
+    data.WriteInt32(type);
     data.WriteBool(isConfirmed);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
