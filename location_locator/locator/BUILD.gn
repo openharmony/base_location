@@ -85,7 +85,6 @@ ohos_shared_library("lbsservice_locator") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "permission_standard:libpermissionsdk_standard",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
   ]

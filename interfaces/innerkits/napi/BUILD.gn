@@ -28,7 +28,6 @@ ohos_shared_library("geolocation") {
     "//base/location/location_common/common/include",
     "//base/location/location_locator/callback/include",
     "//base/location/utils/include",
-    "//base/security/permission/interfaces/innerkits/permission_standard/permissionsdk/main/cpp/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
@@ -58,7 +57,6 @@ ohos_shared_library("geolocation") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "permission_standard:libpermissionsdk_standard",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
   ]
