@@ -14,10 +14,7 @@
  */
 
 #include "locator_background_proxy.h"
-
-#include <chrono>
 #include <thread>
-#include <unistd.h>
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "common_utils.h"
@@ -28,7 +25,6 @@
 
 namespace OHOS {
 namespace Location {
-namespace {
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
 LocatorBackgroundProxy::LocatorBackgroundProxy()
