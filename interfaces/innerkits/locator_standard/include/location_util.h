@@ -41,22 +41,6 @@ constexpr int32_t PARAM1 = 1;
 constexpr int32_t PARAM2 = 2;
 constexpr int32_t PARAM3 = 3;
 constexpr size_t RESULT_SIZE = 2;
-class TraceFuncCall final {
-public:
-    TraceFuncCall(std::string funcName);
-
-    TraceFuncCall() = delete;
-
-    ~TraceFuncCall();
-
-private:
-    std::string m_funcName;
-    std::chrono::steady_clock::time_point m_startTime;
-    bool m_isTrace = true;
-};
-
-#define TRACE_FUNC_CALL TraceFuncCall func(__func__)
-#define TRACE_FUNC_CALL_NAME(name) TraceFuncCall func(name)
 
 class AsyncContext {
 public:
@@ -97,13 +81,7 @@ public:
     napi_ref m_handlerCb;
     napi_value m_jsEvent;
     JsContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred)
-    {
-        m_env = nullptr;
-        m_handlerCb = nullptr;
-        m_jsEvent = nullptr;
-    }
-
+        : AsyncContext(env, work, deferred), m_env(nullptr), m_handlerCb(nullptr), m_jsEvent(nullptr) {}
     virtual ~JsContext() {}
 };
 

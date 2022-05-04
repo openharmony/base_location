@@ -32,7 +32,6 @@ napi_value GetLocationOnce(const napi_env& env,
                            const napi_ref& completeHandlerRef,
                            int fixNumber)
 {
-    TRACE_FUNC_CALL;
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetScenario(SCENE_UNSET);
@@ -66,7 +65,6 @@ napi_value GetLocationOnce(const napi_env& env,
 
 napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
 {
-    TRACE_FUNC_CALL;
     size_t argc = 1;
     napi_value argv[1] = {0}, thisVar = 0, result = nullptr;
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
@@ -123,7 +121,6 @@ bool EmitSyncCallbackWork(const napi_env& env,
                           const napi_value& failHandler,
                           const napi_value& completeHandler)
 {
-    TRACE_FUNC_CALL;
     napi_value jsEvent = nullptr;
     napi_value arrString = nullptr;
     napi_value value;
@@ -144,7 +141,6 @@ bool EmitSyncCallbackWork(const napi_env& env,
 
 napi_value GetLocationType(napi_env env, napi_callback_info cbinfo)
 {
-    TRACE_FUNC_CALL;
     size_t argc = 1;
     napi_value argv[1] = {0};
     napi_value thisVar = 0;
@@ -186,7 +182,6 @@ void SubscribeSystemLocationChange(napi_env env,
                                    int fixNumber,
                                    sptr<LocatorCallbackHost>& locatorCallbackHost)
 {
-    TRACE_FUNC_CALL;
     if (g_systemLocatorNapiPtr == nullptr) {
         LBSLOGE(LOCATION_NAPI, "g_systemLocatorNapiPtr is nullptr, return.");
         return;
@@ -273,7 +268,6 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
 
 napi_value Unsubscribe(napi_env env, napi_callback_info cbinfo)
 {
-    TRACE_FUNC_CALL;
     napi_value result = nullptr;
     g_systemRegisterLocatorInfo.clear();
 
@@ -289,7 +283,6 @@ napi_value Unsubscribe(napi_env env, napi_callback_info cbinfo)
 
 napi_value GetSupportedCoordTypes(napi_env env, napi_callback_info cbinfo)
 {
-    TRACE_FUNC_CALL;
     size_t argc = 1;
     napi_value argv[1] = {0};
     napi_value thisVar = 0;

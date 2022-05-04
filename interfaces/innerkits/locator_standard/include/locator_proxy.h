@@ -84,8 +84,8 @@ public:
     virtual int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay) = 0;
     virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) = 0;
     virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) = 0;
-    virtual void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) = 0;
+    virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
+    virtual void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
 
     virtual int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) = 0;
@@ -124,8 +124,8 @@ public:
     int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) override;
-    bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) override;
-    void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) override;
+    bool IsLocationPrivacyConfirmed(const int type) override;
+    void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
 
     int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) override;

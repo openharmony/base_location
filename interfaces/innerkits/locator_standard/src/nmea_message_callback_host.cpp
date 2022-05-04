@@ -102,7 +102,13 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
     context->ohosCallback[0] = m_handlerCb;
     context->msg = msg;
     work->data = context;
+    UvQueueWork(loop, work);
+    return true;
+}
 
+
+void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+{
     uv_queue_work(
         loop,
         work,
@@ -150,7 +156,6 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
             delete work;
             work = nullptr;
     });
-    return true;
 }
 
 void NmeaMessageCallbackHost::OnMessageChange(const std::string msg)

@@ -62,9 +62,9 @@ public:
 
     virtual void GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
 
-    virtual bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) = 0;
+    virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
 
-    virtual void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) = 0;
+    virtual void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
 
     virtual bool RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
     virtual bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;

@@ -28,24 +28,6 @@ static constexpr double MIN_LATITUDE = -90.0;
 static constexpr double MAX_LATITUDE = 90.0;
 static constexpr double MIN_LONGITUDE = -180.0;
 static constexpr double MAX_LONGITUDE = 180.0;
-TraceFuncCall::TraceFuncCall(std::string funcName): m_funcName(funcName)
-{
-    if (m_isTrace) {
-        m_startTime = std::chrono::steady_clock::now();
-        LBSLOGD(LOCATOR_STANDARD, "Call func: %{public}s (start)", m_funcName.c_str());
-    }
-}
-
-TraceFuncCall::~TraceFuncCall()
-{
-    if (m_isTrace) {
-        auto us = std::chrono::duration_cast<std::chrono::microseconds>
-            (std::chrono::steady_clock::now() - m_startTime).count();
-        constexpr int usForPerMs = 1000;
-        LBSLOGD(LOCATOR_STANDARD, "Call func: %{public}s (end), time cost:%{public}lldus, %{public}lldms",
-            m_funcName.c_str(), us, us / usForPerMs);
-    }
-}
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -147,7 +129,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
     std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult)
 {
     uint32_t idx = 0;
-    napi_status status;
+    napi_status status = napi_ok;
     for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
         auto geoAddress = *iter;
         napi_value eachObj;
@@ -172,14 +154,14 @@ bool GeoAddressesToJsObj(const napi_env& env,
         if (geoAddress->m_descriptionsSize > 0) {
             napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray);
             uint32_t idx1 = 0;
-            for (int index = 0; index < geoAddress->m_descriptionsSize; index++) {
+            for (int index = 0; index < geoAddress->m_descriptionsSize && status == napi_ok; index++) {
                 napi_value value;
                 status = napi_create_string_utf8(env, geoAddress->GetDescriptions(index).c_str(),
                     NAPI_AUTO_LENGTH, &value);
                 status = napi_set_element(env, descriptionArray, idx1++, value);
-                if (status != napi_ok) {
-                    return false;
-                }
+            }
+            if (status != napi_ok) {
+                return false;
             }
             SetValueStringArray(env, "descriptions", descriptionArray, eachObj);
         }

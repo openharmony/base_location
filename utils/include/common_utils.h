@@ -36,8 +36,7 @@ const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTIN
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
-const int DEFAULT_UID = 1000;
-const int DEFAULT_PID = 1000;
+const int DEFAULT_UID = 10001;
 const int SYSTEM_UID = 1000;
 
 const int EX_HAS_REPLY_HEADER = -128;
@@ -102,8 +101,6 @@ public:
     static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
     static bool CheckLocatorInterfaceToken(std::u16string descripter, MessageParcel &data);
-    static int GetPrivacyType(LocationPrivacyType type);
-    static LocationPrivacyType GetPrivacyTypeByInt(int type);
 };
 } // namespace Location
 } // namespace OHOS

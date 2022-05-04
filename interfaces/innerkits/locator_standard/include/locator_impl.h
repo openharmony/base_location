@@ -49,8 +49,8 @@ public:
     bool IsGeoServiceAvailable() override;
     void GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
     void GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
-    bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) override;
-    void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) override;
+    bool IsLocationPrivacyConfirmed(const int type) override;
+    void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
     int GetCachedGnssLocationsSize() override;
     bool FlushCachedGnssLocations() override;
     bool SendCommand(std::unique_ptr<LocationCommand>& commands) override;

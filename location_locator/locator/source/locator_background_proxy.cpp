@@ -14,10 +14,7 @@
  */
 
 #include "locator_background_proxy.h"
-
-#include <chrono>
 #include <thread>
-#include <unistd.h>
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "common_utils.h"
@@ -28,17 +25,6 @@
 
 namespace OHOS {
 namespace Location {
-namespace {
-const int32_t UNKNOW_USER_ID = -1;
-const int32_t PER_USER_RANGE = 100000;
-const int32_t SUBSCRIBE_TIME = 5;
-const int32_t DEFAULT_TIME_INTERVAL = 30 * 60; // app receive location every 30 minutes in frozen state
-const int32_t REQUESTS_NUM_MAX = 1;
-const std::string FEATURE_SWITCH_PROP = "ro.config.locator_background";
-const std::string TIME_INTERVAL_PROP = "ro.config.locator_background.timeInterval";
-const std::string PROC_NAME = "system";
-}
-
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
 LocatorBackgroundProxy::LocatorBackgroundProxy()
@@ -79,9 +65,7 @@ LocatorBackgroundProxy::~LocatorBackgroundProxy() {}
 void LocatorBackgroundProxy::InitArgsFromProp()
 {
     featureSwitch_ = 1;
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "feature switch %{public}d", featureSwitch_);
     timeInterval_ = DEFAULT_TIME_INTERVAL;
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "set time interval %{public}d", timeInterval_);
 }
 
 void LocatorBackgroundProxy::SubscribeUserSwtich()
@@ -216,7 +200,7 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
         return;
     }
     auto requestsList = iter->second;
-    for (auto request = requestsList->begin(); request != requestsList->end(); ) {
+    for (auto request = requestsList->begin(); request != requestsList->end();) {
         if ((uid1 == (*request)->GetUid()) && !CheckPermission()) {
             request = requestsList->erase(request);
         } else {

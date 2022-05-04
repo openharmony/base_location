@@ -54,7 +54,7 @@ void SubscribeLocationServiceState(napi_env env, const std::string& name,
 
     switchCallbackHost->m_env = env;
     switchCallbackHost->m_handlerCb = handlerRef;
-    g_locatorNapiPtr->RegisterSwitchCallback(switchCallbackHost->AsObject(), 10001);
+    g_locatorNapiPtr->RegisterSwitchCallback(switchCallbackHost->AsObject(), DEFAULT_UID);
 }
 
 void SubscribeGnssStatus(napi_env env, napi_value& handler,
@@ -72,7 +72,7 @@ void SubscribeGnssStatus(napi_env env, napi_value& handler,
 
     gnssStatusCallbackHost->m_env = env;
     gnssStatusCallbackHost->m_handlerCb = handlerRef;
-    g_locatorNapiPtr->RegisterGnssStatusCallback(gnssStatusCallbackHost->AsObject(), 10001);
+    g_locatorNapiPtr->RegisterGnssStatusCallback(gnssStatusCallbackHost->AsObject(), DEFAULT_UID);
 }
 
 void SubscribeNmeaMessage(napi_env env, napi_value& handler,
@@ -90,7 +90,7 @@ void SubscribeNmeaMessage(napi_env env, napi_value& handler,
 
     nmeaMessageCallbackHost->m_env = env;
     nmeaMessageCallbackHost->m_handlerCb = handlerRef;
-    g_locatorNapiPtr->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), 10001);
+    g_locatorNapiPtr->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), DEFAULT_UID);
 }
 
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
@@ -296,7 +296,6 @@ bool IsCallbackEquals(napi_env env, napi_value& handler, napi_ref& savedCallback
 
 napi_value On(napi_env env, napi_callback_info cbinfo)
 {
-    TRACE_FUNC_CALL;
     size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = 0;
@@ -440,7 +439,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
 
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
-    TRACE_FUNC_CALL;
     size_t argc = PARAM2;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = 0;
@@ -541,7 +539,6 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
 
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 {
-    TRACE_FUNC_CALL;
     size_t requireArgc = 0;
     size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};

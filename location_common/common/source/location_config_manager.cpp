@@ -92,21 +92,21 @@ std::string LocationConfigManager::GetLocationSwitchConfigPath()
     return filePath;
 }
 
-std::string LocationConfigManager::GetPrivacyTypeConfigPath(const LocationPrivacyType type)
+std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     int32_t userId = callingUid / PER_USER_RANGE;
     std::string filePath;
     switch (type) {
-        case LocationPrivacyType::OTHERS: {
+        case PRIVACY_TYPE_OTHERS: {
             filePath = "others_";
             break;
         }
-        case LocationPrivacyType::STARTUP: {
+        case PRIVACY_TYPE_STARTUP: {
             filePath = "startup_";
             break;
         }
-        case LocationPrivacyType::CORE_LOCATION: {
+        case PRIVACY_TYPE_CORE_LOCATION: {
             filePath = "core_location_";
             break;
         }
@@ -175,9 +175,12 @@ int LocationConfigManager::SetLocationSwitchState(int state)
     return 0;
 }
 
-bool LocationConfigManager::GetPrivacyTypeState(const LocationPrivacyType type)
+bool LocationConfigManager::GetPrivacyTypeState(const int type)
 {
-    LBSLOGI(LOCATION_NAPI, "LocationConfigManager::GetPrivacyTypeState");
+    if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
+        LBSLOGI(LOCATION_NAPI, "GetPrivacyTypeState,invalid types");
+        return false;
+    }
     std::unique_lock<std::mutex> lock(mMutex);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
         CreateFile(GetPrivacyTypeConfigPath(type), "0");
@@ -193,20 +196,23 @@ bool LocationConfigManager::GetPrivacyTypeState(const LocationPrivacyType type)
             break;
         }
         if (line[0] == '0') {
-            mPrivacyTypeState[CommonUtils::GetPrivacyType(type)] = STATE_CLOSE;
+            mPrivacyTypeState[type] = STATE_CLOSE;
         } else if (line[0] == '1') {
-            mPrivacyTypeState[CommonUtils::GetPrivacyType(type)] = STATE_OPEN;
+            mPrivacyTypeState[type] = STATE_OPEN;
         }
         break;
     }
     fs.clear();
     fs.close();
-    return (mPrivacyTypeState[CommonUtils::GetPrivacyType(type)] == 1) ? true : false;
+    return (mPrivacyTypeState[type] == STATE_OPEN) ? true : false;
 }
 
-void LocationConfigManager::SetPrivacyTypeState(const LocationPrivacyType type, bool isConfirmed)
+void LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
 {
-    LBSLOGI(LOCATION_NAPI, "LocationConfigManager::SetPrivacyTypeState");
+    if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
+        LBSLOGI(LOCATION_NAPI, "SetPrivacyTypeState,invalid types");
+        return;
+    }
     std::unique_lock<std::mutex> lock(mMutex);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
         CreateFile(GetPrivacyTypeConfigPath(type), "0");
@@ -226,7 +232,7 @@ void LocationConfigManager::SetPrivacyTypeState(const LocationPrivacyType type, 
     fs.write(content.c_str(), content.length());
     fs.clear();
     fs.close();
-    mPrivacyTypeState[CommonUtils::GetPrivacyType(type)] = isConfirmed ? 1 : 0;
+    mPrivacyTypeState[type] = isConfirmed ? 1 : 0;
 }
 }  // namespace Location
 }  // namespace OHOS

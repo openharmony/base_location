@@ -190,11 +190,11 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case IS_PRIVACY_COMFIRMED: {
-            reply.WriteInt32(IsLocationPrivacyConfirmed(CommonUtils::GetPrivacyTypeByInt(data.ReadInt32())));
+            reply.WriteInt32(IsLocationPrivacyConfirmed(data.ReadInt32()));
             break;
         }
         case SET_PRIVACY_COMFIRM_STATUS: {
-            SetLocationPrivacyConfirmStatus(CommonUtils::GetPrivacyTypeByInt(data.ReadInt32()), data.ReadBool());
+            SetLocationPrivacyConfirmStatus(data.ReadInt32(), data.ReadBool());
             break;
         }
         case REG_CACHED_CALLBACK: {
