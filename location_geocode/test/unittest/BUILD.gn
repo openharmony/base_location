@@ -30,8 +30,6 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
     "$SUBSYSTEM_DIR/utils/include",
-    "//base/notification/common_event_service/frameworks/core/include",
-    "//base/notification/common_event_service/interfaces/innerkits/native/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
@@ -44,8 +42,6 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/notification/common_event_service/frameworks/core:cesfwk_core",
-    "//base/notification/common_event_service/frameworks/native:cesfwk_innerkits",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
@@ -55,6 +51,7 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   ]
 
   external_deps = [
+    "common_event_service:cesfwk_innerkits",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
