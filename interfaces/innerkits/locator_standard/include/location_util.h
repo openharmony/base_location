@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_UTIL_H_
-#define LOCATION_UTIL_H_
+#ifndef LOCATION_UTIL_H
+#define LOCATION_UTIL_H
 
 #include <chrono>
 #include <condition_variable>
@@ -118,4 +118,4 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
 }  // namespace Location
 }  // namespace OHOS
 
-#endif
+#endif // LOCATION_UTIL_H

@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_REQUEST_H
-#define OHOS_LOCATION_REQUEST_H
+#ifndef REQUEST_H
+#define REQUEST_H
 
 #include <list>
-
 #include "i_locator_callback.h"
 #include "request_config.h"
 #include "work_record.h"
@@ -57,4 +56,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_REQUEST_H
+#endif // REQUEST_H

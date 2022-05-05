@@ -28,4 +28,4 @@ napi_value GetSupportedCoordTypes(napi_env env, napi_callback_info cbinfo);
 }  // namespace Location
 }  // namespace OHOS
 
-#endif
+#endif // LOCATION_NAPI_SYSTEM_H

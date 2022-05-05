@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_LOCATOR_IMPL_H
-#define OHOS_LOCATOR_IMPL_H
+#ifndef LOCATOR_IMPL_H
+#define LOCATOR_IMPL_H
 
 #include "constant_definition.h"
 #include "i_cached_locations_callback.h"
@@ -62,4 +62,4 @@ private:
 };
 }  // namespace Location
 }  // namespace OHOS
-#endif
+#endif // LOCATOR_IMPL_H

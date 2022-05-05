@@ -18,7 +18,7 @@
 #include "constant_definition.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 #include "location_util.h"
 #include "locator.h"

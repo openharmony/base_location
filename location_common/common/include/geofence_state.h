@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_GEOFENCE_STATE_H
-#define OHOS_GEOFENCE_STATE_H
+#ifndef GEOFENCE_STATE_H
+#define GEOFENCE_STATE_H
 
 #include "constant_definition.h"
 #include "want_agent_helper.h"
@@ -31,6 +31,6 @@ private:
     GeoFence mFence;
     AbilityRuntime::WantAgent::WantAgent mWantAgent;
 };
-} // Location
-} // OHOS
-#endif // OHOS_GEOFENCE_STATE_H
+} // namespace Location
+} // namespace OHOS
+#endif // GEOFENCE_STATE_H

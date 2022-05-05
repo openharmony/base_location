@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_HISYSEVENT_H
-#define OHOS_LOCATION_HISYSEVENT_H
+#ifndef COMMON_HISYSEVENT_H
+#define COMMON_HISYSEVENT_H
 
 #include <string>
 
@@ -25,4 +25,4 @@ void WriteGnssStateEvent(const std::string& state);
 void WriteLocationSwitchStateEvent(const std::string& state);
 }  // namespace Location
 }  // namespace OHOS
-#endif
+#endif // COMMON_HISYSEVENT_H

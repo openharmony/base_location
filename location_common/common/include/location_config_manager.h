@@ -19,9 +19,7 @@
 #include <atomic>
 #include <mutex>
 #include <fstream>
-#include <sstream>
 #include <string>
-#include <vector>
 #include "constant_definition.h"
 
 namespace OHOS {
@@ -31,21 +29,21 @@ public:
     ~LocationConfigManager();
     static LocationConfigManager &GetInstance();
 
-    /**
+    /*
      * @Description Init the LocationConfigManager object
      *
      * @return int - init result, when 0 means success, other means some fails happened
      */
     int Init();
 
-    /**
+    /*
      * @Description Get current location switch state
      *
      * @return int - the location switch state, open/close
      */
     int GetLocationSwitchState();
 
-    /**
+    /*
      * @Description set location switch state
      *
      * @param state - the location switch state

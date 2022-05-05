@@ -27,7 +27,7 @@
 #include "request_config.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator.h"
 #include "system_ability_definition.h"
 
@@ -198,5 +198,4 @@ public:
 };
 }  // namespace Location
 }  // namespace OHOS
-
-#endif
+#endif // LOCATION_NAPI_ADAPTER_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GNSS_ABILITY_H
-#define OHOS_LOCATION_GNSS_ABILITY_H
+#ifndef GNSS_ABILITY_H
+#define GNSS_ABILITY_H
 
 #include <mutex>
 #include <singleton.h>
@@ -94,4 +94,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_GNSS_ABILITY_H
+#endif // GNSS_ABILITY_H

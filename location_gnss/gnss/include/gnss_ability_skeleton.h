@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GNSS_ABILITY_SKELETON_H
-#define OHOS_LOCATION_GNSS_ABILITY_SKELETON_H
+#ifndef GNSS_ABILITY_SKELETON_H
+#define GNSS_ABILITY_SKELETON_H
 
 #include "constant_definition.h"
 #include "subability_common.h"
@@ -55,4 +55,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_GNSS_ABILITY_SKELETON_H
+#endif // GNSS_ABILITY_SKELETON_H

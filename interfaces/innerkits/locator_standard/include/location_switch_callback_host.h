@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_SWITCH_CALLBACK_HOST_H
-#define OHOS_LOCATION_SWITCH_CALLBACK_HOST_H
+#ifndef LOCATION_SWITCH_CALLBACK_HOST_H
+#define LOCATION_SWITCH_CALLBACK_HOST_H
 
 #include <shared_mutex>
 #include "i_switch_callback.h"
@@ -35,6 +35,7 @@ public:
     bool Send(int switchState);
     void OnSwitchChange(int switchState) override;
     void DeleteHandler();
+    void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
     pid_t m_lastCallingPid;
     pid_t m_lastCallingUid;
@@ -46,4 +47,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_SWITCH_CALLBACK_HOST_H
+#endif // LOCATION_SWITCH_CALLBACK_HOST_H

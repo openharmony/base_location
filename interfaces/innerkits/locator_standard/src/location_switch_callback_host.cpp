@@ -17,7 +17,7 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "i_switch_callback.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 
 namespace OHOS {
@@ -101,6 +101,12 @@ bool LocationSwitchCallbackHost::Send(int switchState)
     context->ohosCallback[0] = m_handlerCb;
     context->enable = (switchState == 1 ? true : false);
     work->data = context;
+    UvQueueWork(loop, work);
+    return true;
+}
+
+void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+{
     uv_queue_work(
         loop,
         work,
@@ -148,8 +154,6 @@ bool LocationSwitchCallbackHost::Send(int switchState)
             delete work;
             work = nullptr;
     });
-
-    return true;
 }
 
 void LocationSwitchCallbackHost::OnSwitchChange(int switchState)

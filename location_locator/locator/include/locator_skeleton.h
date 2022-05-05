@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_LOCATOR_SKELETON_H
-#define OHOS_LOCATION_LOCATOR_SKELETON_H
+#ifndef LOCATOR_SKELETON_H
+#define LOCATOR_SKELETON_H
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
@@ -59,4 +59,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_LOCATOR_SKELETON_H
+#endif // LOCATOR_SKELETON_H

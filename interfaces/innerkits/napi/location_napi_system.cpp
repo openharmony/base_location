@@ -14,7 +14,7 @@
  */
 #include "location_napi_system.h"
 #include "locator_callback_host.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator.h"
 #include "system_ability_definition.h"
 

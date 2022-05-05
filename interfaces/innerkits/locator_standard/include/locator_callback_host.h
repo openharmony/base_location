@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATOR_CALLBACK_HOST_H
-#define OHOS_LOCATOR_CALLBACK_HOST_H
+#ifndef LOCATOR_CALLBACK_HOST_H
+#define LOCATOR_CALLBACK_HOST_H
+
 #include <shared_mutex>
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
@@ -55,4 +56,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATOR_CALLBACK_HOST_H
+#endif // LOCATOR_CALLBACK_HOST_H

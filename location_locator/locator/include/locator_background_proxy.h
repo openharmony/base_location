@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_BACKGROUND_PROXY_H
-#define LOCATION_BACKGROUND_PROXY_H
+#ifndef LOCATOR_BACKGROUND_PROXY_H
+#define LOCATOR_BACKGROUND_PROXY_H
 
 #include <map>
 #include <singleton.h>
@@ -87,4 +87,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_BACKGROUND_PROXY_H
+#endif // LOCATOR_BACKGROUND_PROXY_H

@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_I_CACHED_LOCATIONS_CALLBACK_H
-#define LOCATION_I_CACHED_LOCATIONS_CALLBACK_H
+#ifndef I_CACHED_LOCATIONS_CALLBACK_H
+#define I_CACHED_LOCATIONS_CALLBACK_H
 
 #include <vector>
-
 #include "iremote_broker.h"
 #include "ipc_types.h"
 #include "location.h"
@@ -34,4 +33,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_I_CACHED_LOCATIONS_CALLBACK_H
+#endif // I_CACHED_LOCATIONS_CALLBACK_H

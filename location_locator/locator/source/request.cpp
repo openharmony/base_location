@@ -17,7 +17,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "i_locator_callback.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "request_config.h"
 
 namespace OHOS {

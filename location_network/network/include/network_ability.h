@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_NETWORK_ABILITY_H
-#define OHOS_LOCATION_NETWORK_ABILITY_H
+#ifndef NETWORK_ABILITY_H
+#define NETWORK_ABILITY_H
 
 #include <mutex>
 #include <singleton.h>
-
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
-
 #include "common_utils.h"
 #include "network_ability_skeleton.h"
 #include "subability_common.h"
@@ -56,4 +54,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_NETWORK_ABILITY_H
+#endif // NETWORK_ABILITY_H

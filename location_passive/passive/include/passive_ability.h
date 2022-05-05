@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_PASSIVE_ABILITY_H
-#define OHOS_LOCATION_PASSIVE_ABILITY_H
+#ifndef PASSIVE_ABILITY_H
+#define PASSIVE_ABILITY_H
 
 #include <mutex>
 #include <singleton.h>
-
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
-
 #include "common_utils.h"
 #include "passive_ability_skeleton.h"
 #include "subability_common.h"
@@ -55,4 +53,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_PASSIVE_ABILITY_H
+#endif // PASSIVE_ABILITY_H

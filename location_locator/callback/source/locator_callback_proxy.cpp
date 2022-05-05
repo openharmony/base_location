@@ -17,7 +17,7 @@
 
 #include "ipc_skeleton.h"
 
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator_background_proxy.h"
 
 namespace OHOS {

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GEO_CONVERT_SKELETON_H
-#define OHOS_LOCATION_GEO_CONVERT_SKELETON_H
+#ifndef GEO_CONVERT_SKELETON_H
+#define GEO_CONVERT_SKELETON_H
 
 #include "iremote_broker.h"
 #include "iremote_proxy.h"
@@ -47,4 +47,4 @@ private:
 };
 } // namespace OHOS
 } // namespace Location
-#endif // OHOS_LOCATION_GEO_CONVERT_SKELETON_H
+#endif // GEO_CONVERT_SKELETON_H

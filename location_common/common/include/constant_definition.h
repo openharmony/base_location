@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_CONSTANT_DEFINITION_H
-#define OHOS_LOCATION_CONSTANT_DEFINITION_H
+#ifndef CONSTANT_DEFINITION_H
+#define CONSTANT_DEFINITION_H
 
 #include <string>
 
@@ -83,4 +83,4 @@ typedef struct {
 } GeofenceRequest;
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_CONSTANT_DEFINITION_H
+#endif // CONSTANT_DEFINITION_H

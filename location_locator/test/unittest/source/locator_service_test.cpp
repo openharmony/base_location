@@ -24,7 +24,7 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator_ability.h"
 #include "locator_skeleton.h"
 
@@ -34,7 +34,7 @@ using namespace OHOS::Location;
 
 void LocatorServiceTest::SetUp()
 {
-    /**
+    /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
     sptr<ISystemAbilityManager> systemAbilityManager =
@@ -60,7 +60,7 @@ void LocatorServiceTest::SetUp()
 
 void LocatorServiceTest::TearDown()
 {
-    /**
+    /*
      * @tc.teardown: release memory.
      */
     proxy_ = nullptr;
@@ -91,14 +91,14 @@ bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
     return ret;
 }
 
-/**
+/*
  * @tc.name: CheckSwitchState001
  * @tc.desc: Check location switch state expect success
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, CheckSwitchState001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call system ability and check switch state whether available.
      * @tc.expected: step1. get switch state is available.
      */
@@ -106,14 +106,14 @@ HWTEST_F(LocatorServiceTest, CheckSwitchState001, TestSize.Level1)
     EXPECT_EQ(true, (result == ENABLED || result == DISABLED));
 }
 
-/**
+/*
  * @tc.name: CheckLocatingForScenario001
  * @tc.desc: Check start locating based on scenario expect success
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, CheckLocatingForScenario001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call system ability and start locating for SCENE_VEHICLE_NAVIGATION.
      * @tc.expected: step1. get reply state is successful.
      */
@@ -125,14 +125,14 @@ HWTEST_F(LocatorServiceTest, CheckLocatingForScenario001, TestSize.Level1)
     EXPECT_EQ(true, ret);
 }
 
-/**
+/*
  * @tc.name: CheckLocatingForConfig001
  * @tc.desc: Check start locating based on config expect success
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, CheckLocatingForConfig001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call system ability and start locating for HIGHT_ACCURACY/HIGHT_POWER_COST.
      * @tc.expected: step1. get reply state is successful.
      */
@@ -144,14 +144,14 @@ HWTEST_F(LocatorServiceTest, CheckLocatingForConfig001, TestSize.Level1)
     EXPECT_EQ(true, ret);
 }
 
-/**
+/*
  * @tc.name: CheckStopLocating001
  * @tc.desc: Check stop locating with illegal param and expect fail
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, CheckStopLocating001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call system ability and stop locating whit illegal param.
      * @tc.expected: step1. get reply state is false.
      */
@@ -159,14 +159,14 @@ HWTEST_F(LocatorServiceTest, CheckStopLocating001, TestSize.Level1)
     EXPECT_EQ(true, ret);
 }
 
-/**
+/*
  * @tc.name: CheckGetCacheLocation001
  * @tc.desc: Check get cache location and expect success
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call system ability and get cache location.
      * @tc.expected: step1. get reply state is true.
      */
@@ -181,14 +181,14 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
     EXPECT_EQ(true, ret);
 }
 
-/**
+/*
  * @tc.name: IsCallbackInProxyTest001
  * @tc.desc: Check if callback is in the proxy callback list
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, IsCallbackInProxyTest001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Check if callback is in the proxy callback list
      * @tc.expected: step1. return false
      */
@@ -196,14 +196,14 @@ HWTEST_F(LocatorServiceTest, IsCallbackInProxyTest001, TestSize.Level1)
     EXPECT_EQ(false, result);
 }
 
-/**
+/*
  * @tc.name: OnSuspendTest001
  * @tc.desc: Test the function of the process enter and exit frozen state
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, OnSuspendTest001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call the onsuspend function, the process enter frozen state
      * @tc.expected: step1. return true, the callback of the process is in the proxy list
      * @tc.steps: step2. Call the onsuspend function, the process exit frozen state
@@ -217,14 +217,14 @@ HWTEST_F(LocatorServiceTest, OnSuspendTest001, TestSize.Level1)
     EXPECT_EQ(false, result);
 }
 
-/**
+/*
  * @tc.name: OnPermissionChanged001
  * @tc.desc: Test the function onPermissionChanged and OnDeleteRequestRecord
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call the onsuspend function, the process enter frozen state
      * @tc.steps: step2. Call onPermissionChanged, the process exit frozen state
      * @tc.expected: step2. return true, the callback of the process is in the proxy list
@@ -238,14 +238,14 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
     EXPECT_EQ(false, result);
 }
 
-/**
+/*
  * @tc.name: OnSaStateChange001
  * @tc.desc: Test the function OnSaStateChange
  * @tc.type: FUNC
  */
 HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
 {
-    /**
+    /*
      * @tc.steps: step1. Call the onsuspend function, the process enter frozen state
      * @tc.steps: step2. Call OnSaStateChange, disable locator ability
      * @tc.expected: step2. return true, do not change proxy list

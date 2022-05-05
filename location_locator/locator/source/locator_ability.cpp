@@ -24,7 +24,7 @@
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "iservice_registry.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_config_manager.h"
 #include "location_dumper.h"
 #include "locator_background_proxy.h"

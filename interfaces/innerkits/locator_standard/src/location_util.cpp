@@ -16,7 +16,7 @@
 #include <string>
 #include "common_utils.h"
 #include "geo_address.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "request_config.h"
 #include "securec.h"
 #include "string_ex.h"

@@ -17,7 +17,7 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "i_locator_callback.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 #include "location_util.h"
 #include "locator.h"

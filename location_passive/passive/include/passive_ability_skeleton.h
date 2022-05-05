@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_PASSIVE_ABILITY_SKELETON_H
-#define OHOS_LOCATION_PASSIVE_ABILITY_SKELETON_H
+#ifndef PASSIVE_ABILITY_SKELETON_H
+#define PASSIVE_ABILITY_SKELETON_H
 
 #include "subability_common.h"
 #include "iremote_object.h"
@@ -35,4 +35,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_PASSIVE_ABILITY_SKELETON_H
+#endif // PASSIVE_ABILITY_SKELETON_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
-#define OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
+#ifndef NETWORK_ABILITY_SKELETON_H
+#define NETWORK_ABILITY_SKELETON_H
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -36,4 +36,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_NETWORK_ABILITY_SKELETON_H
+#endif // NETWORK_ABILITY_SKELETON_H

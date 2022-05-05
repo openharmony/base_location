@@ -19,7 +19,7 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "lbs_log.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GEO_ADDRESS_H
-#define OHOS_LOCATION_GEO_ADDRESS_H
+#ifndef GEO_ADDRESS_H
+#define GEO_ADDRESS_H
 
 #include <parcel.h>
 #include <string>
@@ -59,6 +59,6 @@ public:
     static constexpr int MAX_PARCEL_SIZE = 100;
     static constexpr int MAX_RESULT = 10;
 };
-} // Location
-} // OHOS
-#endif // OHOS_LOCATION_GEO_ADDRESS_H
+} // namespace Location
+} // namespace OHOS
+#endif // GEO_ADDRESS_H
