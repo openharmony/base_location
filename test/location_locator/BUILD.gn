@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-SUBSYSTEM_DIR = "//base/location/service"
+SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
 ohos_unittest("LocatorServiceAbilityTest") {
