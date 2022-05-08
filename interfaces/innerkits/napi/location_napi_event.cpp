@@ -36,6 +36,7 @@ std::vector<GeoFenceState*> mFences;
 sptr<LocatorCallbackHost> g_singleLocatorCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
 sptr<ILocatorCallback> g_singleLocatorCallback = sptr<ILocatorCallback>(g_singleLocatorCallbackHost);
+extern std::unique_ptr<Locator> g_locatorPtr;
 
 void SubscribeLocationServiceState(napi_env env, const std::string& name,
     napi_value& handler, sptr<LocationSwitchCallbackHost>& switchCallbackHost)

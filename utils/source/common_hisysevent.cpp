@@ -40,4 +40,4 @@ void WriteLocationSwitchStateEvent(const std::string& state)
     WriteEvent("LOCATION_SWITCH_STATE", "STATE", state);
 }
 }  // namespace Location
-}  // namespace OHOS
+}  // namespace OHOS

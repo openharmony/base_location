@@ -482,7 +482,7 @@ typedef struct {
     /* Retrieve all cached locations currently stored and clear the buffer. */
     void (* flush_cached_gnss_locations)();
 
-    /* Get a pointer to gnss module interface.See GnssModuleIfaceClass for the definition of iface*/
+    /* Get a pointer to gnss module interface.See GnssModuleIfaceClass for the definition of iface. */
     const void* (* get_gnss_module_iface)(int iface);
 } GnssVendorInterface;
 

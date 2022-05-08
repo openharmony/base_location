@@ -24,6 +24,8 @@ sptr<LocatorCallbackHost> g_systemSingleLocatorCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
 sptr<LocatorCallbackHost> g_systemSubcribeCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());;
+extern std::unique_ptr<Locator> g_locatorPtr;
+
 napi_value GetLocationOnce(const napi_env& env,
                            const napi_ref& successHandlerRef,
                            const napi_ref& failHandlerRef,
@@ -226,7 +228,7 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = 1;
     napi_value argv[1] = {0}, thisVar = 0, result = nullptr;
-    napi_value nVcoordType, nVsuccessCallback, nVfailCallback, handlerTemp;
+    napi_value nVcoordType;
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, argv[0], &valueType);
@@ -234,7 +236,7 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
     std::string coordType = "";
     napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
-    bool hasProperty = false, isSuccessfuncEqual = false, isFailefuncEqual = false;
+    bool hasProperty = false;
     napi_has_named_property(env, argv[0], "coordType", &hasProperty);
     if (hasProperty) {
         napi_get_named_property(env, argv[0], "coordType", &nVcoordType);
