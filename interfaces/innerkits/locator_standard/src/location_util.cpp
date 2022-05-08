@@ -493,7 +493,7 @@ static napi_value InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncC
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[i], &valuetype));
         NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
-        napi_create_reference(env, argv[i], 1, &asyncContext->ohosCallback[i - nonCallbackArgNum]);
+        napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - nonCallbackArgNum]);
     }
     return nullptr;
 }
@@ -546,13 +546,13 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             } else {
                 napi_get_undefined(env, &context->result[PARAM0]);
             }
-            napi_get_reference_value(env, context->ohosCallback[0], &callback);
+            napi_get_reference_value(env, context->callback[0], &callback);
             napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
-            if (context->ohosCallback[0] != nullptr) {
-                napi_delete_reference(env, context->ohosCallback[0]);
+            if (context->callback[0] != nullptr) {
+                napi_delete_reference(env, context->callback[0]);
             }
-            if (context->ohosCallback[1] != nullptr) {
-                napi_delete_reference(env, context->ohosCallback[1]);
+            if (context->callback[1] != nullptr) {
+                napi_delete_reference(env, context->callback[1]);
             }
             napi_delete_async_work(env, context->work);
             delete context;

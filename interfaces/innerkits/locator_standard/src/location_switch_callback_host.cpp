@@ -98,7 +98,7 @@ bool LocationSwitchCallbackHost::Send(int switchState)
         return false;
     }
     context->env = m_env;
-    context->ohosCallback[0] = m_handlerCb;
+    context->callback[0] = m_handlerCb;
     context->enable = (switchState == 1 ? true : false);
     work->data = context;
     UvQueueWork(loop, work);
@@ -133,11 +133,11 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            if (context->ohosCallback[0] != nullptr) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->ohosCallback[0], &handler);
+                napi_get_reference_value(context->env, context->callback[0], &handler);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(SWITCH_CALLBACK, "Report event failed");

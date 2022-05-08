@@ -99,7 +99,7 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
         return false;
     }
     context->env = m_env;
-    context->ohosCallback[0] = m_handlerCb;
+    context->callback[0] = m_handlerCb;
     context->msg = msg;
     work->data = context;
     UvQueueWork(loop, work);
@@ -135,11 +135,11 @@ void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             }
             napi_value jsEvent;
             napi_create_string_utf8(context->env, context->msg.c_str(), NAPI_AUTO_LENGTH, &jsEvent);
-            if (context->ohosCallback[0] != nullptr) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->ohosCallback[0], &handler);
+                napi_get_reference_value(context->env, context->callback[0], &handler);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(NMEA_MESSAGE_CALLBACK, "Report event failed");

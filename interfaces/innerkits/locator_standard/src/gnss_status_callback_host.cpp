@@ -92,7 +92,7 @@ bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
         return false;
     }
     context->env = m_env;
-    context->ohosCallback[0] = m_handlerCb;
+    context->callback[0] = m_handlerCb;
     context->statusInfo = std::move(statusInfo);
     work->data = context;
     UvQueueWork(loop, work);
@@ -130,11 +130,11 @@ void GnssStatusCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 napi_create_object(context->env, &jsEvent);
                 SatelliteStatusToJs(context->env, context->statusInfo, jsEvent);
             }
-            if (context->ohosCallback[0] != nullptr) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->ohosCallback[0], &handler);
+                napi_get_reference_value(context->env, context->callback[0], &handler);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(GNSS_STATUS_CALLBACK, "Report event failed");
