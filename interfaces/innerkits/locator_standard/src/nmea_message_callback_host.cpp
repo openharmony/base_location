@@ -16,7 +16,7 @@
 
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 #include "napi/native_api.h"
 
@@ -99,7 +99,7 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
         return false;
     }
     context->env = m_env;
-    context->ohosCallback[0] = m_handlerCb;
+    context->callback[0] = m_handlerCb;
     context->msg = msg;
     work->data = context;
     UvQueueWork(loop, work);
@@ -124,27 +124,22 @@ void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
                 LBSLOGE(NMEA_MESSAGE_CALLBACK, "scope is nullptr");
-                // close handle scope, release napi_value
-                napi_close_handle_scope(context->env, scope);
                 delete context;
-                context = nullptr;
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_value jsEvent;
             napi_create_string_utf8(context->env, context->msg.c_str(), NAPI_AUTO_LENGTH, &jsEvent);
-            if (context->ohosCallback[0] != nullptr) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->ohosCallback[0], &handler);
+                napi_get_reference_value(context->env, context->callback[0], &handler);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(NMEA_MESSAGE_CALLBACK, "Report event failed");
@@ -152,9 +147,7 @@ void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             }
             napi_close_handle_scope(context->env, scope);
             delete context;
-            context = nullptr;
             delete work;
-            work = nullptr;
     });
 }
 
@@ -167,8 +160,10 @@ void NmeaMessageCallbackHost::OnMessageChange(const std::string msg)
 void NmeaMessageCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_delete_reference(m_env, m_handlerCb);
-    m_handlerCb = nullptr;
+    if (m_handlerCb) {
+        napi_delete_reference(m_env, m_handlerCb);
+        m_handlerCb = nullptr;
+    }
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -14,7 +14,7 @@
  */
 
 #include "location_util.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 #include "location_napi_event.h"
 #include "location_napi_system.h"

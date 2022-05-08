@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_CONSTANT_DEFINITION_H
-#define OHOS_LOCATION_CONSTANT_DEFINITION_H
+#ifndef CONSTANT_DEFINITION_H
+#define CONSTANT_DEFINITION_H
 
 #include <string>
 
@@ -25,16 +25,18 @@ const int ERROR_PERMISSION_NOT_GRANTED = 0x0100;
 const int ERROR_SWITCH_UNOPEN = 0x0101;
 const int SESSION_START = 0x0002;
 const int SESSION_STOP = 0x0003;
-
+const int32_t PARAM0 = 0;
+const int32_t PARAM1 = 1;
+const int32_t PARAM2 = 2;
+const int32_t PARAM3 = 3;
+const size_t RESULT_SIZE = 2;
 const int DEFAULT_TIMEOUT_30S = 30000;
-
 const int STATE_OPEN = 1;
 const int STATE_CLOSE = 0;
 const int32_t PER_USER_RANGE = 100000;
 const int PRIVACY_TYPE_OTHERS = 0;
 const int PRIVACY_TYPE_STARTUP = 1;
 const int PRIVACY_TYPE_CORE_LOCATION = 2;
-
 const int32_t UNKNOW_USER_ID = -1;
 const int32_t SUBSCRIBE_TIME = 5;
 const int32_t DEFAULT_TIME_INTERVAL = 30 * 60; // app receive location every 30 minutes in frozen state
@@ -83,4 +85,4 @@ typedef struct {
 } GeofenceRequest;
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_CONSTANT_DEFINITION_H
+#endif // CONSTANT_DEFINITION_H

@@ -15,7 +15,7 @@
 #include "locator_impl.h"
 #include "common_utils.h"
 #include "iservice_registry.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {

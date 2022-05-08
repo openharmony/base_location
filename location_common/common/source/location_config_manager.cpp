@@ -15,7 +15,7 @@
 #include "location_config_manager.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -161,13 +161,10 @@ int LocationConfigManager::SetLocationSwitchState(int state)
         LBSLOGE(LOCATION_NAPI, "LocationConfigManager: fs.is_open false, return");
         return -1;
     }
-    std::ostringstream ss;
+    std::string content = "1";
     if (state == STATE_CLOSE) {
-        ss << "0" << std::endl;
-    } else {
-        ss << "1" << std::endl;
+        content = "0";
     }
-    std::string content = ss.str();
     fs.write(content.c_str(), content.length());
     fs.clear();
     fs.close();
@@ -222,13 +219,10 @@ void LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed
         LBSLOGE(LOCATION_NAPI, "LocationConfigManager: fs.is_open false, return");
         return;
     }
-    std::ostringstream ss;
+    std::string content = "0";
     if (isConfirmed) {
-        ss << "1" << std::endl;
-    } else {
-        ss << "0" << std::endl;
+        content = "1";
     }
-    std::string content = ss.str();
     fs.write(content.c_str(), content.length());
     fs.clear();
     fs.close();

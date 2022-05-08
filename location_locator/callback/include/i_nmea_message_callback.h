@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_NMEA_MESSAGE_CALLBACK_H
-#define OHOS_NMEA_MESSAGE_CALLBACK_H
+#ifndef I_NMEA_MESSAGE_CALLBACK_H
+#define I_NMEA_MESSAGE_CALLBACK_H
 
 #include "iremote_broker.h"
 #include "ipc_types.h"
@@ -35,4 +35,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_NMEA_MESSAGE_CALLBACK_H
+#endif // I_NMEA_MESSAGE_CALLBACK_H

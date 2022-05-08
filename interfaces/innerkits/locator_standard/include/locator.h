@@ -12,13 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_LOCATOR_H
-#define OHOS_LOCATOR_H
+#ifndef LOCATOR_H
+#define LOCATOR_H
 
 #include <list>
-
 #include "iremote_object.h"
-
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "i_cached_locations_callback.h"

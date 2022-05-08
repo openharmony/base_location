@@ -18,7 +18,7 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_dumper.h"
 
 namespace OHOS {

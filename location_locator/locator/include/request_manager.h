@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 
+#ifndef REQUEST_MANAGER_H
+#define REQUEST_MANAGER_H
+
 #include <list>
 #include <map>
 #include <mutex>
 #include <singleton.h>
 #include <string>
-
 #include "iremote_stub.h"
 #include "nocopyable.h"
 #include "gnss_ability_proxy.h"
@@ -26,9 +28,6 @@
 #include "passive_ability_proxy.h"
 #include "request.h"
 #include "work_record.h"
-
-#ifndef REQUEST_MANAGER_H
-#define REQUEST_MANAGER_H
 
 namespace OHOS {
 namespace Location {

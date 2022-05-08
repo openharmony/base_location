@@ -13,16 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_SUBABILITY_COMMON_H
-#define OHOS_LOCATION_SUBABILITY_COMMON_H
+#ifndef SUBABILITY_COMMON_H
+#define SUBABILITY_COMMON_H
 
 #include <dlfcn.h>
 #include <map>
 #include <unistd.h>
-
 #include "common_hisysevent.h"
 #include "iremote_broker.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_callback_host.h"
 #include "work_record.h"
 
@@ -91,4 +90,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_SUBABILITY_COMMON_H
+#endif // SUBABILITY_COMMON_H

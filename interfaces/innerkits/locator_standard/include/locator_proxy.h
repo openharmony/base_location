@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATOR_PROXY_H
-#define OHOS_LOCATOR_PROXY_H
+#ifndef LOCATOR_PROXY_H
+#define LOCATOR_PROXY_H
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
-
 #include "constant_definition.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator_callback.h"
@@ -146,4 +145,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATOR_PROXY_H
+#endif // LOCATOR_PROXY_H

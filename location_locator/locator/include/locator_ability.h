@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_LOCATOR_ABILITY_H
-#define OHOS_LOCATION_LOCATOR_ABILITY_H
+#ifndef LOCATOR_ABILITY_H
+#define LOCATOR_ABILITY_H
 
 #include <map>
 #include <mutex>
@@ -128,4 +128,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_LOCATOR_ABILITY_H
+#endif // LOCATOR_ABILITY_H

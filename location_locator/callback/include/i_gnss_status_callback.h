@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_GNSS_STATUS_CALLBACK_H
-#define OHOS_GNSS_STATUS_CALLBACK_H
+#ifndef I_GNSS_STATUS_CALLBACK_H
+#define I_GNSS_STATUS_CALLBACK_H
 
 #include "iremote_broker.h"
 #include "ipc_types.h"
@@ -36,4 +36,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_GNSS_STATUS_CALLBACK_H
+#endif // I_GNSS_STATUS_CALLBACK_H

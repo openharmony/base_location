@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_COMMON_UTILS_H
-#define OHOS_COMMON_UTILS_H
+#ifndef COMMON_UTILS_H
+#define COMMON_UTILS_H
 
 #include "iremote_object.h"
 #include "string_ex.h"
 #include "constant_definition.h"
-#include "lbs_log.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {
@@ -104,4 +104,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_COMMON_UTILS_H
+#endif // COMMON_UTILS_H

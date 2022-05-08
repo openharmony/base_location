@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_WORK_RECORD_H
-#define LOCATION_WORK_RECORD_H
+#ifndef WORK_RECORD_H
+#define WORK_RECORD_H
 
 #include <parcel.h>
 #include <string>
@@ -55,4 +55,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_WORK_RECORD_H
+#endif // WORK_RECORD_H

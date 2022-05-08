@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_SATELLITE_STATUS_H
-#define OHOS_SATELLITE_STATUS_H
+#ifndef SATELLITE_STATUS_H
+#define SATELLITE_STATUS_H
 
 #include <parcel.h>
 #include <vector>
@@ -135,4 +135,4 @@ private:
 };
 } // Location
 } // OHOS
-#endif // OHOS_SATELLITE_STATUS_H
+#endif // SATELLITE_STATUS_H

@@ -64,5 +64,4 @@ napi_value Off(napi_env env, napi_callback_info cbinfo);
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo);
 }  // namespace Location
 }  // namespace OHOS
-
-#endif
+#endif // LOCATION_NAPI_EVENT_H

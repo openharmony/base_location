@@ -17,7 +17,7 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "i_switch_callback.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 
 namespace OHOS {
@@ -98,9 +98,15 @@ bool LocationSwitchCallbackHost::Send(int switchState)
         return false;
     }
     context->env = m_env;
-    context->ohosCallback[0] = m_handlerCb;
+    context->callback[0] = m_handlerCb;
     context->enable = (switchState == 1 ? true : false);
     work->data = context;
+    UvQueueWork(loop, work);
+    return true;
+}
+
+void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+{
     uv_queue_work(
         loop,
         work,
@@ -116,7 +122,6 @@ bool LocationSwitchCallbackHost::Send(int switchState)
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
@@ -124,19 +129,15 @@ bool LocationSwitchCallbackHost::Send(int switchState)
             napi_get_boolean(context->env, context->enable, &jsEvent);
             if (scope == nullptr) {
                 LBSLOGE(SWITCH_CALLBACK, "scope is nullptr");
-                // close handle scope, release napi_value
-                napi_close_handle_scope(context->env, scope);
                 delete context;
-                context = nullptr;
                 delete work;
-                work = nullptr;
                 return;
             }
-            if (context->ohosCallback[0] != nullptr) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->ohosCallback[0], &handler);
+                napi_get_reference_value(context->env, context->callback[0], &handler);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(SWITCH_CALLBACK, "Report event failed");
@@ -144,12 +145,8 @@ bool LocationSwitchCallbackHost::Send(int switchState)
             }
             napi_close_handle_scope(context->env, scope);
             delete context;
-            context = nullptr;
             delete work;
-            work = nullptr;
     });
-
-    return true;
 }
 
 void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
@@ -161,8 +158,10 @@ void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
 void LocationSwitchCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_delete_reference(m_env, m_handlerCb);
-    m_handlerCb = nullptr;
+    if (m_handlerCb) {
+        napi_delete_reference(m_env, m_handlerCb);
+        m_handlerCb = nullptr;
+    }
 }
 }  // namespace Location
 }  // namespace OHOS

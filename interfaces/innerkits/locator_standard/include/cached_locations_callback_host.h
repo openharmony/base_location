@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_CACHED_LOCATIONS_CALLBACK_HOST_H
-#define OHOS_CACHED_LOCATIONS_CALLBACK_HOST_H
+#ifndef CACHED_LOCATIONS_CALLBACK_HOST_H
+#define CACHED_LOCATIONS_CALLBACK_HOST_H
 
 #include <shared_mutex>
 #include "i_cached_locations_callback.h"
@@ -43,4 +43,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_CACHED_LOCATIONS_CALLBACK_HOST_H
+#endif // CACHED_LOCATIONS_CALLBACK_HOST_H

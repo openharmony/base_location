@@ -19,7 +19,7 @@
 #include "common_event_support.h"
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator_ability.h"
 #include "request_manager.h"
 

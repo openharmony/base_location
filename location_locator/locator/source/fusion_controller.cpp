@@ -14,12 +14,10 @@
  */
 
 #include "fusion_controller.h"
-
 #include "system_ability_definition.h"
-
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "network_ability_proxy.h"
 
 namespace OHOS {

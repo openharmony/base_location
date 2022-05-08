@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_FUSION_CONTROLLER_H
-#define LOCATION_FUSION_CONTROLLER_H
+#ifndef FUSION_CONTROLLER_H
+#define FUSION_CONTROLLER_H
 
 #include <cstdint>
 #include <singleton.h>
-
 #include "location.h"
 
 namespace OHOS {
@@ -36,4 +35,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_FUSION_CONTROLLER_H
+#endif // FUSION_CONTROLLER_H

@@ -14,9 +14,7 @@
  */
 
 #include "passive_ability_skeleton.h"
-
 #include "ipc_skeleton.h"
-
 #include "common_utils.h"
 
 namespace OHOS {

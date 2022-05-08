@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_UTIL_H_
-#define LOCATION_UTIL_H_
+#ifndef LOCATION_UTIL_H
+#define LOCATION_UTIL_H
 
 #include <chrono>
 #include <condition_variable>
@@ -36,19 +36,12 @@
 
 namespace OHOS {
 namespace Location {
-constexpr int32_t PARAM0 = 0;
-constexpr int32_t PARAM1 = 1;
-constexpr int32_t PARAM2 = 2;
-constexpr int32_t PARAM3 = 3;
-constexpr size_t RESULT_SIZE = 2;
-
 class AsyncContext {
 public:
     napi_env env;
     napi_async_work work;
     napi_deferred deferred;
-    napi_ref ohosCallback[2] = { 0 };
-    napi_ref systemCallback[3] = { 0 };
+    napi_ref callback[3] = { 0 };
     std::function<void(void*)> executeFunc;
     std::function<void(void*)> completeFunc;
     napi_value resourceName;
@@ -118,4 +111,4 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
 }  // namespace Location
 }  // namespace OHOS
 
-#endif
+#endif // LOCATION_UTIL_H
