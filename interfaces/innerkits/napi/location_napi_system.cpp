@@ -24,7 +24,7 @@ sptr<LocatorCallbackHost> g_systemSingleLocatorCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
 sptr<LocatorCallbackHost> g_systemSubcribeCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());;
-extern std::unique_ptr<Locator> g_locatorPtr;
+std::unique_ptr<Locator> g_locatorPtr1 = Locator::GetInstance(LOCATION_LOCATOR_SA_ID);
 
 napi_value GetLocationOnce(const napi_env& env,
                            const napi_ref& successHandlerRef,
@@ -33,6 +33,7 @@ napi_value GetLocationOnce(const napi_env& env,
                            int fixNumber)
 {
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(g_systemSingleLocatorCallbackHost);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetScenario(SCENE_UNSET);
     requestConfig->SetTimeInterval(0);
@@ -43,7 +44,7 @@ napi_value GetLocationOnce(const napi_env& env,
         g_systemSingleLocatorCallbackHost->m_failHandlerCb != nullptr ||
         g_systemSingleLocatorCallbackHost->m_completeHandlerCb != nullptr) {
         LBSLOGI(LOCATION_NAPI, "handlers is not nullptr, stop locating first");
-        g_locatorPtr->StopLocating(g_systemSingleLocatorCallbackHost);
+        g_locatorPtr1->StopLocating(locatorCallback);
         if (g_systemSingleLocatorCallbackHost->m_successHandlerCb != nullptr) {
             g_systemSingleLocatorCallbackHost->DeleteSuccessHandler();
         }
@@ -59,7 +60,7 @@ napi_value GetLocationOnce(const napi_env& env,
     g_systemSingleLocatorCallbackHost->m_successHandlerCb = successHandlerRef;
     g_systemSingleLocatorCallbackHost->m_failHandlerCb = failHandlerRef;
     g_systemSingleLocatorCallbackHost->m_completeHandlerCb = completeHandlerRef;
-    g_locatorPtr->StartLocating(requestConfig, g_systemSingleLocatorCallbackHost);
+    g_locatorPtr1->StartLocating(requestConfig, locatorCallback);
     return UndefinedNapiValue(env);
 }
 
@@ -96,7 +97,7 @@ napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
     napi_typeof(env, argv[0], &valueType);
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
-    NAPI_ASSERT(env, g_locatorPtr != nullptr, "locator instance is null.");
+    NAPI_ASSERT(env, g_locatorPtr1 != nullptr, "locator instance is null.");
     napi_value nVtimeout, nVcoordType;
     int32_t timeout = 0;
     std::string coordType = "";
@@ -193,15 +194,15 @@ void SubscribeSystemLocationChange(napi_env env,
                                    int fixNumber,
                                    sptr<LocatorCallbackHost>& locatorCallbackHost)
 {
-    if (g_locatorPtr == nullptr) {
-        LBSLOGE(LOCATION_NAPI, "g_locatorPtr is nullptr, return.");
+    if (g_locatorPtr1 == nullptr) {
+        LBSLOGE(LOCATION_NAPI, "g_locatorPtr1 is nullptr, return.");
         return;
     }
     sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
     if (locatorCallbackHost->m_successHandlerCb != nullptr ||
         locatorCallbackHost->m_failHandlerCb != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
-        g_locatorPtr->StopLocating(locatorCallback);
+        g_locatorPtr1->StopLocating(locatorCallback);
         if (locatorCallbackHost->m_successHandlerCb != nullptr) {
             locatorCallbackHost->DeleteSuccessHandler();
         }
@@ -220,8 +221,7 @@ void SubscribeSystemLocationChange(napi_env env,
     requestConfig->SetDistanceInterval(0);
     requestConfig->SetMaxAccuracy(0);
     requestConfig->SetFixNumber(fixNumber);
-
-    g_locatorPtr->StartLocating(requestConfig, locatorCallback);
+    g_locatorPtr1->StartLocating(requestConfig, locatorCallback);
 }
 
 napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
@@ -259,7 +259,7 @@ napi_value Unsubscribe(napi_env env, napi_callback_info cbinfo)
 {
     napi_value result = nullptr;
     sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(g_systemSubcribeCallbackHost);
-    g_locatorPtr->StopLocating(locatorCallback);
+    g_locatorPtr1->StopLocating(locatorCallback);
     g_systemSubcribeCallbackHost->DeleteHandler();
     g_systemSubcribeCallbackHost->DeleteSuccessHandler();
     g_systemSubcribeCallbackHost->DeleteFailHandler();
