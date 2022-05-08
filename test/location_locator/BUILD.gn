@@ -13,12 +13,12 @@
 
 import("//build/test.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
+SUBSYSTEM_DIR = "//base/location/service"
 module_output_path = "location/service"
 
 ohos_unittest("LocatorServiceAbilityTest") {
   module_out_path = module_output_path
-  sources = [ "$SUBSYSTEM_DIR/location_locator/test/unittest/source/locator_service_test.cpp" ]
+  sources = [ "//base/location/test/location_locator/source/locator_service_test.cpp" ]
 
   include_dirs = [
     "$SUBSYSTEM_DIR/location_common/common/include",
