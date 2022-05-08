@@ -33,4 +33,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // I_CACHED_LOCATIONS_CALLBACK_H
+#endif // I_CACHED_LOCATIONS_CALLBACK_H

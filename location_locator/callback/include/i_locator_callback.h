@@ -37,4 +37,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // I_LOCATOR_CALLBACK_H
+#endif // I_LOCATOR_CALLBACK_H

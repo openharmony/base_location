@@ -40,4 +40,4 @@ void CachedLocationsCallbackProxy::OnCacheLocationsReport(const std::vector<std:
         "CachedLocationsCallbackProxy::OnCacheLocationsReport Transact ErrCode = %{public}d", error);
 }
 } // namespace Location
-} // namespace OHOS
+} // namespace OHOS

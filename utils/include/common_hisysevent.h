@@ -25,4 +25,4 @@ void WriteGnssStateEvent(const std::string& state);
 void WriteLocationSwitchStateEvent(const std::string& state);
 }  // namespace Location
 }  // namespace OHOS
-#endif // COMMON_HISYSEVENT_H
+#endif // COMMON_HISYSEVENT_H

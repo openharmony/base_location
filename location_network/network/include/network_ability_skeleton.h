@@ -36,4 +36,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // NETWORK_ABILITY_SKELETON_H
+#endif // NETWORK_ABILITY_SKELETON_H

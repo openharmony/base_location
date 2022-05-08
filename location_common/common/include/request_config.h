@@ -103,4 +103,4 @@ private:
 };
 } // Location
 } // OHOS
-#endif // REQUEST_CONFIG_H
+#endif // REQUEST_CONFIG_H

@@ -104,4 +104,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // COMMON_UTILS_H
+#endif // COMMON_UTILS_H

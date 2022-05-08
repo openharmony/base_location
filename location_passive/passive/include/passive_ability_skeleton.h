@@ -35,4 +35,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // PASSIVE_ABILITY_SKELETON_H
+#endif // PASSIVE_ABILITY_SKELETON_H

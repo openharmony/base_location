@@ -53,4 +53,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // PASSIVE_ABILITY_H
+#endif // PASSIVE_ABILITY_H

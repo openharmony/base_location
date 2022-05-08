@@ -35,4 +35,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // I_SWITCH_CALLBACK_H
+#endif // I_SWITCH_CALLBACK_H

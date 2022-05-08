@@ -56,4 +56,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_ABILITY_PROXY_H
+#endif // GNSS_ABILITY_PROXY_H

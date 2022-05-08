@@ -83,4 +83,4 @@ typedef struct {
 } GeofenceRequest;
 } // namespace Location
 } // namespace OHOS
-#endif // CONSTANT_DEFINITION_H
+#endif // CONSTANT_DEFINITION_H

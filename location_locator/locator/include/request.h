@@ -56,4 +56,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // REQUEST_H
+#endif // REQUEST_H

@@ -37,4 +37,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // NETWORK_ABILITY_PROXY_H
+#endif // NETWORK_ABILITY_PROXY_H

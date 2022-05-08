@@ -36,4 +36,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // I_GNSS_STATUS_CALLBACK_H
+#endif // I_GNSS_STATUS_CALLBACK_H

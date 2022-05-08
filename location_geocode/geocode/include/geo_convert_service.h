@@ -18,12 +18,9 @@
 
 #include <mutex>
 #include <singleton.h>
-
 #include "geo_convert_skeleton.h"
-
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
-
 #include "common_utils.h"
 
 namespace OHOS {

@@ -95,16 +95,12 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s *&loop, uv_work_t *&work)
             context = static_cast<LocationAsyncContext *>(work->data);
             if (context == nullptr) {
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
-                napi_close_handle_scope(context->env, scope);
                 delete context;
-                context = nullptr;
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_value jsOhosEvent = nullptr;
@@ -115,7 +111,7 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s *&loop, uv_work_t *&work)
                 napi_create_object(context->env, &jsSystemEvent);
                 SystemLocationToJs(context->env, context->loc, jsSystemEvent);
             }
-            if (context->ohosCallback[0] != nullptr || context->systemCallback[0] != nullptr) {
+            if (context->ohosCallback[0] != nullptr) {
                 if (context->ohosCallback[0] != nullptr) {
                     napi_value undefine;
                     napi_value handler = nullptr;
@@ -124,16 +120,6 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s *&loop, uv_work_t *&work)
                     if (napi_call_function(context->env, nullptr, handler, 1,
                         &jsOhosEvent, &undefine) != napi_ok) {
                         LBSLOGE(LOCATOR_CALLBACK, "Report osho event failed");
-                    }
-                }
-                if (context->systemCallback[0] != nullptr) {
-                    napi_value undefine;
-                    napi_value handler = nullptr;
-                    napi_get_undefined(context->env, &undefine);
-                    napi_get_reference_value(context->env, context->systemCallback[0], &handler);
-                    if (napi_call_function(context->env, nullptr, handler, 1,
-                        &jsSystemEvent, &undefine) != napi_ok) {
-                        LBSLOGE(LOCATOR_CALLBACK, "Report system event failed");
                     }
                 }
             } else if (context->deferred != nullptr) {
@@ -145,9 +131,7 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s *&loop, uv_work_t *&work)
             }
             napi_close_handle_scope(context->env, scope);
             delete context;
-            context = nullptr;
             delete work;
-            work = nullptr;
     });
 }
 
@@ -191,17 +175,13 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
-                napi_close_handle_scope(context->env, scope);
                 delete context;
-                context = nullptr;
                 delete work;
-                work = nullptr;
                 return;
             }
             if (context->systemCallback[1] != nullptr) {
@@ -216,9 +196,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
             }
             napi_close_handle_scope(context->env, scope);
             delete context;
-            context = nullptr;
             delete work;
-            work = nullptr;
     });
 }
 
@@ -268,32 +246,40 @@ void LocatorCallbackHost::DeleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_delete_reference(m_env, m_handlerCb);
-    m_handlerCb = nullptr;
+    if (m_handlerCb) {
+        napi_delete_reference(m_env, m_handlerCb);
+        m_handlerCb = nullptr;
+    }
 }
 
 void LocatorCallbackHost::DeleteSuccessHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteSuccessHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_delete_reference(m_env, m_successHandlerCb);
-    m_successHandlerCb = nullptr;
+    if (m_successHandlerCb) {
+        napi_delete_reference(m_env, m_successHandlerCb);
+        m_successHandlerCb = nullptr;
+    }
 }
 
 void LocatorCallbackHost::DeleteFailHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteFailHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_delete_reference(m_env, m_failHandlerCb);
-    m_failHandlerCb = nullptr;
+    if (m_failHandlerCb) {
+        napi_delete_reference(m_env, m_failHandlerCb);
+        m_failHandlerCb = nullptr;
+    }
 }
 
 void LocatorCallbackHost::DeleteCompleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteCompleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_delete_reference(m_env, m_completeHandlerCb);
-    m_completeHandlerCb = nullptr;
+    if (m_completeHandlerCb) {
+        napi_delete_reference(m_env, m_completeHandlerCb);
+        m_completeHandlerCb = nullptr;
+    }
 }
 } // namespace Location
 } // namespace OHOS

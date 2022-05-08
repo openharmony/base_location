@@ -36,4 +36,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GEO_CONVERT_PROXY_H
+#endif // GEO_CONVERT_PROXY_H

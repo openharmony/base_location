@@ -29,4 +29,4 @@ public:
     bool available_;
 };
 
-#endif // GEO_CONVERT_SERVICE_TEST_H
+#endif // GEO_CONVERT_SERVICE_TEST_H

@@ -20,12 +20,10 @@
 
 namespace OHOS {
 namespace Location {
-std::unique_ptr<Locator> g_systemLocatorNapiPtr = Locator::GetInstance(LOCATION_LOCATOR_SA_ID);
 sptr<LocatorCallbackHost> g_systemSingleLocatorCallbackHost =
-    sptr<LocatorCallbackHost>(new (std::nothrow)  LocatorCallbackHost());
-sptr<ILocatorCallback> g_systemSingleLocatorCallback = sptr<ILocatorCallback>(g_systemSingleLocatorCallbackHost);
-std::map<napi_ref, napi_ref> g_systemRegisterLocatorInfo;
-
+    sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+sptr<LocatorCallbackHost> g_systemSubcribeCallbackHost =
+    sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());;
 napi_value GetLocationOnce(const napi_env& env,
                            const napi_ref& successHandlerRef,
                            const napi_ref& failHandlerRef,
@@ -43,7 +41,7 @@ napi_value GetLocationOnce(const napi_env& env,
         g_systemSingleLocatorCallbackHost->m_failHandlerCb != nullptr ||
         g_systemSingleLocatorCallbackHost->m_completeHandlerCb != nullptr) {
         LBSLOGI(LOCATION_NAPI, "handlers is not nullptr, stop locating first");
-        g_systemLocatorNapiPtr->StopLocating(g_systemSingleLocatorCallback);
+        g_locatorPtr->StopLocating(g_systemSingleLocatorCallbackHost);
         if (g_systemSingleLocatorCallbackHost->m_successHandlerCb != nullptr) {
             g_systemSingleLocatorCallbackHost->DeleteSuccessHandler();
         }
@@ -59,8 +57,32 @@ napi_value GetLocationOnce(const napi_env& env,
     g_systemSingleLocatorCallbackHost->m_successHandlerCb = successHandlerRef;
     g_systemSingleLocatorCallbackHost->m_failHandlerCb = failHandlerRef;
     g_systemSingleLocatorCallbackHost->m_completeHandlerCb = completeHandlerRef;
-    g_systemLocatorNapiPtr->StartLocating(requestConfig, g_systemSingleLocatorCallback);
+    g_locatorPtr->StartLocating(requestConfig, g_systemSingleLocatorCallbackHost);
     return UndefinedNapiValue(env);
+}
+
+void GetAllCallback(const napi_env &env, const napi_value &argv, napi_ref &successHandlerRef,
+    napi_ref &failHandlerRef, napi_ref &completeHandlerRef)
+{
+    bool hasProperty = false;
+    napi_value nVsuccessCallback, nVfailCallback, nVcompleteCallback;
+    napi_has_named_property(env, argv, "success", &hasProperty);
+    if (hasProperty) {
+        napi_get_named_property(env, argv, "success", &nVsuccessCallback);
+        napi_create_reference(env, nVsuccessCallback, 1, &successHandlerRef);
+    }
+    hasProperty = false;
+    napi_has_named_property(env, argv, "fail", &hasProperty);
+    if (hasProperty) {
+        napi_get_named_property(env, argv, "fail", &nVfailCallback);
+        napi_create_reference(env, nVfailCallback, 1, &failHandlerRef);
+    }
+    hasProperty = false;
+    napi_has_named_property(env, argv, "complete", &hasProperty);
+    if (hasProperty) {
+        napi_get_named_property(env, argv, "complete", &nVcompleteCallback);
+        napi_create_reference(env, nVcompleteCallback, 1, &completeHandlerRef);
+    }
 }
 
 napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
@@ -72,8 +94,8 @@ napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
     napi_typeof(env, argv[0], &valueType);
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
-    NAPI_ASSERT(env, g_systemLocatorNapiPtr != nullptr, "locator instance is null.");
-    napi_value nVtimeout, nVcoordType, nVsuccessCallback, nVfailCallback, nVcompleteCallback;
+    NAPI_ASSERT(env, g_locatorPtr != nullptr, "locator instance is null.");
+    napi_value nVtimeout, nVcoordType;
     int32_t timeout = 0;
     std::string coordType = "";
     napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
@@ -91,25 +113,12 @@ napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
         size_t typeLen = 0;
         napi_get_value_string_utf8(env, nVcoordType, type, sizeof(type), &typeLen);
         coordType = type;
+        if (coordType != "wgs84") {
+            napi_get_undefined(env, &result);
+            return result;
+        }
     }
-    hasProperty = false;
-    napi_has_named_property(env, argv[0], "success", &hasProperty);
-    if (hasProperty) {
-        napi_get_named_property(env, argv[0], "success", &nVsuccessCallback);
-        napi_create_reference(env, nVsuccessCallback, 1, &successHandlerRef);
-    }
-    hasProperty = false;
-    napi_has_named_property(env, argv[0], "fail", &hasProperty);
-    if (hasProperty) {
-        napi_get_named_property(env, argv[0], "fail", &nVfailCallback);
-        napi_create_reference(env, nVfailCallback, 1, &failHandlerRef);
-    }
-    hasProperty = false;
-    napi_has_named_property(env, argv[0], "complete", &hasProperty);
-    if (hasProperty) {
-        napi_get_named_property(env, argv[0], "complete", &nVcompleteCallback);
-        napi_create_reference(env, nVcompleteCallback, 1, &completeHandlerRef);
-    }
+    GetAllCallback(env, argv[0], successHandlerRef, failHandlerRef, completeHandlerRef);
     int fixnumber = 1;
     GetLocationOnce(env, successHandlerRef, failHandlerRef, completeHandlerRef, fixnumber);
     napi_get_undefined(env, &result);
@@ -129,7 +138,7 @@ bool EmitSyncCallbackWork(const napi_env& env,
     napi_create_string_utf8(env, "gps", NAPI_AUTO_LENGTH, &value);
     napi_set_element(env, arrString, arrIndex, value);
     arrIndex++;
-    napi_create_string_utf8(env, "network", NAPI_AUTO_LENGTH, &value);
+    napi_create_string_utf8(env, "wifi", NAPI_AUTO_LENGTH, &value);
     napi_set_element(env, arrString, arrIndex, value);
     napi_create_object(env, &jsEvent);
     napi_set_named_property(env, jsEvent, "types", arrString);
@@ -182,15 +191,15 @@ void SubscribeSystemLocationChange(napi_env env,
                                    int fixNumber,
                                    sptr<LocatorCallbackHost>& locatorCallbackHost)
 {
-    if (g_systemLocatorNapiPtr == nullptr) {
-        LBSLOGE(LOCATION_NAPI, "g_systemLocatorNapiPtr is nullptr, return.");
+    if (g_locatorPtr == nullptr) {
+        LBSLOGE(LOCATION_NAPI, "g_locatorPtr is nullptr, return.");
         return;
     }
     sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
     if (locatorCallbackHost->m_successHandlerCb != nullptr ||
         locatorCallbackHost->m_failHandlerCb != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
-        g_systemLocatorNapiPtr->StopLocating(locatorCallback);
+        g_locatorPtr->StopLocating(locatorCallback);
         if (locatorCallbackHost->m_successHandlerCb != nullptr) {
             locatorCallbackHost->DeleteSuccessHandler();
         }
@@ -210,7 +219,7 @@ void SubscribeSystemLocationChange(napi_env env,
     requestConfig->SetMaxAccuracy(0);
     requestConfig->SetFixNumber(fixNumber);
 
-    g_systemLocatorNapiPtr->StartLocating(requestConfig, locatorCallback);
+    g_locatorPtr->StartLocating(requestConfig, locatorCallback);
 }
 
 napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
@@ -224,7 +233,7 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
     std::string coordType = "";
-    napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr;
+    napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
     bool hasProperty = false, isSuccessfuncEqual = false, isFailefuncEqual = false;
     napi_has_named_property(env, argv[0], "coordType", &hasProperty);
     if (hasProperty) {
@@ -233,35 +242,13 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
         size_t typeLen = 0;
         napi_get_value_string_utf8(env, nVcoordType, type, sizeof(type), &typeLen);
         coordType = type;
-    }
-    hasProperty = false;
-    napi_has_named_property(env, argv[0], "success", &hasProperty);
-    if (hasProperty) {
-        napi_get_named_property(env, argv[0], "success", &nVsuccessCallback);
-        napi_create_reference(env, nVsuccessCallback, 1, &successHandlerRef);
-    }
-    hasProperty = false;
-    napi_has_named_property(env, argv[0], "fail", &hasProperty);
-    if (hasProperty) {
-        napi_get_named_property(env, argv[0], "fail", &nVfailCallback);
-        napi_create_reference(env, nVfailCallback, 1, &failHandlerRef);
-    }
-    for (auto iter = g_systemRegisterLocatorInfo.begin(); iter != g_systemRegisterLocatorInfo.end(); iter++) {
-        napi_get_reference_value(env, iter->first, &handlerTemp);
-        napi_strict_equals(env, handlerTemp, nVsuccessCallback, &isSuccessfuncEqual);
-        napi_get_reference_value(env, iter->second, &handlerTemp);
-        napi_strict_equals(env, handlerTemp, nVfailCallback, &isFailefuncEqual);
-        if (isSuccessfuncEqual && isFailefuncEqual) {
-            LBSLOGE(LOCATION_NAPI, "this request is already started,just return.");
+        if (coordType != "wgs84") {
             napi_get_undefined(env, &result);
             return result;
         }
     }
-    sptr<LocatorCallbackHost> locatorCallbackHost = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-    if (locatorCallbackHost != nullptr) {
-        g_systemRegisterLocatorInfo.insert(std::make_pair(successHandlerRef, failHandlerRef));
-        SubscribeSystemLocationChange(env, successHandlerRef, failHandlerRef, 0, locatorCallbackHost);
-    }
+    GetAllCallback(env, argv[0], successHandlerRef, failHandlerRef, completeHandlerRef);
+    SubscribeSystemLocationChange(env, successHandlerRef, failHandlerRef, 0, g_systemSubcribeCallbackHost);
     napi_get_undefined(env, &result);
     return result;
 }
@@ -269,14 +256,12 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
 napi_value Unsubscribe(napi_env env, napi_callback_info cbinfo)
 {
     napi_value result = nullptr;
-    g_systemRegisterLocatorInfo.clear();
-
-    sptr<LocatorCallbackHost> locatorCallbackHost = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-    if (locatorCallbackHost != nullptr) {
-        sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
-        g_systemLocatorNapiPtr->StopLocating(locatorCallback);
-    }
-
+    sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(g_systemSubcribeCallbackHost);
+    g_locatorPtr->StopLocating(locatorCallback);
+    g_systemSubcribeCallbackHost->DeleteHandler();
+    g_systemSubcribeCallbackHost->DeleteSuccessHandler();
+    g_systemSubcribeCallbackHost->DeleteFailHandler();
+    g_systemSubcribeCallbackHost->DeleteCompleteHandler();
     napi_get_undefined(env, &result);
     return result;
 }
@@ -295,9 +280,6 @@ napi_value GetSupportedCoordTypes(napi_env env, napi_callback_info cbinfo)
     int arrIndex = 0;
     napi_create_array(env, &arrString);
     napi_create_string_utf8(env, "wgs84", NAPI_AUTO_LENGTH, &value);
-    napi_set_element(env, arrString, arrIndex, value);
-    arrIndex++;
-    napi_create_string_utf8(env, "gcj02", NAPI_AUTO_LENGTH, &value);
     napi_set_element(env, arrString, arrIndex, value);
     return arrString;
 }

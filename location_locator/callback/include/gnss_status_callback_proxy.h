@@ -31,4 +31,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_STATUS_CALLBACK_PROXY_H
+#endif // GNSS_STATUS_CALLBACK_PROXY_H

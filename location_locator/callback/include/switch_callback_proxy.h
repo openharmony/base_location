@@ -31,4 +31,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // SWITCH_CALLBACK_PROXY_H
+#endif // SWITCH_CALLBACK_PROXY_H

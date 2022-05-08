@@ -18,7 +18,6 @@
 
 #include <cstdint>
 #include <singleton.h>
-
 #include "location.h"
 
 namespace OHOS {
@@ -36,4 +35,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // FUSION_CONTROLLER_H
+#endif // FUSION_CONTROLLER_H

@@ -59,4 +59,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATOR_SKELETON_H
+#endif // LOCATOR_SKELETON_H

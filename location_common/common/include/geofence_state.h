@@ -33,4 +33,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GEOFENCE_STATE_H
+#endif // GEOFENCE_STATE_H

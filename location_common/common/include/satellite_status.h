@@ -135,4 +135,4 @@ private:
 };
 } // Location
 } // OHOS
-#endif // SATELLITE_STATUS_H
+#endif // SATELLITE_STATUS_H

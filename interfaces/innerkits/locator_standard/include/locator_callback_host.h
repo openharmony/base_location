@@ -48,7 +48,7 @@ public:
     napi_env m_env;
     napi_ref m_handlerCb;
     napi_ref m_successHandlerCb;
-    napi_ref m_failHandlerCb;
+    napi_ref m_failHandlerCb;//可以根据这个来判断是否是systemApi
     napi_ref m_completeHandlerCb;
     int m_fixNumber;
     napi_deferred m_deferred;

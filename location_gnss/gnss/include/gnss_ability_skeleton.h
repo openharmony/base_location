@@ -55,4 +55,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_ABILITY_SKELETON_H
+#endif // GNSS_ABILITY_SKELETON_H

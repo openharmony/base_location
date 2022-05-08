@@ -15,9 +15,6 @@
 
 #include "location_napi_adapter.h"
 
-using namespace OHOS;
-using namespace OHOS::Location;
-
 namespace OHOS {
 namespace Location {
 std::unique_ptr<Locator> g_locatorPtr = Locator::GetInstance(LOCATION_LOCATOR_SA_ID);

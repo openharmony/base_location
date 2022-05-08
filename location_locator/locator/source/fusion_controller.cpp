@@ -14,9 +14,7 @@
  */
 
 #include "fusion_controller.h"
-
 #include "system_ability_definition.h"
-
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location_log.h"

@@ -28,14 +28,14 @@
 #include "gnss_vendor.h"
 #include "subability_common.h"
 
+namespace OHOS {
+namespace Location {
 #ifdef __aarch64__
 #define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib64/vendorGnssAdapter.so"
 #else
 #define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib/vendorGnssAdapter.so"
 #endif
 
-namespace OHOS {
-namespace Location {
 class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility, DelayedSingleton<GnssAbility> {
 DECLEAR_SYSTEM_ABILITY(GnssAbility);
 
@@ -94,4 +94,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_ABILITY_H
+#endif // GNSS_ABILITY_H

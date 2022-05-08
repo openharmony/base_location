@@ -118,18 +118,13 @@ void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context is nullptr");
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "scope is nullptr");
-                // close handle scope, release napi_value
-                napi_close_handle_scope(context->env, scope);
                 delete context;
-                context = nullptr;
                 delete work;
-                work = nullptr;
                 return;
             }
             napi_value jsEvent = nullptr;
@@ -147,9 +142,7 @@ void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             }
             napi_close_handle_scope(context->env, scope);
             delete context;
-            context = nullptr;
             delete work;
-            work = nullptr;
     });
 }
 
@@ -161,8 +154,10 @@ void CachedLocationsCallbackHost::OnCacheLocationsReport(const std::vector<std::
 void CachedLocationsCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    napi_delete_reference(m_env, m_handlerCb);
-    m_handlerCb = nullptr;
+    if (m_handlerCb) {
+        napi_delete_reference(m_env, m_handlerCb);
+        m_handlerCb = nullptr;
+    }
 }
 }  // namespace Location
 }  // namespace OHOS

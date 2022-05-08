@@ -31,4 +31,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // CACHED_LOCATIONS_CALLBACK_PROXY_H
+#endif // CACHED_LOCATIONS_CALLBACK_PROXY_H

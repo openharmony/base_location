@@ -145,4 +145,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATOR_PROXY_H
+#endif // LOCATOR_PROXY_H

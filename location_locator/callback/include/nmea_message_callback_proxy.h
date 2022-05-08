@@ -31,4 +31,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // NMEA_MESSAGE_CALLBACK_PROXY_H
+#endif // NMEA_MESSAGE_CALLBACK_PROXY_H

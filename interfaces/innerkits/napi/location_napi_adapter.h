@@ -198,4 +198,4 @@ public:
 };
 }  // namespace Location
 }  // namespace OHOS
-#endif // LOCATION_NAPI_ADAPTER_H
+#endif // LOCATION_NAPI_ADAPTER_H
