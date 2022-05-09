@@ -18,7 +18,7 @@ module_output_path = "location/service"
 
 ohos_unittest("GeocodeServiceAbilityTest") {
   module_out_path = module_output_path
-  sources = [ "$SUBSYSTEM_DIR/location_geocode/test/unittest/source/geo_convert_service_test.cpp" ]
+  sources = [ "//base/location/test/location_geocode/source/geo_convert_service_test.cpp" ]
 
   include_dirs = [
     "$SUBSYSTEM_DIR/location_common/common/include",
