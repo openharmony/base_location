@@ -13,40 +13,35 @@
 
 import("//build/ohos.gni")
 
-################################################################################
+SUBSYSTEM_DIR = "//base/location/services"
 
-ohos_shared_library("locator_sdk") {
+ohos_shared_library("geolocation") {
   install_enable = true
-
   include_dirs = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/framework/js/napi",
-    "//base/location/services/location_common/common/include",
-    "//base/location/services/location_locator/callback/include",
-    "//base/location/services/utils/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-    "//distributedschedule/safwk/include",
+    "//third_party/node/src",
     "//native_engine",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
+    "//base/location/frameworks/js/napi",
+    "//base/location/interfaces/inner_api/include",
+    "//base/location//services/location_common/common/include",
+    "//base/location//services/location_locator/callback/include",
+    "//base/location//services/utils/include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
   sources = [
-    "//base/location/framework/native/src/cached_locations_callback_host.cpp",
-    "//base/location/framework/native/src/gnss_status_callback_host.cpp",
-    "//base/location/framework/native/src/location_switch_callback_host.cpp",
-    "//base/location/framework/native/src/location_util.cpp",
-    "//base/location/framework/native/src/locator.cpp",
-    "//base/location/framework/native/src/locator_callback_host.cpp",
-    "//base/location/framework/native/src/locator_impl.cpp",
-    "//base/location/framework/native/src/locator_proxy.cpp",
-    "//base/location/framework/native/src/nmea_message_callback_host.cpp",
-    "//base/location/services/utils/source/common_utils.cpp",
+    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
+    "location_napi_adapter.cpp",
+    "location_napi_entry.cpp",
+    "location_napi_event.cpp",
+    "location_napi_system.cpp",
   ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/location/frameworks/native:locator_sdk",
     "//base/location/services/location_common/common:lbsservice_common",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/libuv:uv_static",
@@ -54,6 +49,8 @@ ohos_shared_library("locator_sdk") {
   ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -64,16 +61,7 @@ ohos_shared_library("locator_sdk") {
     "startup_l2:syspara",
   ]
 
-  cflags_cc = [
-    "-std=c++17",
-    "-fno-rtti",
-  ]
-
-  ldflags = [
-    "-fPIC",
-    "-Wl,-E",
-  ]
-
+  relative_install_dir = "module"
   part_name = "location"
   subsystem_name = "location"
 }

@@ -141,7 +141,7 @@ bool EmitSyncCallbackWork(const napi_env& env,
     napi_create_string_utf8(env, "gps", NAPI_AUTO_LENGTH, &value);
     napi_set_element(env, arrString, arrIndex, value);
     arrIndex++;
-    napi_create_string_utf8(env, "wifi", NAPI_AUTO_LENGTH, &value);
+    napi_create_string_utf8(env, "network", NAPI_AUTO_LENGTH, &value);
     napi_set_element(env, arrString, arrIndex, value);
     napi_create_object(env, &jsEvent);
     napi_set_named_property(env, jsEvent, "types", arrString);
