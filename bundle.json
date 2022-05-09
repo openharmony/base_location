@@ -35,12 +35,21 @@
         },
         "build": {
             "sub_component": [
-                "//base/location/interfaces/innerkits/locator_standard:locator_sdk",
-                "//base/location/interfaces/innerkits/napi:geolocation",
+                "//base/location/framework/native:locator_sdk",
+                "//base/location/framework/js/napi:geolocation",
+                "//base/location/services/location_common/common:lbsservice_common",
+                "//base/location/services/location_geocode/geocode:lbsservice_geocode",
+                "//base/location/services/location_gnss/gnss:lbsservice_gnss",
+                "//base/location/services/location_locator/locator:lbsservice_locator",
+                "//base/location/services/location_network/network:lbsservice_network",
+                "//base/location/services/location_passive/passive:lbsservice_passive",
                 "//base/location/etc:etc",
                 "//base/location/profile:location_sa_profile"
             ],
-            "test": []
+            "test": [
+                "//base/location/test/location_locator:unittest",
+                "//base/location/test/location_geocode:unittest"
+            ]
         }
     }
 }
