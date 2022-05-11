@@ -61,7 +61,7 @@ ohos_shared_library("locator_sdk") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   cflags_cc = [

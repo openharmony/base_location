@@ -65,7 +65,7 @@ ohos_shared_library("lbsservice_locator") {
   deps = [
     "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "//base/location/framework/native:locator_sdk",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
+    "//base/startup/init_lite/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
@@ -82,7 +82,7 @@ ohos_shared_library("lbsservice_locator") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   part_name = "location"

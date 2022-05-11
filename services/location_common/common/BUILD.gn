@@ -56,7 +56,7 @@ ohos_shared_library("lbsservice_common") {
     "access_token:libaccesstoken_sdk",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   part_name = "location"

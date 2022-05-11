@@ -58,7 +58,7 @@ ohos_shared_library("geolocation") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   relative_install_dir = "module"
