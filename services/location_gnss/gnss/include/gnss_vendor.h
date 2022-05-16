@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace Location {
-#define SV_NUM_MAX 64
+const int SV_NUM_MAX = 64;
 
 enum class AgnssSetIdClass {
     AGNSS_SETID_CLASS_NONE = 0,
