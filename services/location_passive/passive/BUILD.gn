@@ -34,8 +34,6 @@ ohos_shared_library("lbsservice_passive") {
     "//base/location/services/location_passive/passive/visibility/include",
     "//base/location/services/utils/include",
     "//distributedschedule/safwk/include",
-    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
