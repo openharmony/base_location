@@ -99,7 +99,7 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
         return false;
     }
     context->env = m_env;
-    context->callback[0] = m_handlerCb;
+    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
     context->msg = msg;
     work->data = context;
     UvQueueWork(loop, work);

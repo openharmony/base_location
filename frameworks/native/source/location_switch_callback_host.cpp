@@ -98,7 +98,7 @@ bool LocationSwitchCallbackHost::Send(int switchState)
         return false;
     }
     context->env = m_env;
-    context->callback[0] = m_handlerCb;
+    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
     context->enable = (switchState == 1 ? true : false);
     work->data = context;
     UvQueueWork(loop, work);
