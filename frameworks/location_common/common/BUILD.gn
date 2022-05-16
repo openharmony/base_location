@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 SUBSYSTEM_DIR = "//base/location/services"
-LOCATION_COMMON_ROOT = "$SUBSYSTEM_DIR/location_common/common"
+LOCATION_COMMON_ROOT = "//base/location/frameworks/location_common/common"
 
 ohos_shared_library("lbsservice_common") {
   sources = [
@@ -25,11 +25,12 @@ ohos_shared_library("lbsservice_common") {
     "$LOCATION_COMMON_ROOT/source/location_dumper.cpp",
     "$LOCATION_COMMON_ROOT/source/request_config.cpp",
     "$LOCATION_COMMON_ROOT/source/satellite_status.cpp",
-    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
+    "$LOCATION_COMMON_ROOT/source/common_hisysevent.cpp",
+    "$LOCATION_COMMON_ROOT/source/common_utils.cpp",
   ]
 
   include_dirs = [
-    "$SUBSYSTEM_DIR/location_common/common/include",
+    "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
@@ -37,7 +38,6 @@ ohos_shared_library("lbsservice_common") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$SUBSYSTEM_DIR/utils/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",

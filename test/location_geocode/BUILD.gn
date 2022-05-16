@@ -21,7 +21,7 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   sources = [ "//base/location/test/location_geocode/source/geo_convert_service_test.cpp" ]
 
   include_dirs = [
-    "$SUBSYSTEM_DIR/location_common/common/include",
+    "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "//base/location/test/location_geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
@@ -29,7 +29,6 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$SUBSYSTEM_DIR/utils/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
@@ -40,7 +39,7 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//foundation/arkui/napi:ace_napi",

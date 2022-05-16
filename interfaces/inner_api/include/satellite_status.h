@@ -133,6 +133,6 @@ private:
     std::vector<double> azimuths_;
     std::vector<double> carrierFrequencies_;
 };
-} // Location
-} // OHOS
+} // namespace Location
+} // namespace OHOS
 #endif // SATELLITE_STATUS_H
