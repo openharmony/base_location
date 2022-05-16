@@ -56,9 +56,9 @@ ohos_shared_library("geolocation") {
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "init:libbegetutil",
   ]
 
   relative_install_dir = "module"

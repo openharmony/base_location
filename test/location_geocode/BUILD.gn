@@ -18,7 +18,9 @@ module_output_path = "location/service"
 
 ohos_unittest("GeocodeServiceAbilityTest") {
   module_out_path = module_output_path
-  sources = [ "//base/location/test/location_geocode/source/geo_convert_service_test.cpp" ]
+  sources = [
+    "//base/location/test/location_geocode/source/geo_convert_service_test.cpp",
+  ]
 
   include_dirs = [
     "$SUBSYSTEM_DIR/location_common/common/include",
@@ -54,10 +56,10 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "common_event_service:cesfwk_innerkits",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "init:libbegetutil",
   ]
 
   module_out_path = module_output_path

@@ -59,9 +59,9 @@ ohos_shared_library("locator_sdk") {
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "init:libbegetutil",
   ]
 
   cflags_cc = [

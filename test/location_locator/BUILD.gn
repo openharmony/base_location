@@ -61,9 +61,9 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "init:libbegetutil",
   ]
 
   module_out_path = module_output_path
