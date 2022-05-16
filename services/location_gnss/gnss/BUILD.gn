@@ -39,8 +39,8 @@ ohos_shared_library("lbsservice_gnss") {
   ]
 
   deps = [
-    "//base/location/frameworks/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
