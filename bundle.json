@@ -35,8 +35,8 @@
         },
         "build": {
             "sub_component": [
-                "//base/location/framework/native:locator_sdk",
-                "//base/location/framework/js/napi:geolocation",
+                "//base/location/frameworks/native:locator_sdk",
+                "//base/location/frameworks/js/napi:geolocation",
                 "//base/location/services/location_common/common:lbsservice_common",
                 "//base/location/services/location_geocode/geocode:lbsservice_geocode",
                 "//base/location/services/location_gnss/gnss:lbsservice_gnss",
