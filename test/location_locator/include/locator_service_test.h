@@ -20,6 +20,7 @@
 #include "locator_background_proxy.h"
 #include "locator_callback_proxy.h"
 #include "locator_skeleton.h"
+#include "locator_proxy.h"
 
 class LocatorServiceTest : public testing::Test {
 public:

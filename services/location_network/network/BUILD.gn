@@ -24,7 +24,6 @@ ohos_shared_library("lbsservice_network") {
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/location_common/common/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_locator/distribute/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
@@ -32,7 +31,6 @@ ohos_shared_library("lbsservice_network") {
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$SUBSYSTEM_DIR/utils/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
@@ -41,9 +39,8 @@ ohos_shared_library("lbsservice_network") {
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/location/frameworks/native:locator_sdk",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",

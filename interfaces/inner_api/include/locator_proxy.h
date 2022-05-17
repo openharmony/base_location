@@ -22,6 +22,7 @@
 #include "iremote_stub.h"
 #include "constant_definition.h"
 #include "i_cached_locations_callback.h"
+#include "i_locator.h"
 #include "i_locator_callback.h"
 #include "location.h"
 #include "request_config.h"
@@ -29,77 +30,6 @@
 
 namespace OHOS {
 namespace Location {
-class ILocator : public IRemoteBroker {
-public:
-    enum {
-        GET_SWITCH_STATE = 1,
-        REG_SWITCH_CALLBACK = 2,
-        START_LOCATING = 3,
-        STOP_LOCATING = 4,
-        GET_CACHE_LOCATION = 5,
-        REPORT_LOCATION = 6,
-        REPORT_LOCATION_STATUS = 7,
-        REPORT_ERROR_STATUS = 8,
-        ENABLE_ABILITY = 9,
-        UPDATE_SA_ABILITY = 10,
-        GEO_IS_AVAILABLE = 11,
-        GET_FROM_COORDINATE = 12,
-        GET_FROM_LOCATION_NAME = 13,
-        UNREG_SWITCH_CALLBACK = 15,
-        REG_GNSS_STATUS_CALLBACK = 16,
-        UNREG_GNSS_STATUS_CALLBACK = 17,
-        REG_NMEA_CALLBACK = 18,
-        UNREG_NMEA_CALLBACK = 19,
-        IS_PRIVACY_COMFIRMED = 20,
-        SET_PRIVACY_COMFIRM_STATUS = 21,
-        REG_CACHED_CALLBACK = 22,
-        UNREG_CACHED_CALLBACK = 23,
-        GET_CACHED_LOCATION_SIZE = 24,
-        FLUSH_CACHED_LOCATIONS = 25,
-        SEND_COMMAND = 26,
-        ADD_FENCE = 27,
-        REMOVE_FENCE = 28,
-        REPORT_GNSS_SESSION_STATUS = 29,
-        REPORT_SV = 30,
-        REPORT_NMEA = 31
-    };
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
-    virtual void UpdateSaAbility() = 0;
-    virtual int GetSwitchState() = 0;
-    virtual void EnableAbility(bool isEnabled) = 0;
-    virtual void RegisterSwitchCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
-    virtual void UnregisterSwitchCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual void RegisterGnssStatusCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
-    virtual void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
-    virtual void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) = 0;
-    virtual int StopLocating(sptr<ILocatorCallback>& callback) = 0;
-    virtual int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName) = 0;
-    virtual int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result) = 0;
-    virtual int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result) = 0;
-    virtual int GetCacheLocation(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
-    virtual void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
-
-    virtual int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
-        sptr<ICachedLocationsCallback>& callback, std::string bundleName) = 0;
-    virtual int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
-
-    virtual int GetCachedGnssLocationsSize() = 0;
-    virtual void FlushCachedGnssLocations() = 0;
-    virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
-    virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual int ReportGnssSessionStatus(int status) = 0;
-    virtual int ReportNmea(const std::string &nmea) = 0;
-    virtual int ReportSv(const std::unique_ptr<SatelliteStatus> &sv) = 0;
-};
-
 class LocatorProxy : public IRemoteProxy<ILocator> {
 public:
     explicit LocatorProxy(const sptr<IRemoteObject> &impl);
@@ -116,9 +46,6 @@ public:
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) override;
     int StopLocating(sptr<ILocatorCallback>& callback) override;
-    int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName) override;
-    int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result) override;
-    int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result) override;
     int GetCacheLocation(MessageParcel &data, MessageParcel &replay) override;
     int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) override;
@@ -136,10 +63,6 @@ public:
 
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    int ReportGnssSessionStatus(int status) override;
-    int ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
-    int ReportNmea(const std::string &nmea) override;
-
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };

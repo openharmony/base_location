@@ -14,6 +14,7 @@
  */
 
 #include "locator_callback_host.h"
+#include "constant_definition.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "i_locator_callback.h"
@@ -150,11 +151,11 @@ bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
     }
     context->env = m_env;
     if (isSystemGeolocationApi) {
-        context->callback[0] = m_successHandlerCb;
-        context->callback[1] = m_failHandlerCb;
-        context->callback[2] = m_completeHandlerCb;
+        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
+        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
+        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
     } else {
-        context->callback[0] = m_handlerCb;
+        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
         context->deferred = m_deferred;
     }
     context->loc = std::move(location);
@@ -226,11 +227,11 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
     napi_create_int32(m_env, errorCode, &nVerrorCode);
     context->env = m_env;
     if (isSystemGeolocationApi) {
-        context->callback[0] = m_successHandlerCb;
-        context->callback[1] = m_failHandlerCb;
-        context->callback[2] = m_completeHandlerCb;
+        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
+        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
+        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
     } else {
-        context->callback[0] = m_handlerCb;
+        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
         context->deferred = m_deferred;
     }
     context->m_jsEvent = nVerrorCode;

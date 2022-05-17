@@ -39,7 +39,6 @@ void SubAbility::SetAbility(std::string name)
     capability_ = CommonUtils::GetCapability(name);
     newRecord_ = std::make_unique<WorkRecord>();
     lastRecord_ = std::make_unique<WorkRecord>();
-    requestMap_ = std::make_unique<std::map<int, sptr<LocationCallbackStub>>>();
 }
 
 void SubAbility::LocationRequest(uint64_t interval, WorkRecord &workRecord)
@@ -74,14 +73,10 @@ void SubAbility::HandleRemoveRecord(WorkRecord &newRecord)
         LBSLOGD(label_, "remove record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
-            sptr<LocationCallbackStub> removeCallback = GetCallback(uid);
-            if (removeCallback != nullptr) {
-                std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-                workRecord->Add(uid, lastRecord_->GetPid(i), lastRecord_->GetName(i));
-                workRecord->SetDeviceId(newRecord.GetDeviceId());
-                RequestRecord(removeCallback, *workRecord, false);
-            }
-            requestMap_->erase(uid);
+            std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
+            workRecord->Add(uid, lastRecord_->GetPid(i), lastRecord_->GetName(i));
+            workRecord->SetDeviceId(newRecord.GetDeviceId());
+            RequestRecord(*workRecord, false);
         }
     }
 }
@@ -94,23 +89,15 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
         LBSLOGD(label_, "add record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
-            sptr<LocationCallbackStub> addCallback = new (std::nothrow) LocationCallbackStub(name_);
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-            if (addCallback == nullptr || workRecord == nullptr) {
+            if (workRecord == nullptr) {
                 continue;
             }
             workRecord->Add(uid, newRecord.GetPid(i), newRecord.GetName(i));
             workRecord->SetDeviceId(newRecord.GetDeviceId());
-            RequestRecord(addCallback, *workRecord, true);
-            requestMap_->insert(std::pair<int, sptr<LocationCallbackStub>>(uid, addCallback));
+            RequestRecord(*workRecord, true);
         }
     }
-}
-
-sptr<LocationCallbackStub> SubAbility::GetCallback(int uid)
-{
-    auto iter = requestMap_->find(uid);
-    return (iter != requestMap_->end()) ? iter->second : nullptr;
 }
 
 std::unique_ptr<Location> SubAbility::GetCache()
@@ -157,40 +144,6 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
 void SubAbility::HandleRemoteRequest(bool state, std::string deviceId)
 {
     HandleRefrashRequirements();
-}
-
-void SubAbility::WriteCallbackToParcel(sptr<LocationCallbackStub> callback, MessageParcel &data)
-{
-    if (callback == nullptr) {
-        return;
-    }
-    // generate object of ILocationListener
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-}
-
-void SubAbility::WriteInfoToParcel(WorkRecord &workRecord, MessageParcel &data)
-{
-    // generate package name
-    std::string info = "zlocation";
-    info += ":";
-    info += std::to_string(workRecord.GetPid(0));
-    info += ":";
-    info += std::to_string(workRecord.GetUid(0));
-    info += ":";
-    info += workRecord.GetName(0);
-    data.WriteString16(Str8ToStr16(info));
-}
-
-bool SubAbility::ParseReplyInfo(MessageParcel &data)
-{
-    int exceptionHeader = data.ReadInt32();
-    LBSLOGD(label_, "get exception reply header:%{public}d", exceptionHeader);
-    if (exceptionHeader != REPLY_NO_EXCEPTION) {
-        std::string mgs = Str16ToStr8(data.ReadString16());
-        LBSLOGE(label_, "some exceptions happened in next level service. message:%{public}s", mgs.c_str());
-        return false;
-    }
-    return true;
 }
 } // namespace Location
 } // namespace OHOS

@@ -19,7 +19,6 @@ ohos_shared_library("lbsservice_locator") {
   sources = [
     "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/location_callback_host.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",
@@ -38,20 +37,16 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
-    "$SUBSYSTEM_DIR/utils/source/common_hisysevent.cpp",
-    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
   ]
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/location_common/common/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$SUBSYSTEM_DIR/utils/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
@@ -63,8 +58,7 @@ ohos_shared_library("lbsservice_locator") {
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",

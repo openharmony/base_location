@@ -84,7 +84,7 @@ void PassiveAbility::SetEnable(bool state)
     Enable(state, AsObject());
 }
 
-void PassiveAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGE(PASSIVE, "enter RequestRecord");
 }

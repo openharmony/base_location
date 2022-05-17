@@ -20,6 +20,7 @@
 
 #include "common_utils.h"
 #include "location_log.h"
+#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {
@@ -30,13 +31,10 @@ LocatorEventSubscriber::~LocatorEventSubscriber() {}
 
 void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
-    proxyLocator_ = std::make_unique<LocatorProxy>(CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID,
-        CommonUtils::InitDeviceId()));
-
     std::string action = event.GetWant().GetAction();
     LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
-    if (MODE_CHANGED_EVENT.compare(action) == 0 && proxyLocator_ != nullptr) {
-        proxyLocator_->UpdateSaAbility();
+    if (MODE_CHANGED_EVENT.compare(action) == 0) {
+        DelayedSingleton<LocatorAbility>::GetInstance().get()->UpdateSaAbility();
     }
 }
 } // namespace Location

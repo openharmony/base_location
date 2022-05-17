@@ -21,8 +21,8 @@
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 #include "location.h"
-#include "locator_proxy.h"
 #include "request_config.h"
+#include "i_locator.h"
 #include "i_locator_callback.h"
 
 namespace OHOS {
@@ -39,7 +39,6 @@ public:
         MessageParcel &data, MessageParcel &reply, MessageOption &option);
     void ParseDataAndStartLocating(MessageParcel& data, MessageParcel& reply, pid_t pid, pid_t uid);
     void ParseDataAndStopLocating(MessageParcel& data, MessageParcel& reply);
-    int ReportStatus(MessageParcel& data, int type);
     void ParseDataAndStartCacheLocating(MessageParcel& data, MessageParcel& reply);
     void ParseDataAndStopCacheLocating(MessageParcel& data, MessageParcel& reply);
 };

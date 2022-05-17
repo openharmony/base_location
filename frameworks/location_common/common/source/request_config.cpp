@@ -95,5 +95,5 @@ std::string RequestConfig::ToString() const
         ", fixNumber : " + std::to_string(fixNumber_);
     return str;
 }
-} // Location
-} // OHOS
+} // namespace Location
+} // namespace OHOS

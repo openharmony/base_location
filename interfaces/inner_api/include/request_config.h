@@ -101,6 +101,6 @@ private:
     int fixNumber_;
     int priority_;
 };
-} // Location
-} // OHOS
+} // namespace Location
+} // namespace OHOS
 #endif // REQUEST_CONFIG_H
