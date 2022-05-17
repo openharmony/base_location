@@ -13,8 +13,6 @@
 
 import("//build/ohos.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
-
 ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
