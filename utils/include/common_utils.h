@@ -36,7 +36,7 @@ const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTIN
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
-const int DEFAULT_UID = 1000;
+const int DEFAULT_UID = 10001;
 const int DEFAULT_PID = 1000;
 const int SYSTEM_UID = 1000;
 

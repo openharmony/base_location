@@ -30,7 +30,6 @@ const int PRIVACY_TYPE_OTHERS = 0;
 const int PRIVACY_TYPE_STARTUP = 1;
 const int PRIVACY_TYPE_CORE_LOCATION = 2;
 
-const int DEFAULT_UID = 10001;
 const int DEFAULT_TIMEOUT_30S = 30000;
 
 enum {
