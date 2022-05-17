@@ -43,7 +43,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
 
   deps = [
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/location/framework/native:locator_sdk",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/startup/init_lite/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
