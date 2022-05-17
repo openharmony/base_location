@@ -168,7 +168,7 @@ void LocatorBackgroundProxy::OnPermissionChanged(int32_t uid)
     }
 }
 
-// called when provider switch on or switch off
+// called when switch on or switch off
 // when switch on, start proxy
 // when switch off, stop proxy
 void LocatorBackgroundProxy::OnProviderSwitch(bool enable)
@@ -216,7 +216,7 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
         return;
     }
     auto requestsList = iter->second;
-    for (auto request = requestsList->begin(); request != requestsList->end(); ) {
+    for (auto request = requestsList->begin(); request != requestsList->end();) {
         if ((uid1 == (*request)->GetUid()) && !CheckPermission()) {
             request = requestsList->erase(request);
         } else {

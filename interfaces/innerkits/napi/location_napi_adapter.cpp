@@ -38,7 +38,6 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void* data) -> void {
         LocationAsyncContext* context = static_cast<LocationAsyncContext*>(data);
-        TRACE_FUNC_CALL_NAME("g_locatorPtr->getCachedLocation");
         context->loc = g_locatorPtr->IsLocationEnabled() ? g_locatorPtr->GetCachedLocation() : nullptr;
         if (context->loc != nullptr) {
             context->errCode = SUCCESS;
@@ -77,7 +76,6 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void* data) -> void {
         SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
-        TRACE_FUNC_CALL_NAME("g_locatorPtr->IsLocationEnabled");
         context->enable = g_locatorPtr->IsLocationEnabled();
         context->errCode = SUCCESS;
     };
@@ -196,7 +194,6 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
     napi_create_string_latin1(env, "isGeoServiceAvailable", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
     asyncContext->executeFunc = [&](void* data) -> void {
         SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
-        TRACE_FUNC_CALL_NAME("g_locatorPtr->isGeoServiceAvailable");
         context->enable = g_locatorPtr->IsLocationEnabled() && g_locatorPtr->IsGeoServiceAvailable();
         context->errCode = SUCCESS;
     };
@@ -316,7 +313,6 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
     asyncContext->type = CommonUtils::GetPrivacyTypeByInt(type);
     asyncContext->executeFunc = [&](void* data) -> void {
         PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);
-        TRACE_FUNC_CALL_NAME("g_locatorPtr->IsLocationPrivacyConfirmed");
         context->isConfirmed = g_locatorPtr->IsLocationPrivacyConfirmed(context->type);
 
         context->errCode = SUCCESS;
@@ -351,7 +347,6 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
     napi_get_value_bool(env, argv[1], &asyncContext->isConfirmed);
     asyncContext->executeFunc = [&](void* data) -> void {
         PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);
-        TRACE_FUNC_CALL_NAME("g_locatorPtr->SetLocationPrivacyConfirmStatus");
         g_locatorPtr->SetLocationPrivacyConfirmStatus(context->type, context->isConfirmed);
         context->errCode = SUCCESS;
     };
@@ -381,7 +376,6 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void* data) -> void {
         CachedAsyncContext* context = static_cast<CachedAsyncContext*>(data);
-        TRACE_FUNC_CALL_NAME("g_locatorPtr->GetCachedGnssLocationsSize");
         context->errCode = LOCATION_SWITCH_ERROR;
         if (g_locatorPtr->IsLocationEnabled()) {
             context->locationSize = g_locatorPtr->GetCachedGnssLocationsSize();
@@ -414,7 +408,6 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void* data) -> void {
         CachedAsyncContext* context = static_cast<CachedAsyncContext*>(data);
-        TRACE_FUNC_CALL_NAME("g_locatorPtr->FlushCachedGnssLocations");
         context->errCode = LOCATION_SWITCH_ERROR;
         if (g_locatorPtr->IsLocationEnabled()) {
             g_locatorPtr->FlushCachedGnssLocations();
