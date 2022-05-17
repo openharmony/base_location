@@ -13,8 +13,6 @@
 
 import("//build/ohos.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
-
 ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
@@ -23,26 +21,22 @@ ohos_shared_library("geolocation") {
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/location/framework/js/napi",
+    "//base/location/frameworks/js/napi/include",
     "//base/location/interfaces/inner_api/include",
-    "//base/location//services/location_common/common/include",
-    "//base/location//services/location_locator/callback/include",
-    "//base/location//services/utils/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
   sources = [
-    "$SUBSYSTEM_DIR/utils/source/common_utils.cpp",
-    "location_napi_adapter.cpp",
-    "location_napi_entry.cpp",
-    "location_napi_event.cpp",
-    "location_napi_system.cpp",
+    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
+    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
+    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
+    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
   ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//base/location/framework/native:locator_sdk",
-    "//base/location/services/location_common/common:lbsservice_common",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//base/location/frameworks/native:locator_sdk",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/libuv:uv_static",
     "//utils/native/base:utils",

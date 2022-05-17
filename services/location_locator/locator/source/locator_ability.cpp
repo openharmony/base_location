@@ -57,9 +57,6 @@ const uint32_t FLUSH_CACHED = 14;
 const uint32_t SEND_COMMANDS = 15;
 const uint32_t ADD_FENCE_INFO = 16;
 const uint32_t REMOVE_FENCE_INFO = 17;
-const uint32_t SEND_GNSS_SESSION_STATUS = 18;
-const uint32_t SEND_SV = 19;
-const uint32_t SEND_NMEA = 20;
 
 const float_t PRECISION = 0.000001;
 
@@ -712,6 +709,10 @@ int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, st
     if (requests_ == nullptr) {
         return EXCEPTION;
     }
+    if (GetSwitchState() == DISABLED) {
+        LBSLOGE(LOCATOR, "location switch is off");
+        return EXCEPTION;
+    }
     LBSLOGI(LOCATOR, "start report location");
     if (reportManager_->OnReportLocation(location, abilityName)) {
         return REPLY_NO_EXCEPTION;
@@ -719,71 +720,12 @@ int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, st
     return EXCEPTION;
 }
 
-int LocatorAbility::ReportGnssSessionStatus(int status)
-{
-    LBSLOGD(LOCATOR, "ReportGnssSessionStatus");
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
-        }
-        dataToStub.WriteInt32(status);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return EXCEPTION;
-        }
-        obj->SendRequest(SEND_GNSS_SESSION_STATUS, dataToStub, replyToStub, option);
-    }
-    return REPLY_NO_EXCEPTION;
-}
-
-int LocatorAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
-{
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
-        }
-        if (sv != nullptr) {
-            sv->Marshalling(dataToStub);
-        }
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return EXCEPTION;
-        }
-        obj->SendRequest(SEND_SV, dataToStub, replyToStub, option);
-    }
-    return REPLY_NO_EXCEPTION;
-}
-
-int LocatorAbility::ReportNmea(const std::string &nmea)
-{
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
-        }
-        dataToStub.WriteString(nmea);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return EXCEPTION;
-        }
-        obj->SendRequest(SEND_NMEA, dataToStub, replyToStub, option);
-    }
-    return REPLY_NO_EXCEPTION;
-}
-
 int LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
 {
+    if (GetSwitchState() == DISABLED) {
+        LBSLOGE(LOCATOR, "location switch is off");
+        return EXCEPTION;
+    }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
         return REPLY_NO_EXCEPTION;
     }
@@ -792,6 +734,10 @@ int LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int r
 
 int LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
 {
+    if (GetSwitchState() == DISABLED) {
+        LBSLOGE(LOCATOR, "location switch is off");
+        return EXCEPTION;
+    }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {
         return REPLY_NO_EXCEPTION;
     }

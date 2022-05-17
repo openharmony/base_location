@@ -12,50 +12,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nmea_message_callback_host.h"
 
+#include "location_switch_callback_host.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
+#include "i_switch_callback.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "napi/native_api.h"
 
 namespace OHOS {
 namespace Location {
-NmeaMessageCallbackHost::NmeaMessageCallbackHost()
+LocationSwitchCallbackHost::LocationSwitchCallbackHost()
 {
     m_env = nullptr;
     m_handlerCb = nullptr;
     m_remoteDied = false;
+    m_fixNumber = 0;
     m_lastCallingPid = 0;
     m_lastCallingUid = 0;
 }
 
-NmeaMessageCallbackHost::~NmeaMessageCallbackHost()
+LocationSwitchCallbackHost::~LocationSwitchCallbackHost()
 {
 }
 
-int NmeaMessageCallbackHost::OnRemoteRequest(
+int LocationSwitchCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackHost::OnRemoteRequest!");
+    LBSLOGD(SWITCH_CALLBACK, "LocatorCallbackHost::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(NMEA_MESSAGE_CALLBACK, "invalid token.");
+        LBSLOGE(SWITCH_CALLBACK, "invalid token.");
         return -1;
     }
     if (m_remoteDied) {
-        LBSLOGD(NMEA_MESSAGE_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
+        LBSLOGD(SWITCH_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
     int uid = IPCSkeleton::GetCallingUid();
     if (uid > SYSTEM_UID) {
-        LBSLOGE(NMEA_MESSAGE_CALLBACK, "invalid uid!");
-        return false;
+        LBSLOGE(SWITCH_CALLBACK, "invalid uid!");
+        return -1;
     }
     switch (code) {
-        case RECEIVE_NMEA_MESSAGE_EVENT: {
-            std::string msg = Str16ToStr8(data.ReadString16());
-            OnMessageChange(msg);
+        case RECEIVE_SWITCH_STATE_EVENT: {
+            OnSwitchChange(data.ReadInt32());
             break;
         }
         default: {
@@ -66,75 +66,73 @@ int NmeaMessageCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-bool NmeaMessageCallbackHost::IsRemoteDied()
+bool LocationSwitchCallbackHost::IsRemoteDied()
 {
     return m_remoteDied;
 }
 
-napi_value NmeaMessageCallbackHost::PackResult(const std::string msg)
+napi_value LocationSwitchCallbackHost::PackResult(bool switchState)
 {
     napi_value result;
-    napi_create_string_utf8(m_env, msg.c_str(), NAPI_AUTO_LENGTH, &result);
+    napi_get_boolean(m_env, switchState, &result);
     return result;
 }
 
-bool NmeaMessageCallbackHost::Send(const std::string msg)
+bool LocationSwitchCallbackHost::Send(int switchState)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
-        LBSLOGE(NMEA_MESSAGE_CALLBACK, "loop == nullptr.");
+        LBSLOGE(SWITCH_CALLBACK, "loop == nullptr.");
         return false;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        LBSLOGE(NMEA_MESSAGE_CALLBACK, "work == nullptr.");
+        LBSLOGE(SWITCH_CALLBACK, "work == nullptr.");
         return false;
     }
-    NmeaAsyncContext *context = new (std::nothrow) NmeaAsyncContext(m_env);
+    SwitchAsyncContext *context = new (std::nothrow) SwitchAsyncContext(m_env);
     if (context == nullptr) {
-        LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
+        LBSLOGE(SWITCH_CALLBACK, "context == nullptr.");
         return false;
     }
     context->env = m_env;
-    context->callback[0] = m_handlerCb;
-    context->msg = msg;
+    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+    context->enable = (switchState == 1 ? true : false);
     work->data = context;
     UvQueueWork(loop, work);
     return true;
 }
 
-
-void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
     uv_queue_work(
         loop,
         work,
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            NmeaAsyncContext *context = nullptr;
+            SwitchAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
                 return;
             }
-            context = static_cast<NmeaAsyncContext *>(work->data);
+            context = static_cast<SwitchAsyncContext *>(work->data);
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
+            napi_value jsEvent;
+            napi_get_boolean(context->env, context->enable, &jsEvent);
             if (scope == nullptr) {
-                LBSLOGE(NMEA_MESSAGE_CALLBACK, "scope is nullptr");
+                LBSLOGE(SWITCH_CALLBACK, "scope is nullptr");
                 delete context;
                 delete work;
                 return;
             }
-            napi_value jsEvent;
-            napi_create_string_utf8(context->env, context->msg.c_str(), NAPI_AUTO_LENGTH, &jsEvent);
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
@@ -142,7 +140,7 @@ void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 napi_get_reference_value(context->env, context->callback[0], &handler);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
-                    LBSLOGE(NMEA_MESSAGE_CALLBACK, "Report event failed");
+                    LBSLOGE(SWITCH_CALLBACK, "Report event failed");
                 }
             }
             napi_close_handle_scope(context->env, scope);
@@ -151,13 +149,13 @@ void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
     });
 }
 
-void NmeaMessageCallbackHost::OnMessageChange(const std::string msg)
+void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
 {
-    LBSLOGD(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackHost::OnMessageChange");
-    Send(msg);
+    LBSLOGD(SWITCH_CALLBACK, "LocatorCallbackHost::OnSwitchChange");
+    Send(switchState);
 }
 
-void NmeaMessageCallbackHost::DeleteHandler()
+void LocationSwitchCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_handlerCb) {

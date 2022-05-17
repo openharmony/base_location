@@ -54,30 +54,6 @@ void LocatorAbilityStub::ParseDataAndStopLocating(MessageParcel& data, MessagePa
     StopLocating(callback);
 }
 
-int LocatorAbilityStub::ReportStatus(MessageParcel& data, int type)
-{
-    sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
-    if (remoteObject == nullptr) {
-        LBSLOGE(LOCATOR, "LocatorAbility::StartLocating remote object nullptr");
-        return EXCEPTION;
-    }
-    sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
-    int result = data.ReadInt32();
-    switch (type) {
-        case REPORT_LOCATION_STATUS: {
-            ReportLocationStatus(callback, result);
-            break;
-        }
-        case REPORT_ERROR_STATUS: {
-            ReportErrorStatus(callback, result);
-            break;
-        }
-        default:
-            break;
-    }
-    return REPLY_NO_EXCEPTION;
-}
-
 void LocatorAbilityStub::ParseDataAndStartCacheLocating(MessageParcel& data, MessageParcel& reply)
 {
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
@@ -326,83 +302,6 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
     int ret = REPLY_NO_EXCEPTION;
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     switch (code) {
-        case REPORT_LOCATION: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
-                break;
-            }
-            if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
-                break;
-            }
-            std::string abilityName = data.ReadString();
-            std::unique_ptr<Location> location = Location::Unmarshalling(data);
-            ReportLocation(location, abilityName);
-            break;
-        }
-        case REPORT_GNSS_SESSION_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
-                break;
-            }
-            if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
-                break;
-            }
-            int status = data.ReadInt32();
-            ReportGnssSessionStatus(status);
-            break;
-        }
-        case REPORT_SV: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
-                break;
-            }
-            if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
-                break;
-            }
-            std::unique_ptr<SatelliteStatus> sv = SatelliteStatus::Unmarshalling(data);
-            ReportSv(sv);
-            break;
-        }
-        case REPORT_NMEA: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
-                break;
-            }
-            if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
-                break;
-            }
-            std::string nmea = data.ReadString();
-            ReportNmea(nmea);
-            break;
-        }
-        case REPORT_LOCATION_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
-                break;
-            }
-            if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
-                break;
-            }
-            ReportStatus(data, REPORT_LOCATION_STATUS);
-            break;
-        }
-        case REPORT_ERROR_STATUS: {
-            if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
-                break;
-            }
-            if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
-                break;
-            }
-            ReportStatus(data, REPORT_ERROR_STATUS);
-            break;
-        }
         case UPDATE_SA_ABILITY: {
             if (!CommonUtils::CheckSystemCalling(callingUid)) {
                 ret = SECURITY_EXCEPTION;

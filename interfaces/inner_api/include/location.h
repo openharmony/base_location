@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_OBJECT_H
-#define OHOS_LOCATION_OBJECT_H
+#ifndef LOCATION_H
+#define LOCATION_H
 
 #include <parcel.h>
 #include <string>
@@ -124,6 +124,6 @@ private:
     int64_t timeStamp_;
     int64_t timeSinceBoot_;
 };
-} // Location
-} // OHOS
-#endif // OHOS_LOCATION_OBJECT_H
+} // namespace Location
+} // namespace OHOS
+#endif // LOCATION_H
