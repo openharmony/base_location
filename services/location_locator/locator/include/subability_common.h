@@ -20,9 +20,9 @@
 #include <map>
 #include <unistd.h>
 #include "common_hisysevent.h"
+#include "i_locator_callback.h"
 #include "iremote_broker.h"
 #include "location_log.h"
-#include "location_callback_host.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -72,21 +72,15 @@ private:
     void HandleLocalRequest(WorkRecord &record);
     void HandleRemoveRecord(WorkRecord &record);
     void HandleAddRecord(WorkRecord &record);
-    virtual void RequestRecord(sptr<LocationCallbackStub> addCallback, WorkRecord &workRecord, bool isAdded) = 0;
-    sptr<LocationCallbackStub> GetCallback(int uid);
-    void WriteCallbackToParcel(sptr<LocationCallbackStub> callback, MessageParcel &data);
-    void WriteInfoToParcel(WorkRecord &workRecord, MessageParcel &data);
-    bool ParseReplyInfo(MessageParcel &rep);
+    virtual void RequestRecord(WorkRecord &workRecord, bool isAdded) = 0;
 
     OHOS::HiviewDFX::HiLogLabel label_;
     sptr<IRemoteObject> ability_;
-    sptr<LocationCallbackStub> callback_;
     uint64_t interval_ = 0;
     std::string name_;
     std::u16string capability_ = u"";
     std::unique_ptr<WorkRecord> lastRecord_;
     std::unique_ptr<WorkRecord> newRecord_;
-    std::unique_ptr<std::map<int, sptr<LocationCallbackStub>>> requestMap_;
 };
 } // namespace Location
 } // namespace OHOS

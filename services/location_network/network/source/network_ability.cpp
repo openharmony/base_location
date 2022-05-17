@@ -91,7 +91,7 @@ void NetworkAbility::SelfRequest(bool state)
     HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
 }
 
-void NetworkAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGE(NETWORK, "enter RequestRecord");
 }

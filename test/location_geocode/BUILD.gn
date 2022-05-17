@@ -23,7 +23,7 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   ]
 
   include_dirs = [
-    "$SUBSYSTEM_DIR/location_common/common/include",
+    "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "//base/location/test/location_geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
@@ -31,7 +31,6 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$SUBSYSTEM_DIR/utils/include",
     "//foundation/aafwk/intent/interfaces/innerkits/base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
@@ -42,9 +41,9 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/startup/init_lite/interfaces/innerkits:libbegetutil",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",

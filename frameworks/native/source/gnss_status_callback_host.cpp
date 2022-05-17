@@ -92,7 +92,7 @@ bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
         return false;
     }
     context->env = m_env;
-    context->callback[0] = m_handlerCb;
+    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
     context->statusInfo = std::move(statusInfo);
     work->data = context;
     UvQueueWork(loop, work);

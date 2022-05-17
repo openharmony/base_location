@@ -12,50 +12,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "cached_locations_callback_host.h"
 
-#include "location_switch_callback_host.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "i_switch_callback.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
+#include "location_util.h"
 
 namespace OHOS {
 namespace Location {
-LocationSwitchCallbackHost::LocationSwitchCallbackHost()
+CachedLocationsCallbackHost::CachedLocationsCallbackHost()
 {
     m_env = nullptr;
     m_handlerCb = nullptr;
     m_remoteDied = false;
-    m_fixNumber = 0;
-    m_lastCallingPid = 0;
-    m_lastCallingUid = 0;
 }
 
-LocationSwitchCallbackHost::~LocationSwitchCallbackHost()
+CachedLocationsCallbackHost::~CachedLocationsCallbackHost()
 {
 }
 
-int LocationSwitchCallbackHost::OnRemoteRequest(
+int CachedLocationsCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(SWITCH_CALLBACK, "LocatorCallbackHost::OnRemoteRequest!");
+    LBSLOGD(CACHED_LOCATIONS_CALLBACK, "CachedLocationsCallbackHost::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(SWITCH_CALLBACK, "invalid token.");
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "invalid token.");
         return -1;
     }
     if (m_remoteDied) {
-        LBSLOGD(SWITCH_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
+        LBSLOGD(CACHED_LOCATIONS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
     int uid = IPCSkeleton::GetCallingUid();
     if (uid > SYSTEM_UID) {
-        LBSLOGE(SWITCH_CALLBACK, "invalid uid!");
-        return -1;
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "invalid uid!");
+        return false;
     }
     switch (code) {
-        case RECEIVE_SWITCH_STATE_EVENT: {
-            OnSwitchChange(data.ReadInt32());
+        case RECEIVE_CACHED_LOCATIONS_EVENT: {
+            int size = data.ReadInt32();
+            std::vector<std::shared_ptr<Location>> locations(size);
+            for (int i = 0; i < size; i++) {
+                locations.push_back(Location::UnmarshallingShared(data));
+            }
+            Send(locations);
             break;
         }
         default: {
@@ -66,73 +68,68 @@ int LocationSwitchCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-bool LocationSwitchCallbackHost::IsRemoteDied()
+bool CachedLocationsCallbackHost::IsRemoteDied()
 {
     return m_remoteDied;
 }
 
-napi_value LocationSwitchCallbackHost::PackResult(bool switchState)
-{
-    napi_value result;
-    napi_get_boolean(m_env, switchState, &result);
-    return result;
-}
-
-bool LocationSwitchCallbackHost::Send(int switchState)
+bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& locations)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
+
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
-        LBSLOGE(SWITCH_CALLBACK, "loop == nullptr.");
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
         return false;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        LBSLOGE(SWITCH_CALLBACK, "work == nullptr.");
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
         return false;
     }
-    SwitchAsyncContext *context = new (std::nothrow) SwitchAsyncContext(m_env);
+    CachedLocationAsyncContext *context = new (std::nothrow) CachedLocationAsyncContext(m_env);
     if (context == nullptr) {
-        LBSLOGE(SWITCH_CALLBACK, "context == nullptr.");
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
         return false;
     }
     context->env = m_env;
-    context->callback[0] = m_handlerCb;
-    context->enable = (switchState == 1 ? true : false);
+    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+    context->locationList = locations;
     work->data = context;
     UvQueueWork(loop, work);
     return true;
 }
 
-void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
     uv_queue_work(
         loop,
         work,
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            SwitchAsyncContext *context = nullptr;
+            CachedLocationAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
+                LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work is nullptr");
                 return;
             }
-            context = static_cast<SwitchAsyncContext *>(work->data);
+            context = static_cast<CachedLocationAsyncContext *>(work->data);
             if (context == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
+                LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context is nullptr");
                 delete work;
                 return;
             }
             napi_open_handle_scope(context->env, &scope);
-            napi_value jsEvent;
-            napi_get_boolean(context->env, context->enable, &jsEvent);
             if (scope == nullptr) {
-                LBSLOGE(SWITCH_CALLBACK, "scope is nullptr");
+                LBSLOGE(CACHED_LOCATIONS_CALLBACK, "scope is nullptr");
                 delete context;
                 delete work;
                 return;
             }
+            napi_value jsEvent = nullptr;
+            napi_create_object(context->env, &jsEvent);
+            LocationsToJs(context->env, context->locationList, jsEvent);
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
@@ -140,7 +137,7 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 napi_get_reference_value(context->env, context->callback[0], &handler);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
-                    LBSLOGE(SWITCH_CALLBACK, "Report event failed");
+                    LBSLOGE(CACHED_LOCATIONS_CALLBACK, "Report event failed");
                 }
             }
             napi_close_handle_scope(context->env, scope);
@@ -149,13 +146,12 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
     });
 }
 
-void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
+void CachedLocationsCallbackHost::OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations)
 {
-    LBSLOGD(SWITCH_CALLBACK, "LocatorCallbackHost::OnSwitchChange");
-    Send(switchState);
+    LBSLOGD(CACHED_LOCATIONS_CALLBACK, "CachedLocationsCallbackHost::OnCacheLocationsReport");
 }
 
-void LocationSwitchCallbackHost::DeleteHandler()
+void CachedLocationsCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_handlerCb) {

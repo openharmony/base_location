@@ -90,14 +90,11 @@ public:
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
 
-    int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName) override;
-    int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result) override;
-    int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result) override;
+    int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
+    int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
+    int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-    int ReportGnssSessionStatus(int status) override;
-    int ReportNmea(const std::string &nmea) override;
-    int ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> GetProxyMap();

@@ -28,8 +28,6 @@ public:
     LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
     ~LocatorEventSubscriber();
     virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
-private:
-    std::unique_ptr<LocatorProxy> proxyLocator_;
 };
 } // namespace Location
 } // namespace OHOS

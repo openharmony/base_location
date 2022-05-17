@@ -23,7 +23,7 @@ ohos_shared_library("lbsservice_geocode") {
   ]
 
   include_dirs = [
-    "$SUBSYSTEM_DIR/location_common/common/include",
+    "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
@@ -31,7 +31,6 @@ ohos_shared_library("lbsservice_geocode") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "$SUBSYSTEM_DIR/utils/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//utils/native/base/include",
@@ -39,7 +38,7 @@ ohos_shared_library("lbsservice_geocode") {
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_common/common:lbsservice_common",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
