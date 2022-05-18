@@ -239,26 +239,26 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
 }
 
 /**
- * @tc.name: OnProviderSwitch001
- * @tc.desc: Test the function OnProviderSwitch
+ * @tc.name: OnSaStateChange001
+ * @tc.desc: Test the function OnSaStateChange
  * @tc.type: FUNC
  */
-HWTEST_F(LocatorServiceTest, OnProviderSwitch001, TestSize.Level1)
+HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
 {
     /**
      * @tc.steps: step1. Call the onsuspend function, the process enter frozen state
-     * @tc.steps: step2. Call OnProviderSwitch, disable locator ability
+     * @tc.steps: step2. Call OnSaStateChange, disable locator ability
      * @tc.expected: step2. return true, do not change proxy list
-     * @tc.steps: step3. Call OnProviderSwitch, enable locator ability
+     * @tc.steps: step3. Call OnSaStateChange, enable locator ability
      * @tc.expected: step3. return true, do not change proxy list
      */
     backgroundProxy_->OnSuspend(request_, 0);
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     EXPECT_EQ(true, result);
-    backgroundProxy_->OnProviderSwitch(false);
+    backgroundProxy_->OnSaStateChange(false);
     result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     EXPECT_EQ(true, result);
-    backgroundProxy_->OnProviderSwitch(true);
+    backgroundProxy_->OnSaStateChange(true);
     result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     EXPECT_EQ(true, result);
     backgroundProxy_->OnDeleteRequestRecord(request_);

@@ -102,24 +102,15 @@ bool Location::Marshalling(Parcel& parcel) const
 
 std::string Location::ToString() const
 {
-    std::stringstream str;
-    str << "latitude : ";
-    str << latitude_;
-    str << ", longitude : ";
-    str << longitude_;
-    str << ", altitude : ";
-    str << altitude_;
-    str << ", accuracy : ";
-    str << accuracy_;
-    str << ", speed : ";
-    str << speed_;
-    str << ", direction : ";
-    str << direction_;
-    str << ", timeStamp : ";
-    str << timeStamp_;
-    str << ", timeSinceBoot : ";
-    str << timeSinceBoot_;
-    return str.str();
+    std::string str = "latitude : " + std::to_string(latitude_) +
+        ", longitude : " + std::to_string(longitude_) +
+        ", altitude : " + std::to_string(altitude_) +
+        ", accuracy : " + std::to_string(accuracy_) +
+        ", speed : " + std::to_string(speed_) +
+        ", direction : " + std::to_string(direction_) +
+        ", timeStamp : " + std::to_string(timeStamp_) +
+        ", timeSinceBoot : " + std::to_string(timeSinceBoot_);
+    return str;
 }
 } // namespace Location
 } // namespace OHOS
