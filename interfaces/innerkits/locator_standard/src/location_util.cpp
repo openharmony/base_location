@@ -28,24 +28,6 @@ static constexpr double MIN_LATITUDE = -90.0;
 static constexpr double MAX_LATITUDE = 90.0;
 static constexpr double MIN_LONGITUDE = -180.0;
 static constexpr double MAX_LONGITUDE = 180.0;
-TraceFuncCall::TraceFuncCall(std::string funcName): m_funcName(funcName)
-{
-    if (m_isTrace) {
-        m_startTime = std::chrono::steady_clock::now();
-        LBSLOGD(LOCATOR_STANDARD, "Call func: %{public}s (start)", m_funcName.c_str());
-    }
-}
-
-TraceFuncCall::~TraceFuncCall()
-{
-    if (m_isTrace) {
-        auto us = std::chrono::duration_cast<std::chrono::microseconds>
-            (std::chrono::steady_clock::now() - m_startTime).count();
-        constexpr int usForPerMs = 1000;
-        LBSLOGD(LOCATOR_STANDARD, "Call func: %{public}s (end), time cost:%{public}lldus, %{public}lldms",
-            m_funcName.c_str(), us, us / usForPerMs);
-    }
-}
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -98,13 +80,13 @@ void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteSta
 void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Location>>& locations, napi_value& result)
 {
     if (locations.size() > 0) {
-        for (int index = 0; index < locations.size(); index++) {
+        for (unsigned int index = 0; index < locations.size(); index++) {
             napi_value value;
             napi_status status;
             LocationToJs(env, locations[index], value);
             status = napi_set_element(env, result, index, value);
             if (status != napi_ok) {
-                LBSLOGE(LOCATOR_STANDARD, "napi set element error: %{public}d, idx: %{public}d", status, index - 1);
+                LBSLOGE(LOCATOR_STANDARD, "napi set element error: %{public}d, idx: %{public}d", status, index);
                 return;
             }
         }
