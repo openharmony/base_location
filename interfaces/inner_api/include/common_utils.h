@@ -82,12 +82,7 @@ enum {
 
 class CommonUtils {
 public:
-    static sptr<IRemoteObject> GetLocationService();
-    static bool RemoteToLocationService(uint32_t code, MessageParcel &data, MessageParcel &reply);
-    static bool RemoteToLocationService(uint32_t code, MessageParcel &data,
-        MessageParcel &reply, MessageOption &option);
     static void WriteInterfaceToken(const std::u16string &descriptor, MessageParcel &data);
-    static bool EnforceInterface(const std::u16string &descriptor, MessageParcel &data);
     static int AbilityConvertToId(const std::string ability);
     static std::u16string GetCapabilityToString(std::string ability, uint32_t capability);
     static std::u16string GetCapability(std::string ability);
@@ -100,7 +95,6 @@ public:
     static bool CheckPermission(const std::string &permission);
     static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
-    static bool CheckLocatorInterfaceToken(std::u16string descripter, MessageParcel &data);
 };
 } // namespace Location
 } // namespace OHOS

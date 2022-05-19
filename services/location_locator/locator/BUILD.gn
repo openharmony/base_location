@@ -25,6 +25,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/location_config_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_ability.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_background_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_manager.cpp",
