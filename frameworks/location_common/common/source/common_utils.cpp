@@ -151,7 +151,8 @@ sptr<IRemoteObject> CommonUtils::GetRemoteObject(int abilityId, std::string devi
 
 std::string CommonUtils::InitDeviceId()
 {
-    return "";
+    std::string deviceId;
+    return deviceId;
 }
 } // namespace Location
 } // namespace OHOS
