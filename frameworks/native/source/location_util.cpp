@@ -222,6 +222,19 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     requestConfig->SetDistanceInterval(value);
 }
 
+void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,
+    std::unique_ptr<RequestConfig>& requestConfig)
+{
+    int value = 0;
+    double valueDouble = 0.0;
+    JsObjectToInt(env, object, "priority", value);
+    requestConfig->SetPriority(value);
+    JsObjectToInt(env, object, "scenario", value);
+    requestConfig->SetScenario(value);
+    JsObjectToDouble(env, object, "maxAccuracy", valueDouble);
+    requestConfig->SetMaxAccuracy(valueDouble);
+}
+
 void JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig)
 {

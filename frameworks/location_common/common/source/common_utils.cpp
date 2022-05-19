@@ -28,45 +28,9 @@ namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
-sptr<IRemoteObject> CommonUtils::GetLocationService()
-{
-    return nullptr;
-}
-
-bool CommonUtils::RemoteToLocationService(uint32_t code, MessageParcel &data, MessageParcel &reply)
-{
-    MessageOption option;
-    return RemoteToLocationService(code, data, reply, option);
-}
-
-bool CommonUtils::RemoteToLocationService(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
-{
-    return true;
-}
-
-bool CommonUtils::EnforceInterface(const std::u16string &descriptor, MessageParcel &data)
-{
-    data.ReadInt32(); // strictPolicy
-    data.ReadInt32(); // workSource
-    std::u16string result = data.ReadString16();
-    return descriptor.compare(result) == 0;
-}
 
 bool CommonUtils::CheckSystemCalling(pid_t uid)
 {
-    return true;
-}
-
-bool CommonUtils::CheckLocatorInterfaceToken(std::u16string descripter, MessageParcel &data)
-{
-    std::u16string remoteDescripter = data.ReadInterfaceToken();
-    LBSLOGD(COMMON_UTILS, "local des %{public}s, remote des: %{public}s", Str16ToStr8(descripter).c_str(),
-        Str16ToStr8(remoteDescripter).c_str());
-    if (descripter.compare(remoteDescripter) != 0) {
-        LBSLOGE(COMMON_UTILS, "this remote request token is invalid");
-        return false;
-    }
     return true;
 }
 
@@ -187,8 +151,7 @@ sptr<IRemoteObject> CommonUtils::GetRemoteObject(int abilityId, std::string devi
 
 std::string CommonUtils::InitDeviceId()
 {
-    std::string deviceId;
-    return deviceId;
+    return "";
 }
 } // namespace Location
 } // namespace OHOS
