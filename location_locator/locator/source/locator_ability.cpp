@@ -296,7 +296,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     if (proxyMap_ == nullptr) {
         return;
     }
-    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnProviderSwitch(isEnabled_);
+    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnSaStateChange(isEnabled_);
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
         MessageParcel data;

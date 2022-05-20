@@ -14,10 +14,7 @@
  */
 
 #include "locator_background_proxy.h"
-
-#include <chrono>
 #include <thread>
-#include <unistd.h>
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "common_utils.h"
@@ -79,9 +76,7 @@ LocatorBackgroundProxy::~LocatorBackgroundProxy() {}
 void LocatorBackgroundProxy::InitArgsFromProp()
 {
     featureSwitch_ = 1;
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "feature switch %{public}d", featureSwitch_);
     timeInterval_ = DEFAULT_TIME_INTERVAL;
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "set time interval %{public}d", timeInterval_);
 }
 
 void LocatorBackgroundProxy::SubscribeUserSwtich()
@@ -168,15 +163,15 @@ void LocatorBackgroundProxy::OnPermissionChanged(int32_t uid)
     }
 }
 
-// called when provider switch on or switch off
+// called when SA switch on or switch off
 // when switch on, start proxy
 // when switch off, stop proxy
-void LocatorBackgroundProxy::OnProviderSwitch(bool enable)
+void LocatorBackgroundProxy::OnSaStateChange(bool enable)
 {
     if (proxySwtich_ == enable || !featureSwitch_) {
         return;
     }
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "onProviderswitch %{public}d", enable);
+    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnSaStateChange %{public}d", enable);
     proxySwtich_ = enable;
     if (enable && !requestsList_->empty()) {
         StartLocator();
@@ -216,7 +211,7 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
         return;
     }
     auto requestsList = iter->second;
-    for (auto request = requestsList->begin(); request != requestsList->end(); ) {
+    for (auto request = requestsList->begin(); request != requestsList->end();) {
         if ((uid1 == (*request)->GetUid()) && !CheckPermission()) {
             request = requestsList->erase(request);
         } else {

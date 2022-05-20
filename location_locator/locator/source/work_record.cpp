@@ -150,23 +150,23 @@ bool WorkRecord::Add(int uid, int pid, std::string name)
         pids_.insert(pids_.begin(), pid);
         names_.insert(names_.begin(), name);
         num_++;
-    } else {
-        int i = 0;
-        for (auto it = uids_.begin(); it != uids_.end(); it++, i++) {
-            if (*it == uid) {
-                int diff = name.compare(names_[i]);
-                if (diff == 0) {
-                    return false;
-                } else {
-                    break;
-                }
+        return true;
+    }
+    int i = 0;
+    for (auto it = uids_.begin(); it != uids_.end(); it++, i++) {
+        if (*it == uid) {
+            int diff = name.compare(names_[i]);
+            if (diff == 0) {
+                return false;
+            } else {
+                break;
             }
         }
-        uids_.insert(uids_.begin() + i, uid);
-        pids_.insert(pids_.begin() + i, pid);
-        names_.insert(names_.begin() + i, name);
-        num_++;
     }
+    uids_.insert(uids_.begin() + i, uid);
+    pids_.insert(pids_.begin() + i, pid);
+    names_.insert(names_.begin() + i, name);
+    num_++;
     return true;
 }
 
