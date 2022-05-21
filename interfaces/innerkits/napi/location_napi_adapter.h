@@ -115,7 +115,7 @@ public:
     int locationSize;
 
     CachedAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), locationSize(0), enable(false) {}
+        : AsyncContext(env, work, deferred), enable(false), locationSize(0) {}
 
     CachedAsyncContext() = delete;
 
@@ -128,7 +128,7 @@ public:
     std::unique_ptr<LocationCommand> command;
 
     CommandAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), command(nullptr), enable(false) {}
+        : AsyncContext(env, work, deferred), enable(false), command(nullptr) {}
 
     CommandAsyncContext() = delete;
 
