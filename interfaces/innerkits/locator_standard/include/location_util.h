@@ -92,6 +92,7 @@ void SatelliteStatusToJs(const napi_env& env, const std::unique_ptr<SatelliteSta
 bool GeoAddressesToJsObj(const napi_env& env,
     std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult);
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
+void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig);
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<CachedGnssLocationsRequest>& request);
