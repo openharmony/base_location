@@ -101,12 +101,8 @@ public:
     LocationPrivacyType type;
     bool isConfirmed;
 
-    PrivacyAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred)
-        {
-            type = LocationPrivacyType::OTHERS;
-            isConfirmed = false;
-        }
+    PrivacyAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), type(LocationPrivacyType::OTHERS), isConfirmed(false) {}
 
     PrivacyAsyncContext() = delete;
 
@@ -118,12 +114,8 @@ public:
     bool enable;
     int locationSize;
 
-    CachedAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred)
-        {
-            locationSize = 0;
-            enable = false;
-        }
+    CachedAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), enable(false), locationSize(0) {}
 
     CachedAsyncContext() = delete;
 
@@ -135,12 +127,8 @@ public:
     bool enable;
     std::unique_ptr<LocationCommand> command;
 
-    CommandAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred)
-        {
-            command = nullptr;
-            enable = false;
-        }
+    CommandAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), enable(false), command(nullptr) {}
 
     CommandAsyncContext() = delete;
 
@@ -152,8 +140,8 @@ public:
     MessageParcel reverseGeoCodeRequest;
     std::list<std::shared_ptr<GeoAddress>> replyList;
 
-    ReverseGeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred) {}
+    ReverseGeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
 
     ReverseGeoCodeAsyncContext() = delete;
 
@@ -165,8 +153,8 @@ public:
     MessageParcel geoCodeRequest;
     std::list<std::shared_ptr<GeoAddress>> replyList;
 
-    GeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred) {}
+    GeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
 
     GeoCodeAsyncContext() = delete;
 
