@@ -40,9 +40,6 @@ public:
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
-private:
-    static pid_t lastCallingPid;
-    static pid_t lastCallingUid;
 };
 } // namespace Location
 } // namespace OHOS
