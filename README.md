@@ -251,7 +251,7 @@
 
 **进行坐标和地理编码信息的相互转化开发步骤如下：**
 
-> ![icon-note.gif](public_sys-resources/icon-note.gif) **说明：**
+> **说明：**
 > GeoConvert需要访问后端服务，请确保设备联网，以进行信息获取。
 
 1. 导入geolocation模块，所有与（逆）地理编码转化能力相关的功能API，都是通过该模块提供的。

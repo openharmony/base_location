@@ -41,9 +41,6 @@ class GeoConvertServiceStub : public IRemoteStub<IGeoConvert> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-private:
-    static pid_t lastCallingPid;
-    static pid_t lastCallinguid;
 };
 } // namespace OHOS
 } // namespace Location
