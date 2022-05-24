@@ -35,6 +35,7 @@ public:
     bool Send(int switchState);
     void OnSwitchChange(int switchState) override;
     void DeleteHandler();
+    void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
     pid_t m_lastCallingPid;
     pid_t m_lastCallingUid;

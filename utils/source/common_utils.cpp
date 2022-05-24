@@ -14,10 +14,7 @@
  */
 
 #include "common_utils.h"
-
 #include <map>
-#include <thread>
-
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
