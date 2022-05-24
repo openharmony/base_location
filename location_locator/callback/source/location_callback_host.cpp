@@ -14,7 +14,6 @@
  */
 
 #include "location_callback_host.h"
-#include <string>
 #include "if_system_ability_manager.h"
 #include "ipc_file_descriptor.h"
 #include "ipc_skeleton.h"

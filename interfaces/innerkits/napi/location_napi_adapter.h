@@ -96,6 +96,42 @@ public:
     virtual ~SwitchAsyncContext() {}
 };
 
+class NmeaAsyncContext : public AsyncContext {
+public:
+    std::string msg;
+
+    NmeaAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), msg("") {}
+
+    NmeaAsyncContext() = delete;
+
+    virtual ~NmeaAsyncContext() {}
+};
+
+class GnssStatusAsyncContext : public AsyncContext {
+public:
+    std::shared_ptr<SatelliteStatus> statusInfo;
+
+    GnssStatusAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), statusInfo(nullptr) {}
+
+    GnssStatusAsyncContext() = delete;
+
+    virtual ~GnssStatusAsyncContext() {}
+};
+
+class CachedLocationAsyncContext : public AsyncContext {
+public:
+    std::vector<std::shared_ptr<Location>> locationList;
+
+    CachedLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
+
+    CachedLocationAsyncContext() = delete;
+
+    virtual ~CachedLocationAsyncContext() {}
+};
+
 class PrivacyAsyncContext : public AsyncContext {
 public:
     LocationPrivacyType type;

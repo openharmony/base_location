@@ -91,6 +91,11 @@ void NetworkAbility::SelfRequest(bool state)
     HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
 }
 
+void NetworkAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+{
+    LBSLOGE(NETWORK, "enter RequestRecord");
+}
+
 void NetworkAbility::SaDumpInfo(std::string& result)
 {
     result += "Network Location enable status: true";

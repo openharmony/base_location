@@ -27,15 +27,14 @@ const int SECOND_TO_MILLISECOND = 1000;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    LBSLOGI(REPORT_MANAGER, "receive location : %{public}s - %{private}s",
-        abilityName.c_str(), location->ToString().c_str());
+    LBSLOGI(REPORT_MANAGER, "receive location : %{public}s", abilityName.c_str());
     DelayedSingleton<FusionController>::GetInstance()->FuseResult(abilityName, location);
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
     auto requestMap = locatorAbility->GetRequests();
-    if (requestMap->empty()) {
+    if (requestMap == nullptr) {
         return false;
     }
     auto requestListIter = requestMap->find(abilityName);
