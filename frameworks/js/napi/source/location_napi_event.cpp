@@ -206,14 +206,14 @@ void GenRequestConfig(napi_env env, const napi_value* argv,
     size_t& nonCallbackArgNum, std::unique_ptr<RequestConfig>& requestConfig)
 {
     if (nonCallbackArgNum > 0) {
-        JsObjToLocationRequest(env, argv[nonCallbackArgNum - 1], requestConfig);
+        JsObjToCurrentLocationRequest(env, argv[nonCallbackArgNum - 1], requestConfig);
     } else {
         requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
         requestConfig->SetScenario(SCENE_UNSET);
-        requestConfig->SetTimeInterval(1);
-        requestConfig->SetDistanceInterval(0);
         requestConfig->SetMaxAccuracy(0);
     }
+    requestConfig->SetTimeInterval(1);
+    requestConfig->SetDistanceInterval(0);
     requestConfig->SetFixNumber(1);
 }
 
@@ -249,9 +249,6 @@ napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value
     if (g_singleLocatorCallbackHost->m_handlerCb != nullptr || g_singleLocatorCallbackHost->m_deferred != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
         UnSubscribeLocationChange(g_singleLocatorCallback);
-        if (g_singleLocatorCallbackHost->m_handlerCb != nullptr) {
-            g_singleLocatorCallbackHost->DeleteHandler();
-        }
     }
     g_singleLocatorCallbackHost->m_env = env;
     g_singleLocatorCallbackHost->m_fixNumber = 1;
