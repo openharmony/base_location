@@ -371,6 +371,10 @@ void GnssAbility::NmeaCallback(int64_t timestamp, const char* nmea, int length)
 
 bool GnssAbility::NativeInit()
 {
+    if (nativeInitFlag_) {
+        LBSLOGI(GNSS, "gnss module already initialized");
+        return true;
+    }
     LBSLOGI(GNSS, "NativeInit");
     handle = dlopen(VENDOR_GNSS_ADAPTER_SO_PATH, RTLD_LAZY);
     if (!handle) {
@@ -392,10 +396,13 @@ bool GnssAbility::NativeInit()
     if (ret != 0) {
         LBSLOGE(GNSS, "Error, failed to init\n");
         dlclose(handle);
+        g_gpsInterface = nullptr;
         return false;
     }
     nativeInitFlag_ = true;
     LBSLOGI(GNSS, "Successfully enable_gnss!");
+    unsigned int sleepTime = 2 * 1000 * 1000;
+    usleep(sleepTime); // sleep for 2 second.
     return true;
 }
 
@@ -411,15 +418,7 @@ void GnssAbility::NativeClear()
 
 void GnssAbility::NativeStart()
 {
-    unsigned int sleepTime = 2 * 1000 * 1000;
-    if (!nativeInitFlag_) {
-        if (!NativeInit()) {
-            LBSLOGE(GNSS, "init failed.");
-            return;
-        }
-        LBSLOGD(GNSS, "init succ.");
-        usleep(sleepTime); // sleep for 2 second.
-    }
+    NativeInit();
     if (g_gpsInterface == nullptr) {
         LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
         return;
