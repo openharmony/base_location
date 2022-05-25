@@ -113,21 +113,6 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             SendCommand(locationCommand);
             break;
         }
-        case REPORT_GNSS_SESSION_STATUS: {
-            int status = data.ReadInt32();
-            ReportGnssSessionStatus(status);
-            break;
-        }
-        case REPORT_NMEA: {
-            std::string nmea = data.ReadString();
-            ReportNmea(nmea);
-            break;
-        }
-        case REPORT_SV: {
-            std::unique_ptr<SatelliteStatus> sv = SatelliteStatus::Unmarshalling(data);
-            ReportSv(sv);
-            break;
-        }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }

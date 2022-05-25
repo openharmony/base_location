@@ -16,7 +16,7 @@
 #include <string>
 #include "common_utils.h"
 #include "geo_address.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "request_config.h"
 #include "securec.h"
 #include "string_ex.h"
@@ -114,6 +114,15 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt64(env, "timeSinceBoot", locationInfo->GetTimeSinceBoot(), result);
     SetValueUtf8String(env, "additions", "GNSS", result);
     SetValueInt64(env, "additionSize", 1, result);
+}
+
+void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result)
+{
+    SetValueDouble(env, "longitude", locationInfo->GetLongitude(), result);
+    SetValueDouble(env, "latitude", locationInfo->GetLatitude(), result);
+    SetValueDouble(env, "altitude", locationInfo->GetAltitude(), result);
+    SetValueDouble(env, "accuracy", locationInfo->GetAccuracy(), result);
+    SetValueInt64(env, "time", locationInfo->GetTimeStamp(), result);
 }
 
 bool GeoAddressesToJsObj(const napi_env& env,
@@ -233,7 +242,7 @@ void JsObjToCommand(const napi_env& env, const napi_value& object,
     std::string command = "";
     JsObjectToInt(env, object, "scenario", value);
     commandConfig->scenario = value;
-    JsObjectToString(env, object, "command", MAX_BUF_LEN, command);
+    JsObjectToString(env, object, "command", MAX_BUF_LEN, command); // max bufLen
     commandConfig->command = command;
 }
 
@@ -254,7 +263,6 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
     JsObjectToDouble(env, object, "minLongitude", minLongitude);
     JsObjectToDouble(env, object, "maxLatitude", maxLatitude);
     JsObjectToDouble(env, object, "maxLongitude", maxLongitude);
-
     if (minLatitude < MIN_LATITUDE || minLatitude > MAX_LATITUDE) {
         return false;
     }
@@ -295,7 +303,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     JsObjectToDouble(env, object, "latitude", latitude);
     JsObjectToDouble(env, object, "longitude", longitude);
     JsObjectToInt(env, object, "maxItems", maxItems);
-    JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale);
+    JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale); // max bufLen
 
     if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
         return false;

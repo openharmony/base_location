@@ -17,7 +17,7 @@
 
 #include "fusion_controller.h"
 #include "i_locator_callback.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator_ability.h"
 
 namespace OHOS {

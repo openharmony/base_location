@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_REQUEST_CONFIGRATION_H
-#define OHOS_LOCATION_REQUEST_CONFIGRATION_H
+#ifndef REQUEST_CONFIG_H
+#define REQUEST_CONFIG_H
 
 #include <parcel.h>
 #include <string>
@@ -101,6 +101,6 @@ private:
     int fixNumber_;
     int priority_;
 };
-} // Location
-} // OHOS
-#endif // OHOS_LOCATION_REQUEST_CONFIGRATION_H
+} // namespace Location
+} // namespace OHOS
+#endif // REQUEST_CONFIG_H

@@ -255,127 +255,6 @@ int LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
     return error;
 }
 
-int LocatorProxy::ReportGnssSessionStatus(int status)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
-    }
-    data.WriteInt32(status);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "ReportGnssSessionStatus remote is null");
-        return EXCEPTION;
-    }
-    int error = remote->SendRequest(REPORT_GNSS_SESSION_STATUS, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportGnssSessionStatus Transact ErrCodes = %{public}d", error);
-    return error;
-}
-
-int LocatorProxy::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
-    }
-    if (sv != nullptr) {
-        sv->Marshalling(data);
-    }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "ReportSvStatus remote is null");
-        return EXCEPTION;
-    }
-    int error = remote->SendRequest(REPORT_SV, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportSvStatus Transact ErrCodes = %{public}d", error);
-    return error;
-}
-
-int LocatorProxy::ReportNmea(const std::string &nmea)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
-    }
-    data.WriteString(nmea);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "ReportNmea remote is null");
-        return EXCEPTION;
-    }
-    int error = remote->SendRequest(REPORT_NMEA, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportNmea Transact ErrCodes = %{public}d", error);
-    return error;
-}
-
-int LocatorProxy::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
-    }
-    data.WriteString(abilityName);
-    if (location != nullptr) {
-        location->Marshalling(data);
-    }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "ReportLocation remote is null");
-        return EXCEPTION;
-    }
-    int error = remote->SendRequest(REPORT_LOCATION, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportLocation Transact ErrCodes = %{public}d", error);
-    return error;
-}
-
-int LocatorProxy::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
-    }
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    data.WriteInt32(result);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "ReportLocationStatus remote is null");
-        return EXCEPTION;
-    }
-    int error = remote->SendRequest(REPORT_LOCATION_STATUS, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportLocationStatus Transact ErrCodes = %{public}d", error);
-    return error;
-}
-
-int LocatorProxy::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
-    }
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    data.WriteInt32(result);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "ReportErrorStatus remote is null");
-        return EXCEPTION;
-    }
-    int error = remote->SendRequest(REPORT_ERROR_STATUS, data, reply, option);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ReportErrorStatus Transact ErrCodes = %{public}d", error);
-    return error;
-}
-
 int LocatorProxy::GetCacheLocation(MessageParcel &data, MessageParcel &reply)
 {
     if (!data.WriteInterfaceToken(GetDescriptor())) {
@@ -437,7 +316,7 @@ int LocatorProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel &r
     return error;
 }
 
-bool LocatorProxy::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
+bool LocatorProxy::IsLocationPrivacyConfirmed(const int type)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -451,7 +330,7 @@ bool LocatorProxy::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
         LBSLOGE(LOCATOR_STANDARD, "IsLocationPrivacyConfirmed remote is null");
         return EXCEPTION;
     }
-    data.WriteInt32(CommonUtils::GetPrivacyType(type));
+    data.WriteInt32(type);
     int error = remote->SendRequest(IS_PRIVACY_COMFIRMED, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::IsLocationPrivacyConfirmed Transact ErrCode = %{public}d", error);
     bool state = false;
@@ -462,7 +341,7 @@ bool LocatorProxy::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
     return state;
 }
 
-void LocatorProxy::SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed)
+void LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -470,7 +349,7 @@ void LocatorProxy::SetLocationPrivacyConfirmStatus(const LocationPrivacyType typ
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    data.WriteInt32(CommonUtils::GetPrivacyType(type));
+    data.WriteInt32(type);
     data.WriteBool(isConfirmed);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {

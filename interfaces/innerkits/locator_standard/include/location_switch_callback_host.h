@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_SWITCH_CALLBACK_HOST_H
-#define OHOS_LOCATION_SWITCH_CALLBACK_HOST_H
+#ifndef LOCATION_SWITCH_CALLBACK_HOST_H
+#define LOCATION_SWITCH_CALLBACK_HOST_H
 
 #include <shared_mutex>
 #include "i_switch_callback.h"
@@ -47,4 +47,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_SWITCH_CALLBACK_HOST_H
+#endif // LOCATION_SWITCH_CALLBACK_HOST_H

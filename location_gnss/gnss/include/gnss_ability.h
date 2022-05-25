@@ -13,19 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GNSS_ABILITY_H
-#define OHOS_LOCATION_GNSS_ABILITY_H
+#ifndef GNSS_ABILITY_H
+#define GNSS_ABILITY_H
 
 #include <mutex>
 #include <singleton.h>
 #include "i_gnss_status_callback.h"
 #include "i_nmea_message_callback.h"
+#include "i_cached_locations_callback.h"
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
-
 #include "common_utils.h"
 #include "gnss_ability_skeleton.h"
 #include "gnss_vendor.h"
+#include "locator_ability.h"
 #include "subability_common.h"
 
 namespace OHOS {
@@ -68,11 +69,11 @@ public:
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    void ReportGnssSessionStatus(int status) override;
-    void ReportNmea(const std::string &nmea) override;
-    void ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
+    void ReportGnssSessionStatus(int status);
+    void ReportNmea(const std::string &nmea);
+    void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
 
-    void RequestRecord(sptr<LocationCallbackStub> addCallback, WorkRecord &workRecord, bool isAdded) override;
+    void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void NativeStart();
     void NativeStop();
     bool NativeInit();
@@ -94,4 +95,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_GNSS_ABILITY_H
+#endif // GNSS_ABILITY_H

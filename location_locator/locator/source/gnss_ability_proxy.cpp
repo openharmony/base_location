@@ -15,7 +15,7 @@
 
 #include "gnss_ability_proxy.h"
 #include "ipc_skeleton.h"
-#include "lbs_log.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {
@@ -294,62 +294,6 @@ void GnssAbilityProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     }
     int error = remote->SendRequest(ISubAbility::REMOVE_FENCE_INFO, data, reply, option);
     LBSLOGD(GNSS, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
-}
-
-void GnssAbilityProxy::ReportGnssSessionStatus(int status)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
-    data.WriteInt32(status);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(GNSS, "ReportGnssSessionStatus remote is null");
-        return;
-    }
-    int error = remote->SendRequest(REPORT_GNSS_SESSION_STATUS, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::ReportGnssSessionStatus Transact ErrCodes = %{public}d", error);
-}
-
-void GnssAbilityProxy::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
-    if (sv != nullptr) {
-        sv->Marshalling(data);
-    }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(GNSS, "ReportSvStatus remote is null");
-        return;
-    }
-    int error = remote->SendRequest(REPORT_SV, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::ReportSvStatus Transact ErrCodes = %{public}d", error);
-}
-
-void GnssAbilityProxy::ReportNmea(const std::string &nmea)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
-    data.WriteString(nmea);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(GNSS, "ReportNmea remote is null");
-        return;
-    }
-    int error = remote->SendRequest(REPORT_NMEA, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::ReportNmea Transact ErrCodes = %{public}d", error);
 }
 } // namespace Location
 } // namespace OHOS

@@ -16,7 +16,7 @@
 
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 #include "location_util.h"
 
@@ -94,7 +94,7 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& l
         return false;
     }
     context->env = m_env;
-    context->callback[0] = m_handlerCb;
+    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
     context->locationList = locations;
     work->data = context;
     UvQueueWork(loop, work);

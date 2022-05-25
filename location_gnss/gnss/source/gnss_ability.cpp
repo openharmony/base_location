@@ -20,7 +20,7 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_dumper.h"
 
 #include "gnss_status_callback_proxy.h"
@@ -30,9 +30,6 @@ namespace OHOS {
 namespace Location {
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     DelayedSingleton<GnssAbility>::GetInstance().get());
-sptr<LocationCallbackStub> g_gnssLocationCallback = new (std::nothrow) LocationCallbackStub(GNSS_ABILITY);
-sptr<LocationCallbackStub> g_passiveLocationCallback = new (std::nothrow) LocationCallbackStub(PASSIVE_ABILITY);
-
 GnssBasicCallbackIfaces g_gnssBasicCb = {
     .size = sizeof(GnssBasicCallbackIfaces),
     .locationUpdate = GnssAbility::LocationUpdate,
@@ -250,13 +247,9 @@ void GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
     }
 }
 
-void GnssAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGE(GNSS, "enter RequestRecord");
-    if (callback == nullptr) {
-        LBSLOGE(GNSS, "callback is  nullptr!");
-        return;
-    }
     if (isAdded) {
         NativeStart();
     } else {
@@ -311,8 +304,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 void GnssAbility::LocationUpdate(GnssLocation* location)
 {
     std::unique_ptr<Location> locationNew = std::make_unique<Location>();
-    if (location == nullptr || locationNew == nullptr
-        || g_gnssLocationCallback == nullptr || g_passiveLocationCallback == nullptr) {
+    if (location == nullptr || locationNew == nullptr) {
         LBSLOGE(GNSS, "LocationUpdate : location or callback is nullptr");
         return;
     }
@@ -325,24 +317,24 @@ void GnssAbility::LocationUpdate(GnssLocation* location)
     locationNew->SetDirection(0);
     locationNew->SetTimeStamp(location->timestamp);
     locationNew->SetTimeSinceBoot(location->timestampSinceBoot);
-    g_gnssLocationCallback->OnLocationUpdate(locationNew);
-    g_passiveLocationCallback->OnLocationUpdate(locationNew);
+    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
+    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
 }
 
 void GnssAbility::StatusCallback(uint16_t* status)
 {
-    if (status == nullptr || g_gnssLocationCallback == nullptr) {
+    if (status == nullptr) {
         LBSLOGE(GNSS, "StatusCallback: param is nullptr");
         return;
     }
     LBSLOGI(GNSS, "StatusCallback, status : %{public}d", *status);
-    g_gnssLocationCallback->OnStatusUpdate(*status);
+    DelayedSingleton<GnssAbility>::GetInstance().get()->ReportGnssSessionStatus(*status);
 }
 
 void GnssAbility::SvStatusCallback(GnssSatelliteStatus* svInfo)
 {
     std::unique_ptr<SatelliteStatus> svStatus = std::make_unique<SatelliteStatus>();
-    if (svInfo == nullptr || g_gnssLocationCallback == nullptr || svStatus == nullptr) {
+    if (svInfo == nullptr || svStatus == nullptr) {
         LBSLOGE(GNSS, "SvStatusCallback, sv_info is null!");
         return;
     }
@@ -364,17 +356,17 @@ void GnssAbility::SvStatusCallback(GnssSatelliteStatus* svInfo)
         svStatus->SetCarrierToNoiseDensity(svInfo->satellitesList[i].cn0);
         svStatus->SetSatelliteId(svInfo->satellitesList[i].satelliteId);
     }
-    g_gnssLocationCallback->OnSvStatusUpdate(svStatus);
+    DelayedSingleton<GnssAbility>::GetInstance().get()->ReportSv(svStatus);
 }
 
 void GnssAbility::NmeaCallback(int64_t timestamp, const char* nmea, int length)
 {
-    if (nmea == nullptr || g_gnssLocationCallback == nullptr) {
+    if (nmea == nullptr) {
         LBSLOGE(GNSS, "StatusCallback: param is nullptr");
         return;
     }
     std::string nmeaStr = nmea;
-    g_gnssLocationCallback->OnNmeaUpdate(timestamp, nmeaStr);
+    DelayedSingleton<GnssAbility>::GetInstance().get()->ReportNmea(nmeaStr);
 }
 
 bool GnssAbility::NativeInit()

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GNSS_ABILITY_PROXY_H
-#define OHOS_LOCATION_GNSS_ABILITY_PROXY_H
+#ifndef GNSS_ABILITY_PROXY_H
+#define GNSS_ABILITY_PROXY_H
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -41,19 +41,14 @@ public:
     void RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) override;
     void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
-
     int GetCachedGnssLocationsSize() override;
     void FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-
-    void ReportGnssSessionStatus(int status) override;
-    void ReportNmea(const std::string &nmea) override;
-    void ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_GNSS_ABILITY_PROXY_H
+#endif // GNSS_ABILITY_PROXY_H

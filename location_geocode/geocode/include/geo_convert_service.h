@@ -13,17 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GEO_CONVERT_SERVICE_H
-#define OHOS_LOCATION_GEO_CONVERT_SERVICE_H
+#ifndef GEO_CONVERT_SERVICE_H
+#define GEO_CONVERT_SERVICE_H
 
 #include <mutex>
 #include <singleton.h>
-
 #include "geo_convert_skeleton.h"
-
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
-
 #include "common_utils.h"
 
 namespace OHOS {
@@ -56,4 +53,4 @@ private:
 };
 } // namespace OHOS
 } // namespace Location
-#endif // OHOS_LOCATION_GEO_CONVERT_SERVICE_H
+#endif // GEO_CONVERT_SERVICE_H

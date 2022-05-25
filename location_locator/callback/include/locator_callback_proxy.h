@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_LOCATOR_CALLBACK_PROXY_H
-#define OHOS_LOCATION_LOCATOR_CALLBACK_PROXY_H
+#ifndef LOCATOR_CALLBACK_PROXY_H
+#define LOCATOR_CALLBACK_PROXY_H
 
 #include "i_locator_callback.h"
-
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 
@@ -41,10 +40,7 @@ public:
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
-private:
-    static pid_t lastCallingPid;
-    static pid_t lastCallingUid;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_LOCATOR_CALLBACK_PROXY_H
+#endif // LOCATOR_CALLBACK_PROXY_H

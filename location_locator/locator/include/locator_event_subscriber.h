@@ -13,27 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_LOCATOR_EVENT_SUBSCRIBER_H
-#define LOCATION_LOCATOR_EVENT_SUBSCRIBER_H
+#ifndef LOCATOR_EVENT_SUBSCRIBER_H
+#define LOCATOR_EVENT_SUBSCRIBER_H
 
 #include <string>
-
 #include "common_event_manager.h"
-
 #include "locator_skeleton.h"
 
 namespace OHOS {
 namespace Location {
 const std::string MODE_CHANGED_EVENT = "usual.event.location.MODE_STATE_CHANGED";
-
 class LocatorEventSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
 public:
     LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
     ~LocatorEventSubscriber();
     virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
-private:
-    std::unique_ptr<LocatorProxy> proxyLocator_;
 };
-} // Location
-} // OHOS
-#endif // LOCATION_LOCATOR_EVENT_SUBSCRIBER_H
+} // namespace Location
+} // namespace OHOS
+#endif // LOCATOR_EVENT_SUBSCRIBER_H

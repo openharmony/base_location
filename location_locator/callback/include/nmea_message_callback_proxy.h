@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_NMEA_MESSAGE_CALLBACK_PROXY_H
-#define OHOS_NMEA_MESSAGE_CALLBACK_PROXY_H
+#ifndef NMEA_MESSAGE_CALLBACK_PROXY_H
+#define NMEA_MESSAGE_CALLBACK_PROXY_H
 
 #include "iremote_proxy.h"
 #include "i_nmea_message_callback.h"
@@ -31,4 +31,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_NMEA_MESSAGE_CALLBACK_PROXY_H
+#endif // NMEA_MESSAGE_CALLBACK_PROXY_H

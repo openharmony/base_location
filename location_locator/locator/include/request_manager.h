@@ -13,23 +13,21 @@
  * limitations under the License.
  */
 
+#ifndef REQUEST_MANAGER_H
+#define REQUEST_MANAGER_H
+
 #include <list>
 #include <map>
 #include <mutex>
 #include <singleton.h>
 #include <string>
-
 #include "iremote_stub.h"
 #include "nocopyable.h"
-
 #include "gnss_ability_proxy.h"
 #include "network_ability_proxy.h"
 #include "passive_ability_proxy.h"
 #include "request.h"
 #include "work_record.h"
-
-#ifndef BASE_REQUEST_MANAGER_H
-#define BASE_REQUEST_MANAGER_H
 
 namespace OHOS {
 namespace Location {
@@ -45,7 +43,7 @@ public:
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
 private:
-    bool RestorRequest(std::shared_ptr<Request> newRequest);
+    bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
     void DeleteRequestRecord(std::shared_ptr<std::list<std::shared_ptr<Request>>> requests);
     void HandleRequest(std::string abilityName);
@@ -60,4 +58,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // BASE_REQUEST_MANAGER_H
+#endif // REQUEST_MANAGER_H

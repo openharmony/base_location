@@ -14,16 +14,14 @@
  */
 
 #include "geo_convert_service_test.h"
-
 #include <string>
-
 #include "common_utils.h"
 #include "geo_convert_service.h"
 #include "geo_convert_skeleton.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "parameters.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
@@ -34,7 +32,7 @@ using namespace OHOS::Location;
 
 void GeoConvertServiceTest::SetUp()
 {
-    /**
+    /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
     sptr<ISystemAbilityManager> systemAbilityManager =
@@ -49,7 +47,7 @@ void GeoConvertServiceTest::SetUp()
 
 void GeoConvertServiceTest::TearDown()
 {
-    /**
+    /*
      * @tc.teardown: release memory.
      */
     proxy_ = nullptr;
@@ -68,7 +66,7 @@ bool GeoConvertServiceTest::Available()
     return result;
 }
 
-/**
+/*
  * @tc.name: GeoConvertAvailable001
  * @tc.desc: Check location system ability whether available.
  * @tc.type: FUNC
@@ -79,7 +77,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
         return;
     }
 
-    /**
+    /*
      * @tc.steps: step1. Call system ability and check whether available.
      * @tc.expected: step1. system ability is available.
      */
@@ -87,7 +85,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
     EXPECT_EQ(true, result);
 }
 
-/**
+/*
  * @tc.name: GeoAddressByCoordinate001
  * @tc.desc: Test get address from system ability by coordinate.
  * @tc.type: FUNC
@@ -98,7 +96,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
         return;
     }
 
-    /**
+    /*
      * @tc.steps: step1.read test data.
      */
     MessageParcel dataParcel;
@@ -112,7 +110,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
     dataParcel.WriteString16(Str8ToStr16("")); // description
     dataParcel.WriteString16(Str8ToStr16("test")); // package name
 
-    /**
+    /*
      * @tc.steps: step2. test get address by coordinate.
      * @tc.expected: step2. no exception head info.
      */
@@ -125,7 +123,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
     EXPECT_TRUE(ret);
 }
 
-/**
+/*
  * @tc.name: GetAddressByLocationName001
  * @tc.desc: Test get address from system ability by location name.
  * @tc.type: FUNC
@@ -136,7 +134,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
         return;
     }
 
-    /**
+    /*
      * @tc.steps: step1.read test data.
      */
     MessageParcel dataParcel;
@@ -153,7 +151,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
     dataParcel.WriteString16(Str8ToStr16("")); // description
     dataParcel.WriteString16(u"ohos"); // package name
 
-    /**
+    /*
      * @tc.steps: step2. test get address by location's name.
      * @tc.expected: step2. no exception head info.
      */

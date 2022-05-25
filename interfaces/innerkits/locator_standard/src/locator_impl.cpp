@@ -15,7 +15,7 @@
 #include "locator_impl.h"
 #include "common_utils.h"
 #include "iservice_registry.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -94,7 +94,7 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
 
 bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterSwitchCallback(callback, 10001);
+    client_->RegisterSwitchCallback(callback, DEFAULT_UID);
     return true;
 }
 
@@ -106,7 +106,7 @@ bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 
 bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterGnssStatusCallback(callback, 10001);
+    client_->RegisterGnssStatusCallback(callback, DEFAULT_UID);
     return true;
 }
 
@@ -118,7 +118,7 @@ bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callba
 
 bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterNmeaMessageCallback(callback, 10001);
+    client_->RegisterNmeaMessageCallback(callback, DEFAULT_UID);
     return true;
 }
 
@@ -196,13 +196,13 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
     }
 }
 
-bool LocatorImpl::IsLocationPrivacyConfirmed(const LocationPrivacyType type)
+bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationPrivacyConfirmed()");
     return client_->IsLocationPrivacyConfirmed(type);
 }
 
-void LocatorImpl::SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed)
+void LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationPrivacyConfirmStatus()");
     client_->SetLocationPrivacyConfirmStatus(type, isConfirmed);

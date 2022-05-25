@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_UTIL_H_
-#define LOCATION_UTIL_H_
+#ifndef LOCATION_UTIL_H
+#define LOCATION_UTIL_H
 
 #include <chrono>
 #include <condition_variable>
@@ -36,18 +36,12 @@
 
 namespace OHOS {
 namespace Location {
-constexpr int32_t PARAM0 = 0;
-constexpr int32_t PARAM1 = 1;
-constexpr int32_t PARAM2 = 2;
-constexpr int32_t PARAM3 = 3;
-constexpr size_t RESULT_SIZE = 2;
-
 class AsyncContext {
 public:
     napi_env env;
     napi_async_work work;
     napi_deferred deferred;
-    napi_ref callback[2] = { 0 };
+    napi_ref callback[3] = { 0 };
     std::function<void(void*)> executeFunc;
     std::function<void(void*)> completeFunc;
     napi_value resourceName;
@@ -81,7 +75,6 @@ public:
     napi_value m_jsEvent;
     JsContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), m_env(nullptr), m_handlerCb(nullptr), m_jsEvent(nullptr) {}
-
     virtual ~JsContext() {}
 };
 
@@ -89,6 +82,7 @@ napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result);
 void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result);
+void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 bool GeoAddressesToJsObj(const napi_env& env,
     std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult);
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
@@ -119,4 +113,4 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
 }  // namespace Location
 }  // namespace OHOS
 
-#endif
+#endif // LOCATION_UTIL_H

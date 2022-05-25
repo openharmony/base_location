@@ -20,7 +20,7 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_dumper.h"
 
 namespace OHOS {
@@ -91,7 +91,7 @@ void NetworkAbility::SelfRequest(bool state)
     HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
 }
 
-void NetworkAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGE(NETWORK, "enter RequestRecord");
 }

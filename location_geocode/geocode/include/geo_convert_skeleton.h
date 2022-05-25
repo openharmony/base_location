@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GEO_CONVERT_SKELETON_H
-#define OHOS_LOCATION_GEO_CONVERT_SKELETON_H
+#ifndef GEO_CONVERT_SKELETON_H
+#define GEO_CONVERT_SKELETON_H
 
 #include "iremote_broker.h"
 #include "iremote_proxy.h"
@@ -41,10 +41,7 @@ class GeoConvertServiceStub : public IRemoteStub<IGeoConvert> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-private:
-    static pid_t lastCallingPid;
-    static pid_t lastCallinguid;
 };
 } // namespace OHOS
 } // namespace Location
-#endif // OHOS_LOCATION_GEO_CONVERT_SKELETON_H
+#endif // GEO_CONVERT_SKELETON_H

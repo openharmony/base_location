@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_GNSS_STATUS_CALLBACK_HOST_H
-#define OHOS_GNSS_STATUS_CALLBACK_HOST_H
+#ifndef GNSS_STATUS_CALLBACK_HOST_H
+#define GNSS_STATUS_CALLBACK_HOST_H
 
 #include <shared_mutex>
 #include "i_gnss_status_callback.h"
@@ -46,4 +46,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_GNSS_STATUS_CALLBACK_HOST_H
+#endif // GNSS_STATUS_CALLBACK_HOST_H

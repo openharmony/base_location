@@ -18,7 +18,7 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_dumper.h"
 
 namespace OHOS {
@@ -84,7 +84,7 @@ void PassiveAbility::SetEnable(bool state)
     Enable(state, AsObject());
 }
 
-void PassiveAbility::RequestRecord(sptr<LocationCallbackStub> callback, WorkRecord &workRecord, bool isAdded)
+void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGE(PASSIVE, "enter RequestRecord");
 }

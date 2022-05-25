@@ -15,9 +15,6 @@
 
 #include "location_napi_adapter.h"
 
-using namespace OHOS;
-using namespace OHOS::Location;
-
 namespace OHOS {
 namespace Location {
 std::unique_ptr<Locator> g_locatorPtr = Locator::GetInstance(LOCATION_LOCATOR_SA_ID);
@@ -310,11 +307,10 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
 
     int type;
     napi_get_value_int32(env, argv[0], &type);
-    asyncContext->type = CommonUtils::GetPrivacyTypeByInt(type);
+    asyncContext->type = type;
     asyncContext->executeFunc = [&](void* data) -> void {
         PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);
         context->isConfirmed = g_locatorPtr->IsLocationPrivacyConfirmed(context->type);
-
         context->errCode = SUCCESS;
     };
 
@@ -343,7 +339,7 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
 
     int type;
     napi_get_value_int32(env, argv[0], &type);
-    asyncContext->type = CommonUtils::GetPrivacyTypeByInt(type);
+    asyncContext->type = type;
     napi_get_value_bool(env, argv[1], &asyncContext->isConfirmed);
     asyncContext->executeFunc = [&](void* data) -> void {
         PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);

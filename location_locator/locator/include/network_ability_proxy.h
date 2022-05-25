@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_NETWORK_ABILITY_PROXY_H
-#define OHOS_LOCATION_NETWORK_ABILITY_PROXY_H
+#ifndef NETWORK_ABILITY_PROXY_H
+#define NETWORK_ABILITY_PROXY_H
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -37,4 +37,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_NETWORK_ABILITY_PROXY_H
+#endif // NETWORK_ABILITY_PROXY_H

@@ -16,7 +16,7 @@
 #include "nmea_message_callback_proxy.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "lbs_log.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {
