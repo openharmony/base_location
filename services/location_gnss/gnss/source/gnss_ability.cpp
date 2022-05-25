@@ -401,7 +401,7 @@ bool GnssAbility::NativeInit()
 
 void GnssAbility::NativeClear()
 {
-    if (g_gpsInterface == nullptr) {
+    if (g_gpsInterface == nullptr || !nativeInitFlag_) {
         LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
         return;
     }
@@ -434,7 +434,7 @@ void GnssAbility::NativeStart()
 
 void GnssAbility::NativeStop()
 {
-    if (g_gpsInterface == nullptr) {
+    if (g_gpsInterface == nullptr || !nativeInitFlag_) {
         LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
         return;
     }
