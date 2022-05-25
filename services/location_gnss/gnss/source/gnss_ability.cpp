@@ -373,7 +373,7 @@ bool GnssAbility::NativeInit()
 {
     if (nativeInitFlag_) {
         LBSLOGI(GNSS, "gnss module already initialized");
-        return false;
+        return true;
     }
     LBSLOGI(GNSS, "NativeInit");
     handle = dlopen(VENDOR_GNSS_ADAPTER_SO_PATH, RTLD_LAZY);
