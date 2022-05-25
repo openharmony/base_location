@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_LOCATOR_SERVICE_TEST_H
-#define LOCATION_LOCATOR_SERVICE_TEST_H
+#ifndef LOCATOR_SERVICE_TEST_H
+#define LOCATOR_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
-
 #include "locator_background_proxy.h"
 #include "locator_callback_proxy.h"
 #include "locator_skeleton.h"
+#include "locator_proxy.h"
 
 class LocatorServiceTest : public testing::Test {
 public:
@@ -34,4 +34,4 @@ public:
     std::shared_ptr<OHOS::Location::LocatorBackgroundProxy> backgroundProxy_;
     std::shared_ptr<OHOS::Location::Request> request_;
 };
-#endif // LOCATION_LOCATOR_SERVICE_TEST_H
+#endif // LOCATOR_SERVICE_TEST_H

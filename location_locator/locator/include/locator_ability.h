@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_LOCATOR_ABILITY_H
-#define OHOS_LOCATION_LOCATOR_ABILITY_H
+#ifndef LOCATOR_ABILITY_H
+#define LOCATOR_ABILITY_H
 
 #include <map>
 #include <mutex>
@@ -77,8 +77,8 @@ public:
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) override;
 
-    bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) override;
-    void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) override;
+    bool IsLocationPrivacyConfirmed(const int type) override;
+    void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
 
     int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) override;
@@ -90,14 +90,11 @@ public:
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
 
-    int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName) override;
-    int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result) override;
-    int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result) override;
+    int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
+    int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
+    int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-    int ReportGnssSessionStatus(int status) override;
-    int ReportNmea(const std::string &nmea) override;
-    int ReportSv(const std::unique_ptr<SatelliteStatus> &sv) override;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> GetProxyMap();
@@ -128,4 +125,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_LOCATOR_ABILITY_H
+#endif // LOCATOR_ABILITY_H

@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef BASE_REPORT_MANAGER_H
-#define BASE_REPORT_MANAGER_H
+#ifndef REPORT_MANAGER_H
+#define REPORT_MANAGER_H
 
 #include <map>
 #include <memory>
 #include <list>
-
 #include "iremote_broker.h"
-
 #include "location.h"
 #include "request.h"
 
@@ -36,4 +34,4 @@ public:
 };
 } // namespace OHOS
 } // namespace Location
-#endif // BASE_REPORT_MANAGER_H
+#endif // REPORT_MANAGER_H

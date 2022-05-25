@@ -19,15 +19,8 @@
 #include <atomic>
 #include <mutex>
 #include <fstream>
-#include <sstream>
 #include <string>
-#include <vector>
-
-#include <constant_definition.h>
-
-constexpr int STATE_OPEN = 1;
-constexpr int STATE_CLOSE = 0;
-constexpr int32_t PER_USER_RANGE = 100000;
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -36,21 +29,21 @@ public:
     ~LocationConfigManager();
     static LocationConfigManager &GetInstance();
 
-    /**
+    /*
      * @Description Init the LocationConfigManager object
      *
      * @return int - init result, when 0 means success, other means some fails happened
      */
     int Init();
 
-    /**
+    /*
      * @Description Get current location switch state
      *
      * @return int - the location switch state, open/close
      */
     int GetLocationSwitchState();
 
-    /**
+    /*
      * @Description set location switch state
      *
      * @param state - the location switch state
@@ -61,9 +54,9 @@ public:
     bool IsExistFile(const std::string& filename);
     bool CreateFile(const std::string& filename, const std::string& filedata);
 
-    std::string GetPrivacyTypeConfigPath(const LocationPrivacyType type);
-    bool GetPrivacyTypeState(const LocationPrivacyType type);
-    void SetPrivacyTypeState(const LocationPrivacyType type, bool isConfirmed);
+    std::string GetPrivacyTypeConfigPath(const int type);
+    bool GetPrivacyTypeState(const int type);
+    void SetPrivacyTypeState(const int type, bool isConfirmed);
 
 private:
     LocationConfigManager();

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_CACHED_LOCATIONS_CALLBACK_PROXY_H
-#define OHOS_CACHED_LOCATIONS_CALLBACK_PROXY_H
+#ifndef CACHED_LOCATIONS_CALLBACK_PROXY_H
+#define CACHED_LOCATIONS_CALLBACK_PROXY_H
 
 #include "iremote_proxy.h"
 #include "i_cached_locations_callback.h"
@@ -31,4 +31,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_CACHED_LOCATIONS_CALLBACK_PROXY_H
+#endif // CACHED_LOCATIONS_CALLBACK_PROXY_H

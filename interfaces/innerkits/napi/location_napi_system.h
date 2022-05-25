@@ -13,27 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef I_GNSS_STATUS_CALLBACK_H
-#define I_GNSS_STATUS_CALLBACK_H
+#ifndef LOCATION_NAPI_SYSTEM_H
+#define LOCATION_NAPI_SYSTEM_H
 
-#include "iremote_broker.h"
-#include "ipc_types.h"
-#include "satellite_status.h"
+#include "napi/native_api.h"
 
 namespace OHOS {
 namespace Location {
-class IGnssStatusCallback : public IRemoteBroker {
-public:
-    enum {
-        RECEIVE_STATUS_INFO_EVENT = 1,
-    };
+napi_value GetLocation(napi_env env, napi_callback_info cbinfo);
+napi_value GetLocationType(napi_env env, napi_callback_info cbinfo);
+napi_value Subscribe(napi_env env, napi_callback_info cbinfo);
+napi_value Unsubscribe(napi_env env, napi_callback_info cbinfo);
+napi_value GetSupportedCoordTypes(napi_env env, napi_callback_info cbinfo);
+}  // namespace Location
+}  // namespace OHOS
 
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssStatusCallback");
-    /*
-     * status info report to kits
-     */
-    virtual void OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo) = 0;
-};
-} // namespace Location
-} // namespace OHOS
-#endif // I_GNSS_STATUS_CALLBACK_H
+#endif // LOCATION_NAPI_SYSTEM_H

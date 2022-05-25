@@ -15,7 +15,7 @@
 
 #include "location_dumper.h"
 #include <functional>
-#include "lbs_log.h"
+#include "location_log.h"
 namespace OHOS {
 namespace Location {
 const std::string ARGS_HELP = "-h";

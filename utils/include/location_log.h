@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_LOG_H
-#define OHOS_LOCATION_LOG_H
+#ifndef LOCATION_LOG_H
+#define LOCATION_LOG_H
 
 #include "hilog/log.h"
 
@@ -76,4 +76,4 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_NAPI = {LOG_CORE, LOCATOR_
 #endif
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_LOG_H
+#endif // LOCATION_LOG_H

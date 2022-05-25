@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_NMEA_MESSAGE_CALLBACK_HOST_H
-#define OHOS_NMEA_MESSAGE_CALLBACK_HOST_H
+#ifndef NMEA_MESSAGE_CALLBACK_HOST_H
+#define NMEA_MESSAGE_CALLBACK_HOST_H
 
 #include <shared_mutex>
 #include <string>
@@ -47,4 +47,4 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_NMEA_MESSAGE_CALLBACK_HOST_H
+#endif // NMEA_MESSAGE_CALLBACK_HOST_H

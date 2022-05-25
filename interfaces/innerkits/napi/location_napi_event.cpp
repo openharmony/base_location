@@ -18,7 +18,7 @@
 #include "constant_definition.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 #include "location_util.h"
 #include "locator.h"
@@ -249,9 +249,6 @@ napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value
     if (g_singleLocatorCallbackHost->m_handlerCb != nullptr || g_singleLocatorCallbackHost->m_deferred != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
         UnSubscribeLocationChange(g_singleLocatorCallback);
-        if (g_singleLocatorCallbackHost->m_handlerCb != nullptr) {
-            g_singleLocatorCallbackHost->DeleteHandler();
-        }
     }
     g_singleLocatorCallbackHost->m_env = env;
     g_singleLocatorCallbackHost->m_fixNumber = 1;
@@ -352,11 +349,13 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
             sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
         if (locatorCallbackHost != nullptr) {
             g_registerLocatorInfo.insert(std::make_pair(handlerRef, locatorCallbackHost));
-            SubscribeLocationChange(env, argv[1], argv[PARAM2], 0, locatorCallbackHost);
+            // argv[1]:request params, argv[2]:handler
+            SubscribeLocationChange(env, argv[PARAM1], argv[PARAM2], PARAM0, locatorCallbackHost);
         }
     } else if (event == "gnssStatusChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        napi_create_reference(env, argv[PARAM1], 1, &handlerRef);
+        // the second params should be handler
+        napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef);
         for (auto iter = g_registerGnssStatusInfo.begin(); iter != g_registerGnssStatusInfo.end(); iter++) {
             napi_value handlerTemp = nullptr;
             napi_get_reference_value(env, iter->first, &handlerTemp);
@@ -370,11 +369,12 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
             sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
         if (gnssCallbackHost != nullptr) {
             g_registerGnssStatusInfo.insert(std::make_pair(handlerRef, gnssCallbackHost));
-            SubscribeGnssStatus(env, argv[1], gnssCallbackHost);
+            SubscribeGnssStatus(env, argv[PARAM1], gnssCallbackHost);
         }
     } else if (event == "nmeaMessageChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        napi_create_reference(env, argv[PARAM1], 1, &handlerRef);
+        // the second params should be handler
+        napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef);
         for (auto iter = g_registerNmeaMessageInfo.begin(); iter != g_registerNmeaMessageInfo.end(); iter++) {
             napi_value handlerTemp = nullptr;
             napi_get_reference_value(env, iter->first, &handlerTemp);
@@ -396,7 +396,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
             LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
             return result;
         }
-        napi_create_reference(env, argv[PARAM2], 1, &handlerRef);
+        // the third params should be handler
+        napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef);
         for (auto iter = g_registerCachedInfo.begin(); iter != g_registerCachedInfo.end(); iter++) {
             napi_value handlerTemp = nullptr;
             napi_get_reference_value(env, iter->first, &handlerTemp);
@@ -426,7 +427,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
 
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = 2; // expected two param
+    size_t argc = PARAM2;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = 0;
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
@@ -527,7 +528,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 {
     size_t requireArgc = 0;
-    size_t argc = 3; // expected 3 params
+    size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = 0;
     napi_value result = nullptr;
@@ -540,13 +541,13 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
     LBSLOGI(LOCATION_NAPI, "GetCurrentLocation enter");
 
     if (argc == PARAM1) {
-        napi_typeof(env, argv[0], &valueType);
+        napi_typeof(env, argv[PARAM0], &valueType);
         NAPI_ASSERT(env, valueType == napi_function || valueType == napi_object, "type mismatch for parameter 2");
     }
     if (argc == PARAM2) {
         napi_valuetype valueType1 = napi_undefined;
-        napi_typeof(env, argv[0], &valueType);
-        napi_typeof(env, argv[1], &valueType1);
+        napi_typeof(env, argv[PARAM0], &valueType);
+        napi_typeof(env, argv[PARAM1], &valueType1);
         NAPI_ASSERT(env, valueType == napi_object, "type mismatch for parameter 1");
         NAPI_ASSERT(env, valueType1 == napi_function, "type mismatch for parameter 2");
     }

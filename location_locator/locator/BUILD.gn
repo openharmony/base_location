@@ -20,7 +20,6 @@ ohos_shared_library("lbsservice_locator") {
   sources = [
     "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/location_callback_host.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",

@@ -13,16 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_LOCATOREVENTMANAGER_H
-#define LOCATION_LOCATOREVENTMANAGER_H
+#ifndef LOCATOR_EVENT_MANAGER_H
+#define LOCATOR_EVENT_MANAGER_H
 
 #include <iostream>
 #include <map>
 #include <singleton.h>
 #include <string>
-
 #include "event_handler.h"
-
 #include "request.h"
 
 namespace OHOS {
@@ -78,4 +76,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_LOCATOREVENTMANAGER_H
+#endif // LOCATOR_EVENT_MANAGER_H

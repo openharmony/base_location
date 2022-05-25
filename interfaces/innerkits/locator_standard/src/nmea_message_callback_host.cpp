@@ -16,7 +16,7 @@
 
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "location_napi_adapter.h"
 #include "napi/native_api.h"
 
@@ -99,7 +99,7 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
         return false;
     }
     context->env = m_env;
-    context->callback[0] = m_handlerCb;
+    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
     context->msg = msg;
     work->data = context;
     UvQueueWork(loop, work);

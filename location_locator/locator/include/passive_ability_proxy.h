@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_PASSIVE_ABILITY_PROXY_H
-#define OHOS_LOCATION_PASSIVE_ABILITY_PROXY_H
+#ifndef PASSIVE_ABILITY_PROXY_H
+#define PASSIVE_ABILITY_PROXY_H
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
-
 #include "passive_ability_skeleton.h"
 
 namespace OHOS {
@@ -36,4 +35,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_PASSIVE_ABILITY_PROXY_H
+#endif // PASSIVE_ABILITY_PROXY_H

@@ -23,7 +23,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "fusion_controller.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"

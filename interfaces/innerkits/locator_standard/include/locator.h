@@ -12,13 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_LOCATOR_H
-#define OHOS_LOCATOR_H
+#ifndef LOCATOR_H
+#define LOCATOR_H
 
 #include <list>
-
 #include "iremote_object.h"
-
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "i_cached_locations_callback.h"
@@ -62,9 +60,9 @@ public:
 
     virtual void GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
 
-    virtual bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) = 0;
+    virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
 
-    virtual void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) = 0;
+    virtual void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
 
     virtual bool RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
     virtual bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;

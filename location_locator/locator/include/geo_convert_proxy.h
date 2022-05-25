@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GEO_CONVERT_PROXY_H
-#define OHOS_LOCATION_GEO_CONVERT_PROXY_H
+#ifndef GEO_CONVERT_PROXY_H
+#define GEO_CONVERT_PROXY_H
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
-
 #include "common_utils.h"
 #include "geo_convert_skeleton.h"
 
@@ -37,4 +36,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_LOCATION_GEO_CONVERT_PROXY_H
+#endif // GEO_CONVERT_PROXY_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_GNSS_STATUS_CALLBACK_PROXY_H
-#define OHOS_GNSS_STATUS_CALLBACK_PROXY_H
+#ifndef GNSS_STATUS_CALLBACK_PROXY_H
+#define GNSS_STATUS_CALLBACK_PROXY_H
 
 #include "iremote_proxy.h"
 #include "i_gnss_status_callback.h"
@@ -31,4 +31,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // OHOS_GNSS_STATUS_CALLBACK_PROXY_H
+#endif // GNSS_STATUS_CALLBACK_PROXY_H

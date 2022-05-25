@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "locator.h"
-#include "lbs_log.h"
+#include "location_log.h"
 #include "locator_impl.h"
 
 namespace OHOS {

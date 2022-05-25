@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCATION_GEOCONVERT_UNITTEST
-#define OHOS_LOCATION_GEOCONVERT_UNITTEST
+#ifndef GEO_CONVERT_SERVICE_TEST_H
+#define GEO_CONVERT_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
 #include "geo_convert_skeleton.h"
@@ -28,4 +28,5 @@ public:
     OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
     bool available_;
 };
-#endif
+
+#endif // GEO_CONVERT_SERVICE_TEST_H

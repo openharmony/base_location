@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_LOCATOR_IMPL_H
-#define OHOS_LOCATOR_IMPL_H
+#ifndef LOCATOR_IMPL_H
+#define LOCATOR_IMPL_H
 
 #include "constant_definition.h"
 #include "i_cached_locations_callback.h"
@@ -49,8 +49,8 @@ public:
     bool IsGeoServiceAvailable() override;
     void GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
     void GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
-    bool IsLocationPrivacyConfirmed(const LocationPrivacyType type) override;
-    void SetLocationPrivacyConfirmStatus(const LocationPrivacyType type, bool isConfirmed) override;
+    bool IsLocationPrivacyConfirmed(const int type) override;
+    void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
     int GetCachedGnssLocationsSize() override;
     bool FlushCachedGnssLocations() override;
     bool SendCommand(std::unique_ptr<LocationCommand>& commands) override;
@@ -62,4 +62,4 @@ private:
 };
 }  // namespace Location
 }  // namespace OHOS
-#endif
+#endif // LOCATOR_IMPL_H
