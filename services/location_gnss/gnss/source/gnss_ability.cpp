@@ -65,7 +65,9 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 GnssAbility::~GnssAbility()
 {
     NativeClear();
-    dlclose(handle_);
+    if (handle_ != nullptr) {
+        dlclose(handle_);
+    }
 }
 
 void GnssAbility::OnStart()
@@ -376,7 +378,7 @@ bool GnssAbility::NativeInit()
     }
     LBSLOGI(GNSS, "NativeInit");
     handle_ = dlopen(VENDOR_GNSS_ADAPTER_SO_PATH, RTLD_LAZY);
-    if (!handle_) {
+    if (handle_ == nullptr) {
         LBSLOGE(GNSS, "dlopen failed : %{public}s", dlerror());
         return false;
     }
@@ -396,6 +398,7 @@ bool GnssAbility::NativeInit()
         LBSLOGE(GNSS, "Error, failed to init\n");
         dlclose(handle_);
         gnssInterface_ = nullptr;
+        handle_ = nullptr;
         return false;
     }
     LBSLOGI(GNSS, "Successfully enable_gnss!");
