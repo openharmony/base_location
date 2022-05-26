@@ -309,7 +309,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen);
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
-    bool isEqual = false;
     napi_ref handlerRef = nullptr;
     if (event == "locationServiceState") {
         // expect for 2 params
