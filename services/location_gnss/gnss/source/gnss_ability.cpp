@@ -57,16 +57,17 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     gnssStatusCallback_ = std::make_unique<std::map<pid_t, sptr<IGnssStatusCallback>>>();
     nmeaCallback_ = std::make_unique<std::map<pid_t, sptr<INmeaMessageCallback>>>();
     SetAbility(GNSS_ABILITY);
-    nativeInitFlag_ = false;
-    handle = nullptr;
-    g_gpsInterface = nullptr;
+    handle_ = nullptr;
+    gnssInterface_ = nullptr;
     LBSLOGI(GNSS, "ability constructed.");
 }
 
 GnssAbility::~GnssAbility()
 {
     NativeClear();
-    dlclose(handle);
+    if (handle_ != nullptr) {
+        dlclose(handle_);
+    }
 }
 
 void GnssAbility::OnStart()
@@ -371,60 +372,59 @@ void GnssAbility::NmeaCallback(int64_t timestamp, const char* nmea, int length)
 
 bool GnssAbility::NativeInit()
 {
+    if (gnssInterface_ != nullptr) {
+        LBSLOGI(GNSS, "gnss module already initialized");
+        return true;
+    }
     LBSLOGI(GNSS, "NativeInit");
-    handle = dlopen(VENDOR_GNSS_ADAPTER_SO_PATH, RTLD_LAZY);
-    if (!handle) {
+    handle_ = dlopen(VENDOR_GNSS_ADAPTER_SO_PATH, RTLD_LAZY);
+    if (handle_ == nullptr) {
         LBSLOGE(GNSS, "dlopen failed : %{public}s", dlerror());
         return false;
     }
     dlerror();
-    GnssVendorDevice* gnssDevice = static_cast<GnssVendorDevice*>(dlsym(handle, "GnssInterface"));
+    GnssVendorDevice* gnssDevice = static_cast<GnssVendorDevice*>(dlsym(handle_, "GnssInterface"));
     if (gnssDevice == nullptr) {
         LBSLOGE(GNSS, "dlsym failed : %{public}s", dlerror());
         return false;
     }
-    g_gpsInterface = const_cast<GnssVendorInterface*>(gnssDevice->get_gnss_interface());
-    if (g_gpsInterface == nullptr) {
+    gnssInterface_ = const_cast<GnssVendorInterface*>(gnssDevice->get_gnss_interface());
+    if (gnssInterface_ == nullptr) {
         LBSLOGE(GNSS, "get_gnss_interface failed.");
         return false;
     }
-    int ret = g_gpsInterface->enable_gnss(&g_callbacks);
+    int ret = gnssInterface_->enable_gnss(&g_callbacks);
     if (ret != 0) {
         LBSLOGE(GNSS, "Error, failed to init\n");
-        dlclose(handle);
+        dlclose(handle_);
+        gnssInterface_ = nullptr;
+        handle_ = nullptr;
         return false;
     }
-    nativeInitFlag_ = true;
     LBSLOGI(GNSS, "Successfully enable_gnss!");
+    unsigned int sleepTime = 2 * 1000 * 1000;
+    usleep(sleepTime); // sleep for 2 second.
     return true;
 }
 
 void GnssAbility::NativeClear()
 {
-    if (g_gpsInterface == nullptr) {
-        LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
+    if (gnssInterface_ == nullptr) {
+        LBSLOGD(GNSS, "Error, gnssInterface_ is null!");
         return;
     }
-    g_gpsInterface->disable_gnss();
+    gnssInterface_->disable_gnss();
     LBSLOGD(GNSS, "disable_gnss succ.");
 }
 
 void GnssAbility::NativeStart()
 {
-    unsigned int sleepTime = 2 * 1000 * 1000;
-    if (!nativeInitFlag_) {
-        if (!NativeInit()) {
-            LBSLOGE(GNSS, "init failed.");
-            return;
-        }
-        LBSLOGD(GNSS, "init succ.");
-        usleep(sleepTime); // sleep for 2 second.
-    }
-    if (g_gpsInterface == nullptr) {
-        LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
+    NativeInit();
+    if (gnssInterface_ == nullptr) {
+        LBSLOGD(GNSS, "Error, gnssInterface_ is null!");
         return;
     }
-    int ret = g_gpsInterface->start_gnss(1);
+    int ret = gnssInterface_->start_gnss(1);
     if (ret != 0) {
         LBSLOGD(GNSS, "Error, failed to start!");
         return;
@@ -434,11 +434,11 @@ void GnssAbility::NativeStart()
 
 void GnssAbility::NativeStop()
 {
-    if (g_gpsInterface == nullptr) {
-        LBSLOGD(GNSS, "Error, g_gpsInterface is null!");
+    if (gnssInterface_ == nullptr) {
+        LBSLOGD(GNSS, "Error, gnssInterface_ is null!");
         return;
     }
-    int ret = g_gpsInterface->stop_gnss(1);
+    int ret = gnssInterface_->stop_gnss(1);
     if (ret != 0) {
         LBSLOGD(GNSS, "Error, failed to stop!");
         return;

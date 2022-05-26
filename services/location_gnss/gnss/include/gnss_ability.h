@@ -83,13 +83,13 @@ public:
     static void NmeaCallback(int64_t timestamp, const char* nmea, int length);
     static void SvStatusCallback(GnssSatelliteStatus* svInfo);
 private:
-    bool nativeInitFlag_;
-    void* handle;
-    GnssVendorInterface* g_gpsInterface;
-    std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
-    std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     bool Init();
     static void SaDumpInfo(std::string& result);
+
+    void* handle_;
+    GnssVendorInterface* gnssInterface_;
+    std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
+    std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
 };

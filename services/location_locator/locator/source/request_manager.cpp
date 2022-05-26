@@ -102,7 +102,7 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
             continue;
         }
         if (newConfig->IsSame(*requestConfig)) {
-            request->SetRequestConfig(*requestConfig);
+            request->SetRequestConfig(*newConfig);
             LBSLOGI(REQUEST_MANAGER, "find same type request, update request configuration");
             return false;
         }
