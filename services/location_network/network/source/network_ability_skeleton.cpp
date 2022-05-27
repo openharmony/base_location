@@ -28,10 +28,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
     LBSLOGI(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
-    if (lastCallinguid > SYSTEM_UID) {
-        LBSLOGE(NETWORK, "this remote request is not allowed");
-        return EXCEPTION;
-    }
+
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(NETWORK, "invalid token.");
         return EXCEPTION;
