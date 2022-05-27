@@ -21,6 +21,7 @@
 #include "constant_definition.h"
 #include "location_log.h"
 #include "locator_ability.h"
+#include "os_account_manager.h"
 #include "request_manager.h"
 
 namespace OHOS {
@@ -278,7 +279,9 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
 
 int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
 {
-    return uid / PER_USER_RANGE;
+    int userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    return userId;
 }
 
 void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)

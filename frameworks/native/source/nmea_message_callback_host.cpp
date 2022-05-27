@@ -47,11 +47,7 @@ int NmeaMessageCallbackHost::OnRemoteRequest(
         LBSLOGD(NMEA_MESSAGE_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
-    int uid = IPCSkeleton::GetCallingUid();
-    if (uid > SYSTEM_UID) {
-        LBSLOGE(NMEA_MESSAGE_CALLBACK, "invalid uid!");
-        return false;
-    }
+
     switch (code) {
         case RECEIVE_NMEA_MESSAGE_EVENT: {
             std::string msg = Str16ToStr8(data.ReadString16());

@@ -26,10 +26,7 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
     LBSLOGI(PASSIVE, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
-    if (lastCallinguid > SYSTEM_UID) {
-        LBSLOGE(PASSIVE, "this remote request is not allowed");
-        return EXCEPTION;
-    }
+
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
         return EXCEPTION;
