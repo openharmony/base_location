@@ -49,11 +49,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
         LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
         return -1;
     }
-    int uid = IPCSkeleton::GetCallingUid();
-    if (uid > SYSTEM_UID) {
-        LBSLOGE(LOCATOR_CALLBACK, "invalid uid!");
-        return -1;
-    }
+
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
