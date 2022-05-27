@@ -21,7 +21,6 @@
 #include "constant_definition.h"
 #include "location.h"
 #include "location_util.h"
-#include "locator_callback_host.h"
 #include "message_parcel.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -196,20 +195,6 @@ public:
     GeoCodeAsyncContext() = delete;
 
     virtual ~GeoCodeAsyncContext() {}
-};
-
-class CurrentLocationAsyncContext : public AsyncContext {
-public:
-    int timeout;
-    std::unique_ptr<RequestConfig> requestConfig;
-    sptr<LocatorCallbackHost> requesCallback;
-
-    CurrentLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), timeout(0), requestConfig(nullptr), requesCallback(nullptr) {}
-
-    CurrentLocationAsyncContext() = delete;
-
-    virtual ~CurrentLocationAsyncContext() {}
 };
 }  // namespace Location
 }  // namespace OHOS
