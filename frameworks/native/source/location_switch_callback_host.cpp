@@ -48,11 +48,7 @@ int LocationSwitchCallbackHost::OnRemoteRequest(
         LBSLOGD(SWITCH_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
-    int uid = IPCSkeleton::GetCallingUid();
-    if (uid > SYSTEM_UID) {
-        LBSLOGE(SWITCH_CALLBACK, "invalid uid!");
-        return -1;
-    }
+
     switch (code) {
         case RECEIVE_SWITCH_STATE_EVENT: {
             OnSwitchChange(data.ReadInt32());

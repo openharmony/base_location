@@ -99,7 +99,6 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         ret = SECURITY_EXCEPTION;
         return ret;
     }
-    std::string identity = IPCSkeleton::ResetCallingIdentity();
     switch (code) {
         case REG_GNSS_STATUS_CALLBACK: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
@@ -245,7 +244,6 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    IPCSkeleton::SetCallingIdentity(identity);
     return ret;
 }
 
@@ -263,7 +261,6 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
             return ret;
         }
     }
-    std::string identity = IPCSkeleton::ResetCallingIdentity();
     switch (code) {
         case GET_SWITCH_STATE: {
             reply.WriteInt32(GetSwitchState());
@@ -291,7 +288,6 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
         default:
             ret = MSG_UNPROCESSED;
     }
-    IPCSkeleton::SetCallingIdentity(identity);
     return ret;
 }
 
@@ -300,7 +296,6 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     int ret = REPLY_NO_EXCEPTION;
-    std::string identity = IPCSkeleton::ResetCallingIdentity();
     switch (code) {
         case UPDATE_SA_ABILITY: {
             if (!CommonUtils::CheckSystemCalling(callingUid)) {
@@ -313,7 +308,6 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
         default:
             ret = MSG_UNPROCESSED;
     }
-    IPCSkeleton::SetCallingIdentity(identity);
     return ret;
 }
 

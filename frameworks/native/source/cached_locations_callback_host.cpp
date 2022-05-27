@@ -45,11 +45,7 @@ int CachedLocationsCallbackHost::OnRemoteRequest(
         LBSLOGD(CACHED_LOCATIONS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
-    int uid = IPCSkeleton::GetCallingUid();
-    if (uid > SYSTEM_UID) {
-        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "invalid uid!");
-        return false;
-    }
+
     switch (code) {
         case RECEIVE_CACHED_LOCATIONS_EVENT: {
             int size = data.ReadInt32();
