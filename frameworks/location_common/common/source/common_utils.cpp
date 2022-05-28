@@ -21,6 +21,7 @@
 #include "ipc_types.h"
 #include "iservice_registry.h"
 #include "parameters.h"
+#include "os_account_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -153,6 +154,22 @@ std::string CommonUtils::InitDeviceId()
 {
     std::string deviceId;
     return deviceId;
+}
+
+bool CommonUtils::GetCurrentUserId(int &userId)
+{
+    std::vector<int> activeIds;
+    int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
+    if (ret != 0) {
+        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds failed ret:%{public}d", ret);
+        return false;
+    }
+    if (activeIds.empty()) {
+        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
+        return false;
+    }
+    userId = activeIds[0];
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

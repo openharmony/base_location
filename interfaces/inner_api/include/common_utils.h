@@ -95,6 +95,7 @@ public:
     static bool CheckPermission(const std::string &permission);
     static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
+    static bool GetCurrentUserId(int &userId);
 };
 } // namespace Location
 } // namespace OHOS
