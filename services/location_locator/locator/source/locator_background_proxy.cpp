@@ -21,7 +21,6 @@
 #include "constant_definition.h"
 #include "location_log.h"
 #include "locator_ability.h"
-#include "os_account_manager.h"
 #include "request_manager.h"
 
 namespace OHOS {
@@ -195,7 +194,7 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
 {
     std::lock_guard lock(requestListMutex_);
     pid_t uid1 = uid;
-    auto userId = GetUserId(uid);
+    auto userId = GetUserId();
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
         return;
@@ -216,7 +215,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
     if (request == nullptr) {
         return;
     }
-    auto userId = GetUserId(request->GetUid());
+    auto userId = GetUserId();
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
         return;
@@ -277,10 +276,13 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
-int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
+int32_t LocatorBackgroundProxy::GetUserId() const
 {
     int userId = 0;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    bool ret = CommonUtils::GetCurrentUserId(int &userId);
+    if (!ret) {
+        LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
+    }
     return userId;
 }
 
@@ -310,7 +312,7 @@ void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
 bool LocatorBackgroundProxy::CheckMaxRequestNum(pid_t uid, const std::string& packageName) const
 {
     int32_t num = 0;
-    auto iter = requestsMap_->find(GetUserId(uid));
+    auto iter = requestsMap_->find(GetUserId());
     if (iter == requestsMap_->end()) {
         return false;
     }

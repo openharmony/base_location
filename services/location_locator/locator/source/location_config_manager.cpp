@@ -16,7 +16,6 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
-#include "os_account_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -86,18 +85,22 @@ bool LocationConfigManager::CreateFile(const std::string& filename, const std::s
 
 std::string LocationConfigManager::GetLocationSwitchConfigPath()
 {
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int userId = 0;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callingUid, userId);
+    bool ret = CommonUtils::GetCurrentUserId(int &userId);
+    if (!ret) {
+        LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
+    }
     std::string filePath = "/data/vendor/location/location_switch_" + std::to_string(userId) + ".conf";
     return filePath;
 }
 
 std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
 {
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
     int userId = 0;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callingUid, userId);
+    bool ret = CommonUtils::GetCurrentUserId(int &userId);
+    if (!ret) {
+        LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
+    }
     std::string filePath;
     switch (type) {
         case PRIVACY_TYPE_OTHERS: {
