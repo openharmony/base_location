@@ -55,6 +55,7 @@ ohos_shared_library("lbsservice_common") {
     "access_token:libaccesstoken_sdk",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "os_account:os_account_innerkits",
     "startup_l2:syspara",
   ]
 
