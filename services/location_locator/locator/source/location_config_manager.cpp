@@ -89,7 +89,7 @@ std::string LocationConfigManager::GetLocationSwitchConfigPath()
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     int userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callingUid, userId);
-    std::string filePath = "/data/vendor/gnss/location_switch_" + std::to_string(userId) + ".conf";
+    std::string filePath = "/data/vendor/location/location_switch_" + std::to_string(userId) + ".conf";
     return filePath;
 }
 
@@ -117,7 +117,7 @@ std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
             break;
         }
     }
-    return "/data/vendor/gnss/location_pricacy_" + filePath + std::to_string(userId) + ".conf";
+    return "/data/vendor/location/location_pricacy_" + filePath + std::to_string(userId) + ".conf";
 }
 
 int LocationConfigManager::GetLocationSwitchState()
