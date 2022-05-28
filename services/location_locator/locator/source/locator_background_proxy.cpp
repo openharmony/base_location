@@ -279,7 +279,7 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
 int32_t LocatorBackgroundProxy::GetUserId() const
 {
     int userId = 0;
-    bool ret = CommonUtils::GetCurrentUserId(int &userId);
+    bool ret = CommonUtils::GetCurrentUserId(userId);
     if (!ret) {
         LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
     }

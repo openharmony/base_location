@@ -86,7 +86,7 @@ bool LocationConfigManager::CreateFile(const std::string& filename, const std::s
 std::string LocationConfigManager::GetLocationSwitchConfigPath()
 {
     int userId = 0;
-    bool ret = CommonUtils::GetCurrentUserId(int &userId);
+    bool ret = CommonUtils::GetCurrentUserId(userId);
     if (!ret) {
         LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
     }
@@ -97,7 +97,7 @@ std::string LocationConfigManager::GetLocationSwitchConfigPath()
 std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
 {
     int userId = 0;
-    bool ret = CommonUtils::GetCurrentUserId(int &userId);
+    bool ret = CommonUtils::GetCurrentUserId(userId);
     if (!ret) {
         LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
     }
