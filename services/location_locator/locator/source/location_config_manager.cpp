@@ -90,7 +90,7 @@ std::string LocationConfigManager::GetLocationSwitchConfigPath()
     if (!ret) {
         LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
     }
-    std::string filePath = "/data/vendor/location/location_switch_" + std::to_string(userId) + ".conf";
+    std::string filePath = "/data/location/location_switch_" + std::to_string(userId) + ".conf";
     return filePath;
 }
 
@@ -120,7 +120,7 @@ std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
             break;
         }
     }
-    return "/data/vendor/location/location_pricacy_" + filePath + std::to_string(userId) + ".conf";
+    return "/data/location/location_pricacy_" + filePath + std::to_string(userId) + ".conf";
 }
 
 int LocationConfigManager::GetLocationSwitchState()
