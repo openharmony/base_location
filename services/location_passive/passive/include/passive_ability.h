@@ -41,7 +41,6 @@ public:
         return state_;
     }
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
     void SetEnable(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;

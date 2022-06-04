@@ -110,11 +110,6 @@ void GnssAbility::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
     LocationRequest(interval, workrecord);
 }
 
-std::unique_ptr<Location> GnssAbility::GetCachedLocation()
-{
-    return GetCache();
-}
-
 void GnssAbility::SetEnable(bool state)
 {
     Enable(state, AsObject());

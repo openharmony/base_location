@@ -30,7 +30,6 @@ public:
     explicit GnssAbilityProxy(const sptr<IRemoteObject> &impl);
     ~GnssAbilityProxy() = default;
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
     void SetEnable(bool state) override;
     void RemoteRequest(bool state) override;
     void RefrashRequirements() override;

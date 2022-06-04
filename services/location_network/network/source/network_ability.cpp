@@ -75,11 +75,6 @@ void NetworkAbility::SendLocationRequest(uint64_t interval, WorkRecord &workreco
     LocationRequest(interval, workrecord);
 }
 
-std::unique_ptr<Location> NetworkAbility::GetCachedLocation()
-{
-    return GetCache();
-}
-
 void NetworkAbility::SetEnable(bool state)
 {
     Enable(state, AsObject());

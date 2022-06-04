@@ -121,7 +121,7 @@ private:
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> proxyMap_;
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
-    std::unique_ptr<ReportManager> reportManager_;
+    std::shared_ptr<ReportManager> reportManager_;
 };
 } // namespace Location
 } // namespace OHOS

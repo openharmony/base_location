@@ -127,7 +127,7 @@ int LocationConfigManager::GetLocationSwitchState()
 {
     std::unique_lock<std::mutex> lock(mMutex);
     if (!IsExistFile(GetLocationSwitchConfigPath())) {
-        CreateFile(GetLocationSwitchConfigPath(), "1");
+        CreateFile(GetLocationSwitchConfigPath(), "0");
     }
     std::ifstream fs(GetLocationSwitchConfigPath());
     if (!fs.is_open()) {

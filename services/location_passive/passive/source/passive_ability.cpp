@@ -74,11 +74,6 @@ void PassiveAbility::SendLocationRequest(uint64_t interval, WorkRecord &workreco
     LocationRequest(interval, workrecord);
 }
 
-std::unique_ptr<Location> PassiveAbility::GetCachedLocation()
-{
-    return GetCache();
-}
-
 void PassiveAbility::SetEnable(bool state)
 {
     Enable(state, AsObject());

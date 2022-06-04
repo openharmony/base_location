@@ -51,7 +51,6 @@ public:
         return state_;
     }
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
     void SetEnable(bool state) override;
     void RemoteRequest(bool state) override;
     void RefrashRequirements() override;

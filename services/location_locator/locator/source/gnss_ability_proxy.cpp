@@ -39,21 +39,6 @@ void GnssAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &workre
     LBSLOGD(GNSS, "RemoteRequest Transact ErrCode = %{public}d", error);
 }
 
-std::unique_ptr<Location> GnssAbilityProxy::GetCachedLocation()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return nullptr;
-    }
-    int error = Remote()->SendRequest(ISubAbility::GET_CACHED_LOCATION, data, reply, option);
-    std::unique_ptr<Location> location = Location::Unmarshalling(reply);
-    LBSLOGD(GNSS, "GetCache Transact ErrCode = %{public}d", error);
-    return location;
-}
-
 void GnssAbilityProxy::SetEnable(bool state)
 {
     MessageParcel data;

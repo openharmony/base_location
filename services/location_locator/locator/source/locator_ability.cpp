@@ -45,7 +45,6 @@ const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_2_SECONDS = 2 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t SET_ENABLE = 3;
-const uint32_t GET_CACHED_LOCATION = 2;
 const uint32_t REG_GNSS_STATUS = 7;
 const uint32_t UNREG_GNSS_STATUS = 8;
 const uint32_t REG_NMEA = 9;
@@ -107,7 +106,7 @@ bool LocatorAbility::Init()
 
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
-    reportManager_ = std::make_unique<ReportManager>();
+    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
@@ -671,32 +670,18 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return EXCEPTION;
-        }
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
-        }
-        obj->SendRequest(GET_CACHED_LOCATION, dataToStub, replyToStub, option);
-        std::unique_ptr<Location> location = Location::Unmarshalling(replyToStub);
-        if (location == nullptr) {
-            reply.WriteInt32(EXCEPTION);
-            reply.WriteString("get no cached result");
-            LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-            return EXCEPTION;
-        }
-        if (fabs(location->GetLatitude() - 0.0) > PRECISION
-            && fabs(location->GetLongitude() - 0.0) > PRECISION) {
-            reply.WriteInt32(REPLY_NO_EXCEPTION);
-            location->Marshalling(reply);
-            return REPLY_NO_EXCEPTION;
-        }
+    sptr<Location> lastLocation = reportManager_->GetLastLocation();
+    if (lastLocation == nullptr) {
+        reply.WriteInt32(EXCEPTION);
+        reply.WriteString("get no cached result");
+        LBSLOGI(LOCATOR, "GetCacheLocation location is null");
+        return EXCEPTION;
+    }
+    if (fabs(lastLocation->GetLatitude() - 0.0) > PRECISION
+        && fabs(lastLocation->GetLongitude() - 0.0) > PRECISION) {
+        reply.WriteInt32(REPLY_NO_EXCEPTION);
+        lastLocation->Marshalling(reply);
+        return REPLY_NO_EXCEPTION;
     }
     reply.WriteInt32(EXCEPTION);
     reply.WriteString("get no cached result");
