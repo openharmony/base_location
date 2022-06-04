@@ -52,7 +52,6 @@ public:
         REPORT_NMEA = 20,
     };
     virtual void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) = 0;
-    virtual std::unique_ptr<Location> GetCachedLocation() = 0;
     virtual void SetEnable(bool state) = 0;
 };
 
@@ -62,7 +61,6 @@ public:
     virtual ~SubAbility();
     void SetAbility(std::string name);
     void LocationRequest(uint64_t interval, WorkRecord &workrecord);
-    std::unique_ptr<Location> GetCache();
     void Enable(bool state, const sptr<IRemoteObject> ability);
     void HandleSelfRequest(pid_t pid, pid_t uid, bool state);
     void HandleRemoteRequest(bool state, std::string deviceId);

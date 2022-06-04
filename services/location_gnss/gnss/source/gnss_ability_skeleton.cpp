@@ -42,13 +42,6 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             SendLocationRequest((uint64_t)interval, *workrecord);
             break;
         }
-        case GET_CACHED_LOCATION: {
-            std::unique_ptr<Location> location = GetCachedLocation();
-            if (location != nullptr) {
-                location->Marshalling(reply);
-            }
-            break;
-        }
         case SET_ENABLE: {
             SetEnable(data.ReadBool());
             break;

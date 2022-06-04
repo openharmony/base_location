@@ -100,11 +100,6 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
     }
 }
 
-std::unique_ptr<Location> SubAbility::GetCache()
-{
-    return nullptr;
-}
-
 void SubAbility::Enable(bool state, const sptr<IRemoteObject> ability)
 {
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();

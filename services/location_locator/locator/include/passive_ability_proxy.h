@@ -28,7 +28,6 @@ public:
     explicit PassiveAbilityProxy(const sptr<IRemoteObject> &impl);
     ~PassiveAbilityProxy() = default;
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
     void SetEnable(bool state) override;
 private:
     static inline BrokerDelegator<PassiveAbilityProxy> delegator_;

@@ -39,21 +39,6 @@ void NetworkAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &wor
     LBSLOGD(NETWORK, "RemoteRequest Transact ErrCode = %{public}d", error);
 }
 
-std::unique_ptr<Location> NetworkAbilityProxy::GetCachedLocation()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(NETWORK, "write interfaceToken fail!");
-        return nullptr;
-    }
-    int error = Remote()->SendRequest(ISubAbility::GET_CACHED_LOCATION, data, reply, option);
-    std::unique_ptr<Location> location = Location::Unmarshalling(reply);
-    LBSLOGD(NETWORK, "GetCache Transact ErrCode = %{public}d", error);
-    return location;
-}
-
 void NetworkAbilityProxy::SetEnable(bool state)
 {
     MessageParcel data;

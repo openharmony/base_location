@@ -29,7 +29,6 @@ public:
     explicit NetworkAbilityProxy(const sptr<IRemoteObject> &impl);
     ~NetworkAbilityProxy() = default;
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
     void SetEnable(bool state) override;
     void SelfRequest(bool state) override;
 private:
