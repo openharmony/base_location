@@ -143,7 +143,8 @@ bool ReportManager::ReportIntervalCheck(const std::unique_ptr<Location>& locatio
 
 void ReportManager::SetLastLocation(const std::unique_ptr<Location>& location)
 {
-    if (this->lastLocation_ == nullptr) {
+    if (lastLocation_ == nullptr) {
+        LBSLOGD(REPORT_MANAGER, "lastLocation_ is null ptr");
         return;
     }
     lastLocation_->SetLatitude(location->GetLatitude());
