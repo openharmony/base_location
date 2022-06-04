@@ -34,10 +34,10 @@ public:
     bool OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     bool ReportIntervalCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     bool MaxAccuracyCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
-    void SetLatestLocation(const std::unique_ptr<Location>& location);
-    sptr<Location> GetLatestLocation();
+    void SetLastLocation(const std::unique_ptr<Location>& location);
+    sptr<Location> GetLastLocation();
 private:
-    sptr<Location> latestLocation_;
+    sptr<Location> lastLocation_;
 };
 } // namespace OHOS
 } // namespace Location

@@ -27,7 +27,7 @@ const int SECOND_TO_MILLISECOND = 1000;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 ReportManager::ReportManager()
 {
-    latestLocation_ = new (std::nothrow) Location();
+    lastLocation_ = new (std::nothrow) Location();
 }
 
 ReportManager::~ReportManager() {}
@@ -36,8 +36,8 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
 {
     LBSLOGI(REPORT_MANAGER, "receive location : %{public}s", abilityName.c_str());
     DelayedSingleton<FusionController>::GetInstance()->FuseResult(abilityName, location);
-    SetLatestLocation(location);
-    LBSLOGI(REPORT_MANAGER, "after SetLatestLocation");
+    SetLastLocation(location);
+    LBSLOGI(REPORT_MANAGER, "after SetLastLocation");
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
@@ -141,24 +141,24 @@ bool ReportManager::ReportIntervalCheck(const std::unique_ptr<Location>& locatio
     return true;
 }
 
-void ReportManager::SetLatestLocation(const std::unique_ptr<Location>& location)
+void ReportManager::SetLastLocation(const std::unique_ptr<Location>& location)
 {
-    if (this->latestLocation_ == nullptr) {
+    if (this->lastLocation_ == nullptr) {
         return;
     }
-    this->latestLocation_->SetLatitude(location->GetLatitude());
-    this->latestLocation_->SetLongitude(location->GetLongitude());
-    this->latestLocation_->SetAltitude(location->GetAltitude());
-    this->latestLocation_->SetAccuracy(location->GetAccuracy());
-    this->latestLocation_->SetSpeed(location->GetSpeed());
-    this->latestLocation_->SetDirection(location->GetDirection());
-    this->latestLocation_->SetTimeStamp(location->GetTimeStamp());
-    this->latestLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
+    lastLocation_->SetLatitude(location->GetLatitude());
+    lastLocation_->SetLongitude(location->GetLongitude());
+    lastLocation_->SetAltitude(location->GetAltitude());
+    lastLocation_->SetAccuracy(location->GetAccuracy());
+    lastLocation_->SetSpeed(location->GetSpeed());
+    lastLocation_->SetDirection(location->GetDirection());
+    lastLocation_->SetTimeStamp(location->GetTimeStamp());
+    lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
 }
 
-sptr<Location> ReportManager::GetLatestLocation()
+sptr<Location> ReportManager::GetLastLocation()
 {
-    return latestLocation_;
+    return lastLocation_;
 }
 } // namespace OHOS
 } // namespace Location

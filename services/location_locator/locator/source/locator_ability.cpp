@@ -670,7 +670,7 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
 {
-    sptr<Location> lastLocation = reportManager_->GetLatestLocation();
+    sptr<Location> lastLocation = reportManager_->GetLastLocation();
     if (lastLocation == nullptr) {
         reply.WriteInt32(EXCEPTION);
         reply.WriteString("get no cached result");
