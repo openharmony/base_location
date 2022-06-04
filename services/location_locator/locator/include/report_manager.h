@@ -19,18 +19,25 @@
 #include <map>
 #include <memory>
 #include <list>
+#include <singleton.h>
 #include "iremote_broker.h"
 #include "location.h"
 #include "request.h"
 
 namespace OHOS {
 namespace Location {
-class ReportManager {
+class ReportManager : public DelayedSingleton<ReportManager>  {
 public:
+    ReportManager();
+    ~ReportManager();
     bool ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result);
     bool OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     bool ReportIntervalCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     bool MaxAccuracyCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
+    void SetLatestLocation(const std::unique_ptr<Location>& location);
+    sptr<Location> GetLatestLocation();
+private:
+    sptr<Location> latestLocation_;
 };
 } // namespace OHOS
 } // namespace Location
