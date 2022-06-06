@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_UTIL_H
-#define LOCATION_UTIL_H
+#ifndef napi_util_H
+#define napi_util_H
 
 #include <chrono>
 #include <condition_variable>
@@ -26,6 +26,7 @@
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "location.h"
+#include "location_log.h"
 #include "locator_proxy.h"
 #include "message_parcel.h"
 #include "napi/native_api.h"
@@ -78,6 +79,21 @@ public:
     virtual ~JsContext() {}
 };
 
+class CountDownLatch {
+public:
+    CountDownLatch();
+    void Wait(int time);
+    void CountDown();
+    int GetCount() const;
+    void SetCount(int count);
+private:
+    int timeout_;
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    std::atomic<int> count_;
+    std::time_t timeset_;
+};
+
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result);
@@ -110,7 +126,69 @@ napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const doub
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result);
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum);
+void WorkProcess(const napi_env& env, AsyncContext* context);
+void WorkProcessError(const napi_env& env, AsyncContext* context);
+
+#define GET_AND_THROW_NAPI_ERROR(env, message) \
+		do { \
+			const napi_extended_error_info* errorInfo = nullptr; \
+			napi_get_last_error_info((env), &errorInfo); \
+			bool isPending = false; \
+			napi_is_exception_pending((env), &isPending); \
+			if (!isPending && errorInfo != nullptr) { \
+				std::string errDesc = std::string(__FUNCTION__) + ": " + #message + " fail. "; \
+				std::string errorMessage = \
+					errorInfo->error_message != nullptr ? errorInfo->error_message : "empty error message"; \
+				errDesc += errorMessage; \
+				napi_throw_error((env), nullptr, errDesc.c_str()); \
+			} \
+		} while (0)
+
+#define CHK_NAPIOK_RETVAL(env, state, message, retVal) \
+		do { \
+			if ((state) != napi_ok) { \
+				LBSLOGE("(%{public}s) fail", #message); \
+				GET_AND_THROW_NAPI_ERROR((env), (message)); \
+				return retVal; \
+			} \
+		} while (0)
+
+#define CHK_NAPIOK_RETNULL(env, state, message) \
+		do { \
+			if ((state) != napi_ok) { \
+				LBSLOGE("(%{public}s) fail", #message); \
+				GET_AND_THROW_NAPI_ERROR((env), (message)); \
+				return nullptr; \
+			} \
+		} while (0)
+
+#define CHK_NAPIOK_RETBOOL(env, state, message) \
+		do { \
+			if ((state) != napi_ok) { \
+				LBSLOGE("(%{public}s) fail", #message); \
+				GET_AND_THROW_NAPI_ERROR((env), (message)); \
+				return false; \
+			} \
+		} while (0)
+
+#define CHK_NAPIOK_RETVOID(env, state, message) \
+		do { \
+			if ((state) != napi_ok) { \
+				LBSLOGE("(%{public}s) fail", #message); \
+				GET_AND_THROW_NAPI_ERROR((env), (message)); \
+				return; \
+			} \
+		} while (0)
+
+#define CHK_NAPIOK_CONTINUE(env, state, message) \
+		{ \
+			if ((state) != napi_ok) { \
+				LBSLOGE("(%{public}s) fail", #message); \
+				GET_AND_THROW_NAPI_ERROR((env), (message)); \
+				continue; \
+			} \
+		}
 }  // namespace Location
 }  // namespace OHOS
 
-#endif // LOCATION_UTIL_H
+#endif // napi_util_H

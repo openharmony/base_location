@@ -20,7 +20,7 @@
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
-#include "location_util.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
@@ -42,6 +42,7 @@ public:
     void DeleteSuccessHandler();
     void DeleteFailHandler();
     void DeleteCompleteHandler();
+    void InitLatch();
 
     pid_t m_lastCallingPid;
     pid_t m_lastCallingUid;
@@ -53,6 +54,7 @@ public:
     int m_fixNumber;
     napi_deferred m_deferred;
     std::shared_mutex m_mutex;
+    CountDownLatch* m_latch;
 };
 } // namespace Location
 } // namespace OHOS

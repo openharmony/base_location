@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "location_util.h"
+#include "napi_util.h"
 #include <string>
 #include "common_utils.h"
 #include "geo_address.h"
@@ -522,6 +522,40 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
     return nullptr;
 }
 
+void WorkProcess(const napi_env& env, AsyncContext* context)
+{
+    napi_value undefine;
+    napi_get_undefined(env, &undefine);
+    napi_value callback;
+    if (context->errCode != SUCCESS) {
+        napi_value message = nullptr;
+        std::string msg = "errCode is " + std::to_string(context->errCode);
+        napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
+        napi_create_error(env, nullptr, message, &context->result[PARAM0]);
+        napi_get_undefined(env, &context->result[PARAM1]);
+    } else {
+        napi_get_undefined(env, &context->result[PARAM0]);
+    }
+    napi_get_reference_value(env, context->callback[0], &callback);
+    napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+}
+
+void WorkProcessError(const napi_env& env, AsyncContext* context)
+{
+    napi_value undefine;
+    napi_get_undefined(env, &undefine);
+    napi_value callback;
+    if (context->errCode != SUCCESS) {
+        napi_value message = nullptr;
+        std::string msg = "errCode is " + std::to_string(context->errCode);
+        napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
+        napi_create_error(env, nullptr, message, &context->result[PARAM0]);
+        napi_get_undefined(env, &context->result[PARAM1]);
+        napi_get_reference_value(env, context->callback[0], &callback);
+        napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+    }
+}
+
 static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncContext)
 {
     if (asyncContext == nullptr) {
@@ -545,22 +579,8 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
                 return;
             }
             AsyncContext* context = (AsyncContext *)data;
-            napi_value undefine;
-            napi_get_undefined(env, &undefine);
-            napi_value callback;
-            context->completeFunc(data);
 
-            if (context->errCode != SUCCESS) {
-                napi_value message = nullptr;
-                std::string msg = "errCode is " + std::to_string(context->errCode);
-                napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-                napi_create_error(env, nullptr, message, &context->result[PARAM0]);
-                napi_get_undefined(env, &context->result[PARAM1]);
-            } else {
-                napi_get_undefined(env, &context->result[PARAM0]);
-            }
-            napi_get_reference_value(env, context->callback[0], &callback);
-            napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+            context->completeFunc(data);
             if (context->callback[0] != nullptr) {
                 napi_delete_reference(env, context->callback[0]);
             }
@@ -636,6 +656,50 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
         DoPromiseAsyncWork(env, asyncContext);
         return promise;
     }
+}
+
+CountDownLatch::CountDownLatch()
+{
+}
+
+void CountDownLatch::Wait(int time)
+{
+    timeout_ = time;
+    timeset_ = std::time(0);
+    LBSLOGD(LOCATOR_STANDARD, "enter wait, timeset = %{public}ld", timeset_);
+    if (count_ == 0) {
+        return;
+    }
+    std::unique_lock<std::mutex> lock(mutex_);
+    LBSLOGD(LOCATOR_STANDARD, "enter waitq");
+    condition_.wait_for(lock, std::chrono::seconds(time / 1000), [&]() {return count_ == 0; });
+}
+
+void CountDownLatch::CountDown()
+{
+    LBSLOGD(LOCATOR_STANDARD, "enter CountDown");
+    int old_c = count_.load();
+    while (old_c > 0) {
+        if (count_.compare_exchange_strong(old_c, old_c - 1)) {
+            if (old_c == 1) {
+                std::unique_lock<std::mutex> lock(mutex_);
+                LBSLOGD(LOCATOR_STANDARD, "notify_all");
+                condition_.notify_all();
+            }
+            break;
+        }
+        old_c = count_.load();
+    }
+}
+int CountDownLatch::GetCount() const
+{
+    return count_;
+}
+
+void CountDownLatch::SetCount(int count)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    count_ = count;
 }
 }  // namespace Location
 }  // namespace OHOS

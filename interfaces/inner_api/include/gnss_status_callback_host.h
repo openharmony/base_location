@@ -19,7 +19,7 @@
 #include <shared_mutex>
 #include "i_gnss_status_callback.h"
 #include "iremote_stub.h"
-#include "location_util.h"
+#include "napi_util.h"
 #include "napi/native_api.h"
 #include "satellite_status.h"
 

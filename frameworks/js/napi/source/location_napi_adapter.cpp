@@ -51,6 +51,7 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
         } else {
             LBSLOGE(LOCATOR_STANDARD, "loc is nullptr!");
         }
+        WorkProcess(context->env, context);
         LBSLOGI(LOCATOR_STANDARD, "Push last location result to client");
     };
 

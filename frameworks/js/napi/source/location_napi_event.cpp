@@ -20,7 +20,7 @@
 #include "ipc_types.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "location_util.h"
+#include "napi_util.h"
 #include "locator.h"
 #include "request_config.h"
 #include "system_ability_definition.h"
@@ -259,12 +259,45 @@ napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         g_singleLocatorCallbackHost->m_deferred = deferred;
     }
-    g_locatorPtr2->StartLocating(requestConfig, g_singleLocatorCallback);
-    if (isCallbackType) {
-        return UndefinedNapiValue(env);
-    } else {
-        return promise;
+
+    CurrentLocationAsyncContext* asyncContext = new (std::nothrow) CurrentLocationAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    napi_create_string_latin1(env, "GetCurrentLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
+    asyncContext->requestConfig = std::make_unique<RequestConfig>();
+    if (asyncContext->requestConfig == nullptr) {
+        LBSLOGI(LOCATOR_STANDARD, "asyncContext->requestConfig is null");
     }
+    GenRequestConfig(env, argv, nonCallbackArgNum, asyncContext->requestConfig);
+    asyncContext->requesCallback = g_singleLocatorCallbackHost;
+
+
+    GetTimeoutParam(env, argv, nonCallbackArgNum, asyncContext->timeout);
+
+    asyncContext->executeFunc = [&](void* data) -> void {
+        CurrentLocationAsyncContext* context = static_cast<CurrentLocationAsyncContext*>(data);
+        sptr<LocatorCallbackHost> callbackHost = context->requesCallback;
+        sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(callbackHost);
+        if (g_locatorPtr2->IsLocationEnabled()) {
+            g_locatorPtr2->StartLocating(context->requestConfig, locatorCallback);
+            callbackHost->m_latch->Wait(context->timeout);
+            g_locatorPtr2->StopLocating(locatorCallback);
+            if (callbackHost->m_latch->GetCount() != 0) {
+                context->errCode = LOCATION_REQUEST_TIMEOUT_ERROR;
+            } else {
+                context->errCode = SUCCESS;
+            }
+            callbackHost->m_latch->SetCount(1);
+        } else {
+            context->errCode = LOCATION_SWITCH_ERROR;
+        }
+    };
+
+    asyncContext->completeFunc = [&](void* data) -> void {
+        CurrentLocationAsyncContext* context = static_cast<CurrentLocationAsyncContext*>(data);
+        napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]);
+        LBSLOGI(LOCATOR_STANDARD, "Push GetCurrentLocation result to client");
+    };
+    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
 }
 
 void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback)

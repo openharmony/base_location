@@ -33,7 +33,7 @@ ohos_shared_library("locator_sdk") {
     "//base/location/frameworks/native/source/cached_locations_callback_host.cpp",
     "//base/location/frameworks/native/source/gnss_status_callback_host.cpp",
     "//base/location/frameworks/native/source/location_switch_callback_host.cpp",
-    "//base/location/frameworks/native/source/location_util.cpp",
+    "//base/location/frameworks/native/source/napi_util.cpp",
     "//base/location/frameworks/native/source/locator.cpp",
     "//base/location/frameworks/native/source/locator_callback_host.cpp",
     "//base/location/frameworks/native/source/locator_impl.cpp",

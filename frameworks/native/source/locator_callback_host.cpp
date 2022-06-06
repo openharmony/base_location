@@ -20,7 +20,7 @@
 #include "i_locator_callback.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "location_util.h"
+#include "napi_util.h"
 #include "locator.h"
 
 namespace OHOS {
@@ -36,10 +36,18 @@ LocatorCallbackHost::LocatorCallbackHost()
     m_lastCallingUid = 0;
     m_lastCallingPid = 0;
     m_fixNumber = 0;
+    InitLatch();
+}
+
+void LocatorCallbackHost::InitLatch()
+{
+    m_latch = new CountDownLatch();
+    m_latch->SetCount(1);
 }
 
 LocatorCallbackHost::~LocatorCallbackHost()
 {
+    delete m_latch;
 }
 
 int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
@@ -55,6 +63,9 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
             Send(location);
+            if (m_fixNumber == 1) {
+                m_latch->CountDown();
+            }
             break;
         }
         case RECEIVE_LOCATION_STATUS_EVENT: {
