@@ -28,8 +28,6 @@ LocationSwitchCallbackHost::LocationSwitchCallbackHost()
     m_handlerCb = nullptr;
     m_remoteDied = false;
     m_fixNumber = 0;
-    m_lastCallingPid = 0;
-    m_lastCallingUid = 0;
 }
 
 LocationSwitchCallbackHost::~LocationSwitchCallbackHost()

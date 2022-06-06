@@ -33,8 +33,6 @@ LocatorCallbackHost::LocatorCallbackHost()
     m_failHandlerCb = nullptr;
     m_completeHandlerCb = nullptr;
     m_deferred = nullptr;
-    m_lastCallingUid = 0;
-    m_lastCallingPid = 0;
     m_fixNumber = 0;
     InitLatch();
 }
@@ -175,13 +173,13 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
 {
     uv_queue_work(loop, work, [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            JsContext *context = nullptr;
+            AsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "work is nullptr");
                 return;
             }
-            context = static_cast<JsContext *>(work->data);
+            context = static_cast<AsyncContext *>(work->data);
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
                 delete work;
@@ -199,8 +197,14 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
                 napi_get_reference_value(context->env, context->callback[1], &handler);
-                if (napi_call_function(context->env, nullptr, handler, 1,
-                    &context->m_jsEvent, &undefine) != napi_ok) {
+
+				napi_value message = nullptr;
+				std::string msg = "errCode is " + std::to_string(context->errCode);
+				napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
+				context->result[PARAM0] = CreateErrorMessage(context->env, msg, context->errCode);
+				napi_get_undefined(env, &context->result[PARAM1]);
+                if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
+                    &context->result, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
                 }
             }
@@ -225,13 +229,11 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         LBSLOGE(LOCATOR_CALLBACK, "work == nullptr.");
         return false;
     }
-    JsContext *context = new (std::nothrow) JsContext(m_env);
+    AsyncContext *context = new (std::nothrow) AsyncContext(m_env);
     if (context == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return false;
     }
-    napi_value nVerrorCode;
-    napi_create_int32(m_env, errorCode, &nVerrorCode);
     context->env = m_env;
     if (isSystemGeolocationApi) {
         context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
@@ -241,7 +243,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         context->callback[SUCCESS_CALLBACK] = m_handlerCb;
         context->deferred = m_deferred;
     }
-    context->m_jsEvent = nVerrorCode;
+    context->errCode = errorCode;
     work->data = context;
     DoSendErrorCode(loop, work);
     return true;

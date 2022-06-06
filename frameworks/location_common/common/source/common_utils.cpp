@@ -171,5 +171,45 @@ bool CommonUtils::GetCurrentUserId(int &userId)
     userId = activeIds[0];
     return true;
 }
+
+void CountDownLatch::Wait(int time)
+{
+	LBSLOGD(LOCATOR_STANDARD, "enter wait, time = %{public}ld", time);
+	std::unique_lock<std::mutex> lock(mutex_);
+	if (count_ == 0)
+		LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
+		return;
+	}
+	condition_.wait_for(lock, std::chrono::seconds(time / 1000), [&](){return count_ == 0;});
+}
+
+void CountDownLatch::CountDown()
+{
+	LBSLOGD(LOCATOR_STANDARD, "enter CountDown");
+	std::unique_lock<std::mutex> lock(mutex_);
+	int old_c = count_.load();
+	while (old_c > 0) {
+		if (count_.compare_exchange_strong(old_c, old_c - 1)) {
+			if (old_c == 1) {
+				LBSLOGD(LOCATOR_STANDARD, "notify_all");
+				condition_.notify_all();
+			}
+			break;
+		}
+		old_c = count_.load();
+	}
+}
+
+int CountDownLatch::GetCount() const
+{
+	std::unique_lock<std::mutex> lock(mutex_);
+	return count_;
+}
+
+void CountDownLatch::SetCount(int count)
+{
+	std::unique_lock<std::mutex> lock(mutex_);
+	count_ = count;
+}
 } // namespace Location
 } // namespace OHOS

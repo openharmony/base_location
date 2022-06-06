@@ -522,6 +522,18 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
     return nullptr;
 }
 
+napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
+{
+    napi_value result = nullptr;
+    napi_value message = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, msg.c_str(), msg.length(), &message));
+    napi_value codeValue = nullptr;
+    std::string errCode = std::to_string(errorCode);
+    NAPI_CALL(env, napi_create_string_utf8(env, errCode.c_str(), errCode.length(), &codeValue));
+    NAPI_CALL(env, napi_create_error(env, codeValue, message, &result));
+    return result;
+}
+
 void WorkProcess(const napi_env& env, AsyncContext* context)
 {
     napi_value undefine;
@@ -656,50 +668,6 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
         DoPromiseAsyncWork(env, asyncContext);
         return promise;
     }
-}
-
-CountDownLatch::CountDownLatch()
-{
-}
-
-void CountDownLatch::Wait(int time)
-{
-    timeout_ = time;
-    timeset_ = std::time(0);
-    LBSLOGD(LOCATOR_STANDARD, "enter wait, timeset = %{public}ld", timeset_);
-    if (count_ == 0) {
-        return;
-    }
-    std::unique_lock<std::mutex> lock(mutex_);
-    LBSLOGD(LOCATOR_STANDARD, "enter waitq");
-    condition_.wait_for(lock, std::chrono::seconds(time / 1000), [&]() {return count_ == 0; });
-}
-
-void CountDownLatch::CountDown()
-{
-    LBSLOGD(LOCATOR_STANDARD, "enter CountDown");
-    int old_c = count_.load();
-    while (old_c > 0) {
-        if (count_.compare_exchange_strong(old_c, old_c - 1)) {
-            if (old_c == 1) {
-                std::unique_lock<std::mutex> lock(mutex_);
-                LBSLOGD(LOCATOR_STANDARD, "notify_all");
-                condition_.notify_all();
-            }
-            break;
-        }
-        old_c = count_.load();
-    }
-}
-int CountDownLatch::GetCount() const
-{
-    return count_;
-}
-
-void CountDownLatch::SetCount(int count)
-{
-    std::unique_lock<std::mutex> lock(mutex_);
-    count_ = count;
 }
 }  // namespace Location
 }  // namespace OHOS

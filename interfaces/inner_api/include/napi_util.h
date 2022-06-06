@@ -69,31 +69,6 @@ public:
     }
 };
 
-class JsContext : public AsyncContext {
-public:
-    napi_env m_env;
-    napi_ref m_handlerCb;
-    napi_value m_jsEvent;
-    JsContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), m_env(nullptr), m_handlerCb(nullptr), m_jsEvent(nullptr) {}
-    virtual ~JsContext() {}
-};
-
-class CountDownLatch {
-public:
-    CountDownLatch();
-    void Wait(int time);
-    void CountDown();
-    int GetCount() const;
-    void SetCount(int count);
-private:
-    int timeout_;
-    std::mutex mutex_;
-    std::condition_variable condition_;
-    std::atomic<int> count_;
-    std::time_t timeset_;
-};
-
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result);
@@ -126,6 +101,8 @@ napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const doub
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result);
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum);
+napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode);
+
 void WorkProcess(const napi_env& env, AsyncContext* context);
 void WorkProcessError(const napi_env& env, AsyncContext* context);
 

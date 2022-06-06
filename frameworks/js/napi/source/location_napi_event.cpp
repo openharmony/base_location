@@ -270,7 +270,6 @@ napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value
     GenRequestConfig(env, argv, nonCallbackArgNum, asyncContext->requestConfig);
     asyncContext->requesCallback = g_singleLocatorCallbackHost;
 
-
     GetTimeoutParam(env, argv, nonCallbackArgNum, asyncContext->timeout);
 
     asyncContext->executeFunc = [&](void* data) -> void {

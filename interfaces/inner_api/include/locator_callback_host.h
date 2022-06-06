@@ -44,8 +44,6 @@ public:
     void DeleteCompleteHandler();
     void InitLatch();
 
-    pid_t m_lastCallingPid;
-    pid_t m_lastCallingUid;
     napi_env m_env;
     napi_ref m_handlerCb;
     napi_ref m_successHandlerCb;
