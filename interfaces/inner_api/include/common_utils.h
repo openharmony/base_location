@@ -100,18 +100,18 @@ public:
 
 class CountDownLatch {
 public:
-	CountDownLatch()
-	{
-		count_ = 0;
-	}
-	void Wait(int time);
-	void CountDown();
-	int GetCount() const;
-	void SetCount(int count);
+    CountDownLatch()
+    {
+        count_ = 0;
+    }
+    void Wait(int time);
+    void CountDown();
+    int GetCount() const;
+    void SetCount(int count);
 private:
-	std::mutex mutex_;
-	std::condition_variable condition_;
-	std::atomic<int> count_;
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    std::atomic<int> count_;
 };
 } // namespace Location
 } // namespace OHOS

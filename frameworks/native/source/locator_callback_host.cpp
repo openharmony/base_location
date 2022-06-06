@@ -198,11 +198,11 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 napi_get_undefined(context->env, &undefine);
                 napi_get_reference_value(context->env, context->callback[1], &handler);
 
-				napi_value message = nullptr;
-				std::string msg = "errCode is " + std::to_string(context->errCode);
-				napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-				context->result[PARAM0] = CreateErrorMessage(context->env, msg, context->errCode);
-				napi_get_undefined(env, &context->result[PARAM1]);
+                napi_value message = nullptr;
+                std::string msg = "errCode is " + std::to_string(context->errCode);
+                napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
+                context->result[PARAM0] = CreateErrorMessage(context->env, msg, context->errCode);
+                napi_get_undefined(env, &context->result[PARAM1]);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
                     &context->result, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
