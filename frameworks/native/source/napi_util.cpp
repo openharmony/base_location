@@ -548,9 +548,7 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
         return nullptr;
     }
     napi_create_async_work(
-        env,
-        nullptr,
-        asyncContext->resourceName,
+        env, nullptr, asyncContext->resourceName,
         [](napi_env env, void* data) {
             if (data == nullptr) {
                 LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
@@ -569,7 +567,6 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             napi_get_undefined(env, &undefine);
             napi_value callback;
             context->completeFunc(data);
-
             if (context->errCode != SUCCESS) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
@@ -580,7 +577,7 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
                 napi_get_undefined(env, &context->result[PARAM0]);
             }
             napi_get_reference_value(env, context->callback[0], &callback);
-            if (context->errCode != NO_DATA_TO_JS) {
+            if (context->errCode != NO_DATA_TO_SEND) {
                 napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
             }
             if (context->callback[0] != nullptr) {
@@ -591,9 +588,7 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             }
             napi_delete_async_work(env, context->work);
             delete context;
-        },
-        (void*)asyncContext,
-        &asyncContext->work);
+        }, (void*)asyncContext, &asyncContext->work);
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
     return UndefinedNapiValue(env);
 }
@@ -625,7 +620,7 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
 
             if (!context->errCode) {
                 napi_resolve_deferred(context->env, context->deferred, context->result[PARAM1]);
-            } else if (context->errCode != NO_DATA_TO_JS) {
+            } else if (context->errCode != NO_DATA_TO_SEND) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
                 napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);

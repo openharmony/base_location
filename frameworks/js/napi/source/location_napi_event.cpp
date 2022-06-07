@@ -269,7 +269,7 @@ napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value
             if (g_singleLocatorCallbackHost->m_latch->GetCount() != 0) {
                 context->errCode = LOCATION_REQUEST_TIMEOUT_ERROR;
             } else {
-                context->errCode = NO_DATA_TO_JS;
+                context->errCode = NO_DATA_TO_SEND;
             }
             g_singleLocatorCallbackHost->m_latch->SetCount(1);
         } else {

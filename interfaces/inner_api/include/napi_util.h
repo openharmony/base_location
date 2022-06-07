@@ -33,42 +33,11 @@
 #include "napi/native_node_api.h"
 #include "request_config.h"
 #include "satellite_status.h"
+#include "async_context.h"
 #include "uv.h"
 
 namespace OHOS {
 namespace Location {
-class AsyncContext {
-public:
-    napi_env env;
-    napi_async_work work;
-    napi_deferred deferred;
-    napi_ref callback[3] = { 0 };
-    std::function<void(void*)> executeFunc;
-    std::function<void(void*)> completeFunc;
-    napi_value resourceName;
-    napi_value result[RESULT_SIZE];
-    int errCode;
-
-    AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr)
-    {
-        env = e;
-        work = w;
-        deferred = d;
-        executeFunc = nullptr;
-        completeFunc = nullptr;
-        resourceName = nullptr;
-        result[PARAM0] = 0;
-        result[PARAM1] = 0;
-        errCode = 0;
-    }
-
-    AsyncContext() = delete;
-
-    virtual ~AsyncContext()
-    {
-    }
-};
-
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result);

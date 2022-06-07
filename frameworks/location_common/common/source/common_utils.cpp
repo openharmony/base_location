@@ -180,7 +180,7 @@ void CountDownLatch::Wait(int time)
         LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
         return;
     }
-    condition_.wait_for(lock, std::chrono::seconds(time / 1000), [&](){return count_ == 0;});
+    condition_.wait_for(lock, std::chrono::seconds(time / 1000), [&]() {return count_ == 0;});
 }
 
 void CountDownLatch::CountDown()

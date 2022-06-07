@@ -71,7 +71,7 @@ enum {
 
 enum {
     SUCCESS = 0,
-    NO_DATA_TO_JS = 1,
+    NO_DATA_TO_SEND = 1,
     INPUT_PARAMS_ERROR = 101,
     REVERSE_GEOCODE_ERROR,
     GEOCODE_ERROR,
