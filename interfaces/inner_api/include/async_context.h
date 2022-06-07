@@ -16,36 +16,18 @@
 #ifndef ASYNC_CONTEXT_H
 #define ASYNC_CONTEXT_H
 
-#include <chrono>
 #include <condition_variable>
-#include <ctime>
 #include <list>
-#include <mutex>
 #include <string>
-#include <array>
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "location.h"
 #include "location_log.h"
-#include "locator_proxy.h"
 #include "message_parcel.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "request_config.h"
 #include "satellite_status.h"
-#include "uv.h"
-#include "constant_definition.h"
-#include "location.h"
-#include "napi_util.h"
-#include "message_parcel.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "request_config.h"
-#include "common_utils.h"
-#include "ipc_skeleton.h"
-#include "location_log.h"
-#include "locator.h"
-#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -244,4 +226,4 @@ public:
 };
 }  // namespace Location
 }  // namespace OHOS
-#endif // NAPI_UTIL_H
+#endif // ASYNC_CONTEXT_H

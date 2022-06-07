@@ -16,6 +16,9 @@
 #ifndef COMMON_UTILS_H
 #define COMMON_UTILS_H
 
+#include <condition_variable>
+#include <atomic>
+#include <mutex>
 #include "iremote_object.h"
 #include "string_ex.h"
 #include "constant_definition.h"

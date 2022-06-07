@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "common_utils.h"
 #include <map>
+#include "common_utils.h"
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -174,9 +174,9 @@ bool CommonUtils::GetCurrentUserId(int &userId)
 
 void CountDownLatch::Wait(int time)
 {
-    LBSLOGD(LOCATOR_STANDARD, "enter wait, time = %{public}ld", time);
+    LBSLOGD(LOCATOR_STANDARD, "enter wait, time = %{public}d", time);
     std::unique_lock<std::mutex> lock(mutex_);
-    if (count_ == 0)
+    if (count_ == 0) {
         LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
         return;
     }
