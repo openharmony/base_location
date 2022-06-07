@@ -51,8 +51,6 @@ void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHo
 
 
 bool IsCallbackEquals(napi_env env, napi_value& handler, napi_ref& savedCallback);
-void GetTimeoutParam(napi_env env, const napi_value* argv,
-    size_t& nonCallbackArgNum, int& timeout);
 void GenRequestConfig(napi_env env, const napi_value* argv,
     size_t& nonCallbackArgNum, std::unique_ptr<RequestConfig>& requestConfig);
 void GetCallbackType(napi_env env, const size_t argc, const napi_value* argv, bool& isCallbackType,

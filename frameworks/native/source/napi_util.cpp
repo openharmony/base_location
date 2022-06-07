@@ -233,6 +233,8 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     requestConfig->SetScenario(value);
     JsObjectToDouble(env, object, "maxAccuracy", valueDouble);
     requestConfig->SetMaxAccuracy(valueDouble);
+    JsObjectToInt(env, object, "timeoutMs", value);
+    requestConfig->SetTimeOut(value);
 }
 
 void JsObjToCommand(const napi_env& env, const napi_value& object,
@@ -534,38 +536,10 @@ napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
     return result;
 }
 
-void WorkProcess(const napi_env& env, AsyncContext* context)
+void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode)
 {
-    napi_value undefine;
-    napi_get_undefined(env, &undefine);
-    napi_value callback;
-    if (context->errCode != SUCCESS) {
-        napi_value message = nullptr;
-        std::string msg = "errCode is " + std::to_string(context->errCode);
-        napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-        napi_create_error(env, nullptr, message, &context->result[PARAM0]);
-        napi_get_undefined(env, &context->result[PARAM1]);
-    } else {
-        napi_get_undefined(env, &context->result[PARAM0]);
-    }
-    napi_get_reference_value(env, context->callback[0], &callback);
-    napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
-}
-
-void WorkProcessError(const napi_env& env, AsyncContext* context)
-{
-    napi_value undefine;
-    napi_get_undefined(env, &undefine);
-    napi_value callback;
-    if (context->errCode != SUCCESS) {
-        napi_value message = nullptr;
-        std::string msg = "errCode is " + std::to_string(context->errCode);
-        napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-        napi_create_error(env, nullptr, message, &context->result[PARAM0]);
-        napi_get_undefined(env, &context->result[PARAM1]);
-        napi_get_reference_value(env, context->callback[0], &callback);
-        napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
-    }
+    SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
+    SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
 }
 
 static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncContext)
@@ -591,8 +565,24 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
                 return;
             }
             AsyncContext* context = (AsyncContext *)data;
-
+            napi_value undefine;
+            napi_get_undefined(env, &undefine);
+            napi_value callback;
             context->completeFunc(data);
+
+            if (context->errCode != SUCCESS) {
+                napi_value message = nullptr;
+                std::string msg = "errCode is " + std::to_string(context->errCode);
+                napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &context->result[PARAM0]);
+                napi_get_undefined(env, &context->result[PARAM1]);
+            } else {
+                napi_get_undefined(env, &context->result[PARAM0]);
+            }
+            napi_get_reference_value(env, context->callback[0], &callback);
+            if (context->errCode != NO_DATA_TO_JS) {
+                napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+            }
             if (context->callback[0] != nullptr) {
                 napi_delete_reference(env, context->callback[0]);
             }
@@ -635,7 +625,7 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
 
             if (!context->errCode) {
                 napi_resolve_deferred(context->env, context->deferred, context->result[PARAM1]);
-            } else {
+            } else if (context->errCode != NO_DATA_TO_JS) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
                 napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);

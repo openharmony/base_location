@@ -43,6 +43,8 @@ public:
     void DeleteFailHandler();
     void DeleteCompleteHandler();
     void InitLatch();
+    bool IsSystemGeolocationApi();
+    bool IsSingleLocationRequest();
 
     napi_env m_env;
     napi_ref m_handlerCb;

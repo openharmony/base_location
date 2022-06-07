@@ -61,7 +61,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
             Send(location);
-            if (m_fixNumber == 1) {
+            if (IsSingleLocationRequest()) {
                 m_latch->CountDown();
             }
             break;
@@ -138,7 +138,6 @@ bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     uv_loop_s *loop = nullptr;
-    bool isSystemGeolocationApi = (m_successHandlerCb != nullptr) ? true : false;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
@@ -155,7 +154,7 @@ bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
         return false;
     }
     context->env = m_env;
-    if (isSystemGeolocationApi) {
+    if (IsSystemGeolocationApi()) {
         context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
         context->callback[FAIL_CALLBACK] = m_failHandlerCb;
         context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
@@ -197,12 +196,8 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
                 napi_get_reference_value(context->env, context->callback[1], &handler);
-
-                napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
-                napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-                context->result[PARAM0] = CreateErrorMessage(context->env, msg, context->errCode);
-                napi_get_undefined(env, &context->result[PARAM1]);
+                CreateFailCallBackParams(*context, msg, context->errCode)
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
                     &context->result, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
@@ -217,8 +212,13 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
 bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
+    if (!IsSystemGeolocationApi() && !IsSingleLocationRequest()) {
+        LBSLOGE(LOCATOR_CALLBACK,
+            "this is Callback type,cant send error msg.");
+        return false;
+    }
+
     uv_loop_s *loop = nullptr;
-    bool isSystemGeolocationApi = (m_successHandlerCb != nullptr) ? true : false;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
@@ -235,7 +235,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         return false;
     }
     context->env = m_env;
-    if (isSystemGeolocationApi) {
+    if (IsSystemGeolocationApi()) {
         context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
         context->callback[FAIL_CALLBACK] = m_failHandlerCb;
         context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
@@ -300,6 +300,16 @@ void LocatorCallbackHost::DeleteCompleteHandler()
         napi_delete_reference(m_env, m_completeHandlerCb);
         m_completeHandlerCb = nullptr;
     }
+}
+
+bool LocatorCallbackHost::IsSystemGeolocationApi()
+{
+    return (m_successHandlerCb != nullptr) ? true : false;
+}
+
+bool LocatorCallbackHost::IsSingleLocationRequest()
+{
+    return (m_fixNumber == 1);
 }
 } // namespace Location
 } // namespace OHOS

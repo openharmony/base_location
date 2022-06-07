@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef napi_util_H
-#define napi_util_H
+#ifndef NAPI_UTIL_H
+#define NAPI_UTIL_H
 
 #include <chrono>
 #include <condition_variable>
@@ -102,9 +102,7 @@ napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool b
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum);
 napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode);
-
-void WorkProcess(const napi_env& env, AsyncContext* context);
-void WorkProcessError(const napi_env& env, AsyncContext* context);
+void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode);
 
 #define GET_AND_THROW_NAPI_ERROR(env, message) \
         do { \
@@ -168,4 +166,4 @@ void WorkProcessError(const napi_env& env, AsyncContext* context);
 }  // namespace Location
 }  // namespace OHOS
 
-#endif // napi_util_H
+#endif // NAPI_UTIL_H
