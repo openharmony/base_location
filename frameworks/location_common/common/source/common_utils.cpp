@@ -15,7 +15,6 @@
 
 #include <map>
 #include "accesstoken_kit.h"
-#include "common_utils.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
@@ -23,6 +22,7 @@
 #include "parameters.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace Location {

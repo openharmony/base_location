@@ -338,7 +338,5 @@ void LocatorCallbackHost::SetCount(int count)
         return m_latch->SetCount(count);
     }
 }
-
 } // namespace Location
 } // namespace OHOS
-
