@@ -236,7 +236,7 @@ void InitSingleLocatorCallback(napi_env env, const size_t argc, const napi_value
         napi_create_reference(env, argv[nonCallbackArgNum], 1, &handlerRef);
         g_singleLocatorCallbackHost->m_handlerCb = handlerRef;
     } else {
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+        napi_create_promise(env, &deferred, &promise);
         g_singleLocatorCallbackHost->m_deferred = deferred;
     }
 }

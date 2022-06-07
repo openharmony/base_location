@@ -197,7 +197,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 std::string msg = "errCode is " + std::to_string(context->errCode);
                 CreateFailCallBackParams(*context, msg, context->errCode);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
-                    &context->result, &undefine) != napi_ok) {
+                    context->result, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
                 }
             }
