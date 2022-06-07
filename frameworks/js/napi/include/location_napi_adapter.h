@@ -23,8 +23,6 @@
 #include "location_util.h"
 #include "message_parcel.h"
 #include "napi/native_api.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
 #include "napi/native_node_api.h"
 #include "request_config.h"
 #include "common_utils.h"
