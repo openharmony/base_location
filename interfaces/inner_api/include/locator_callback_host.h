@@ -17,6 +17,7 @@
 #define LOCATOR_CALLBACK_HOST_H
 
 #include <shared_mutex>
+#include "common_utils.h"
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
@@ -45,6 +46,10 @@ public:
     void InitLatch();
     bool IsSystemGeolocationApi();
     bool IsSingleLocationRequest();
+    void CountDown();
+    void Wait(int time);
+    int GetCount();
+    void SetCount(int count);
 
     napi_env m_env;
     napi_ref m_handlerCb;

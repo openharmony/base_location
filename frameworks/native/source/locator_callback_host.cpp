@@ -61,9 +61,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
             Send(location);
-            if (IsSingleLocationRequest()) {
-                m_latch->CountDown();
-            }
+            CountDown();
             break;
         }
         case RECEIVE_LOCATION_STATUS_EVENT: {
@@ -311,6 +309,36 @@ bool LocatorCallbackHost::IsSingleLocationRequest()
 {
     return (m_fixNumber == 1);
 }
+
+void LocatorCallbackHost::CountDown()
+{
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
+        m_latch->CountDown();
+    }
+}
+
+void LocatorCallbackHost::Wait(int time)
+{
+    if (m_latch != nullptr) {
+        m_latch->Wait(time);
+    }
+}
+
+int LocatorCallbackHost::GetCount()
+{
+    if (m_latch != nullptr) {
+        return m_latch->GetCount();
+    }
+    return 0;
+}
+
+void LocatorCallbackHost::SetCount(int count)
+{
+    if (m_latch != nullptr) {
+        return m_latch->SetCount(count);
+    }
+}
+
 } // namespace Location
 } // namespace OHOS
 

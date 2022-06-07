@@ -20,8 +20,8 @@
 #include <string>
 #include "constant_definition.h"
 #include "location.h"
-#include "location_util.h"
 #include "message_parcel.h"
+#include "napi_util.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "request_config.h"

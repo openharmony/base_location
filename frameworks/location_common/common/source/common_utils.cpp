@@ -14,8 +14,8 @@
  */
 
 #include <map>
-#include "common_utils.h"
 #include "accesstoken_kit.h"
+#include "common_utils.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
@@ -180,7 +180,7 @@ void CountDownLatch::Wait(int time)
         LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
         return;
     }
-    condition_.wait_for(lock, std::chrono::seconds(time / 1000), [&]() {return count_ == 0;});
+    condition_.wait_for(lock, std::chrono::seconds(time / SEC_TO_MILLI_SEC), [&]() {return count_ == 0;});
 }
 
 void CountDownLatch::CountDown()

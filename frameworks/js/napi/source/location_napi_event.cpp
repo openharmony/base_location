@@ -264,14 +264,14 @@ napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value
     asyncContext->executeFunc = [&](void* data) -> void {
         CurrentLocationAsyncContext* context = static_cast<CurrentLocationAsyncContext*>(data);
         if (g_locatorPtr2->IsLocationEnabled()) {
-            g_singleLocatorCallbackHost->m_latch->Wait(context->timeout);
+            g_singleLocatorCallbackHost->Wait(context->timeout);
             g_locatorPtr2->StopLocating(g_singleLocatorCallback);
-            if (g_singleLocatorCallbackHost->m_latch->GetCount() != 0) {
+            if (g_singleLocatorCallbackHost->GetCount() != 0) {
                 context->errCode = LOCATION_REQUEST_TIMEOUT_ERROR;
             } else {
                 context->errCode = NO_DATA_TO_SEND;
             }
-            g_singleLocatorCallbackHost->m_latch->SetCount(1);
+            g_singleLocatorCallbackHost->SetCount(1);
         } else {
             context->errCode = LOCATION_SWITCH_ERROR;
         }
