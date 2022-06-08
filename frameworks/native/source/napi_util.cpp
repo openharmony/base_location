@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "location_util.h"
+#include "napi_util.h"
 #include <string>
 #include "common_utils.h"
 #include "geo_address.h"
@@ -233,6 +233,8 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     requestConfig->SetScenario(value);
     JsObjectToDouble(env, object, "maxAccuracy", valueDouble);
     requestConfig->SetMaxAccuracy(valueDouble);
+    JsObjectToInt(env, object, "timeoutMs", value);
+    requestConfig->SetTimeOut(value);
 }
 
 void JsObjToCommand(const napi_env& env, const napi_value& object,
@@ -522,15 +524,31 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
     return nullptr;
 }
 
+napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
+{
+    napi_value result = nullptr;
+    napi_value message = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, msg.c_str(), msg.length(), &message));
+    napi_value codeValue = nullptr;
+    std::string errCode = std::to_string(errorCode);
+    NAPI_CALL(env, napi_create_string_utf8(env, errCode.c_str(), errCode.length(), &codeValue));
+    NAPI_CALL(env, napi_create_error(env, codeValue, message, &result));
+    return result;
+}
+
+void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode)
+{
+    SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
+    SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
+}
+
 static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncContext)
 {
     if (asyncContext == nullptr) {
-        return nullptr;
+        return UndefinedNapiValue(env);
     }
     napi_create_async_work(
-        env,
-        nullptr,
-        asyncContext->resourceName,
+        env, nullptr, asyncContext->resourceName,
         [](napi_env env, void* data) {
             if (data == nullptr) {
                 LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
@@ -549,7 +567,6 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             napi_get_undefined(env, &undefine);
             napi_value callback;
             context->completeFunc(data);
-
             if (context->errCode != SUCCESS) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
@@ -560,7 +577,9 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
                 napi_get_undefined(env, &context->result[PARAM0]);
             }
             napi_get_reference_value(env, context->callback[0], &callback);
-            napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+            if (context->errCode != NO_DATA_TO_SEND) {
+                napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+            }
             if (context->callback[0] != nullptr) {
                 napi_delete_reference(env, context->callback[0]);
             }
@@ -569,9 +588,7 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             }
             napi_delete_async_work(env, context->work);
             delete context;
-        },
-        (void*)asyncContext,
-        &asyncContext->work);
+        }, (void*)asyncContext, &asyncContext->work);
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
     return UndefinedNapiValue(env);
 }
@@ -579,7 +596,7 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
 static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncContext)
 {
     if (asyncContext == nullptr) {
-        return nullptr;
+        return UndefinedNapiValue(env);
     }
     napi_create_async_work(
         env,
@@ -603,7 +620,7 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
 
             if (!context->errCode) {
                 napi_resolve_deferred(context->env, context->deferred, context->result[PARAM1]);
-            } else {
+            } else if (context->errCode != NO_DATA_TO_SEND) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
                 napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
@@ -624,7 +641,7 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum)
 {
     if (asyncContext == nullptr || argv == nullptr) {
-        return nullptr;
+        return UndefinedNapiValue(env);
     }
 
     if (argc > nonCallbackArgNum) {

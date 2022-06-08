@@ -17,10 +17,11 @@
 #define LOCATOR_CALLBACK_HOST_H
 
 #include <shared_mutex>
+#include "common_utils.h"
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
-#include "location_util.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
@@ -42,9 +43,14 @@ public:
     void DeleteSuccessHandler();
     void DeleteFailHandler();
     void DeleteCompleteHandler();
+    void InitLatch();
+    bool IsSystemGeoLocationApi();
+    bool IsSingleLocationRequest();
+    void CountDown();
+    void Wait(int time);
+    int GetCount();
+    void SetCount(int count);
 
-    pid_t m_lastCallingPid;
-    pid_t m_lastCallingUid;
     napi_env m_env;
     napi_ref m_handlerCb;
     napi_ref m_successHandlerCb;
@@ -53,6 +59,7 @@ public:
     int m_fixNumber;
     napi_deferred m_deferred;
     std::shared_mutex m_mutex;
+    CountDownLatch* m_latch;
 };
 } // namespace Location
 } // namespace OHOS

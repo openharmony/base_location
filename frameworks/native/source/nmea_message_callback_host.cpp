@@ -27,8 +27,6 @@ NmeaMessageCallbackHost::NmeaMessageCallbackHost()
     m_env = nullptr;
     m_handlerCb = nullptr;
     m_remoteDied = false;
-    m_lastCallingPid = 0;
-    m_lastCallingUid = 0;
 }
 
 NmeaMessageCallbackHost::~NmeaMessageCallbackHost()

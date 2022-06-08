@@ -20,7 +20,7 @@
 #include "i_locator_callback.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "location_util.h"
+#include "napi_util.h"
 #include "locator.h"
 
 namespace OHOS {
@@ -33,13 +33,19 @@ LocatorCallbackHost::LocatorCallbackHost()
     m_failHandlerCb = nullptr;
     m_completeHandlerCb = nullptr;
     m_deferred = nullptr;
-    m_lastCallingUid = 0;
-    m_lastCallingPid = 0;
     m_fixNumber = 0;
+    InitLatch();
+}
+
+void LocatorCallbackHost::InitLatch()
+{
+    m_latch = new CountDownLatch();
+    m_latch->SetCount(1);
 }
 
 LocatorCallbackHost::~LocatorCallbackHost()
 {
+    delete m_latch;
 }
 
 int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
@@ -55,6 +61,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
             Send(location);
+            CountDown();
             break;
         }
         case RECEIVE_LOCATION_STATUS_EVENT: {
@@ -129,7 +136,6 @@ bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     uv_loop_s *loop = nullptr;
-    bool isSystemGeolocationApi = (m_successHandlerCb != nullptr) ? true : false;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
@@ -146,7 +152,7 @@ bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
         return false;
     }
     context->env = m_env;
-    if (isSystemGeolocationApi) {
+    if (IsSystemGeoLocationApi()) {
         context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
         context->callback[FAIL_CALLBACK] = m_failHandlerCb;
         context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
@@ -164,13 +170,13 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
 {
     uv_queue_work(loop, work, [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            JsContext *context = nullptr;
+            AsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "work is nullptr");
                 return;
             }
-            context = static_cast<JsContext *>(work->data);
+            context = static_cast<AsyncContext *>(work->data);
             if (context == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
                 delete work;
@@ -188,8 +194,10 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
                 napi_get_reference_value(context->env, context->callback[1], &handler);
-                if (napi_call_function(context->env, nullptr, handler, 1,
-                    &context->m_jsEvent, &undefine) != napi_ok) {
+                std::string msg = "errCode is " + std::to_string(context->errCode);
+                CreateFailCallBackParams(*context, msg, context->errCode);
+                if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
+                    context->result, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
                 }
             }
@@ -202,8 +210,13 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
 bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
+    if (!IsSystemGeoLocationApi() && !IsSingleLocationRequest()) {
+        LBSLOGE(LOCATOR_CALLBACK,
+            "this is Callback type,cant send error msg.");
+        return false;
+    }
+
     uv_loop_s *loop = nullptr;
-    bool isSystemGeolocationApi = (m_successHandlerCb != nullptr) ? true : false;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
@@ -214,15 +227,13 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         LBSLOGE(LOCATOR_CALLBACK, "work == nullptr.");
         return false;
     }
-    JsContext *context = new (std::nothrow) JsContext(m_env);
+    AsyncContext *context = new (std::nothrow) AsyncContext(m_env);
     if (context == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return false;
     }
-    napi_value nVerrorCode;
-    napi_create_int32(m_env, errorCode, &nVerrorCode);
     context->env = m_env;
-    if (isSystemGeolocationApi) {
+    if (IsSystemGeoLocationApi()) {
         context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
         context->callback[FAIL_CALLBACK] = m_failHandlerCb;
         context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
@@ -230,7 +241,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         context->callback[SUCCESS_CALLBACK] = m_handlerCb;
         context->deferred = m_deferred;
     }
-    context->m_jsEvent = nVerrorCode;
+    context->errCode = errorCode;
     work->data = context;
     DoSendErrorCode(loop, work);
     return true;
@@ -288,6 +299,44 @@ void LocatorCallbackHost::DeleteCompleteHandler()
         m_completeHandlerCb = nullptr;
     }
 }
+
+bool LocatorCallbackHost::IsSystemGeoLocationApi()
+{
+    return (m_successHandlerCb != nullptr) ? true : false;
+}
+
+bool LocatorCallbackHost::IsSingleLocationRequest()
+{
+    return (m_fixNumber == 1);
+}
+
+void LocatorCallbackHost::CountDown()
+{
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
+        m_latch->CountDown();
+    }
+}
+
+void LocatorCallbackHost::Wait(int time)
+{
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
+        m_latch->Wait(time);
+    }
+}
+
+int LocatorCallbackHost::GetCount()
+{
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
+        return m_latch->GetCount();
+    }
+    return 0;
+}
+
+void LocatorCallbackHost::SetCount(int count)
+{
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
+        return m_latch->SetCount(count);
+    }
+}
 } // namespace Location
 } // namespace OHOS
-

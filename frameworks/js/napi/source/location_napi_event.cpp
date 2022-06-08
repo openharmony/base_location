@@ -20,7 +20,7 @@
 #include "ipc_types.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "location_util.h"
+#include "napi_util.h"
 #include "locator.h"
 #include "request_config.h"
 #include "system_ability_definition.h"
@@ -217,54 +217,67 @@ void GenRequestConfig(napi_env env, const napi_value* argv,
     requestConfig->SetFixNumber(1);
 }
 
-void GetTimeoutParam(napi_env env, const napi_value* argv,
-    size_t& nonCallbackArgNum, int& timeout)
+void InitSingleLocatorCallback(napi_env env, const size_t argc, const napi_value* argv, int fixNumber)
 {
-    if (nonCallbackArgNum > 0) {
-        JsObjectToInt(env, argv[nonCallbackArgNum - 1], "timeoutMs", timeout);
-    } else {
-        timeout = DEFAULT_TIMEOUT_30S;
-    }
-}
-
-napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value* argv)
-{
-    napi_ref handlerRef = nullptr;
-    napi_deferred deferred;
-    napi_value promise;
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-    bool isCallbackType = false;
-    size_t nonCallbackArgNum = 0;
-    int timeout = 5000;
-
-    LBSLOGI(LOCATION_NAPI, "RequestLocationOnce enter");
-    if (g_singleLocatorCallbackHost == nullptr) {
-        return UndefinedNapiValue(env);
-    }
-
-    GetCallbackType(env, argc, argv, isCallbackType, nonCallbackArgNum);
-    GenRequestConfig(env, argv, nonCallbackArgNum, requestConfig);
-    GetTimeoutParam(env, argv, nonCallbackArgNum, timeout);
-
     if (g_singleLocatorCallbackHost->m_handlerCb != nullptr || g_singleLocatorCallbackHost->m_deferred != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
         UnSubscribeLocationChange(g_singleLocatorCallback);
     }
     g_singleLocatorCallbackHost->m_env = env;
-    g_singleLocatorCallbackHost->m_fixNumber = 1;
+    g_singleLocatorCallbackHost->m_fixNumber = fixNumber;
+
+    napi_ref handlerRef = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_value promise = nullptr;
+    bool isCallbackType = false;
+    size_t nonCallbackArgNum = 0;
+    GetCallbackType(env, argc, argv, isCallbackType, nonCallbackArgNum);
     if (isCallbackType) {
         napi_create_reference(env, argv[nonCallbackArgNum], 1, &handlerRef);
         g_singleLocatorCallbackHost->m_handlerCb = handlerRef;
     } else {
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+        napi_create_promise(env, &deferred, &promise);
         g_singleLocatorCallbackHost->m_deferred = deferred;
     }
-    g_locatorPtr2->StartLocating(requestConfig, g_singleLocatorCallback);
-    if (isCallbackType) {
+}
+
+napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value* argv)
+{
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    LBSLOGI(LOCATION_NAPI, "RequestLocationOnce enter");
+    if (g_singleLocatorCallbackHost == nullptr) {
         return UndefinedNapiValue(env);
-    } else {
-        return promise;
     }
+    size_t nonCallbackArgNum = 0;
+    bool isCallbackType = false;
+    GetCallbackType(env, argc, argv, isCallbackType, nonCallbackArgNum);
+    InitSingleLocatorCallback(env, argc, argv, 1);
+    GenRequestConfig(env, argv, nonCallbackArgNum, requestConfig);
+
+    CurrentLocationAsyncContext* asyncContext = new (std::nothrow) CurrentLocationAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    napi_create_string_latin1(env, "GetCurrentLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
+    asyncContext->timeout = requestConfig->GetTimeOut();
+    if (g_locatorPtr2->IsLocationEnabled()) {
+        g_locatorPtr2->StartLocating(requestConfig, g_singleLocatorCallback);
+    }
+    asyncContext->executeFunc = [&](void* data) -> void {
+        CurrentLocationAsyncContext* context = static_cast<CurrentLocationAsyncContext*>(data);
+        if (g_locatorPtr2->IsLocationEnabled()) {
+            g_singleLocatorCallbackHost->Wait(context->timeout);
+            g_locatorPtr2->StopLocating(g_singleLocatorCallback);
+            if (g_singleLocatorCallbackHost->GetCount() != 0) {
+                context->errCode = LOCATION_REQUEST_TIMEOUT_ERROR;
+            } else {
+                context->errCode = NO_DATA_TO_SEND;
+            }
+            g_singleLocatorCallbackHost->SetCount(1);
+        } else {
+            context->errCode = LOCATION_SWITCH_ERROR;
+        }
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {};
+    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
 }
 
 void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback)

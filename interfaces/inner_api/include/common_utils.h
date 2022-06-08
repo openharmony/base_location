@@ -16,10 +16,13 @@
 #ifndef COMMON_UTILS_H
 #define COMMON_UTILS_H
 
-#include "iremote_object.h"
-#include "string_ex.h"
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include "constant_definition.h"
+#include "iremote_object.h"
 #include "location_log.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace Location {
@@ -53,6 +56,7 @@ const std::string DFT_EXCEPTION_EVENT = "GnssException";
 const int DFT_IPC_CALLING_ERROR = 201;
 const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
+const int SEC_TO_MILLI_SEC = 1000;
 
 enum class ServiceRunningState {
     STATE_NOT_START,
@@ -71,6 +75,7 @@ enum {
 
 enum {
     SUCCESS = 0,
+    NO_DATA_TO_SEND = 1,
     INPUT_PARAMS_ERROR = 101,
     REVERSE_GEOCODE_ERROR,
     GEOCODE_ERROR,
@@ -96,6 +101,22 @@ public:
     static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
     static bool GetCurrentUserId(int &userId);
+};
+
+class CountDownLatch {
+public:
+    CountDownLatch()
+    {
+        count_ = 0;
+    }
+    void Wait(int time);
+    void CountDown();
+    int GetCount();
+    void SetCount(int count);
+private:
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    std::atomic<int> count_;
 };
 } // namespace Location
 } // namespace OHOS

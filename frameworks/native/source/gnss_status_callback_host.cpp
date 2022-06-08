@@ -18,7 +18,7 @@
 #include "ipc_skeleton.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "location_util.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
@@ -27,8 +27,6 @@ GnssStatusCallbackHost::GnssStatusCallbackHost()
     m_env = nullptr;
     m_handlerCb = nullptr;
     m_remoteDied = false;
-    m_lastCallingPid = 0;
-    m_lastCallingUid = 0;
 }
 
 GnssStatusCallbackHost::~GnssStatusCallbackHost()
