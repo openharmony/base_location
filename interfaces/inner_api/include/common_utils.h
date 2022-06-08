@@ -111,7 +111,7 @@ public:
     }
     void Wait(int time);
     void CountDown();
-    int GetCount() const;
+    int GetCount();
     void SetCount(int count);
 private:
     std::mutex mutex_;

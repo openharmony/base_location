@@ -200,7 +200,7 @@ void CountDownLatch::CountDown()
     }
 }
 
-int CountDownLatch::GetCount() const
+int CountDownLatch::GetCount()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     return count_;
