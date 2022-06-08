@@ -44,7 +44,7 @@ public:
     void DeleteFailHandler();
     void DeleteCompleteHandler();
     void InitLatch();
-    bool IsSystemGeolocationApi();
+    bool IsSystemGeoLocationApi();
     bool IsSingleLocationRequest();
     void CountDown();
     void Wait(int time);

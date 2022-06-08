@@ -152,7 +152,7 @@ bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
         return false;
     }
     context->env = m_env;
-    if (IsSystemGeolocationApi()) {
+    if (IsSystemGeoLocationApi()) {
         context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
         context->callback[FAIL_CALLBACK] = m_failHandlerCb;
         context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
@@ -210,7 +210,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
 bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (!IsSystemGeolocationApi() && !IsSingleLocationRequest()) {
+    if (!IsSystemGeoLocationApi() && !IsSingleLocationRequest()) {
         LBSLOGE(LOCATOR_CALLBACK,
             "this is Callback type,cant send error msg.");
         return false;
@@ -233,7 +233,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         return false;
     }
     context->env = m_env;
-    if (IsSystemGeolocationApi()) {
+    if (IsSystemGeoLocationApi()) {
         context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
         context->callback[FAIL_CALLBACK] = m_failHandlerCb;
         context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
@@ -300,7 +300,7 @@ void LocatorCallbackHost::DeleteCompleteHandler()
     }
 }
 
-bool LocatorCallbackHost::IsSystemGeolocationApi()
+bool LocatorCallbackHost::IsSystemGeoLocationApi()
 {
     return (m_successHandlerCb != nullptr) ? true : false;
 }
@@ -319,14 +319,14 @@ void LocatorCallbackHost::CountDown()
 
 void LocatorCallbackHost::Wait(int time)
 {
-    if (m_latch != nullptr) {
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
         m_latch->Wait(time);
     }
 }
 
 int LocatorCallbackHost::GetCount()
 {
-    if (m_latch != nullptr) {
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
         return m_latch->GetCount();
     }
     return 0;
@@ -334,7 +334,7 @@ int LocatorCallbackHost::GetCount()
 
 void LocatorCallbackHost::SetCount(int count)
 {
-    if (m_latch != nullptr) {
+    if (IsSingleLocationRequest() && m_latch != nullptr) {
         return m_latch->SetCount(count);
     }
 }
