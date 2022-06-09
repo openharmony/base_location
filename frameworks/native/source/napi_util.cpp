@@ -80,7 +80,7 @@ void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteSta
 void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result)
 {
     if (locations.size() > 0) {
-        for (int index = 0; index < locations.size(); index++) {
+        for (unsigned int index = 0; index < locations.size(); index++) {
             napi_value value;
             napi_status status;
             SetValueDouble(env, "latitude", locations[index]->GetLatitude(), value);
