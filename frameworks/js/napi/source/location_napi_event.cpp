@@ -27,11 +27,11 @@
 
 namespace OHOS {
 namespace Location {
-std::map<napi_ref, sptr<LocationSwitchCallbackHost>> g_registerSwitchInfo;
-std::map<napi_ref, sptr<LocatorCallbackHost>> g_registerLocatorInfo;
-std::map<napi_ref, sptr<GnssStatusCallbackHost>> g_registerGnssStatusInfo;
-std::map<napi_ref, sptr<NmeaMessageCallbackHost>> g_registerNmeaMessageInfo;
-std::map<napi_ref, sptr<CachedLocationsCallbackHost>> g_registerCachedInfo;
+std::map<napi_env, std::map<napi_ref, sptr<LocationSwitchCallbackHost>>> g_registerSwitchInfo;
+std::map<napi_env, std::map<napi_ref, sptr<LocatorCallbackHost>>> g_registerLocatorInfo;
+std::map<napi_env, std::map<napi_ref, sptr<GnssStatusCallbackHost>>> g_registerGnssStatusInfo;
+std::map<napi_env, std::map<napi_ref, sptr<NmeaMessageCallbackHost>>> g_registerNmeaMessageInfo;
+std::map<napi_env, std::map<napi_ref, sptr<CachedLocationsCallbackHost>>> g_registerCachedInfo;
 std::vector<GeoFenceState*> mFences;
 sptr<LocatorCallbackHost> g_singleLocatorCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
@@ -322,16 +322,30 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen);
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
+    bool isEqual = false;
     napi_ref handlerRef = nullptr;
     if (event == "locationServiceState") {
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
         napi_create_reference(env, argv[PARAM1], 1, &handlerRef);
+        for (auto iter = g_registerSwitchInfo.begin(); iter != g_registerSwitchInfo.end(); iter++) {
+            for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    LBSLOGE(LOCATION_NAPI, "this request is already started, just return.");
+                    return result;
+                }
+            }
+        }
         sptr<LocationSwitchCallbackHost> switchCallbackHost =
             sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
         if (switchCallbackHost != nullptr) {
-            g_registerSwitchInfo.insert(std::make_pair(handlerRef, switchCallbackHost));
+            std::map<napi_ref, sptr<LocationSwitchCallbackHost>> switchMap;
+            switchMap.insert(std::make_pair(handlerRef, switchCallbackHost));
+            g_registerSwitchInfo.insert(std::make_pair(env, switchMap));
             SubscribeLocationServiceState(env, type, argv[PARAM1], switchCallbackHost);
         }
     } else if (event == "locationChange") {
@@ -343,10 +357,23 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         }
         // the third params should be handler
         napi_create_reference(env, argv[PARAM2], 1, &handlerRef);
+        for (auto iter = g_registerLocatorInfo.begin(); iter != g_registerLocatorInfo.end(); iter++) {
+            for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM2], &isEqual);
+                if (isEqual) {
+                    LBSLOGE(LOCATION_NAPI, "this request is already started, just return.");
+                    return result;
+                }
+            }
+        }
         sptr<LocatorCallbackHost> locatorCallbackHost =
             sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
         if (locatorCallbackHost != nullptr) {
-            g_registerLocatorInfo.insert(std::make_pair(handlerRef, locatorCallbackHost));
+            std::map<napi_ref, sptr<LocatorCallbackHost>> locatorMap;
+            locatorMap.insert(std::make_pair(handlerRef, locatorCallbackHost));
+            g_registerLocatorInfo.insert(std::make_pair(env, locatorMap));
             // argv[1]:request params, argv[2]:handler
             SubscribeLocationChange(env, argv[PARAM1], argv[PARAM2], PARAM0, locatorCallbackHost);
         }
@@ -355,10 +382,23 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
         napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef);
+        for (auto iter = g_registerGnssStatusInfo.begin(); iter != g_registerGnssStatusInfo.end(); iter++) {
+            for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    LBSLOGE(LOCATION_NAPI, "this request is already started,just return.");
+                    return result;
+                }
+            }
+        }
         sptr<GnssStatusCallbackHost> gnssCallbackHost =
             sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
         if (gnssCallbackHost != nullptr) {
-            g_registerGnssStatusInfo.insert(std::make_pair(handlerRef, gnssCallbackHost));
+            std::map<napi_ref, sptr<GnssStatusCallbackHost>> gnssStatusMap;
+            gnssStatusMap.insert(std::make_pair(handlerRef, gnssCallbackHost));
+            g_registerGnssStatusInfo.insert(std::make_pair(env, gnssStatusMap));
             SubscribeGnssStatus(env, argv[PARAM1], gnssCallbackHost);
         }
     } else if (event == "nmeaMessageChange") {
@@ -366,10 +406,23 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
         napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef);
+        for (auto iter = g_registerNmeaMessageInfo.begin(); iter != g_registerNmeaMessageInfo.end(); iter++) {
+            for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    LBSLOGE(LOCATION_NAPI, "this request is already started,just return.");
+                    return result;
+                }
+            }
+        }
         sptr<NmeaMessageCallbackHost> nmeaCallbackHost =
             sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
         if (nmeaCallbackHost != nullptr) {
-            g_registerNmeaMessageInfo.insert(std::make_pair(handlerRef, nmeaCallbackHost));
+            std::map<napi_ref, sptr<NmeaMessageCallbackHost>> nmeaMessageMap;
+            nmeaMessageMap.insert(std::make_pair(handlerRef, nmeaCallbackHost));
+            g_registerNmeaMessageInfo.insert(std::make_pair(env, nmeaMessageMap));
             SubscribeNmeaMessage(env, argv[PARAM1], nmeaCallbackHost);
         }
     } else if (event == "cachedGnssLocationsReporting") {
@@ -381,10 +434,23 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         }
         // the third params should be handler
         napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef);
+        for (auto iter = g_registerCachedInfo.begin(); iter != g_registerCachedInfo.end(); iter++) {
+            for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM2], &isEqual);
+                if (isEqual) {
+                    LBSLOGE(LOCATION_NAPI, "this request is already started,just return.");
+                    return result;
+                }
+            }
+        }
         sptr<CachedLocationsCallbackHost> cachedCallbackHost =
             sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
         if (cachedCallbackHost != nullptr) {
-            g_registerCachedInfo.insert(std::make_pair(handlerRef, cachedCallbackHost));
+            std::map<napi_ref, sptr<CachedLocationsCallbackHost>> cachedMap;
+            cachedMap.insert(std::make_pair(handlerRef, cachedCallbackHost));
+            g_registerCachedInfo.insert(std::make_pair(env, cachedMap));
             SubscribeCacheLocationChange(env, argv[PARAM1], argv[PARAM2], cachedCallbackHost);
         }
     } else if (event == "fenceStatusChange") {
@@ -422,82 +488,108 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     bool isEqual = false;
     if (event == "locationServiceState") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        for (auto iter = g_registerSwitchInfo.begin(); iter != g_registerSwitchInfo.end();) {
-            napi_value handlerTemp = nullptr;
-            napi_get_reference_value(env, iter->first, &handlerTemp);
-            napi_strict_equals(env, handlerTemp, argv[PARAM1], &isEqual);
-            if (isEqual) {
-                sptr<LocationSwitchCallbackHost> switchCallbackHost = iter->second;
-                UnSubscribeLocationServiceState(switchCallbackHost);
-                switchCallbackHost->DeleteHandler();
-                iter = g_registerSwitchInfo.erase(iter);
-            } else {
-                iter++;
+        for (auto iter = g_registerSwitchInfo.begin(); iter != g_registerSwitchInfo.end(); iter++) {
+            std::map<napi_ref, sptr<LocationSwitchCallbackHost>> switchMap = iter->second;
+            for (auto innerIter = switchMap.begin(); innerIter != switchMap.end();) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    sptr<LocationSwitchCallbackHost> switchCallbackHost = innerIter->second;
+                    UnSubscribeLocationServiceState(switchCallbackHost);
+                    switchCallbackHost->DeleteHandler();
+                    innerIter = switchMap.erase(innerIter);
+                } else {
+                    innerIter++;
+                }
             }
         }
     } else if (event == "locationChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        for (auto iter = g_registerLocatorInfo.begin(); iter != g_registerLocatorInfo.end();) {
-            napi_value handlerTemp = nullptr;
-            napi_get_reference_value(env, iter->first, &handlerTemp);
-            napi_strict_equals(env, handlerTemp, argv[PARAM1], &isEqual);
-            if (isEqual) {
-                sptr<LocatorCallbackHost> locatorCallbackHost = iter->second;
-                sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
-                UnSubscribeLocationChange(locatorCallback);
-                locatorCallbackHost->DeleteHandler();
-                locatorCallbackHost->DeleteSuccessHandler();
-                locatorCallbackHost->DeleteFailHandler();
-                locatorCallbackHost->DeleteCompleteHandler();
-                iter = g_registerLocatorInfo.erase(iter);
-            } else {
-                iter++;
+        for (auto iter = g_registerLocatorInfo.begin(); iter != g_registerLocatorInfo.end(); iter++) {
+            std::map<napi_ref, sptr<LocatorCallbackHost>> locatorMap = iter->second;
+            for (auto innerIter = locatorMap.begin(); innerIter != locatorMap.end();) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    sptr<LocatorCallbackHost> locatorCallbackHost = innerIter->second;
+                    sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
+                    UnSubscribeLocationChange(locatorCallback);
+                    locatorCallbackHost->DeleteHandler();
+                    locatorCallbackHost->DeleteSuccessHandler();
+                    locatorCallbackHost->DeleteFailHandler();
+                    locatorCallbackHost->DeleteCompleteHandler();
+                    innerIter = locatorMap.erase(innerIter);
+                } else {
+                    innerIter++;
+                }
             }
         }
     } else if (event == "gnssStatusChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        for (auto iter = g_registerGnssStatusInfo.begin(); iter != g_registerGnssStatusInfo.end();) {
-            napi_value handlerTemp = nullptr;
-            napi_get_reference_value(env, iter->first, &handlerTemp);
-            napi_strict_equals(env, handlerTemp, argv[PARAM1], &isEqual);
-            if (isEqual) {
-                sptr<GnssStatusCallbackHost> gnssCallbackHost = iter->second;
-                UnSubscribeGnssStatus(gnssCallbackHost);
-                gnssCallbackHost->DeleteHandler();
-                iter = g_registerGnssStatusInfo.erase(iter);
-            } else {
-                iter++;
+        LBSLOGI(LOCATION_NAPI, "Off function 1");
+        for (auto iter = g_registerGnssStatusInfo.begin(); iter != g_registerGnssStatusInfo.end(); iter++) {
+            LBSLOGI(LOCATION_NAPI, "Off function 2");
+            std::map<napi_ref, sptr<GnssStatusCallbackHost>> gnssStatusMap = iter->second;
+            LBSLOGI(LOCATION_NAPI, "Off function 3");
+            for (auto innerIter = gnssStatusMap.begin(); innerIter != gnssStatusMap.end();) {
+                LBSLOGI(LOCATION_NAPI, "Off function 4");
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                LBSLOGI(LOCATION_NAPI, "Off function 5");
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                LBSLOGI(LOCATION_NAPI, "Off function 6");
+                if (isEqual) {
+                    sptr<GnssStatusCallbackHost> gnssCallbackHost = innerIter->second;
+                    LBSLOGI(LOCATION_NAPI, "Off function 7");
+                    UnSubscribeGnssStatus(gnssCallbackHost);
+                    LBSLOGI(LOCATION_NAPI, "Off function 8");
+                    gnssCallbackHost->DeleteHandler();
+                    LBSLOGI(LOCATION_NAPI, "Off function 9");
+                    innerIter = gnssStatusMap.erase(innerIter);
+                    LBSLOGI(LOCATION_NAPI, "Off function 10");
+                } else {
+                    LBSLOGI(LOCATION_NAPI, "Off function 11");
+                    innerIter++;
+                }
             }
         }
     } else if (event == "nmeaMessageChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        for (auto iter = g_registerNmeaMessageInfo.begin(); iter != g_registerNmeaMessageInfo.end();) {
-            napi_value handlerTemp = nullptr;
-            napi_get_reference_value(env, iter->first, &handlerTemp);
-            napi_strict_equals(env, handlerTemp, argv[PARAM1], &isEqual);
-            if (isEqual) {
-                sptr<NmeaMessageCallbackHost> nmeaCallbackHost = iter->second;
-                UnSubscribeNmeaMessage(nmeaCallbackHost);
-                nmeaCallbackHost->DeleteHandler();
-                iter = g_registerNmeaMessageInfo.erase(iter);
-            } else {
-                iter++;
+        for (auto iter = g_registerNmeaMessageInfo.begin(); iter != g_registerNmeaMessageInfo.end(); iter++) {
+            std::map<napi_ref, sptr<NmeaMessageCallbackHost>> nmeaMessageMap = iter->second;
+            for (auto innerIter = nmeaMessageMap.begin(); innerIter != nmeaMessageMap.end();) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    sptr<NmeaMessageCallbackHost> nmeaCallbackHost = innerIter->second;
+                    UnSubscribeNmeaMessage(nmeaCallbackHost);
+                    nmeaCallbackHost->DeleteHandler();
+                    innerIter = nmeaMessageMap.erase(innerIter);
+                } else {
+                    innerIter++;
+                }
             }
         }
     } else if (event == "cachedGnssLocationsReporting") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        for (auto iter = g_registerCachedInfo.begin(); iter != g_registerCachedInfo.end();) {
-            napi_value handlerTemp = nullptr;
-            napi_get_reference_value(env, iter->first, &handlerTemp);
-            napi_strict_equals(env, handlerTemp, argv[PARAM1], &isEqual);
-            if (isEqual) {
-                sptr<CachedLocationsCallbackHost> cachedCallbackHost = iter->second;
-                sptr<ICachedLocationsCallback> cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
-                UnSubscribeCacheLocationChange(cachedCallback);
-                cachedCallbackHost->DeleteHandler();
-                iter = g_registerCachedInfo.erase(iter);
-            } else {
-                iter++;
+        for (auto iter = g_registerCachedInfo.begin(); iter != g_registerCachedInfo.end(); iter++) {
+            std::map<napi_ref, sptr<CachedLocationsCallbackHost>> cachedMap = iter->second;
+            for (auto innerIter = cachedMap.begin(); innerIter != cachedMap.end();) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    sptr<CachedLocationsCallbackHost> cachedCallbackHost = innerIter->second;
+                    sptr<ICachedLocationsCallback> cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
+                    UnSubscribeCacheLocationChange(cachedCallback);
+                    cachedCallbackHost->DeleteHandler();
+                    innerIter = cachedMap.erase(innerIter);
+                } else {
+                    innerIter++;
+                }
             }
         }
     } else if (event == "fenceStatusChange") {
