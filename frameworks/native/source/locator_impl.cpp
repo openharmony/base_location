@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace Location {
-LocatorImpl::LocatorImpl(int systemAbilityId) : systemAbilityId_(systemAbilityId)
+LocatorImpl::LocatorImpl()
 {}
 
 LocatorImpl::~LocatorImpl()
@@ -31,7 +31,7 @@ bool LocatorImpl::Init()
     client_ = std::make_unique<LocatorProxy>(CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID,
         CommonUtils::InitDeviceId()));
     if (client_ == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "locator init failed. %{public}d", systemAbilityId_);
+        LBSLOGE(LOCATOR_STANDARD, "locator init failed.");
         return false;
     }
 

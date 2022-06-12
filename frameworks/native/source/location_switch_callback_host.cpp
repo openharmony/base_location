@@ -68,7 +68,7 @@ bool LocationSwitchCallbackHost::IsRemoteDied()
 napi_value LocationSwitchCallbackHost::PackResult(bool switchState)
 {
     napi_value result;
-    napi_get_boolean(m_env, switchState, &result);
+    NAPI_CALL(m_env, napi_get_boolean(m_env, switchState, &result);
     return result;
 }
 
@@ -76,7 +76,7 @@ bool LocationSwitchCallbackHost::Send(int switchState)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     uv_loop_s *loop = nullptr;
-    napi_get_uv_event_loop(m_env, &loop);
+    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(SWITCH_CALLBACK, "loop == nullptr.");
         return false;
@@ -118,9 +118,9 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            napi_open_handle_scope(context->env, &scope);
+            NAPI_CALL_RETURN_VOID(env, napi_open_handle_scope(context->env, &scope));
             napi_value jsEvent;
-            napi_get_boolean(context->env, context->enable, &jsEvent);
+            NAPI_CALL_RETURN_VOID(env, napi_get_boolean(context->env, context->enable, &jsEvent));
             if (scope == nullptr) {
                 LBSLOGE(SWITCH_CALLBACK, "scope is nullptr");
                 delete context;
@@ -130,14 +130,14 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->callback[0], &handler);
+                NAPI_CALL_RETURN_VOID(env, napi_get_undefined(context->env, &undefine));
+                NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(context->env, context->callback[0], &handler));
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(SWITCH_CALLBACK, "Report event failed");
                 }
             }
-            napi_close_handle_scope(context->env, scope);
+            NAPI_CALL_RETURN_VOID(env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
     });
@@ -153,7 +153,7 @@ void LocationSwitchCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_handlerCb) {
-        napi_delete_reference(m_env, m_handlerCb);
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(m_env, m_handlerCb));
         m_handlerCb = nullptr;
     }
 }

@@ -29,7 +29,7 @@ namespace OHOS {
 namespace Location {
 class Locator {
 public:
-    static std::unique_ptr<Locator> GetInstance(int systemAbilityId);
+    static std::unique_ptr<Locator> GetInstance();
 
     virtual ~Locator();
 

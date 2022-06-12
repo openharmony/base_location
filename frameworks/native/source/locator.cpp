@@ -21,9 +21,9 @@ namespace Location {
 Locator::~Locator()
 {}
 
-std::unique_ptr<Locator> Locator::GetInstance(int systemAbilityId)
+std::unique_ptr<Locator> Locator::GetInstance()
 {
-    std::unique_ptr<LocatorImpl> locator = std::make_unique<LocatorImpl>(systemAbilityId);
+    std::unique_ptr<LocatorImpl> locator = std::make_unique<LocatorImpl>();
     if (locator != nullptr) {
         if (locator->Init()) {
             LBSLOGI(LOCATOR_STANDARD, "init successfully!");
