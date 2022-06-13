@@ -369,16 +369,8 @@ typedef struct {
 /* GNSS config structure. */
 typedef struct {
     size_t size;
-    /*
-     * Indicates the method of location reporting,
-     * whether to report immediately or after caching for a
-     * period of time. See GnssStartClass for the definition of type.
-     */
-    uint32_t type;
-    union {
-        GnssBasicConfigPara gnssBasicConfig;
-        GnssCachingConfig gnssCacheConfig;
-    } u;
+    GnssBasicConfigPara gnssBasicConfig;
+    GnssCachingConfig gnssCachingConfig;
 } GnssConfigPara;
 
 /* Gnss reference time. */

@@ -47,7 +47,7 @@ napi_value GetLocationOnce(const napi_env& env,
         LBSLOGI(LOCATION_NAPI, "handlers is not nullptr, stop locating first");
         g_locatorImpl->StopLocating(locatorCallback);
         if (g_systemSingleLocatorCallbackHost->m_successHandlerCb != nullptr) {
-            g_systemSingleLocatorCallbackHost->DeleteSuccessHandler();//todo
+            g_systemSingleLocatorCallbackHost->DeleteSuccessHandler();
         }
         if (g_systemSingleLocatorCallbackHost->m_failHandlerCb != nullptr) {
             g_systemSingleLocatorCallbackHost->DeleteFailHandler();
@@ -198,7 +198,7 @@ void SubscribeSystemLocationChange(napi_env env,
         locatorCallbackHost->m_failHandlerCb != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
         g_locatorImpl->StopLocating(locatorCallback);
-        if (locatorCallbackHost->m_successHandlerCb != nullptr) {//todo
+        if (locatorCallbackHost->m_successHandlerCb != nullptr) {
             locatorCallbackHost->DeleteSuccessHandler();
         }
         if (locatorCallbackHost->m_failHandlerCb != nullptr) {

@@ -565,7 +565,7 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
             context->completeFunc(data);
 
             if (!context->errCode) {
-                NAPI_CALL_RETURN_VOID(env, resolve_deferred(context->env, context->deferred, context->result[PARAM1]));
+                NAPI_CALL_RETURN_VOID(context->env, resolve_deferred(context->env, context->deferred, context->result[PARAM1]));
             } else if (context->errCode != NO_DATA_TO_SEND) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
