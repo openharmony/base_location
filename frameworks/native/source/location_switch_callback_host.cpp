@@ -68,7 +68,7 @@ bool LocationSwitchCallbackHost::IsRemoteDied()
 napi_value LocationSwitchCallbackHost::PackResult(bool switchState)
 {
     napi_value result;
-    NAPI_CALL(m_env, napi_get_boolean(m_env, switchState, &result);
+    NAPI_CALL(m_env, napi_get_boolean(m_env, switchState, &result));
     return result;
 }
 
@@ -131,7 +131,8 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 napi_value undefine;
                 napi_value handler = nullptr;
                 NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
-                NAPI_CALL_RETURN_VOID(context->env, napi_get_reference_value(context->env, context->callback[0], &handler));
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_get_reference_value(context->env, context->callback[0], &handler));
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(SWITCH_CALLBACK, "Report event failed");

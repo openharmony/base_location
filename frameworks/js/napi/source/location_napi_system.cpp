@@ -158,7 +158,6 @@ napi_value GetLocationType(napi_env env, napi_callback_info cbinfo)
     napi_value argv[1] = {0};
     napi_value thisVar = 0;
     napi_value result = nullptr;
-    napi_status status = napi_generic_failure;
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env,  napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
@@ -227,9 +226,9 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, argc == 1, "number of parameters is error"));
-    NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error"));
-    NAPI_ASSERT(env, g_locatorImpl != nullptr, "get locator SA failed"));
+    NAPI_ASSERT(env, argc == 1, "number of parameters is error");
+    NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
+    NAPI_ASSERT(env, g_locatorImpl != nullptr, "get locator SA failed");
     std::string coordType = "";
     napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
     bool hasProperty = false;
@@ -270,7 +269,6 @@ napi_value GetSupportedCoordTypes(napi_env env, napi_callback_info cbinfo)
     size_t argc = 1;
     napi_value argv[1] = {0};
     napi_value thisVar = 0;
-    napi_status status = napi_generic_failure;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc == 0, "number of parameters is error");
     napi_value arrString = nullptr;

@@ -256,7 +256,7 @@ napi_value RequestLocationOnce(napi_env env, const size_t argc, const napi_value
 
     CurrentLocationAsyncContext* asyncContext = new (std::nothrow) CurrentLocationAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL_RETURN_VOID(env, napi_create_string_latin1(env, "GetCurrentLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    NAPI_CALL(env, napi_create_string_latin1(env, "GetCurrentLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
     asyncContext->timeout = requestConfig->GetTimeOut();
     if (g_locatorProxy->IsLocationEnabled()) {
         g_locatorProxy->StartLocating(requestConfig, g_singleLocatorCallback);

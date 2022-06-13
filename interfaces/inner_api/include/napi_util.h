@@ -76,7 +76,7 @@ void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t er
 { \
     if ((state) != napi_ok) { \
         LBSLOGE("(%{public}s) fail", #message); \
-        napi_throw_error((env), nullptr, "assertion (" #assertion ") failed: " message); \
+        GET_AND_THROW_LAST_ERROR((env)); \
         continue; \
     } \
 }

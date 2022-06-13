@@ -36,7 +36,8 @@ napi_value UndefinedNapiValue(const napi_env& env)
     return result;
 }
 
-void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result)
+void SatelliteStatusToJs(const napi_env& env,
+    const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result)
 {
     napi_value satelliteIdsArray;
     napi_value cn0Array;
@@ -45,17 +46,23 @@ void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteSta
     napi_value carrierFrequenciesArray;
     SetValueDouble(env, "satellitesNumber", statusInfo->GetSatellitesNumber(), result);
     if (statusInfo->GetSatellitesNumber() > 0) {
-        NAPI_CALL_RETURN_VOID(env, napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &satelliteIdsArray));
-        NAPI_CALL_RETURN_VOID(env, napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &cn0Array));
-        NAPI_CALL_RETURN_VOID(env, napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &altitudesArray));
-        NAPI_CALL_RETURN_VOID(env, napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &azimuthsArray));
-        NAPI_CALL_RETURN_VOID(env, napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &carrierFrequenciesArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &satelliteIdsArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &cn0Array));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &altitudesArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &azimuthsArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &carrierFrequenciesArray));
         uint32_t idx1 = 0;
         for (int index = 0; index < statusInfo->GetSatellitesNumber(); index++) {
             napi_value value = nullptr;
             NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetSatelliteIds()[index], &value));
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, satelliteIdsArray, idx1, value));
-            NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetCarrierToNoiseDensitys()[index], &value));
+            NAPI_CALL_RETURN_VOID(env,
+                napi_create_double(env, statusInfo->GetCarrierToNoiseDensitys()[index], &value));
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, cn0Array, idx1, value));
             NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetAltitudes()[index], &value));
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, altitudesArray, idx1, value));
@@ -147,6 +154,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
                 napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray), false);
             uint32_t idx1 = 0;
             for (int index = 0; index < geoAddress->m_descriptionsSize && status == napi_ok; index++) {
+                napi_value value;
                 NAPI_CALL_BASE(env, napi_create_string_utf8(env, geoAddress->GetDescriptions(index).c_str(),
                     NAPI_AUTO_LENGTH, &value), false);
                 NAPI_CALL_BASE(env, napi_set_element(env, descriptionArray, idx1++, value), false);
@@ -516,23 +524,24 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             if (context->errCode != SUCCESS) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
-                NAPI_CALL_RETURN_VOID(env, create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
-                NAPI_CALL_RETURN_VOID(env, create_error(env, nullptr, message, &context->result[PARAM0]));
-                NAPI_CALL_RETURN_VOID(env, get_undefined(env, &context->result[PARAM1]));
+                NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
+                NAPI_CALL_RETURN_VOID(env, napi_create_error(env, nullptr, message, &context->result[PARAM0]));
+                NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
             } else {
-                NAPI_CALL_RETURN_VOID(env, get_undefined(env, &context->result[PARAM0]));
+                NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM0]));
             }
-            NAPI_CALL_RETURN_VOID(env, get_reference_value(env, context->callback[0], &callback));
+            NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, context->callback[0], &callback));
             if (context->errCode != NO_DATA_TO_SEND) {
-                NAPI_CALL_RETURN_VOID(env, call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine));
+                NAPI_CALL_RETURN_VOID(env,
+                    napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine));
             }
             if (context->callback[0] != nullptr) {
-                NAPI_CALL_RETURN_VOID(env, delete_reference(env, context->callback[0]));
+                NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[0]));
             }
             if (context->callback[1] != nullptr) {
-                NAPI_CALL_RETURN_VOID(env, delete_reference(env, context->callback[1]));
+                NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[1]));
             }
-            NAPI_CALL_RETURN_VOID(env, delete_async_work(env, context->work));
+            NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
             delete context;
         }, (void*)asyncContext, &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
@@ -565,16 +574,18 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
             context->completeFunc(data);
 
             if (!context->errCode) {
-                NAPI_CALL_RETURN_VOID(context->env, resolve_deferred(context->env, context->deferred, context->result[PARAM1]));
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_resolve_deferred(context->env, context->deferred, context->result[PARAM1]));
             } else if (context->errCode != NO_DATA_TO_SEND) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
-                NAPI_CALL_RETURN_VOID(env, create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
-                NAPI_CALL_RETURN_VOID(env, create_error(env, nullptr, message, &context->result[PARAM0]));
-                NAPI_CALL_RETURN_VOID(env, get_undefined(env, &context->result[PARAM1]));
-                NAPI_CALL_RETURN_VOID(env, reject_deferred(context->env, context->deferred, context->result[PARAM0]));
+                NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
+                NAPI_CALL_RETURN_VOID(env, napi_create_error(env, nullptr, message, &context->result[PARAM0]));
+                NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
+                NAPI_CALL_RETURN_VOID(env,
+                    napi_reject_deferred(context->env, context->deferred, context->result[PARAM0]));
             }
-            NAPI_CALL_RETURN_VOID(env, delete_async_work(env, context->work));
+            NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
             delete context;
         },
         (void*)asyncContext,
