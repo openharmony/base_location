@@ -58,6 +58,13 @@ const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int SEC_TO_MILLI_SEC = 1000;
 
+#define CHK_PARCEL_RETURN_VALUE(ret) \
+{ \
+    if ((ret) != true) { \
+        return false; \
+    } \
+}
+
 enum class ServiceRunningState {
     STATE_NOT_START,
     STATE_RUNNING

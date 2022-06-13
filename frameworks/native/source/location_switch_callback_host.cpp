@@ -154,7 +154,7 @@ void LocationSwitchCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_handlerCb) {
-        NAPI_CALL_RETURN_VOID(context->env, napi_delete_reference(m_env, m_handlerCb));
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
         m_handlerCb = nullptr;
     }
 }

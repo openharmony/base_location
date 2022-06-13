@@ -307,7 +307,7 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
-    NAPI_ASSERT(env, g_locatorClient != nullptr != nullptr, "locator instance is null.");
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
     PrivacyAsyncContext* asyncContext = new (std::nothrow) PrivacyAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");

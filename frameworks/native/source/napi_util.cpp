@@ -289,9 +289,9 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
 
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
-    double latitude;
-    double longitude;
-    int maxItems;
+    double latitude = 0;
+    double longitude = 0;
+    int maxItems = 0;
     std::string locale = "";
 
     JsObjectToDouble(env, object, "latitude", latitude);
@@ -408,7 +408,7 @@ napi_value JsObjectToBool(const napi_env& env, const napi_value& object, const c
 
 napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const char* str, napi_value& result)
 {
-    napi_value value;
+    napi_value value = nullptr;
     NAPI_CALL_BASE(env, napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, &value), napi_generic_failure);
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
     return napi_ok;
@@ -422,7 +422,7 @@ napi_status SetValueStringArray(const napi_env& env, const char* fieldStr, napi_
 
 napi_status SetValueInt32(const napi_env& env, const char* fieldStr, const int intValue, napi_value& result)
 {
-    napi_value value;
+    napi_value value = nullptr;
     NAPI_CALL_BASE(env, napi_create_int32(env, intValue, &value), napi_generic_failure);
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
     return napi_ok;
@@ -430,7 +430,7 @@ napi_status SetValueInt32(const napi_env& env, const char* fieldStr, const int i
 
 napi_status SetValueInt64(const napi_env& env, const char* fieldStr, const int64_t intValue, napi_value& result)
 {
-    napi_value value;
+    napi_value value = nullptr;
     NAPI_CALL_BASE(env, napi_create_int64(env, intValue, &value), napi_generic_failure);
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
     return napi_ok;
@@ -438,7 +438,7 @@ napi_status SetValueInt64(const napi_env& env, const char* fieldStr, const int64
 
 napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const double doubleValue, napi_value& result)
 {
-    napi_value value;
+    napi_value value = nullptr;
     NAPI_CALL_BASE(env, napi_create_double(env, doubleValue, &value), napi_generic_failure);
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
     return napi_ok;
@@ -446,7 +446,7 @@ napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const doub
 
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result)
 {
-    napi_value value;
+    napi_value value = nullptr;
     NAPI_CALL_BASE(env, napi_get_boolean(env, boolvalue, &value), napi_generic_failure);
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
     return napi_ok;

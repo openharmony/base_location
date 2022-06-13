@@ -69,7 +69,7 @@ void GetAllCallback(const napi_env &env, const napi_value &argv, napi_ref &succe
     napi_ref &failHandlerRef, napi_ref &completeHandlerRef)
 {
     bool hasProperty = false;
-    napi_value nVsuccessCallback, nVfailCallback, nVcompleteCallback;
+    napi_value nVsuccessCallback = nullptr, nVfailCallback = nullptr, nVcompleteCallback = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_has_named_property(env, argv, "success", &hasProperty));
     if (hasProperty) {
         NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, argv, "success", &nVsuccessCallback));
