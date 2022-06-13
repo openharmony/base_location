@@ -14,6 +14,7 @@
  */
 
 #include "satellite_status.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace Location {
