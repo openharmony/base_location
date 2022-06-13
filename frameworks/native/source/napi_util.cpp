@@ -32,11 +32,12 @@ static constexpr double MAX_LONGITUDE = 180.0;
 napi_value UndefinedNapiValue(const napi_env& env)
 {
     napi_value result;
-    napi_get_undefined(env, &result);
+    NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
 }
 
-void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result)
+void SatelliteStatusToJs(const napi_env& env,
+    const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result)
 {
     napi_value satelliteIdsArray;
     napi_value cn0Array;
@@ -45,28 +46,30 @@ void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteSta
     napi_value carrierFrequenciesArray;
     SetValueDouble(env, "satellitesNumber", statusInfo->GetSatellitesNumber(), result);
     if (statusInfo->GetSatellitesNumber() > 0) {
-        napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &satelliteIdsArray);
-        napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &cn0Array);
-        napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &altitudesArray);
-        napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &azimuthsArray);
-        napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &carrierFrequenciesArray);
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &satelliteIdsArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &cn0Array));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &altitudesArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &azimuthsArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &carrierFrequenciesArray));
         uint32_t idx1 = 0;
         for (int index = 0; index < statusInfo->GetSatellitesNumber(); index++) {
             napi_value value = nullptr;
-            napi_status status = napi_ok;
-            status = napi_create_double(env, statusInfo->GetSatelliteIds()[index], &value);
-            status = napi_set_element(env, satelliteIdsArray, idx1, value);
-            status = napi_create_double(env, statusInfo->GetCarrierToNoiseDensitys()[index], &value);
-            status = napi_set_element(env, cn0Array, idx1, value);
-            status = napi_create_double(env, statusInfo->GetAltitudes()[index], &value);
-            status = napi_set_element(env, altitudesArray, idx1, value);
-            status = napi_create_double(env, statusInfo->GetAzimuths()[index], &value);
-            status = napi_set_element(env, azimuthsArray, idx1, value);
-            status = napi_create_double(env, statusInfo->GetCarrierFrequencies()[index], &value);
-            status = napi_set_element(env, carrierFrequenciesArray, idx1, value);
-            if (status != napi_ok) {
-                return;
-            }
+            NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetSatelliteIds()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, satelliteIdsArray, idx1, value));
+            NAPI_CALL_RETURN_VOID(env,
+                napi_create_double(env, statusInfo->GetCarrierToNoiseDensitys()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, cn0Array, idx1, value));
+            NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetAltitudes()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, altitudesArray, idx1, value));
+            NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetAzimuths()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, azimuthsArray, idx1, value));
+            NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetCarrierFrequencies()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, carrierFrequenciesArray, idx1, value));
             idx1++;
         }
         SetValueStringArray(env, "satelliteIds", satelliteIdsArray, result);
@@ -82,7 +85,6 @@ void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Locati
     if (locations.size() > 0) {
         for (unsigned int index = 0; index < locations.size(); index++) {
             napi_value value;
-            napi_status status;
             SetValueDouble(env, "latitude", locations[index]->GetLatitude(), value);
             SetValueDouble(env, "longitude", locations[index]->GetLongitude(), value);
             SetValueDouble(env, "altitude", locations[index]->GetAltitude(), value);
@@ -93,11 +95,7 @@ void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Locati
             SetValueInt64(env, "timeSinceBoot", locations[index]->GetTimeSinceBoot(), value);
             SetValueUtf8String(env, "additions", "GNSS", value);
             SetValueInt64(env, "additionSize", 1, value);
-            status = napi_set_element(env, result, index, value);
-            if (status != napi_ok) {
-                LBSLOGE(LOCATOR_STANDARD, "napi set element error: %{public}d, idx: %{public}d", status, index - 1);
-                return;
-            }
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, value));
         }
     }
 }
@@ -133,7 +131,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
     for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
         auto geoAddress = *iter;
         napi_value eachObj;
-        napi_create_object(env, &eachObj);
+        NAPI_CALL_BASE(env, napi_create_object(env, &eachObj), false);
         SetValueDouble(env, "latitude", geoAddress->GetLatitude(), eachObj);
         SetValueDouble(env, "longitude", geoAddress->GetLongitude(), eachObj);
         SetValueUtf8String(env, "locale", geoAddress->m_localeLanguage.c_str(), eachObj);
@@ -152,25 +150,19 @@ bool GeoAddressesToJsObj(const napi_env& env,
         SetValueUtf8String(env, "addressUrl", geoAddress->m_addressUrl.c_str(), eachObj);
         napi_value descriptionArray;
         if (geoAddress->m_descriptionsSize > 0) {
-            napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray);
+            NAPI_CALL_BASE(env,
+                napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray), false);
             uint32_t idx1 = 0;
             for (int index = 0; index < geoAddress->m_descriptionsSize && status == napi_ok; index++) {
                 napi_value value;
-                status = napi_create_string_utf8(env, geoAddress->GetDescriptions(index).c_str(),
-                    NAPI_AUTO_LENGTH, &value);
-                status = napi_set_element(env, descriptionArray, idx1++, value);
-            }
-            if (status != napi_ok) {
-                return false;
+                NAPI_CALL_BASE(env, napi_create_string_utf8(env, geoAddress->GetDescriptions(index).c_str(),
+                    NAPI_AUTO_LENGTH, &value), false);
+                NAPI_CALL_BASE(env, napi_set_element(env, descriptionArray, idx1++, value), false);
             }
             SetValueStringArray(env, "descriptions", descriptionArray, eachObj);
         }
         SetValueInt32(env, "descriptionsSize", geoAddress->m_descriptionsSize, eachObj);
-        status = napi_set_element(env, arrayResult, idx++, eachObj);
-        if (status != napi_ok) {
-            LBSLOGE(LOCATOR_STANDARD, "napi set element error: %{public}d, idx: %{public}u", status, idx - 1);
-            return false;
-        }
+        NAPI_CALL_BASE(env, napi_set_element(env, arrayResult, idx++, eachObj), false);
     }
     return true;
 }
@@ -297,9 +289,9 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
 
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
-    double latitude;
-    double longitude;
-    int maxItems;
+    double latitude = 0;
+    double longitude = 0;
+    int maxItems = 0;
     std::string locale = "";
 
     JsObjectToDouble(env, object, "latitude", latitude);
@@ -337,7 +329,7 @@ napi_value JsObjectToString(const napi_env& env, const napi_value& object,
         napi_value field;
         napi_valuetype valueType;
 
-        napi_get_named_property(env, object, fieldStr, &field);
+        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
         NAPI_CALL(env, napi_typeof(env, field, &valueType));
         NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
         if (bufLen <= 0) {
@@ -368,10 +360,10 @@ napi_value JsObjectToDouble(const napi_env& env, const napi_value& object, const
         napi_value field;
         napi_valuetype valueType;
 
-        napi_get_named_property(env, object, fieldStr, &field);
+        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
         NAPI_CALL(env, napi_typeof(env, field, &valueType));
         NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. Number expected.");
-        napi_get_value_double(env, field, &fieldRef);
+        NAPI_CALL(env, napi_get_value_double(env, field, &fieldRef));
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
     }
@@ -386,10 +378,10 @@ napi_value JsObjectToInt(const napi_env& env, const napi_value& object, const ch
         napi_value field;
         napi_valuetype valueType;
 
-        napi_get_named_property(env, object, fieldStr, &field);
+        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
         NAPI_CALL(env, napi_typeof(env, field, &valueType));
         NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. Number expected.");
-        napi_get_value_int32(env, field, &fieldRef);
+        NAPI_CALL(env, napi_get_value_int32(env, field, &fieldRef));
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
     }
@@ -404,10 +396,10 @@ napi_value JsObjectToBool(const napi_env& env, const napi_value& object, const c
         napi_value field;
         napi_valuetype valueType;
 
-        napi_get_named_property(env, object, fieldStr, &field);
+        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
         NAPI_CALL(env, napi_typeof(env, field, &valueType));
         NAPI_ASSERT(env, valueType == napi_boolean, "Wrong argument type. Bool expected.");
-        napi_get_value_bool(env, field, &fieldRef);
+        NAPI_CALL(env, napi_get_value_bool(env, field, &fieldRef));
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js to bool no property: %{public}s", fieldStr);
     }
@@ -416,86 +408,48 @@ napi_value JsObjectToBool(const napi_env& env, const napi_value& object, const c
 
 napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const char* str, napi_value& result)
 {
-    napi_value value;
-    napi_status status = napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, &value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set value create utf8 string error! field:%{public}s", fieldStr);
-        return status;
-    }
-    status = napi_set_named_property(env, result, fieldStr, value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set utf8 string named property error!, field:%{public}s", fieldStr);
-    }
-    return status;
+    napi_value value = nullptr;
+    NAPI_CALL_BASE(env, napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, &value), napi_generic_failure);
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
 }
 
 napi_status SetValueStringArray(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result)
 {
-    napi_status status = napi_set_named_property(env, result, fieldStr, value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set int32 named property error! field:%{public}s", fieldStr);
-    }
-    return status;
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
 }
 
 napi_status SetValueInt32(const napi_env& env, const char* fieldStr, const int intValue, napi_value& result)
 {
-    napi_value value;
-    napi_status status = napi_create_int32(env, intValue, &value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set value create int32 error! field:%{public}s", fieldStr);
-        return status;
-    }
-    status = napi_set_named_property(env, result, fieldStr, value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set int32 named property error! field:%{public}s", fieldStr);
-    }
-    return status;
+    napi_value value = nullptr;
+    NAPI_CALL_BASE(env, napi_create_int32(env, intValue, &value), napi_generic_failure);
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
 }
 
 napi_status SetValueInt64(const napi_env& env, const char* fieldStr, const int64_t intValue, napi_value& result)
 {
-    napi_value value;
-    napi_status status = napi_create_int64(env, intValue, &value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set value create int64 error! field:%{public}s", fieldStr);
-        return status;
-    }
-    status = napi_set_named_property(env, result, fieldStr, value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set int64 named property error! field:%{public}s", fieldStr);
-    }
-    return status;
+    napi_value value = nullptr;
+    NAPI_CALL_BASE(env, napi_create_int64(env, intValue, &value), napi_generic_failure);
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
 }
 
 napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const double doubleValue, napi_value& result)
 {
-    napi_value value;
-    napi_status status = napi_create_double(env, doubleValue, &value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set value create double error! field:%{public}s", fieldStr);
-        return status;
-    }
-    status = napi_set_named_property(env, result, fieldStr, value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set double named property error! field:%{public}s", fieldStr);
-    }
-    return status;
+    napi_value value = nullptr;
+    NAPI_CALL_BASE(env, napi_create_double(env, doubleValue, &value), napi_generic_failure);
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
 }
 
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result)
 {
-    napi_value value;
-    napi_status status = napi_get_boolean(env, boolvalue, &value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set value create boolean error! field:%{public}s", fieldStr);
-        return status;
-    }
-    status = napi_set_named_property(env, result, fieldStr, value);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "Set boolean named property error! field:%{public}s", fieldStr);
-    }
-    return status;
+    napi_value value = nullptr;
+    NAPI_CALL_BASE(env, napi_get_boolean(env, boolvalue, &value), napi_generic_failure);
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
 }
 
 static napi_value InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext,
@@ -508,9 +462,9 @@ static napi_value InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncC
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[i], &valuetype));
         NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
-        napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - nonCallbackArgNum]);
+        NAPI_CALL(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - nonCallbackArgNum]));
     }
-    return nullptr;
+    return UndefinedNapiValue(env);
 }
 
 static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext, napi_value& promise)
@@ -521,7 +475,7 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
     }
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     asyncContext->deferred = deferred;
-    return nullptr;
+    return UndefinedNapiValue(env);
 }
 
 napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
@@ -547,7 +501,7 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
     if (asyncContext == nullptr) {
         return UndefinedNapiValue(env);
     }
-    napi_create_async_work(
+    NAPI_CALL(env, napi_create_async_work(
         env, nullptr, asyncContext->resourceName,
         [](napi_env env, void* data) {
             if (data == nullptr) {
@@ -564,31 +518,32 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             }
             AsyncContext* context = (AsyncContext *)data;
             napi_value undefine;
-            napi_get_undefined(env, &undefine);
+            NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefine));
             napi_value callback;
             context->completeFunc(data);
             if (context->errCode != SUCCESS) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
-                napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-                napi_create_error(env, nullptr, message, &context->result[PARAM0]);
-                napi_get_undefined(env, &context->result[PARAM1]);
+                NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
+                NAPI_CALL_RETURN_VOID(env, napi_create_error(env, nullptr, message, &context->result[PARAM0]));
+                NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
             } else {
-                napi_get_undefined(env, &context->result[PARAM0]);
+                NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM0]));
             }
-            napi_get_reference_value(env, context->callback[0], &callback);
+            NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, context->callback[0], &callback));
             if (context->errCode != NO_DATA_TO_SEND) {
-                napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+                NAPI_CALL_RETURN_VOID(env,
+                    napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine));
             }
             if (context->callback[0] != nullptr) {
-                napi_delete_reference(env, context->callback[0]);
+                NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[0]));
             }
             if (context->callback[1] != nullptr) {
-                napi_delete_reference(env, context->callback[1]);
+                NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[1]));
             }
-            napi_delete_async_work(env, context->work);
+            NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
             delete context;
-        }, (void*)asyncContext, &asyncContext->work);
+        }, (void*)asyncContext, &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
     return UndefinedNapiValue(env);
 }
@@ -598,7 +553,7 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
     if (asyncContext == nullptr) {
         return UndefinedNapiValue(env);
     }
-    napi_create_async_work(
+    NAPI_CALL(env, napi_create_async_work(
         env,
         nullptr,
         asyncContext->resourceName,
@@ -619,21 +574,23 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
             context->completeFunc(data);
 
             if (!context->errCode) {
-                napi_resolve_deferred(context->env, context->deferred, context->result[PARAM1]);
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_resolve_deferred(context->env, context->deferred, context->result[PARAM1]));
             } else if (context->errCode != NO_DATA_TO_SEND) {
                 napi_value message = nullptr;
                 std::string msg = "errCode is " + std::to_string(context->errCode);
-                napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message);
-                napi_create_error(env, nullptr, message, &context->result[PARAM0]);
-                napi_get_undefined(env, &context->result[PARAM1]);
-                napi_reject_deferred(context->env, context->deferred, context->result[PARAM0]);
+                NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
+                NAPI_CALL_RETURN_VOID(env, napi_create_error(env, nullptr, message, &context->result[PARAM0]));
+                NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
+                NAPI_CALL_RETURN_VOID(env,
+                    napi_reject_deferred(context->env, context->deferred, context->result[PARAM0]));
             }
-            napi_delete_async_work(env, context->work);
+            NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
             delete context;
         },
         (void*)asyncContext,
-        &asyncContext->work);
-    napi_queue_async_work(env, asyncContext->work);
+        &asyncContext->work));
+    NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
     return UndefinedNapiValue(env);
 }
 

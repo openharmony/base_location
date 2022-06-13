@@ -72,66 +72,14 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
 napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode);
 void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode);
 
-#define GET_AND_THROW_NAPI_ERROR(env, message) \
-        do { \
-            const napi_extended_error_info* errorInfo = nullptr; \
-            napi_get_last_error_info((env), &errorInfo); \
-            bool isPending = false; \
-            napi_is_exception_pending((env), &isPending); \
-            if (!isPending && errorInfo != nullptr) { \
-                std::string errDesc = std::string(__FUNCTION__) + ": " + #message + " fail. "; \
-                std::string errorMessage = \
-                    errorInfo->error_message != nullptr ? errorInfo->error_message : "empty error message"; \
-                errDesc += errorMessage; \
-                napi_throw_error((env), nullptr, errDesc.c_str()); \
-            } \
-        } while (0)
-
-#define CHK_NAPIOK_RETVAL(env, state, message, retVal) \
-        do { \
-            if ((state) != napi_ok) { \
-                LBSLOGE("(%{public}s) fail", #message); \
-                GET_AND_THROW_NAPI_ERROR((env), (message)); \
-                return retVal; \
-            } \
-        } while (0)
-
-#define CHK_NAPIOK_RETNULL(env, state, message) \
-        do { \
-            if ((state) != napi_ok) { \
-                LBSLOGE("(%{public}s) fail", #message); \
-                GET_AND_THROW_NAPI_ERROR((env), (message)); \
-                return nullptr; \
-            } \
-        } while (0)
-
-#define CHK_NAPIOK_RETBOOL(env, state, message) \
-        do { \
-            if ((state) != napi_ok) { \
-                LBSLOGE("(%{public}s) fail", #message); \
-                GET_AND_THROW_NAPI_ERROR((env), (message)); \
-                return false; \
-            } \
-        } while (0)
-
-#define CHK_NAPIOK_RETVOID(env, state, message) \
-        do { \
-            if ((state) != napi_ok) { \
-                LBSLOGE("(%{public}s) fail", #message); \
-                GET_AND_THROW_NAPI_ERROR((env), (message)); \
-                return; \
-            } \
-        } while (0)
-
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
-        { \
-            if ((state) != napi_ok) { \
-                LBSLOGE("(%{public}s) fail", #message); \
-                GET_AND_THROW_NAPI_ERROR((env), (message)); \
-                continue; \
-            } \
-        }
+{ \
+    if ((state) != napi_ok) { \
+        LBSLOGE("(%{public}s) fail", #message); \
+        GET_AND_THROW_LAST_ERROR((env)); \
+        continue; \
+    } \
+}
 }  // namespace Location
 }  // namespace OHOS
-
 #endif // NAPI_UTIL_H

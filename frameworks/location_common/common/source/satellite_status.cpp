@@ -14,6 +14,7 @@
  */
 
 #include "satellite_status.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -46,16 +47,15 @@ void SatelliteStatus::ReadFromParcel(Parcel& parcel)
 
 bool SatelliteStatus::Marshalling(Parcel& parcel) const
 {
-    bool ret = false;
-    ret = parcel.WriteInt64(satellitesNumber_);
+    CHK_PARCEL_RETURN_VALUE(parcel.WriteInt64(satellitesNumber_));
     for (int i = 0; i < satellitesNumber_; i++) {
-        ret = parcel.WriteInt64(satelliteIds_[i]);
-        ret = parcel.WriteDouble(carrierToNoiseDensitys_[i]);
-        ret = parcel.WriteDouble(altitudes_[i]);
-        ret = parcel.WriteDouble(azimuths_[i]);
-        ret = parcel.WriteDouble(carrierFrequencies_[i]);
+        CHK_PARCEL_RETURN_VALUE(parcel.WriteInt64(satelliteIds_[i]));
+        CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(carrierToNoiseDensitys_[i]));
+        CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(altitudes_[i]));
+        CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(azimuths_[i]));
+        CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(carrierFrequencies_[i]));
     }
-    return ret;
+    return true;
 }
 
 std::unique_ptr<SatelliteStatus> SatelliteStatus::Unmarshalling(Parcel& parcel)
