@@ -14,9 +14,6 @@
  */
 
 #include "locator_fuzzer.h"
-
-#include <cstddef.h>
-#include <cstdint.h>
 #include "locator.h"
 #include "locator_callback_host.h"
 #include "request_config.h"
