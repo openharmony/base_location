@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include <cstdint>
-#include <unistd.h>
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
+#ifndef LOCATOR_FUZZER_H
+#define LOCATOR_FUZZER_H
 
 #define FUZZ_PROJECT_NAME "locator_fuzzer"
 
+#endif // LOCATOR_FUZZER_H

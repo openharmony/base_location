@@ -15,8 +15,8 @@
 
 #include "locator_fuzzer.h"
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef.h>
+#include <cstdint.h>
 #include "locator.h"
 #include "locator_callback_host.h"
 #include "request_config.h"
@@ -37,16 +37,17 @@ namespace OHOS {
         std::unique_ptr<Locator> locator = Locator::GetInstance();
         auto locatorCallbackHost =
             sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-        locatorCallbackHost->m_fixNumber = data[0];
+        int index = 0;
+        locatorCallbackHost->m_fixNumber = data[index++];
         /* init requestConfig */
         std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-        requestConfig->SetScenario(data[1]);
-        requestConfig->SetPriority(data[2]);
-        requestConfig->SetTimeInterval(data[3]);
-        requestConfig->SetDistanceInterval(data[4]);
-        requestConfig->SetMaxAccuracy(data[5]);
-        requestConfig->SetFixNumber(data[6]);
-        requestConfig->SetTimeOut(data[7]);
+        requestConfig->SetScenario(data[index++]);
+        requestConfig->SetPriority(data[index++]);
+        requestConfig->SetTimeInterval(data[index++]);
+        requestConfig->SetDistanceInterval(data[index++]);
+        requestConfig->SetMaxAccuracy(data[index++]);
+        requestConfig->SetFixNumber(data[index++]);
+        requestConfig->SetTimeOut(data[index++]);
         /* test StartLocating */
         sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
         locator->StartLocating(requestConfig, locatorCallback);
