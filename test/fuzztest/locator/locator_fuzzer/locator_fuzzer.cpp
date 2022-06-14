@@ -23,6 +23,8 @@ const int FUZZ_DATA_LEN = 8;
 
 namespace OHOS {
     using namespace OHOS::Location;
+    auto g_locatorCallbackHostForTest =
+                sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
 
     bool TestStartLocating(const uint8_t* data, size_t size)
     {
@@ -32,10 +34,8 @@ namespace OHOS {
         }
         /* init locator and LocatorCallbackHost */
         std::unique_ptr<Locator> locator = Locator::GetInstance();
-        auto locatorCallbackHost =
-            sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
         int index = 0;
-        locatorCallbackHost->m_fixNumber = data[index++];
+        g_locatorCallbackHostForTest->m_fixNumber = data[index++];
         /* init requestConfig */
         std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
         requestConfig->SetScenario(data[index++]);
@@ -46,7 +46,7 @@ namespace OHOS {
         requestConfig->SetFixNumber(data[index++]);
         requestConfig->SetTimeOut(data[index++]);
         /* test StartLocating */
-        sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
+        sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(g_locatorCallbackHostForTest);
         locator->StartLocating(requestConfig, locatorCallback);
         /* test StopLocating */
         locator->StopLocating(locatorCallback);
@@ -54,9 +54,6 @@ namespace OHOS {
         requestConfig->SetFixNumber(1);
         locator->StartLocating(requestConfig, locatorCallback);
         locator->StopLocating(locatorCallback);
-        if (locatorCallbackHost) {
-            delete locatorCallbackHost;
-        }
         return result;
     }
 }
