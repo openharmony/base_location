@@ -35,9 +35,9 @@ public:
     bool ReportIntervalCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     bool MaxAccuracyCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     void SetLastLocation(const std::unique_ptr<Location>& location);
-    sptr<Location> GetLastLocation();
+    std::shared_ptr<Location> GetLastLocation();
 private:
-    sptr<Location> lastLocation_;
+    Location lastLocation_;
 };
 } // namespace OHOS
 } // namespace Location

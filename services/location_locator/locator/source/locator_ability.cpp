@@ -162,7 +162,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case EVENT_INIT_REQUEST_MANAGER: {
             if (!DelayedSingleton<RequestManager>::GetInstance()->InitSystemListeners()) {
-                SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
+                LBSLOGE(LOCATOR, "InitSystemListeners failed");
             }
             break;
         }
@@ -670,7 +670,7 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
 {
-    sptr<Location> lastLocation = reportManager_->GetLastLocation();
+    std::shared_ptr<Location> lastLocation = reportManager_->GetLastLocation();
     if (lastLocation == nullptr) {
         reply.WriteInt32(EXCEPTION);
         reply.WriteString("get no cached result");
