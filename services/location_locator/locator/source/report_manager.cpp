@@ -27,7 +27,6 @@ const int SECOND_TO_MILLISECOND = 1000;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 ReportManager::ReportManager()
 {
-    lastLocation_ = new (std::nothrow) Location();
 }
 
 ReportManager::~ReportManager() {}
