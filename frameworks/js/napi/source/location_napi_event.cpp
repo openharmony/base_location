@@ -328,6 +328,17 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
         NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
+        for (auto iter = g_registerSwitchInfo.begin(); iter != g_registerSwitchInfo.end(); iter++) {
+            for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+                napi_value handlerTemp = nullptr;
+                napi_get_reference_value(iter->first, innerIter->first, &handlerTemp);
+                napi_strict_equals(iter->first, handlerTemp, argv[PARAM1], &isEqual);
+                if (isEqual) {
+                    LBSLOGE(LOCATION_NAPI, "this request is already started, just return.");
+                    return result;
+                }
+            }
+        }
         sptr<LocationSwitchCallbackHost> switchCallbackHost =
             sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
         if (switchCallbackHost != nullptr) {
