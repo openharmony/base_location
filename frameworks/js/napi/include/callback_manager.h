@@ -34,7 +34,8 @@ private:
     std::map<napi_env, std::map<napi_ref, sptr<T>>> callbackMap_;
 };
 
-inline bool CallbackManager::IsCallbackInMap(napi_env& env, napi_value& handler)
+template <typename T>
+bool CallbackManager<T>::IsCallbackInMap(napi_env& env, napi_value& handler)
 {
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
@@ -49,7 +50,7 @@ inline bool CallbackManager::IsCallbackInMap(napi_env& env, napi_value& handler)
 }
 
 template <typename T>
-inline void CallbackManager::AddCallback(napi_env& env, napi_ref& handlerRef, sptr<T>& callback)
+void CallbackManager<T>::AddCallback(napi_env& env, napi_ref& handlerRef, sptr<T>& callback)
 {
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
@@ -61,7 +62,8 @@ inline void CallbackManager::AddCallback(napi_env& env, napi_ref& handlerRef, sp
     iter->second.insert(std::make_pair(handlerRef, callback));
 }
 
-inline void CallbackManager::DeleteCallback(napi_env& env, napi_value& handler)
+template <typename T>
+void CallbackManager<T>::DeleteCallback(napi_env& env, napi_value& handler)
 {
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
@@ -79,7 +81,7 @@ inline void CallbackManager::DeleteCallback(napi_env& env, napi_value& handler)
 }
 
 template <typename T>
-inline sptr<T> CallbackManager::GetCallbackPtr(napi_env& env, napi_value& handler)
+sptr<T> CallbackManager<T>::GetCallbackPtr(napi_env& env, napi_value& handler)
 {
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
