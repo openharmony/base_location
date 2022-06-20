@@ -24,6 +24,7 @@
 #include "locator.h"
 #include "request_config.h"
 #include "system_ability_definition.h"
+#include "callback_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -328,7 +329,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
         NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
-        if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1]))
+        if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
         }
@@ -347,7 +348,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         }
         // the third params should be handler
         NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef));
-        if (g_locationCallbacks.IsCallbackInMap(env, argv[PARAM2]))
+        if (g_locationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
         }
@@ -363,7 +364,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
         NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
-        if (g_gnssStatusInfoCallbacks.IsCallbackInMap(env, argv[PARAM1]))
+        if (g_gnssStatusInfoCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
         }
@@ -378,7 +379,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
         NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
-        if (g_nmeaCallbacks.IsCallbackInMap(env, argv[PARAM1]))
+        if (g_nmeaCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
         }
@@ -397,7 +398,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         }
         // the third params should be handler
         NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef));
-        if (g_cachedLocationCallbacks.IsCallbackInMap(env, argv[PARAM2]))
+        if (g_cachedLocationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
         }
