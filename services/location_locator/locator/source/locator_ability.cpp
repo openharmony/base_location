@@ -66,6 +66,7 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     InitRequestManagerMap();
+    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
@@ -106,7 +107,6 @@ bool LocatorAbility::Init()
 
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
-    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
