@@ -17,7 +17,6 @@
 
 namespace OHOS {
 namespace Location {
-template <typename T>
 bool CallbackManager::IsCallbackInMap(napi_env& env, napi_value& handler)
 {
     auto iter = callbackMap_.find(env);
@@ -45,7 +44,6 @@ void CallbackManager::AddCallback(napi_env& env, napi_ref& handlerRef, sptr<T>& 
     iter->second.insert(std::make_pair(handlerRef, callback));
 }
 
-template <typename T>
 void CallbackManager::DeleteCallback(napi_env& env, napi_value& handler)
 {
     auto iter = callbackMap_.find(env);
