@@ -27,7 +27,6 @@ ohos_shared_library("geolocation") {
   ]
 
   sources = [
-    "//base/location/frameworks/js/napi/source/callback_manager.cpp",
     "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
     "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
     "//base/location/frameworks/js/napi/source/location_napi_event.cpp",

@@ -39,7 +39,7 @@ void SubscribeLocationChange(napi_env& env, const napi_value& object,
     napi_ref& handlerRef, sptr<LocatorCallbackHost>& locatorCallbackHost);
 void SubscribeCacheLocationChange(napi_env& env, const napi_value& object,
     napi_ref& handlerRef, sptr<CachedLocationsCallbackHost>& cachedCallbackHost);
-void SubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_value& handler)
+void SubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_value& handler);
 void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback);
 void UnSubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_value& handler);
 void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback);

@@ -34,10 +34,10 @@ CallbackManager<GnssStatusCallbackHost> g_gnssStatusInfoCallbacks;
 CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
 std::vector<GeoFenceState*> mFences;
-sptr<LocatorCallbackHost> g_singleLocatorCallbackHost =
+auto g_singleLocatorCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-sptr<ILocatorCallback> g_singleLocatorCallback = sptr<ILocatorCallback>(g_singleLocatorCallbackHost);
-std::unique_ptr<Locator> g_locatorProxy = Locator::GetInstance();
+auto g_singleLocatorCallback = sptr<ILocatorCallback>(g_singleLocatorCallbackHost);
+auto g_locatorProxy = Locator::GetInstance();
 
 void SubscribeLocationServiceState(napi_env& env,
     napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost)
@@ -84,11 +84,11 @@ void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHo
 void SubscribeLocationChange(napi_env& env, const napi_value& object,
     napi_ref& handlerRef, sptr<LocatorCallbackHost>& locatorCallbackHost)
 {
-    sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
+    auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
     locatorCallbackHost->m_fixNumber = 0;
     locatorCallbackHost->m_env = env;
     locatorCallbackHost->m_handlerCb = handlerRef;
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    auto requestConfig = std::make_unique<RequestConfig>();
     JsObjToLocationRequest(env, object, requestConfig);
     g_locatorProxy->StartLocating(requestConfig, locatorCallback);
 }
@@ -96,21 +96,21 @@ void SubscribeLocationChange(napi_env& env, const napi_value& object,
 void SubscribeCacheLocationChange(napi_env& env, const napi_value& object,
     napi_ref& handlerRef, sptr<CachedLocationsCallbackHost>& cachedCallbackHost)
 {
-    sptr<ICachedLocationsCallback> cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
     cachedCallbackHost->m_env = env;
     cachedCallbackHost->m_handlerCb = handlerRef;
-    std::unique_ptr<CachedGnssLocationsRequest> request = std::make_unique<CachedGnssLocationsRequest>();
+    auto request = std::make_unique<CachedGnssLocationsRequest>();
     JsObjToCachedLocationRequest(env, object, request);
     g_locatorProxy->RegisterCachedLocationCallback(request, cachedCallback);
 }
 
 void SubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_value& handler)
 {
-    AbilityRuntime::WantAgent::WantAgent wantAgent = AbilityRuntime::WantAgent::WantAgent();
+    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
     NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+    auto request = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, request);
-    GeoFenceState* state = new (std::nothrow) GeoFenceState(request->geofence, wantAgent);
+    auto state = new (std::nothrow) GeoFenceState(request->geofence, wantAgent);
     if (state != nullptr) {
         mFences.push_back(state);
         g_locatorProxy->AddFence(request);
@@ -119,9 +119,9 @@ void SubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_va
 
 void UnSubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_value& handler)
 {
-    AbilityRuntime::WantAgent::WantAgent wantAgent = AbilityRuntime::WantAgent::WantAgent();
+    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
     NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+    auto request = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, request);
     if (mFences.size() > 0) {
         mFences.erase(mFences.begin());
@@ -171,7 +171,7 @@ void InitSingleLocatorCallback(napi_env& env, const size_t argc, const napi_valu
     if (g_singleLocatorCallbackHost->m_handlerCb != nullptr || g_singleLocatorCallbackHost->m_deferred != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
         UnSubscribeLocationChange(g_singleLocatorCallback);
-        g_singleLocatorCallbackHost->DeleteAllNapiCb();
+        g_singleLocatorCallbackHost->DeleteAllCallbacks();
     }
     g_singleLocatorCallbackHost->m_env = env;
     g_singleLocatorCallbackHost->m_fixNumber = 1;
@@ -193,7 +193,7 @@ void InitSingleLocatorCallback(napi_env& env, const size_t argc, const napi_valu
 
 napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_value* argv)
 {
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    auto requestConfig = std::make_unique<RequestConfig>();
     LBSLOGI(LOCATION_NAPI, "RequestLocationOnce enter");
     if (g_singleLocatorCallbackHost == nullptr) {
         return UndefinedNapiValue(env);
@@ -204,7 +204,7 @@ napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_valu
     InitSingleLocatorCallback(env, argc, argv);
     GenRequestConfig(env, argv, nonCallbackArgNum, requestConfig);
 
-    CurrentLocationAsyncContext* asyncContext = new (std::nothrow) CurrentLocationAsyncContext(env);
+    auto asyncContext = new (std::nothrow) CurrentLocationAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "GetCurrentLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
     asyncContext->timeout = requestConfig->GetTimeOut();
@@ -389,7 +389,6 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
-    bool isEqual = false;
     if (event == "locationServiceState") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         auto switchCallbackHost = g_switchCallbacks.GetCallbackPtr(env, argv[PARAM1]);
@@ -404,7 +403,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         if (locatorCallbackHost) {
             auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
             UnSubscribeLocationChange(locatorCallback);
-            locatorCallbackHost->DeleteAllNapiCb();
+            locatorCallbackHost->DeleteAllCallbacks();
             g_locationCallbacks.DeleteCallback(env, argv[PARAM1]);
         }
     } else if (event == "gnssStatusChange") {

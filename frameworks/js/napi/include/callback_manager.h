@@ -33,6 +33,65 @@ public:
 private:
     std::map<napi_env, std::map<napi_ref, sptr<T>>> callbackMap_;
 };
+
+inline bool CallbackManager::IsCallbackInMap(napi_env& env, napi_value& handler)
+{
+    auto iter = callbackMap_.find(env);
+    if (iter == callbackMap_.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        if (IsCallbackEquals(env, handler, innerIter->first)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <typename T>
+inline void CallbackManager::AddCallback(napi_env& env, napi_ref& handlerRef, sptr<T>& callback)
+{
+    auto iter = callbackMap_.find(env);
+    if (iter == callbackMap_.end()) {
+        std::map<napi_ref, sptr<T>> innerMap;
+        innerMap.insert(std::make_pair(handlerRef, callback));
+        callbackMap_.insert(std::make_pair(env, innerMap));
+        return;
+    }
+    iter->second.insert(std::make_pair(handlerRef, callback));
+}
+
+inline void CallbackManager::DeleteCallback(napi_env& env, napi_value& handler)
+{
+    auto iter = callbackMap_.find(env);
+    if (iter == callbackMap_.end()) {
+        return;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        if (IsCallbackEquals(env, handler, innerIter->first)) {
+            innerIter = iter->second.erase(innerIter);
+            if (iter->second.size() == 0) {
+                callbackMap_.erase(iter);
+            }
+            break;
+        }
+    }
+}
+
+template <typename T>
+inline sptr<T> CallbackManager::GetCallbackPtr(napi_env& env, napi_value& handler)
+{
+    auto iter = callbackMap_.find(env);
+    if (iter == callbackMap_.end()) {
+        return nullptr;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        if (IsCallbackEquals(env, handler, innerIter->first)) {
+            return innerIter->second;
+        }
+    }
+    return nullptr;
+}
 } // namespace Location
 } // namespace OHOS
 #endif // CALLBACK_MANAGER_H

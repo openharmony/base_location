@@ -263,7 +263,7 @@ void LocatorCallbackHost::OnErrorReport(const int errorCode)
     SendErrorCode(errorCode);
 }
 
-void LocatorCallbackHost::DeleteAllNapiCb()
+void LocatorCallbackHost::DeleteAllCallbacks()
 {
     DeleteHandler();
     DeleteCompleteHandler();
