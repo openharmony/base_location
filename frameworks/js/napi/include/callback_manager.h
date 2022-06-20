@@ -43,7 +43,8 @@ bool CallbackManager<T>::IsCallbackInMap(napi_env& env, napi_value& handler)
         return false;
     }
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
-        if (IsCallbackEquals(env, handler, innerIter->first)) {
+        auto ref = innerIter->first;
+        if (IsCallbackEquals(env, handler, ref)) {
             return true;
         }
     }
@@ -71,7 +72,8 @@ void CallbackManager<T>::DeleteCallback(napi_env& env, napi_value& handler)
         return;
     }
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
-        if (IsCallbackEquals(env, handler, innerIter->first)) {
+        auto ref = innerIter->first;
+        if (IsCallbackEquals(env, handler, ref)) {
             innerIter = iter->second.erase(innerIter);
             if (iter->second.size() == 0) {
                 callbackMap_.erase(iter);
@@ -89,7 +91,8 @@ sptr<T> CallbackManager<T>::GetCallbackPtr(napi_env& env, napi_value& handler)
         return nullptr;
     }
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
-        if (IsCallbackEquals(env, handler, innerIter->first)) {
+        auto ref = innerIter->first;
+        if (IsCallbackEquals(env, handler, ref)) {
             return innerIter->second;
         }
     }
