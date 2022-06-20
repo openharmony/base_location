@@ -25,7 +25,7 @@ namespace Location {
 template <typename T>
 class CallbackManager {
 public:
-    CallbackManager();
+    CallbackManager() = default;
     virtual ~CallbackManager() = default;
     bool IsCallbackInMap(napi_env& env, napi_value& handler);
     void AddCallback(napi_env& env, napi_ref& handlerRef, sptr<T>& callback);
