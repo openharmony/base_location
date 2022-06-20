@@ -18,6 +18,7 @@
 
 #include <unistd.h>
 #include "napi_util.h"
+#include "location_napi_event.h"
 
 namespace OHOS {
 namespace Location {
