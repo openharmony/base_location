@@ -66,6 +66,7 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     InitRequestManagerMap();
+    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
@@ -106,7 +107,6 @@ bool LocatorAbility::Init()
 
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
-    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
@@ -162,7 +162,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case EVENT_INIT_REQUEST_MANAGER: {
             if (!DelayedSingleton<RequestManager>::GetInstance()->InitSystemListeners()) {
-                SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
+                LBSLOGE(LOCATOR, "InitSystemListeners failed");
             }
             break;
         }
@@ -670,7 +670,7 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
 {
-    sptr<Location> lastLocation = reportManager_->GetLastLocation();
+    std::shared_ptr<Location> lastLocation = reportManager_->GetLastLocation();
     if (lastLocation == nullptr) {
         reply.WriteInt32(EXCEPTION);
         reply.WriteString("get no cached result");

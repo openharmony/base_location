@@ -27,7 +27,6 @@ const int SECOND_TO_MILLISECOND = 1000;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 ReportManager::ReportManager()
 {
-    lastLocation_ = new (std::nothrow) Location();
 }
 
 ReportManager::~ReportManager() {}
@@ -143,23 +142,20 @@ bool ReportManager::ReportIntervalCheck(const std::unique_ptr<Location>& locatio
 
 void ReportManager::SetLastLocation(const std::unique_ptr<Location>& location)
 {
-    if (lastLocation_ == nullptr) {
-        LBSLOGD(REPORT_MANAGER, "lastLocation_ is null ptr");
-        return;
-    }
-    lastLocation_->SetLatitude(location->GetLatitude());
-    lastLocation_->SetLongitude(location->GetLongitude());
-    lastLocation_->SetAltitude(location->GetAltitude());
-    lastLocation_->SetAccuracy(location->GetAccuracy());
-    lastLocation_->SetSpeed(location->GetSpeed());
-    lastLocation_->SetDirection(location->GetDirection());
-    lastLocation_->SetTimeStamp(location->GetTimeStamp());
-    lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
+    lastLocation_.SetLatitude(location->GetLatitude());
+    lastLocation_.SetLongitude(location->GetLongitude());
+    lastLocation_.SetAltitude(location->GetAltitude());
+    lastLocation_.SetAccuracy(location->GetAccuracy());
+    lastLocation_.SetSpeed(location->GetSpeed());
+    lastLocation_.SetDirection(location->GetDirection());
+    lastLocation_.SetTimeStamp(location->GetTimeStamp());
+    lastLocation_.SetTimeSinceBoot(location->GetTimeSinceBoot());
 }
 
-sptr<Location> ReportManager::GetLastLocation()
+std::shared_ptr<Location> ReportManager::GetLastLocation()
 {
-    return lastLocation_;
+    auto lastLocation = std::make_shared<Location>(lastLocation_);
+    return lastLocation;
 }
 } // namespace OHOS
 } // namespace Location

@@ -29,12 +29,12 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    LocationAsyncContext* asyncContext = new (std::nothrow) LocationAsyncContext(env);
+    auto asyncContext = new (std::nothrow) LocationAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "getLastLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        LocationAsyncContext* context = static_cast<LocationAsyncContext*>(data);
+        auto context = static_cast<LocationAsyncContext*>(data);
         context->loc = g_locatorClient->IsLocationEnabled() ? g_locatorClient->GetCachedLocation() : nullptr;
         if (context->loc != nullptr) {
             context->errCode = SUCCESS;
@@ -44,7 +44,7 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        LocationAsyncContext* context = static_cast<LocationAsyncContext*>(data);
+        auto context = static_cast<LocationAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
         if (context->loc != nullptr) {
             LocationToJs(context->env, context->loc, context->result[PARAM1]);
@@ -67,18 +67,18 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    SwitchAsyncContext* asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     napi_create_string_latin1(env, "isLocationEnabled", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         context->enable = g_locatorClient->IsLocationEnabled();
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env, napi_get_boolean(context->env, context->enable, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push IsLocationEnabled result to client");
     };
@@ -96,18 +96,18 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    SwitchAsyncContext* asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "enableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         g_locatorClient->EnableAbility(true);
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push EnableLocation result to client");
@@ -126,18 +126,18 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    SwitchAsyncContext* asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "disableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         g_locatorClient->EnableAbility(false);
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push DisableLocation result to client");
@@ -156,12 +156,12 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    SwitchAsyncContext* asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "enableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         if (!g_locatorClient->IsLocationEnabled()) {
             g_locatorClient->ShowNotification();
         }
@@ -170,7 +170,7 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push RequestEnableLocation result to client");
@@ -189,18 +189,18 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    SwitchAsyncContext* asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env,
         napi_create_string_latin1(env, "isGeoServiceAvailable", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
     asyncContext->executeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         context->enable = g_locatorClient->IsLocationEnabled() && g_locatorClient->IsGeoServiceAvailable();
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        SwitchAsyncContext* context = static_cast<SwitchAsyncContext*>(data);
+        auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env, napi_get_boolean(context->env, context->enable, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push isGeoServiceAvailable result to client");
     };
@@ -223,7 +223,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 
-    ReverseGeoCodeAsyncContext* asyncContext = new (std::nothrow) ReverseGeoCodeAsyncContext(env);
+    auto asyncContext = new (std::nothrow) ReverseGeoCodeAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "getAddressesFromLocation",
         NAPI_AUTO_LENGTH, &asyncContext->resourceName));
@@ -231,7 +231,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
     JsObjToReverseGeoCodeRequest(env, argv[0], asyncContext->reverseGeoCodeRequest);
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        ReverseGeoCodeAsyncContext* context = static_cast<ReverseGeoCodeAsyncContext*>(data);
+        auto context = static_cast<ReverseGeoCodeAsyncContext*>(data);
         if (g_locatorClient->IsLocationEnabled()) {
             g_locatorClient->GetAddressByCoordinate(context->reverseGeoCodeRequest, context->replyList);
         }
@@ -243,7 +243,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        ReverseGeoCodeAsyncContext* context = static_cast<ReverseGeoCodeAsyncContext*>(data);
+        auto context = static_cast<ReverseGeoCodeAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_array_with_length(context->env, context->replyList.size(), &context->result[PARAM1]));
         GeoAddressesToJsObj(context->env, context->replyList, context->result[PARAM1]);
@@ -268,7 +268,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 
-    GeoCodeAsyncContext* asyncContext = new (std::nothrow) GeoCodeAsyncContext(env);
+    auto asyncContext = new (std::nothrow) GeoCodeAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env,
         napi_create_string_latin1(env, "GetAddressesFromLocationName", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
@@ -276,7 +276,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
     JsObjToGeoCodeRequest(env, argv[0], asyncContext->geoCodeRequest);
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        GeoCodeAsyncContext* context = static_cast<GeoCodeAsyncContext*>(data);
+        auto context = static_cast<GeoCodeAsyncContext*>(data);
         if (g_locatorClient->IsLocationEnabled()) {
             g_locatorClient->GetAddressByLocationName(context->geoCodeRequest,
                 context->replyList);
@@ -289,7 +289,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        GeoCodeAsyncContext* context = static_cast<GeoCodeAsyncContext*>(data);
+        auto context = static_cast<GeoCodeAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_array_with_length(context->env, context->replyList.size(), &context->result[PARAM1]));
         GeoAddressesToJsObj(context->env, context->replyList, context->result[PARAM1]);
@@ -309,7 +309,7 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
-    PrivacyAsyncContext* asyncContext = new (std::nothrow) PrivacyAsyncContext(env);
+    auto asyncContext = new (std::nothrow) PrivacyAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env,
         napi_create_string_latin1(env, "isLocationPrivacyConfirmed", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
@@ -318,13 +318,13 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &type));
     asyncContext->type = type;
     asyncContext->executeFunc = [&](void* data) -> void {
-        PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);
+        auto context = static_cast<PrivacyAsyncContext*>(data);
         context->isConfirmed = g_locatorClient->IsLocationPrivacyConfirmed(context->type);
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);
+        auto context = static_cast<PrivacyAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->isConfirmed, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push IsLocationPrivacyConfirmed result to client");
@@ -343,7 +343,7 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
-    PrivacyAsyncContext* asyncContext = new (std::nothrow) PrivacyAsyncContext(env);
+    auto asyncContext = new (std::nothrow) PrivacyAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env,
         napi_create_string_latin1(env, "SetLocationPrivacyConfirmStatus",
@@ -354,13 +354,13 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
     asyncContext->type = type;
     NAPI_CALL(env, napi_get_value_bool(env, argv[1], &asyncContext->isConfirmed));
     asyncContext->executeFunc = [&](void* data) -> void {
-        PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);
+        auto context = static_cast<PrivacyAsyncContext*>(data);
         g_locatorClient->SetLocationPrivacyConfirmStatus(context->type, context->isConfirmed);
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        PrivacyAsyncContext* context = static_cast<PrivacyAsyncContext*>(data);
+        auto context = static_cast<PrivacyAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push SetLocationPrivacyConfirmStatus result to client");
@@ -379,13 +379,13 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
-    CachedAsyncContext* asyncContext = new (std::nothrow) CachedAsyncContext(env);
+    auto asyncContext = new (std::nothrow) CachedAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env,
         napi_create_string_latin1(env, "GetCachedGnssLocationsSize", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        CachedAsyncContext* context = static_cast<CachedAsyncContext*>(data);
+        auto context = static_cast<CachedAsyncContext*>(data);
         context->errCode = LOCATION_SWITCH_ERROR;
         if (g_locatorClient->IsLocationEnabled()) {
             context->locationSize = g_locatorClient->GetCachedGnssLocationsSize();
@@ -394,7 +394,7 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        CachedAsyncContext* context = static_cast<CachedAsyncContext*>(data);
+        auto context = static_cast<CachedAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_int32(context->env, context->locationSize, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push GetCachedGnssLocationsSize result to client");
@@ -413,13 +413,13 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
-    CachedAsyncContext* asyncContext = new (std::nothrow) CachedAsyncContext(env);
+    auto asyncContext = new (std::nothrow) CachedAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env,
         napi_create_string_latin1(env, "FlushCachedGnssLocations", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        CachedAsyncContext* context = static_cast<CachedAsyncContext*>(data);
+        auto context = static_cast<CachedAsyncContext*>(data);
         context->errCode = LOCATION_SWITCH_ERROR;
         if (g_locatorClient->IsLocationEnabled()) {
             g_locatorClient->FlushCachedGnssLocations();
@@ -428,7 +428,7 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        CachedAsyncContext* context = static_cast<CachedAsyncContext*>(data);
+        auto context = static_cast<CachedAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push FlushCachedGnssLocations result to client");
@@ -452,23 +452,24 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 
-    CommandAsyncContext* asyncContext = new (std::nothrow) CommandAsyncContext(env);
+    auto asyncContext = new (std::nothrow) CommandAsyncContext(env);
+    asyncContext->command = std::make_unique<LocationCommand>();
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "SendCommand", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     JsObjToCommand(env, argv[0], asyncContext->command);
 
     asyncContext->executeFunc = [&](void* data) -> void {
-        CommandAsyncContext* context = static_cast<CommandAsyncContext*>(data);
+        auto context = static_cast<CommandAsyncContext*>(data);
         context->errCode = LOCATION_SWITCH_ERROR;
-        if (g_locatorClient->IsLocationEnabled()) {
+        if (g_locatorClient->IsLocationEnabled() && context->command != nullptr) {
             context->enable = g_locatorClient->SendCommand(context->command);
             context->errCode = SUCCESS;
         }
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
-        CommandAsyncContext* context = static_cast<CommandAsyncContext*>(data);
+        auto context = static_cast<CommandAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env, napi_get_boolean(context->env, context->enable, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
     };
