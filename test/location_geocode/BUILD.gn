@@ -41,7 +41,7 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   deps = [
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
+    "//base/startup/init_lite/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
@@ -53,10 +53,10 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "common_event_service:cesfwk_innerkits",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
   ]
 
   module_out_path = module_output_path
