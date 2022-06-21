@@ -47,24 +47,24 @@ Location awareness helps determine where a mobile device locates. The system ide
 
 ```
 /base/location               # Source code
-├── etc                   # Code for the service startup configuration
-├── interfaces            # APIs
-├── profile               # Code for service declaration
-├── location_common       # Common code
-├── location_locator      # Location service management code
-├── location_gnss         # GNSS positioning service code
-├── location_network      # Network positioning service code
-├── location_passive      # Passive positioning service code
-├── location_geocode      # Geocoding service code
-├── test                  # Test code
-├── utils                 # Common utility code
+  ├── etc                   # Code for the service startup configuration
+  ├── interfaces            # APIs
+  ├── profile               # Code for service declaration
+  ├── location_common       # Common code
+  ├── location_locator      # Location service management code
+  ├── location_gnss         # GNSS positioning service code
+  ├── location_network      # Network positioning service code
+  ├── location_passive      # Passive positioning service code
+  ├── location_geocode      # Geocoding service code
+  ├── test                  # Test code
+  ├── utils                 # Common utility code
 ```
 
 ## Constraints<a name="section119744591305"></a>
 
-Your application can use the location function only after the user has granted the permission and turned on the function. If the location function is off, the system will not provide the location service for any application.
+ - Your application can use the location function only after the user has granted the permission and turned on the function. If the location function is off, the system will not provide the location service for any application.
 
-Since the location information is considered sensitive, your application still needs to obtain the location access permission from the user even if the user has turned on the location function. The system will provide the location service for your application only after it has been granted the permission to access the device location information.
+ - Since the location information is considered sensitive, your application still needs to obtain the location access permission from the user even if the user has turned on the location function. The system will provide the location service for your application only after it has been granted the permission to access the device location information.
 
 ## Usage<a name="section1312121216216"></a>
 
@@ -74,42 +74,42 @@ Since the location information is considered sensitive, your application still n
 
 **Table  1**  APIs for obtaining device location information
 
-| Interface Name | function description | 
+| Interface Name | function description |
 | -------- | -------- |
-| on(type:&nbsp;'locationChange',&nbsp;request:&nbsp;LocationRequest,&nbsp;callback:&nbsp;Callback&lt;Location&gt;)&nbsp;:&nbsp;void | Enable location change subscription and initiate a location request. | 
-| off(type:&nbsp;'locationChange',&nbsp;callback?:&nbsp;Callback&lt;Location&gt;)&nbsp;:&nbsp;void | Disable the location change subscription and delete the corresponding location request. | 
-| on(type:&nbsp;'locationServiceState',&nbsp;callback:&nbsp;Callback&lt;boolean&gt;)&nbsp;:&nbsp;void | The subscription location service status changes. | 
-| off(type:&nbsp;'locationServiceState',&nbsp;callback:&nbsp;Callback&lt;boolean&gt;)&nbsp;:&nbsp;void | Unsubscribe from location service status changes. | 
-| on(type:&nbsp;'cachedGnssLocationsReporting',&nbsp;request:&nbsp;CachedGnssLocationsRequest,&nbsp;callback:&nbsp;Callback&lt;Array&lt;Location&gt;&gt;)&nbsp;:&nbsp;void; | Subscribe to cache GNSS location reporting. | 
-| off(type:&nbsp;'cachedGnssLocationsReporting',&nbsp;callback?:&nbsp;Callback&lt;Array&lt;Location&gt;&gt;)&nbsp;:&nbsp;void; | Unsubscribe from cached GNSS location reporting. | 
-| on(type:&nbsp;'gnssStatusChange',&nbsp;callback:&nbsp;Callback&lt;SatelliteStatusInfo&gt;)&nbsp;:&nbsp;void; | Subscribe to satellite status update events. | 
-| off(type:&nbsp;'gnssStatusChange',&nbsp;callback?:&nbsp;Callback&lt;SatelliteStatusInfo&gt;)&nbsp;:&nbsp;void; | Unsubscribe from satellite status update events. | 
-| on(type:&nbsp;'nmeaMessageChange',&nbsp;callback:&nbsp;Callback&lt;string&gt;)&nbsp;:&nbsp;void; | Subscribe to GNSS NMEA information reporting. | 
-| off(type:&nbsp;'nmeaMessageChange',&nbsp;callback?:&nbsp;Callback&lt;string&gt;)&nbsp;:&nbsp;void; | Unsubscribe to GNSS NMEA information reporting. | 
-| on(type:&nbsp;'fenceStatusChange',&nbsp;request:&nbsp;GeofenceRequest,&nbsp;want:&nbsp;WantAgent)&nbsp;:&nbsp;void; | Add a fence and subscribe to the event reporting of the fence. | 
-| off(type:&nbsp;'fenceStatusChange',&nbsp;request:&nbsp;GeofenceRequest,&nbsp;want:&nbsp;WantAgent)&nbsp;:&nbsp;void; | Delete the fence and unsubscribe from the fence event. | 
-| getCurrentLocation(request:&nbsp;CurrentLocationRequest,&nbsp;callback:&nbsp;AsyncCallback&lt;Location&gt;)&nbsp;:&nbsp;void | Obtain the current location and use the callback callback to return the result asynchronously. | 
-| getCurrentLocation(request?:&nbsp;CurrentLocationRequest)&nbsp;:&nbsp;Promise&lt;Location&gt; | Obtains the current location and returns the result asynchronously in Promise mode. | 
-| getLastLocation(callback:&nbsp;AsyncCallback&lt;Location&gt;)&nbsp;:&nbsp;void | Obtain the last location and use the callback callback to return the result asynchronously. | 
-| getLastLocation()&nbsp;:&nbsp;Promise&lt;Location&gt; | Obtains the last location and returns the result asynchronously in Promise mode. | 
-| isLocationEnabled(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Check whether the location service is enabled and callback is used to return the result asynchronously. | 
-| isLocationEnabled()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Check whether the location service is enabled and return the result asynchronously in Promise mode. | 
-| requestEnableLocation(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Request to enable the location service and use the callback callback to return the result asynchronously. | 
-| requestEnableLocation()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Request to enable the location service and return the result asynchronously in Promise mode. | 
-| enableLocation(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Enable the location service and use the callback callback to return the result asynchronously. | 
-| enableLocation()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Start the location service and return the result asynchronously in Promise mode. | 
-| disableLocation(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Disable the location service and use the callback callback to return the result asynchronously. | 
-| disableLocation()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Stop the location service and return the result asynchronously in Promise mode. | 
-| getCachedGnssLocationsSize(callback:&nbsp;AsyncCallback&lt;number&gt;)&nbsp;:&nbsp;void; | Obtains the number of cached GNSS locations and uses the callback callback to return the result asynchronously. | 
-| getCachedGnssLocationsSize()&nbsp;:&nbsp;Promise&lt;number&gt;; | Obtains the number of cached GNSS locations and returns the result asynchronously in Promise mode. | 
-| flushCachedGnssLocations(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | Obtains all GNSS cache locations, clears the GNSS cache queue, and invokes callback to return results asynchronously. | 
-| flushCachedGnssLocations()&nbsp;:&nbsp;Promise&lt;boolean&gt;; | Obtains all GNSS cache locations, clears the GNSS cache queue, and returns results asynchronously in Promise mode. | 
-| sendCommand(command:&nbsp;LocationCommand,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | Send an extended command to the location service subsystem and use the callback callback to return the result asynchronously. | 
-| sendCommand(command:&nbsp;LocationCommand)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | Sends extended commands to the location service subsystem and returns results asynchronously in Promise mode. | 
-| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | This interface is used to query whether a user agrees with the privacy statement of the LCS service. The callback callback interface is used to return the result asynchronously. | 
-| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;LocationPrivacyType,)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | This interface is used to query whether a user agrees with the privacy statement of the LCS service. The result is returned asynchronously in Promise mode. | 
-| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;isConfirmed&nbsp;:&nbsp;boolean,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | Set and record whether the user agrees to the privacy statement of the LCS service and use the callback callback to return the result asynchronously. | 
-| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;isConfirmed&nbsp;:&nbsp;boolean)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | Set and record whether the user agrees to the privacy statement of the LCS. The result is returned asynchronously in Promise mode. | 
+| on(type:&nbsp;'locationChange',&nbsp;request:&nbsp;LocationRequest,&nbsp;callback:&nbsp;Callback&lt;Location&gt;)&nbsp;:&nbsp;void | Enable location change subscription and initiate a location request. |
+| off(type:&nbsp;'locationChange',&nbsp;callback?:&nbsp;Callback&lt;Location&gt;)&nbsp;:&nbsp;void | Disable the location change subscription and delete the corresponding location request. |
+| on(type:&nbsp;'locationServiceState',&nbsp;callback:&nbsp;Callback&lt;boolean&gt;)&nbsp;:&nbsp;void | The subscription location service status changes. |
+| off(type:&nbsp;'locationServiceState',&nbsp;callback:&nbsp;Callback&lt;boolean&gt;)&nbsp;:&nbsp;void | Unsubscribe from location service status changes. |
+| on(type:&nbsp;'cachedGnssLocationsReporting',&nbsp;request:&nbsp;CachedGnssLocationsRequest,&nbsp;callback:&nbsp;Callback&lt;Array&lt;Location&gt;&gt;)&nbsp;:&nbsp;void; | Subscribe to cache GNSS location reporting. |
+| off(type:&nbsp;'cachedGnssLocationsReporting',&nbsp;callback?:&nbsp;Callback&lt;Array&lt;Location&gt;&gt;)&nbsp;:&nbsp;void; | Unsubscribe from cached GNSS location reporting. |
+| on(type:&nbsp;'gnssStatusChange',&nbsp;callback:&nbsp;Callback&lt;SatelliteStatusInfo&gt;)&nbsp;:&nbsp;void; | Subscribe to satellite status update events. |
+| off(type:&nbsp;'gnssStatusChange',&nbsp;callback?:&nbsp;Callback&lt;SatelliteStatusInfo&gt;)&nbsp;:&nbsp;void; | Unsubscribe from satellite status update events. |
+| on(type:&nbsp;'nmeaMessageChange',&nbsp;callback:&nbsp;Callback&lt;string&gt;)&nbsp;:&nbsp;void; | Subscribe to GNSS NMEA information change reporting. |
+| off(type:&nbsp;'nmeaMessageChange',&nbsp;callback?:&nbsp;Callback&lt;string&gt;)&nbsp;:&nbsp;void; | Unsubscribe to GNSS NMEA information change reporting. |
+| on(type:&nbsp;'fenceStatusChange',&nbsp;request:&nbsp;GeofenceRequest,&nbsp;want:&nbsp;WantAgent)&nbsp;:&nbsp;void; | Add a fence and subscribe to the event reporting of the fence. |
+| off(type:&nbsp;'fenceStatusChange',&nbsp;request:&nbsp;GeofenceRequest,&nbsp;want:&nbsp;WantAgent)&nbsp;:&nbsp;void; | Delete the fence and unsubscribe from the fence event. |
+| getCurrentLocation(request:&nbsp;CurrentLocationRequest,&nbsp;callback:&nbsp;AsyncCallback&lt;Location&gt;)&nbsp;:&nbsp;void | Obtain the current location and use the callback callback to return the result asynchronously. |
+| getCurrentLocation(request?:&nbsp;CurrentLocationRequest)&nbsp;:&nbsp;Promise&lt;Location&gt; | Obtains the current location and returns the result asynchronously in Promise mode. |
+| getLastLocation(callback:&nbsp;AsyncCallback&lt;Location&gt;)&nbsp;:&nbsp;void | Obtain the last location and use the callback callback to return the result asynchronously. |
+| getLastLocation()&nbsp;:&nbsp;Promise&lt;Location&gt; | Obtains the last location and returns the result asynchronously in Promise mode. |
+| isLocationEnabled(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Check whether the location service is enabled and callback is used to return the result asynchronously. |
+| isLocationEnabled()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Check whether the location service is enabled and return the result asynchronously in Promise mode. |
+| requestEnableLocation(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Request to enable the location service and use the callback callback to return the result asynchronously. |
+| requestEnableLocation()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Request to enable the location service and return the result asynchronously in Promise mode. |
+| enableLocation(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Enable the location service and use the callback callback to return the result asynchronously. |
+| enableLocation()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Start the location service and return the result asynchronously in Promise mode. |
+| disableLocation(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void | Disable the location service and use the callback callback to return the result asynchronously. |
+| disableLocation()&nbsp;:&nbsp;Promise&lt;boolean&gt; | Stop the location service and return the result asynchronously in Promise mode. |
+| getCachedGnssLocationsSize(callback:&nbsp;AsyncCallback&lt;number&gt;)&nbsp;:&nbsp;void; | Obtains the number of cached GNSS locations and uses the callback callback to return the result asynchronously. |
+| getCachedGnssLocationsSize()&nbsp;:&nbsp;Promise&lt;number&gt;; | Obtains the number of cached GNSS locations and returns the result asynchronously in Promise mode. |
+| flushCachedGnssLocations(callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | Obtains all GNSS cache locations, clears the GNSS cache queue, and invokes callback to return results asynchronously. |
+| flushCachedGnssLocations()&nbsp;:&nbsp;Promise&lt;boolean&gt;; | Obtains all GNSS cache locations, clears the GNSS cache queue, and returns results asynchronously in Promise mode. |
+| sendCommand(command:&nbsp;LocationCommand,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | Send an extended command to the location service subsystem and use the callback callback to return the result asynchronously. |
+| sendCommand(command:&nbsp;LocationCommand)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | Sends extended commands to the location service subsystem and returns results asynchronously in Promise mode. |
+| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | This interface is used to query whether a user agrees with the privacy statement of the LCS service. The callback callback interface is used to return the result asynchronously. |
+| isLocationPrivacyConfirmed(type&nbsp;:&nbsp;LocationPrivacyType,)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | This interface is used to query whether a user agrees with the privacy statement of the LCS service. The result is returned asynchronously in Promise mode. |
+| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;isConfirmed&nbsp;:&nbsp;boolean,&nbsp;callback:&nbsp;AsyncCallback&lt;boolean&gt;)&nbsp;:&nbsp;void; | Set and record whether the user agrees to the privacy statement of the LCS service and use the callback callback to return the result asynchronously. |
+| setLocationPrivacyConfirmStatus(type&nbsp;:&nbsp;LocationPrivacyType,&nbsp;isConfirmed&nbsp;:&nbsp;boolean)&nbsp;:&nbsp;Promise&lt;boolean&gt;; | Set and record whether the user agrees to the privacy statement of the LCS. The result is returned asynchronously in Promise mode. |
 
 
 ### Usage Guidelines<a name="section129654513264"></a>
@@ -156,7 +156,7 @@ Since the location information is considered sensitive, your application still n
 
     To better serve your needs for using APIs, the system has categorized APIs into different packages to match your common use cases of the location function. In this way, you can directly use the APIs specific to a certain use case, making application development much easier. The following table lists the use cases currently supported.
 
-    **Table  3**  Common use cases of the location function
+    **Table  2**  Common use cases of the location function
 
     <a name="table1758483964015"></a>
     <table><thead align="left"><tr id="row458433920403"><th class="cellrowborder" valign="top" width="14.92850714928507%" id="mcps1.2.4.1.1"><p id="p12584143911402"><a name="p12584143911402"></a><a name="p12584143911402"></a>Use Case</p>
@@ -250,7 +250,7 @@ Since the location information is considered sensitive, your application still n
     </tr>
     <tr id="row1676014604116"><td class="cellrowborder" valign="top" width="29.592959295929592%" headers="mcps1.2.4.1.1 "><p id="p576056104110"><a name="p576056104110"></a><a name="p576056104110"></a>Fast location priority</p>
     </td>
-    <td class="cellrowborder" valign="top" width="27.082708270827084%" headers="mcps1.2.4.1.2 "><p id="p14760965417"><a name="p14760965417"></a><a name="p14760965417"></a>PRIORITY_FAST_FIRST_FIX</p>
+    <td class="cellrowborder" valign="top" width="27.082708270827084%" headers="mcps1.2.4.1.2 "><p id="p14760965417"><a name="p14760965417"></a><a name="p14760965417"></a>PRIORITY_FIRST_FIX</p>
     </td>
     <td class="cellrowborder" valign="top" width="43.32433243324332%" headers="mcps1.2.4.1.3 "><p id="p1760106164114"><a name="p1760106164114"></a><a name="p1760106164114"></a>This policy uses the GNSS positioning, base station positioning, WLAN positioning, and Bluetooth positioning technologies simultaneously to obtain the device location in both the indoor and outdoor scenarios. When all positioning technologies provide a location result, the system provides the most accurate location result for your application. This policy can lead to significant hardware resource consumption and power consumption.</p>
     <p id="p10760965410"><a name="p10760965410"></a><a name="p10760965410"></a>To use this policy, you must declare the <strong id="b1154417237307"><a name="b1154417237307"></a><a name="b1154417237307"></a>ohos.permission.LOCATION</strong> permission and obtain user authorization.</p>

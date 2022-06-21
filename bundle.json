@@ -51,7 +51,8 @@
             ],
             "test": [
                 "//base/location/test/location_locator:unittest",
-                "//base/location/test/location_geocode:unittest"
+                "//base/location/test/location_geocode:unittest",
+                "//base/location/test/fuzztest:fuzztest"
             ]
         }
     }

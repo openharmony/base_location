@@ -26,10 +26,7 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
     LBSLOGI(PASSIVE, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
-    if (lastCallinguid > SYSTEM_UID) {
-        LBSLOGE(PASSIVE, "this remote request is not allowed");
-        return EXCEPTION;
-    }
+
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
         return EXCEPTION;
@@ -42,13 +39,6 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             if (workrecord != nullptr) {
                 SendLocationRequest((uint64_t)interval, *workrecord);
-            }
-            break;
-        }
-        case GET_CACHED_LOCATION: {
-            std::unique_ptr<Location> location = GetCachedLocation();
-            if (location != nullptr) {
-                location->Marshalling(reply);
             }
             break;
         }

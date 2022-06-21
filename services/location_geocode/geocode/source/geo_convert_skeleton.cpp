@@ -27,10 +27,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     LBSLOGI(GEO_CONVERT, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
-    if (callingUid > SYSTEM_UID) {
-        LBSLOGE(GEO_CONVERT, "this remote request is not allowed");
-        return -1;
-    }
+
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
         return EXCEPTION;

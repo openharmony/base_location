@@ -18,7 +18,7 @@
 #include "ipc_skeleton.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "location_util.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
@@ -27,8 +27,6 @@ GnssStatusCallbackHost::GnssStatusCallbackHost()
     m_env = nullptr;
     m_handlerCb = nullptr;
     m_remoteDied = false;
-    m_lastCallingPid = 0;
-    m_lastCallingUid = 0;
 }
 
 GnssStatusCallbackHost::~GnssStatusCallbackHost()
@@ -47,11 +45,7 @@ int GnssStatusCallbackHost::OnRemoteRequest(
         LBSLOGD(GNSS_STATUS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
-    int uid = IPCSkeleton::GetCallingUid();
-    if (uid > SYSTEM_UID) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "invalid uid!");
-        return false;
-    }
+
     switch (code) {
         case RECEIVE_STATUS_INFO_EVENT: {
             std::unique_ptr<SatelliteStatus> statusInfo = SatelliteStatus::Unmarshalling(data);
@@ -76,7 +70,7 @@ bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
     std::shared_lock<std::shared_mutex> guard(m_mutex);
 
     uv_loop_s *loop = nullptr;
-    napi_get_uv_event_loop(m_env, &loop);
+    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "loop == nullptr.");
         return false;
@@ -118,7 +112,7 @@ void GnssStatusCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            napi_open_handle_scope(context->env, &scope);
+            NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(GNSS_STATUS_CALLBACK, "scope is nullptr");
                 delete context;
@@ -127,20 +121,21 @@ void GnssStatusCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             }
             napi_value jsEvent = nullptr;
             if (context->statusInfo != nullptr) {
-                napi_create_object(context->env, &jsEvent);
+                NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &jsEvent));
                 SatelliteStatusToJs(context->env, context->statusInfo, jsEvent);
             }
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->callback[0], &handler);
+                NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_get_reference_value(context->env, context->callback[0], &handler));
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(GNSS_STATUS_CALLBACK, "Report event failed");
                 }
             }
-            napi_close_handle_scope(context->env, scope);
+            NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
     });
@@ -155,7 +150,7 @@ void GnssStatusCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_handlerCb) {
-        napi_delete_reference(m_env, m_handlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
         m_handlerCb = nullptr;
     }
 }

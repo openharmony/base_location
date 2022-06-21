@@ -20,7 +20,7 @@
 #include <string>
 #include "i_nmea_message_callback.h"
 #include "iremote_stub.h"
-#include "location_util.h"
+#include "napi_util.h"
 #include "napi/native_api.h"
 
 namespace OHOS {
@@ -38,8 +38,6 @@ public:
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
-    pid_t m_lastCallingPid;
-    pid_t m_lastCallingUid;
     napi_env m_env;
     napi_ref m_handlerCb;
     bool m_remoteDied;

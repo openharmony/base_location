@@ -51,7 +51,6 @@ public:
         return state_;
     }
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
     void SetEnable(bool state) override;
     void RemoteRequest(bool state) override;
     void RefrashRequirements() override;
@@ -83,13 +82,13 @@ public:
     static void NmeaCallback(int64_t timestamp, const char* nmea, int length);
     static void SvStatusCallback(GnssSatelliteStatus* svInfo);
 private:
-    bool nativeInitFlag_;
-    void* handle;
-    GnssVendorInterface* g_gpsInterface;
-    std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
-    std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     bool Init();
     static void SaDumpInfo(std::string& result);
+
+    void* handle_;
+    GnssVendorInterface* gnssInterface_;
+    std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
+    std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
 };

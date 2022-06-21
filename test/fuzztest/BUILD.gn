@@ -11,10 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/config/ohos/rules.gni")
-import("//build/ohos.gni")
-import("//build/ohos_var.gni")
-
-ohos_subsystem("location") {
-  subsystem_packages = [ "location_network:lbsservice_network" ]
+import("//build/test.gni")
+group("fuzztest") {
+  testonly = true
+  deps = [ "locator/locator_fuzzer:fuzztest" ]
 }

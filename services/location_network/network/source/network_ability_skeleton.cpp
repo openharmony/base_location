@@ -28,10 +28,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
     LBSLOGI(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), lastCallingPid, lastCallinguid);
-    if (lastCallinguid > SYSTEM_UID) {
-        LBSLOGE(NETWORK, "this remote request is not allowed");
-        return EXCEPTION;
-    }
+
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(NETWORK, "invalid token.");
         return EXCEPTION;
@@ -43,13 +40,6 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
             int64_t interval = data.ReadInt64();
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             SendLocationRequest((uint64_t)interval, *workrecord);
-            break;
-        }
-        case GET_CACHED_LOCATION: {
-            std::unique_ptr<Location> location = GetCachedLocation();
-            if (location != nullptr) {
-                location->Marshalling(reply);
-            }
             break;
         }
         case SET_ENABLE: {

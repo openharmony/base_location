@@ -25,7 +25,7 @@ namespace OHOS {
 namespace Location {
 class LocatorImpl : public Locator {
 public:
-    explicit LocatorImpl(int systemAbilityId);
+    explicit LocatorImpl();
     ~LocatorImpl();
     bool Init();
     bool IsLocationEnabled() override;
@@ -57,7 +57,6 @@ public:
     bool AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
 private:
-    int systemAbilityId_;
     std::unique_ptr<LocatorProxy> client_;
 };
 }  // namespace Location

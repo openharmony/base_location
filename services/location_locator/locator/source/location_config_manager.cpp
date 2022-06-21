@@ -85,17 +85,22 @@ bool LocationConfigManager::CreateFile(const std::string& filename, const std::s
 
 std::string LocationConfigManager::GetLocationSwitchConfigPath()
 {
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    int32_t userId = callingUid / PER_USER_RANGE;
-
-    std::string filePath = "/data/vendor/gnss/location_switch_" + std::to_string(userId) + ".conf";
+    int userId = 0;
+    bool ret = CommonUtils::GetCurrentUserId(userId);
+    if (!ret) {
+        LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
+    }
+    std::string filePath = "/data/location/location_switch_" + std::to_string(userId) + ".conf";
     return filePath;
 }
 
 std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
 {
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    int32_t userId = callingUid / PER_USER_RANGE;
+    int userId = 0;
+    bool ret = CommonUtils::GetCurrentUserId(userId);
+    if (!ret) {
+        LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
+    }
     std::string filePath;
     switch (type) {
         case PRIVACY_TYPE_OTHERS: {
@@ -115,7 +120,7 @@ std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
             break;
         }
     }
-    return "/data/vendor/gnss/location_pricacy_" + filePath + std::to_string(userId) + ".conf";
+    return "/data/location/location_pricacy_" + filePath + std::to_string(userId) + ".conf";
 }
 
 int LocationConfigManager::GetLocationSwitchState()

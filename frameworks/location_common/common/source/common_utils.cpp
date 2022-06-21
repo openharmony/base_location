@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include "common_utils.h"
 #include <map>
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
@@ -21,52 +20,18 @@
 #include "ipc_types.h"
 #include "iservice_registry.h"
 #include "parameters.h"
+#include "os_account_manager.h"
 #include "system_ability_definition.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
-sptr<IRemoteObject> CommonUtils::GetLocationService()
-{
-    return nullptr;
-}
-
-bool CommonUtils::RemoteToLocationService(uint32_t code, MessageParcel &data, MessageParcel &reply)
-{
-    MessageOption option;
-    return RemoteToLocationService(code, data, reply, option);
-}
-
-bool CommonUtils::RemoteToLocationService(uint32_t code, MessageParcel &data,
-    MessageParcel &reply, MessageOption &option)
-{
-    return true;
-}
-
-bool CommonUtils::EnforceInterface(const std::u16string &descriptor, MessageParcel &data)
-{
-    data.ReadInt32(); // strictPolicy
-    data.ReadInt32(); // workSource
-    std::u16string result = data.ReadString16();
-    return descriptor.compare(result) == 0;
-}
 
 bool CommonUtils::CheckSystemCalling(pid_t uid)
 {
-    return true;
-}
-
-bool CommonUtils::CheckLocatorInterfaceToken(std::u16string descripter, MessageParcel &data)
-{
-    std::u16string remoteDescripter = data.ReadInterfaceToken();
-    LBSLOGD(COMMON_UTILS, "local des %{public}s, remote des: %{public}s", Str16ToStr8(descripter).c_str(),
-        Str16ToStr8(remoteDescripter).c_str());
-    if (descripter.compare(remoteDescripter) != 0) {
-        LBSLOGE(COMMON_UTILS, "this remote request token is invalid");
-        return false;
-    }
     return true;
 }
 
@@ -189,6 +154,62 @@ std::string CommonUtils::InitDeviceId()
 {
     std::string deviceId;
     return deviceId;
+}
+
+bool CommonUtils::GetCurrentUserId(int &userId)
+{
+    std::vector<int> activeIds;
+    int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
+    if (ret != 0) {
+        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds failed ret:%{public}d", ret);
+        return false;
+    }
+    if (activeIds.empty()) {
+        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
+        return false;
+    }
+    userId = activeIds[0];
+    return true;
+}
+
+void CountDownLatch::Wait(int time)
+{
+    LBSLOGD(LOCATOR_STANDARD, "enter wait, time = %{public}d", time);
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (count_ == 0) {
+        LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
+        return;
+    }
+    condition_.wait_for(lock, std::chrono::seconds(time / SEC_TO_MILLI_SEC), [&]() {return count_ == 0;});
+}
+
+void CountDownLatch::CountDown()
+{
+    LBSLOGD(LOCATOR_STANDARD, "enter CountDown");
+    std::unique_lock<std::mutex> lock(mutex_);
+    int old_c = count_.load();
+    while (old_c > 0) {
+        if (count_.compare_exchange_strong(old_c, old_c - 1)) {
+            if (old_c == 1) {
+                LBSLOGD(LOCATOR_STANDARD, "notify_all");
+                condition_.notify_all();
+            }
+            break;
+        }
+        old_c = count_.load();
+    }
+}
+
+int CountDownLatch::GetCount()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    return count_;
+}
+
+void CountDownLatch::SetCount(int count)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    count_ = count;
 }
 } // namespace Location
 } // namespace OHOS

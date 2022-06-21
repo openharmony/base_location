@@ -31,8 +31,6 @@ ohos_shared_library("lbsservice_network") {
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "//foundation/aafwk/intent/interfaces/innerkits/base/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
