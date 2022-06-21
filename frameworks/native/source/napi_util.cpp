@@ -234,6 +234,9 @@ void JsObjToCommand(const napi_env& env, const napi_value& object,
 {
     int value = 0;
     std::string command = "";
+    if (commandConfig == nullptr) {
+        return;
+    }
     JsObjectToInt(env, object, "scenario", value);
     commandConfig->scenario = value;
     JsObjectToString(env, object, "command", MAX_BUF_LEN, command); // max bufLen

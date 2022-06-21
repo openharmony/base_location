@@ -462,7 +462,7 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CommandAsyncContext*>(data);
         context->errCode = LOCATION_SWITCH_ERROR;
-        if (g_locatorClient->IsLocationEnabled()) {
+        if (g_locatorClient->IsLocationEnabled() && context->command != nullptr) {
             context->enable = g_locatorClient->SendCommand(context->command);
             context->errCode = SUCCESS;
         }

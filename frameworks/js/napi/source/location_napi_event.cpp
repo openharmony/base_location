@@ -168,9 +168,7 @@ void GenRequestConfig(napi_env& env, const napi_value* argv,
 
 void InitSingleLocatorCallback(napi_env& env, const size_t argc, const napi_value* argv)
 {
-    if (g_singleLocatorCallbackHost->m_handlerCb != nullptr || g_singleLocatorCallbackHost->m_deferred != nullptr) {
-        LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
-        UnSubscribeLocationChange(g_singleLocatorCallback);
+    if (env == g_singleLocatorCallbackHost->m_env) {
         g_singleLocatorCallbackHost->DeleteAllCallbacks();
     }
     g_singleLocatorCallbackHost->m_env = env;
@@ -394,8 +392,9 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         auto switchCallbackHost = g_switchCallbacks.GetCallbackPtr(env, argv[PARAM1]);
         if (switchCallbackHost) {
             UnSubscribeLocationServiceState(switchCallbackHost);
-            switchCallbackHost->DeleteHandler();
             g_switchCallbacks.DeleteCallback(env, argv[PARAM1]);
+            switchCallbackHost->DeleteHandler();
+            delete switchCallbackHost;
         }
     } else if (event == "locationChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
@@ -403,24 +402,27 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         if (locatorCallbackHost) {
             auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
             UnSubscribeLocationChange(locatorCallback);
-            locatorCallbackHost->DeleteAllCallbacks();
             g_locationCallbacks.DeleteCallback(env, argv[PARAM1]);
+            locatorCallbackHost->DeleteAllCallbacks();
+            delete locatorCallbackHost;
         }
     } else if (event == "gnssStatusChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         auto gnssCallbackHost = g_gnssStatusInfoCallbacks.GetCallbackPtr(env, argv[PARAM1]);
         if (gnssCallbackHost) {
             UnSubscribeGnssStatus(gnssCallbackHost);
-            gnssCallbackHost->DeleteHandler();
             g_gnssStatusInfoCallbacks.DeleteCallback(env, argv[PARAM1]);
+            gnssCallbackHost->DeleteHandler();
+            delete gnssCallbackHost;
         }
     } else if (event == "nmeaMessageChange") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         auto nmeaCallbackHost = g_nmeaCallbacks.GetCallbackPtr(env, argv[PARAM1]);
         if (nmeaCallbackHost) {
             UnSubscribeNmeaMessage(nmeaCallbackHost);
-            nmeaCallbackHost->DeleteHandler();
             g_nmeaCallbacks.DeleteCallback(env, argv[PARAM1]);
+            nmeaCallbackHost->DeleteHandler();
+            delete nmeaCallbackHost;
         }
     } else if (event == "cachedGnssLocationsReporting") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
@@ -428,8 +430,9 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         if (cachedCallbackHost) {
             auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
             UnSubscribeCacheLocationChange(cachedCallback);
-            cachedCallbackHost->DeleteHandler();
             g_cachedLocationCallbacks.DeleteCallback(env, argv[PARAM1]);
+            cachedCallbackHost->DeleteHandler();
+            delete cachedCallbackHost;
         }
     } else if (event == "fenceStatusChange") {
         NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong");
