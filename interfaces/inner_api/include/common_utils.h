@@ -58,6 +58,10 @@ const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int SEC_TO_MILLI_SEC = 1000;
 
+const char DEFAULT_STRING[] = "error";
+const std::wstring DEFAULT_WSTRING = L"error";
+const std::u16string DEFAULT_USTRING = u"error";
+
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
     if ((ret) != true) { \
@@ -108,6 +112,7 @@ public:
     static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
     static bool GetCurrentUserId(int &userId);
+    static std::string Str16ToStr8(std::u16string str);
 };
 
 class CountDownLatch {
