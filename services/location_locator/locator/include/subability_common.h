@@ -65,6 +65,7 @@ public:
     void HandleSelfRequest(pid_t pid, pid_t uid, bool state);
     void HandleRemoteRequest(bool state, std::string deviceId);
     void HandleRefrashRequirements();
+    int GetRequestNum();
 
 private:
     void HandleLocalRequest(WorkRecord &record);

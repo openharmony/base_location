@@ -211,5 +211,15 @@ void CountDownLatch::SetCount(int count)
     std::unique_lock<std::mutex> lock(mutex_);
     count_ = count;
 }
+
+std::string CommonUtils::Str16ToStr8(std::u16string str)
+{
+    if (str == DEFAULT_USTRING) {
+        return DEFAULT_STRING;
+    }
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(DEFAULT_STRING);
+    std::string result = convert.to_bytes(str);
+    return result == DEFAULT_STRING ? "" : result;
+}
 } // namespace Location
 } // namespace OHOS

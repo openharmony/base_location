@@ -99,6 +99,7 @@ bool LocatorAbility::Init()
     if (registerToAbility_) {
         return true;
     }
+    LBSLOGI(LOCATOR, "LocatorAbility Init.");
     bool ret = Publish(AsObject());
     if (!ret) {
         LBSLOGE(LOCATOR, "Init add system ability failed!");
@@ -670,7 +671,7 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
 {
-    std::shared_ptr<Location> lastLocation = reportManager_->GetLastLocation();
+    auto lastLocation = reportManager_->GetLastLocation();
     if (lastLocation == nullptr) {
         reply.WriteInt32(EXCEPTION);
         reply.WriteString("get no cached result");
