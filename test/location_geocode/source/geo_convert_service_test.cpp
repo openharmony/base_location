@@ -117,7 +117,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
     proxy_->GetAddressByCoordinate(dataParcel, replyParcel);
     bool ret = false;
     int exceptionHeader = replyParcel.ReadInt32();
-    if (exceptionHeader == REPLY_NO_EXCEPTION) {
+    if (exceptionHeader == REPLY_CODE_NO_EXCEPTION) {
         ret = true;
     }
     EXPECT_TRUE(ret);
@@ -158,7 +158,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
     proxy_->GetAddressByLocationName(dataParcel, replyParcel);
     bool ret = false;
     int exceptionHeader = replyParcel.ReadInt32();
-    if (exceptionHeader == REPLY_NO_EXCEPTION) {
+    if (exceptionHeader == REPLY_CODE_NO_EXCEPTION) {
         ret = true;
     }
     EXPECT_TRUE(ret);

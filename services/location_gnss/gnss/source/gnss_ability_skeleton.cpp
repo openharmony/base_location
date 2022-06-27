@@ -31,10 +31,10 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
-    int ret = REPLY_NO_EXCEPTION;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
         case SEND_LOCATION_REQUEST: {
             int64_t interval = data.ReadInt64();
@@ -93,7 +93,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case FLUSH_CACHED: {
-            FlushCachedGnssLocations();
+            ret = FlushCachedGnssLocations();
             break;
         }
         case SEND_COMMANDS: {
