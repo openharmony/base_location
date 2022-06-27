@@ -81,9 +81,9 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
     MessageParcel reply;
     client_->GetCacheLocation(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         location = Location::Unmarshalling(reply);
@@ -146,9 +146,9 @@ bool LocatorImpl::IsGeoServiceAvailable()
     MessageParcel reply;
     client_->IsGeoConvertAvailable(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         result = (reply.ReadInt32() == 1);
@@ -161,9 +161,9 @@ void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::sha
     MessageParcel reply;
     client_->GetAddressByCoordinate(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         int resultSize = reply.ReadInt32();
@@ -181,9 +181,9 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
     MessageParcel reply;
     client_->GetAddressByLocationName(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         int resultSize = reply.ReadInt32();
@@ -214,11 +214,10 @@ int LocatorImpl::GetCachedGnssLocationsSize()
     return client_->GetCachedGnssLocationsSize();
 }
 
-bool LocatorImpl::FlushCachedGnssLocations()
+int LocatorImpl::FlushCachedGnssLocations()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocations()");
-    client_->FlushCachedGnssLocations();
-    return true;
+    return client_->FlushCachedGnssLocations();
 }
 
 bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)

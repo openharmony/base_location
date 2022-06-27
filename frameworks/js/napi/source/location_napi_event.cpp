@@ -270,12 +270,10 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
-    napi_ref handlerRef = nullptr;
     if (event == "locationServiceState") {
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
-        NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
         if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
@@ -283,6 +281,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         auto switchCallbackHost =
             sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
         if (switchCallbackHost != nullptr) {
+            napi_ref handlerRef = nullptr;
+            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
             g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
             SubscribeLocationServiceState(env, handlerRef, switchCallbackHost);
         }
@@ -294,7 +294,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
             return result;
         }
         // the third params should be handler
-        NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef));
         if (g_locationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
@@ -302,6 +301,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         auto locatorCallbackHost =
             sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
         if (locatorCallbackHost != nullptr) {
+            napi_ref handlerRef = nullptr;
+            NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef));
             g_locationCallbacks.AddCallback(env, handlerRef, locatorCallbackHost);
             // argv[1]:request params, argv[2]:handler
             SubscribeLocationChange(env, argv[PARAM1], handlerRef, locatorCallbackHost);
@@ -310,7 +311,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
-        NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
         if (g_gnssStatusInfoCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
@@ -318,6 +318,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         auto gnssCallbackHost =
             sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
         if (gnssCallbackHost != nullptr) {
+            napi_ref handlerRef = nullptr;
+            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
             g_gnssStatusInfoCallbacks.AddCallback(env, handlerRef, gnssCallbackHost);
             SubscribeGnssStatus(env, handlerRef, gnssCallbackHost);
         }
@@ -325,7 +327,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         // the second params should be handler
-        NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
         if (g_nmeaCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
@@ -333,6 +334,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         auto nmeaCallbackHost =
             sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
         if (nmeaCallbackHost != nullptr) {
+            napi_ref handlerRef = nullptr;
+            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
             g_nmeaCallbacks.AddCallback(env, handlerRef, nmeaCallbackHost);
             SubscribeNmeaMessage(env, handlerRef, nmeaCallbackHost);
         }
@@ -344,7 +347,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
             return result;
         }
         // the third params should be handler
-        NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef));
         if (g_cachedLocationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
             return result;
@@ -352,6 +354,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         auto cachedCallbackHost =
             sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
         if (cachedCallbackHost != nullptr) {
+            napi_ref handlerRef = nullptr;
+            NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef));
             g_cachedLocationCallbacks.AddCallback(env, handlerRef, cachedCallbackHost);
             SubscribeCacheLocationChange(env, argv[PARAM1], handlerRef, cachedCallbackHost);
         }
@@ -449,7 +453,6 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
     size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = 0;
-    napi_value result = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc >= requireArgc, "number of parameters is error");
@@ -468,10 +471,6 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
         NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType1));
         NAPI_ASSERT(env, valueType == napi_object, "type mismatch for parameter 1");
         NAPI_ASSERT(env, valueType1 == napi_function, "type mismatch for parameter 2");
-    }
-    if (!g_locatorProxy->IsLocationEnabled()) {
-        LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
-        return result;
     }
     return RequestLocationOnce(env, argc, argv);
 }
