@@ -30,7 +30,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     int ret;

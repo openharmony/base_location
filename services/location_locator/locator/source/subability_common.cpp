@@ -59,6 +59,14 @@ void SubAbility::HandleRefrashRequirements()
     lastRecord_->Set(*newRecord_);
 }
 
+int SubAbility::GetRequestNum()
+{
+    if (newRecord_ == nullptr) {
+        return 0;
+    }
+    return newRecord_->Size();
+}
+
 void SubAbility::HandleLocalRequest(WorkRecord &record)
 {
     HandleRemoveRecord(record);

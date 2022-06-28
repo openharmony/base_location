@@ -499,6 +499,28 @@ void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t er
     SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
 }
 
+std::string GetErrorMsgByCode(int code)
+{
+    static std::map<int, std::string> errorCodeMap = {
+        {SUCCESS, "SUCCESS"},
+        {NO_DATA_TO_SEND, "NO_DATA_TO_SEND"},
+        {NOT_SUPPORTED, "NOT_SUPPORTED"},
+        {INPUT_PARAMS_ERROR, "INPUT_PARAMS_ERROR"},
+        {REVERSE_GEOCODE_ERROR, "REVERSE_GEOCODE_ERROR"},
+        {GEOCODE_ERROR, "GEOCODE_ERROR"},
+        {LOCATOR_ERROR, "LOCATOR_ERROR"},
+        {LOCATION_SWITCH_ERROR, "LOCATION_SWITCH_ERROR"},
+        {LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR"},
+        {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"}
+    };
+
+    auto iter = errorCodeMap.find(code);
+    if (iter == errorCodeMap.end()) {
+        return "";
+    }
+    return iter->second;
+}
+
 static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncContext)
 {
     if (asyncContext == nullptr) {
@@ -526,7 +548,7 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
             context->completeFunc(data);
             if (context->errCode != SUCCESS) {
                 napi_value message = nullptr;
-                std::string msg = "errCode is " + std::to_string(context->errCode);
+                std::string msg = GetErrorMsgByCode(context->errCode);
                 NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
                 NAPI_CALL_RETURN_VOID(env, napi_create_error(env, nullptr, message, &context->result[PARAM0]));
                 NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
@@ -581,7 +603,7 @@ static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncCon
                     napi_resolve_deferred(context->env, context->deferred, context->result[PARAM1]));
             } else if (context->errCode != NO_DATA_TO_SEND) {
                 napi_value message = nullptr;
-                std::string msg = "errCode is " + std::to_string(context->errCode);
+                std::string msg = GetErrorMsgByCode(context->errCode);
                 NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
                 NAPI_CALL_RETURN_VOID(env, napi_create_error(env, nullptr, message, &context->result[PARAM0]));
                 NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));

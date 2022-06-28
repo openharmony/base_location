@@ -178,11 +178,11 @@ int GnssAbilityProxy::GetCachedGnssLocationsSize()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "GetCachedGnssLocationsSize remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     int error = remote->SendRequest(ISubAbility::GET_CACHED_SIZE, data, reply, option);
@@ -195,7 +195,7 @@ int GnssAbilityProxy::GetCachedGnssLocationsSize()
     return size;
 }
 
-void GnssAbilityProxy::FlushCachedGnssLocations()
+int GnssAbilityProxy::FlushCachedGnssLocations()
 {
     MessageParcel data;
     MessageParcel reply;
@@ -203,14 +203,15 @@ void GnssAbilityProxy::FlushCachedGnssLocations()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "FlushCachedGnssLocations remote is null");
-        return;
+        return REPLY_CODE_EXCEPTION;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(ISubAbility::FLUSH_CACHED, data, reply, option);
     LBSLOGD(GNSS, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", error);
+    return error;
 }
 
 void GnssAbilityProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)

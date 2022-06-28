@@ -87,7 +87,7 @@ bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
     pid_t uid = 0;
     std::unique_ptr<RequestConfig> requestConfig = RequestConfig::Unmarshalling(data);
     proxy_->StartLocating(requestConfig, callbackStub_, "ohos.unit", pid, uid);
-    bool ret = (proxy_->StopLocating(callbackStub_)) == REPLY_NO_EXCEPTION ? true : false;
+    bool ret = (proxy_->StopLocating(callbackStub_)) == REPLY_CODE_NO_EXCEPTION ? true : false;
     return ret;
 }
 
@@ -155,7 +155,7 @@ HWTEST_F(LocatorServiceTest, CheckStopLocating001, TestSize.Level1)
      * @tc.steps: step1. Call system ability and stop locating whit illegal param.
      * @tc.expected: step1. get reply state is false.
      */
-    bool ret = (proxy_->StopLocating(callbackStub_) == REPLY_NO_EXCEPTION) ? true : false;
+    bool ret = (proxy_->StopLocating(callbackStub_) == REPLY_CODE_NO_EXCEPTION) ? true : false;
     EXPECT_EQ(true, ret);
 }
 
@@ -174,9 +174,9 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
     MessageParcel reply;
     bool ret = false;
     if (proxy_->GetSwitchState() == 1) {
-        ret = (proxy_->GetCacheLocation(data, reply) == REPLY_NO_EXCEPTION) ? true : false;
+        ret = (proxy_->GetCacheLocation(data, reply) == REPLY_CODE_NO_EXCEPTION) ? true : false;
     } else {
-        ret = (proxy_->GetCacheLocation(data, reply) != REPLY_NO_EXCEPTION) ? true : false;
+        ret = (proxy_->GetCacheLocation(data, reply) != REPLY_CODE_NO_EXCEPTION) ? true : false;
     }
     EXPECT_EQ(true, ret);
 }

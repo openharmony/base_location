@@ -64,7 +64,7 @@ public:
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 
     int GetCachedGnssLocationsSize() override;
-    void FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
