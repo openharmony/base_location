@@ -257,12 +257,14 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 
 int GnssAbility::GetCachedGnssLocationsSize()
 {
-    int size = 0;
+    int size = -1;
     return size;
 }
 
-void GnssAbility::FlushCachedGnssLocations()
+int GnssAbility::FlushCachedGnssLocations()
 {
+    LBSLOGE(GNSS, "CachedGnssLocations fuction not support");
+    return REPLY_CODE_UNSUPPORT;
 }
 
 void GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)

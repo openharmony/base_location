@@ -52,7 +52,7 @@ public:
     bool IsLocationPrivacyConfirmed(const int type) override;
     void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
     int GetCachedGnssLocationsSize() override;
-    bool FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     bool SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     bool AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;

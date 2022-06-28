@@ -90,13 +90,13 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
 {
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    int ret = REPLY_NO_EXCEPTION;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     if (!CommonUtils::CheckLocationPermission()) {
         LBSLOGI(LOCATOR, "pid:%{public}d uid:%{public}d has no access permission,CheckLocationPermission return false",
                 callingPid, callingUid);
-        reply.WriteInt32(SECURITY_EXCEPTION);
+        reply.WriteInt32(REPLY_CODE_SECURITY_EXCEPTION);
         reply.WriteString("should grant location permission");
-        ret = SECURITY_EXCEPTION;
+        ret = REPLY_CODE_SECURITY_EXCEPTION;
         return ret;
     }
     switch (code) {
@@ -122,7 +122,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case START_LOCATING: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             ParseDataAndStartLocating(data, reply, callingPid, callingUid);
@@ -134,7 +134,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case GET_CACHE_LOCATION: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             ret = GetCacheLocation(data, reply);
@@ -142,7 +142,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case GEO_IS_AVAILABLE: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             ret = IsGeoConvertAvailable(data, reply);
@@ -150,7 +150,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case GET_FROM_COORDINATE: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             ret = GetAddressByCoordinate(data, reply);
@@ -158,7 +158,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case GET_FROM_LOCATION_NAME: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             ret = GetAddressByLocationName(data, reply);
@@ -174,7 +174,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case REG_CACHED_CALLBACK: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             ParseDataAndStartCacheLocating(data, reply);
@@ -186,7 +186,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case GET_CACHED_LOCATION_SIZE: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             reply.WriteInt32(GetCachedGnssLocationsSize());
@@ -194,15 +194,15 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case FLUSH_CACHED_LOCATIONS: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
-            FlushCachedGnssLocations();
+            ret = FlushCachedGnssLocations();
             break;
         }
         case SEND_COMMAND: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
@@ -213,7 +213,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case ADD_FENCE: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
@@ -228,7 +228,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         }
         case REMOVE_FENCE: {
             if (GetSwitchState() == DISABLED) {
-                ret = SWITCH_OFF_EXCEPTION;
+                ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
             std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
@@ -251,13 +251,13 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    int ret = REPLY_NO_EXCEPTION;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     if (code == REG_SWITCH_CALLBACK || code == UNREG_SWITCH_CALLBACK || code == ENABLE_ABILITY) {
         if (!CommonUtils::CheckSecureSettings()) {
             LBSLOGI(LOCATOR, "has no access permission,CheckSecureSettings return false");
-            reply.WriteInt32(SECURITY_EXCEPTION);
+            reply.WriteInt32(REPLY_CODE_SECURITY_EXCEPTION);
             reply.WriteString("should grant location permission");
-            ret = SECURITY_EXCEPTION;
+            ret = REPLY_CODE_SECURITY_EXCEPTION;
             return ret;
         }
     }
@@ -278,7 +278,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
         }
         case ENABLE_ABILITY: {
             if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
+                ret = REPLY_CODE_SECURITY_EXCEPTION;
                 break;
             }
             bool isEnabled = data.ReadBool();
@@ -286,7 +286,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
             break;
         }
         default:
-            ret = MSG_UNPROCESSED;
+            ret = REPLY_CODE_MSG_UNPROCESSED;
     }
     return ret;
 }
@@ -295,18 +295,18 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    int ret = REPLY_NO_EXCEPTION;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
         case UPDATE_SA_ABILITY: {
             if (!CommonUtils::CheckSystemCalling(callingUid)) {
-                ret = SECURITY_EXCEPTION;
+                ret = REPLY_CODE_SECURITY_EXCEPTION;
                 break;
             }
             UpdateSaAbility();
             break;
         }
         default:
-            ret = MSG_UNPROCESSED;
+            ret = REPLY_CODE_MSG_UNPROCESSED;
     }
     return ret;
 }
@@ -319,17 +319,17 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
 
     LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
-    int ret = REPLY_NO_EXCEPTION;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR, "invalid token.");
         return -1;
     }
 
     ret = ProcessMsg(code, data, reply, option);
-    if (ret == MSG_UNPROCESSED) {
+    if (ret == REPLY_CODE_MSG_UNPROCESSED) {
         ret = ProcessMsgRequirSecureSettingsPermission(code, data, reply, option);
     }
-    if (ret == MSG_UNPROCESSED) {
+    if (ret == REPLY_CODE_MSG_UNPROCESSED) {
         ret = ProcessMsgRequirLocationPermission(code, data, reply, option);
     }
     return ret;

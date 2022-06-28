@@ -42,7 +42,6 @@ const uint32_t EVENT_INIT_REQUEST_MANAGER = 0x0002;
 const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
-const uint32_t RETRY_INTERVAL_2_SECONDS = 2 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t SET_ENABLE = 3;
 const uint32_t REG_GNSS_STATUS = 7;
@@ -99,6 +98,7 @@ bool LocatorAbility::Init()
     if (registerToAbility_) {
         return true;
     }
+    LBSLOGI(LOCATOR, "LocatorAbility Init.");
     bool ret = Publish(AsObject());
     if (!ret) {
         LBSLOGE(LOCATOR, "Init add system ability failed!");
@@ -278,12 +278,6 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
-    if (state == EXCEPTION) {
-        auto event = AppExecFwk::InnerEvent::Get(EVENT_UPDATE_SA, 0);
-        locatorHandler_->SendHighPriorityEvent(event, RETRY_INTERVAL_2_SECONDS);
-        return;
-    }
-
     bool currentEnable = isEnabled_;
     isEnabled_ = (state == ENABLED);
     if (isEnabled_ == currentEnable) {
@@ -487,7 +481,7 @@ int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoc
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
 
         dataToStub.WriteInt32(request->reportingPeriodSec);
@@ -497,11 +491,11 @@ int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoc
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
         obj->SendRequest(REG_CACHED, dataToStub, replyToStub, option);
     }
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
@@ -511,18 +505,18 @@ int LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallba
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
 
         dataToStub.WriteRemoteObject(callback->AsObject());
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
         obj->SendRequest(UNREG_CACHED, dataToStub, replyToStub, option);
     }
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::GetCachedGnssLocationsSize()
@@ -535,10 +529,10 @@ int LocatorAbility::GetCachedGnssLocationsSize()
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
 
         int error = obj->SendRequest(GET_CACHED_SIZE, dataToStub, replyToStub, option);
@@ -549,7 +543,7 @@ int LocatorAbility::GetCachedGnssLocationsSize()
     return size;
 }
 
-void LocatorAbility::FlushCachedGnssLocations()
+int LocatorAbility::FlushCachedGnssLocations()
 {
     auto remoteObject = proxyMap_->find(GNSS_ABILITY);
     if (remoteObject != proxyMap_->end()) {
@@ -558,14 +552,15 @@ void LocatorAbility::FlushCachedGnssLocations()
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return;
+            return REPLY_CODE_EXCEPTION;
         }
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
+            return REPLY_CODE_EXCEPTION;
         }
 
-        obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
+        return obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
     }
+    return REPLY_CODE_EXCEPTION;
 }
 
 void LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -657,7 +652,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
@@ -665,68 +660,68 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     LBSLOGI(LOCATOR, "stop locating");
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
 {
-    std::shared_ptr<Location> lastLocation = reportManager_->GetLastLocation();
+    auto lastLocation = reportManager_->GetLastLocation();
     if (lastLocation == nullptr) {
-        reply.WriteInt32(EXCEPTION);
+        reply.WriteInt32(REPLY_CODE_EXCEPTION);
         reply.WriteString("get no cached result");
         LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (fabs(lastLocation->GetLatitude() - 0.0) > PRECISION
         && fabs(lastLocation->GetLongitude() - 0.0) > PRECISION) {
-        reply.WriteInt32(REPLY_NO_EXCEPTION);
+        reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
         lastLocation->Marshalling(reply);
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    reply.WriteInt32(EXCEPTION);
+    reply.WriteInt32(REPLY_CODE_EXCEPTION);
     reply.WriteString("get no cached result");
     LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (requests_ == nullptr) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     LBSLOGI(LOCATOR, "start report location");
     if (reportManager_->OnReportLocation(location, abilityName)) {
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 int LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
 {
     if (GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 int LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
 {
     if (GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 void LocatorAbility::RegisterAction()
@@ -754,7 +749,7 @@ int LocatorAbility::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &re
 {
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     return SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replay);
 }
@@ -764,7 +759,7 @@ int LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &r
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
@@ -781,7 +776,7 @@ int LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel 
 {
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     dataParcel.WriteString16(data.ReadString16()); // description
     dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
@@ -802,7 +797,7 @@ int LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel 
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
         CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     MessageOption option;
     return remoteObject->SendRequest(type, data, replay, option);
