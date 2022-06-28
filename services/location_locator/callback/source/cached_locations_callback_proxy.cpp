@@ -31,7 +31,7 @@ void CachedLocationsCallbackProxy::OnCacheLocationsReport(const std::vector<std:
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    for (int i = 0; i < locations.size(); i++) {
+    for (unsigned int i = 0; i < locations.size(); i++) {
         locations[i]->Marshalling(data);
     }
     MessageOption option = { MessageOption::TF_ASYNC };
