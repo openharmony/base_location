@@ -103,14 +103,13 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         g_locatorClient->EnableAbility(true);
-        context->enable = g_locatorClient->IsLocationEnabled();
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
-            napi_get_boolean(context->env, context->enable, &context->result[PARAM1]));
+            napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push EnableLocation result to client");
     };
 
@@ -134,14 +133,13 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         g_locatorClient->EnableAbility(false);
-        context->enable = g_locatorClient->IsLocationEnabled();
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
-            napi_get_boolean(context->env, context->enable, &context->result[PARAM1]));
+            napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push DisableLocation result to client");
     };
 
@@ -168,14 +166,13 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
             g_locatorClient->ShowNotification();
         }
         g_locatorClient->EnableAbility(true);
-        context->enable = g_locatorClient->IsLocationEnabled();
         context->errCode = SUCCESS;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
-            napi_get_boolean(context->env, context->enable, &context->result[PARAM1]));
+            napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push RequestEnableLocation result to client");
     };
 
