@@ -328,8 +328,8 @@ void GnssAbility::DisableGnss()
 
 bool GnssAbility::IsGnssEnabled()
 {
-    return (gnssWorkingStatus_ == GNSS_STATUS_SESSION_BEGIN ||
-        gnssWorkingStatus_ == GNSS_STATUS_ENGINE_ON);
+    return (gnssWorkingStatus_ != GNSS_STATUS_ENGINE_OFF &&
+        gnssWorkingStatus_ != GNSS_STATUS_NONE);
 }
 
 void GnssAbility::StartGnss()
