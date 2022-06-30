@@ -166,7 +166,7 @@ void GenRequestConfig(napi_env& env, const napi_value* argv,
     requestConfig->SetFixNumber(1);
 }
 
-void InitSingleLocatorCallback(napi_env& env, const size_t argc, const napi_value* argv)
+void InitSingleLocatorCallback(napi_env& env, const size_t argc, const napi_value* argv, napi_value& promise)
 {
     if (env == g_singleLocatorCallbackHost->m_env) {
         g_singleLocatorCallbackHost->DeleteAllCallbacks();
@@ -176,7 +176,6 @@ void InitSingleLocatorCallback(napi_env& env, const size_t argc, const napi_valu
 
     napi_ref handlerRef = nullptr;
     napi_deferred deferred = nullptr;
-    napi_value promise = nullptr;
     bool isCallbackType = false;
     size_t nonCallbackArgNum = 0;
     GetCallbackType(env, argc, argv, isCallbackType, nonCallbackArgNum);
@@ -196,10 +195,11 @@ napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_valu
     if (g_singleLocatorCallbackHost == nullptr) {
         return UndefinedNapiValue(env);
     }
+    napi_value promise;
     size_t nonCallbackArgNum = 0;
     bool isCallbackType = false;
     GetCallbackType(env, argc, argv, isCallbackType, nonCallbackArgNum);
-    InitSingleLocatorCallback(env, argc, argv);
+    InitSingleLocatorCallback(env, argc, argv, promise);
     GenRequestConfig(env, argv, nonCallbackArgNum, requestConfig);
 
     auto asyncContext = new (std::nothrow) CurrentLocationAsyncContext(env);
@@ -225,7 +225,13 @@ napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_valu
         }
     };
     asyncContext->completeFunc = [&](void* data) -> void {};
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    asyncContext->deferred = g_singleLocatorCallbackHost->m_deferred;
+    DoAsyncWorkForSingleLocating(env, asyncContext, argc, argv, nonCallbackArgNum);
+    if (argc > nonCallbackArgNum) {
+        return UndefinedNapiValue(env);
+    } else {
+        return promise;
+    }
 }
 
 void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback)
