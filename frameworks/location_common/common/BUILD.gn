@@ -24,6 +24,7 @@ ohos_shared_library("lbsservice_common") {
     "$LOCATION_COMMON_ROOT/source/geofence_state.cpp",
     "$LOCATION_COMMON_ROOT/source/location.cpp",
     "$LOCATION_COMMON_ROOT/source/location_dumper.cpp",
+    "$LOCATION_COMMON_ROOT/source/location_mock_config.cpp",
     "$LOCATION_COMMON_ROOT/source/request_config.cpp",
     "$LOCATION_COMMON_ROOT/source/satellite_status.cpp",
   ]

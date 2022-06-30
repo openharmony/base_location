@@ -50,6 +50,10 @@ public:
         REPORT_GNSS_SESSION_STATUS = 18,
         REPORT_SV = 19,
         REPORT_NMEA = 20,
+        GET_ISO_COUNTRY_CODE = 21,
+        ENABLE_LOCATION_MOCK = 22,
+        DISABLE_LOCATION_MOCK = 23,
+        SET_MOCKED_LOCATIONS = 24,
     };
     virtual void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) = 0;
     virtual void SetEnable(bool state) = 0;

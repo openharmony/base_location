@@ -28,6 +28,8 @@
 #include "napi/native_node_api.h"
 #include "request_config.h"
 #include "satellite_status.h"
+#include "location_mock_config.h"
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -61,6 +63,69 @@ public:
     virtual ~AsyncContext()
     {
     }
+};
+
+class EnableLocationMockAsyncContext : public AsyncContext {
+public:
+    int32_t priority;
+    int32_t scenario;
+    int32_t timeInterval;
+    bool enable;
+    
+    EnableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {
+        }
+
+    EnableLocationMockAsyncContext() = delete;
+
+    virtual ~EnableLocationMockAsyncContext() {}
+};
+
+class DisableLocationMockAsyncContext : public AsyncContext {
+public:
+    int32_t priority;
+    int32_t scenario;
+    int32_t timeInterval;
+    bool enable;
+
+    DisableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {
+        }
+
+    DisableLocationMockAsyncContext() = delete;
+
+    virtual ~DisableLocationMockAsyncContext() {}
+};
+
+
+class SetMockedLocationsAsyncContext : public AsyncContext {
+public:
+    int32_t priority;
+    int32_t scenario;
+    int32_t timeInterval;
+    bool enable;
+
+    std::vector<std::shared_ptr<Location>> LocationNapi;
+    SetMockedLocationsAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {
+        }
+
+    SetMockedLocationsAsyncContext() = delete;
+
+    virtual ~SetMockedLocationsAsyncContext() {}
+};
+
+class GetIsoCountryCodeContext : public AsyncContext {
+public:
+    std::string countryCode = " ";
+    int buff = 100;
+
+    GetIsoCountryCodeContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
+
+    GetIsoCountryCodeContext() = delete;
+
+    virtual ~GetIsoCountryCodeContext() {}
 };
 
 class LocationRequestAsyncContext : public AsyncContext {

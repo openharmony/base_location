@@ -22,6 +22,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/country_code_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
@@ -78,7 +79,7 @@ ohos_shared_library("lbsservice_locator") {
     "os_account:os_account_innerkits",
     "samgr_standard:samgr_proxy",
   ]
-
+  external_deps += [ "core_service:tel_core_service_api" ]
   part_name = "location"
   subsystem_name = "location"
 }

@@ -21,6 +21,7 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
+#include "location_mock_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -42,6 +43,10 @@ public:
     virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+    virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool SetMockedLocations(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {

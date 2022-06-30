@@ -241,6 +241,42 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             RemoveFence(request);
             break;
         }
+        case GET_ISO_COUNTRY_CODE: {
+            std::string code = "";
+            int result = GetIsoCountryCode(code);
+            reply.WriteString(code);
+            reply.WriteInt32(result);
+            break;
+        }
+        case ENABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = EnableLocationMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case DISABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = DisableLocationMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case SET_MOCKED_LOCATIONS: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            int locationSize = data.ReadInt32();
+            std::vector<std::shared_ptr<Location>> vcLoc;
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc.push_back(Location::UnmarshallingShared(data));
+            }
+            bool result = SetMockedLocations(config, vcLoc);
+            reply.WriteBool(result);
+            break;
+        }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
