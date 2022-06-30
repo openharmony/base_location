@@ -240,5 +240,31 @@ bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     client_->RemoveFence(request);
     return true;
 }
+
+int LocatorImpl::GetIsoCountryCode(std::string& code)
+
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
+    return client_->GetIsoCountryCode(code);
+}
+
+bool LocatorImpl::EnableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMock()");
+    return client_->EnableLocationMock(config);
+}
+
+bool LocatorImpl::DisableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMock()");
+    return client_->DisableLocationMock(config);
+}
+
+bool LocatorImpl::SetMockedLocations(
+    const LocationMockConfig& config,  const std::vector<std::shared_ptr<Location>> &location)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocations()");
+    return client_->SetMockedLocations(config, location);
+}
 }  // namespace Location
 }  // namespace OHOS
