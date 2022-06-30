@@ -38,7 +38,7 @@ public:
     void SetPid(pid_t pid);
     void SetPackageName(std::string packageName);
     void SetRequestConfig(RequestConfig& requestConfig);
-	void SetLocationMockConfig(const LocationMockConfig& locationMockConfig);
+    void SetLocationMockConfig(const LocationMockConfig& locationMockConfig);
     void SetLocatorCallBack(const sptr<ILocatorCallback>& callback);
     std::string ToString() const;
     void GetProxyName(std::shared_ptr<std::list<std::string>> proxys);

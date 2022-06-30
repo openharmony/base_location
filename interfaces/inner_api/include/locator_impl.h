@@ -56,10 +56,11 @@ public:
     bool SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     bool AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-	int GetIsoCountryCode(std::string& code) override;
+    int GetIsoCountryCode(std::string& code) override;
     bool EnableLocationMock(const LocationMockConfig& config) override;
     bool DisableLocationMock(const LocationMockConfig& config) override;
-    bool SetMockedLocations(const LocationMockConfig& config,      const std::vector<std::shared_ptr<Location>> &location) override;
+    bool SetMockedLocations(
+        const LocationMockConfig& config,      const std::vector<std::shared_ptr<Location>> &location) override;
 
 private:
     std::unique_ptr<LocatorProxy> client_;

@@ -22,6 +22,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/country_code_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
@@ -38,7 +39,6 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/coutry_code_manager.cpp",
   ]
 
   include_dirs = [

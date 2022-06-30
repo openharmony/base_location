@@ -10,7 +10,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.  
+ * limitations under the License.
  */
 
 #include "gnss_ability.h"
@@ -49,7 +49,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-		    DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocation();
+            DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocation();
             break;
         }
         default:
@@ -74,7 +74,7 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     EnableGnss();
     SetAgnssCallback();
     SetAgnssServer();
-	gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
+    gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
     LBSLOGI(GNSS, "ability constructed.");
 }
 
@@ -495,8 +495,6 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
     }
     return ERR_OK;
 }
-void SetLocationMockEnabled(bool enable);
-bool GetLocationMockEnabled();	
 
 bool GnssAbility::EnableLocationMock(const LocationMockConfig& config)
 {

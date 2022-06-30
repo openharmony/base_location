@@ -296,7 +296,7 @@ bool GnssAbilityProxy::EnableLocationMock(const LocationMockConfig& config)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-	config.Marshalling(data);
+    config.Marshalling(data);
     int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
     LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", error);
     bool result = false;
@@ -320,7 +320,7 @@ bool GnssAbilityProxy::DisableLocationMock(const LocationMockConfig& config)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-	config.Marshalling(data);
+    config.Marshalling(data);
     int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
     LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", error);
     bool result = false;
@@ -331,7 +331,7 @@ bool GnssAbilityProxy::DisableLocationMock(const LocationMockConfig& config)
 }
 
 bool GnssAbilityProxy::SetMockedLocations(
-		const LocationMockConfig& config,	   const std::vector<std::shared_ptr<Location>> &location)
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -345,12 +345,12 @@ bool GnssAbilityProxy::SetMockedLocations(
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-	config.Marshalling(data);
-	int locationSize = location.size();
-	data.WriteInt32(locationSize);
-	for (int i = 0; i < locationSize; i++) {
-	    location.at(i)->Marshalling(data);
-	}
+    config.Marshalling(data);
+    int locationSize = location.size();
+    data.WriteInt32(locationSize);
+    for (int i = 0; i < locationSize; i++) {
+        location.at(i)->Marshalling(data);
+    }
     int error = remote->SendRequest(ISubAbility::SET_MOCKED_LOCATIONS, data, reply, option);
     LBSLOGD(GNSS, "Proxy::SetMockedLocations Transact ErrCode = %{public}d", error);
     bool result = false;

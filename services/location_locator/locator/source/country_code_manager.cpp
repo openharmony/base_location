@@ -43,7 +43,7 @@ CountryCodeManager::~CountryCodeManager()
 int CountryCodeManager::GetIsoCountryCode(std::string& code)
 {
     LBSLOGI(GNSS, "CountryCodeManager::GetIsoCountryCode");
-    std::u16string isoCode = 
+    std::u16string isoCode =
         DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetISOCountryCodeForSim(0);
     if (isoCode.empty()) {
         isoCode = DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetISOCountryCodeForSim(1);

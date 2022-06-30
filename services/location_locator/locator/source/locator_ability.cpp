@@ -653,7 +653,7 @@ bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
     bool result = true;
     for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
         std::string abilityName = *iter;
-		if ((abilityName.compare(GNSS_ABILITY) != 0) && (abilityName.compare(NETWORK_ABILITY) != 0)) {
+        if (abilityName.compare(GNSS_ABILITY) != 0) {
             continue;
         }
         auto remoteObject = proxyMap_->find(abilityName);
@@ -668,7 +668,7 @@ bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
             if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
                 return false;
             }
-	    	config.Marshalling(dataToStub);
+            config.Marshalling(dataToStub);
             int error = obj->SendRequest(LOCATOR_ENABLE_LOCATION_MOCK, dataToStub, replyToStub, option);
             if (error == NO_ERROR) {
                 result = replyToStub.ReadBool();
@@ -696,7 +696,7 @@ bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
     bool result = true;
     for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
         std::string abilityName = *iter;
-        if ((abilityName.compare(GNSS_ABILITY) != 0) && (abilityName.compare(NETWORK_ABILITY) != 0)) {
+        if (abilityName.compare(GNSS_ABILITY) != 0) {
             continue;
         }
         auto remoteObject = proxyMap_->find(abilityName);
@@ -711,7 +711,7 @@ bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
             if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
                 return false;
             }
-	    	config.Marshalling(dataToStub);
+            config.Marshalling(dataToStub);
             int error = obj->SendRequest(LOCATOR_DISABLE_LOCATION_MOCK, dataToStub, replyToStub, option);
             if (error == NO_ERROR) {
                 result = replyToStub.ReadBool();
@@ -723,7 +723,8 @@ bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
     return result;
 }
 
-bool LocatorAbility::SetMockedLocations(const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
+bool LocatorAbility::SetMockedLocations(
+    const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
     if (request != nullptr) {
@@ -739,7 +740,7 @@ bool LocatorAbility::SetMockedLocations(const LocationMockConfig& config,	const 
     bool result = true;
     for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
         std::string abilityName = *iter;
-        if ((abilityName.compare(GNSS_ABILITY) != 0) && (abilityName.compare(NETWORK_ABILITY) != 0)) {
+        if (abilityName.compare(GNSS_ABILITY) != 0) {
             continue;
         }
         auto remoteObject = proxyMap_->find(abilityName);
@@ -753,7 +754,7 @@ bool LocatorAbility::SetMockedLocations(const LocationMockConfig& config,	const 
             }
             if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
                 return false;
-            }		
+            }
             config.Marshalling(dataToStub);
             int locationSize = location.size();
             dataToStub.WriteInt32(locationSize);

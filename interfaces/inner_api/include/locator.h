@@ -81,7 +81,7 @@ public:
 
     virtual bool AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-	virtual int GetIsoCountryCode(std::string& code) = 0;
+    virtual int GetIsoCountryCode(std::string& code) = 0;
     virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
     virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
     virtual bool SetMockedLocations(

@@ -67,11 +67,11 @@ public:
 
 class EnableLocationMockAsyncContext : public AsyncContext {
 public:
-
-    int32_t priority; 
+    int32_t priority;
     int32_t scenario;
     int32_t timeInterval;
     bool enable;
+    
     EnableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {
         }
@@ -83,11 +83,11 @@ public:
 
 class DisableLocationMockAsyncContext : public AsyncContext {
 public:
-
-    int32_t priority; 
+    int32_t priority;
     int32_t scenario;
     int32_t timeInterval;
     bool enable;
+
     DisableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {
         }
@@ -100,11 +100,11 @@ public:
 
 class SetMockedLocationsAsyncContext : public AsyncContext {
 public:
-
     int32_t priority;
     int32_t scenario;
     int32_t timeInterval;
     bool enable;
+
     std::vector<std::shared_ptr<Location>> LocationNapi;
     SetMockedLocationsAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {
@@ -118,7 +118,8 @@ public:
 class GetIsoCountryCodeContext : public AsyncContext {
 public:
     std::string countryCode = " ";
-	int buff = 100;
+    int buff = 100;
+
     GetIsoCountryCodeContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}
 

@@ -48,7 +48,7 @@ void Request::SetLocationMockConfig(const LocationMockConfig& locationMockConfig
     config.SetScenario(locationMockConfig.scenario_);
     config.SetPriority(locationMockConfig.priority_);
     config.SetTimeInterval(locationMockConfig.timeInterval_);
-	SetRequestConfig(config);
+    SetRequestConfig(config);
 }
 
 void Request::SetLocatorCallBack(const sptr<ILocatorCallback>& callback)

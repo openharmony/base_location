@@ -34,7 +34,7 @@
 #include "request.h"
 #include "request_manager.h"
 #include "report_manager.h"
-#include "coutry_code_manager.h"
+#include "country_code_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -90,11 +90,11 @@ public:
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-	int GetIsoCountryCode(std::string& code) override;
-	bool EnableLocationMock(const LocationMockConfig& config) override;
-	bool DisableLocationMock(const LocationMockConfig& config) override;
-	bool SetMockedLocations(
-		const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    int GetIsoCountryCode(std::string& code) override;
+    bool EnableLocationMock(const LocationMockConfig& config) override;
+    bool DisableLocationMock(const LocationMockConfig& config) override;
+    bool SetMockedLocations(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
     int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);

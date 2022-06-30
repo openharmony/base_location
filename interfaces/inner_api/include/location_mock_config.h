@@ -59,7 +59,7 @@ public:
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<LocationMockConfig> Unmarshalling(Parcel& parcel);
-	void Set(LocationMockConfig& requestConfig);
+    void Set(LocationMockConfig& requestConfig);
     bool IsSame(LocationMockConfig& requestConfig);
 
 public:

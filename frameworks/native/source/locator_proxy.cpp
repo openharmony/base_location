@@ -540,7 +540,7 @@ int LocatorProxy::GetIsoCountryCode(std::string& code)
         return result;
     } else {
         return -1;
-    }    
+    }
 }
 
 bool LocatorProxy::EnableLocationMock(const LocationMockConfig& config)
@@ -589,7 +589,8 @@ bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
     return state;
 }
 
-bool LocatorProxy::SetMockedLocations(const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
+bool LocatorProxy::SetMockedLocations(
+    const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
     MessageParcel reply;

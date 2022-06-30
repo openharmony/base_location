@@ -27,9 +27,9 @@ Location::Location()
     direction_ = 0.0;
     timeStamp_ = 0;
     timeSinceBoot_ = 0;
-	additions_ = "";
-	additionSize_ = 0;
-	isFromMock_ = false;
+    additions_ = "";
+    additionSize_ = 0;
+    isFromMock_ = false;
 }
 
 Location::Location(Location& location)
@@ -42,9 +42,9 @@ Location::Location(Location& location)
     direction_ = location.GetDirection();
     timeStamp_ = location.GetTimeStamp();
     timeSinceBoot_ = location.GetTimeSinceBoot();
-	additions_ = location.GetAdditions();
-	additionSize_ = location.GetAdditionSize();
-	isFromMock_ = location.GetIsFromMock();
+    additions_ = location.GetAdditions();
+    additionSize_ = location.GetAdditionSize();
+    isFromMock_ = location.GetIsFromMock();
 }
 
 void Location::ReadFromParcel(Parcel& parcel)
@@ -57,9 +57,9 @@ void Location::ReadFromParcel(Parcel& parcel)
     direction_ = parcel.ReadDouble();
     timeStamp_ = parcel.ReadInt64();
     timeSinceBoot_ = parcel.ReadInt64();
-	additions_ = parcel.ReadString();
-	additionSize_ = parcel.ReadInt64();
-	isFromMock_ = parcel.ReadBool();
+    additions_ = parcel.ReadString();
+    additionSize_ = parcel.ReadInt64();
+    isFromMock_ = parcel.ReadBool();
 }
 
 void Location::ReadFromParcelLocation(Parcel& parcel)
