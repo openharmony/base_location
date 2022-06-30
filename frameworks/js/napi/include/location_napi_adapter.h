@@ -46,6 +46,10 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
 napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info);
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info);
 napi_value SendCommand(napi_env env, napi_callback_info info);
+napi_value GetIsoCountryCode(napi_env env, napi_callback_info inf);
+napi_value EnableLocationMock(napi_env env, napi_callback_info info);
+napi_value DisableLocationMock(napi_env env, napi_callback_info info);
+napi_value SetMockedLocations(napi_env env, napi_callback_info info);
 }  // namespace Location
 }  // namespace OHOS
 #endif // LOCATION_NAPI_ADAPTER_H

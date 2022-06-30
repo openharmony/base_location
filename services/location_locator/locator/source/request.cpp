@@ -42,6 +42,15 @@ void Request::SetRequestConfig(RequestConfig& requestConfig)
     this->requestConfig_->Set(requestConfig);
 }
 
+void Request::SetLocationMockConfig(const LocationMockConfig& locationMockConfig)
+{
+    RequestConfig config;
+    config.SetScenario(locationMockConfig.scenario_);
+    config.SetPriority(locationMockConfig.priority_);
+    config.SetTimeInterval(locationMockConfig.timeInterval_);
+	SetRequestConfig(config);
+}
+
 void Request::SetLocatorCallBack(const sptr<ILocatorCallback>& callback)
 {
     this->callBack_ = callback;

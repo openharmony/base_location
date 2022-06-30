@@ -30,6 +30,7 @@
 #include "locator_ability.h"
 #include "subability_common.h"
 #include "agnss_event_callback.h"
+#include "event_handler.h"
 
 namespace OHOS {
 namespace Location {
@@ -52,6 +53,12 @@ using HDI::Location::Agnss::V1_0::IAGnssCallback;
 using HDI::Location::Agnss::V1_0::AGNSS_TYPE_SUPL;
 using HDI::Location::Agnss::V1_0::AGnssServerInfo;
 
+class GnssHandler : public AppExecFwk::EventHandler {
+public:
+    explicit GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~GnssHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+};
 class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility, DelayedSingleton<GnssAbility> {
 DECLEAR_SYSTEM_ABILITY(GnssAbility);
 
@@ -85,6 +92,10 @@ public:
     void ReportGnssSessionStatus(int status);
     void ReportNmea(const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
+    bool EnableLocationMock(const LocationMockConfig& config) override;
+    bool DisableLocationMock(const LocationMockConfig& config) override;
+    bool SetMockedLocations(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void StartGnss();
     void StopGnss();
@@ -95,6 +106,7 @@ public:
     void SetAgnssCallback();
     void SetSetId(const SubscriberSetId& id);
     void SetRefInfo(const AGnssRefInfo& refInfo);
+    void ProcessReportLocation();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -109,6 +121,13 @@ private:
     sptr<IGnssCallback> gnssCallback_;
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
+    std::shared_ptr<GnssHandler> gnssHandler_;
+    std::vector<std::shared_ptr<Location>> vcLoc_;
+    int locationIndex_ = 0;
+    int timeInterval_ = 0;
+    bool mockEnabled_ = false;
+    void CacheLocation(const std::vector<std::shared_ptr<Location>> &location);
+    int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 };
 } // namespace Location
 } // namespace OHOS

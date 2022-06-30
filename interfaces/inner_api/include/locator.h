@@ -24,6 +24,7 @@
 #include "location.h"
 #include "request_config.h"
 #include "napi/native_api.h"
+#include "location_mock_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -80,6 +81,11 @@ public:
 
     virtual bool AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+	virtual int GetIsoCountryCode(std::string& code) = 0;
+    virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool SetMockedLocations(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
 };
 } // namespace Location
 } // namespace OHOS

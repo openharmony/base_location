@@ -517,5 +517,104 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     int error = remote->SendRequest(REMOVE_FENCE, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
 }
+
+int LocatorProxy::GetIsoCountryCode(std::string& code)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return -1;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode remote is null");
+        return -1;
+    }
+    int error = remote->SendRequest(GET_ISO_COUNTRY_CODE, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", error);
+    code = "";
+    if (error == NO_ERROR) {
+        code = reply.ReadString();
+        int result = reply.ReadInt32();
+        return result;
+    } else {
+        return -1;
+    }    
+}
+
+bool LocatorProxy::EnableLocationMock(const LocationMockConfig& config)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "EnableLocationMock remote is null");
+        return false;
+    }
+    config.Marshalling(data);
+    int error = remote->SendRequest(ENABLE_LOCATION_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableLocationMock Transact ErrCodes = %{public}d", error);
+    bool state = false;
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "DisableLocationMock remote is null");
+        return false;
+    }
+    config.Marshalling(data);
+    int error = remote->SendRequest(DISABLE_LOCATION_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableLocationMock Transact ErrCodes = %{public}d", error);
+    bool state = false;
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::SetMockedLocations(const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SetMockedLocations remote is null");
+        return false;
+    }
+    config.Marshalling(data);
+    int locationSize = location.size();
+    data.WriteInt32(locationSize);
+    for (int i = 0; i < locationSize; i++) {
+        location.at(i)->Marshalling(data);
+    }
+    int error = remote->SendRequest(SET_MOCKED_LOCATIONS, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::SetMockedLocations Transact ErrCodes = %{public}d", error);
+    bool state = false;
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
 } // namespace Location
 } // namespace OHOS

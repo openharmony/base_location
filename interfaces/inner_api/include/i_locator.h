@@ -25,6 +25,7 @@
 #include "location.h"
 #include "request_config.h"
 #include "satellite_status.h"
+#include "location_mock_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -54,7 +55,11 @@ public:
         FLUSH_CACHED_LOCATIONS = 25,
         SEND_COMMAND = 26,
         ADD_FENCE = 27,
-        REMOVE_FENCE = 28
+        REMOVE_FENCE = 28,
+        GET_ISO_COUNTRY_CODE = 29,
+        ENABLE_LOCATION_MOCK = 30,
+        DISABLE_LOCATION_MOCK = 31,
+        SET_MOCKED_LOCATIONS = 32,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
     virtual void UpdateSaAbility() = 0;
@@ -85,6 +90,11 @@ public:
     virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+    virtual int GetIsoCountryCode(std::string& code) = 0;
+    virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool SetMockedLocations(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
 };
 } // namespace Location
 } // namespace OHOS

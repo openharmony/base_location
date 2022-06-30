@@ -38,6 +38,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/coutry_code_manager.cpp",
   ]
 
   include_dirs = [
@@ -78,7 +79,7 @@ ohos_shared_library("lbsservice_locator") {
     "os_account:os_account_innerkits",
     "samgr_standard:samgr_proxy",
   ]
-
+  external_deps += [ "core_service:tel_core_service_api" ]
   part_name = "location"
   subsystem_name = "location"
 }

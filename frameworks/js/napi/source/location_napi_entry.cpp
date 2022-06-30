@@ -51,6 +51,10 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("subscribe", Subscribe),
         DECLARE_NAPI_FUNCTION("unsubscribe", Unsubscribe),
         DECLARE_NAPI_FUNCTION("getSupportedCoordTypes", GetSupportedCoordTypes),
+        DECLARE_NAPI_FUNCTION("getIsoCountryCode", GetIsoCountryCode),
+        DECLARE_NAPI_FUNCTION("enableLocationMock", EnableLocationMock),
+        DECLARE_NAPI_FUNCTION("disableLocationMock", DisableLocationMock),
+        DECLARE_NAPI_FUNCTION("setMockedLocations", SetMockedLocations),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
