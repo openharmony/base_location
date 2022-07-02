@@ -107,7 +107,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
             LocationMockConfig config;
             config.Set(*mockConfig);
-            bool result = EnableLocationMock(config);
+            bool result = EnableMock(config);
             reply.WriteBool(result);
             break;
         }
@@ -115,7 +115,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
             LocationMockConfig config;
             config.Set(*mockConfig);
-            bool result = DisableLocationMock(config);
+            bool result = DisableMock(config);
             reply.WriteBool(result);
             break;
         }
@@ -128,7 +128,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             for (int i = 0; i < locationSize; i++) {
                 vcLoc.push_back(Location::UnmarshallingShared(data));
             }
-            bool result = SetMockedLocations(config, vcLoc);
+            bool result = SetMocked(config, vcLoc);
             reply.WriteBool(result);
             break;
         }

@@ -282,7 +282,7 @@ void GnssAbilityProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     LBSLOGD(GNSS, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
 }
 
-bool GnssAbilityProxy::EnableLocationMock(const LocationMockConfig& config)
+bool GnssAbilityProxy::EnableMock(const LocationMockConfig& config)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -306,7 +306,7 @@ bool GnssAbilityProxy::EnableLocationMock(const LocationMockConfig& config)
     return result;
 }
 
-bool GnssAbilityProxy::DisableLocationMock(const LocationMockConfig& config)
+bool GnssAbilityProxy::DisableMock(const LocationMockConfig& config)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -330,7 +330,7 @@ bool GnssAbilityProxy::DisableLocationMock(const LocationMockConfig& config)
     return result;
 }
 
-bool GnssAbilityProxy::SetMockedLocations(
+bool GnssAbilityProxy::SetMocked(
     const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;

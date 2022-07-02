@@ -18,18 +18,21 @@
 
 #include <array>
 #include <string>
+
+#include "ipc_skeleton.h"
+#include "system_ability_definition.h"
+
+#include "common_utils.h"
 #include "constant_definition.h"
+#include "geo_coding_mock_info.h"
 #include "location.h"
+#include "location_log.h"
+#include "locator.h"
 #include "message_parcel.h"
 #include "napi_util.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "request_config.h"
-#include "common_utils.h"
-#include "ipc_skeleton.h"
-#include "location_log.h"
-#include "locator.h"
-#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -50,6 +53,9 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info inf);
 napi_value EnableLocationMock(napi_env env, napi_callback_info info);
 napi_value DisableLocationMock(napi_env env, napi_callback_info info);
 napi_value SetMockedLocations(napi_env env, napi_callback_info info);
+napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info);
+napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info);
+napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info);
 }  // namespace Location
 }  // namespace OHOS
 #endif // LOCATION_NAPI_ADAPTER_H

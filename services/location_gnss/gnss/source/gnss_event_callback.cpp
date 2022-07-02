@@ -35,6 +35,11 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     locationNew->SetDirection(location.direction);
     locationNew->SetTimeStamp(location.timeStamp);
     locationNew->SetTimeSinceBoot(location.timeSinceBoot);
+    locationNew->SetIsFromMock(false);
+    if (DelayedSingleton<GnssAbility>::GetInstance()->IsMockEnabled()) {
+        LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
+        return ERR_OK;
+    }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
     return ERR_OK;

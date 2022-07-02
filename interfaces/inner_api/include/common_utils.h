@@ -115,6 +115,7 @@ public:
     static bool CheckSystemCalling(pid_t uid);
     static bool GetCurrentUserId(int &userId);
     static std::string Str16ToStr8(std::u16string str);
+    static bool DoubleEqual(double a, double b);
 };
 
 class CountDownLatch {

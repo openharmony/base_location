@@ -19,6 +19,7 @@
 #include "iremote_object.h"
 #include "constant_definition.h"
 #include "geo_address.h"
+#include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator_callback.h"
 #include "location.h"
@@ -86,6 +87,12 @@ public:
     virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
     virtual bool SetMockedLocations(
         const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
+    
+    virtual bool EnableReverseGeocodingMock() = 0;
+
+    virtual bool DisableReverseGeocodingMock() = 0;
+
+    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) = 0;
 };
 } // namespace Location
 } // namespace OHOS

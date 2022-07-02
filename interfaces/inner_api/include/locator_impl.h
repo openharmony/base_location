@@ -17,6 +17,7 @@
 
 #include "constant_definition.h"
 #include "i_cached_locations_callback.h"
+#include "geo_coding_mock_info.h"
 #include "locator.h"
 #include "locator_proxy.h"
 #include "geo_address.h"
@@ -61,7 +62,12 @@ public:
     bool DisableLocationMock(const LocationMockConfig& config) override;
     bool SetMockedLocations(
         const LocationMockConfig& config,      const std::vector<std::shared_ptr<Location>> &location) override;
+    
+    bool EnableReverseGeocodingMock() override;
 
+    bool DisableReverseGeocodingMock() override;
+
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
 private:
     std::unique_ptr<LocatorProxy> client_;
 };

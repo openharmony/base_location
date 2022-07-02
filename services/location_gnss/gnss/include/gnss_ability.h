@@ -20,6 +20,7 @@
 #include <singleton.h>
 #include <v1_0/ignss_interface.h>
 #include <v1_0/ia_gnss_interface.h>
+#include "event_handler.h"
 #include "i_gnss_status_callback.h"
 #include "i_nmea_message_callback.h"
 #include "i_cached_locations_callback.h"
@@ -30,7 +31,6 @@
 #include "locator_ability.h"
 #include "subability_common.h"
 #include "agnss_event_callback.h"
-#include "event_handler.h"
 
 namespace OHOS {
 namespace Location {
@@ -59,6 +59,7 @@ public:
     ~GnssHandler() override;
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
+
 class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility, DelayedSingleton<GnssAbility> {
 DECLEAR_SYSTEM_ABILITY(GnssAbility);
 
@@ -92,11 +93,11 @@ public:
     void ReportGnssSessionStatus(int status);
     void ReportNmea(const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
-    bool EnableLocationMock(const LocationMockConfig& config) override;
-    bool DisableLocationMock(const LocationMockConfig& config) override;
-    bool SetMockedLocations(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock(const LocationMockConfig& config) override;
+    bool DisableMock(const LocationMockConfig& config) override;
+    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
+    void SendReportMockLocationEvent() override;
     void StartGnss();
     void StopGnss();
     bool EnableGnss();
@@ -106,14 +107,18 @@ public:
     void SetAgnssCallback();
     void SetSetId(const SubscriberSetId& id);
     void SetRefInfo(const AGnssRefInfo& refInfo);
+    bool IsMockEnabled();
     void ProcessReportLocation();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     bool IsGnssEnabled();
+    int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
+    int locationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
+    std::shared_ptr<GnssHandler> gnssHandler_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
     std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
@@ -121,13 +126,6 @@ private:
     sptr<IGnssCallback> gnssCallback_;
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
-    std::shared_ptr<GnssHandler> gnssHandler_;
-    std::vector<std::shared_ptr<Location>> vcLoc_;
-    int locationIndex_ = 0;
-    int timeInterval_ = 0;
-    bool mockEnabled_ = false;
-    void CacheLocation(const std::vector<std::shared_ptr<Location>> &location);
-    int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 };
 } // namespace Location
 } // namespace OHOS

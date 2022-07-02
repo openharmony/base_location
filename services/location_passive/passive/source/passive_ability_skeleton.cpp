@@ -46,6 +46,35 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             SetEnable(data.ReadBool());
             break;
         }
+        case ENABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = EnableMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case DISABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = DisableMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case SET_MOCKED_LOCATIONS: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            int locationSize = data.ReadInt32();
+            std::vector<std::shared_ptr<Location>> vcLoc;
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc.push_back(Location::UnmarshallingShared(data));
+            }
+            bool result = SetMocked(config, vcLoc);
+            reply.WriteBool(result);
+            break;
+        }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }

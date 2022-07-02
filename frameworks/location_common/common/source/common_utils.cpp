@@ -221,5 +221,14 @@ std::string CommonUtils::Str16ToStr8(std::u16string str)
     std::string result = convert.to_bytes(str);
     return result == DEFAULT_STRING ? "" : result;
 }
+
+bool CommonUtils::DoubleEqual(double a, double b)
+{
+    if (fabs(a - b) < 1e-6) {
+        return true;
+    } else {
+        return false;
+    }
+}
 } // namespace Location
 } // namespace OHOS

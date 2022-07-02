@@ -62,5 +62,70 @@ int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel
     LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
     return error;
 }
+
+bool GeoConvertProxy::EnableReverseGeocodingMock()
+{
+    bool result = false;
+    int error = -1;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
+        return false;
+    }
+    error = Remote()->SendRequest(ENABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
+    LBSLOGI(GEO_CONVERT, "EnableReverseGeocodingMock result from server.");
+    if (error == NO_ERROR) {
+        result = reply.ReadBool();
+    }
+    return result;
+}
+
+bool GeoConvertProxy::DisableReverseGeocodingMock()
+{
+    bool result = false;
+    int error = -1;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
+        return false;
+    }
+    error = Remote()->SendRequest(DISABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
+    LBSLOGI(GEO_CONVERT, "DisableReverseGeocodingMock result from server.");
+    if (error == NO_ERROR) {
+        result = reply.ReadBool();
+    }
+    return result;
+}
+
+bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+{
+    bool result = false;
+    int error = -1;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
+        return false;
+    }
+    data.WriteInt32(mokeInfo.size());
+    for (size_t i = 0; i < mokeInfo.size(); i++) {
+        data.WriteString16(Str8ToStr16(mokeInfo[i]->GetReverseGeocodeRequest()->locale));
+        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->latitude);
+        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->longitude);
+        data.WriteInt32(mokeInfo[i]->GetReverseGeocodeRequest()->maxItems);
+        mokeInfo[i]->GetGeoAddressInfo()->Marshalling(data);
+    }
+    error = Remote()->SendRequest(SET_REVERSE_GEOCODE_MOCKINFO, data, reply, option);
+    LBSLOGI(GEO_CONVERT, "SetReverseGeocodingMockInfo result from server.");
+    if (error == NO_ERROR) {
+        result = reply.ReadBool();
+    }
+    return result;
+}
 } // namespace Location
 } // namespace OHOS

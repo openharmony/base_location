@@ -617,5 +617,79 @@ bool LocatorProxy::SetMockedLocations(
     }
     return state;
 }
+
+bool LocatorProxy::EnableReverseGeocodingMock()
+{
+    bool state = false;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "EnableReverseGeocodingMock remote is null");
+        return false;
+    }
+    int error = remote->SendRequest(ENABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableReverseGeocodingMock Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::DisableReverseGeocodingMock()
+{
+    bool state = false;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "DisableReverseGeocodingMock remote is null");
+        return false;
+    }
+    int error = remote->SendRequest(DISABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableReverseGeocodingMock Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+{
+    bool state = false;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    data.WriteInt32(mokeInfo.size());
+    for (size_t i = 0; i < mokeInfo.size(); i++) {
+        data.WriteString16(Str8ToStr16(mokeInfo[i]->GetReverseGeocodeRequest()->locale));
+        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->latitude);
+        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->longitude);
+        data.WriteInt32(mokeInfo[i]->GetReverseGeocodeRequest()->maxItems);
+        mokeInfo[i]->GetGeoAddressInfo()->Marshalling(data);
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SetReverseGeocodingMockInfo remote is null");
+        return false;
+    }
+    int error = remote->SendRequest(SET_REVERSE_GEOCODE_MOCKINFO, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::SetReverseGeocodingMockInfo Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
 } // namespace Location
 } // namespace OHOS
