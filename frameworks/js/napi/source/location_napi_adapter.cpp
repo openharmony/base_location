@@ -54,8 +54,8 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push last location result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
@@ -83,8 +83,8 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push IsLocationEnabled result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value EnableLocation(napi_env env, napi_callback_info info)
@@ -113,8 +113,8 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push EnableLocation result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value DisableLocation(napi_env env, napi_callback_info info)
@@ -143,8 +143,8 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push DisableLocation result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
@@ -176,8 +176,8 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push RequestEnableLocation result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
@@ -205,8 +205,8 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push isGeoServiceAvailable result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
@@ -250,8 +250,8 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push GetAddressesFromLocation result to client");
     };
 
-    size_t nonCallbackArgNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
@@ -296,8 +296,8 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push GetAddressesFromLocationName result to client");
     };
 
-    size_t nonCallbackArgNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
@@ -330,8 +330,8 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push IsLocationPrivacyConfirmed result to client");
     };
 
-    size_t nonCallbackArgNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info)
@@ -366,8 +366,8 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
         LBSLOGI(LOCATOR_STANDARD, "Push SetLocationPrivacyConfirmStatus result to client");
     };
 
-    size_t nonCallbackArgNum = 2;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 2;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
@@ -400,8 +400,8 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push GetCachedGnssLocationsSize result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
@@ -434,8 +434,8 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push FlushCachedGnssLocations result to client");
     };
 
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value SendCommand(napi_env env, napi_callback_info info)
@@ -473,8 +473,8 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
     };
 
-    size_t nonCallbackArgNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
 {
@@ -512,8 +512,8 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push IsLocationEnabled result to client");
     };
 
-    size_t nonCallbackArgNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 void ParameterConfiguration(napi_env env, EnableLocationMockAsyncContext *asyncContext, napi_value object)
@@ -573,8 +573,8 @@ napi_value EnableLocationMock(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
     };
 
-    size_t nonCallbackArgNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value DisableLocationMock(napi_env env, napi_callback_info info)
@@ -613,8 +613,8 @@ napi_value DisableLocationMock(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
     };
 
-    size_t nonCallbackArgNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 void ParameterConfiguration(
@@ -709,8 +709,8 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
     };
 
-    size_t nonCallbackArgNum = 2;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    size_t objectArgsNum = 2;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 } // namespace Location
 } // namespace OHOS

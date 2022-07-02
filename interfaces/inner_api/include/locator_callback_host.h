@@ -61,6 +61,7 @@ public:
     napi_deferred m_deferred;
     std::shared_mutex m_mutex;
     CountDownLatch* m_latch;
+    std::shared_ptr<Location> m_singleLocation;
 };
 } // namespace Location
 } // namespace OHOS

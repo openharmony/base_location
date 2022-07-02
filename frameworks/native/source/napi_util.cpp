@@ -456,16 +456,16 @@ napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool b
 }
 
 static napi_value InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext,
-    const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum)
+    const size_t argc, const napi_value* argv, const size_t objectArgsNum)
 {
     if (asyncContext == nullptr || argv == nullptr) {
         return nullptr;
     }
-    for (size_t i = nonCallbackArgNum; i != argc; ++i) {
+    for (size_t i = objectArgsNum; i != argc; ++i) {
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[i], &valuetype));
         NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
-        NAPI_CALL(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - nonCallbackArgNum]));
+        NAPI_CALL(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - objectArgsNum]));
     }
     return UndefinedNapiValue(env);
 }
@@ -503,7 +503,6 @@ std::string GetErrorMsgByCode(int code)
 {
     static std::map<int, std::string> errorCodeMap = {
         {SUCCESS, "SUCCESS"},
-        {NO_DATA_TO_SEND, "NO_DATA_TO_SEND"},
         {NOT_SUPPORTED, "NOT_SUPPORTED"},
         {INPUT_PARAMS_ERROR, "INPUT_PARAMS_ERROR"},
         {REVERSE_GEOCODE_ERROR, "REVERSE_GEOCODE_ERROR"},
@@ -521,31 +520,56 @@ std::string GetErrorMsgByCode(int code)
     return iter->second;
 }
 
-void CreateErrorObject(const napi_env& env, AsyncContext* context, bool isPromise)
+void CreateResultObject(const napi_env& env, AsyncContext& context)
 {
     if (context->errCode != SUCCESS) {
-        napi_value message = nullptr;
         std::string msg = GetErrorMsgByCode(context->errCode);
-        NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &message));
         NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &context->result[PARAM0]));
         SetValueInt32(env, "code", context->errCode, context->result[PARAM0]);
         SetValueUtf8String(env, "data", msg.c_str(), context->result[PARAM0]);
         NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
-        if (isPromise) {
-            NAPI_CALL_RETURN_VOID(env,
-                napi_reject_deferred(env, context->deferred, context->result[PARAM0]));
-        }
     } else {
-        if (isPromise) {
-            NAPI_CALL_RETURN_VOID(env,
-                napi_resolve_deferred(env, context->deferred, context->result[PARAM1]));
-        } else {
-            NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM0]));
-        }
+        NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM0]));
     }
 }
 
-static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncContext)
+void SendResultToJs(const napi_env& env, AsyncContext& context, bool isPromise)
+{
+    bool isPromise = context->deferred != nullptr;
+    if (isPromise) {
+        if (context->errCode != SUCCESS) {
+            NAPI_CALL_RETURN_VOID(env,
+                napi_reject_deferred(env, context->deferred, context->result[PARAM0]));
+        } else {
+            NAPI_CALL_RETURN_VOID(env,
+                napi_resolve_deferred(env, context->deferred, context->result[PARAM1]));
+        }
+    } else {
+        napi_value undefine;
+        NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefine));
+        napi_value callback;
+        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, context->callback[0], &callback));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine));
+    }
+}
+
+void MemoryReclamation(const napi_env& env, AsyncContext& context)
+{
+    if (context->callback[0] != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[0]));
+    }
+    if (context->callback[1] != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[1]));
+    }
+    if (context->callback[2] != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[2]));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
+    delete context;
+}
+
+static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContext)
 {
     if (asyncContext == nullptr) {
         return UndefinedNapiValue(env);
@@ -566,104 +590,28 @@ static napi_value DoCallBackAsyncWork(const napi_env& env, AsyncContext* asyncCo
                 return;
             }
             AsyncContext* context = (AsyncContext *)data;
-            if (context->errCode == NO_DATA_TO_SEND) {
-                LBSLOGD(LOCATOR_STANDARD, "no need to send callback message, just return.");
-                NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
-                delete context;
-                return;
-            }
-            napi_value undefine;
-            NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefine));
-            napi_value callback;
             context->completeFunc(data);
-            CreateErrorObject(env, context, false);
-            NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, context->callback[0], &callback));
-            NAPI_CALL_RETURN_VOID(env,
-                napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine));
-            if (context->callback[0] != nullptr) {
-                NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[0]));
-            }
-            if (context->callback[1] != nullptr) {
-                NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[1]));
-            }
-            NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
-            delete context;
+            CreateResultObject(env, context);
+            SendResultToJs(env, context);
+            MemoryReclamation(env, context);
         }, (void*)asyncContext, &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
     return UndefinedNapiValue(env);
 }
 
-static napi_value DoPromiseAsyncWork(const napi_env& env, AsyncContext* asyncContext)
-{
-    if (asyncContext == nullptr) {
-        return UndefinedNapiValue(env);
-    }
-    NAPI_CALL(env, napi_create_async_work(
-        env,
-        nullptr,
-        asyncContext->resourceName,
-        [](napi_env env, void* data) {
-            if (data == nullptr) {
-                LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
-                return;
-            }
-            AsyncContext* context = (AsyncContext*)data;
-            context->executeFunc(context);
-        },
-        [](napi_env env, napi_status status, void* data) {
-            if (data == nullptr) {
-                LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
-                return;
-            }
-            AsyncContext* context = (AsyncContext*)data;
-            if (context->errCode == NO_DATA_TO_SEND) {
-                LBSLOGD(LOCATOR_STANDARD, "no need to send promise message, just return.");
-                NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
-                delete context;
-                return;
-            }
-            context->completeFunc(data);
-            CreateErrorObject(env, context, true);
-            NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
-            delete context;
-        },
-        (void*)asyncContext,
-        &asyncContext->work));
-    NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
-    return UndefinedNapiValue(env);
-}
-
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
-    const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum)
+    const size_t argc, const napi_value* argv, const size_t objectArgsNum)
 {
     if (asyncContext == nullptr || argv == nullptr) {
         return UndefinedNapiValue(env);
     }
-
-    if (argc > nonCallbackArgNum) {
-        InitAsyncCallBackEnv(env, asyncContext, argc, argv, nonCallbackArgNum);
-        return DoCallBackAsyncWork(env, asyncContext);
+    if (argc > objectArgsNum) {
+        InitAsyncCallBackEnv(env, asyncContext, argc, argv, objectArgsNum);
+        return CreateAsyncWork(env, asyncContext);
     } else {
         napi_value promise;
         InitAsyncPromiseEnv(env, asyncContext, promise);
-        DoPromiseAsyncWork(env, asyncContext);
-        return promise;
-    }
-}
-
-napi_value DoAsyncWorkForSingleLocating(const napi_env& env, AsyncContext* asyncContext,
-    const size_t argc, const napi_value* argv, const size_t nonCallbackArgNum)
-{
-    if (asyncContext == nullptr || argv == nullptr) {
-        return UndefinedNapiValue(env);
-    }
-
-    if (argc > nonCallbackArgNum) {
-        InitAsyncCallBackEnv(env, asyncContext, argc, argv, nonCallbackArgNum);
-        return DoCallBackAsyncWork(env, asyncContext);
-    } else {
-        napi_value promise = nullptr;
-        DoPromiseAsyncWork(env, asyncContext);
+        CreateAsyncWork(env, asyncContext);
         return promise;
     }
 }

@@ -71,7 +71,7 @@ public:
     int32_t scenario;
     int32_t timeInterval;
     bool enable;
-    
+
     EnableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {
         }
@@ -278,12 +278,13 @@ public:
     virtual ~GeoCodeAsyncContext() {}
 };
 
-class CurrentLocationAsyncContext : public AsyncContext {
+class SingleLocationAsyncContext : public AsyncContext {
 public:
-    int timeout;
+    int timeout_;
+    sptr<LocatorCallbackHost> callbackHost_;
 
     CurrentLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), timeout(0) {}
+        : AsyncContext(env, work, deferred), timeout(0), callbackHost_(0) {}
 
     CurrentLocationAsyncContext() = delete;
 

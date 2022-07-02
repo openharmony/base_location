@@ -34,6 +34,7 @@ LocatorCallbackHost::LocatorCallbackHost()
     m_completeHandlerCb = nullptr;
     m_deferred = nullptr;
     m_fixNumber = 0;
+    m_singleLocation = nullptr;
     InitLatch();
 }
 
@@ -164,6 +165,7 @@ bool LocatorCallbackHost::Send(std::unique_ptr<Location>& location)
         context->deferred = m_deferred;
     }
     context->loc = std::move(location);
+    m_singleLocation = context->loc;
     work->data = context;
     DoSendWork(loop, work);
     return true;
@@ -192,7 +194,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 delete work;
                 return;
             }
-            if (context->callback[1] != nullptr) {
+            if (context->callback[FAIL_CALLBACK] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 napi_get_undefined(context->env, &undefine);
