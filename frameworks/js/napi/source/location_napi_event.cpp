@@ -127,7 +127,7 @@ void UnSubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_
 }
 
 SingleLocationAsyncContext* InitSingleLocationAsyncContext(napi_env& env,
-    std::unique_ptr<RequestConfig> config, sptr<LocatorCallbackHost> callback)
+    std::unique_ptr<RequestConfig>& config, sptr<LocatorCallbackHost> callback)
 {
     auto asyncContext = new (std::nothrow) SingleLocationAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");

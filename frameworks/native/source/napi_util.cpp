@@ -481,22 +481,15 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
     return UndefinedNapiValue(env);
 }
 
-napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
+void CreateFailCallBackParams(void* context, std::string msg, int32_t errorCode)
 {
-    napi_value result = nullptr;
-    napi_value message = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, msg.c_str(), msg.length(), &message));
-    napi_value codeValue = nullptr;
-    std::string errCode = std::to_string(errorCode);
-    NAPI_CALL(env, napi_create_string_utf8(env, errCode.c_str(), errCode.length(), &codeValue));
-    NAPI_CALL(env, napi_create_error(env, codeValue, message, &result));
-    return result;
-}
-
-void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode)
-{
-    SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
-    SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
+    if (context == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "CreateFailCallBackParams input para error");
+        return;
+    }
+    auto asyncContext = static_cast<AsyncContext*>(context);
+    SetValueUtf8String(asyncContext->env, "data", msg.c_str(), asyncContext->result[PARAM0]);
+    SetValueInt32(asyncContext->env, "code", errorCode, asyncContext->result[PARAM1]);
 }
 
 std::string GetErrorMsgByCode(int code)
@@ -556,14 +549,14 @@ void SendResultToJs(const napi_env& env, AsyncContext& context, bool isPromise)
 
 void MemoryReclamation(const napi_env& env, AsyncContext& context)
 {
-    if (context->callback[0] != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[0]));
+    if (context->callback[SUCCESS_CALLBACK] != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[SUCCESS_CALLBACK]));
     }
-    if (context->callback[1] != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[1]));
+    if (context->callback[FAIL_CALLBACK] != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[FAIL_CALLBACK]));
     }
-    if (context->callback[2] != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[2]));
+    if (context->callback[COMPLETE_CALLBACK] != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[COMPLETE_CALLBACK]));
     }
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
     delete context;
@@ -599,12 +592,13 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
     return UndefinedNapiValue(env);
 }
 
-napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
+napi_value DoAsyncWork(const napi_env& env, void* context,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum)
 {
     if (asyncContext == nullptr || argv == nullptr) {
         return UndefinedNapiValue(env);
     }
+    auto asyncContext = static_cast<AsyncContext*>(context);
     if (argc > objectArgsNum) {
         InitAsyncCallBackEnv(env, asyncContext, argc, argv, objectArgsNum);
         return CreateAsyncWork(env, asyncContext);
