@@ -17,6 +17,7 @@
 #include "location_log.h"
 #include "locator.h"
 #include "system_ability_definition.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {

@@ -481,13 +481,12 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
     return UndefinedNapiValue(env);
 }
 
-void CreateFailCallBackParams(void* context, std::string msg, int32_t errorCode)
+void CreateFailCallBackParams(AsyncContext* asyncContext, std::string msg, int32_t errorCode)
 {
-    if (context == nullptr) {
+    if (asyncContext == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "CreateFailCallBackParams input para error");
         return;
     }
-    auto asyncContext = static_cast<AsyncContext*>(context);
     SetValueUtf8String(asyncContext->env, "data", msg.c_str(), asyncContext->result[PARAM0]);
     SetValueInt32(asyncContext->env, "code", errorCode, asyncContext->result[PARAM1]);
 }
@@ -513,8 +512,12 @@ std::string GetErrorMsgByCode(int code)
     return iter->second;
 }
 
-void CreateResultObject(const napi_env& env, AsyncContext& context)
+void CreateResultObject(const napi_env& env, AsyncContext* context)
 {
+    if (context == nullptr || env == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "CreateResultObject input para error");
+        return;
+    }
     if (context->errCode != SUCCESS) {
         std::string msg = GetErrorMsgByCode(context->errCode);
         NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &context->result[PARAM0]));
@@ -526,8 +529,13 @@ void CreateResultObject(const napi_env& env, AsyncContext& context)
     }
 }
 
-void SendResultToJs(const napi_env& env, AsyncContext& context, bool isPromise)
+void SendResultToJs(const napi_env& env, AsyncContext* context, bool isPromise)
 {
+    if (context == nullptr || env == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendResultToJs input para error");
+        return;
+    }
+
     bool isPromise = context->deferred != nullptr;
     if (isPromise) {
         if (context->errCode != SUCCESS) {
@@ -547,8 +555,13 @@ void SendResultToJs(const napi_env& env, AsyncContext& context, bool isPromise)
     }
 }
 
-void MemoryReclamation(const napi_env& env, AsyncContext& context)
+void MemoryReclamation(const napi_env& env, AsyncContext* context)
 {
+    if (context == nullptr || env == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "MemoryReclamation input para error");
+        return;
+    }
+
     if (context->callback[SUCCESS_CALLBACK] != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[SUCCESS_CALLBACK]));
     }
@@ -592,13 +605,12 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
     return UndefinedNapiValue(env);
 }
 
-napi_value DoAsyncWork(const napi_env& env, void* context,
+napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum)
 {
     if (asyncContext == nullptr || argv == nullptr) {
         return UndefinedNapiValue(env);
     }
-    auto asyncContext = static_cast<AsyncContext*>(context);
     if (argc > objectArgsNum) {
         InitAsyncCallBackEnv(env, asyncContext, argc, argv, objectArgsNum);
         return CreateAsyncWork(env, asyncContext);

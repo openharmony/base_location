@@ -21,7 +21,7 @@
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
-#include "napi_util.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace Location {
