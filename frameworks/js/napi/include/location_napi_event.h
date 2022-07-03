@@ -49,8 +49,6 @@ void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHo
 bool IsCallbackEquals(napi_env& env, napi_value& handler, napi_ref& savedCallback);
 void GenRequestConfig(napi_env& env, const napi_value* argv,
     size_t& objectArgsNum, std::unique_ptr<RequestConfig>& requestConfig);
-void GetCallbackType(napi_env& env, const size_t argc, const napi_value* argv, bool& isCallbackType,
-    size_t& objectArgsNum);
 napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_value* argv);
 napi_value On(napi_env env, napi_callback_info cbinfo);
 napi_value Off(napi_env env, napi_callback_info cbinfo);

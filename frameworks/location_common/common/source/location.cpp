@@ -62,34 +62,6 @@ void Location::ReadFromParcel(Parcel& parcel)
     isFromMock_ = parcel.ReadBool();
 }
 
-void Location::ReadFromParcelLocation(Parcel& parcel)
-{
-    if (parcel.ReadInt32() == 0) {
-        return;
-    }
-    parcel.ReadString16();               // read string
-    timeStamp_ = parcel.ReadInt64();     // read time
-    timeSinceBoot_ = parcel.ReadInt64(); // read mElapsedRealtimeNanos
-    parcel.ReadDouble();                 // read mElapsedRealtimeUncertaintyNanos
-    parcel.ReadInt32();                  // read mFieldsMask
-    latitude_ = parcel.ReadDouble();     // read mLatitude
-    longitude_ = parcel.ReadDouble();    // read mLongitude
-    altitude_ = parcel.ReadDouble();     // read mAltitude
-    speed_ = parcel.ReadFloat();         // read mSpeed
-    direction_ = parcel.ReadFloat();     // read mBearing
-    accuracy_ = parcel.ReadFloat();      // read mHorizontalAccuracyMeters
-    parcel.ReadFloat();                  // read mVerticalAccuracyMeters
-    parcel.ReadFloat();                  // read mSpeedAccuracyMetersPerSecond
-    parcel.ReadFloat();                  // read mBearingAccuracyDegrees
-}
-
-std::unique_ptr<Location> Location::UnmarshallingLocation(Parcel& parcel)
-{
-    std::unique_ptr<Location> location = std::make_unique<Location>();
-    location->ReadFromParcelLocation(parcel);
-    return location;
-}
-
 std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
 {
     std::shared_ptr<Location> location = std::make_shared<Location>();

@@ -126,7 +126,7 @@ void UnSubscribeFenceStatusChange(napi_env& env, const napi_value& object, napi_
     }
 }
 
-SingleLocationAsyncContext* InitSingleLocationAsyncContext(napi_env& env,
+SingleLocationAsyncContext* CreateSingleLocationAsyncContext(napi_env& env,
     std::unique_ptr<RequestConfig>& config, sptr<LocatorCallbackHost> callback)
 {
     auto asyncContext = new (std::nothrow) SingleLocationAsyncContext(env);
@@ -165,10 +165,15 @@ SingleLocationAsyncContext* InitSingleLocationAsyncContext(napi_env& env,
         if (callbackHost != nullptr && callbackHost->m_singleLocation != nullptr) {
             LocationToJs(context->env, callbackHost->m_singleLocation, context->result[PARAM1]);
         } else {
-            LBSLOGE(LOCATOR_STANDARD, "loc is nullptr!");
+            LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
+        }
+        if (context->callbackHost_) {
+            delete context->callbackHost_;
+            context->callbackHost_ = nullptr;
         }
         LBSLOGI(LOCATOR_STANDARD, "Push single location to client");
     };
+    return asyncContext;
 }
 
 int GetObjectArgsNum(napi_env& env, const size_t argc, const napi_value* argv)
@@ -178,7 +183,7 @@ int GetObjectArgsNum(napi_env& env, const size_t argc, const napi_value* argv)
     if (argc == 0) {
         objectArgsNum = 0;
     } else if (argc == 1) {
-        NAPI_CALL_RETURN_VOID(env, napi_typeof(env, argv[0], &valueType));
+        NAPI_CALL_BASE(env, napi_typeof(env, argv[0], &valueType), objectArgsNum);
         if (valueType == napi_object) {
             objectArgsNum = 1;
         } else if (valueType == napi_function) {
@@ -192,7 +197,7 @@ int GetObjectArgsNum(napi_env& env, const size_t argc, const napi_value* argv)
     return objectArgsNum;
 }
 
-std::unique_ptr<RequestConfig> InitRequestConfig(napi_env& env, const napi_value* argv,
+std::unique_ptr<RequestConfig> CreateRequestConfig(napi_env& env, const napi_value* argv,
     size_t& objectArgsNum)
 {
     auto requestConfig = std::make_unique<RequestConfig>();
@@ -209,13 +214,14 @@ std::unique_ptr<RequestConfig> InitRequestConfig(napi_env& env, const napi_value
     return requestConfig;
 }
 
-sptr<LocatorCallbackHost> InitsingleLocatorCallbackHost(napi_env& env)
+sptr<LocatorCallbackHost> CreateSingleLocationCallbackHost(napi_env& env)
 {
-    auto singleLocatorCallbackHost =
+    auto callbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-    NAPI_ASSERT(env, singleLocatorCallbackHost != nullptr, "callbackHost is null.");
-    singleLocatorCallbackHost->m_fixNumber = 1;
-    singleLocatorCallbackHost->m_env = env;
+    NAPI_ASSERT(env, callbackHost != nullptr, "callbackHost is null.");
+    callbackHost->m_fixNumber = 1;
+    callbackHost->m_env = env;
+    return callbackHost;
 }
 
 napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_value* argv)
@@ -223,9 +229,9 @@ napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_valu
     size_t objectArgsNum = 0;
 
     objectArgsNum = GetObjectArgsNum(env, argc, argv);
-    auto requestConfig = InitRequestConfig(env, argv, objectArgsNum);
+    auto requestConfig = CreateRequestConfig(env, argv, objectArgsNum);
     NAPI_ASSERT(env, requestConfig != nullptr, "requestConfig is null.");
-    auto singleLocatorCallbackHost = InitsingleLocatorCallbackHost(env);
+    auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost(env);
     NAPI_ASSERT(env, singleLocatorCallbackHost != nullptr, "callbackHost is null.");
 
     if (g_locatorProxy->IsLocationEnabled()) {
@@ -233,7 +239,7 @@ napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_valu
         g_locatorProxy->StartLocating(requestConfig, callbackPtr);
     }
 
-    auto asyncContext = InitSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
+    auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }

@@ -32,7 +32,6 @@ public:
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
-    bool Send(std::unique_ptr<Location>& location);
     void DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work);
     bool SendErrorCode(const int& errorCode);
 
@@ -61,7 +60,7 @@ public:
     napi_deferred m_deferred;
     std::shared_mutex m_mutex;
     CountDownLatch* m_latch;
-    std::shared_ptr<Location> m_singleLocation;
+    std::unique_ptr<Location> m_singleLocation;
 };
 } // namespace Location
 } // namespace OHOS

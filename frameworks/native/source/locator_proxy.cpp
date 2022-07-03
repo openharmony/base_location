@@ -590,7 +590,7 @@ bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
 }
 
 bool LocatorProxy::SetMockedLocations(
-    const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
     MessageParcel reply;

@@ -724,7 +724,7 @@ bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
 }
 
 bool LocatorAbility::SetMockedLocations(
-    const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
     if (request != nullptr) {

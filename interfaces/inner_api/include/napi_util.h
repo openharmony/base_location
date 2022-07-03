@@ -69,7 +69,7 @@ napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const doub
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result);
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum);
-void CreateFailCallBackParams(AsyncContext* context, std::string msg, int32_t errorCode);
+void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode);
 std::string GetErrorMsgByCode(int code);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \

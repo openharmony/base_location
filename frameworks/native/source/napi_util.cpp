@@ -481,14 +481,10 @@ static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncCo
     return UndefinedNapiValue(env);
 }
 
-void CreateFailCallBackParams(AsyncContext* asyncContext, std::string msg, int32_t errorCode)
+void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode)
 {
-    if (asyncContext == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "CreateFailCallBackParams input para error");
-        return;
-    }
-    SetValueUtf8String(asyncContext->env, "data", msg.c_str(), asyncContext->result[PARAM0]);
-    SetValueInt32(asyncContext->env, "code", errorCode, asyncContext->result[PARAM1]);
+    SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
+    SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
 }
 
 std::string GetErrorMsgByCode(int code)
@@ -529,7 +525,7 @@ void CreateResultObject(const napi_env& env, AsyncContext* context)
     }
 }
 
-void SendResultToJs(const napi_env& env, AsyncContext* context, bool isPromise)
+void SendResultToJs(const napi_env& env, AsyncContext* context)
 {
     if (context == nullptr || env == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "SendResultToJs input para error");

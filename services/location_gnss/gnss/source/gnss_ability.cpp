@@ -513,7 +513,7 @@ bool GnssAbility::DisableLocationMock(const LocationMockConfig& config)
 }
 
 bool GnssAbility::SetMockedLocations(
-    const LocationMockConfig& config,	const std::vector<std::shared_ptr<Location>> &location)
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
 {
     if (!mockEnabled_) {
         LBSLOGE(GEO_CONVERT, "SetMockedLocations current state is %{public}d, need enbale it", mockEnabled_);
