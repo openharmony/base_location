@@ -214,13 +214,13 @@ std::unique_ptr<RequestConfig> CreateRequestConfig(napi_env& env, const napi_val
     return requestConfig;
 }
 
-sptr<LocatorCallbackHost> CreateSingleLocationCallbackHost(napi_env& env)
+sptr<LocatorCallbackHost> CreateSingleLocationCallbackHost()
 {
     auto callbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-    NAPI_ASSERT(env, callbackHost != nullptr, "callbackHost is null.");
-    callbackHost->m_fixNumber = 1;
-    callbackHost->m_env = env;
+    if (callbackHost) {
+        callbackHost->m_fixNumber = 1;
+    }
     return callbackHost;
 }
 
@@ -231,7 +231,7 @@ napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_valu
     objectArgsNum = GetObjectArgsNum(env, argc, argv);
     auto requestConfig = CreateRequestConfig(env, argv, objectArgsNum);
     NAPI_ASSERT(env, requestConfig != nullptr, "requestConfig is null.");
-    auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost(env);
+    auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();
     NAPI_ASSERT(env, singleLocatorCallbackHost != nullptr, "callbackHost is null.");
 
     if (g_locatorProxy->IsLocationEnabled()) {

@@ -181,11 +181,13 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (!IsSystemGeoLocationApi() && !IsSingleLocationRequest()) {
-        LBSLOGE(LOCATOR_CALLBACK,
-            "this is Callback type,cant send error msg.");
+        LBSLOGE(LOCATOR_CALLBACK, "this is Callback type,cant send error msg.");
         return false;
     }
-
+    if (m_env == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "m_env is nullptr.");
+        return false;
+    }
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(m_env, &loop);
     if (loop == nullptr) {
@@ -221,7 +223,11 @@ void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     uv_loop_s *loop = nullptr;
-    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
+    if (m_env == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "m_env is nullptr.");
+        return;
+    }
+    NAPI_CALL_RETURN_VOID(m_env, napi_get_uv_event_loop(m_env, &loop));
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
         return;
@@ -271,7 +277,7 @@ void LocatorCallbackHost::DeleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_handlerCb) {
+    if (m_handlerCb && m_env) {
         napi_delete_reference(m_env, m_handlerCb);
         m_handlerCb = nullptr;
     }
@@ -281,7 +287,7 @@ void LocatorCallbackHost::DeleteSuccessHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteSuccessHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_successHandlerCb) {
+    if (m_successHandlerCb && m_env) {
         napi_delete_reference(m_env, m_successHandlerCb);
         m_successHandlerCb = nullptr;
     }
@@ -291,7 +297,7 @@ void LocatorCallbackHost::DeleteFailHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteFailHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_failHandlerCb) {
+    if (m_failHandlerCb && m_env) {
         napi_delete_reference(m_env, m_failHandlerCb);
         m_failHandlerCb = nullptr;
     }
@@ -301,7 +307,7 @@ void LocatorCallbackHost::DeleteCompleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteCompleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_completeHandlerCb) {
+    if (m_completeHandlerCb && m_env) {
         napi_delete_reference(m_env, m_completeHandlerCb);
         m_completeHandlerCb = nullptr;
     }
