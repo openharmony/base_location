@@ -30,6 +30,7 @@
 #include "satellite_status.h"
 #include "location_mock_config.h"
 #include "constant_definition.h"
+#include "locator_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -71,7 +72,7 @@ public:
     int32_t scenario;
     int32_t timeInterval;
     bool enable;
-    
+
     EnableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {
         }
@@ -151,18 +152,6 @@ public:
     LocationAsyncContext() = delete;
 
     virtual ~LocationAsyncContext() {}
-};
-
-class LocatorAsyncContext : public AsyncContext {
-public:
-    std::shared_ptr<Location> loc;
-
-    LocatorAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), loc(nullptr) {}
-
-    LocatorAsyncContext() = delete;
-
-    virtual ~LocatorAsyncContext() {}
 };
 
 class SwitchAsyncContext : public AsyncContext {
@@ -278,16 +267,17 @@ public:
     virtual ~GeoCodeAsyncContext() {}
 };
 
-class CurrentLocationAsyncContext : public AsyncContext {
+class SingleLocationAsyncContext : public AsyncContext {
 public:
-    int timeout;
+    int timeout_;
+    sptr<LocatorCallbackHost> callbackHost_;
 
-    CurrentLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), timeout(0) {}
+    SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(0) {}
 
-    CurrentLocationAsyncContext() = delete;
+    SingleLocationAsyncContext() = delete;
 
-    virtual ~CurrentLocationAsyncContext() {}
+    virtual ~SingleLocationAsyncContext() {}
 };
 }  // namespace Location
 }  // namespace OHOS

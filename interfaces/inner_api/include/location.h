@@ -136,12 +136,10 @@ public:
     }
 
     void ReadFromParcel(Parcel& parcel);
-    void ReadFromParcelLocation(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
     static std::unique_ptr<Location> Unmarshalling(Parcel& parcel);
     static std::shared_ptr<Location> UnmarshallingShared(Parcel& parcel);
-    static std::unique_ptr<Location> UnmarshallingLocation(Parcel& parcel);
 private:
     double latitude_;
     double longitude_;
