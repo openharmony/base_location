@@ -60,6 +60,8 @@ public:
         ENABLE_LOCATION_MOCK = 30,
         DISABLE_LOCATION_MOCK = 31,
         SET_MOCKED_LOCATIONS = 32,
+        REG_COUNTRY_CODE_CALLBACK = 33,
+        UNREG_COUNTRY_CODE_CALLBACK = 34,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
     virtual void UpdateSaAbility() = 0;
@@ -71,6 +73,8 @@ public:
     virtual void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback) = 0;
     virtual void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
     virtual void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback) = 0;
+    virtual void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback) = 0;
+    virtual void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback) = 0;
     virtual int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) = 0;
     virtual int StopLocating(sptr<ILocatorCallback>& callback) = 0;
@@ -90,7 +94,7 @@ public:
     virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual int GetIsoCountryCode(std::string& code) = 0;
+    virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
     virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
     virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
     virtual bool SetMockedLocations(

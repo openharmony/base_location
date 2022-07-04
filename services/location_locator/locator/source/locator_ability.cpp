@@ -475,6 +475,16 @@ void LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& ca
     }
 }
 
+void LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+{
+
+}
+
+void LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+{
+
+}
+
 int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
@@ -633,9 +643,9 @@ void LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     }
 }
 
-int LocatorAbility::GetIsoCountryCode(std::string& code)
+std::shared_ptr<CountryCode> LocatorAbility::GetIsoCountryCode()
 {
-    return countryCodeManager_->GetIsoCountryCode(code);
+    return countryCodeManager_->GetIsoCountryCode();
 }
 
 bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
@@ -692,7 +702,7 @@ bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
         LBSLOGE(REQUEST_MANAGER, "DisableLocationMock ability empty");
         return false;
     }
-    
+
     bool result = true;
     for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
         std::string abilityName = *iter;
@@ -736,7 +746,7 @@ bool LocatorAbility::SetMockedLocations(
         LBSLOGE(REQUEST_MANAGER, "SetMockedLocations ability empty");
         return false;
     }
-    
+
     bool result = true;
     for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
         std::string abilityName = *iter;

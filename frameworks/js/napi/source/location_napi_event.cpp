@@ -33,6 +33,7 @@ CallbackManager<LocatorCallbackHost> g_locationCallbacks;
 CallbackManager<GnssStatusCallbackHost> g_gnssStatusInfoCallbacks;
 CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
+CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 std::vector<GeoFenceState*> mFences;
 auto g_locatorProxy = Locator::GetInstance();
 
@@ -88,6 +89,21 @@ void SubscribeLocationChange(napi_env& env, const napi_value& object,
     auto requestConfig = std::make_unique<RequestConfig>();
     JsObjToLocationRequest(env, object, requestConfig);
     g_locatorProxy->StartLocating(requestConfig, locatorCallback);
+}
+
+void SubscribeCountryCodeChange(napi_env& env, const napi_value& object,
+    napi_ref& handlerRef, sptr<CountryCodeCallbackHost>& CallbackHost)
+{
+    auto callbackPtr = sptr<ILocatorCallback>(CallbackHost);
+    CallbackHost->env_ = env;
+    CallbackHost->handlerCb_ = handlerRef;
+    g_locatorProxy->RegisterCountryCodeCallback(callbackPtr);
+}
+
+void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& CallbackHost)
+{
+    LBSLOGI(LOCATION_NAPI, "UnsubscribeCountryCodeChange");
+    g_locatorProxy->UnregisterCountryCodeCallback(CallbackHost->AsObject());
 }
 
 void SubscribeCacheLocationChange(napi_env& env, const napi_value& object,
@@ -384,7 +400,25 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         }
         // the third params should be handler
         SubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
+    } else if (event == "countryCodeChange") {
+        // expect for 2 params
+        NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
+        // the third params should be handler
+        if (g_countryCodeCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
+            LBSLOGE(LOCATION_NAPI, "This request already exists");
+            return result;
+        }
+        auto callbackHost =
+            sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        if (callbackHost != nullptr) {
+            napi_ref handlerRef = nullptr;
+            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
+            g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
+            // argv[1]:request params, argv[2]:handler
+            SubscribeCountryCodeChange(env, argv[PARAM1], handlerRef, callbackHost);
+        }
     }
+
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
 }
@@ -457,6 +491,15 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     } else if (event == "fenceStatusChange") {
         NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong");
         UnSubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
+    } else if (event == "countryCodeChange") {
+        NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
+        auto callbackHost = g_countryCodeCallbacks.GetCallbackPtr(env, argv[PARAM1]);
+        if (callbackHost) {
+            UnsubscribeCountryCodeChange(callbackHost);
+            g_countryCodeCallbacks.DeleteCallback(env, argv[PARAM1]);
+            callbackHost->DeleteHandler();
+            delete callbackHost;
+        }
     }
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_undefined(env, &result));

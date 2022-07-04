@@ -241,13 +241,6 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             RemoveFence(request);
             break;
         }
-        case GET_ISO_COUNTRY_CODE: {
-            std::string code = "";
-            int result = GetIsoCountryCode(code);
-            reply.WriteString(code);
-            reply.WriteInt32(result);
-            break;
-        }
         case ENABLE_LOCATION_MOCK: {
             std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
             LocationMockConfig config;
@@ -339,6 +332,29 @@ int32_t LocatorAbilityStub::ProcessMsg(uint32_t &code,
                 break;
             }
             UpdateSaAbility();
+            break;
+        }
+        case GET_ISO_COUNTRY_CODE: {
+            auto country = GetIsoCountryCode();
+            if (country) {
+                reply.WriteString(country->GetCountryCodeStr());
+                reply.WriteInt32(country->GetCountryCodeType());
+                reply.WriteInt32(SUCCESS);
+            } else {
+                reply.WriteString("");
+                reply.WriteInt32(QUERY_COUNTRY_CODE_ERROR);
+                reply.WriteInt32(QUERY_COUNTRY_CODE_ERROR);
+            }
+            break;
+        }
+        case REG_COUNTRY_CODE_CALLBACK: {
+            sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+            RegisterCountryCodeCallback(client, callingUid);
+            break;
+        }
+        case UNREG_COUNTRY_CODE_CALLBACK: {
+            sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+            UnregisterCountryCodeCallback(client);
             break;
         }
         default:

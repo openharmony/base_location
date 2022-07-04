@@ -128,6 +128,18 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     return true;
 }
 
+bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+{
+    client_->RegisterCountryCodeCallback(callback);
+    return true;
+}
+
+bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+{
+    client_->UnregisterCountryCodeCallback(callback);
+    return true;
+}
+
 void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
@@ -241,7 +253,7 @@ bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     return true;
 }
 
-int LocatorImpl::GetIsoCountryCode(std::string& code)
+std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");

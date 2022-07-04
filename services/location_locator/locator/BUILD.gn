@@ -55,6 +55,7 @@ ohos_shared_library("lbsservice_locator") {
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
+    "${global_path}/i18n/frameworks/intl/include",
   ]
 
   deps = [
@@ -65,6 +66,7 @@ ohos_shared_library("lbsservice_locator") {
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
+    "${global_path}/i18n/frameworks/intl:intl_util",
   ]
 
   external_deps = [

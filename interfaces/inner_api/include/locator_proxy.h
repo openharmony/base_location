@@ -43,6 +43,8 @@ public:
     void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback) override;
     void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid) override;
     void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback) override;
+    void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback) override;
+    void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback) override;
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) override;
     int StopLocating(sptr<ILocatorCallback>& callback) override;
@@ -63,7 +65,7 @@ public:
 
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    int GetIsoCountryCode(std::string& code) override;
+    std::shared_ptr<CountryCode> GetIsoCountryCode() override;
     bool EnableLocationMock(const LocationMockConfig& config) override;
     bool DisableLocationMock(const LocationMockConfig& config) override;
     bool SetMockedLocations(

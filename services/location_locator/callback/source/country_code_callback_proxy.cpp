@@ -13,29 +13,33 @@
  * limitations under the License.
  */
 
-#include "nmea_message_callback_proxy.h"
+#include "country_code_callback_proxy.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
 
 namespace OHOS {
 namespace Location {
-NmeaMessageCallbackProxy::NmeaMessageCallbackProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<INmeaMessageCallback>(impl)
+CountryCodeCallbackProxy::CountryCodeCallbackProxy(const sptr<IRemoteObject> &impl)
+    : IRemoteProxy<CountryCodeCallbackProxy>(impl)
 {
 }
 
-void NmeaMessageCallbackProxy::OnMessageChange(const std::string msg)
+void CountryCodeCallbackProxy::OnCountryCodeChange(const std::shared_ptr<CountryCode>& country)
 {
     MessageParcel data;
     MessageParcel reply;
+    if (country == nullptr) {
+        LBSLOGI(COUNTRY_CODE_CALLBACK, "CountryCodeCallbackProxy::country is nullptr");
+        return;
+    }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    data.WriteString16(Str8ToStr16(msg));
+    country->Marshalling(data);
     MessageOption option = { MessageOption::TF_ASYNC };
-    int error = Remote()->SendRequest(RECEIVE_NMEA_MESSAGE_EVENT, data, reply, option);
-    LBSLOGI(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackProxy::OnStatusChange Transact ErrCode = %{public}d", error);
+    int error = Remote()->SendRequest(COUNTRY_CODE_CHANGE_EVENT, data, reply, option);
+    LBSLOGI(COUNTRY_CODE_CALLBACK, "CountryCodeCallbackProxy::OnCountryCodeChange Transact ErrCode = %{public}d", error);
 }
 } // namespace Location
 } // namespace OHOS

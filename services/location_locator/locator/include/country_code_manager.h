@@ -18,16 +18,10 @@
 
 #include <list>
 #include <map>
-#include <mutex>
 #include <singleton.h>
 #include <string>
 #include "iremote_stub.h"
-#include "nocopyable.h"
-#include "gnss_ability_proxy.h"
-#include "network_ability_proxy.h"
-#include "passive_ability_proxy.h"
 #include "request.h"
-#include "work_record.h"
 
 namespace OHOS {
 namespace Location {
@@ -35,7 +29,46 @@ class CountryCodeManager : public DelayedSingleton<CountryCodeManager> {
 public:
     CountryCodeManager();
     ~CountryCodeManager();
-    int GetIsoCountryCode(std::string& code);
+    std::shared_ptr<CountryCode> GetIsoCountryCode();
+    void StartPassiveLocationListen();
+    std::string GetCountryCodeByLocation(std::shared_ptr<Location>& location);
+    void UpdateCountryCodeByLocation(std::string countryCode, int type);
+    void UpdateCountryCode(std::string countryCode, int type);
+    std::string GetCountryCodeByLastLocation();
+    void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
+    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    void NotifyAllListener();
+
+private:
+    class LocatorCallback : public IRemoteStub<ILocatorCallback> {
+    public:
+        void OnLocationReport(const std::unique_ptr<Location>& location);
+        void OnLocatingStatusChange(const int status);
+        void OnErrorReport(const int errorCode);
+    };
+
+    class NetworkSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
+    public:
+        explicit NetworkSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
+        virtual ~NetworkSubscriber() override = default;
+        static bool Subscribe();
+    private:
+        virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
+    };
+
+    class SimSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
+    public:
+        explicit SimSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
+        virtual ~SimSubscriber() override = default;
+        static bool Subscribe();
+    private:
+        virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
+    };
+
+    sptr<LocatorCallback> callback_;
+    std::shared_ptr<CountryCode> lastCountryByLocation_;
+    std::shared_ptr<CountryCode> lastCountry_;
+    std::unique_ptr<std::map<pid_t, sptr<ICountryCodeCallback>>> countryCodeCallback_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -116,17 +116,16 @@ public:
     virtual ~SetMockedLocationsAsyncContext() {}
 };
 
-class GetIsoCountryCodeContext : public AsyncContext {
+class CountryCodeContext : public AsyncContext {
 public:
-    std::string countryCode = " ";
-    int buff = 100;
+    std::shared_ptr<CountryCode> country;
 
-    GetIsoCountryCodeContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred) {}
+    CountryCodeContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), country(nullptr) {}
 
-    GetIsoCountryCodeContext() = delete;
+    CountryCodeContext() = delete;
 
-    virtual ~GetIsoCountryCodeContext() {}
+    virtual ~CountryCodeContext() {}
 };
 
 class LocationRequestAsyncContext : public AsyncContext {
