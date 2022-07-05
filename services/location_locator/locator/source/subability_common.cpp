@@ -148,5 +148,48 @@ void SubAbility::HandleRemoteRequest(bool state, std::string deviceId)
 {
     HandleRefrashRequirements();
 }
+
+bool SubAbility::EnableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGI(label_, "EnableLocationMock current state is %{public}d", mockEnabled_);
+    mockEnabled_ = true;
+    return true;
+}
+
+bool SubAbility::DisableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGI(label_, "DisableLocationMock current state is %{public}d", mockEnabled_);
+    mockEnabled_ = false;
+    return true;
+}
+
+bool SubAbility::SetMockedLocations(const LocationMockConfig& config,
+    const std::vector<std::shared_ptr<Location>> &location)
+{
+    if (!mockEnabled_) {
+        LBSLOGE(label_, "SetMockedLocations current state is %{public}d, need enbale it", mockEnabled_);
+        return false;
+    }
+    CacheLocation(location);
+    mockTimeInterval_ = config.GetTimeInterval();
+    SendReportMockLocationEvent();
+    return true;
+}
+
+void SubAbility::CacheLocation(const std::vector<std::shared_ptr<Location>> &location)
+{
+    int locationSize = location.size();
+    mockLoc_.clear();
+    for (int i = 0; i < locationSize; i++) {
+        MessageParcel data;
+        location.at(i)->Marshalling(data);
+        mockLoc_.push_back(Location::UnmarshallingShared(data));
+    }
+}
+
+bool SubAbility::IsLocationMocked()
+{
+    return mockEnabled_;
+}
 } // namespace Location
 } // namespace OHOS

@@ -84,6 +84,26 @@ void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGE(PASSIVE, "enter RequestRecord");
 }
 
+bool PassiveAbility::EnableMock(const LocationMockConfig& config)
+{
+    return EnableLocationMock(config);
+}
+
+bool PassiveAbility::DisableMock(const LocationMockConfig& config)
+{
+    return DisableLocationMock(config);
+}
+
+bool PassiveAbility::SetMocked(const LocationMockConfig& config,
+    const std::vector<std::shared_ptr<Location>> &location)
+{
+    return SetMockedLocations(config, location);
+}
+
+void PassiveAbility::SendReportMockLocationEvent()
+{
+}
+
 void PassiveAbility::SaDumpInfo(std::string& result)
 {
     result += "Passive Location enable status: true";

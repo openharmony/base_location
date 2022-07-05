@@ -20,6 +20,7 @@
 #include "ipc_types.h"
 
 #include "constant_definition.h"
+#include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator_callback.h"
 #include "location.h"
@@ -61,8 +62,11 @@ public:
         ENABLE_LOCATION_MOCK = 30,
         DISABLE_LOCATION_MOCK = 31,
         SET_MOCKED_LOCATIONS = 32,
-        REG_COUNTRY_CODE_CALLBACK = 33,
-        UNREG_COUNTRY_CODE_CALLBACK = 34,
+        ENABLE_REVERSE_GEOCODE_MOCK = 33,
+        DISABLE_REVERSE_GEOCODE_MOCK = 34,
+        SET_REVERSE_GEOCODE_MOCKINFO = 35,
+        REG_COUNTRY_CODE_CALLBACK = 36,
+        UNREG_COUNTRY_CODE_CALLBACK = 37,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
     virtual void UpdateSaAbility() = 0;
@@ -100,6 +104,12 @@ public:
     virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
     virtual bool SetMockedLocations(
         const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
+    
+    virtual bool EnableReverseGeocodingMock() = 0;
+
+    virtual bool DisableReverseGeocodingMock() = 0;
+
+    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) = 0;
 };
 } // namespace Location
 } // namespace OHOS

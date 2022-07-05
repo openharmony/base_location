@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include <geo_address.h>
+
 namespace OHOS {
 namespace Location {
 // error type
@@ -94,6 +96,13 @@ typedef struct {
     int scenario;
     GeoFence geofence;
 } GeofenceRequest;
+
+typedef struct {
+    std::string locale;
+    double latitude;
+    double longitude;
+    int maxItems;
+} ReverseGeocodeRequest;
 } // namespace Location
 } // namespace OHOS
 #endif // CONSTANT_DEFINITION_H

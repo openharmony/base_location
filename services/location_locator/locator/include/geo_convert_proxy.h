@@ -20,6 +20,7 @@
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 #include "common_utils.h"
+#include "geo_coding_mock_info.h"
 #include "geo_convert_skeleton.h"
 
 namespace OHOS {
@@ -31,6 +32,9 @@ public:
     int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
+    bool EnableReverseGeocodingMock() override;
+    bool DisableReverseGeocodingMock() override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
 private:
     static inline BrokerDelegator<GeoConvertProxy> delegator_;
 };

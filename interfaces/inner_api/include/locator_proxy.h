@@ -20,7 +20,9 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
+
 #include "constant_definition.h"
+#include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator.h"
 #include "i_locator_callback.h"
@@ -72,6 +74,11 @@ public:
     bool SetMockedLocations(
         const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
 
+    bool EnableReverseGeocodingMock() override;
+
+    bool DisableReverseGeocodingMock() override;
+
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };

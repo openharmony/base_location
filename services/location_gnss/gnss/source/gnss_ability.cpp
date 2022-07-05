@@ -39,24 +39,6 @@ const std::string AGNSS_SERVER_ADDR = "supl.platform.hicloud.com";
 const uint32_t EVENT_REPORT_LOCATION = 0x0001;
 }
 
-GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
-
-GnssHandler::~GnssHandler() {}
-
-void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
-{
-    uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
-    switch (eventId) {
-        case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocation();
-            break;
-        }
-        default:
-            break;
-    }
-}
-
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     DelayedSingleton<GnssAbility>::GetInstance().get());
 
@@ -490,60 +472,47 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
     std::string result;
     dumper.GnssDump(SaDumpInfo, vecArgs, result);
     if (!SaveStringToFd(fd, result)) {
-        LBSLOGE(GEO_CONVERT, "Gnss save string to fd failed!");
+        LBSLOGE(GNSS, "Gnss save string to fd failed!");
         return ERR_OK;
     }
     return ERR_OK;
 }
 
-bool GnssAbility::EnableLocationMock(const LocationMockConfig& config)
+bool GnssAbility::EnableMock(const LocationMockConfig& config)
 {
-    LBSLOGI(GEO_CONVERT, "EnableLocationMock current state is %{public}d", mockEnabled_);
-    mockEnabled_ = true;
-    StopGnss();
-    return true;
+    return EnableLocationMock(config);
 }
 
-bool GnssAbility::DisableLocationMock(const LocationMockConfig& config)
+bool GnssAbility::DisableMock(const LocationMockConfig& config)
 {
-    LBSLOGI(GEO_CONVERT, "DisableLocationMock current state is %{public}d", mockEnabled_);
-    mockEnabled_ = false;
-    StartGnss();
-    return true;
+    return DisableLocationMock(config);
 }
 
-bool GnssAbility::SetMockedLocations(
-    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+bool GnssAbility::SetMocked(const LocationMockConfig& config,
+    const std::vector<std::shared_ptr<Location>> &location)
 {
-    if (!mockEnabled_) {
-        LBSLOGE(GEO_CONVERT, "SetMockedLocations current state is %{public}d, need enbale it", mockEnabled_);
-        return false;
-    }
-    CacheLocation(location);
-    timeInterval_ = config.GetTimeInterval();
-    gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
-    return true;
+    return SetMockedLocations(config, location);
 }
-void GnssAbility::CacheLocation(const std::vector<std::shared_ptr<Location>> &location)
+
+bool GnssAbility::IsMockEnabled()
 {
-    int locationSize = location.size();
-    vcLoc_.clear();
-    locationIndex_ = 0;
-    for (int i = 0; i < locationSize; i++) {
-        MessageParcel data;
-        location.at(i)->Marshalling(data);
-        vcLoc_.push_back(Location::UnmarshallingShared(data));
-    }
+    return IsLocationMocked();
 }
+
 void GnssAbility::ProcessReportLocation()
 {
-    if (locationIndex_ < vcLoc_.size()) {
-        ReportMockedLocation(vcLoc_[locationIndex_++]);
-        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, timeInterval_);
+    if (locationIndex_ < mockLoc_.size()) {
+        ReportMockedLocation(mockLoc_[locationIndex_++]);
+        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, mockTimeInterval_);
     } else {
-        vcLoc_.clear();
+        mockLoc_.clear();
         locationIndex_ = 0;
     }
+}
+
+void GnssAbility::SendReportMockLocationEvent()
+{
+    gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
 }
 
 int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> location)
@@ -560,9 +529,32 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
     locationNew->SetAdditions(location->GetAdditions());
     locationNew->SetAdditionSize(location->GetAdditionSize());
     locationNew->SetIsFromMock(location->GetIsFromMock());
+    if ((IsLocationMocked() && !location->GetIsFromMock()) ||
+        (!IsLocationMocked() && location->GetIsFromMock())) {
+        LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
+        return ERR_OK;
+    }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
     return ERR_OK;
+}
+
+GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+
+GnssHandler::~GnssHandler() {}
+
+void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    uint32_t eventId = event->GetInnerEventId();
+    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d", eventId);
+    switch (eventId) {
+        case EVENT_REPORT_LOCATION: {
+            DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocation();
+            break;
+        }
+        default:
+            break;
+    }
 }
 } // namespace Location
 } // namespace OHOS

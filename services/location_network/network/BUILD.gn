@@ -46,6 +46,7 @@ ohos_shared_library("lbsservice_network") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",

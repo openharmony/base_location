@@ -22,6 +22,7 @@
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
 #include "common_utils.h"
+#include "geo_coding_mock_info.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,15 +42,20 @@ public:
     int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
+    bool EnableReverseGeocodingMock() override;
+    bool DisableReverseGeocodingMock() override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:
     static void SaDumpInfo(std::string& result);
     int RemoteToService(uint32_t code, MessageParcel &data, MessageParcel &rep);
     bool Init();
 
+    bool mockEnabled_ = false;
     bool registerToService_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     sptr<IRemoteObject> locationService_;
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo_;
 };
 } // namespace OHOS
 } // namespace Location

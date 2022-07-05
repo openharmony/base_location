@@ -270,6 +270,36 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             reply.WriteBool(result);
             break;
         }
+        case ENABLE_REVERSE_GEOCODE_MOCK: {
+            bool result = EnableReverseGeocodingMock();
+            reply.WriteBool(result);
+            break;
+        }
+        case DISABLE_REVERSE_GEOCODE_MOCK: {
+            bool result = DisableReverseGeocodingMock();
+            reply.WriteBool(result);
+            break;
+        }
+        case SET_REVERSE_GEOCODE_MOCKINFO: {
+            std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo;
+            int arraySize = data.ReadInt32();
+            for (int i = 0; i < arraySize; i++) {
+                std::shared_ptr<ReverseGeocodeRequest> request = std::make_shared<ReverseGeocodeRequest>();
+                std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
+                std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
+                request->locale = Str16ToStr8(data.ReadString16());
+                request->latitude = data.ReadDouble();
+                request->locale = data.ReadDouble();
+                request->locale = data.ReadInt32();
+                geoAddress->ReadFromParcel(data);
+                info->SetReverseGeocodeRequest(request);
+                info->SetGeoAddressInfo(geoAddress);
+                mokeInfo.push_back(info);
+            }
+            bool result = SetReverseGeocodingMockInfo(mokeInfo);
+            reply.WriteBool(result);
+            break;
+        }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }

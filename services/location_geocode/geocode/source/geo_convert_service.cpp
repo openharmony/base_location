@@ -77,9 +77,41 @@ int GeoConvertService::IsGeoConvertAvailable(MessageParcel &data, MessageParcel 
 
 int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
-    reply.WriteInt32(REPLY_CODE_UNSUPPORT);
-    reply.WriteInt32(0);
-    return REPLY_CODE_EXCEPTION;
+    int arraySize = 0;
+    LBSLOGD(GEO_CONVERT, "GetAddressByCoordinate");
+    if (!mockEnabled_) {
+        reply.WriteInt32(REPLY_CODE_UNSUPPORT);
+        reply.WriteInt32(0);
+        return REPLY_CODE_EXCEPTION;
+    }
+    std::vector<std::shared_ptr<GeoAddress>> array;
+    ReverseGeocodeRequest request;
+    request.latitude = data.ReadDouble();
+    request.longitude = data.ReadDouble();
+    request.maxItems = data.ReadInt32();
+    data.ReadInt32(); // locale size
+    request.locale = Str16ToStr8(data.ReadString16());
+    for (size_t i = 0; i < mokeInfo_.size(); i++) {
+        std::shared_ptr<GeocodingMockInfo> info = mokeInfo_[i];
+        if (request.locale != info->GetReverseGeocodeRequest()->locale ||
+            request.maxItems != info->GetReverseGeocodeRequest()->maxItems ||
+            !CommonUtils::DoubleEqual(request.latitude, info->GetReverseGeocodeRequest()->latitude) ||
+            !CommonUtils::DoubleEqual(request.longitude, info->GetReverseGeocodeRequest()->longitude)) {
+            continue;
+        }
+        arraySize++;
+        array.push_back(info->GetGeoAddressInfo());
+    }
+    reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
+    if (arraySize > 0) {
+        reply.WriteInt32(arraySize);
+        for (size_t i = 0; i < array.size(); i++) {
+            array[i]->Marshalling(reply);
+        }
+    } else {
+        reply.WriteInt32(0);
+    }
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
@@ -88,6 +120,27 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
     reply.WriteInt32(REPLY_CODE_UNSUPPORT);
     reply.WriteInt32(0);
     return REPLY_CODE_EXCEPTION;
+}
+
+bool GeoConvertService::EnableReverseGeocodingMock()
+{
+    LBSLOGD(GEO_CONVERT, "EnableReverseGeocodingMock");
+    mockEnabled_ = true;
+    return REPLY_CODE_NO_EXCEPTION;
+}
+
+bool GeoConvertService::DisableReverseGeocodingMock()
+{
+    LBSLOGD(GEO_CONVERT, "DisableReverseGeocodingMock");
+    mockEnabled_ = false;
+    return REPLY_CODE_NO_EXCEPTION;
+}
+
+bool GeoConvertService::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+{
+    LBSLOGD(GEO_CONVERT, "SetReverseGeocodingMockInfo");
+    mokeInfo_ = mokeInfo;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 void GeoConvertService::SaDumpInfo(std::string& result)

@@ -19,18 +19,19 @@
 #include <condition_variable>
 #include <list>
 #include <string>
+
 #include "constant_definition.h"
 #include "geo_address.h"
+#include "geo_coding_mock_info.h"
 #include "location.h"
 #include "location_log.h"
+#include "location_mock_config.h"
+#include "locator_callback_host.h"
 #include "message_parcel.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "request_config.h"
 #include "satellite_status.h"
-#include "location_mock_config.h"
-#include "constant_definition.h"
-#include "locator_callback_host.h"
 #include "country_code.h"
 
 namespace OHOS {
@@ -65,6 +66,20 @@ public:
     virtual ~AsyncContext()
     {
     }
+};
+
+class ReverseGeocodeMockAsyncContext : public AsyncContext {
+public:
+    bool enabled;
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo;
+    
+    ReverseGeocodeMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), enabled(false) {
+        }
+
+    ReverseGeocodeMockAsyncContext() = delete;
+
+    virtual ~ReverseGeocodeMockAsyncContext() {}
 };
 
 class EnableLocationMockAsyncContext : public AsyncContext {

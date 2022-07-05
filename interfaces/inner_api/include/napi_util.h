@@ -24,6 +24,7 @@
 #include <string>
 #include "async_context.h"
 #include "constant_definition.h"
+#include "geo_coding_mock_info.h"
 #include "geo_address.h"
 #include "location.h"
 #include "location_log.h"
@@ -70,6 +71,8 @@ napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool b
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum);
 void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode);
+void JsObjToRevGeocodeMoke(const napi_env& env, const napi_value& object,
+    std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo);
 std::string GetErrorMsgByCode(int code);
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
 

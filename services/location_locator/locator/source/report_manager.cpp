@@ -61,6 +61,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
             !request->GetIsRequesting()) {
             continue;
         }
+
         if (!ReportIntervalCheck(location, request) ||
             !MaxAccuracyCheck(location, request)) {
             continue;

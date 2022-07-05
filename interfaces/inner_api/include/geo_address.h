@@ -55,6 +55,7 @@ public:
     int m_descriptionsSize = 0;
     bool m_hasLatitude = false;
     bool m_hasLongitude = false;
+    bool m_isFromMock = false;
     static constexpr double PARCEL_INT_SIZE = 64.0;
     static constexpr int MAX_PARCEL_SIZE = 100;
     static constexpr int MAX_RESULT = 10;

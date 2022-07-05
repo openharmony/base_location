@@ -764,7 +764,8 @@ bool LocatorAbility::SetMockedLocations(
     bool result = true;
     for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
         std::string abilityName = *iter;
-        if (abilityName.compare(GNSS_ABILITY) != 0) {
+        if (abilityName.compare(GNSS_ABILITY) != 0 ||
+            abilityName.compare(NETWORK_ABILITY) != 0) {
             continue;
         }
         auto remoteObject = proxyMap_->find(abilityName);
@@ -966,6 +967,65 @@ int LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel 
     }
     MessageOption option;
     return remoteObject->SendRequest(type, data, replay, option);
+}
+
+bool LocatorAbility::EnableReverseGeocodingMock()
+{
+    bool result = true;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return false;
+    }
+    int error = SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    if (error == NO_ERROR) {
+        result = replyParcel.ReadBool();
+    } else {
+        return false;
+    }
+    return result;
+}
+
+bool LocatorAbility::DisableReverseGeocodingMock()
+{
+    bool result = true;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return false;
+    }
+    int error = SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    if (error == NO_ERROR) {
+        result = replyParcel.ReadBool();
+    } else {
+        return false;
+    }
+    return result;
+}
+
+bool LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+{
+    bool result = true;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return false;
+    }
+    dataParcel.WriteInt32(mokeInfo.size());
+    for (size_t i = 0; i < mokeInfo.size(); i++) {
+        dataParcel.WriteString16(Str8ToStr16(mokeInfo[i]->GetReverseGeocodeRequest()->locale));
+        dataParcel.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->latitude);
+        dataParcel.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->longitude);
+        dataParcel.WriteInt32(mokeInfo[i]->GetReverseGeocodeRequest()->maxItems);
+        mokeInfo[i]->GetGeoAddressInfo()->Marshalling(dataParcel);
+    }
+    int error = SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
+    if (error == NO_ERROR) {
+        result = replyParcel.ReadBool();
+    } else {
+        return false;
+    }
+    return result;
 }
 } // namespace Location
 } // namespace OHOS

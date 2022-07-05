@@ -45,10 +45,9 @@ public:
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    bool EnableLocationMock(const LocationMockConfig& config) override;
-    bool DisableLocationMock(const LocationMockConfig& config) override;
-    bool SetMockedLocations(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock(const LocationMockConfig& config) override;
+    bool DisableMock(const LocationMockConfig& config) override;
+    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };

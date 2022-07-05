@@ -33,7 +33,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         return REPLY_CODE_EXCEPTION;
     }
 
-    int ret;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
         case IS_AVAILABLE: {
             ret = IsGeoConvertAvailable(data, reply);
@@ -47,10 +47,49 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
             ret = GetAddressByLocationName(data, reply);
             break;
         }
+        case ENABLE_REVERSE_GEOCODE_MOCK: {
+            bool result = EnableReverseGeocodingMock();
+            reply.WriteBool(result);
+            break;
+        }
+        case DISABLE_REVERSE_GEOCODE_MOCK: {
+            bool result = DisableReverseGeocodingMock();
+            reply.WriteBool(result);
+            break;
+        }
+        case SET_REVERSE_GEOCODE_MOCKINFO: {
+            std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo =  ParseGeocodingMockInfos(data);
+            bool result = SetReverseGeocodingMockInfo(mokeInfo);
+            reply.WriteBool(result);
+            break;
+        }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return ret;
+}
+
+std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeocodingMockInfos(MessageParcel &data)
+{
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo;
+    int arraySize = data.ReadInt32();
+    if (arraySize <= 0) {
+        return std::vector<std::shared_ptr<GeocodingMockInfo>>();
+    }
+    for (int i = 0; i < arraySize; i++) {
+        std::shared_ptr<ReverseGeocodeRequest> request = std::make_shared<ReverseGeocodeRequest>();
+        std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
+        std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
+        request->locale = Str16ToStr8(data.ReadString16());
+        request->latitude = data.ReadDouble();
+        request->locale = data.ReadDouble();
+        request->locale = data.ReadInt32();
+        geoAddress->ReadFromParcel(data);
+        info->SetReverseGeocodeRequest(request);
+        info->SetGeoAddressInfo(geoAddress);
+        mokeInfo.push_back(info);
+    }
+    return mokeInfo;
 }
 } // namespace Location
 } // namespace OHOS
