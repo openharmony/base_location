@@ -105,7 +105,7 @@ public:
     bool IsSame(RequestConfig& requestConfig);
 private:
     int scenario_;
-    int timeInterval_;
+    int timeInterval_; /* Units are seconds */
     int distanceInterval_;
     float maxAccuracy_;
     int fixNumber_;

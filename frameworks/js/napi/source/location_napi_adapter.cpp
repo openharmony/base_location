@@ -14,6 +14,7 @@
  */
 
 #include "location_napi_adapter.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -485,41 +486,48 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
 
 napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
 {
-    size_t argc = 2;
+    size_t argc = 1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
 
-    napi_valuetype valueType;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type, object is expected for parameter 1.");
-
-    GetIsoCountryCodeContext *asyncContext = new (std::nothrow) GetIsoCountryCodeContext(env);
+    CountryCodeContext *asyncContext = new (std::nothrow) CountryCodeContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "GetIsoCountryCodeContext", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
-    JsObjectToString(env, argv[0], "countryCode", asyncContext->buff, asyncContext->countryCode);
+    napi_create_string_latin1(env, "CountryCodeContext", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
 
     asyncContext->executeFunc = [&](void *data) -> void {
-        GetIsoCountryCodeContext *context = static_cast<GetIsoCountryCodeContext *>(data);
-        int code = -1;
-        code = g_locatorClient->GetIsoCountryCode(context->countryCode);
-        if (code == 0) {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode data == nullptr");
+            return;
+        }
+        CountryCodeContext *context = static_cast<CountryCodeContext*>(data);
+        std::shared_ptr<CountryCode> country = g_locatorClient->GetIsoCountryCode();
+        if (country) {
             context->errCode = SUCCESS;
+            context->country = country;
         } else {
-            context->errCode = REVERSE_GEOCODE_ERROR;
+            context->errCode = QUERY_COUNTRY_CODE_ERROR;
         }
     };
     asyncContext->completeFunc = [&](void *data) -> void {
-        GetIsoCountryCodeContext *context = static_cast<GetIsoCountryCodeContext *>(data);
-        napi_create_string_utf8(
-            context->env, context->countryCode.c_str(), context->countryCode.size(), &context->result[PARAM1]);
-        LBSLOGI(LOCATOR_STANDARD, "Push IsLocationEnabled result to client");
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode data == nullptr");
+            return;
+        }
+        CountryCodeContext *context = static_cast<CountryCodeContext *>(data);
+        NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
+        if (context->country) {
+            CountryCodeToJs(context->env, context->country, context->result[PARAM1]);
+        } else {
+            LBSLOGE(LOCATOR_STANDARD, "country is nullptr!");
+        }
+        LBSLOGI(LOCATOR_STANDARD, "Push GetIsoCountryCode result to client");
     };
 
-    size_t objectArgsNum = 1;
+    size_t objectArgsNum = 0;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 

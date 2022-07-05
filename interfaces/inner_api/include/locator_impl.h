@@ -20,6 +20,7 @@
 #include "locator.h"
 #include "locator_proxy.h"
 #include "geo_address.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -43,6 +44,8 @@ public:
     bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
+    bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
     void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) override;
     void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
@@ -56,7 +59,7 @@ public:
     bool SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     bool AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    int GetIsoCountryCode(std::string& code) override;
+    std::shared_ptr<CountryCode> GetIsoCountryCode() override;
     bool EnableLocationMock(const LocationMockConfig& config) override;
     bool DisableLocationMock(const LocationMockConfig& config) override;
     bool SetMockedLocations(

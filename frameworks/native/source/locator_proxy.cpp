@@ -17,7 +17,7 @@
 
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
-
+#include "country_code.h"
 #include "common_utils.h"
 
 namespace OHOS {
@@ -203,6 +203,46 @@ void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& call
     }
     int error = remote->SendRequest(UNREG_NMEA_CALLBACK, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
+}
+
+
+void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid)
+{
+    LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d", uid);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "RegisterCountryCodeCallback remote is null");
+        return;
+    }
+    int error = remote->SendRequest(REG_COUNTRY_CODE_CALLBACK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterCountryCodeCallback Transact ErrCodes = %{public}d", error);
+}
+
+void LocatorProxy::UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "UnregisterCountryCodeCallback remote is null");
+        return;
+    }
+    int error = remote->SendRequest(UNREG_COUNTRY_CODE_CALLBACK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCountryCodeCallback Transact ErrCodes = %{public}d", error);
 }
 
 int LocatorProxy::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -518,28 +558,34 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
 }
 
-int LocatorProxy::GetIsoCountryCode(std::string& code)
+std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return -1;
+        return nullptr;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode remote is null");
-        return -1;
+        return nullptr;
     }
     int error = remote->SendRequest(GET_ISO_COUNTRY_CODE, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", error);
-    code = "";
+    std::string country = "";
+    int countryType = 0;
+    int result = 0;
     if (error == NO_ERROR) {
-        code = reply.ReadString();
-        int result = reply.ReadInt32();
-        return result;
+        country = reply.ReadString();
+        countryType = reply.ReadInt32();
+        result = reply.ReadInt32();
+        auto countryCode = std::make_shared<CountryCode>();
+        countryCode->SetCountryCodeStr(country);
+        countryCode->SetCountryCodeType(countryType);
+        return countryCode;
     } else {
-        return -1;
+        return nullptr;
     }
 }
 

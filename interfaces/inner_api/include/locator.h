@@ -25,6 +25,7 @@
 #include "request_config.h"
 #include "napi/native_api.h"
 #include "location_mock_config.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -66,9 +67,16 @@ public:
     virtual void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
 
     virtual bool RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+
     virtual bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;
+
     virtual bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+
     virtual bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
+
+    virtual bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+
+    virtual bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) = 0;
 
     virtual void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) = 0;
@@ -76,14 +84,21 @@ public:
     virtual void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
 
     virtual int GetCachedGnssLocationsSize() = 0;
+
     virtual int FlushCachedGnssLocations() = 0;
+
     virtual bool SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
 
     virtual bool AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+
     virtual bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual int GetIsoCountryCode(std::string& code) = 0;
+
+    virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
+
     virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
+
     virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
+
     virtual bool SetMockedLocations(
         const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
 };

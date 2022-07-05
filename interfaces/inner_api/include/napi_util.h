@@ -71,6 +71,7 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum);
 void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode);
 std::string GetErrorMsgByCode(int code);
+void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 { \

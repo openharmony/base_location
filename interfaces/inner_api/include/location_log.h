@@ -33,6 +33,9 @@ static constexpr OHOS::HiviewDFX::HiLogLabel NMEA_MESSAGE_CALLBACK = {LOG_CORE, 
 static constexpr OHOS::HiviewDFX::HiLogLabel CACHED_LOCATIONS_CALLBACK = {
     LOG_CORE, LOCATOR_LOG_ID, "CachedLocationsCallback"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel COUNTRY_CODE_CALLBACK = {
+    LOG_CORE, LOCATOR_LOG_ID, "CountryCodeCallback"
+};
 static constexpr OHOS::HiviewDFX::HiLogLabel LOCATOR_CALLBACK = {LOG_CORE, LOCATOR_LOG_ID, "LocatorCallback"};
 static constexpr OHOS::HiviewDFX::HiLogLabel GNSS = {LOG_CORE, LOCATOR_LOG_ID, "GnssAbility"};
 static constexpr OHOS::HiviewDFX::HiLogLabel GNSS_TEST = {LOG_CORE, LOCATOR_LOG_ID, "GnssAbilityTest"};
@@ -42,6 +45,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel REQUEST_MANAGER = {LOG_CORE, LOCATO
 static constexpr OHOS::HiviewDFX::HiLogLabel REPORT_MANAGER = {LOG_CORE, LOCATOR_LOG_ID, "ReportManager"};
 static constexpr OHOS::HiviewDFX::HiLogLabel COMMON_UTILS = {LOG_CORE, LOCATOR_LOG_ID, "CommonUtils"};
 static constexpr OHOS::HiviewDFX::HiLogLabel LOCATOR_EVENT = {LOG_CORE, LOCATOR_LOG_ID, "LocatorEvent"};
+static constexpr OHOS::HiviewDFX::HiLogLabel COUNTRY_CODE = {LOG_CORE, LOCATOR_LOG_ID, "CountryCode"};
 static constexpr OHOS::HiviewDFX::HiLogLabel VISIBILITY_CONTROLLER = {
     LOG_CORE, LOCATOR_LOG_ID, "VisibilityController"
 };

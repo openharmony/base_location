@@ -20,6 +20,7 @@
 #include "request_config.h"
 #include "securec.h"
 #include "string_ex.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -112,6 +113,12 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt64(env, "timeSinceBoot", locationInfo->GetTimeSinceBoot(), result);
     SetValueUtf8String(env, "additions", "GNSS", result);
     SetValueInt64(env, "additionSize", 1, result);
+}
+
+void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result)
+{
+    SetValueUtf8String(env, "country", country->GetCountryCodeStr().c_str(), result);
+    SetValueInt64(env, "type", country->GetCountryCodeType(), result);
 }
 
 void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result)
@@ -498,7 +505,8 @@ std::string GetErrorMsgByCode(int code)
         {LOCATOR_ERROR, "LOCATOR_ERROR"},
         {LOCATION_SWITCH_ERROR, "LOCATION_SWITCH_ERROR"},
         {LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR"},
-        {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"}
+        {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"},
+        {QUERY_COUNTRY_CODE_ERROR, "QUERY_COUNTRY_CODE_ERROR"},
     };
 
     auto iter = errorCodeMap.find(code);
