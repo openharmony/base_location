@@ -26,6 +26,7 @@
 #include "location.h"
 #include "common_event_subscriber.h"
 #include "i_locator_callback.h"
+#include "i_country_code_callback.h"
 #include "request.h"
 
 namespace OHOS {
@@ -36,16 +37,16 @@ public:
     ~CountryCodeManager();
     std::shared_ptr<CountryCode> GetIsoCountryCode();
     void StartPassiveLocationListen();
-    std::string GetCountryCodeByLocation(std::shared_ptr<Location>& location);
+    std::string GetCountryCodeByLocation(const std::unique_ptr<Location>& location);
     bool UpdateCountryCodeByLocation(std::string countryCode, int type);
     void UpdateCountryCode(std::string countryCode, int type);
     std::string GetCountryCodeByLastLocation();
     void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
     void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     void NotifyAllListener();
-    void SubscribeSimEvent();
+    bool SubscribeSimEvent();
     bool SubscribeNetworkStatusEvent();
-    void UnsubscribeSimEvent();
+    bool UnsubscribeSimEvent();
     bool UnsubscribeNetworkStatusEvent();
 private:
     class LocatorCallback : public IRemoteStub<ILocatorCallback> {
@@ -71,7 +72,7 @@ private:
         virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
     };
 
-    sptr<LocatorCallback> callback_;
+    sptr<ILocatorCallback> callback_;
     std::shared_ptr<CountryCode> lastCountryByLocation_;
     std::shared_ptr<CountryCode> lastCountry_;
     std::unique_ptr<std::map<pid_t, sptr<ICountryCodeCallback>>> countryCodeCallback_;

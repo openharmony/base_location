@@ -98,7 +98,7 @@ void SubscribeCountryCodeChange(napi_env& env,
     auto callbackPtr = sptr<ICountryCodeCallback>(CallbackHost);
     CallbackHost->SetEnv(env);
     CallbackHost->SetCallback(handlerRef);
-    g_locatorProxy->RegisterCountryCodeCallback(callbackPtr, DEFAULT_UID);
+    g_locatorProxy->RegisterCountryCodeCallback(callbackPtr->AsObject(), DEFAULT_UID);
 }
 
 void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& CallbackHost)

@@ -564,12 +564,12 @@ std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return -1;
+        return nullptr;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode remote is null");
-        return -1;
+        return nullptr;
     }
     int error = remote->SendRequest(GET_ISO_COUNTRY_CODE, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", error);

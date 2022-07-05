@@ -258,7 +258,7 @@ std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
-    return client_->GetIsoCountryCode(code);
+    return client_->GetIsoCountryCode();
 }
 
 bool LocatorImpl::EnableLocationMock(const LocationMockConfig& config)

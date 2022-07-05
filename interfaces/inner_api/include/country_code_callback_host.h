@@ -37,6 +37,7 @@ public:
     void SetEnv(napi_env env);
     void SetCallback(napi_ref cb);
     void DeleteHandler();
+    void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 private:
     napi_env env_;
     napi_ref handlerCb_;

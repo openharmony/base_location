@@ -38,13 +38,13 @@ public:
 
     virtual ~CountryCode() = default;
 
-    inline std::string IsSame(CountryCode& country) const
+    inline bool IsSame(CountryCode& country) const
     {
         return (countryCodeStr_ == country.GetCountryCodeStr()) &&
             (countryCodeType_ == country.GetCountryCodeType());
     }
 
-    inline std::string IsMoreReliable(int type) const
+    inline bool IsMoreReliable(int type) const
     {
         return (countryCodeType_ > type);
     }
@@ -75,7 +75,7 @@ public:
         countryCodeType_ = parcel.ReadInt64();
     }
 
-    bool Marshalling(Parcel& parcel)
+    bool Marshalling(Parcel& parcel) const override
     {
         return parcel.WriteString(countryCodeStr_) &&
                parcel.WriteInt64(countryCodeType_);

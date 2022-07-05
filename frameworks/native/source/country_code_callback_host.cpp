@@ -20,6 +20,7 @@
 #include "location_napi_adapter.h"
 #include "napi/native_api.h"
 #include "country_code.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {

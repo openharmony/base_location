@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace Location {
 CountryCodeCallbackProxy::CountryCodeCallbackProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<CountryCodeCallbackProxy>(impl)
+    : IRemoteProxy<ICountryCodeCallback>(impl)
 {
 }
 

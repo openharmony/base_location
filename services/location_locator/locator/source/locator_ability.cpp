@@ -111,7 +111,7 @@ bool LocatorAbility::Init()
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
-    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance().get();
+    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
@@ -481,7 +481,7 @@ void LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& call
 {
     if (countryCodeManager_ == nullptr) {
         LBSLOGE(LOCATOR, "RegisterCountryCodeCallback countryCodeManager_ is nullptr");
-        return nullptr;
+        return;
     }
     return countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
 }
@@ -490,7 +490,7 @@ void LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& ca
 {
     if (countryCodeManager_ == nullptr) {
         LBSLOGE(LOCATOR, "UnregisterCountryCodeCallback countryCodeManager_ is nullptr");
-        return nullptr;
+        return;
     }
     return countryCodeManager_->UnregisterCountryCodeCallback(callback);
 }
