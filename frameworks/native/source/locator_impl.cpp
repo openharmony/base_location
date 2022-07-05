@@ -17,6 +17,7 @@
 #include "iservice_registry.h"
 #include "location_log.h"
 #include "system_ability_definition.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -128,9 +129,9 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     return true;
 }
 
-bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterCountryCodeCallback(callback);
+    client_->RegisterCountryCodeCallback(callback, uid);
     return true;
 }
 

@@ -19,6 +19,7 @@
 #include "location_log.h"
 #include "location_napi_adapter.h"
 #include "napi/native_api.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -57,10 +58,14 @@ int CountryCodeCallbackHost::OnRemoteRequest(
 
 bool CountryCodeCallbackHost::Send(const std::shared_ptr<CountryCode>& country)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "env_ == nullptr.");
+        return false;
+    }
+    if (country == nullptr) {
+        LBSLOGE(COUNTRY_CODE_CALLBACK, "country == nullptr.");
         return false;
     }
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
@@ -114,7 +119,7 @@ void CountryCodeCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             }
             napi_value jsEvent;
             NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &jsEvent));
-            if (context->country != nullptr) {
+            if (context->country) {
                 CountryCodeToJs(context->env, context->country, jsEvent);
             } else {
                 LBSLOGE(LOCATOR_STANDARD, "country is nullptr!");
@@ -124,7 +129,7 @@ void CountryCodeCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 napi_value handler = nullptr;
                 NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
                 NAPI_CALL_RETURN_VOID(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler));
+                    napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler));
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(COUNTRY_CODE_CALLBACK, "Report event failed");
@@ -144,19 +149,19 @@ void CountryCodeCallbackHost::OnCountryCodeChange(const std::shared_ptr<CountryC
 
 void CountryCodeCallbackHost::SetEnv(napi_env env)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
     env_ = env;
 }
 
 void CountryCodeCallbackHost::SetCallback(napi_ref cb)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
     handlerCb_= cb;
 }
 
 void CountryCodeCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
     if (handlerCb_ && env_) {
         NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
         handlerCb_ = nullptr;

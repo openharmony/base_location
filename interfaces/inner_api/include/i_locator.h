@@ -26,6 +26,7 @@
 #include "request_config.h"
 #include "satellite_status.h"
 #include "location_mock_config.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -73,7 +74,7 @@ public:
     virtual void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback) = 0;
     virtual void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
     virtual void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback) = 0;
+    virtual void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
     virtual void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback) = 0;
     virtual int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) = 0;

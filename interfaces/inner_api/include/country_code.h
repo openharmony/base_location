@@ -40,8 +40,13 @@ public:
 
     inline std::string IsSame(CountryCode& country) const
     {
-        return (countryCodeStr_ == country.countryCodeStr_) &&
-            (countryCodeType_ == country.countryCodeType_);
+        return (countryCodeStr_ == country.GetCountryCodeStr()) &&
+            (countryCodeType_ == country.GetCountryCodeType());
+    }
+
+    inline std::string IsMoreReliable(int type) const
+    {
+        return (countryCodeType_ > type);
     }
 
     inline std::string GetCountryCodeStr() const
@@ -78,12 +83,13 @@ public:
 
     static std::shared_ptr<CountryCode> Unmarshalling(Parcel& parcel)
     {
-        auto code = std::make_shared<CountryCode>();
-        code->ReadFromParcel(parcel);
-        return code;
+        auto country = std::make_shared<CountryCode>();
+        country->ReadFromParcel(parcel);
+        return country;
     }
 
-    std::string ToString(){
+    std::string ToString()
+    {
         std::string str = "countryCodeStr_ : " + countryCodeStr_ +
             ", countryCodeType_ : " + std::to_string(countryCodeType_);
         return str;

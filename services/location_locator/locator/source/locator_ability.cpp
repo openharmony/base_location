@@ -31,6 +31,7 @@
 #include "locator_event_manager.h"
 #include "request_manager.h"
 #include "system_ability_definition.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -110,6 +111,7 @@ bool LocatorAbility::Init()
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
+    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance().get();
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
@@ -477,12 +479,20 @@ void LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& ca
 
 void LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "RegisterCountryCodeCallback countryCodeManager_ is nullptr");
+        return nullptr;
+    }
+    return countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
 }
 
 void LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
 {
-
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "UnregisterCountryCodeCallback countryCodeManager_ is nullptr");
+        return nullptr;
+    }
+    return countryCodeManager_->UnregisterCountryCodeCallback(callback);
 }
 
 int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
@@ -645,6 +655,10 @@ void LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 
 std::shared_ptr<CountryCode> LocatorAbility::GetIsoCountryCode()
 {
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "GetIsoCountryCode countryCodeManager_ is nullptr");
+        return nullptr;
+    }
     return countryCodeManager_->GetIsoCountryCode();
 }
 
@@ -657,7 +671,7 @@ bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
     std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxys);
     if (proxys->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "EnableLocationMock ability empty");
+        LBSLOGE(LOCATOR, "EnableLocationMock ability empty");
         return false;
     }
     bool result = true;
@@ -699,7 +713,7 @@ bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
     std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxys);
     if (proxys->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "DisableLocationMock ability empty");
+        LBSLOGE(LOCATOR, "DisableLocationMock ability empty");
         return false;
     }
 
@@ -743,7 +757,7 @@ bool LocatorAbility::SetMockedLocations(
     std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxys);
     if (proxys->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "SetMockedLocations ability empty");
+        LBSLOGE(LOCATOR, "SetMockedLocations ability empty");
         return false;
     }
 

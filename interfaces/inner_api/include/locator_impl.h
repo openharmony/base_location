@@ -20,6 +20,7 @@
 #include "locator.h"
 #include "locator_proxy.h"
 #include "geo_address.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -43,7 +44,7 @@ public:
     bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
+    bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
     void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) override;

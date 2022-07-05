@@ -40,7 +40,7 @@ public:
 private:
     napi_env env_;
     napi_ref handlerCb_;
-    std::shared_mutex m_mutex;
+    std::shared_mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

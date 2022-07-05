@@ -17,7 +17,7 @@
 
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
-
+#include "country_code.h"
 #include "common_utils.h"
 
 namespace OHOS {
@@ -206,7 +206,7 @@ void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& call
 }
 
 
-void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback)
+void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid)
 {
     LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d", uid);
     MessageParcel data;

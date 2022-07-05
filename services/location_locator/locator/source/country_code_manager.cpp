@@ -19,6 +19,10 @@
 #include "core_service_client.h"
 #include "locale_config.h"
 #include "country_code.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
+#include "common_utils.h"
+#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {
@@ -28,8 +32,6 @@ CountryCodeManager::CountryCodeManager()
     lastCountryByLocation_ = std::make_shared<CountryCode>();
     lastCountry_ = std::make_shared<CountryCode>();
     StartPassiveLocationListen();
-    CountryCodeManager::NetworkSubscriber::Subscribe();
-    CountryCodeManager::SimSubscriber::Subscribe();
 }
 
 CountryCodeManager::~CountryCodeManager()
@@ -45,7 +47,9 @@ void CountryCodeManager::NotifyAllListener()
     auto country = std::make_shared<CountryCode>(*lastCountry_);
     for (auto iter = countryCodeCallback_->begin(); iter != countryCodeCallback_->end(); iter++) {
         sptr<ICountryCodeCallback> callback = (iter->second);
-        callback->OnCountryCodeChange(country);
+        if (callback) {
+            callback->OnCountryCodeChange(country);
+        }
     }
 }
 
@@ -65,6 +69,9 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
     countryCodeCallback_->insert(std::make_pair(uid, countryCodeCallback));
     LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallback_ size:%{public}s",
         uid, std::to_string(countryCodeCallback_->size()).c_str());
+    if (countryCodeCallback_->size() == 1) {
+        SubscribeSimEvent();
+    }
 }
 
 void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
@@ -90,6 +97,9 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
     countryCodeCallback_->erase(uid);
     LBSLOGD(COUNTRY_CODE, "after uid:%{public}d unregister, countryCodeCallback_ size:%{public}s",
         uid, std::to_string(countryCodeCallback_->size()).c_str());
+    if (countryCodeCallback_->size() == 0) {
+        UnsubscribeSimEvent();
+    }
 }
 
 std::string CountryCodeManager::GetCountryCodeByLastLocation()
@@ -114,6 +124,10 @@ void CountryCodeManager::UpdateCountryCode(std::string countryCode, int type)
 {
     if (lastCountry_ == nullptr) {
         LBSLOGE(COUNTRY_CODE, "lastCountry_ is nullptr");
+        return;
+    }
+    if (lastCountry_->IsMoreReliable(type)) {
+        LBSLOGI(COUNTRY_CODE, "lastCountry_ is more reliable,dont need update");
         return;
     }
     lastCountry_->SetCountryCodeStr(countryCode);
@@ -157,6 +171,7 @@ void CountryCodeManager::StartPassiveLocationListen()
     request->SetPackageName(PROC_NAME);
     request->SetRequestConfig(*requestConfig);
     request->SetLocatorCallBack(callback_);
+    LBSLOGE(COUNTRY_CODE, "GetCountryCodeByLocation StartPassiveLocationListen");
     DelayedSingleton<RequestManager>::GetInstance().get()->HandleStartLocating(request_);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocationStatus(callback_, SESSION_START);
 }
@@ -189,26 +204,79 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
     CountryCode country;
     country.SetCountryCodeStr(countryCodeStr8);
     country.SetCountryCodeType(type);
-    if (lastCountry_ && !country.IsSame(*lastCountry_)) {
+    if (lastCountry_ && !country.IsSame(*lastCountry_) && !lastCountry_->IsMoreReliable(type)) {
         UpdateCountryCode(countryCodeStr8, type);
         NotifyAllListener();
     }
     return lastCountry_;
 }
 
+void CountryCodeManager::SubscribeSimEvent()
+{
+    LBSLOGD(COUNTRY_CODE, "SubscribeSimEvent");
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(SIM_STATE_CHANGE_ACTION);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    if (simSubscriber_ == nullptr) {
+        simSubscriber_ = std::make_shared<SimSubscriber>(subscriberInfo);
+    }
+    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
+    if (!result) {
+        LBSLOGE(COUNTRY_CODE, "SubscribeSimEvent failed.");
+    }
+    return result;
+}
+
+bool CountryCodeManager::SubscribeNetworkStatusEvent()
+{
+    LBSLOGD(COUNTRY_CODE, "SubscribeNetworkStatusEvent");
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(SEARCH_NET_WORK_STATE_CHANGE_ACTION);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    if (networkSubscriber_ == nullptr) {
+        networkSubscriber_ = std::make_shared<NetworkSubscriber>(subscriberInfo);
+    }
+    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(networkSubscriber_);
+    if (!result) {
+        LBSLOGE(COUNTRY_CODE, "SubscribeNetworkStatusEvent failed.");
+    }
+    return result;
+}
+
+void CountryCodeManager::UnsubscribeSimEvent()
+{
+    LBSLOGD(COUNTRY_CODE, "UnsubscribeSimEvent");
+    if (simSubscriber_) {
+        OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(simSubscriber_);
+    }
+}
+
+bool CountryCodeManager::UnsubscribeNetworkStatusEvent()
+{
+    LBSLOGD(COUNTRY_CODE, "UnsubscribeNetworkStatusEvent");
+    if (networkSubscriber_) {
+        OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(networkSubscriber_);
+    }
+}
+
 void CountryCodeManager::LocatorCallback::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     auto manager = DelayedSingleton<CountryCodeManager>::GetInstance().get();
     if (manager == nullptr) {
-        LBSLOGE(COUNTRY_CODE, "CountryCodeManager is nullptr");
+        LBSLOGE(COUNTRY_CODE, "OnLocationReport CountryCodeManager is nullptr");
         return;
     }
-
+    if (location == nullptr) {
+        LBSLOGE(COUNTRY_CODE, "OnLocationReport location is nullptr");
+        return;
+    }
     std::string code = manager->GetCountryCodeByLocation(location);
     CountryCode country;
     country.SetCountryCodeStr(code);
     country.SetCountryCodeType(COUNTRY_CODE_FROM_LOCATION);
-    if (!code.empty() && (lastCountry_ && !country.IsSame(*lastCountry_))) {
+    LBSLOGI(COUNTRY_CODE, "OnLocationReport");
+    if (!code.empty() && lastCountry_ && !country.IsSame(*lastCountry_)) {
+        LBSLOGI(COUNTRY_CODE, "OnLocationReport,countryCode is change");
         manager->UpdateCountryCode(countryCode, type);
         manager->UpdateCountryCodeByLocation(countryCode, type);
         manager->NotifyAllListener();
@@ -230,24 +298,6 @@ CountryCodeManager::NetworkSubscriber::NetworkSubscriber(
     LBSLOGD(COUNTRY_CODE, "create NetworkSubscriber");
 }
 
-bool CountryCodeManager::NetworkSubscriber::Subscribe(const int errorCode)
-{
-    LBSLOGD(COUNTRY_CODE, "NetworkSubscriber::Subscribe");
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(SEARCH_NET_WORK_STATE_CHANGE_ACTION);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
-    auto subscriber = std::make_shared<NetworkSubscriber>(subscriberInfo);
-    if (subscriber == nullptr) {
-        LBSLOGD(COUNTRY_CODE, "subscriber is null.");
-        return false;
-    }
-    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
-    if (!result) {
-        LBSLOGE(COUNTRY_CODE, "Subscribe service event error.");
-    }
-    return result;
-}
-
 void CountryCodeManager::NetworkSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
     auto manager = DelayedSingleton<CountryCodeManager>::GetInstance().get();
@@ -255,6 +305,7 @@ void CountryCodeManager::NetworkSubscriber::OnReceiveEvent(const OHOS::EventFwk:
         LBSLOGE(COUNTRY_CODE, "CountryCodeManager is nullptr");
         return;
     }
+    LBSLOGI(COUNTRY_CODE, "NetworkSubscriber::OnReceiveEvent");
     manager->GetIsoCountryCode();
 }
 
@@ -265,24 +316,6 @@ CountryCodeManager::SimSubscriber::SimSubscriber(
     LBSLOGD(COUNTRY_CODE, "create SimSubscriber");
 }
 
-void CountryCodeManager::SimSubscriber::Subscribe(const int errorCode)
-{
-    LBSLOGD(COUNTRY_CODE, "SimSubscriber::Subscribe");
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(SIM_STATE_CHANGE_ACTION);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
-    auto subscriber = std::make_shared<SimSubscriber>(subscriberInfo);
-    if (subscriber == nullptr) {
-        LBSLOGD(COUNTRY_CODE, "subscriber is null.");
-        return false;
-    }
-    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
-    if (!result) {
-        LBSLOGE(COUNTRY_CODE, "Subscribe service event error.");
-    }
-    return result;
-}
-
 void CountryCodeManager::SimSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
     auto manager = DelayedSingleton<CountryCodeManager>::GetInstance().get();
@@ -290,6 +323,7 @@ void CountryCodeManager::SimSubscriber::OnReceiveEvent(const OHOS::EventFwk::Com
         LBSLOGE(COUNTRY_CODE, "CountryCodeManager is nullptr");
         return;
     }
+    LBSLOGI(COUNTRY_CODE, "SimSubscriber::OnReceiveEvent");
     manager->GetIsoCountryCode();
 }
 } // namespace Location

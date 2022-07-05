@@ -31,6 +31,7 @@
 #include "location_mock_config.h"
 #include "constant_definition.h"
 #include "locator_callback_host.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {

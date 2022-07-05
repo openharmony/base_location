@@ -20,6 +20,7 @@
 #include "request_config.h"
 #include "securec.h"
 #include "string_ex.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -117,7 +118,7 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result)
 {
     SetValueUtf8String(env, "country", country->GetCountryCodeStr().c_str(), result);
-    SetValueInt64(env, "type", 1, country->GetCountryCodeType());
+    SetValueInt64(env, "type", country->GetCountryCodeType(), result);
 }
 
 void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result)

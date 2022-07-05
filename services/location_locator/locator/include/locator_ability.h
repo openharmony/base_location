@@ -23,7 +23,6 @@
 #include "event_handler.h"
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
-
 #include "common_hisysevent.h"
 #include "common_utils.h"
 #include "geo_convert_proxy.h"
@@ -35,6 +34,7 @@
 #include "request_manager.h"
 #include "report_manager.h"
 #include "country_code_manager.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -70,7 +70,7 @@ public:
     void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
+    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) override;

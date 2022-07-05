@@ -25,6 +25,7 @@
 #include "request_config.h"
 #include "napi/native_api.h"
 #include "location_mock_config.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -73,7 +74,7 @@ public:
 
     virtual bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
 
-    virtual bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback) = 0;
+    virtual bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
 
     virtual bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) = 0;
 

@@ -14,6 +14,7 @@
  */
 
 #include "location_napi_adapter.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -518,7 +519,7 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
         }
         CountryCodeContext *context = static_cast<CountryCodeContext *>(data);
         NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
-        if (context->country != nullptr) {
+        if (context->country) {
             CountryCodeToJs(context->env, context->country, context->result[PARAM1]);
         } else {
             LBSLOGE(LOCATOR_STANDARD, "country is nullptr!");

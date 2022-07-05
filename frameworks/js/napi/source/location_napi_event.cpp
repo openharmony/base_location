@@ -25,6 +25,7 @@
 #include "request_config.h"
 #include "system_ability_definition.h"
 #include "callback_manager.h"
+#include "country_code_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -91,13 +92,13 @@ void SubscribeLocationChange(napi_env& env, const napi_value& object,
     g_locatorProxy->StartLocating(requestConfig, locatorCallback);
 }
 
-void SubscribeCountryCodeChange(napi_env& env, const napi_value& object,
+void SubscribeCountryCodeChange(napi_env& env,
     napi_ref& handlerRef, sptr<CountryCodeCallbackHost>& CallbackHost)
 {
-    auto callbackPtr = sptr<ILocatorCallback>(CallbackHost);
+    auto callbackPtr = sptr<ICountryCodeCallback>(CallbackHost);
     CallbackHost->env_ = env;
     CallbackHost->handlerCb_ = handlerRef;
-    g_locatorProxy->RegisterCountryCodeCallback(callbackPtr);
+    g_locatorProxy->RegisterCountryCodeCallback(callbackPtr, DEFAULT_UID);
 }
 
 void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& CallbackHost)
@@ -414,8 +415,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
             napi_ref handlerRef = nullptr;
             NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
             g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
-            // argv[1]:request params, argv[2]:handler
-            SubscribeCountryCodeChange(env, argv[PARAM1], handlerRef, callbackHost);
+            SubscribeCountryCodeChange(env, handlerRef, callbackHost);
         }
     }
 

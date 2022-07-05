@@ -17,6 +17,7 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
