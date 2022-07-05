@@ -127,21 +127,27 @@ void CountryCodeManager::UpdateCountryCode(std::string countryCode, int type)
         return;
     }
     if (lastCountry_->IsMoreReliable(type)) {
-        LBSLOGI(COUNTRY_CODE, "lastCountry_ is more reliable,dont need update");
+        LBSLOGI(COUNTRY_CODE, "lastCountry_ is more reliable,there is no need to update the data");
         return;
     }
     lastCountry_->SetCountryCodeStr(countryCode);
     lastCountry_->SetCountryCodeType(type);
 }
 
-void CountryCodeManager::UpdateCountryCodeByLocation(std::string countryCode, int type)
+bool CountryCodeManager::UpdateCountryCodeByLocation(std::string countryCode, int type)
 {
     if (lastCountryByLocation_ == nullptr) {
         LBSLOGE(COUNTRY_CODE, "lastCountryByLocation_ is nullptr");
-        return;
+        return false;
     }
+    if (lastCountryByLocation_->GetCountryCodeStr() == countryCode) {
+        LBSLOGE(COUNTRY_CODE, "countryCode is same");
+        return false;
+    }
+
     lastCountryByLocation_->SetCountryCodeStr(countryCode);
     lastCountryByLocation_->SetCountryCodeType(type);
+    return true;
 }
 
 std::string CountryCodeManager::GetCountryCodeByLocation(std::shared_ptr<Location>& location)
@@ -275,11 +281,9 @@ void CountryCodeManager::LocatorCallback::OnLocationReport(const std::unique_ptr
     country.SetCountryCodeStr(code);
     country.SetCountryCodeType(COUNTRY_CODE_FROM_LOCATION);
     LBSLOGI(COUNTRY_CODE, "OnLocationReport");
-    if (!code.empty() && lastCountry_ && !country.IsSame(*lastCountry_)) {
+    if (manager->UpdateCountryCodeByLocation(code, COUNTRY_CODE_FROM_LOCATION)) {
         LBSLOGI(COUNTRY_CODE, "OnLocationReport,countryCode is change");
-        manager->UpdateCountryCode(countryCode, type);
-        manager->UpdateCountryCodeByLocation(countryCode, type);
-        manager->NotifyAllListener();
+        manager->GetIsoCountryCode();
     }
 }
 

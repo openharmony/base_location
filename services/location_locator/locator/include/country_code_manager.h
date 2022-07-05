@@ -37,7 +37,7 @@ public:
     std::shared_ptr<CountryCode> GetIsoCountryCode();
     void StartPassiveLocationListen();
     std::string GetCountryCodeByLocation(std::shared_ptr<Location>& location);
-    void UpdateCountryCodeByLocation(std::string countryCode, int type);
+    bool UpdateCountryCodeByLocation(std::string countryCode, int type);
     void UpdateCountryCode(std::string countryCode, int type);
     std::string GetCountryCodeByLastLocation();
     void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
