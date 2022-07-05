@@ -17,6 +17,7 @@
 #include "iservice_registry.h"
 #include "location_log.h"
 #include "system_ability_definition.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -125,6 +126,18 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
 bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
     client_->UnregisterNmeaMessageCallback(callback);
+    return true;
+}
+
+bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+{
+    client_->RegisterCountryCodeCallback(callback, uid);
+    return true;
+}
+
+bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+{
+    client_->UnregisterCountryCodeCallback(callback);
     return true;
 }
 
@@ -241,11 +254,11 @@ bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     return true;
 }
 
-int LocatorImpl::GetIsoCountryCode(std::string& code)
+std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
-    return client_->GetIsoCountryCode(code);
+    return client_->GetIsoCountryCode();
 }
 
 bool LocatorImpl::EnableLocationMock(const LocationMockConfig& config)

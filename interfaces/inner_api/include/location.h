@@ -125,6 +125,7 @@ public:
     {
         additionSize_ = size;
     }
+
     inline bool GetIsFromMock() const
     {
         return isFromMock_;

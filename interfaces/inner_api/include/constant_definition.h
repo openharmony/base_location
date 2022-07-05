@@ -48,6 +48,8 @@ const int32_t REQUESTS_NUM_MAX = 1;
 const std::string FEATURE_SWITCH_PROP = "ro.config.locator_background";
 const std::string TIME_INTERVAL_PROP = "ro.config.locator_background.timeInterval";
 const std::string PROC_NAME = "system";
+const std::string SEARCH_NET_WORK_STATE_CHANGE_ACTION = "com.hos.action.SEARCH_NET_WORK_STATE_CHANGE";
+const std::string SIM_STATE_CHANGE_ACTION = "com.hos.action.SIM_STATE_CHANGE";
 
 enum {
     SCENE_UNSET = 0x0300,
@@ -63,6 +65,13 @@ enum {
     PRIORITY_ACCURACY = 0x0201,
     PRIORITY_LOW_POWER = 0x0202,
     PRIORITY_FAST_FIRST_FIX = 0x0203
+};
+
+enum {
+    COUNTRY_CODE_FROM_LOCALE = 1,
+    COUNTRY_CODE_FROM_SIM,
+    COUNTRY_CODE_FROM_LOCATION,
+    COUNTRY_CODE_FROM_NETWORK,
 };
 
 typedef struct {

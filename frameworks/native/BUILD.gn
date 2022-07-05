@@ -31,6 +31,7 @@ ohos_shared_library("locator_sdk") {
 
   sources = [
     "//base/location/frameworks/native/source/cached_locations_callback_host.cpp",
+    "//base/location/frameworks/native/source/country_code_callback_host.cpp",
     "//base/location/frameworks/native/source/gnss_status_callback_host.cpp",
     "//base/location/frameworks/native/source/location_switch_callback_host.cpp",
     "//base/location/frameworks/native/source/locator.cpp",

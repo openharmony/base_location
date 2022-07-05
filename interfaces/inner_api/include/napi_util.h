@@ -74,6 +74,7 @@ void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t er
 void JsObjToRevGeocodeMoke(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo);
 std::string GetErrorMsgByCode(int code);
+void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 { \
