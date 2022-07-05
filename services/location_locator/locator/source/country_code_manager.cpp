@@ -31,6 +31,9 @@ CountryCodeManager::CountryCodeManager()
     callback_ = nullptr;
     lastCountryByLocation_ = std::make_shared<CountryCode>();
     lastCountry_ = std::make_shared<CountryCode>();
+    countryCodeCallback_ = std::make_unique<std::map<pid_t, sptr<ICountryCodeCallback>>>();
+    simSubscriber_ = nullptr;
+    networkSubscriber_ = nullptr;
     StartPassiveLocationListen();
 }
 
@@ -40,8 +43,8 @@ CountryCodeManager::~CountryCodeManager()
 
 void CountryCodeManager::NotifyAllListener()
 {
-    if (lastCountry_ == nullptr) {
-        LBSLOGE(COUNTRY_CODE, "NotifyAllListener cancel,lastCountry_ is invalid");
+    if (lastCountry_ == nullptr || countryCodeCallback_ == nullptr) {
+        LBSLOGE(COUNTRY_CODE, "NotifyAllListener cancel, para is invalid");
         return;
     }
     auto country = std::make_shared<CountryCode>(*lastCountry_);
@@ -55,7 +58,7 @@ void CountryCodeManager::NotifyAllListener()
 
 void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (callback == nullptr) {
+    if (callback == nullptr || countryCodeCallback_ == nullptr) {
         LBSLOGE(COUNTRY_CODE, "callback is invalid");
         return;
     }
@@ -71,12 +74,13 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
         uid, std::to_string(countryCodeCallback_->size()).c_str());
     if (countryCodeCallback_->size() == 1) {
         SubscribeSimEvent();
+        SubscribeNetworkStatusEvent();
     }
 }
 
 void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
 {
-    if (callback == nullptr) {
+    if (callback == nullptr || countryCodeCallback_ == nullptr) {
         LBSLOGE(COUNTRY_CODE, "unregister an invalid callback");
         return;
     }
@@ -99,6 +103,7 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
         uid, std::to_string(countryCodeCallback_->size()).c_str());
     if (countryCodeCallback_->size() == 0) {
         UnsubscribeSimEvent();
+        UnsubscribeNetworkStatusEvent();
     }
 }
 

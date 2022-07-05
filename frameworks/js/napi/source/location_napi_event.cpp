@@ -96,8 +96,8 @@ void SubscribeCountryCodeChange(napi_env& env,
     napi_ref& handlerRef, sptr<CountryCodeCallbackHost>& CallbackHost)
 {
     auto callbackPtr = sptr<ICountryCodeCallback>(CallbackHost);
-    CallbackHost->env_ = env;
-    CallbackHost->handlerCb_ = handlerRef;
+    CallbackHost->SetEnv(env);
+    CallbackHost->SetCallback(handlerRef);
     g_locatorProxy->RegisterCountryCodeCallback(callbackPtr, DEFAULT_UID);
 }
 
@@ -411,7 +411,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         }
         auto callbackHost =
             sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
-        if (callbackHost != nullptr) {
+        if (callbackHost) {
             napi_ref handlerRef = nullptr;
             NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
             g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
