@@ -126,21 +126,21 @@ bool GeoConvertService::EnableReverseGeocodingMock()
 {
     LBSLOGD(GEO_CONVERT, "EnableReverseGeocodingMock");
     mockEnabled_ = true;
-    return REPLY_CODE_NO_EXCEPTION;
+    return true;
 }
 
 bool GeoConvertService::DisableReverseGeocodingMock()
 {
     LBSLOGD(GEO_CONVERT, "DisableReverseGeocodingMock");
     mockEnabled_ = false;
-    return REPLY_CODE_NO_EXCEPTION;
+    return true;
 }
 
 bool GeoConvertService::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
 {
     LBSLOGD(GEO_CONVERT, "SetReverseGeocodingMockInfo");
-    mokeInfo_ = mokeInfo;
-    return REPLY_CODE_NO_EXCEPTION;
+    mokeInfo_.assign(mokeInfo.begin(), mokeInfo.end());
+    return true;
 }
 
 void GeoConvertService::SaDumpInfo(std::string& result)

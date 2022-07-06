@@ -74,62 +74,27 @@ public:
     std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo;
     
     ReverseGeocodeMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), enabled(false) {
-        }
+        : AsyncContext(env, work, deferred), enabled(false) {}
 
     ReverseGeocodeMockAsyncContext() = delete;
 
     virtual ~ReverseGeocodeMockAsyncContext() {}
 };
 
-class EnableLocationMockAsyncContext : public AsyncContext {
+
+class LocationMockAsyncContext : public AsyncContext {
 public:
-    int32_t priority;
-    int32_t scenario;
-    int32_t timeInterval;
-    bool enable;
-
-    EnableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred) {
-        }
-
-    EnableLocationMockAsyncContext() = delete;
-
-    virtual ~EnableLocationMockAsyncContext() {}
-};
-
-class DisableLocationMockAsyncContext : public AsyncContext {
-public:
-    int32_t priority;
-    int32_t scenario;
-    int32_t timeInterval;
-    bool enable;
-
-    DisableLocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred) {
-        }
-
-    DisableLocationMockAsyncContext() = delete;
-
-    virtual ~DisableLocationMockAsyncContext() {}
-};
-
-
-class SetMockedLocationsAsyncContext : public AsyncContext {
-public:
-    int32_t priority;
     int32_t scenario;
     int32_t timeInterval;
     bool enable;
 
     std::vector<std::shared_ptr<Location>> LocationNapi;
-    SetMockedLocationsAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred) {
-        }
+    LocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), scenario(0), timeInterval(0), enable(false) {}
 
-    SetMockedLocationsAsyncContext() = delete;
+    LocationMockAsyncContext() = delete;
 
-    virtual ~SetMockedLocationsAsyncContext() {}
+    virtual ~LocationMockAsyncContext() {}
 };
 
 class CountryCodeContext : public AsyncContext {

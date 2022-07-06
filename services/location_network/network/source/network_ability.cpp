@@ -27,6 +27,7 @@
 namespace OHOS {
 namespace Location {
 const uint32_t EVENT_REPORT_LOCATION = 0x0001;
+const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
     DelayedSingleton<NetworkAbility>::GetInstance().get());
 
@@ -114,7 +115,7 @@ void NetworkAbility::ProcessReportLocation()
 {
     if (locationIndex_ < mockLoc_.size()) {
         ReportMockedLocation(mockLoc_[locationIndex_++]);
-        networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, mockTimeInterval_);
+        networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, mockTimeInterval_ * EVENT_INTERVAL_UNITE);
     } else {
         mockLoc_.clear();
         locationIndex_ = 0;
@@ -142,10 +143,10 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
     locationNew->SetIsFromMock(location->GetIsFromMock());
     if ((IsLocationMocked() && !location->GetIsFromMock()) ||
         (!IsLocationMocked() && location->GetIsFromMock())) {
-        LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
+        LBSLOGE(NETWORK, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
+    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, NETWORK_ABILITY);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
     return ERR_OK;
 }
@@ -157,7 +158,7 @@ NetworkHandler::~NetworkHandler() {}
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d", eventId);
+    LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
             DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocation();
@@ -185,7 +186,7 @@ int32_t NetworkAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
     std::string result;
     dumper.NetWorkDump(SaDumpInfo, vecArgs, result);
     if (!SaveStringToFd(fd, result)) {
-        LBSLOGE(GEO_CONVERT, "Network save string to fd failed!");
+        LBSLOGE(NETWORK, "Network save string to fd failed!");
         return ERR_OK;
     }
     return ERR_OK;

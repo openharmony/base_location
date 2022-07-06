@@ -330,14 +330,27 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     return true;
 }
 
-void GetLocationInfo(const napi_env& env, const napi_value& object,
-    const char* fieldStr, std::shared_ptr<ReverseGeocodeRequest> request)
+bool GetLocationInfo(const napi_env& env, const napi_value& object,
+    const char* fieldStr, std::shared_ptr<ReverseGeocodeRequest>& request)
 {
-    int bufLen = MAX_BUF_LEN;
-    JsObjectToString(env, object, "locale", bufLen, request->locale);
-    JsObjectToInt(env, object, "maxItems", request->maxItems);
-    JsObjectToDouble(env, object, "latitude", request->latitude);
-    JsObjectToDouble(env, object, "longitude", request->longitude);
+    bool result = false;
+    napi_value value = nullptr;
+
+    if (object == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "object is nullptr.");
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &result), false);
+    if (result) {
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &value), false);
+        JsObjectToString(env, value, "locale", MAX_BUF_LEN, request->locale);
+        JsObjectToInt(env, value, "maxItems", request->maxItems);
+        JsObjectToDouble(env, value, "latitude", request->latitude);
+        JsObjectToDouble(env, value, "longitude", request->longitude);
+        return true;
+    }
+    return false;
 }
 
 napi_value GetNapiValue(napi_env env, const std::string keyChar, napi_value object)
@@ -410,70 +423,143 @@ std::vector<std::string> GetStringArrayValueByKey(napi_env env, napi_value jsObj
     return GetStringArrayByJsObj(env, array);
 }
 
-void GetGeoAddressInfo(const napi_env& env, const napi_value& object,
+bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
     const char* fieldStr, std::shared_ptr<GeoAddress> address)
 {
-    int bufLen = MAX_BUF_LEN;
-    double m_latitude = 0.0;
-    double m_longitude = 0.0;
-    JsObjectToDouble(env, object, "latitude", m_latitude);
-    if (CommonUtils::DoubleEqual(m_latitude, 0.0)) {
-        address->m_hasLatitude = false;
-    } else {
-        address->m_latitude = m_latitude;
+    bool result = false;
+    napi_value value = nullptr;
+
+    if (object == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "object is nullptr.");
+        return false;
     }
-    JsObjectToDouble(env, object, "longitude", m_longitude);
-    if (CommonUtils::DoubleEqual(m_longitude, 0.0)) {
-        address->m_hasLongitude = false;
-    } else {
-        address->m_longitude = m_longitude;
+
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &result), false);
+    if (result) {
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &value), false);
+        int bufLen = MAX_BUF_LEN;
+        double m_latitude = 0.0;
+        double m_longitude = 0.0;
+        JsObjectToDouble(env, value, "latitude", m_latitude);
+        if (CommonUtils::DoubleEqual(m_latitude, 0.0)) {
+            address->m_hasLatitude = false;
+        } else {
+            address->m_hasLatitude = true;
+            address->m_latitude = m_latitude;
+        }
+        JsObjectToDouble(env, value, "longitude", m_longitude);
+        if (CommonUtils::DoubleEqual(m_longitude, 0.0)) {
+            address->m_hasLongitude = false;
+        } else {
+            address->m_hasLongitude = true;
+            address->m_longitude = m_longitude;
+        }
+        JsObjectToString(env, value, "locale", bufLen, address->m_localeLanguage);
+        JsObjectToString(env, value, "placeName", bufLen, address->m_placeName);
+        JsObjectToString(env, value, "countryCode", bufLen, address->m_countryCode);
+        JsObjectToString(env, value, "countryName", bufLen, address->m_countryName);
+        JsObjectToString(env, value, "administrativeArea", bufLen, address->m_administrativeArea);
+        JsObjectToString(env, value, "subAdministrativeArea", bufLen, address->m_subAdministrativeArea);
+        JsObjectToString(env, value, "locality", bufLen, address->m_locality);
+        JsObjectToString(env, value, "subLocality", bufLen, address->m_subLocality);
+        JsObjectToString(env, value, "roadName", bufLen, address->m_roadName);
+        JsObjectToString(env, value, "subRoadName", bufLen, address->m_subRoadName);
+        JsObjectToString(env, value, "premises", bufLen, address->m_premises);
+        JsObjectToString(env, value, "postalCode", bufLen, address->m_postalCode);
+        JsObjectToString(env, value, "phoneNumber", bufLen, address->m_phoneNumber);
+        JsObjectToString(env, value, "addressUrl", bufLen, address->m_addressUrl);
+        JsObjectToInt(env, value, "descriptionsSize", address->m_descriptionsSize);
+        JsObjectToBool(env, value, "isFromMock", address->m_isFromMock);
+        std::vector<std::string> descriptions = GetStringArrayValueByKey(env, value, "descriptions");
+        for (int i = 0; i < address->m_descriptionsSize; i++) {
+            address->m_descriptions.insert(std::make_pair(i, descriptions[i]));
+        }
     }
-    JsObjectToString(env, object, "locale", bufLen, address->m_localeLanguage);
-    JsObjectToString(env, object, "placeName", bufLen, address->m_placeName);
-    JsObjectToString(env, object, "countryCode", bufLen, address->m_countryCode);
-    JsObjectToString(env, object, "countryName", bufLen, address->m_countryName);
-    JsObjectToString(env, object, "administrativeArea", bufLen, address->m_administrativeArea);
-    JsObjectToString(env, object, "subAdministrativeArea", bufLen, address->m_subAdministrativeArea);
-    JsObjectToString(env, object, "locality", bufLen, address->m_locality);
-    JsObjectToString(env, object, "subLocality", bufLen, address->m_subLocality);
-    JsObjectToString(env, object, "roadName", bufLen, address->m_roadName);
-    JsObjectToString(env, object, "subRoadName", bufLen, address->m_subRoadName);
-    JsObjectToString(env, object, "premises", bufLen, address->m_premises);
-    JsObjectToString(env, object, "postalCode", bufLen, address->m_postalCode);
-    JsObjectToString(env, object, "phoneNumber", bufLen, address->m_phoneNumber);
-    JsObjectToString(env, object, "addressUrl", bufLen, address->m_addressUrl);
-    JsObjectToInt(env, object, "descriptionsSize", address->m_descriptionsSize);
-    JsObjectToBool(env, object, "isFromMock", address->m_isFromMock);
-    std::vector<std::string> descriptions = GetStringArrayValueByKey(env, object, "descriptions");
-    for (int i = 0; i < address->m_descriptionsSize; i++) {
-        address->m_descriptions.insert(std::make_pair(i, descriptions[i]));
-    }
+    return true;
 }
 
-void JsObjToRevGeocodeMoke(const napi_env& env, const napi_value& object,
+bool JsObjToRevGeocodeMoke(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
 {
     bool isArray = false;
     napi_status status = napi_is_array(env, object, &isArray);
     if (status != napi_ok) {
         LBSLOGE(LOCATOR_STANDARD, "napi_is_array is failed!");
-        return;
+        return false;
     }
     if (!isArray) {
         LBSLOGE(LOCATOR_STANDARD, "not an array!");
-        return;
+        return false;
     }
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, object, &arrayLength);
+    if (arrayLength <= 0) {
+        LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
+        return false;
+    }
+    for (size_t i = 0; i < arrayLength; i++) {
+        napi_value napiElement = nullptr;
+        napi_get_element(env, object, i, &napiElement);
+        std::shared_ptr<GeocodingMockInfo> info  = std::make_shared<GeocodingMockInfo>();
+        std::shared_ptr<ReverseGeocodeRequest> request  = std::make_shared<ReverseGeocodeRequest>();
+        std::shared_ptr<GeoAddress> geoAddress  = std::make_shared<GeoAddress>();
+        GetLocationInfo(env, napiElement, "location", request);
+        GetGeoAddressInfo(env, napiElement, "geoAddress", geoAddress);
+        info->SetReverseGeocodeRequest(request);
+        info->SetGeoAddressInfo(geoAddress);
+        mokeInfo.push_back(info);
+    }
+    return true;
+}
+
+void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContext, const napi_value& object)
+{
     uint32_t arrayLength = 0;
     napi_get_array_length(env, object, &arrayLength);
     if (arrayLength <= 0) {
         LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
         return;
     }
-    for (size_t i = 0; i < arrayLength; i++) {
-        std::shared_ptr<GeocodingMockInfo> info  = std::make_shared<GeocodingMockInfo>();
-        GetLocationInfo(env, object, "location", info->GetReverseGeocodeRequest());
-        GetGeoAddressInfo(env, object, "geoAddress", info->GetGeoAddressInfo());
-        mokeInfo.push_back(info);
+    for (uint32_t i = 0; i < arrayLength; i++) {
+        napi_value elementValue = nullptr;
+        std::shared_ptr<Location> locationAdapter = std::make_shared<Location>();
+
+        napi_get_element(env, object, i, &elementValue);
+        double latitude = 0.0;
+        JsObjectToDouble(env, elementValue, "latitude", latitude);
+        locationAdapter->SetLatitude(latitude);
+        double longitude = 0.0;
+        JsObjectToDouble(env, elementValue, "longitude", longitude);
+        locationAdapter->SetLongitude(longitude);
+        double altitude = 0.0;
+        JsObjectToDouble(env, elementValue, "altitude", altitude);
+        locationAdapter->SetAltitude(altitude);
+        int32_t accuracy = 0;
+        JsObjectToInt(env, elementValue, "accuracy", accuracy);
+        locationAdapter->SetAccuracy(static_cast<float>(accuracy));
+        int32_t speed = 0;
+        JsObjectToInt(env, elementValue, "speed", speed);
+        locationAdapter->SetSpeed(static_cast<float>(speed));
+        double direction = 0.0;
+        JsObjectToDouble(env, elementValue, "direction", direction);
+        locationAdapter->SetDirection(direction);
+        int32_t timeStamp = 0;
+        JsObjectToInt(env, elementValue, "timeStamp", timeStamp);
+        locationAdapter->SetTimeStamp(static_cast<int64_t>(accuracy));
+        int32_t timeSinceBoot = 0;
+        JsObjectToInt(env, elementValue, "timeSinceBoot", timeSinceBoot);
+        locationAdapter->SetTimeSinceBoot(static_cast<int64_t>(timeSinceBoot));
+        std::string additions = " ";
+        int buff = 100;
+        JsObjectToString(env, elementValue, "additions", buff, additions);
+        locationAdapter->SetAdditions(additions);
+        int32_t additionSize = 0;
+        JsObjectToInt(env, elementValue, "additionSize", additionSize);
+        locationAdapter->SetAdditionSize(static_cast<int64_t>(additionSize));
+        bool isFromMock = false;
+        JsObjectToBool(env, elementValue, "isFromMock", isFromMock);
+        locationAdapter->SetIsFromMock(isFromMock);
+        asyncContext->LocationNapi.push_back(locationAdapter);
     }
 }
 

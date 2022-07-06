@@ -531,25 +531,29 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
-void ParameterConfiguration(napi_env env, EnableLocationMockAsyncContext *asyncContext, napi_value object)
+bool ParameterConfiguration(napi_env env, LocationMockAsyncContext *asyncContext, napi_value object)
 {
-    JsObjectToInt(env, object, "scenario", asyncContext->priority);
     JsObjectToInt(env, object, "scenario", asyncContext->scenario);
     JsObjectToInt(env, object, "timeInterval", asyncContext->timeInterval);
-}
-
-void ParameterConfiguration(napi_env env, DisableLocationMockAsyncContext *asyncContext, napi_value object)
-{
-    JsObjectToInt(env, object, "scenario", asyncContext->priority);
-    JsObjectToInt(env, object, "scenario", asyncContext->scenario);
-    JsObjectToInt(env, object, "timeInterval", asyncContext->timeInterval);
-}
-
-void ParameterConfiguration(napi_env env, SetMockedLocationsAsyncContext *asyncContext, napi_value object)
-{
-    JsObjectToInt(env, object, "scenario", asyncContext->priority);
-    JsObjectToInt(env, object, "scenario", asyncContext->scenario);
-    JsObjectToInt(env, object, "timeInterval", asyncContext->timeInterval);
+    bool result = false;
+    napi_status status;
+    napi_value value = nullptr;
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, "locations", &result), false);
+    if (result) {
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, "locations", &value), false);
+        bool isArray = false;
+        status = napi_is_array(env, value, &isArray);
+        if (status != napi_ok) {
+            LBSLOGE(LOCATOR_STANDARD, "napi_is_array is failed!");
+            return false;
+        }
+        if (!isArray) {
+            LBSLOGE(LOCATOR_STANDARD, "not an array!");
+            return false;
+        }
+        GetLocationArray(env, asyncContext, value);
+    }
+    return true;
 }
 
 napi_value EnableLocationMock(napi_env env, napi_callback_info info)
@@ -566,14 +570,13 @@ napi_value EnableLocationMock(napi_env env, napi_callback_info info)
     napi_typeof(env, argv[0], &valueType);
     NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 
-    EnableLocationMockAsyncContext *asyncContext = new (std::nothrow) EnableLocationMockAsyncContext(env);
+    LocationMockAsyncContext *asyncContext = new (std::nothrow) LocationMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "EnableLocationMockAsyncContext", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
+    napi_create_string_latin1(env, "EnableLocationMock", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
     ParameterConfiguration(env, asyncContext, argv[0]);
     asyncContext->executeFunc = [&](void *data) -> void {
-        EnableLocationMockAsyncContext *context = static_cast<EnableLocationMockAsyncContext *>(data);
+        LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         LocationMockConfig LocationMockInfo;
-        LocationMockInfo.priority_ = context->priority;
         LocationMockInfo.scenario_ = context->scenario;
         LocationMockInfo.timeInterval_ = context->timeInterval;
         context->errCode = LOCATION_SWITCH_ERROR;
@@ -583,9 +586,9 @@ napi_value EnableLocationMock(napi_env env, napi_callback_info info)
         }
     };
     asyncContext->completeFunc = [&](void *data) -> void {
-        EnableLocationMockAsyncContext *context = static_cast<EnableLocationMockAsyncContext *>(data);
+        LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         napi_get_boolean(context->env, context->enable, &context->result[PARAM1]);
-        LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
+        LBSLOGI(LOCATOR_STANDARD, "Push EnableLocationMock result to client");
     };
 
     size_t objectArgsNum = 1;
@@ -606,14 +609,13 @@ napi_value DisableLocationMock(napi_env env, napi_callback_info info)
     napi_typeof(env, argv[0], &valueType);
     NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 
-    DisableLocationMockAsyncContext *asyncContext = new (std::nothrow) DisableLocationMockAsyncContext(env);
+    LocationMockAsyncContext *asyncContext = new (std::nothrow) LocationMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "DisableLocationMockAsyncContext", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
+    napi_create_string_latin1(env, "DisableLocationMock", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
     ParameterConfiguration(env, asyncContext, argv[0]);
     asyncContext->executeFunc = [&](void *data) -> void {
-        DisableLocationMockAsyncContext *context = static_cast<DisableLocationMockAsyncContext *>(data);
+        LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         LocationMockConfig LocationMockInfo;
-        LocationMockInfo.priority_ = context->priority;
         LocationMockInfo.scenario_ = context->scenario;
         LocationMockInfo.timeInterval_ = context->timeInterval;
         context->errCode = LOCATION_SWITCH_ERROR;
@@ -623,63 +625,13 @@ napi_value DisableLocationMock(napi_env env, napi_callback_info info)
         }
     };
     asyncContext->completeFunc = [&](void *data) -> void {
-        DisableLocationMockAsyncContext *context = static_cast<DisableLocationMockAsyncContext *>(data);
+        LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         napi_get_boolean(context->env, context->enable, &context->result[PARAM1]);
-        LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
+        LBSLOGI(LOCATOR_STANDARD, "Push DisableLocationMock result to client");
     };
 
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
-}
-
-void ParameterConfiguration(
-    napi_env env, uint32_t arrayLength, napi_value object, SetMockedLocationsAsyncContext *asyncContext)
-{
-    napi_get_array_length(env, object, &arrayLength);
-    std::shared_ptr<Location> locationAdapter = std::make_shared<Location>();
-    if (locationAdapter == nullptr) {
-        LBSLOGI(LOCATOR_STANDARD, "location_adapter is nullptr");
-        return;
-    }
-    napi_value elementValue = nullptr;
-    for (uint32_t i = 0; i < arrayLength; i++) {
-        napi_get_element(env, object, i, &elementValue);
-        double latitude = 0.0;
-        JsObjectToDouble(env, elementValue, "latitude", latitude);
-        locationAdapter->SetLatitude(latitude);
-        double longitude = 0.0;
-        JsObjectToDouble(env, elementValue, "longitude", longitude);
-        locationAdapter->SetLongitude(longitude);
-        double altitude = 0.0;
-        JsObjectToDouble(env, elementValue, "altitude", altitude);
-        locationAdapter->SetAltitude(altitude);
-        int32_t accuracy = 0;
-        JsObjectToInt(env, elementValue, "accuracy", accuracy);
-        locationAdapter->SetAccuracy(static_cast<float>(accuracy));
-        int32_t speed = 0;
-        JsObjectToInt(env, elementValue, "speed", speed);
-        locationAdapter->SetSpeed(static_cast<float>(speed));
-        double direction = 0.0;
-        JsObjectToDouble(env, elementValue, "direction", direction);
-        locationAdapter->SetDirection(direction);
-        int32_t timeStamp = 0;
-        JsObjectToInt(env, elementValue, "timeStamp", timeStamp);
-        locationAdapter->SetTimeStamp(static_cast<int64_t>(accuracy));
-        int32_t timeSinceBoot = 0;
-        JsObjectToInt(env, elementValue, "timeSinceBoot", timeSinceBoot);
-        locationAdapter->SetTimeSinceBoot(static_cast<int64_t>(timeSinceBoot));
-        std::string additions = " ";
-        int buff = 100;
-        JsObjectToString(env, elementValue, "additions", buff, additions);
-        locationAdapter->SetAdditions(additions);
-        int32_t additionSize = 0;
-        JsObjectToInt(env, elementValue, "additionSize", additionSize);
-        locationAdapter->SetAdditionSize(static_cast<int64_t>(additionSize));
-        bool isFromMock = false;
-        JsObjectToBool(env, elementValue, "isFromMock", isFromMock);
-        locationAdapter->SetIsFromMock(isFromMock);
-        asyncContext->LocationNapi.push_back(locationAdapter);
-    }
 }
 
 napi_value SetMockedLocations(napi_env env, napi_callback_info info)
@@ -700,16 +652,13 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     napi_is_array(env, argv[1], &filePathIsArray);
     NAPI_ASSERT(env, filePathIsArray, "Wrong argument type, object is expected for parameter 2.");
 
-    SetMockedLocationsAsyncContext *asyncContext = new (std::nothrow) SetMockedLocationsAsyncContext(env);
+    LocationMockAsyncContext *asyncContext = new (std::nothrow) LocationMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "SetMockedLocationsAsyncContext", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
-    uint32_t arrayLength = 0;
+    napi_create_string_latin1(env, "SetMockedLocations", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
     ParameterConfiguration(env, asyncContext, argv[0]);
-    ParameterConfiguration(env, arrayLength, argv[1], asyncContext);
     asyncContext->executeFunc = [&](void *data) -> void {
-        SetMockedLocationsAsyncContext *context = static_cast<SetMockedLocationsAsyncContext *>(data);
+        LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         LocationMockConfig LocationMockInfo;
-        LocationMockInfo.priority_ = context->priority;
         LocationMockInfo.scenario_ = context->scenario;
         LocationMockInfo.timeInterval_ = context->timeInterval;
         context->errCode = LOCATION_SWITCH_ERROR;
@@ -719,9 +668,9 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
         }
     };
     asyncContext->completeFunc = [&](void *data) -> void {
-        SetMockedLocationsAsyncContext *context = static_cast<SetMockedLocationsAsyncContext *>(data);
+        LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         napi_get_boolean(context->env, context->enable, &context->result[PARAM1]);
-        LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
+        LBSLOGI(LOCATOR_STANDARD, "Push SetMockedLocations result to client");
     };
 
     size_t objectArgsNum = 2;
@@ -737,10 +686,6 @@ napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
-
-    napi_valuetype valueType;
-    napi_typeof(env, argv[0], &valueType);
-    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 
     ReverseGeocodeMockAsyncContext *asyncContext = new (std::nothrow) ReverseGeocodeMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
@@ -772,10 +717,6 @@ napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
 
-    napi_valuetype valueType;
-    napi_typeof(env, argv[0], &valueType);
-    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
-
     ReverseGeocodeMockAsyncContext *asyncContext = new (std::nothrow) ReverseGeocodeMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "DisableReverseGeocodingMock",
@@ -806,9 +747,9 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
 
-    napi_valuetype valueType;
-    napi_typeof(env, argv[0], &valueType);
-    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
+    bool filePathIsArray = false;
+    napi_is_array(env, argv[0], &filePathIsArray);
+    NAPI_ASSERT(env, filePathIsArray, "Wrong argument type, object is expected for parameter 1.");
 
     ReverseGeocodeMockAsyncContext *asyncContext = new (std::nothrow) ReverseGeocodeMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
@@ -819,13 +760,13 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void *data) -> void {
         ReverseGeocodeMockAsyncContext *context = static_cast<ReverseGeocodeMockAsyncContext *>(data);
-        g_locatorClient->SetReverseGeocodingMockInfo(context->mokeInfo);
-        context->errCode = SUCCESS;
+        context->enabled = g_locatorClient->SetReverseGeocodingMockInfo(context->mokeInfo);
+        context->errCode = context->enabled ? SUCCESS : REVERSE_GEOCODE_ERROR;
     };
     asyncContext->completeFunc = [&](void *data) -> void {
         ReverseGeocodeMockAsyncContext *context = static_cast<ReverseGeocodeMockAsyncContext *>(data);
         NAPI_CALL_RETURN_VOID(context->env,
-            napi_get_boolean(context->env, context->errCode == SUCCESS, &context->result[PARAM1]));
+            napi_get_boolean(context->env, context->enabled, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push SetReverseGeocodingMockInfo result to client");
     };
 
