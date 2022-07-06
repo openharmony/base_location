@@ -83,6 +83,7 @@ ohos_shared_library("lbsservice_locator") {
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "samgr_standard:samgr_proxy",
+    "startup_l2:syspara_watchagent",
   ]
 
   part_name = "location"
