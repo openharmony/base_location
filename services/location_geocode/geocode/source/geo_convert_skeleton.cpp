@@ -82,8 +82,8 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeoc
         std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
         request->locale = Str16ToStr8(data.ReadString16());
         request->latitude = data.ReadDouble();
-        request->locale = data.ReadDouble();
-        request->locale = data.ReadInt32();
+        request->longitude = data.ReadDouble();
+        request->maxItems = data.ReadInt32();
         geoAddress->ReadFromParcel(data);
         info->SetReverseGeocodeRequest(request);
         info->SetGeoAddressInfo(geoAddress);

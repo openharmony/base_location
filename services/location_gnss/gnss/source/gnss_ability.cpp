@@ -37,6 +37,7 @@ constexpr uint32_t WAIT_MS = 200;
 constexpr int AGNSS_SERVER_PORT = 7275;
 const std::string AGNSS_SERVER_ADDR = "supl.platform.hicloud.com";
 const uint32_t EVENT_REPORT_LOCATION = 0x0001;
+const uint32_t EVENT_INTERVAL_UNITE = 1000;
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -503,7 +504,7 @@ void GnssAbility::ProcessReportLocation()
 {
     if (locationIndex_ < mockLoc_.size()) {
         ReportMockedLocation(mockLoc_[locationIndex_++]);
-        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, mockTimeInterval_);
+        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, mockTimeInterval_ * EVENT_INTERVAL_UNITE);
     } else {
         mockLoc_.clear();
         locationIndex_ = 0;
@@ -546,7 +547,7 @@ GnssHandler::~GnssHandler() {}
 void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d", eventId);
+    LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
             DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocation();
