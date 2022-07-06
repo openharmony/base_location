@@ -50,6 +50,7 @@ const std::string TIME_INTERVAL_PROP = "ro.config.locator_background.timeInterva
 const std::string PROC_NAME = "system";
 const std::string SEARCH_NET_WORK_STATE_CHANGE_ACTION = "com.hos.action.SEARCH_NET_WORK_STATE_CHANGE";
 const std::string SIM_STATE_CHANGE_ACTION = "com.hos.action.SIM_STATE_CHANGE";
+const std::string LOCALE_KEY = "persist.global.locale";
 
 enum {
     SCENE_UNSET = 0x0300,

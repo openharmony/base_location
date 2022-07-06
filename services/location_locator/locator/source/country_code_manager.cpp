@@ -24,6 +24,7 @@
 #include "common_event_support.h"
 #include "common_utils.h"
 #include "locator_ability.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace Location {
@@ -36,6 +37,7 @@ CountryCodeManager::CountryCodeManager()
     simSubscriber_ = nullptr;
     networkSubscriber_ = nullptr;
     StartPassiveLocationListen();
+    SubscribeLocaleConfigEvent();
 }
 
 CountryCodeManager::~CountryCodeManager()
@@ -254,6 +256,28 @@ bool CountryCodeManager::SubscribeNetworkStatusEvent()
         LBSLOGE(COUNTRY_CODE, "SubscribeNetworkStatusEvent failed.");
     }
     return result;
+}
+
+bool CountryCodeManager::SubscribeLocaleConfigEvent()
+{
+    auto eventCallback = [](const char *key, const char *value, void *context) {
+        LBSLOGD(COUNTRY_CODE, "LOCALE_KEY changed");
+        if (key && value && context) {
+            auto manager = DelayedSingleton<CountryCodeManager>::GetInstance();
+            if (manager == nullptr) {
+                LBSLOGE(COUNTRY_CODE, "SubscribeLocaleConfigEvent CountryCodeManager is nullptr");
+                return;
+            }
+            manager->GetIsoCountryCode();
+        }
+    };
+
+    int ret = WatchParameter(LOCALE_KEY.c_str(), eventCallback, nullptr);
+    if (ret != SUCCESS) {
+        LBSLOGD(COUNTRY_CODE, "WatchParameter fail");
+        return false;
+    }
+    return true;
 }
 
 bool CountryCodeManager::UnsubscribeSimEvent()

@@ -46,6 +46,7 @@ public:
     void NotifyAllListener();
     bool SubscribeSimEvent();
     bool SubscribeNetworkStatusEvent();
+    bool SubscribeLocaleConfigEvent();
     bool UnsubscribeSimEvent();
     bool UnsubscribeNetworkStatusEvent();
 private:
