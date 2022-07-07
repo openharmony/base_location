@@ -913,7 +913,7 @@ void LocatorAbility::RegisterAction()
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locatorEventSubscriber_);
-    if (result != 0) {
+    if (result == 0) {
         LBSLOGE(LOCATOR, "Failed to subscriber locator event, result = %{public}d", result);
         isActionRegistered = false;
     } else {
