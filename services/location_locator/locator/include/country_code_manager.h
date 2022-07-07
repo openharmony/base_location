@@ -36,20 +36,22 @@ public:
     CountryCodeManager();
     ~CountryCodeManager();
     std::shared_ptr<CountryCode> GetIsoCountryCode();
+    void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
+    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+
+private:
     void StartPassiveLocationListen();
     std::string GetCountryCodeByLocation(const std::unique_ptr<Location>& location);
     bool UpdateCountryCodeByLocation(std::string countryCode, int type);
     void UpdateCountryCode(std::string countryCode, int type);
     std::string GetCountryCodeByLastLocation();
-    void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
-    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     void NotifyAllListener();
     bool SubscribeSimEvent();
     bool SubscribeNetworkStatusEvent();
     bool SubscribeLocaleConfigEvent();
     bool UnsubscribeSimEvent();
     bool UnsubscribeNetworkStatusEvent();
-private:
+
     class LocatorCallback : public IRemoteStub<ILocatorCallback> {
     public:
         void OnLocationReport(const std::unique_ptr<Location>& location);
