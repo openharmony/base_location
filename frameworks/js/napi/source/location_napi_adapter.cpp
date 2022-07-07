@@ -22,7 +22,7 @@ std::unique_ptr<Locator> g_locatorClient = Locator::GetInstance();
 
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
 {
-    size_t argc = 1;
+    size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void* data = nullptr;
@@ -61,7 +61,7 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
 
 napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 {
-    size_t argc = 1;
+    size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void* data = nullptr;
@@ -90,7 +90,7 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 
 napi_value EnableLocation(napi_env env, napi_callback_info info)
 {
-    size_t argc = 1;
+    size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void* data = nullptr;
