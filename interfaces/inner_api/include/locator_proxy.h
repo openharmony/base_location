@@ -78,7 +78,7 @@ public:
 
     bool DisableReverseGeocodingMock() override;
 
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };

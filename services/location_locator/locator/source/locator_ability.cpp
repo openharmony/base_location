@@ -56,9 +56,6 @@ const uint32_t FLUSH_CACHED = 14;
 const uint32_t SEND_COMMANDS = 15;
 const uint32_t ADD_FENCE_INFO = 16;
 const uint32_t REMOVE_FENCE_INFO = 17;
-const uint32_t LOCATOR_ENABLE_LOCATION_MOCK = 22;
-const uint32_t LOCATOR_DISABLE_LOCATION_MOCK = 23;
-const uint32_t LOCATOR_SET_MOCKED_LOCATIONS = 24;
 const float_t PRECISION = 0.000001;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
@@ -685,23 +682,13 @@ bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
         auto remoteObject = proxyMap_->find(abilityName);
         if (remoteObject != proxyMap_->end()) {
             auto obj = remoteObject->second;
-            MessageParcel dataToStub;
-            MessageParcel replyToStub;
-            MessageOption option;
-            if (obj == nullptr) {
-                return false;
-            }
-            if (abilityName.compare(GNSS_ABILITY) == 0) {
-                dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
-            } else if (abilityName.compare(NETWORK_ABILITY) == 0) {
-                dataToStub.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
-            }
-            config.Marshalling(dataToStub);
-            int error = obj->SendRequest(LOCATOR_ENABLE_LOCATION_MOCK, dataToStub, replyToStub, option);
-            if (error == NO_ERROR) {
-                result = replyToStub.ReadBool();
-            } else {
-                return false;
+            if (abilityName == GNSS_ABILITY) {
+                std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
+                return gnssProxy->EnableMock(config);
+            } else if (abilityName == NETWORK_ABILITY) {
+                std::unique_ptr<NetworkAbilityProxy> networkProxy =
+                    std::make_unique<NetworkAbilityProxy>(obj);
+                return networkProxy->EnableMock(config);
             }
         }
     }
@@ -732,23 +719,13 @@ bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
         auto remoteObject = proxyMap_->find(abilityName);
         if (remoteObject != proxyMap_->end()) {
             auto obj = remoteObject->second;
-            MessageParcel dataToStub;
-            MessageParcel replyToStub;
-            MessageOption option;
-            if (obj == nullptr) {
-                return false;
-            }
-            if (abilityName.compare(GNSS_ABILITY) == 0) {
-                dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
-            } else if (abilityName.compare(NETWORK_ABILITY) == 0) {
-                dataToStub.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
-            }
-            config.Marshalling(dataToStub);
-            int error = obj->SendRequest(LOCATOR_DISABLE_LOCATION_MOCK, dataToStub, replyToStub, option);
-            if (error == NO_ERROR) {
-                result = replyToStub.ReadBool();
-            } else {
-                return false;
+            if (abilityName == GNSS_ABILITY) {
+                std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
+                return gnssProxy->DisableMock(config);
+            } else if (abilityName == NETWORK_ABILITY) {
+                std::unique_ptr<NetworkAbilityProxy> networkProxy =
+                    std::make_unique<NetworkAbilityProxy>(obj);
+                return networkProxy->DisableMock(config);
             }
         }
     }
@@ -780,28 +757,13 @@ bool LocatorAbility::SetMockedLocations(
         auto remoteObject = proxyMap_->find(abilityName);
         if (remoteObject != proxyMap_->end()) {
             auto obj = remoteObject->second;
-            MessageParcel dataToStub;
-            MessageParcel replyToStub;
-            MessageOption option;
-            if (obj == nullptr) {
-                return false;
-            }
-            if (abilityName.compare(GNSS_ABILITY) == 0) {
-                dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
-            } else if (abilityName.compare(NETWORK_ABILITY) == 0) {
-                dataToStub.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
-            }
-            config.Marshalling(dataToStub);
-            int locationSize = location.size();
-            dataToStub.WriteInt32(locationSize);
-            for (int i = 0; i < locationSize; i++) {
-                location.at(i)->Marshalling(dataToStub);
-            }
-            int error = obj->SendRequest(LOCATOR_SET_MOCKED_LOCATIONS, dataToStub, replyToStub, option);
-            if (error == NO_ERROR) {
-                result = replyToStub.ReadBool();
-            } else {
-                return false;
+            if (abilityName == GNSS_ABILITY) {
+                std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
+                return gnssProxy->SetMocked(config, location);
+            } else if (abilityName == NETWORK_ABILITY) {
+                std::unique_ptr<NetworkAbilityProxy> networkProxy =
+                    std::make_unique<NetworkAbilityProxy>(obj);
+                return networkProxy->SetMocked(config, location);
             }
         }
     }
@@ -982,61 +944,35 @@ int LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel 
 
 bool LocatorAbility::EnableReverseGeocodingMock()
 {
-    bool result = true;
-    MessageParcel dataParcel;
-    MessageParcel replyParcel;
-    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return false;
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        return REPLY_CODE_EXCEPTION;
     }
-    int error = SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
-    if (error == NO_ERROR) {
-        result = replyParcel.ReadBool();
-    } else {
-        return false;
-    }
-    return result;
+    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
+    return geoProxy->EnableReverseGeocodingMock();
 }
 
 bool LocatorAbility::DisableReverseGeocodingMock()
 {
-    bool result = true;
-    MessageParcel dataParcel;
-    MessageParcel replyParcel;
-    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return false;
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        return REPLY_CODE_EXCEPTION;
     }
-    int error = SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
-    if (error == NO_ERROR) {
-        result = replyParcel.ReadBool();
-    } else {
-        return false;
-    }
-    return result;
+    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
+    return geoProxy->DisableReverseGeocodingMock();
 }
 
-bool LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+bool LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
-    bool result = true;
-    MessageParcel dataParcel;
-    MessageParcel replyParcel;
-    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return false;
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        return REPLY_CODE_EXCEPTION;
     }
-    dataParcel.WriteInt32(mokeInfo.size());
-    for (size_t i = 0; i < mokeInfo.size(); i++) {
-        dataParcel.WriteString16(Str8ToStr16(mokeInfo[i]->GetReverseGeocodeRequest()->locale));
-        dataParcel.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->latitude);
-        dataParcel.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->longitude);
-        dataParcel.WriteInt32(mokeInfo[i]->GetReverseGeocodeRequest()->maxItems);
-        mokeInfo[i]->GetGeoAddressInfo()->Marshalling(dataParcel);
-    }
-    int error = SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
-    if (error == NO_ERROR) {
-        result = replyParcel.ReadBool();
-    } else {
-        return false;
-    }
-    return result;
+    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
+    return geoProxy->SetReverseGeocodingMockInfo(mockInfo);
 }
 } // namespace Location
 } // namespace OHOS

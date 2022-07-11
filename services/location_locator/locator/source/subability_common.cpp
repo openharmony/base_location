@@ -170,16 +170,16 @@ bool SubAbility::SetMockedLocations(const LocationMockConfig& config,
         LBSLOGE(label_, "SetMockedLocations current state is %{public}d, need enbale it", mockEnabled_);
         return false;
     }
-    CacheLocation(location);
+    CacheLocationMock(location);
     mockTimeInterval_ = config.GetTimeInterval();
     SendReportMockLocationEvent();
     return true;
 }
 
-void SubAbility::CacheLocation(const std::vector<std::shared_ptr<Location>> &location)
+void SubAbility::CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location)
 {
     int locationSize = location.size();
-    mockLoc_.clear();
+    ClearLocationMock();
     for (int i = 0; i < locationSize; i++) {
         MessageParcel data;
         location.at(i)->Marshalling(data);
@@ -190,6 +190,21 @@ void SubAbility::CacheLocation(const std::vector<std::shared_ptr<Location>> &loc
 bool SubAbility::IsLocationMocked()
 {
     return mockEnabled_;
+}
+
+int SubAbility::GetTimeIntervalMock()
+{
+    return mockTimeInterval_;
+}
+
+std::vector<std::shared_ptr<Location>> SubAbility::GetLocationMock()
+{
+    return mockLoc_;
+}
+
+void SubAbility::ClearLocationMock()
+{
+    mockLoc_.clear();
 }
 } // namespace Location
 } // namespace OHOS

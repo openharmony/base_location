@@ -111,13 +111,14 @@ bool NetworkAbility::SetMocked(const LocationMockConfig& config,
     return SetMockedLocations(config, location);
 }
 
-void NetworkAbility::ProcessReportLocation()
+void NetworkAbility::ProcessReportLocationMock()
 {
-    if (locationIndex_ < mockLoc_.size()) {
-        ReportMockedLocation(mockLoc_[locationIndex_++]);
-        networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, mockTimeInterval_ * EVENT_INTERVAL_UNITE);
+    std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
+    if (locationIndex_ < mockLocationArray.size()) {
+        ReportMockedLocation(mockLocationArray[locationIndex_++]);
+        networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
     } else {
-        mockLoc_.clear();
+        ClearLocationMock();
         locationIndex_ = 0;
     }
 }
@@ -161,7 +162,7 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocation();
+            DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocationMock();
             break;
         }
         default:

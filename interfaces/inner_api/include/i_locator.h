@@ -109,7 +109,7 @@ public:
 
     virtual bool DisableReverseGeocodingMock() = 0;
 
-    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) = 0;
+    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
 };
 } // namespace Location
 } // namespace OHOS

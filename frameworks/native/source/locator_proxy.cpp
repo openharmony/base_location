@@ -708,7 +708,7 @@ bool LocatorProxy::DisableReverseGeocodingMock()
     return state;
 }
 
-bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     bool state = false;
     MessageParcel data;
@@ -717,13 +717,9 @@ bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geoco
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    data.WriteInt32(mokeInfo.size());
-    for (size_t i = 0; i < mokeInfo.size(); i++) {
-        data.WriteString16(Str8ToStr16(mokeInfo[i]->GetReverseGeocodeRequest()->locale));
-        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->latitude);
-        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->longitude);
-        data.WriteInt32(mokeInfo[i]->GetReverseGeocodeRequest()->maxItems);
-        mokeInfo[i]->GetGeoAddressInfo()->Marshalling(data);
+    data.WriteInt32(mockInfo.size());
+    for (size_t i = 0; i < mockInfo.size(); i++) {
+        mockInfo[i]->Marshalling(data);
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {

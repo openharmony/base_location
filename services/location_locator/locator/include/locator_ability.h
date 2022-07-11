@@ -100,7 +100,7 @@ public:
 
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
 
     int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);

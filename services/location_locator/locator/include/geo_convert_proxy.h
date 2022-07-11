@@ -34,7 +34,7 @@ public:
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
 private:
     static inline BrokerDelegator<GeoConvertProxy> delegator_;
 };
