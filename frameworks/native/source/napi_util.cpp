@@ -471,22 +471,20 @@ bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
         JsObjectToInt(env, value, "descriptionsSize", address->m_descriptionsSize);
         JsObjectToBool(env, value, "isFromMock", address->m_isFromMock);
         std::vector<std::string> descriptions = GetStringArrayValueByKey(env, value, "descriptions");
-        for (int i = 0; i < address->m_descriptionsSize; i++) {
+        size_t size = address->m_descriptionsSize > descriptions.size() ?
+            descriptions.size() : address->m_descriptionsSize;
+        for (size_t i = 0; i < size; i++) {
             address->m_descriptions.insert(std::make_pair(i, descriptions[i]));
         }
     }
     return true;
 }
 
-bool JsObjToRevGeocodeMoke(const napi_env& env, const napi_value& object,
-    std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
+    std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     bool isArray = false;
-    napi_status status = napi_is_array(env, object, &isArray);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "napi_is_array is failed!");
-        return false;
-    }
+    NAPI_CALL_BASE(env, napi_is_array(env, object, &isArray), false);
     if (!isArray) {
         LBSLOGE(LOCATOR_STANDARD, "not an array!");
         return false;
@@ -507,7 +505,7 @@ bool JsObjToRevGeocodeMoke(const napi_env& env, const napi_value& object,
         GetGeoAddressInfo(env, napiElement, "geoAddress", geoAddress);
         info->SetReverseGeocodeRequest(request);
         info->SetGeoAddressInfo(geoAddress);
-        mokeInfo.push_back(info);
+        mockInfo.push_back(info);
     }
     return true;
 }

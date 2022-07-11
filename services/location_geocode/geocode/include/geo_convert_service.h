@@ -44,18 +44,19 @@ public:
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo) override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:
+    bool Init();
     static void SaDumpInfo(std::string& result);
     int RemoteToService(uint32_t code, MessageParcel &data, MessageParcel &rep);
-    bool Init();
+    void ReportAddressMock(MessageParcel &data, MessageParcel &reply);
 
     bool mockEnabled_ = false;
     bool registerToService_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     sptr<IRemoteObject> locationService_;
-    std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo_;
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo_;
 };
 } // namespace OHOS
 } // namespace Location

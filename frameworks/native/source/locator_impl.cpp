@@ -292,10 +292,10 @@ bool LocatorImpl::DisableReverseGeocodingMock()
     return client_->DisableReverseGeocodingMock();
 }
 
-bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfo()");
-    return client_->SetReverseGeocodingMockInfo(mokeInfo);
+    return client_->SetReverseGeocodingMockInfo(mockInfo);
 }
 }  // namespace Location
 }  // namespace OHOS

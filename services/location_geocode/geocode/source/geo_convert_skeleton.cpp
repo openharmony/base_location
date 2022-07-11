@@ -58,8 +58,8 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case SET_REVERSE_GEOCODE_MOCKINFO: {
-            std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo =  ParseGeocodingMockInfos(data);
-            bool result = SetReverseGeocodingMockInfo(mokeInfo);
+            std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo =  ParseGeocodingMockInfos(data);
+            bool result = SetReverseGeocodingMockInfo(mockInfo);
             reply.WriteBool(result);
             break;
         }
@@ -71,25 +71,17 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
 
 std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeocodingMockInfos(MessageParcel &data)
 {
-    std::vector<std::shared_ptr<GeocodingMockInfo>> mokeInfo;
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
     int arraySize = data.ReadInt32();
     if (arraySize <= 0) {
         return std::vector<std::shared_ptr<GeocodingMockInfo>>();
     }
     for (int i = 0; i < arraySize; i++) {
-        std::shared_ptr<ReverseGeocodeRequest> request = std::make_shared<ReverseGeocodeRequest>();
-        std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
         std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
-        request->locale = Str16ToStr8(data.ReadString16());
-        request->latitude = data.ReadDouble();
-        request->longitude = data.ReadDouble();
-        request->maxItems = data.ReadInt32();
-        geoAddress->ReadFromParcel(data);
-        info->SetReverseGeocodeRequest(request);
-        info->SetGeoAddressInfo(geoAddress);
-        mokeInfo.push_back(info);
+        info->ReadFromParcel(data);
+        mockInfo.push_back(info);
     }
-    return mokeInfo;
+    return mockInfo;
 }
 } // namespace Location
 } // namespace OHOS

@@ -500,13 +500,14 @@ bool GnssAbility::IsMockEnabled()
     return IsLocationMocked();
 }
 
-void GnssAbility::ProcessReportLocation()
+void GnssAbility::ProcessReportLocationMock()
 {
-    if (locationIndex_ < mockLoc_.size()) {
-        ReportMockedLocation(mockLoc_[locationIndex_++]);
-        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, mockTimeInterval_ * EVENT_INTERVAL_UNITE);
+    std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
+    if (locationIndex_ < mockLocationArray.size()) {
+        ReportMockedLocation(mockLocationArray[locationIndex_++]);
+        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
     } else {
-        mockLoc_.clear();
+        ClearLocationMock();
         locationIndex_ = 0;
     }
 }
@@ -550,7 +551,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocation();
+            DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocationMock();
             break;
         }
         default:

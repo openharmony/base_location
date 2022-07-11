@@ -101,7 +101,7 @@ bool GeoConvertProxy::DisableReverseGeocodingMock()
     return result;
 }
 
-bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mokeInfo)
+bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     bool result = false;
     int error = -1;
@@ -112,13 +112,9 @@ bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Ge
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
         return false;
     }
-    data.WriteInt32(mokeInfo.size());
-    for (size_t i = 0; i < mokeInfo.size(); i++) {
-        data.WriteString16(Str8ToStr16(mokeInfo[i]->GetReverseGeocodeRequest()->locale));
-        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->latitude);
-        data.WriteDouble(mokeInfo[i]->GetReverseGeocodeRequest()->longitude);
-        data.WriteInt32(mokeInfo[i]->GetReverseGeocodeRequest()->maxItems);
-        mokeInfo[i]->GetGeoAddressInfo()->Marshalling(data);
+    data.WriteInt32(mockInfo.size());
+    for (size_t i = 0; i < mockInfo.size(); i++) {
+        mockInfo[i]->Marshalling(data);
     }
     error = Remote()->SendRequest(SET_REVERSE_GEOCODE_MOCKINFO, data, reply, option);
     LBSLOGI(GEO_CONVERT, "SetReverseGeocodingMockInfo result from server.");

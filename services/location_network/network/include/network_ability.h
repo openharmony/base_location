@@ -57,14 +57,14 @@ public:
     bool DisableMock(const LocationMockConfig& config) override;
     bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
-    void ProcessReportLocation();
+    void ProcessReportLocationMock();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
     std::shared_ptr<NetworkHandler> networkHandler_;
-    int locationIndex_ = 0;
+    size_t locationIndex_ = 0;
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
 };

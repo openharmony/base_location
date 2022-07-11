@@ -78,19 +78,19 @@ public:
     void HandleRemoteRequest(bool state, std::string deviceId);
     void HandleRefrashRequirements();
     int GetRequestNum();
-    bool IsLocationMocked();
     bool EnableLocationMock(const LocationMockConfig& config);
     bool DisableLocationMock(const LocationMockConfig& config);
     bool SetMockedLocations(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location);
 
-    int mockTimeInterval_ = 0;
-    bool mockEnabled_ = false;
-    std::vector<std::shared_ptr<Location>> mockLoc_;
+    int GetTimeIntervalMock();
+    bool IsLocationMocked();
+    std::vector<std::shared_ptr<Location>> GetLocationMock();
+    void ClearLocationMock();
 private:
     void HandleLocalRequest(WorkRecord &record);
     void HandleRemoveRecord(WorkRecord &record);
     void HandleAddRecord(WorkRecord &record);
-    void CacheLocation(const std::vector<std::shared_ptr<Location>> &location);
+    void CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location);
     virtual void RequestRecord(WorkRecord &workRecord, bool isAdded) = 0;
     virtual void SendReportMockLocationEvent() = 0;
 
@@ -101,6 +101,9 @@ private:
     std::u16string capability_ = u"";
     std::unique_ptr<WorkRecord> lastRecord_;
     std::unique_ptr<WorkRecord> newRecord_;
+    int mockTimeInterval_ = 0;
+    bool mockEnabled_ = false;
+    std::vector<std::shared_ptr<Location>> mockLoc_;
 };
 } // namespace Location
 } // namespace OHOS

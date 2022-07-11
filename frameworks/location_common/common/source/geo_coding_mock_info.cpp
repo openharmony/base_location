@@ -65,7 +65,7 @@ bool GeocodingMockInfo::Marshalling(Parcel& parcel) const
 {
     return parcel.WriteString16(Str8ToStr16(location_->locale)) &&
            parcel.WriteDouble(location_->latitude) &&
-           parcel.WriteDouble(location_->latitude) &&
+           parcel.WriteDouble(location_->longitude) &&
            parcel.WriteInt32(location_->maxItems) &&
            geoAddress_->Marshalling(parcel);
 }
