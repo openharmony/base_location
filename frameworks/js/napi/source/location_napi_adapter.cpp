@@ -551,7 +551,7 @@ bool ParameterConfiguration(napi_env env, LocationMockAsyncContext *asyncContext
     return true;
 }
 
-napi_value EnableLocationMock(napi_env env, napi_callback_info info)
+napi_value SetLocationMockState(napi_env env, napi_callback_info info, bool enable)
 {
     size_t argc = 2;
     napi_value argv[argc];
@@ -559,16 +559,12 @@ napi_value EnableLocationMock(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
-
-    napi_valuetype valueType;
-    napi_typeof(env, argv[0], &valueType);
-    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 
     LocationMockAsyncContext *asyncContext = new (std::nothrow) LocationMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "EnableLocationMock", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
+    napi_create_string_latin1(env, "SetLocationMockState ", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
     ParameterConfiguration(env, asyncContext, argv[0]);
+    asyncContext->enable = enable;
     asyncContext->executeFunc = [&](void *data) -> void {
         LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         LocationMockConfig LocationMockInfo;
@@ -576,7 +572,8 @@ napi_value EnableLocationMock(napi_env env, napi_callback_info info)
         LocationMockInfo.timeInterval_ = context->timeInterval;
         context->errCode = LOCATION_SWITCH_ERROR;
         if (g_locatorClient->IsLocationEnabled()) {
-            bool ret = g_locatorClient->EnableLocationMock(LocationMockInfo);
+            bool ret = asyncContext->enable ? g_locatorClient->EnableLocationMock(LocationMockInfo) :
+                g_locatorClient->DisableLocationMock(LocationMockInfo);
             context->errCode = ret ? SUCCESS : LOCATOR_ERROR;
         }
     };
@@ -586,39 +583,14 @@ napi_value EnableLocationMock(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
+napi_value EnableLocationMock(napi_env env, napi_callback_info info)
+{
+    return SetLocationMockState(env, info, true);
+}
+
 napi_value DisableLocationMock(napi_env env, napi_callback_info info)
 {
-    size_t argc = 2;
-    napi_value argv[argc];
-    napi_value thisVar = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
-    NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
-
-    napi_valuetype valueType;
-    napi_typeof(env, argv[0], &valueType);
-    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
-
-    LocationMockAsyncContext *asyncContext = new (std::nothrow) LocationMockAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "DisableLocationMock", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
-    ParameterConfiguration(env, asyncContext, argv[0]);
-    asyncContext->executeFunc = [&](void *data) -> void {
-        LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
-        LocationMockConfig LocationMockInfo;
-        LocationMockInfo.scenario_ = context->scenario;
-        LocationMockInfo.timeInterval_ = context->timeInterval;
-        context->errCode = LOCATION_SWITCH_ERROR;
-        if (g_locatorClient->IsLocationEnabled()) {
-            bool ret = g_locatorClient->DisableLocationMock(LocationMockInfo);
-            context->errCode = ret ? SUCCESS : LOCATOR_ERROR;
-        }
-    };
-    asyncContext->completeFunc = [&](void *data) -> void {};
-
-    size_t objectArgsNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+    return SetLocationMockState(env, info, false);
 }
 
 napi_value SetMockedLocations(napi_env env, napi_callback_info info)

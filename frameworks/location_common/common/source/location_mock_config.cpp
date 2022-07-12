@@ -21,20 +21,17 @@ namespace Location {
 LocationMockConfig::LocationMockConfig()
 {
     scenario_ = SCENE_UNSET;
-    priority_ = PRIORITY_UNSET;
     timeInterval_ = 0;
 }
 
 LocationMockConfig::LocationMockConfig(const int scenario) : scenario_(scenario)
 {
-    priority_ = PRIORITY_UNSET;
     timeInterval_ = 0;
 }
 
 void LocationMockConfig::Set(LocationMockConfig& mockConfig)
 {
     scenario_ = mockConfig.GetScenario();
-    priority_ = mockConfig.GetPriority();
     timeInterval_ = mockConfig.GetTimeInterval();
 }
 
@@ -43,16 +40,12 @@ bool LocationMockConfig::IsSame(LocationMockConfig& mockConfig)
     if (scenario_ != mockConfig.GetScenario()) {
         return false;
     }
-    if (scenario_ != SCENE_UNSET) {
-        return true;
-    }
-    return priority_ == mockConfig.GetPriority();
+    return true;
 }
 
 void LocationMockConfig::ReadFromParcel(Parcel& parcel)
 {
     scenario_ = parcel.ReadInt32();
-    priority_ = parcel.ReadInt32();
     timeInterval_ = parcel.ReadInt32();
 }
 
@@ -66,7 +59,6 @@ std::unique_ptr<LocationMockConfig> LocationMockConfig::Unmarshalling(Parcel& pa
 bool LocationMockConfig::Marshalling(Parcel& parcel) const
 {
     return parcel.WriteInt32(scenario_) &&
-           parcel.WriteInt32(priority_) &&
            parcel.WriteInt32(timeInterval_);
 }
 } // namespace Location

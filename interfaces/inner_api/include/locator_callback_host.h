@@ -21,6 +21,7 @@
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
+#include "async_context.h"
 #include "uv.h"
 
 namespace OHOS {
@@ -44,6 +45,7 @@ public:
     void DeleteFailHandler();
     void DeleteCompleteHandler();
     void InitLatch();
+    bool InitContext(AsyncContext*& context);
     bool IsSystemGeoLocationApi();
     bool IsSingleLocationRequest();
     void CountDown();

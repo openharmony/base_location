@@ -659,7 +659,45 @@ std::shared_ptr<CountryCode> LocatorAbility::GetIsoCountryCode()
     return countryCodeManager_->GetIsoCountryCode();
 }
 
-bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
+bool LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId)
+{
+    if (obj == nullptr) {
+        LBSLOGE(LOCATOR, "SendLocationMockMsgToGnssSa obj is nullptr");
+        return false;
+    }
+    std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
+    if (msgId == ENABLE_LOCATION_MOCK) {
+        return gnssProxy->EnableMock(config);
+    } else if (msgId == DISABLE_LOCATION_MOCK) {
+        return gnssProxy->DisableMock(config);
+    } else if (msgId == SET_MOCKED_LOCATIONS) {
+        return gnssProxy->SetMocked(config, location);
+    }
+    return false;
+}
+
+bool LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId)
+{
+    if (obj == nullptr) {
+        LBSLOGE(LOCATOR, "SendLocationMockMsgToNetworkSa obj is nullptr");
+        return false;
+    }
+    std::unique_ptr<NetworkAbilityProxy> networkProxy =
+        std::make_unique<NetworkAbilityProxy>(obj);
+    if (msgId == ENABLE_LOCATION_MOCK) {
+        return networkProxy->EnableMock(config);
+    } else if (msgId == DISABLE_LOCATION_MOCK) {
+        return networkProxy->DisableMock(config);
+    } else if (msgId == SET_MOCKED_LOCATIONS) {
+        return networkProxy->SetMocked(config, location);
+    }
+    return false;
+}
+
+bool LocatorAbility::ProcessLocationMockMsg(
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
     if (request != nullptr) {
@@ -668,7 +706,7 @@ bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
     std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxys);
     if (proxys->empty()) {
-        LBSLOGE(LOCATOR, "EnableLocationMock ability empty");
+        LBSLOGE(LOCATOR, "ProcessLocationMockMsg GetProxyName failed");
         return false;
     }
     bool result = true;
@@ -680,94 +718,35 @@ bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
             continue;
         }
         auto remoteObject = proxyMap_->find(abilityName);
-        if (remoteObject != proxyMap_->end()) {
-            auto obj = remoteObject->second;
-            if (abilityName == GNSS_ABILITY) {
-                std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
-                return gnssProxy->EnableMock(config);
-            } else if (abilityName == NETWORK_ABILITY) {
-                std::unique_ptr<NetworkAbilityProxy> networkProxy =
-                    std::make_unique<NetworkAbilityProxy>(obj);
-                return networkProxy->EnableMock(config);
-            }
+        if (remoteObject == proxyMap_->end()) {
+            continue;
+        }
+        auto obj = remoteObject->second;
+        if (abilityName == GNSS_ABILITY) {
+            SendLocationMockMsgToGnssSa(obj, config, location, msgId);
+        } else if (abilityName == NETWORK_ABILITY) {
+            SendLocationMockMsgToNetworkSa(obj, config, location, msgId);
         }
     }
     return result;
 }
 
+bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
+{
+    std::vector<std::shared_ptr<Location>> location;
+    return ProcessLocationMockMsg(config, location, ENABLE_LOCATION_MOCK);
+}
+
 bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
 {
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    if (request != nullptr) {
-        request->SetLocationMockConfig(config);
-    }
-    std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
-    request->GetProxyName(proxys);
-    if (proxys->empty()) {
-        LBSLOGE(LOCATOR, "DisableLocationMock ability empty");
-        return false;
-    }
-
-    bool result = true;
-    for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
-        std::string abilityName = *iter;
-        if (abilityName.compare(GNSS_ABILITY) != 0 &&
-            abilityName.compare(NETWORK_ABILITY) != 0) {
-            LBSLOGD(LOCATOR, "abilityName not match. abilityName = %{public}s", abilityName.c_str());
-            continue;
-        }
-        auto remoteObject = proxyMap_->find(abilityName);
-        if (remoteObject != proxyMap_->end()) {
-            auto obj = remoteObject->second;
-            if (abilityName == GNSS_ABILITY) {
-                std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
-                return gnssProxy->DisableMock(config);
-            } else if (abilityName == NETWORK_ABILITY) {
-                std::unique_ptr<NetworkAbilityProxy> networkProxy =
-                    std::make_unique<NetworkAbilityProxy>(obj);
-                return networkProxy->DisableMock(config);
-            }
-        }
-    }
-    return result;
+    std::vector<std::shared_ptr<Location>> location;
+    return ProcessLocationMockMsg(config, location, DISABLE_LOCATION_MOCK);
 }
 
 bool LocatorAbility::SetMockedLocations(
     const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
 {
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    if (request != nullptr) {
-        request->SetLocationMockConfig(config);
-    }
-    std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
-    request->GetProxyName(proxys);
-    if (proxys->empty()) {
-        LBSLOGE(LOCATOR, "SetMockedLocations ability empty");
-        return false;
-    }
-
-    bool result = true;
-    for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
-        std::string abilityName = *iter;
-        if (abilityName.compare(GNSS_ABILITY) != 0 &&
-            abilityName.compare(NETWORK_ABILITY) != 0) {
-            LBSLOGD(LOCATOR, "abilityName not match. abilityName = %{public}s", abilityName.c_str());
-            continue;
-        }
-        auto remoteObject = proxyMap_->find(abilityName);
-        if (remoteObject != proxyMap_->end()) {
-            auto obj = remoteObject->second;
-            if (abilityName == GNSS_ABILITY) {
-                std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
-                return gnssProxy->SetMocked(config, location);
-            } else if (abilityName == NETWORK_ABILITY) {
-                std::unique_ptr<NetworkAbilityProxy> networkProxy =
-                    std::make_unique<NetworkAbilityProxy>(obj);
-                return networkProxy->SetMocked(config, location);
-            }
-        }
-    }
-    return result;
+    return ProcessLocationMockMsg(config, location, SET_MOCKED_LOCATIONS);
 }
 
 int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,

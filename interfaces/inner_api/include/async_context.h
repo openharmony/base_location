@@ -71,7 +71,7 @@ public:
 class ReverseGeocodeMockAsyncContext : public AsyncContext {
 public:
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
-    
+
     ReverseGeocodeMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}
 
@@ -85,6 +85,7 @@ class LocationMockAsyncContext : public AsyncContext {
 public:
     int32_t scenario;
     int32_t timeInterval;
+    bool enable;
 
     std::vector<std::shared_ptr<Location>> LocationNapi;
     LocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
