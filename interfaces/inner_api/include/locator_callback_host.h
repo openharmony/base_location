@@ -45,7 +45,7 @@ public:
     void DeleteFailHandler();
     void DeleteCompleteHandler();
     void InitLatch();
-    bool InitContext(AsyncContext*& context);
+    bool InitContext(AsyncContext* context);
     bool IsSystemGeoLocationApi();
     bool IsSingleLocationRequest();
     void CountDown();
