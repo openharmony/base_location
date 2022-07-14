@@ -22,6 +22,7 @@
 #include <list>
 #include <mutex>
 #include <string>
+#include "location_async_context.h"
 #include "async_context.h"
 #include "constant_definition.h"
 #include "geo_coding_mock_info.h"

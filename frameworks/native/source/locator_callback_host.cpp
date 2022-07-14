@@ -19,9 +19,8 @@
 #include "ipc_skeleton.h"
 #include "i_locator_callback.h"
 #include "location_log.h"
-#include "location_napi_adapter.h"
 #include "napi_util.h"
-#include "locator.h"
+#include "location_async_context.h"
 
 namespace OHOS {
 namespace Location {
@@ -177,6 +176,24 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
     });
 }
 
+bool LocatorCallbackHost::InitContext(AsyncContext* context)
+{
+    if (context == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        return false;
+    }
+    context->env = m_env;
+    if (IsSystemGeoLocationApi()) {
+        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
+        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
+        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
+    } else {
+        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+        context->deferred = m_deferred;
+    }
+    return true;
+}
+
 bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 {
     std::shared_lock<std::shared_mutex> guard(m_mutex);
@@ -204,14 +221,8 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return false;
     }
-    context->env = m_env;
-    if (IsSystemGeoLocationApi()) {
-        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
-        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
-        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
-    } else {
-        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
-        context->deferred = m_deferred;
+    if (!InitContext(context)) {
+        LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
     context->errCode = errorCode;
     work->data = context;
@@ -242,14 +253,9 @@ void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return;
     }
-    context->env = m_env;
-    if (IsSystemGeoLocationApi()) {
-        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
-        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
-        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
-    } else {
-        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
-        context->deferred = m_deferred;
+    auto asyncContext = static_cast<AsyncContext*>(context);
+    if (!InitContext(asyncContext)) {
+        LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
     context->loc = std::make_unique<Location>(*location);
     work->data = context;

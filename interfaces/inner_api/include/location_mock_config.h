@@ -27,6 +27,16 @@ public:
     explicit LocationMockConfig(const int scenario);
     virtual ~LocationMockConfig() = default;
 
+    inline int GetTimeInterval() const
+    {
+        return timeInterval_;
+    }
+
+    inline void SetTimeInterval(int timeInterval)
+    {
+        timeInterval_ = timeInterval;
+    }
+
     inline int GetScenario() const
     {
         return scenario_;
@@ -37,25 +47,6 @@ public:
         scenario_ = scenario;
     }
 
-    inline void SetPriority(int priority)
-    {
-        priority_ = priority;
-    }
-
-    inline int GetPriority() const
-    {
-        return priority_;
-    }
-
-    inline int GetTimeInterval() const
-    {
-        return timeInterval_;
-    }
-
-    inline void SetTimeInterval(int timeInterval)
-    {
-        timeInterval_ = timeInterval;
-    }
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<LocationMockConfig> Unmarshalling(Parcel& parcel);
@@ -65,7 +56,6 @@ public:
 public:
     int scenario_;
     int timeInterval_;
-    int priority_;
 };
 } // namespace Location
 } // namespace OHOS
