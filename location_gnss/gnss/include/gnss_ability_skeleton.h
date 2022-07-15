@@ -38,7 +38,7 @@ public:
     virtual void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) = 0;
 
     virtual int GetCachedGnssLocationsSize() = 0;
-    virtual void FlushCachedGnssLocations() = 0;
+    virtual int FlushCachedGnssLocations() = 0;
     virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;

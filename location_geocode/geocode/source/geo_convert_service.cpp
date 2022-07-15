@@ -70,23 +70,23 @@ bool GeoConvertService::Init()
 
 int GeoConvertService::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply)
 {
+    reply.WriteInt32(REPLY_CODE_UNSUPPORT);
     reply.WriteInt32(0);
-    reply.WriteInt32(1);
     return EXCEPTION;
 }
 
 int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
+    reply.WriteInt32(REPLY_CODE_UNSUPPORT);
     reply.WriteInt32(0);
-    reply.WriteInt32(1);
     return EXCEPTION;
 }
 
 int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
     LBSLOGD(GEO_CONVERT, "GetAddressByLocationName");
+    reply.WriteInt32(REPLY_CODE_UNSUPPORT);
     reply.WriteInt32(0);
-    reply.WriteInt32(1);
     return EXCEPTION;
 }
 

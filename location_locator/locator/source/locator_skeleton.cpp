@@ -198,7 +198,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
                 ret = SWITCH_OFF_EXCEPTION;
                 break;
             }
-            FlushCachedGnssLocations();
+            ret = FlushCachedGnssLocations();
             break;
         }
         case SEND_COMMAND: {

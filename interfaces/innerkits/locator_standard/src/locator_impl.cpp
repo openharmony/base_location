@@ -214,11 +214,10 @@ int LocatorImpl::GetCachedGnssLocationsSize()
     return client_->GetCachedGnssLocationsSize();
 }
 
-bool LocatorImpl::FlushCachedGnssLocations()
+int LocatorImpl::FlushCachedGnssLocations()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocations()");
-    client_->FlushCachedGnssLocations();
-    return true;
+    return client_->FlushCachedGnssLocations();
 }
 
 bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)

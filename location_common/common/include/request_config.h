@@ -87,6 +87,16 @@ public:
         return fixNumber_;
     }
 
+    inline void SetTimeOut(int time)
+    {
+        timeOut_ = time;
+    }
+
+    inline int GetTimeOut()
+    {
+        return timeOut_;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -95,11 +105,12 @@ public:
     bool IsSame(RequestConfig& requestConfig);
 private:
     int scenario_;
-    int timeInterval_;
+    int timeInterval_; /* Units are seconds */
     int distanceInterval_;
     float maxAccuracy_;
     int fixNumber_;
     int priority_;
+    int timeOut_;
 };
 } // namespace Location
 } // namespace OHOS

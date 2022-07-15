@@ -75,7 +75,9 @@ public:
     virtual void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
 
     virtual int GetCachedGnssLocationsSize() = 0;
-    virtual bool FlushCachedGnssLocations() = 0;
+
+    virtual int FlushCachedGnssLocations() = 0;
+
     virtual bool SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
 
     virtual bool AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;

@@ -17,10 +17,12 @@
 #define LOCATOR_CALLBACK_HOST_H
 
 #include <shared_mutex>
+#include "common_utils.h"
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
-#include "location_util.h"
+#include "async_context.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace Location {
@@ -31,20 +33,26 @@ public:
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
-    bool Send(std::unique_ptr<Location>& location);
     void DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work);
     bool SendErrorCode(const int& errorCode);
 
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
+    void DeleteAllCallbacks();
     void DeleteHandler();
     void DeleteSuccessHandler();
     void DeleteFailHandler();
     void DeleteCompleteHandler();
+    void InitLatch();
+    bool InitContext(AsyncContext* context);
+    bool IsSystemGeoLocationApi();
+    bool IsSingleLocationRequest();
+    void CountDown();
+    void Wait(int time);
+    int GetCount();
+    void SetCount(int count);
 
-    pid_t m_lastCallingPid;
-    pid_t m_lastCallingUid;
     napi_env m_env;
     napi_ref m_handlerCb;
     napi_ref m_successHandlerCb;
@@ -53,6 +61,8 @@ public:
     int m_fixNumber;
     napi_deferred m_deferred;
     std::shared_mutex m_mutex;
+    CountDownLatch* m_latch;
+    std::unique_ptr<Location> m_singleLocation;
 };
 } // namespace Location
 } // namespace OHOS

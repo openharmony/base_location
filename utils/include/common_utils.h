@@ -16,10 +16,13 @@
 #ifndef COMMON_UTILS_H
 #define COMMON_UTILS_H
 
-#include "iremote_object.h"
-#include "string_ex.h"
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include "constant_definition.h"
+#include "iremote_object.h"
 #include "location_log.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace Location {
@@ -45,6 +48,7 @@ const int EXCEPTION = -1;
 const int MSG_UNPROCESSED = -2;
 const int SWITCH_OFF_EXCEPTION = -3;
 const int SECURITY_EXCEPTION = 1000;
+const int REPLY_CODE_UNSUPPORT = -5;
 
 const int EVENT_REGITERED_MAX_TRY_TIME = 30;
 const int EVENT_REGITERED_MAX_TRY_INTERVAL = 5000;
@@ -53,6 +57,18 @@ const std::string DFT_EXCEPTION_EVENT = "GnssException";
 const int DFT_IPC_CALLING_ERROR = 201;
 const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
+const int SEC_TO_MILLI_SEC = 1000;
+
+const char DEFAULT_STRING[] = "error";
+const std::wstring DEFAULT_WSTRING = L"error";
+const std::u16string DEFAULT_USTRING = u"error";
+
+#define CHK_PARCEL_RETURN_VALUE(ret) \
+{ \
+    if ((ret) != true) { \
+        return false; \
+    } \
+}
 
 enum class ServiceRunningState {
     STATE_NOT_START,
@@ -71,6 +87,7 @@ enum {
 
 enum {
     SUCCESS = 0,
+    NOT_SUPPORTED = 100,
     INPUT_PARAMS_ERROR = 101,
     REVERSE_GEOCODE_ERROR,
     GEOCODE_ERROR,
@@ -78,6 +95,7 @@ enum {
     LOCATION_SWITCH_ERROR,
     LAST_KNOWN_LOCATION_ERROR,
     LOCATION_REQUEST_TIMEOUT_ERROR,
+    QUERY_COUNTRY_CODE_ERROR,
 };
 
 class CommonUtils {
@@ -95,6 +113,24 @@ public:
     static bool CheckPermission(const std::string &permission);
     static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
+    static std::string Str16ToStr8(std::u16string str);
+    static bool DoubleEqual(double a, double b);
+};
+
+class CountDownLatch {
+public:
+    CountDownLatch()
+    {
+        count_ = 0;
+    }
+    void Wait(int time);
+    void CountDown();
+    int GetCount();
+    void SetCount(int count);
+private:
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    std::atomic<int> count_;
 };
 } // namespace Location
 } // namespace OHOS

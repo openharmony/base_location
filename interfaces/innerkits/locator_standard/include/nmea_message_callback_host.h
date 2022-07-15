@@ -20,7 +20,7 @@
 #include <string>
 #include "i_nmea_message_callback.h"
 #include "iremote_stub.h"
-#include "location_util.h"
+#include "napi_util.h"
 #include "napi/native_api.h"
 
 namespace OHOS {

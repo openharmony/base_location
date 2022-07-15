@@ -42,7 +42,6 @@ const uint32_t EVENT_INIT_REQUEST_MANAGER = 0x0002;
 const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
-const uint32_t RETRY_INTERVAL_2_SECONDS = 2 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t SET_ENABLE = 3;
 const uint32_t GET_CACHED_LOCATION = 2;
@@ -163,7 +162,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case EVENT_INIT_REQUEST_MANAGER: {
             if (!DelayedSingleton<RequestManager>::GetInstance()->InitSystemListeners()) {
-                SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
+                LBSLOGE(LOCATOR, "InitSystemListeners failed");
             }
             break;
         }
@@ -279,12 +278,6 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
-    if (state == EXCEPTION) {
-        auto event = AppExecFwk::InnerEvent::Get(EVENT_UPDATE_SA, 0);
-        locatorHandler_->SendHighPriorityEvent(event, RETRY_INTERVAL_2_SECONDS);
-        return;
-    }
-
     bool currentEnable = isEnabled_;
     isEnabled_ = (state == ENABLED);
     if (isEnabled_ == currentEnable) {
@@ -550,7 +543,7 @@ int LocatorAbility::GetCachedGnssLocationsSize()
     return size;
 }
 
-void LocatorAbility::FlushCachedGnssLocations()
+int LocatorAbility::FlushCachedGnssLocations()
 {
     auto remoteObject = proxyMap_->find(GNSS_ABILITY);
     if (remoteObject != proxyMap_->end()) {
@@ -559,14 +552,15 @@ void LocatorAbility::FlushCachedGnssLocations()
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return;
+            return EXCEPTION;
         }
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
+            return EXCEPTION;
         }
 
-        obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
+        return obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
     }
+    return EXCEPTION;
 }
 
 void LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -756,7 +750,7 @@ void LocatorAbility::RegisterAction()
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locatorEventSubscriber_);
-    if (result != 0) {
+    if (!result) {
         LBSLOGE(LOCATOR, "Failed to subscriber locator event, result = %{public}d", result);
         isActionRegistered = false;
     } else {

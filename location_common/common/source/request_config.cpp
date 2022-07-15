@@ -26,6 +26,7 @@ RequestConfig::RequestConfig()
     distanceInterval_ = 0; // no distance interval limit for reporting location
     maxAccuracy_ = 0.0; // no accuracy limit for reporting location
     fixNumber_ = 0; // no fix size limit for reporting location
+    timeOut_ = 0;
 }
 
 RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
@@ -35,6 +36,7 @@ RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
     distanceInterval_ = 0; // no distance interval limit for reporting location
     maxAccuracy_ = 0.0; // no accuracy limit for reporting location
     fixNumber_ = 0; // no fix size limit for reporting location
+    timeOut_ = 0;
 }
 
 void RequestConfig::Set(RequestConfig& requestConfig)

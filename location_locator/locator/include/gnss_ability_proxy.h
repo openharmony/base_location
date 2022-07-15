@@ -42,7 +42,7 @@ public:
         const sptr<IRemoteObject>& callback) override;
     void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
     int GetCachedGnssLocationsSize() override;
-    void FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
