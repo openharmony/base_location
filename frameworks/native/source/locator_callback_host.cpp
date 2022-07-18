@@ -151,7 +151,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 delete work;
                 return;
             }
-            napi_open_handle_scope(context->env, &scope);
+            NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
                 delete context;
@@ -161,8 +161,9 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
             if (context->callback[FAIL_CALLBACK] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler);
+                NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler));
                 std::string msg = GetErrorMsgByCode(context->errCode);
                 CreateFailCallBackParams(*context, msg, context->errCode);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
@@ -170,7 +171,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
                 }
             }
-            napi_close_handle_scope(context->env, scope);
+            NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
     });
@@ -206,7 +207,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         return false;
     }
     uv_loop_s *loop = nullptr;
-    napi_get_uv_event_loop(m_env, &loop);
+    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
         return false;
@@ -284,7 +285,7 @@ void LocatorCallbackHost::DeleteHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_handlerCb && m_env) {
-        napi_delete_reference(m_env, m_handlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
         m_handlerCb = nullptr;
     }
 }
@@ -294,7 +295,7 @@ void LocatorCallbackHost::DeleteSuccessHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteSuccessHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_successHandlerCb && m_env) {
-        napi_delete_reference(m_env, m_successHandlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_successHandlerCb));
         m_successHandlerCb = nullptr;
     }
 }
@@ -304,7 +305,7 @@ void LocatorCallbackHost::DeleteFailHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteFailHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_failHandlerCb && m_env) {
-        napi_delete_reference(m_env, m_failHandlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_failHandlerCb));
         m_failHandlerCb = nullptr;
     }
 }
@@ -314,7 +315,7 @@ void LocatorCallbackHost::DeleteCompleteHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteCompleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_completeHandlerCb && m_env) {
-        napi_delete_reference(m_env, m_completeHandlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_completeHandlerCb));
         m_completeHandlerCb = nullptr;
     }
 }
