@@ -104,8 +104,8 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
     request.locale = Str16ToStr8(data.ReadString16());
     for (size_t i = 0; i < mockInfo_.size(); i++) {
         std::shared_ptr<GeocodingMockInfo> info = mockInfo_[i];
-        if (!CommonUtils::DoubleEqual(request.latitude, info->GetReverseGeocodeRequest()->latitude) ||
-            !CommonUtils::DoubleEqual(request.longitude, info->GetReverseGeocodeRequest()->longitude)) {
+        if (!CommonUtils::DoubleEqual(request.latitude, info->GetLocation()->latitude) ||
+            !CommonUtils::DoubleEqual(request.longitude, info->GetLocation()->longitude)) {
             continue;
         }
         arraySize++;

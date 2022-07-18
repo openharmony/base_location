@@ -25,7 +25,7 @@ GeocodingMockInfo::GeocodingMockInfo()
     geoAddress_ = std::make_shared<GeoAddress>();
 }
 
-std::shared_ptr<ReverseGeocodeRequest> GeocodingMockInfo::GetReverseGeocodeRequest()
+std::shared_ptr<ReverseGeocodeRequest> GeocodingMockInfo::GetLocation()
 {
     return location_;
 }
@@ -35,7 +35,7 @@ std::shared_ptr<GeoAddress> GeocodingMockInfo::GetGeoAddressInfo()
     return geoAddress_;
 }
 
-void GeocodingMockInfo::SetReverseGeocodeRequest(std::shared_ptr<ReverseGeocodeRequest> request)
+void GeocodingMockInfo::SetLocation(std::shared_ptr<ReverseGeocodeRequest> request)
 {
     location_ = request;
 }

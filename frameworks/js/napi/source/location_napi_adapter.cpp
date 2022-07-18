@@ -636,14 +636,13 @@ napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
 
-    ReverseGeocodeMockAsyncContext *asyncContext = new (std::nothrow) ReverseGeocodeMockAsyncContext(env);
+    AsyncContext *asyncContext = new (std::nothrow) AsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "EnableReverseGeocodingMock",
         NAPI_AUTO_LENGTH, &asyncContext->resourceName));
     asyncContext->executeFunc = [&](void *data) -> void {
-        ReverseGeocodeMockAsyncContext *context = static_cast<ReverseGeocodeMockAsyncContext *>(data);
+        AsyncContext *context = static_cast<AsyncContext *>(data);
         bool ret = g_locatorClient->EnableReverseGeocodingMock();
         context->errCode = ret ? SUCCESS : REVERSE_GEOCODE_ERROR;
     };
@@ -661,14 +660,13 @@ napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
 
-    ReverseGeocodeMockAsyncContext *asyncContext = new (std::nothrow) ReverseGeocodeMockAsyncContext(env);
+    AsyncContext *asyncContext = new (std::nothrow) AsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "DisableReverseGeocodingMock",
         NAPI_AUTO_LENGTH, &asyncContext->resourceName));
     asyncContext->executeFunc = [&](void *data) -> void {
-        ReverseGeocodeMockAsyncContext *context = static_cast<ReverseGeocodeMockAsyncContext *>(data);
+        AsyncContext *context = static_cast<AsyncContext *>(data);
         bool ret = g_locatorClient->DisableReverseGeocodingMock();
         context->errCode = ret ? SUCCESS : REVERSE_GEOCODE_ERROR;
     };
