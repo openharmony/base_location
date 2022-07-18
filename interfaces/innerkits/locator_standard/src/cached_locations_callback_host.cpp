@@ -18,7 +18,7 @@
 #include "ipc_skeleton.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
-#include "location_util.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {

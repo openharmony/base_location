@@ -435,21 +435,22 @@ int LocatorProxy::GetCachedGnssLocationsSize()
     return size;
 }
 
-void LocatorProxy::FlushCachedGnssLocations()
+int LocatorProxy::FlushCachedGnssLocations()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
+        return EXCEPTION;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "FlushCachedGnssLocations remote is null");
-        return;
+        return EXCEPTION;
     }
     int error = remote->SendRequest(FLUSH_CACHED_LOCATIONS, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", error);
+    return error;
 }
 
 void LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)

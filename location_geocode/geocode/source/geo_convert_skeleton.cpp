@@ -36,7 +36,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         return EXCEPTION;
     }
 
-    int ret;
+    int ret = REPLY_NO_EXCEPTION;
     switch (code) {
         case IS_AVAILABLE: {
             ret = IsGeoConvertAvailable(data, reply);

@@ -261,12 +261,14 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 
 int GnssAbility::GetCachedGnssLocationsSize()
 {
-    int size = 0;
+    int size = -1;
     return size;
 }
 
-void GnssAbility::FlushCachedGnssLocations()
+int GnssAbility::FlushCachedGnssLocations()
 {
+    LBSLOGE(GNSS, "CachedGnssLocations fuction not support");
+    return REPLY_CODE_UNSUPPORT;
 }
 
 void GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -463,7 +465,7 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
     std::string result;
     dumper.GnssDump(SaDumpInfo, vecArgs, result);
     if (!SaveStringToFd(fd, result)) {
-        LBSLOGE(GEO_CONVERT, "Gnss save string to fd failed!");
+        LBSLOGE(GNSS, "Gnss save string to fd failed!");
         return ERR_OK;
     }
     return ERR_OK;

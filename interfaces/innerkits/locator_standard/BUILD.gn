@@ -38,7 +38,7 @@ ohos_shared_library("locator_sdk") {
     "//base/location/interfaces/innerkits/locator_standard/src/cached_locations_callback_host.cpp",
     "//base/location/interfaces/innerkits/locator_standard/src/gnss_status_callback_host.cpp",
     "//base/location/interfaces/innerkits/locator_standard/src/location_switch_callback_host.cpp",
-    "//base/location/interfaces/innerkits/locator_standard/src/location_util.cpp",
+    "//base/location/interfaces/innerkits/locator_standard/src/napi_util.cpp",
     "//base/location/interfaces/innerkits/locator_standard/src/locator.cpp",
     "//base/location/interfaces/innerkits/locator_standard/src/locator_callback_host.cpp",
     "//base/location/interfaces/innerkits/locator_standard/src/locator_impl.cpp",

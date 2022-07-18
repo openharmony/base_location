@@ -154,5 +154,64 @@ std::string CommonUtils::InitDeviceId()
     std::string deviceId;
     return deviceId;
 }
+
+void CountDownLatch::Wait(int time)
+{
+    LBSLOGD(LOCATOR_STANDARD, "enter wait, time = %{public}d", time);
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (count_ == 0) {
+        LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
+        return;
+    }
+    condition_.wait_for(lock, std::chrono::seconds(time / SEC_TO_MILLI_SEC), [&]() {return count_ == 0;});
+}
+
+void CountDownLatch::CountDown()
+{
+    LBSLOGD(LOCATOR_STANDARD, "enter CountDown");
+    std::unique_lock<std::mutex> lock(mutex_);
+    int old_c = count_.load();
+    while (old_c > 0) {
+        if (count_.compare_exchange_strong(old_c, old_c - 1)) {
+            if (old_c == 1) {
+                LBSLOGD(LOCATOR_STANDARD, "notify_all");
+                condition_.notify_all();
+            }
+            break;
+        }
+        old_c = count_.load();
+    }
+}
+
+int CountDownLatch::GetCount()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    return count_;
+}
+
+void CountDownLatch::SetCount(int count)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    count_ = count;
+}
+
+std::string CommonUtils::Str16ToStr8(std::u16string str)
+{
+    if (str == DEFAULT_USTRING) {
+        return DEFAULT_STRING;
+    }
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(DEFAULT_STRING);
+    std::string result = convert.to_bytes(str);
+    return result == DEFAULT_STRING ? "" : result;
+}
+
+bool CommonUtils::DoubleEqual(double a, double b)
+{
+    if (fabs(a - b) < 1e-6) {
+        return true;
+    } else {
+        return false;
+    }
+}
 } // namespace Location
 } // namespace OHOS

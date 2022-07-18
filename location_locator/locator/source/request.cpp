@@ -111,8 +111,8 @@ void Request::SetLastLocation(const std::unique_ptr<Location>& location)
     this->lastLocation_->SetLongitude(location->GetLongitude());
     this->lastLocation_->SetAltitude(location->GetAltitude());
     this->lastLocation_->SetAccuracy(location->GetAccuracy());
-    this->lastLocation_->SetDirection(location->GetSpeed());
-    this->lastLocation_->SetLatitude(location->GetDirection());
+    this->lastLocation_->SetSpeed(location->GetSpeed());
+    this->lastLocation_->SetDirection(location->GetDirection());
     this->lastLocation_->SetTimeStamp(location->GetTimeStamp());
     this->lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
 }

@@ -85,7 +85,7 @@ public:
     int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
 
     int GetCachedGnssLocationsSize() override;
-    void FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
@@ -121,7 +121,7 @@ private:
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> proxyMap_;
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
-    std::unique_ptr<ReportManager> reportManager_;
+    std::shared_ptr<ReportManager> reportManager_;
 };
 } // namespace Location
 } // namespace OHOS

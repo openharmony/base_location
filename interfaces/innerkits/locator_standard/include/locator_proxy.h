@@ -58,7 +58,7 @@ public:
     int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
 
     int GetCachedGnssLocationsSize() override;
-    void FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
 
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;

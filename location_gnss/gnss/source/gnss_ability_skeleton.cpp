@@ -103,7 +103,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case FLUSH_CACHED: {
-            FlushCachedGnssLocations();
+            ret = FlushCachedGnssLocations();
             break;
         }
         case SEND_COMMANDS: {
