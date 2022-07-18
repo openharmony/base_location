@@ -29,12 +29,31 @@
         ],
         "deps": {
             "components": [
-                "ipc",
-                "common_event_service",
+                "core_service",
+                "ability_runtime",
+                "hisysevent_native",
+                "napi",
+                "samgr_standard",
+                "ability_base",
+                "startup_l2",
                 "hiviewdfx_hilog_native",
-                "access_token"
+                "common_event_service",
+                "cellular_data",
+                "safwk",
+                "hilog_native",
+                "eventhandler",
+                "init",
+                "drivers_interface_location_agnss",
+                "os_account",
+                "i18n",
+                "utils_base",
+                "ipc",
+                "access_token",
+                "drivers_interface_location_gnss"
             ],
-            "third_party": []
+            "third_party": [
+                "libuv"
+            ]
         },
         "build": {
             "sub_component": [
