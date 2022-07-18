@@ -66,7 +66,7 @@ public:
 
     std::vector<std::shared_ptr<Location>> LocationNapi;
     LocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), scenario(0), timeInterval(0) {}
+        : AsyncContext(env, work, deferred), scenario(0), timeInterval(0), enable(false) {}
 
     LocationMockAsyncContext() = delete;
 

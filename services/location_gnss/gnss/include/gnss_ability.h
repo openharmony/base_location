@@ -115,7 +115,7 @@ private:
     bool IsGnssEnabled();
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
-    size_t locationIndex_ = 0;
+    size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
     std::shared_ptr<GnssHandler> gnssHandler_;

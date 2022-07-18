@@ -503,12 +503,12 @@ bool GnssAbility::IsMockEnabled()
 void GnssAbility::ProcessReportLocationMock()
 {
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
-    if (locationIndex_ < mockLocationArray.size()) {
-        ReportMockedLocation(mockLocationArray[locationIndex_++]);
+    if (mockLocationIndex_ < mockLocationArray.size()) {
+        ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
         gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
     } else {
         ClearLocationMock();
-        locationIndex_ = 0;
+        mockLocationIndex_ = 0;
     }
 }
 
