@@ -365,13 +365,11 @@ napi_value GetNapiValueByKey(napi_env env, const std::string keyChar, napi_value
         LBSLOGE(LOCATOR_STANDARD, "GetNapiValueByKey object is nullptr.");
         return nullptr;
     }
-    napi_value key = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, keyChar.c_str(), NAPI_AUTO_LENGTH, &key));
     bool result = false;
-    NAPI_CALL(env, napi_has_property(env, object, key, &result));
+    NAPI_CALL(env, napi_has_named_property(env, object, keyChar.c_str(), &result));
     if (result) {
         napi_value value = nullptr;
-        NAPI_CALL(env, napi_get_property(env, object, key, &value));
+        NAPI_CALL(env, napi_get_named_property(env, object, keyChar.c_str(), &value));
         return value;
     }
     return nullptr;
@@ -493,7 +491,7 @@ bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
         std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
         GetLocationInfo(env, napiElement, "location", request);
         GetGeoAddressInfo(env, napiElement, "geoAddress", geoAddress);
-        info->SetReverseGeocodeRequest(request);
+        info->SetLocation(request);
         info->SetGeoAddressInfo(geoAddress);
         mockInfo.push_back(info);
     }
@@ -761,6 +759,11 @@ void SendResultToJs(const napi_env& env, AsyncContext* context)
 {
     if (context == nullptr || env == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "SendResultToJs input para error");
+        return;
+    }
+
+    if (context->result[PARAM1] == 0) {
+        LBSLOGD(LOCATOR_STANDARD, "empty message, just return.");
         return;
     }
 
