@@ -23,7 +23,6 @@
 #include "event_handler.h"
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
-
 #include "common_hisysevent.h"
 #include "common_utils.h"
 #include "geo_convert_proxy.h"
@@ -34,6 +33,8 @@
 #include "request.h"
 #include "request_manager.h"
 #include "report_manager.h"
+#include "country_code_manager.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -69,6 +70,8 @@ public:
     void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
+    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) override;
     int StopLocating(sptr<ILocatorCallback>& callback) override;
@@ -85,14 +88,29 @@ public:
     int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
 
     int GetCachedGnssLocationsSize() override;
-    void FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    std::shared_ptr<CountryCode> GetIsoCountryCode() override;
+    bool EnableLocationMock(const LocationMockConfig& config) override;
+    bool DisableLocationMock(const LocationMockConfig& config) override;
+    bool SetMockedLocations(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+
+    bool EnableReverseGeocodingMock() override;
+    bool DisableReverseGeocodingMock() override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
 
     int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
     int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
+    bool ProcessLocationMockMsg(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+    bool SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+    bool SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
@@ -122,6 +140,7 @@ private:
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
+    std::shared_ptr<CountryCodeManager> countryCodeManager_;
 };
 } // namespace Location
 } // namespace OHOS

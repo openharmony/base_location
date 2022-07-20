@@ -59,6 +59,14 @@ void SubAbility::HandleRefrashRequirements()
     lastRecord_->Set(*newRecord_);
 }
 
+int SubAbility::GetRequestNum()
+{
+    if (newRecord_ == nullptr) {
+        return 0;
+    }
+    return newRecord_->Size();
+}
+
 void SubAbility::HandleLocalRequest(WorkRecord &record)
 {
     HandleRemoveRecord(record);
@@ -139,6 +147,64 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
 void SubAbility::HandleRemoteRequest(bool state, std::string deviceId)
 {
     HandleRefrashRequirements();
+}
+
+bool SubAbility::EnableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGI(label_, "EnableLocationMock current state is %{public}d", mockEnabled_);
+    mockEnabled_ = true;
+    return true;
+}
+
+bool SubAbility::DisableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGI(label_, "DisableLocationMock current state is %{public}d", mockEnabled_);
+    mockEnabled_ = false;
+    return true;
+}
+
+bool SubAbility::SetMockedLocations(const LocationMockConfig& config,
+    const std::vector<std::shared_ptr<Location>> &location)
+{
+    if (!mockEnabled_) {
+        LBSLOGE(label_, "SetMockedLocations current state is %{public}d, need enbale it", mockEnabled_);
+        return false;
+    }
+    CacheLocationMock(location);
+    mockTimeInterval_ = config.GetTimeInterval();
+    SendReportMockLocationEvent();
+    return true;
+}
+
+void SubAbility::CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location)
+{
+    int locationSize = location.size();
+    ClearLocationMock();
+    for (int i = 0; i < locationSize; i++) {
+        MessageParcel data;
+        location.at(i)->Marshalling(data);
+        mockLoc_.push_back(Location::UnmarshallingShared(data));
+    }
+}
+
+bool SubAbility::IsLocationMocked()
+{
+    return mockEnabled_;
+}
+
+int SubAbility::GetTimeIntervalMock()
+{
+    return mockTimeInterval_;
+}
+
+std::vector<std::shared_ptr<Location>> SubAbility::GetLocationMock()
+{
+    return mockLoc_;
+}
+
+void SubAbility::ClearLocationMock()
+{
+    mockLoc_.clear();
 }
 } // namespace Location
 } // namespace OHOS

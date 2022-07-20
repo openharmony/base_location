@@ -178,11 +178,11 @@ int GnssAbilityProxy::GetCachedGnssLocationsSize()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "GetCachedGnssLocationsSize remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     int error = remote->SendRequest(ISubAbility::GET_CACHED_SIZE, data, reply, option);
@@ -195,7 +195,7 @@ int GnssAbilityProxy::GetCachedGnssLocationsSize()
     return size;
 }
 
-void GnssAbilityProxy::FlushCachedGnssLocations()
+int GnssAbilityProxy::FlushCachedGnssLocations()
 {
     MessageParcel data;
     MessageParcel reply;
@@ -203,14 +203,15 @@ void GnssAbilityProxy::FlushCachedGnssLocations()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "FlushCachedGnssLocations remote is null");
-        return;
+        return REPLY_CODE_EXCEPTION;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(ISubAbility::FLUSH_CACHED, data, reply, option);
     LBSLOGD(GNSS, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", error);
+    return error;
 }
 
 void GnssAbilityProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -279,6 +280,84 @@ void GnssAbilityProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     }
     int error = remote->SendRequest(ISubAbility::REMOVE_FENCE_INFO, data, reply, option);
     LBSLOGD(GNSS, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
+}
+
+bool GnssAbilityProxy::EnableMock(const LocationMockConfig& config)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(GNSS, "EnableLocationMock remote is null");
+        return false;
+    }
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(GNSS, "write interfaceToken fail!");
+        return false;
+    }
+    config.Marshalling(data);
+    int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
+    LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", error);
+    bool result = false;
+    if (error == NO_ERROR) {
+        result = reply.ReadBool();
+    }
+    return result;
+}
+
+bool GnssAbilityProxy::DisableMock(const LocationMockConfig& config)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(GNSS, "DisableLocationMock remote is null");
+        return false;
+    }
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(GNSS, "write interfaceToken fail!");
+        return false;
+    }
+    config.Marshalling(data);
+    int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
+    LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", error);
+    bool result = false;
+    if (error == NO_ERROR) {
+        result = reply.ReadBool();
+    }
+    return result;
+}
+
+bool GnssAbilityProxy::SetMocked(
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(GNSS, "SetMockedLocations remote is null");
+        return false;
+    }
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(GNSS, "write interfaceToken fail!");
+        return false;
+    }
+    config.Marshalling(data);
+    int locationSize = static_cast<int>(location.size());
+    data.WriteInt32(locationSize);
+    for (int i = 0; i < locationSize; i++) {
+        location.at(i)->Marshalling(data);
+    }
+    int error = remote->SendRequest(ISubAbility::SET_MOCKED_LOCATIONS, data, reply, option);
+    LBSLOGD(GNSS, "Proxy::SetMockedLocations Transact ErrCode = %{public}d", error);
+    bool result = false;
+    if (error == NO_ERROR) {
+        result = reply.ReadBool();
+    }
+    return result;
 }
 } // namespace Location
 } // namespace OHOS

@@ -19,10 +19,12 @@
 #include <dlfcn.h>
 #include <map>
 #include <unistd.h>
+#include <singleton.h>
 #include "common_hisysevent.h"
 #include "i_locator_callback.h"
 #include "iremote_broker.h"
 #include "location_log.h"
+#include "location_mock_config.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -50,9 +52,19 @@ public:
         REPORT_GNSS_SESSION_STATUS = 18,
         REPORT_SV = 19,
         REPORT_NMEA = 20,
+        GET_ISO_COUNTRY_CODE = 21,
+        ENABLE_LOCATION_MOCK = 22,
+        DISABLE_LOCATION_MOCK = 23,
+        SET_MOCKED_LOCATIONS = 24,
+        ENABLE_REV_GEOCODE_MOCK = 25,
+        DISABLE_REV_GEOCODE_MOCK = 26,
     };
     virtual void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) = 0;
     virtual void SetEnable(bool state) = 0;
+    virtual bool EnableMock(const LocationMockConfig& config) = 0;
+    virtual bool DisableMock(const LocationMockConfig& config) = 0;
+    virtual bool SetMocked(const LocationMockConfig& config,
+        const std::vector<std::shared_ptr<Location>> &location) = 0;
 };
 
 class SubAbility {
@@ -65,12 +77,22 @@ public:
     void HandleSelfRequest(pid_t pid, pid_t uid, bool state);
     void HandleRemoteRequest(bool state, std::string deviceId);
     void HandleRefrashRequirements();
+    int GetRequestNum();
+    bool EnableLocationMock(const LocationMockConfig& config);
+    bool DisableLocationMock(const LocationMockConfig& config);
+    bool SetMockedLocations(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location);
 
+    int GetTimeIntervalMock();
+    bool IsLocationMocked();
+    std::vector<std::shared_ptr<Location>> GetLocationMock();
+    void ClearLocationMock();
 private:
     void HandleLocalRequest(WorkRecord &record);
     void HandleRemoveRecord(WorkRecord &record);
     void HandleAddRecord(WorkRecord &record);
+    void CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location);
     virtual void RequestRecord(WorkRecord &workRecord, bool isAdded) = 0;
+    virtual void SendReportMockLocationEvent() = 0;
 
     OHOS::HiviewDFX::HiLogLabel label_;
     sptr<IRemoteObject> ability_;
@@ -79,6 +101,9 @@ private:
     std::u16string capability_ = u"";
     std::unique_ptr<WorkRecord> lastRecord_;
     std::unique_ptr<WorkRecord> newRecord_;
+    int mockTimeInterval_ = 0;
+    bool mockEnabled_ = false;
+    std::vector<std::shared_ptr<Location>> mockLoc_;
 };
 } // namespace Location
 } // namespace OHOS

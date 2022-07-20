@@ -31,6 +31,9 @@ public:
     void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
     void SetEnable(bool state) override;
     void SelfRequest(bool state) override;
+    bool EnableMock(const LocationMockConfig& config) override;
+    bool DisableMock(const LocationMockConfig& config) override;
+    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
 private:
     static inline BrokerDelegator<NetworkAbilityProxy> delegator_;
 };

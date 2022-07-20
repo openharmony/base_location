@@ -106,14 +106,41 @@ public:
     {
         timeSinceBoot_ = timeStamp;
     }
+    inline std::string GetAdditions() const
+    {
+        return additions_;
+    }
+
+    inline void SetAdditions(const std::string &additions)
+    {
+        additions_ = additions;
+    }
+
+    inline int64_t GetAdditionSize() const
+    {
+        return additionSize_;
+    }
+
+    inline void SetAdditionSize(int64_t size)
+    {
+        additionSize_ = size;
+    }
+
+    inline bool GetIsFromMock() const
+    {
+        return isFromMock_;
+    }
+
+    inline void SetIsFromMock(bool fromMock)
+    {
+        isFromMock_ = fromMock;
+    }
 
     void ReadFromParcel(Parcel& parcel);
-    void ReadFromParcelLocation(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
     static std::unique_ptr<Location> Unmarshalling(Parcel& parcel);
     static std::shared_ptr<Location> UnmarshallingShared(Parcel& parcel);
-    static std::unique_ptr<Location> UnmarshallingLocation(Parcel& parcel);
 private:
     double latitude_;
     double longitude_;
@@ -123,6 +150,9 @@ private:
     double direction_;
     int64_t timeStamp_;
     int64_t timeSinceBoot_;
+    std::string additions_;
+    int64_t additionSize_;
+    bool isFromMock_;
 };
 } // namespace Location
 } // namespace OHOS

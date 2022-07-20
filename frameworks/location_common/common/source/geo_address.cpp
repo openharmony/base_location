@@ -101,6 +101,7 @@ void GeoAddress::ReadFromParcel(Parcel& in)
     }
     m_phoneNumber = in.ReadString();
     m_addressUrl = in.ReadString();
+    m_isFromMock = in.ReadBool();
 }
 
 bool GeoAddress::Marshalling(Parcel& parcel) const
@@ -137,6 +138,7 @@ bool GeoAddress::Marshalling(Parcel& parcel) const
     }
     parcel.WriteString(m_phoneNumber);
     parcel.WriteString(m_addressUrl);
+    parcel.WriteBool(m_isFromMock);
     return true;
 }
 } // namespace Location

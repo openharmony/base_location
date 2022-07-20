@@ -35,7 +35,7 @@ void NmeaMessageCallbackProxy::OnMessageChange(const std::string msg)
     data.WriteString16(Str8ToStr16(msg));
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_NMEA_MESSAGE_EVENT, data, reply, option);
-    LBSLOGI(SWITCH_CALLBACK, "NmeaMessageCallbackProxy::OnStatusChange Transact ErrCode = %{public}d", error);
+    LBSLOGI(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackProxy::OnStatusChange Transact ErrCode = %{public}d", error);
 }
 } // namespace Location
 } // namespace OHOS

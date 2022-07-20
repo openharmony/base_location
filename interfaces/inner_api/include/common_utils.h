@@ -43,11 +43,12 @@ const int DEFAULT_UID = 10001;
 const int SYSTEM_UID = 1000;
 
 const int EX_HAS_REPLY_HEADER = -128;
-const int REPLY_NO_EXCEPTION = 0;
-const int EXCEPTION = -1;
-const int MSG_UNPROCESSED = -2;
-const int SWITCH_OFF_EXCEPTION = -3;
-const int SECURITY_EXCEPTION = 1000;
+const int REPLY_CODE_NO_EXCEPTION = 0;
+const int REPLY_CODE_EXCEPTION = -1;
+const int REPLY_CODE_MSG_UNPROCESSED = -2;
+const int REPLY_CODE_SWITCH_OFF_EXCEPTION = -3;
+const int REPLY_CODE_SECURITY_EXCEPTION = -4;
+const int REPLY_CODE_UNSUPPORT = -5;
 
 const int EVENT_REGITERED_MAX_TRY_TIME = 30;
 const int EVENT_REGITERED_MAX_TRY_INTERVAL = 5000;
@@ -57,6 +58,10 @@ const int DFT_IPC_CALLING_ERROR = 201;
 const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int SEC_TO_MILLI_SEC = 1000;
+
+const char DEFAULT_STRING[] = "error";
+const std::wstring DEFAULT_WSTRING = L"error";
+const std::u16string DEFAULT_USTRING = u"error";
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
@@ -82,7 +87,7 @@ enum {
 
 enum {
     SUCCESS = 0,
-    NO_DATA_TO_SEND = 1,
+    NOT_SUPPORTED = 100,
     INPUT_PARAMS_ERROR = 101,
     REVERSE_GEOCODE_ERROR,
     GEOCODE_ERROR,
@@ -90,6 +95,7 @@ enum {
     LOCATION_SWITCH_ERROR,
     LAST_KNOWN_LOCATION_ERROR,
     LOCATION_REQUEST_TIMEOUT_ERROR,
+    QUERY_COUNTRY_CODE_ERROR,
 };
 
 class CommonUtils {
@@ -108,6 +114,8 @@ public:
     static bool CheckSecureSettings();
     static bool CheckSystemCalling(pid_t uid);
     static bool GetCurrentUserId(int &userId);
+    static std::string Str16ToStr8(std::u16string str);
+    static bool DoubleEqual(double a, double b);
 };
 
 class CountDownLatch {

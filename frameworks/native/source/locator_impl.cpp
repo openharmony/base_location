@@ -17,6 +17,7 @@
 #include "iservice_registry.h"
 #include "location_log.h"
 #include "system_ability_definition.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -81,9 +82,9 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
     MessageParcel reply;
     client_->GetCacheLocation(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         location = Location::Unmarshalling(reply);
@@ -128,6 +129,18 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     return true;
 }
 
+bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+{
+    client_->RegisterCountryCodeCallback(callback, uid);
+    return true;
+}
+
+bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+{
+    client_->UnregisterCountryCodeCallback(callback);
+    return true;
+}
+
 void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
@@ -146,9 +159,9 @@ bool LocatorImpl::IsGeoServiceAvailable()
     MessageParcel reply;
     client_->IsGeoConvertAvailable(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         result = (reply.ReadInt32() == 1);
@@ -161,9 +174,9 @@ void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::sha
     MessageParcel reply;
     client_->GetAddressByCoordinate(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         int resultSize = reply.ReadInt32();
@@ -181,9 +194,9 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
     MessageParcel reply;
     client_->GetAddressByLocationName(data, reply);
     int exception = reply.ReadInt32();
-    if (exception == SECURITY_EXCEPTION) {
+    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_NO_EXCEPTION) {
+    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     } else {
         int resultSize = reply.ReadInt32();
@@ -214,11 +227,10 @@ int LocatorImpl::GetCachedGnssLocationsSize()
     return client_->GetCachedGnssLocationsSize();
 }
 
-bool LocatorImpl::FlushCachedGnssLocations()
+int LocatorImpl::FlushCachedGnssLocations()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocations()");
-    client_->FlushCachedGnssLocations();
-    return true;
+    return client_->FlushCachedGnssLocations();
 }
 
 bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -240,6 +252,50 @@ bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveFence()");
     client_->RemoveFence(request);
     return true;
+}
+
+std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
+
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
+    return client_->GetIsoCountryCode();
+}
+
+bool LocatorImpl::EnableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMock()");
+    return client_->EnableLocationMock(config);
+}
+
+bool LocatorImpl::DisableLocationMock(const LocationMockConfig& config)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMock()");
+    return client_->DisableLocationMock(config);
+}
+
+bool LocatorImpl::SetMockedLocations(
+    const LocationMockConfig& config,  const std::vector<std::shared_ptr<Location>> &location)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocations()");
+    return client_->SetMockedLocations(config, location);
+}
+
+bool LocatorImpl::EnableReverseGeocodingMock()
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMock()");
+    return client_->EnableReverseGeocodingMock();
+}
+
+bool LocatorImpl::DisableReverseGeocodingMock()
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMock()");
+    return client_->DisableReverseGeocodingMock();
+}
+
+bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfo()");
+    return client_->SetReverseGeocodingMockInfo(mockInfo);
 }
 }  // namespace Location
 }  // namespace OHOS

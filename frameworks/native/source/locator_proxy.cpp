@@ -17,7 +17,7 @@
 
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
-
+#include "country_code.h"
 #include "common_utils.h"
 
 namespace OHOS {
@@ -33,13 +33,13 @@ int LocatorProxy::GetSwitchState()
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetSwitchState remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(GET_SWITCH_STATE, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState Transact ErrCode = %{public}d", error);
@@ -205,13 +205,53 @@ void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& call
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
 }
 
+
+void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid)
+{
+    LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d", uid);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "RegisterCountryCodeCallback remote is null");
+        return;
+    }
+    int error = remote->SendRequest(REG_COUNTRY_CODE_CALLBACK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterCountryCodeCallback Transact ErrCodes = %{public}d", error);
+}
+
+void LocatorProxy::UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "UnregisterCountryCodeCallback remote is null");
+        return;
+    }
+    int error = remote->SendRequest(UNREG_COUNTRY_CODE_CALLBACK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCountryCodeCallback Transact ErrCodes = %{public}d", error);
+}
+
 int LocatorProxy::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid)
 {
     LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d, pid is: %{public}d", uid, pid);
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (requestConfig != nullptr) {
         requestConfig->Marshalling(data);
@@ -226,7 +266,7 @@ int LocatorProxy::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "StartLocating remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(START_LOCATING, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::StartLocating Transact ErrCodes = %{public}d", error);
@@ -237,7 +277,7 @@ int LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (callback != nullptr) {
         data.WriteObject<IRemoteObject>(callback->AsObject());
@@ -248,7 +288,7 @@ int LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "StopLocating remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(STOP_LOCATING, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::StopLocating Transact ErrCodes = %{public}d", error);
@@ -258,13 +298,13 @@ int LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
 int LocatorProxy::GetCacheLocation(MessageParcel &data, MessageParcel &reply)
 {
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetCacheLocation remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(GET_CACHE_LOCATION, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetCacheLocation Transact ErrCodes = %{public}d", error);
@@ -275,13 +315,13 @@ int LocatorProxy::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &repl
 {
     int error;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "IsGeoConvertAvailable remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     error = remote->SendRequest(GEO_IS_AVAILABLE, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::IsGeoConvertAvailable result from server");
@@ -295,7 +335,7 @@ int LocatorProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetAddressByCoordinate remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     error = remote->SendRequest(GET_FROM_COORDINATE, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetAddressByCoordinate result from server.");
@@ -309,7 +349,7 @@ int LocatorProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel &r
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetAddressByLocationName remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     error = remote->SendRequest(GET_FROM_LOCATION_NAME, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetAddressByLocationName result from server.");
@@ -322,13 +362,13 @@ bool LocatorProxy::IsLocationPrivacyConfirmed(const int type)
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "IsLocationPrivacyConfirmed remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     data.WriteInt32(type);
     int error = remote->SendRequest(IS_PRIVACY_COMFIRMED, data, reply, option);
@@ -365,7 +405,7 @@ int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocat
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (request != nullptr) {
         data.WriteInt32(request->reportingPeriodSec);
@@ -381,7 +421,7 @@ int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocat
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "RegisterCachedLocationCallback remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(REG_CACHED_CALLBACK, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterCachedLocationCallback Transact ErrCodes = %{public}d", error);
@@ -392,7 +432,7 @@ int LocatorProxy::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (callback != nullptr) {
         data.WriteRemoteObject(callback->AsObject());
@@ -403,7 +443,7 @@ int LocatorProxy::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "UnregisterCachedLocationCallback remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(UNREG_CACHED_CALLBACK, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCachedLocationCallback Transact ErrCodes = %{public}d", error);
@@ -416,13 +456,13 @@ int LocatorProxy::GetCachedGnssLocationsSize()
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetCachedGnssLocationsSize remote is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     int error = remote->SendRequest(GET_CACHED_LOCATION_SIZE, data, reply, option);
@@ -435,21 +475,22 @@ int LocatorProxy::GetCachedGnssLocationsSize()
     return size;
 }
 
-void LocatorProxy::FlushCachedGnssLocations()
+int LocatorProxy::FlushCachedGnssLocations()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
+        return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "FlushCachedGnssLocations remote is null");
-        return;
+        return REPLY_CODE_EXCEPTION;
     }
     int error = remote->SendRequest(FLUSH_CACHED_LOCATIONS, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", error);
+    return error;
 }
 
 void LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -515,6 +556,182 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     }
     int error = remote->SendRequest(REMOVE_FENCE, data, reply, option);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
+}
+
+std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return nullptr;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode remote is null");
+        return nullptr;
+    }
+    int error = remote->SendRequest(GET_ISO_COUNTRY_CODE, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", error);
+    std::string country = "";
+    int countryType = 0;
+    int result = 0;
+    if (error == NO_ERROR) {
+        country = reply.ReadString();
+        countryType = reply.ReadInt32();
+        result = reply.ReadInt32();
+        auto countryCode = std::make_shared<CountryCode>();
+        countryCode->SetCountryCodeStr(country);
+        countryCode->SetCountryCodeType(countryType);
+        return countryCode;
+    } else {
+        return nullptr;
+    }
+}
+
+bool LocatorProxy::EnableLocationMock(const LocationMockConfig& config)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "EnableLocationMock remote is null");
+        return false;
+    }
+    config.Marshalling(data);
+    int error = remote->SendRequest(ENABLE_LOCATION_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableLocationMock Transact ErrCodes = %{public}d", error);
+    bool state = false;
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "DisableLocationMock remote is null");
+        return false;
+    }
+    config.Marshalling(data);
+    int error = remote->SendRequest(DISABLE_LOCATION_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableLocationMock Transact ErrCodes = %{public}d", error);
+    bool state = false;
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::SetMockedLocations(
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SetMockedLocations remote is null");
+        return false;
+    }
+    config.Marshalling(data);
+    int locationSize = static_cast<int>(location.size());
+    data.WriteInt32(locationSize);
+    for (int i = 0; i < locationSize; i++) {
+        location.at(i)->Marshalling(data);
+    }
+    int error = remote->SendRequest(SET_MOCKED_LOCATIONS, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::SetMockedLocations Transact ErrCodes = %{public}d", error);
+    bool state = false;
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::EnableReverseGeocodingMock()
+{
+    bool state = false;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "EnableReverseGeocodingMock remote is null");
+        return false;
+    }
+    int error = remote->SendRequest(ENABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableReverseGeocodingMock Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::DisableReverseGeocodingMock()
+{
+    bool state = false;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "DisableReverseGeocodingMock remote is null");
+        return false;
+    }
+    int error = remote->SendRequest(DISABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableReverseGeocodingMock Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+{
+    bool state = false;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    data.WriteInt32(mockInfo.size());
+    for (size_t i = 0; i < mockInfo.size(); i++) {
+        mockInfo[i]->Marshalling(data);
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SetReverseGeocodingMockInfo remote is null");
+        return false;
+    }
+    int error = remote->SendRequest(SET_REVERSE_GEOCODE_MOCKINFO, data, reply, option);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::SetReverseGeocodingMockInfo Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
 }
 } // namespace Location
 } // namespace OHOS

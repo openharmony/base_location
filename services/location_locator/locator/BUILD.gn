@@ -18,10 +18,12 @@ SUBSYSTEM_DIR = "//base/location/services"
 ohos_shared_library("lbsservice_locator") {
   sources = [
     "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/callback/source/country_code_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/country_code_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
@@ -54,11 +56,12 @@ ohos_shared_library("lbsservice_locator") {
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
+    "//base/global/i18n/frameworks/intl/include",
   ]
 
   deps = [
+    "//base/global/i18n/frameworks/intl:intl_util",
     "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
@@ -69,10 +72,13 @@ ohos_shared_library("lbsservice_locator") {
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
+    "cellular_data:tel_cellular_data_api",
     "common_event_service:cesfwk_innerkits",
+    "core_service:tel_core_service_api",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",

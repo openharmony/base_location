@@ -31,6 +31,7 @@
 #include "locator_event_manager.h"
 #include "request_manager.h"
 #include "system_ability_definition.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -42,7 +43,6 @@ const uint32_t EVENT_INIT_REQUEST_MANAGER = 0x0002;
 const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
-const uint32_t RETRY_INTERVAL_2_SECONDS = 2 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t SET_ENABLE = 3;
 const uint32_t REG_GNSS_STATUS = 7;
@@ -56,7 +56,6 @@ const uint32_t FLUSH_CACHED = 14;
 const uint32_t SEND_COMMANDS = 15;
 const uint32_t ADD_FENCE_INFO = 16;
 const uint32_t REMOVE_FENCE_INFO = 17;
-
 const float_t PRECISION = 0.000001;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
@@ -99,6 +98,7 @@ bool LocatorAbility::Init()
     if (registerToAbility_) {
         return true;
     }
+    LBSLOGI(LOCATOR, "LocatorAbility Init.");
     bool ret = Publish(AsObject());
     if (!ret) {
         LBSLOGE(LOCATOR, "Init add system ability failed!");
@@ -108,6 +108,7 @@ bool LocatorAbility::Init()
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
+    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
@@ -278,12 +279,6 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
-    if (state == EXCEPTION) {
-        auto event = AppExecFwk::InnerEvent::Get(EVENT_UPDATE_SA, 0);
-        locatorHandler_->SendHighPriorityEvent(event, RETRY_INTERVAL_2_SECONDS);
-        return;
-    }
-
     bool currentEnable = isEnabled_;
     isEnabled_ = (state == ENABLED);
     if (isEnabled_ == currentEnable) {
@@ -479,6 +474,24 @@ void LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& ca
     }
 }
 
+void LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+{
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "RegisterCountryCodeCallback countryCodeManager_ is nullptr");
+        return;
+    }
+    return countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
+}
+
+void LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+{
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "UnregisterCountryCodeCallback countryCodeManager_ is nullptr");
+        return;
+    }
+    return countryCodeManager_->UnregisterCountryCodeCallback(callback);
+}
+
 int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
@@ -487,7 +500,7 @@ int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoc
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
 
         dataToStub.WriteInt32(request->reportingPeriodSec);
@@ -497,11 +510,11 @@ int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLoc
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
         obj->SendRequest(REG_CACHED, dataToStub, replyToStub, option);
     }
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
@@ -511,18 +524,18 @@ int LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallba
         auto obj = remoteObject->second;
         MessageParcel dataToStub;
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
 
         dataToStub.WriteRemoteObject(callback->AsObject());
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
         obj->SendRequest(UNREG_CACHED, dataToStub, replyToStub, option);
     }
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::GetCachedGnssLocationsSize()
@@ -535,10 +548,10 @@ int LocatorAbility::GetCachedGnssLocationsSize()
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return EXCEPTION;
+            return REPLY_CODE_EXCEPTION;
         }
 
         int error = obj->SendRequest(GET_CACHED_SIZE, dataToStub, replyToStub, option);
@@ -549,7 +562,7 @@ int LocatorAbility::GetCachedGnssLocationsSize()
     return size;
 }
 
-void LocatorAbility::FlushCachedGnssLocations()
+int LocatorAbility::FlushCachedGnssLocations()
 {
     auto remoteObject = proxyMap_->find(GNSS_ABILITY);
     if (remoteObject != proxyMap_->end()) {
@@ -558,14 +571,15 @@ void LocatorAbility::FlushCachedGnssLocations()
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return;
+            return REPLY_CODE_EXCEPTION;
         }
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
+            return REPLY_CODE_EXCEPTION;
         }
 
-        obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
+        return obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
     }
+    return REPLY_CODE_EXCEPTION;
 }
 
 void LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -636,6 +650,105 @@ void LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     }
 }
 
+std::shared_ptr<CountryCode> LocatorAbility::GetIsoCountryCode()
+{
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "GetIsoCountryCode countryCodeManager_ is nullptr");
+        return nullptr;
+    }
+    return countryCodeManager_->GetIsoCountryCode();
+}
+
+bool LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId)
+{
+    if (obj == nullptr) {
+        LBSLOGE(LOCATOR, "SendLocationMockMsgToGnssSa obj is nullptr");
+        return false;
+    }
+    std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
+    if (msgId == ENABLE_LOCATION_MOCK) {
+        return gnssProxy->EnableMock(config);
+    } else if (msgId == DISABLE_LOCATION_MOCK) {
+        return gnssProxy->DisableMock(config);
+    } else if (msgId == SET_MOCKED_LOCATIONS) {
+        return gnssProxy->SetMocked(config, location);
+    }
+    return false;
+}
+
+bool LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId)
+{
+    if (obj == nullptr) {
+        LBSLOGE(LOCATOR, "SendLocationMockMsgToNetworkSa obj is nullptr");
+        return false;
+    }
+    std::unique_ptr<NetworkAbilityProxy> networkProxy =
+        std::make_unique<NetworkAbilityProxy>(obj);
+    if (msgId == ENABLE_LOCATION_MOCK) {
+        return networkProxy->EnableMock(config);
+    } else if (msgId == DISABLE_LOCATION_MOCK) {
+        return networkProxy->DisableMock(config);
+    } else if (msgId == SET_MOCKED_LOCATIONS) {
+        return networkProxy->SetMocked(config, location);
+    }
+    return false;
+}
+
+bool LocatorAbility::ProcessLocationMockMsg(
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId)
+{
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    if (request != nullptr) {
+        request->SetLocationMockConfig(config);
+    }
+    std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
+    request->GetProxyName(proxys);
+    if (proxys->empty()) {
+        LBSLOGE(LOCATOR, "ProcessLocationMockMsg GetProxyName failed");
+        return false;
+    }
+    bool result = true;
+    for (std::list<std::string>::iterator iter = proxys->begin(); iter != proxys->end(); ++iter) {
+        std::string abilityName = *iter;
+        if (abilityName.compare(GNSS_ABILITY) != 0 &&
+            abilityName.compare(NETWORK_ABILITY) != 0) {
+            LBSLOGD(LOCATOR, "abilityName not match. abilityName = %{public}s", abilityName.c_str());
+            continue;
+        }
+        auto remoteObject = proxyMap_->find(abilityName);
+        if (remoteObject == proxyMap_->end()) {
+            continue;
+        }
+        auto obj = remoteObject->second;
+        if (abilityName == GNSS_ABILITY) {
+            SendLocationMockMsgToGnssSa(obj, config, location, msgId);
+        } else if (abilityName == NETWORK_ABILITY) {
+            SendLocationMockMsgToNetworkSa(obj, config, location, msgId);
+        }
+    }
+    return result;
+}
+
+bool LocatorAbility::EnableLocationMock(const LocationMockConfig& config)
+{
+    std::vector<std::shared_ptr<Location>> location;
+    return ProcessLocationMockMsg(config, location, ENABLE_LOCATION_MOCK);
+}
+
+bool LocatorAbility::DisableLocationMock(const LocationMockConfig& config)
+{
+    std::vector<std::shared_ptr<Location>> location;
+    return ProcessLocationMockMsg(config, location, DISABLE_LOCATION_MOCK);
+}
+
+bool LocatorAbility::SetMockedLocations(
+    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+{
+    return ProcessLocationMockMsg(config, location, SET_MOCKED_LOCATIONS);
+}
+
 int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid)
 {
@@ -657,7 +770,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
@@ -665,68 +778,68 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     LBSLOGI(LOCATOR, "stop locating");
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
-    return REPLY_NO_EXCEPTION;
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
 {
-    std::shared_ptr<Location> lastLocation = reportManager_->GetLastLocation();
+    auto lastLocation = reportManager_->GetLastLocation();
     if (lastLocation == nullptr) {
-        reply.WriteInt32(EXCEPTION);
+        reply.WriteInt32(REPLY_CODE_EXCEPTION);
         reply.WriteString("get no cached result");
         LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (fabs(lastLocation->GetLatitude() - 0.0) > PRECISION
         && fabs(lastLocation->GetLongitude() - 0.0) > PRECISION) {
-        reply.WriteInt32(REPLY_NO_EXCEPTION);
+        reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
         lastLocation->Marshalling(reply);
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    reply.WriteInt32(EXCEPTION);
+    reply.WriteInt32(REPLY_CODE_EXCEPTION);
     reply.WriteString("get no cached result");
     LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (requests_ == nullptr) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     LBSLOGI(LOCATOR, "start report location");
     if (reportManager_->OnReportLocation(location, abilityName)) {
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 int LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
 {
     if (GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 int LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
 {
     if (GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {
-        return REPLY_NO_EXCEPTION;
+        return REPLY_CODE_NO_EXCEPTION;
     }
-    return EXCEPTION;
+    return REPLY_CODE_EXCEPTION;
 }
 
 void LocatorAbility::RegisterAction()
@@ -741,7 +854,7 @@ void LocatorAbility::RegisterAction()
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locatorEventSubscriber_);
-    if (result != 0) {
+    if (!result) {
         LBSLOGE(LOCATOR, "Failed to subscriber locator event, result = %{public}d", result);
         isActionRegistered = false;
     } else {
@@ -754,7 +867,7 @@ int LocatorAbility::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &re
 {
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     return SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replay);
 }
@@ -764,7 +877,7 @@ int LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &r
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
@@ -781,7 +894,7 @@ int LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel 
 {
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     dataParcel.WriteString16(data.ReadString16()); // description
     dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
@@ -802,10 +915,43 @@ int LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel 
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
         CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
     MessageOption option;
     return remoteObject->SendRequest(type, data, replay, option);
+}
+
+bool LocatorAbility::EnableReverseGeocodingMock()
+{
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        return REPLY_CODE_EXCEPTION;
+    }
+    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
+    return geoProxy->EnableReverseGeocodingMock();
+}
+
+bool LocatorAbility::DisableReverseGeocodingMock()
+{
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        return REPLY_CODE_EXCEPTION;
+    }
+    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
+    return geoProxy->DisableReverseGeocodingMock();
+}
+
+bool LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+{
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        return REPLY_CODE_EXCEPTION;
+    }
+    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
+    return geoProxy->SetReverseGeocodingMockInfo(mockInfo);
 }
 } // namespace Location
 } // namespace OHOS

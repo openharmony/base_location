@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <singleton.h>
+#include "event_handler.h"
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
 #include "common_utils.h"
@@ -26,6 +27,13 @@
 
 namespace OHOS {
 namespace Location {
+class NetworkHandler : public AppExecFwk::EventHandler {
+public:
+    explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~NetworkHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+};
+
 class NetworkAbility : public SystemAbility, public NetworkAbilityStub, public SubAbility,
     DelayedSingleton<NetworkAbility> {
 DECLEAR_SYSTEM_ABILITY(NetworkAbility);
@@ -45,9 +53,18 @@ public:
     void SelfRequest(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
+    bool EnableMock(const LocationMockConfig& config) override;
+    bool DisableMock(const LocationMockConfig& config) override;
+    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    void SendReportMockLocationEvent() override;
+    void ProcessReportLocationMock();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
+    int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
+
+    std::shared_ptr<NetworkHandler> networkHandler_;
+    size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
 };

@@ -22,6 +22,9 @@
 #include "iremote_stub.h"
 #include "string_ex.h"
 
+#include "constant_definition.h"
+#include "geo_coding_mock_info.h"
+
 namespace OHOS {
 namespace Location {
 class IGeoConvert : public IRemoteBroker {
@@ -30,17 +33,25 @@ public:
         IS_AVAILABLE = 11,
         GET_FROM_COORDINATE = 12,
         GET_FROM_LOCATION_NAME_BY_BOUNDARY = 13,
+        ENABLE_REVERSE_GEOCODE_MOCK = 33,
+        DISABLE_REVERSE_GEOCODE_MOCK = 34,
+        SET_REVERSE_GEOCODE_MOCKINFO = 35,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGeoConvert");
     virtual int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) = 0;
     virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) = 0;
     virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) = 0;
+    virtual bool EnableReverseGeocodingMock() = 0;
+    virtual bool DisableReverseGeocodingMock() = 0;
+    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
 };
 
 class GeoConvertServiceStub : public IRemoteStub<IGeoConvert> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+private:
+    std::vector<std::shared_ptr<GeocodingMockInfo>> ParseGeocodingMockInfos(MessageParcel &data);
 };
 } // namespace OHOS
 } // namespace Location

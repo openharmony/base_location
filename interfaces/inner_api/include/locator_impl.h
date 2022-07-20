@@ -17,9 +17,11 @@
 
 #include "constant_definition.h"
 #include "i_cached_locations_callback.h"
+#include "geo_coding_mock_info.h"
 #include "locator.h"
 #include "locator_proxy.h"
 #include "geo_address.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -43,6 +45,8 @@ public:
     bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
+    bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
     void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) override;
     void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
@@ -52,10 +56,21 @@ public:
     bool IsLocationPrivacyConfirmed(const int type) override;
     void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
     int GetCachedGnssLocationsSize() override;
-    bool FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     bool SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     bool AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    std::shared_ptr<CountryCode> GetIsoCountryCode() override;
+    bool EnableLocationMock(const LocationMockConfig& config) override;
+    bool DisableLocationMock(const LocationMockConfig& config) override;
+    bool SetMockedLocations(
+        const LocationMockConfig& config,      const std::vector<std::shared_ptr<Location>> &location) override;
+    
+    bool EnableReverseGeocodingMock() override;
+
+    bool DisableReverseGeocodingMock() override;
+
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
 private:
     std::unique_ptr<LocatorProxy> client_;
 };

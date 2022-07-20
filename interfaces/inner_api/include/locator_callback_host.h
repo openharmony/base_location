@@ -21,7 +21,8 @@
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
-#include "napi_util.h"
+#include "async_context.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace Location {
@@ -32,7 +33,6 @@ public:
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
-    bool Send(std::unique_ptr<Location>& location);
     void DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work);
     bool SendErrorCode(const int& errorCode);
 
@@ -45,6 +45,7 @@ public:
     void DeleteFailHandler();
     void DeleteCompleteHandler();
     void InitLatch();
+    bool InitContext(AsyncContext* context);
     bool IsSystemGeoLocationApi();
     bool IsSingleLocationRequest();
     void CountDown();
@@ -61,6 +62,7 @@ public:
     napi_deferred m_deferred;
     std::shared_mutex m_mutex;
     CountDownLatch* m_latch;
+    std::unique_ptr<Location> m_singleLocation;
 };
 } // namespace Location
 } // namespace OHOS

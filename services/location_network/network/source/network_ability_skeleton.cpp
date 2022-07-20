@@ -31,7 +31,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(NETWORK, "invalid token.");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
     int ret = 0;
@@ -48,6 +48,35 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         }
         case SELF_REQUEST: {
             SelfRequest(data.ReadBool());
+            break;
+        }
+        case ENABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = EnableMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case DISABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = DisableMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case SET_MOCKED_LOCATIONS: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            int locationSize = data.ReadInt32();
+            std::vector<std::shared_ptr<Location>> vcLoc;
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc.push_back(Location::UnmarshallingShared(data));
+            }
+            bool result = SetMocked(config, vcLoc);
+            reply.WriteBool(result);
             break;
         }
         default:

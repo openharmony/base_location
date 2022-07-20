@@ -18,6 +18,9 @@
 
 #include <mutex>
 #include <singleton.h>
+#include <v1_0/ignss_interface.h>
+#include <v1_0/ia_gnss_interface.h>
+#include "event_handler.h"
 #include "i_gnss_status_callback.h"
 #include "i_nmea_message_callback.h"
 #include "i_cached_locations_callback.h"
@@ -25,9 +28,9 @@
 #include "system_ability.h"
 #include "common_utils.h"
 #include "gnss_ability_skeleton.h"
-#include "gnss_vendor.h"
 #include "locator_ability.h"
 #include "subability_common.h"
+#include "agnss_event_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -36,6 +39,26 @@ namespace Location {
 #else
 #define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib/vendorGnssAdapter.so"
 #endif
+
+using HDI::Location::Gnss::V1_0::IGnssInterface;
+using HDI::Location::Gnss::V1_0::IGnssCallback;
+using HDI::Location::Gnss::V1_0::GNSS_START_TYPE_NORMAL;
+using HDI::Location::Gnss::V1_0::GNSS_STATUS_NONE;
+using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_BEGIN;
+using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_END;
+using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_ON;
+using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_OFF;
+using HDI::Location::Agnss::V1_0::IAGnssInterface;
+using HDI::Location::Agnss::V1_0::IAGnssCallback;
+using HDI::Location::Agnss::V1_0::AGNSS_TYPE_SUPL;
+using HDI::Location::Agnss::V1_0::AGnssServerInfo;
+
+class GnssHandler : public AppExecFwk::EventHandler {
+public:
+    explicit GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~GnssHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+};
 
 class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility, DelayedSingleton<GnssAbility> {
 DECLEAR_SYSTEM_ABILITY(GnssAbility);
@@ -62,35 +85,47 @@ public:
         const sptr<IRemoteObject>& callback) override;
     void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-
     int GetCachedGnssLocationsSize() override;
-    void FlushCachedGnssLocations() override;
+    int FlushCachedGnssLocations() override;
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
     void ReportGnssSessionStatus(int status);
     void ReportNmea(const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
-
+    bool EnableMock(const LocationMockConfig& config) override;
+    bool DisableMock(const LocationMockConfig& config) override;
+    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
-    void NativeStart();
-    void NativeStop();
-    bool NativeInit();
-    void NativeClear();
-    static void StatusCallback(uint16_t* status);
-    static void LocationUpdate(GnssLocation* location);
-    static void NmeaCallback(int64_t timestamp, const char* nmea, int length);
-    static void SvStatusCallback(GnssSatelliteStatus* svInfo);
+    void SendReportMockLocationEvent() override;
+    void StartGnss();
+    void StopGnss();
+    bool EnableGnss();
+    void DisableGnss();
+    bool ConnectHdi();
+    void SetAgnssServer();
+    void SetAgnssCallback();
+    void SetSetId(const SubscriberSetId& id);
+    void SetRefInfo(const AGnssRefInfo& refInfo);
+    bool IsMockEnabled();
+    void ProcessReportLocationMock();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
+    bool IsGnssEnabled();
+    int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
-    void* handle_;
-    GnssVendorInterface* gnssInterface_;
+    size_t mockLocationIndex_ = 0;
+    bool registerToAbility_ = false;
+    int gnssWorkingStatus_ = 0;
+    std::shared_ptr<GnssHandler> gnssHandler_;
+    ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
     std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
-    bool registerToAbility_ = false;
-    ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
+    sptr<IGnssInterface> gnssInterface_;
+    sptr<IGnssCallback> gnssCallback_;
+    sptr<IAGnssCallback> agnssCallback_;
+    sptr<IAGnssInterface> agnssInterface_;
 };
 } // namespace Location
 } // namespace OHOS

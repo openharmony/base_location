@@ -31,10 +31,10 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
-    int ret = REPLY_NO_EXCEPTION;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
         case SEND_LOCATION_REQUEST: {
             int64_t interval = data.ReadInt64();
@@ -93,7 +93,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case FLUSH_CACHED: {
-            FlushCachedGnssLocations();
+            ret = FlushCachedGnssLocations();
             break;
         }
         case SEND_COMMANDS: {
@@ -101,6 +101,35 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             locationCommand->scenario =  data.ReadInt32();
             locationCommand->command = data.ReadBool();
             SendCommand(locationCommand);
+            break;
+        }
+        case ENABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = EnableMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case DISABLE_LOCATION_MOCK: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            bool result = DisableMock(config);
+            reply.WriteBool(result);
+            break;
+        }
+        case SET_MOCKED_LOCATIONS: {
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            LocationMockConfig config;
+            config.Set(*mockConfig);
+            int locationSize = data.ReadInt32();
+            std::vector<std::shared_ptr<Location>> vcLoc;
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc.push_back(Location::UnmarshallingShared(data));
+            }
+            bool result = SetMocked(config, vcLoc);
+            reply.WriteBool(result);
             break;
         }
         default:

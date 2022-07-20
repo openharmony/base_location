@@ -30,10 +30,10 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
-        return EXCEPTION;
+        return REPLY_CODE_EXCEPTION;
     }
 
-    int ret;
+    int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
         case IS_AVAILABLE: {
             ret = IsGeoConvertAvailable(data, reply);
@@ -47,10 +47,41 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
             ret = GetAddressByLocationName(data, reply);
             break;
         }
+        case ENABLE_REVERSE_GEOCODE_MOCK: {
+            bool result = EnableReverseGeocodingMock();
+            reply.WriteBool(result);
+            break;
+        }
+        case DISABLE_REVERSE_GEOCODE_MOCK: {
+            bool result = DisableReverseGeocodingMock();
+            reply.WriteBool(result);
+            break;
+        }
+        case SET_REVERSE_GEOCODE_MOCKINFO: {
+            std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo =  ParseGeocodingMockInfos(data);
+            bool result = SetReverseGeocodingMockInfo(mockInfo);
+            reply.WriteBool(result);
+            break;
+        }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return ret;
+}
+
+std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeocodingMockInfos(MessageParcel &data)
+{
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    int arraySize = data.ReadInt32();
+    if (arraySize <= 0) {
+        return std::vector<std::shared_ptr<GeocodingMockInfo>>();
+    }
+    for (int i = 0; i < arraySize; i++) {
+        std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
+        info->ReadFromParcel(data);
+        mockInfo.push_back(info);
+    }
+    return mockInfo;
 }
 } // namespace Location
 } // namespace OHOS

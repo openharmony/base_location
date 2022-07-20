@@ -20,11 +20,14 @@
 #include "ipc_types.h"
 
 #include "constant_definition.h"
+#include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator_callback.h"
 #include "location.h"
 #include "request_config.h"
 #include "satellite_status.h"
+#include "location_mock_config.h"
+#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -54,7 +57,16 @@ public:
         FLUSH_CACHED_LOCATIONS = 25,
         SEND_COMMAND = 26,
         ADD_FENCE = 27,
-        REMOVE_FENCE = 28
+        REMOVE_FENCE = 28,
+        GET_ISO_COUNTRY_CODE = 29,
+        ENABLE_LOCATION_MOCK = 30,
+        DISABLE_LOCATION_MOCK = 31,
+        SET_MOCKED_LOCATIONS = 32,
+        ENABLE_REVERSE_GEOCODE_MOCK = 33,
+        DISABLE_REVERSE_GEOCODE_MOCK = 34,
+        SET_REVERSE_GEOCODE_MOCKINFO = 35,
+        REG_COUNTRY_CODE_CALLBACK = 36,
+        UNREG_COUNTRY_CODE_CALLBACK = 37,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
     virtual void UpdateSaAbility() = 0;
@@ -66,6 +78,8 @@ public:
     virtual void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback) = 0;
     virtual void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
     virtual void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback) = 0;
+    virtual void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
+    virtual void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback) = 0;
     virtual int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) = 0;
     virtual int StopLocating(sptr<ILocatorCallback>& callback) = 0;
@@ -81,10 +95,21 @@ public:
     virtual int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
 
     virtual int GetCachedGnssLocationsSize() = 0;
-    virtual void FlushCachedGnssLocations() = 0;
+    virtual int FlushCachedGnssLocations() = 0;
     virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+    virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
+    virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool SetMockedLocations(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
+    
+    virtual bool EnableReverseGeocodingMock() = 0;
+
+    virtual bool DisableReverseGeocodingMock() = 0;
+
+    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
 };
 } // namespace Location
 } // namespace OHOS
