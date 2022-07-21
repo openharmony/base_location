@@ -23,7 +23,7 @@ ohos_shared_library("locator_sdk") {
     "//base/location/interfaces/inner_api/include",
     "//base/location/frameworks/js/napi/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-    "//distributedschedule/safwk/include",
+    "//systemabilitymgr/safwk/include",
     "//native_engine",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
@@ -58,7 +58,7 @@ ohos_shared_library("locator_sdk") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   cflags_cc = [

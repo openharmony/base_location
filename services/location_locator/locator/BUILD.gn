@@ -51,8 +51,8 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk/",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
@@ -64,8 +64,8 @@ ohos_shared_library("lbsservice_locator") {
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
   ]
 
@@ -82,7 +82,7 @@ ohos_shared_library("lbsservice_locator") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "location"

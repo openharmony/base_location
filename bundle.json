@@ -33,7 +33,7 @@
                 "ability_runtime",
                 "hisysevent_native",
                 "napi",
-                "samgr_standard",
+                "samgr",
                 "ability_base",
                 "startup_l2",
                 "hiviewdfx_hilog_native",
