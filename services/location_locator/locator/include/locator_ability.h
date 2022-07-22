@@ -105,6 +105,12 @@ public:
     int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
     int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
+    bool ProcessLocationMockMsg(
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+    bool SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+    bool SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();

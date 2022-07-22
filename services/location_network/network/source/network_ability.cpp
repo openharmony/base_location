@@ -114,12 +114,12 @@ bool NetworkAbility::SetMocked(const LocationMockConfig& config,
 void NetworkAbility::ProcessReportLocationMock()
 {
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
-    if (locationIndex_ < mockLocationArray.size()) {
-        ReportMockedLocation(mockLocationArray[locationIndex_++]);
+    if (mockLocationIndex_ < mockLocationArray.size()) {
+        ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
         networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
     } else {
         ClearLocationMock();
-        locationIndex_ = 0;
+        mockLocationIndex_ = 0;
     }
 }
 
@@ -152,24 +152,6 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
     return ERR_OK;
 }
 
-NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
-
-NetworkHandler::~NetworkHandler() {}
-
-void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
-{
-    uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
-    switch (eventId) {
-        case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocationMock();
-            break;
-        }
-        default:
-            break;
-    }
-}
-
 void NetworkAbility::SaDumpInfo(std::string& result)
 {
     result += "Network Location enable status: true";
@@ -191,6 +173,24 @@ int32_t NetworkAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
         return ERR_OK;
     }
     return ERR_OK;
+}
+
+NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+
+NetworkHandler::~NetworkHandler() {}
+
+void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    uint32_t eventId = event->GetInnerEventId();
+    LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
+    switch (eventId) {
+        case EVENT_REPORT_LOCATION: {
+            DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocationMock();
+            break;
+        }
+        default:
+            break;
+    }
 }
 } // namespace Location
 } // namespace OHOS

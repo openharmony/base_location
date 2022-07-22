@@ -134,7 +134,6 @@ bool GeoAddressesToJsObj(const napi_env& env,
     std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult)
 {
     uint32_t idx = 0;
-    napi_status status = napi_ok;
     for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
         auto geoAddress = *iter;
         napi_value eachObj;
@@ -160,7 +159,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
             NAPI_CALL_BASE(env,
                 napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray), false);
             uint32_t idx1 = 0;
-            for (int index = 0; index < geoAddress->m_descriptionsSize && status == napi_ok; index++) {
+            for (int index = 0; index < geoAddress->m_descriptionsSize; index++) {
                 napi_value value;
                 NAPI_CALL_BASE(env, napi_create_string_utf8(env, geoAddress->GetDescriptions(index).c_str(),
                     NAPI_AUTO_LENGTH, &value), false);
@@ -177,12 +176,8 @@ bool GeoAddressesToJsObj(const napi_env& env,
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<CachedGnssLocationsRequest>& request)
 {
-    int value = 0;
-    bool valueBool;
-    JsObjectToInt(env, object, "reportingPeriodSec", value);
-    request->reportingPeriodSec = value;
-    JsObjectToBool(env, object, "wakeUpCacheQueueFull", valueBool);
-    request->wakeUpCacheQueueFull = valueBool;
+    JsObjectToInt(env, object, "reportingPeriodSec", request->reportingPeriodSec);
+    JsObjectToBool(env, object, "wakeUpCacheQueueFull", request->wakeUpCacheQueueFull);
 }
 
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
@@ -190,18 +185,24 @@ void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
 {
     int value = 0;
     double doubleValue = 0.0;
-    JsObjectToInt(env, object, "priority", value);
-    request->priority = value;
-    JsObjectToInt(env, object, "scenario", value);
-    request->scenario = value;
-    JsObjectToDouble(env, object, "latitude", doubleValue);
-    request->geofence.latitude = doubleValue;
-    JsObjectToDouble(env, object, "longitude", doubleValue);
-    request->geofence.longitude = doubleValue;
-    JsObjectToDouble(env, object, "radius", doubleValue);
-    request->geofence.radius = doubleValue;
-    JsObjectToDouble(env, object, "expiration", doubleValue);
-    request->geofence.expiration = doubleValue;
+    if (JsObjectToInt(env, object, "priority", value)) {
+        request->priority = value;
+    }
+    if (JsObjectToInt(env, object, "scenario", value)) {
+        request->scenario = value;
+    }
+    if (JsObjectToDouble(env, object, "latitude", doubleValue)) {
+        request->geofence.latitude = doubleValue;
+    }
+    if (JsObjectToDouble(env, object, "longitude", doubleValue)) {
+        request->geofence.longitude = doubleValue;
+    }
+    if (JsObjectToDouble(env, object, "radius", doubleValue)) {
+        request->geofence.radius = doubleValue;
+    }
+    if (JsObjectToDouble(env, object, "expiration", doubleValue)) {
+        request->geofence.expiration = doubleValue;
+    }
 }
 
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
@@ -209,16 +210,21 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
 {
     int value = 0;
     double valueDouble = 0.0;
-    JsObjectToInt(env, object, "priority", value);
-    requestConfig->SetPriority(value);
-    JsObjectToInt(env, object, "scenario", value);
-    requestConfig->SetScenario(value);
-    JsObjectToInt(env, object, "timeInterval", value);
-    requestConfig->SetTimeInterval(value);
-    JsObjectToDouble(env, object, "maxAccuracy", valueDouble);
-    requestConfig->SetMaxAccuracy(valueDouble);
-    JsObjectToInt(env, object, "distanceInterval", value);
-    requestConfig->SetDistanceInterval(value);
+    if (JsObjectToInt(env, object, "priority", value)) {
+        requestConfig->SetPriority(value);
+    }
+    if (JsObjectToInt(env, object, "scenario", value)) {
+        requestConfig->SetScenario(value);
+    }
+    if (JsObjectToInt(env, object, "timeInterval", value)) {
+        requestConfig->SetTimeInterval(value);
+    }
+    if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble)) {
+        requestConfig->SetMaxAccuracy(valueDouble);
+    }
+    if (JsObjectToInt(env, object, "distanceInterval", value)) {
+        requestConfig->SetDistanceInterval(value);
+    }
 }
 
 void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,
@@ -226,28 +232,28 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
 {
     int value = 0;
     double valueDouble = 0.0;
-    JsObjectToInt(env, object, "priority", value);
-    requestConfig->SetPriority(value);
-    JsObjectToInt(env, object, "scenario", value);
-    requestConfig->SetScenario(value);
-    JsObjectToDouble(env, object, "maxAccuracy", valueDouble);
-    requestConfig->SetMaxAccuracy(valueDouble);
-    JsObjectToInt(env, object, "timeoutMs", value);
-    requestConfig->SetTimeOut(value);
+    if (JsObjectToInt(env, object, "priority", value)) {
+        requestConfig->SetPriority(value);
+    }
+    if (JsObjectToInt(env, object, "scenario", value)) {
+        requestConfig->SetScenario(value);
+    }
+    if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble)) {
+        requestConfig->SetMaxAccuracy(valueDouble);
+    }
+    if (JsObjectToInt(env, object, "timeoutMs", value)) {
+        requestConfig->SetTimeOut(value);
+    }
 }
 
 void JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig)
 {
-    int value = 0;
-    std::string command = "";
     if (commandConfig == nullptr) {
         return;
     }
-    JsObjectToInt(env, object, "scenario", value);
-    commandConfig->scenario = value;
-    JsObjectToString(env, object, "command", MAX_BUF_LEN, command); // max bufLen
-    commandConfig->command = command;
+    JsObjectToInt(env, object, "scenario", commandConfig->scenario);
+    JsObjectToString(env, object, "command", MAX_BUF_LEN, commandConfig->command); // max bufLen
 }
 
 bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
@@ -353,129 +359,111 @@ bool GetLocationInfo(const napi_env& env, const napi_value& object,
     return false;
 }
 
-napi_value GetNapiValue(napi_env env, const std::string keyChar, napi_value object)
+napi_value GetNapiValueByKey(napi_env env, const std::string keyChar, napi_value object)
 {
     if (object == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "GetNapiValue object is nullptr.");
+        LBSLOGE(LOCATOR_STANDARD, "GetNapiValueByKey object is nullptr.");
         return nullptr;
     }
-    napi_value key = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, keyChar.c_str(), NAPI_AUTO_LENGTH, &key));
     bool result = false;
-    NAPI_CALL(env, napi_has_property(env, object, key, &result));
+    NAPI_CALL(env, napi_has_named_property(env, object, keyChar.c_str(), &result));
     if (result) {
         napi_value value = nullptr;
-        NAPI_CALL(env, napi_get_property(env, object, key, &value));
+        NAPI_CALL(env, napi_get_named_property(env, object, keyChar.c_str(), &value));
         return value;
     }
     return nullptr;
 }
 
-std::vector<std::string> GetStringArrayByJsObj(napi_env env, napi_value value)
+bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::string>& outArray)
 {
-    napi_status status;
     uint32_t arrayLength = 0;
-    napi_get_array_length(env, value, &arrayLength);
+    NAPI_CALL_BASE(env, napi_get_array_length(env, value, &arrayLength), false);
     if (arrayLength <= 0) {
         LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
-        return std::vector<std::string>();
+        return false;
     }
-    std::vector<std::string> paramArrays;
     for (size_t i = 0; i < arrayLength; i++) {
         napi_value napiElement = nullptr;
-        napi_get_element(env, value, i, &napiElement);
+        NAPI_CALL_BASE(env, napi_get_element(env, value, i, &napiElement), false);
         napi_valuetype napiValueType = napi_undefined;
-        napi_typeof(env, napiElement, &napiValueType);
+        NAPI_CALL_BASE(env, napi_typeof(env, napiElement, &napiValueType), false);
         if (napiValueType != napi_string) {
             LBSLOGE(LOCATOR_STANDARD, "wrong argument type.");
-            return std::vector<std::string>();
+            return false;
         }
         char type[64] = {0}; // max length
         size_t typeLen = 0;
-        status = napi_get_value_string_utf8(env, napiElement, type, sizeof(type), &typeLen);
-        if (status != napi_ok) {
-            LBSLOGE(LOCATOR_STANDARD, "napi_get_value_string_utf8 failed.");
-            return std::vector<std::string>();
-        }
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, napiElement, type, sizeof(type), &typeLen), false);
         std::string event = type;
-        paramArrays.push_back(event);
+        outArray.push_back(event);
     }
-    return paramArrays;
+    return true;
 }
 
-std::vector<std::string> GetStringArrayValueByKey(napi_env env, napi_value jsObject, std::string key)
+bool GetStringArrayValueByKey(
+    napi_env env, napi_value jsObject, std::string key, std::vector<std::string>& outArray)
 {
-    napi_status status;
-    napi_value array = GetNapiValue(env, key.c_str(), jsObject);
+    napi_value array = GetNapiValueByKey(env, key.c_str(), jsObject);
     if (array == nullptr) {
-        return std::vector<std::string>();
+        return false;
     }
     bool isArray = false;
-    status = napi_is_array(env, array, &isArray);
-    if (status != napi_ok) {
-        LBSLOGE(LOCATOR_STANDARD, "napi_is_array is failed!");
-        return std::vector<std::string>();
-    }
+    NAPI_CALL_BASE(env, napi_is_array(env, array, &isArray), false);
     if (!isArray) {
         LBSLOGE(LOCATOR_STANDARD, "not an array!");
-        return std::vector<std::string>();
+        return false;
     }
-    return GetStringArrayByJsObj(env, array);
+    return GetStringArrayFromJsObj(env, array, outArray);
 }
 
 bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
-    const char* fieldStr, std::shared_ptr<GeoAddress> address)
+    const std::string fieldStr, std::shared_ptr<GeoAddress> address)
 {
-    bool result = false;
-    napi_value value = nullptr;
-
-    if (object == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "object is nullptr.");
+    napi_value value = GetNapiValueByKey(env, fieldStr, object);
+    if (value == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "GetNapiValueByKey is nullptr.");
         return false;
     }
-
-    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &result), false);
-    if (result) {
-        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &value), false);
-        int bufLen = MAX_BUF_LEN;
-        double m_latitude = 0.0;
-        double m_longitude = 0.0;
-        JsObjectToDouble(env, value, "latitude", m_latitude);
-        if (CommonUtils::DoubleEqual(m_latitude, 0.0)) {
-            address->m_hasLatitude = false;
-        } else {
-            address->m_hasLatitude = true;
-            address->m_latitude = m_latitude;
-        }
-        JsObjectToDouble(env, value, "longitude", m_longitude);
-        if (CommonUtils::DoubleEqual(m_longitude, 0.0)) {
-            address->m_hasLongitude = false;
-        } else {
-            address->m_hasLongitude = true;
-            address->m_longitude = m_longitude;
-        }
-        JsObjectToString(env, value, "locale", bufLen, address->m_localeLanguage);
-        JsObjectToString(env, value, "placeName", bufLen, address->m_placeName);
-        JsObjectToString(env, value, "countryCode", bufLen, address->m_countryCode);
-        JsObjectToString(env, value, "countryName", bufLen, address->m_countryName);
-        JsObjectToString(env, value, "administrativeArea", bufLen, address->m_administrativeArea);
-        JsObjectToString(env, value, "subAdministrativeArea", bufLen, address->m_subAdministrativeArea);
-        JsObjectToString(env, value, "locality", bufLen, address->m_locality);
-        JsObjectToString(env, value, "subLocality", bufLen, address->m_subLocality);
-        JsObjectToString(env, value, "roadName", bufLen, address->m_roadName);
-        JsObjectToString(env, value, "subRoadName", bufLen, address->m_subRoadName);
-        JsObjectToString(env, value, "premises", bufLen, address->m_premises);
-        JsObjectToString(env, value, "postalCode", bufLen, address->m_postalCode);
-        JsObjectToString(env, value, "phoneNumber", bufLen, address->m_phoneNumber);
-        JsObjectToString(env, value, "addressUrl", bufLen, address->m_addressUrl);
-        JsObjectToInt(env, value, "descriptionsSize", address->m_descriptionsSize);
-        JsObjectToBool(env, value, "isFromMock", address->m_isFromMock);
-        std::vector<std::string> descriptions = GetStringArrayValueByKey(env, value, "descriptions");
-        size_t size = address->m_descriptionsSize > descriptions.size() ?
-            descriptions.size() : address->m_descriptionsSize;
-        for (size_t i = 0; i < size; i++) {
-            address->m_descriptions.insert(std::make_pair(i, descriptions[i]));
-        }
+    double latitude = 0.0;
+    double longitude = 0.0;
+    JsObjectToDouble(env, value, "latitude", latitude);
+    if (CommonUtils::DoubleEqual(latitude, 0.0)) {
+        address->m_hasLatitude = false;
+    } else {
+        address->m_hasLatitude = true;
+        address->m_latitude = latitude;
+    }
+    JsObjectToDouble(env, value, "longitude", longitude);
+    if (CommonUtils::DoubleEqual(longitude, 0.0)) {
+        address->m_hasLongitude = false;
+    } else {
+        address->m_hasLongitude = true;
+        address->m_longitude = longitude;
+    }
+    int bufLen = MAX_BUF_LEN;
+    JsObjectToString(env, value, "locale", bufLen, address->m_localeLanguage);
+    JsObjectToString(env, value, "placeName", bufLen, address->m_placeName);
+    JsObjectToString(env, value, "countryCode", bufLen, address->m_countryCode);
+    JsObjectToString(env, value, "countryName", bufLen, address->m_countryName);
+    JsObjectToString(env, value, "administrativeArea", bufLen, address->m_administrativeArea);
+    JsObjectToString(env, value, "subAdministrativeArea", bufLen, address->m_subAdministrativeArea);
+    JsObjectToString(env, value, "locality", bufLen, address->m_locality);
+    JsObjectToString(env, value, "subLocality", bufLen, address->m_subLocality);
+    JsObjectToString(env, value, "roadName", bufLen, address->m_roadName);
+    JsObjectToString(env, value, "subRoadName", bufLen, address->m_subRoadName);
+    JsObjectToString(env, value, "premises", bufLen, address->m_premises);
+    JsObjectToString(env, value, "postalCode", bufLen, address->m_postalCode);
+    JsObjectToString(env, value, "phoneNumber", bufLen, address->m_phoneNumber);
+    JsObjectToString(env, value, "addressUrl", bufLen, address->m_addressUrl);
+    JsObjectToInt(env, value, "descriptionsSize", address->m_descriptionsSize);
+    JsObjectToBool(env, value, "isFromMock", address->m_isFromMock);
+    std::vector<std::string> descriptions;
+    GetStringArrayValueByKey(env, value, "descriptions", descriptions);
+    size_t size = address->m_descriptionsSize > descriptions.size() ?
+        descriptions.size() : address->m_descriptionsSize;
+    for (size_t i = 0; i < size; i++) {
+        address->m_descriptions.insert(std::make_pair(i, descriptions[i]));
     }
     return true;
 }
@@ -486,24 +474,24 @@ bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
     bool isArray = false;
     NAPI_CALL_BASE(env, napi_is_array(env, object, &isArray), false);
     if (!isArray) {
-        LBSLOGE(LOCATOR_STANDARD, "not an array!");
+        LBSLOGE(LOCATOR_STANDARD, "JsObjToRevGeocodeMock:not an array!");
         return false;
     }
     uint32_t arrayLength = 0;
-    napi_get_array_length(env, object, &arrayLength);
+    NAPI_CALL_BASE(env, napi_get_array_length(env, object, &arrayLength), false);
     if (arrayLength <= 0) {
-        LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
+        LBSLOGE(LOCATOR_STANDARD, "JsObjToRevGeocodeMock:The array is empty.");
         return false;
     }
     for (size_t i = 0; i < arrayLength; i++) {
         napi_value napiElement = nullptr;
-        napi_get_element(env, object, i, &napiElement);
-        std::shared_ptr<GeocodingMockInfo> info  = std::make_shared<GeocodingMockInfo>();
-        std::shared_ptr<ReverseGeocodeRequest> request  = std::make_shared<ReverseGeocodeRequest>();
-        std::shared_ptr<GeoAddress> geoAddress  = std::make_shared<GeoAddress>();
+        NAPI_CALL_BASE(env, napi_get_element(env, object, i, &napiElement), false);
+        std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
+        std::shared_ptr<ReverseGeocodeRequest> request = std::make_shared<ReverseGeocodeRequest>();
+        std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
         GetLocationInfo(env, napiElement, "location", request);
         GetGeoAddressInfo(env, napiElement, "geoAddress", geoAddress);
-        info->SetReverseGeocodeRequest(request);
+        info->SetLocation(request);
         info->SetGeoAddressInfo(geoAddress);
         mockInfo.push_back(info);
     }
@@ -513,7 +501,7 @@ bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
 void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContext, const napi_value& object)
 {
     uint32_t arrayLength = 0;
-    napi_get_array_length(env, object, &arrayLength);
+    NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, object, &arrayLength));
     if (arrayLength <= 0) {
         LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
         return;
@@ -521,8 +509,7 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
     for (uint32_t i = 0; i < arrayLength; i++) {
         napi_value elementValue = nullptr;
         std::shared_ptr<Location> locationAdapter = std::make_shared<Location>();
-
-        napi_get_element(env, object, i, &elementValue);
+        NAPI_CALL_RETURN_VOID(env, napi_get_element(env, object, i, &elementValue));
         double latitude = 0.0;
         JsObjectToDouble(env, elementValue, "latitude", latitude);
         locationAdapter->SetLatitude(latitude);
@@ -548,8 +535,8 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         JsObjectToInt(env, elementValue, "timeSinceBoot", timeSinceBoot);
         locationAdapter->SetTimeSinceBoot(static_cast<int64_t>(timeSinceBoot));
         std::string additions = " ";
-        int buff = 100;
-        JsObjectToString(env, elementValue, "additions", buff, additions);
+        int buffLen = 100;
+        JsObjectToString(env, elementValue, "additions", buffLen, additions);
         locationAdapter->SetAdditions(additions);
         int32_t additionSize = 0;
         JsObjectToInt(env, elementValue, "additionSize", additionSize);
@@ -561,90 +548,94 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
     }
 }
 
-napi_value JsObjectToString(const napi_env& env, const napi_value& object,
+bool JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL(env, napi_has_named_property(env, object, fieldStr, &hasProperty));
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
-        NAPI_CALL(env, napi_typeof(env, field, &valueType));
-        NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
+        NAPI_ASSERT_BASE(env, valueType == napi_string, "Wrong argument type.", false);
         if (bufLen <= 0) {
-            return UndefinedNapiValue(env);
+            return false;
         }
         char *buf = (char *)malloc(bufLen);
         if (buf == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "Js object to str malloc failed!");
-            return UndefinedNapiValue(env);
+            return false;
         }
         (void)memset_s(buf, bufLen, 0, bufLen);
         size_t result = 0;
-        NAPI_CALL(env, napi_get_value_string_utf8(env, field, buf, bufLen, &result));
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, field, buf, bufLen, &result), false);
         fieldRef = buf;
         free(buf);
         buf = nullptr;
+        return true;
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js obj to str no property: %{public}s", fieldStr);
     }
-    return UndefinedNapiValue(env);
+    return false;
 }
 
-napi_value JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef)
+bool JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL(env, napi_has_named_property(env, object, fieldStr, &hasProperty));
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
-        NAPI_CALL(env, napi_typeof(env, field, &valueType));
-        NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. Number expected.");
-        NAPI_CALL(env, napi_get_value_double(env, field, &fieldRef));
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
+        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", false);
+        NAPI_CALL_BASE(env, napi_get_value_double(env, field, &fieldRef), false);
+        return true;
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
     }
-    return UndefinedNapiValue(env);
+    return false;
 }
 
-napi_value JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef)
+bool JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL(env, napi_has_named_property(env, object, fieldStr, &hasProperty));
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
-        NAPI_CALL(env, napi_typeof(env, field, &valueType));
-        NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. Number expected.");
-        NAPI_CALL(env, napi_get_value_int32(env, field, &fieldRef));
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
+        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", false);
+        NAPI_CALL_BASE(env, napi_get_value_int32(env, field, &fieldRef), false);
+        return true;
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
     }
-    return UndefinedNapiValue(env);
+    return false;
 }
 
-napi_value JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef)
+bool JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL(env, napi_has_named_property(env, object, fieldStr, &hasProperty));
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL(env, napi_get_named_property(env, object, fieldStr, &field));
-        NAPI_CALL(env, napi_typeof(env, field, &valueType));
-        NAPI_ASSERT(env, valueType == napi_boolean, "Wrong argument type. Bool expected.");
-        NAPI_CALL(env, napi_get_value_bool(env, field, &fieldRef));
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
+        NAPI_ASSERT_BASE(env, valueType == napi_boolean, "Wrong argument type.", false);
+        NAPI_CALL_BASE(env, napi_get_value_bool(env, field, &fieldRef), false);
+        return true;
     } else {
         LBSLOGD(LOCATOR_STANDARD, "Js to bool no property: %{public}s", fieldStr);
     }
-    return UndefinedNapiValue(env);
+    return false;
 }
 
 napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const char* str, napi_value& result)
@@ -693,30 +684,30 @@ napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool b
     return napi_ok;
 }
 
-static napi_value InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext,
+static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum)
 {
     if (asyncContext == nullptr || argv == nullptr) {
-        return nullptr;
+        return false;
     }
     for (size_t i = objectArgsNum; i != argc; ++i) {
         napi_valuetype valuetype;
-        NAPI_CALL(env, napi_typeof(env, argv[i], &valuetype));
-        NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
-        NAPI_CALL(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - objectArgsNum]));
+        NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);
+        NAPI_ASSERT_BASE(env, valuetype == napi_function,  "Wrong argument type.", false);
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - objectArgsNum]), false);
     }
-    return UndefinedNapiValue(env);
+    return true;
 }
 
-static napi_value InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext, napi_value& promise)
+static bool InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext, napi_value& promise)
 {
     napi_deferred deferred;
     if (asyncContext == nullptr) {
-        return nullptr;
+        return false;
     }
-    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    NAPI_CALL_BASE(env, napi_create_promise(env, &deferred, &promise), false);
     asyncContext->deferred = deferred;
-    return UndefinedNapiValue(env);
+    return true;
 }
 
 void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode)
@@ -768,6 +759,11 @@ void SendResultToJs(const napi_env& env, AsyncContext* context)
 {
     if (context == nullptr || env == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "SendResultToJs input para error");
+        return;
+    }
+
+    if (context->result[PARAM1] == 0) {
+        LBSLOGD(LOCATOR_STANDARD, "empty message, just return.");
         return;
     }
 
