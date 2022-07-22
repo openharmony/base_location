@@ -29,12 +29,15 @@ class GeoConvertProxy : public IRemoteProxy<IGeoConvert> {
 public:
     explicit GeoConvertProxy(const sptr<IRemoteObject> &impl);
     ~GeoConvertProxy() = default;
-    int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) override;
+    int IsGeoConvertAvailable(MessageParcel &rep) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
     bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
+    bool SendSimpleMsgAndParseResult(const int msgId);
+    int SendSimpleMsg(const int msgId, MessageParcel& reply);
+    int SendMsgWithDataReply(const int msgId, MessageParcel& data, MessageParcel& reply);
 private:
     static inline BrokerDelegator<GeoConvertProxy> delegator_;
 };

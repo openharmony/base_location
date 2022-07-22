@@ -36,7 +36,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
         case IS_AVAILABLE: {
-            ret = IsGeoConvertAvailable(data, reply);
+            ret = IsGeoConvertAvailable(reply);
             break;
         }
         case GET_FROM_COORDINATE: {

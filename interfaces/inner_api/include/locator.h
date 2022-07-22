@@ -55,7 +55,7 @@ public:
 
     virtual void ShowNotification() = 0;
 
-    virtual void RequestPermission(napi_env env) = 0;
+    virtual void RequestPermission() = 0;
 
     virtual bool IsGeoServiceAvailable() = 0;
 
@@ -94,6 +94,12 @@ public:
 
     virtual bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
 
+    virtual bool EnableReverseGeocodingMock() = 0;
+
+    virtual bool DisableReverseGeocodingMock() = 0;
+
+    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
+
     virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
 
     virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
@@ -102,12 +108,6 @@ public:
 
     virtual bool SetMockedLocations(
         const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
-    
-    virtual bool EnableReverseGeocodingMock() = 0;
-
-    virtual bool DisableReverseGeocodingMock() = 0;
-
-    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
 };
 } // namespace Location
 } // namespace OHOS

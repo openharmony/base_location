@@ -68,7 +68,7 @@ bool GeoConvertService::Init()
     return true;
 }
 
-int GeoConvertService::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply)
+int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
 {
     if (!mockEnabled_) {
         reply.WriteInt32(REPLY_CODE_UNSUPPORT);

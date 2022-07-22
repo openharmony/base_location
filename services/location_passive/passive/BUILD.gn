@@ -33,7 +33,7 @@ ohos_shared_library("lbsservice_passive") {
     "//base/location/services/location_passive/passive/visibility/include",
     "//distributedschedule/safwk/include",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
   ]
 
@@ -43,10 +43,10 @@ ohos_shared_library("lbsservice_passive") {
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",

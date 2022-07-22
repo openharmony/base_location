@@ -38,7 +38,7 @@ public:
         SET_REVERSE_GEOCODE_MOCKINFO = 35,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGeoConvert");
-    virtual int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) = 0;
+    virtual int IsGeoConvertAvailable(MessageParcel &rep) = 0;
     virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) = 0;
     virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) = 0;
     virtual bool EnableReverseGeocodingMock() = 0;

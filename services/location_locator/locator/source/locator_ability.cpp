@@ -781,7 +781,7 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     return REPLY_CODE_NO_EXCEPTION;
 }
 
-int LocatorAbility::GetCacheLocation(MessageParcel& data, MessageParcel& reply)
+int LocatorAbility::GetCacheLocation(MessageParcel& reply)
 {
     auto lastLocation = reportManager_->GetLastLocation();
     if (lastLocation == nullptr) {
@@ -863,7 +863,7 @@ void LocatorAbility::RegisterAction()
     }
 }
 
-int LocatorAbility::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay)
+int LocatorAbility::IsGeoConvertAvailable(MessageParcel &replay)
 {
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {

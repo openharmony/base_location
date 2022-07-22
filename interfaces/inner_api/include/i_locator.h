@@ -83,8 +83,8 @@ public:
     virtual int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) = 0;
     virtual int StopLocating(sptr<ILocatorCallback>& callback) = 0;
-    virtual int GetCacheLocation(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay) = 0;
+    virtual int GetCacheLocation(MessageParcel &replay) = 0;
+    virtual int IsGeoConvertAvailable(MessageParcel &replay) = 0;
     virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) = 0;
     virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) = 0;
     virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
@@ -104,7 +104,7 @@ public:
     virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
     virtual bool SetMockedLocations(
         const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
-    
+
     virtual bool EnableReverseGeocodingMock() = 0;
 
     virtual bool DisableReverseGeocodingMock() = 0;

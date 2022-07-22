@@ -137,7 +137,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
                 ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
-            ret = GetCacheLocation(data, reply);
+            ret = GetCacheLocation(reply);
             break;
         }
         case GEO_IS_AVAILABLE: {
@@ -145,7 +145,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
                 ret = REPLY_CODE_SWITCH_OFF_EXCEPTION;
                 break;
             }
-            ret = IsGeoConvertAvailable(data, reply);
+            ret = IsGeoConvertAvailable(reply);
             break;
         }
         case GET_FROM_COORDINATE: {

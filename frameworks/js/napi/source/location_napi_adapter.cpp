@@ -630,7 +630,7 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
-napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
+napi_value SetReverseGeocodingMockState(napi_env env, napi_callback_info info, bool enable)
 {
     size_t argc = 1;
     napi_value argv[argc];
@@ -639,13 +639,15 @@ napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
-    AsyncContext *asyncContext = new (std::nothrow) AsyncContext(env);
+    auto asyncContext = new (std::nothrow) ReverseGeocodeMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "EnableReverseGeocodingMock",
+    NAPI_CALL(env, napi_create_string_latin1(env, "SetReverseGeocodingMockState",
         NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    asyncContext->enable = enable;
     asyncContext->executeFunc = [&](void *data) -> void {
-        AsyncContext *context = static_cast<AsyncContext *>(data);
-        bool ret = g_locatorClient->EnableReverseGeocodingMock();
+        auto context = static_cast<ReverseGeocodeMockAsyncContext *>(data);
+        bool ret = context->enable ? g_locatorClient->EnableReverseGeocodingMock() :
+            g_locatorClient->DisableReverseGeocodingMock();
         context->errCode = ret ? SUCCESS : REVERSE_GEOCODE_ERROR;
     };
     asyncContext->completeFunc = [&](void *data) -> void {};
@@ -654,28 +656,14 @@ napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
 }
 
+napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
+{
+    return SetReverseGeocodingMockState(env, info, true);
+}
+
 napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
 {
-    size_t argc = 1;
-    napi_value argv[argc];
-    napi_value thisVar = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
-    NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-
-    AsyncContext *asyncContext = new (std::nothrow) AsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "DisableReverseGeocodingMock",
-        NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-    asyncContext->executeFunc = [&](void *data) -> void {
-        AsyncContext *context = static_cast<AsyncContext *>(data);
-        bool ret = g_locatorClient->DisableReverseGeocodingMock();
-        context->errCode = ret ? SUCCESS : REVERSE_GEOCODE_ERROR;
-    };
-    asyncContext->completeFunc = [&](void *data) -> void {};
-
-    size_t nonCallbackArgNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
+    return SetReverseGeocodingMockState(env, info, false);
 }
 
 napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)

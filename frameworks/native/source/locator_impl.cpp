@@ -49,7 +49,7 @@ void LocatorImpl::ShowNotification()
     LBSLOGI(LOCATION_NAPI, "ShowNotification");
 }
 
-void LocatorImpl::RequestPermission(napi_env env)
+void LocatorImpl::RequestPermission()
 {
     LBSLOGI(LOCATION_NAPI, "permission need to be granted");
 }
@@ -78,9 +78,8 @@ void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
 std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
 {
     std::unique_ptr<Location> location = nullptr;
-    MessageParcel data;
     MessageParcel reply;
-    client_->GetCacheLocation(data, reply);
+    client_->GetCacheLocation(reply);
     int exception = reply.ReadInt32();
     if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
@@ -155,9 +154,8 @@ void LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback
 bool LocatorImpl::IsGeoServiceAvailable()
 {
     bool result = false;
-    MessageParcel data;
     MessageParcel reply;
-    client_->IsGeoConvertAvailable(data, reply);
+    client_->IsGeoConvertAvailable(reply);
     int exception = reply.ReadInt32();
     if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
