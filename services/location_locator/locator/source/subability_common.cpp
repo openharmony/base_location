@@ -181,9 +181,7 @@ void SubAbility::CacheLocationMock(const std::vector<std::shared_ptr<Location>> 
     int locationSize = location.size();
     ClearLocationMock();
     for (int i = 0; i < locationSize; i++) {
-        MessageParcel data;
-        location.at(i)->Marshalling(data);
-        mockLoc_.push_back(Location::UnmarshallingShared(data));
+        mockLoc_.push_back(std::make_shared<Location>(*location.at(i)));
     }
 }
 

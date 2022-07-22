@@ -195,18 +195,18 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(napi_env& env,
 int GetObjectArgsNum(napi_env& env, const size_t argc, const napi_value* argv)
 {
     napi_valuetype valueType = napi_undefined;
-    int objectArgsNum = 0;
-    if (argc == 0) {
-        objectArgsNum = 0;
-    } else if (argc == 1) {
-        NAPI_CALL_BASE(env, napi_typeof(env, argv[0], &valueType), objectArgsNum);
+    int objectArgsNum = PARAM0;
+    if (argc == PARAM0) {
+        objectArgsNum = PARAM0;
+    } else if (argc == PARAM1) {
+        NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM0], &valueType), objectArgsNum);
         if (valueType == napi_object) {
-            objectArgsNum = 1;
+            objectArgsNum = PARAM1;
         } else if (valueType == napi_function) {
-            objectArgsNum = 0;
+            objectArgsNum = PARAM0;
         }
-    } else if (argc == 2) {
-        objectArgsNum = 1;
+    } else if (argc == PARAM2) {
+        objectArgsNum = PARAM1;
     } else {
         LBSLOGI(LOCATION_NAPI, "argc of GetCurrentLocation is wrong.");
     }
@@ -244,7 +244,7 @@ napi_value RequestLocationOnce(napi_env& env, const size_t argc, const napi_valu
 {
     size_t objectArgsNum = 0;
 
-    objectArgsNum = GetObjectArgsNum(env, argc, argv);
+    objectArgsNum = static_cast<size_t>(GetObjectArgsNum(env, argc, argv));
     auto requestConfig = CreateRequestConfig(env, argv, objectArgsNum);
     NAPI_ASSERT(env, requestConfig != nullptr, "requestConfig is null.");
     auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();

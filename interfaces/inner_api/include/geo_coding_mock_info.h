@@ -33,10 +33,10 @@ public:
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<GeocodingMockInfo> Unmarshalling(Parcel& parcel);
 
-    std::shared_ptr<ReverseGeocodeRequest> GetReverseGeocodeRequest();
+    std::shared_ptr<ReverseGeocodeRequest> GetLocation();
     std::shared_ptr<GeoAddress> GetGeoAddressInfo();
 
-    void SetReverseGeocodeRequest(std::shared_ptr<ReverseGeocodeRequest> request);
+    void SetLocation(std::shared_ptr<ReverseGeocodeRequest> request);
     void SetGeoAddressInfo(std::shared_ptr<GeoAddress> geoAddress);
 private:
     std::shared_ptr<ReverseGeocodeRequest> location_;

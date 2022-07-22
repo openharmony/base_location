@@ -346,7 +346,7 @@ bool GnssAbilityProxy::SetMocked(
         return false;
     }
     config.Marshalling(data);
-    int locationSize = location.size();
+    int locationSize = static_cast<int>(location.size());
     data.WriteInt32(locationSize);
     for (int i = 0; i < locationSize; i++) {
         location.at(i)->Marshalling(data);

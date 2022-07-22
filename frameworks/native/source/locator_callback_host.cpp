@@ -19,9 +19,8 @@
 #include "ipc_skeleton.h"
 #include "i_locator_callback.h"
 #include "location_log.h"
-#include "location_napi_adapter.h"
 #include "napi_util.h"
-#include "locator.h"
+#include "location_async_context.h"
 
 namespace OHOS {
 namespace Location {
@@ -152,7 +151,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 delete work;
                 return;
             }
-            napi_open_handle_scope(context->env, &scope);
+            NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
                 delete context;
@@ -162,8 +161,9 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
             if (context->callback[FAIL_CALLBACK] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                napi_get_undefined(context->env, &undefine);
-                napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler);
+                NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler));
                 std::string msg = GetErrorMsgByCode(context->errCode);
                 CreateFailCallBackParams(*context, msg, context->errCode);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
@@ -171,10 +171,28 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
                 }
             }
-            napi_close_handle_scope(context->env, scope);
+            NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
     });
+}
+
+bool LocatorCallbackHost::InitContext(AsyncContext* context)
+{
+    if (context == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        return false;
+    }
+    context->env = m_env;
+    if (IsSystemGeoLocationApi()) {
+        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
+        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
+        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
+    } else {
+        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+        context->deferred = m_deferred;
+    }
+    return true;
 }
 
 bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
@@ -189,7 +207,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         return false;
     }
     uv_loop_s *loop = nullptr;
-    napi_get_uv_event_loop(m_env, &loop);
+    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
         return false;
@@ -204,14 +222,8 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return false;
     }
-    context->env = m_env;
-    if (IsSystemGeoLocationApi()) {
-        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
-        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
-        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
-    } else {
-        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
-        context->deferred = m_deferred;
+    if (!InitContext(context)) {
+        LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
     context->errCode = errorCode;
     work->data = context;
@@ -242,14 +254,9 @@ void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return;
     }
-    context->env = m_env;
-    if (IsSystemGeoLocationApi()) {
-        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
-        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
-        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
-    } else {
-        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
-        context->deferred = m_deferred;
+    auto asyncContext = static_cast<AsyncContext*>(context);
+    if (!InitContext(asyncContext)) {
+        LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
     context->loc = std::make_unique<Location>(*location);
     work->data = context;
@@ -278,7 +285,7 @@ void LocatorCallbackHost::DeleteHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_handlerCb && m_env) {
-        napi_delete_reference(m_env, m_handlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
         m_handlerCb = nullptr;
     }
 }
@@ -288,7 +295,7 @@ void LocatorCallbackHost::DeleteSuccessHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteSuccessHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_successHandlerCb && m_env) {
-        napi_delete_reference(m_env, m_successHandlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_successHandlerCb));
         m_successHandlerCb = nullptr;
     }
 }
@@ -298,7 +305,7 @@ void LocatorCallbackHost::DeleteFailHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteFailHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_failHandlerCb && m_env) {
-        napi_delete_reference(m_env, m_failHandlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_failHandlerCb));
         m_failHandlerCb = nullptr;
     }
 }
@@ -308,7 +315,7 @@ void LocatorCallbackHost::DeleteCompleteHandler()
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteCompleteHandler");
     std::shared_lock<std::shared_mutex> guard(m_mutex);
     if (m_completeHandlerCb && m_env) {
-        napi_delete_reference(m_env, m_completeHandlerCb);
+        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_completeHandlerCb));
         m_completeHandlerCb = nullptr;
     }
 }

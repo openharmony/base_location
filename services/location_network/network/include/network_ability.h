@@ -64,7 +64,7 @@ private:
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
     std::shared_ptr<NetworkHandler> networkHandler_;
-    size_t locationIndex_ = 0;
+    size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
 };

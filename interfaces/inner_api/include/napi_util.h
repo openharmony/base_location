@@ -22,6 +22,7 @@
 #include <list>
 #include <mutex>
 #include <string>
+#include "location_async_context.h"
 #include "async_context.h"
 #include "constant_definition.h"
 #include "geo_coding_mock_info.h"
@@ -57,11 +58,11 @@ void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<GeofenceRequest>& request);
 bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
-napi_value JsObjectToString(const napi_env& env, const napi_value& object,
+bool JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef);
-napi_value JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
-napi_value JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef);
-napi_value JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef);
+bool JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
+bool JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef);
+bool JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef);
 napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const char* str, napi_value& result);
 napi_status SetValueStringArray(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 napi_status SetValueInt32(const napi_env& env, const char* fieldStr, const int intValue, napi_value& result);
