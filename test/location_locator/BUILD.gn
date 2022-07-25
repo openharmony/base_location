@@ -43,7 +43,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
-    "//base/startup/init_lite/interfaces/innerkits:libbegetutil",
+    "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
