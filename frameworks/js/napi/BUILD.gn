@@ -18,7 +18,7 @@ ohos_shared_library("geolocation") {
   include_dirs = [
     "//third_party/node/src",
     "//native_engine",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
     "//base/location/frameworks/js/napi/include",
@@ -39,13 +39,13 @@ ohos_shared_library("geolocation") {
     "//base/location/frameworks/native:locator_sdk",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/libuv:uv_static",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",

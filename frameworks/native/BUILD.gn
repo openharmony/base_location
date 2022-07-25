@@ -25,7 +25,7 @@ ohos_shared_library("locator_sdk") {
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
     "//systemabilitymgr/safwk/include",
     "//native_engine",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
   ]
 
@@ -47,11 +47,11 @@ ohos_shared_library("locator_sdk") {
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/libuv:uv_static",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
