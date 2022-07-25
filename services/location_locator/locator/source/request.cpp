@@ -45,8 +45,8 @@ void Request::SetRequestConfig(RequestConfig& requestConfig)
 void Request::SetLocationMockConfig(const LocationMockConfig& locationMockConfig)
 {
     RequestConfig config;
-    config.SetScenario(locationMockConfig.scenario_);
-    config.SetTimeInterval(locationMockConfig.timeInterval_);
+    config.SetScenario(locationMockConfig.GetScenario());
+    config.SetTimeInterval(locationMockConfig.GetTimeInterval());
     SetRequestConfig(config);
 }
 
