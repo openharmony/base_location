@@ -18,6 +18,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <math.h>
 #include <mutex>
 #include "constant_definition.h"
 #include "iremote_object.h"
@@ -62,6 +63,11 @@ const int SEC_TO_MILLI_SEC = 1000;
 const char DEFAULT_STRING[] = "error";
 const std::wstring DEFAULT_WSTRING = L"error";
 const std::u16string DEFAULT_USTRING = u"error";
+
+const double PI = 3.1415926;
+const double DEGREE_PI = 180.0;
+const double DIS_FROMLL_PARAMETER = 2;
+const double EARTH_RADIUS = 6378137.0; // earth semimajor axis (WGS84) (m)
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
@@ -116,6 +122,7 @@ public:
     static bool GetCurrentUserId(int &userId);
     static std::string Str16ToStr8(std::u16string str);
     static bool DoubleEqual(double a, double b);
+    static double CalDistance(const double lat1, const double lon1, const double lat2, const double lon2);
 };
 
 class CountDownLatch {

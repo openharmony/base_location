@@ -32,8 +32,7 @@ public:
     ~ReportManager();
     bool ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result);
     bool OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
-    bool ReportIntervalCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
-    bool MaxAccuracyCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
+    bool ResultCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     void SetLastLocation(const std::unique_ptr<Location>& location);
     std::shared_ptr<Location> GetLastLocation();
 private:

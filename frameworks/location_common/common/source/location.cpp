@@ -17,10 +17,13 @@
 
 namespace OHOS {
 namespace Location {
+static constexpr double MIN_LATITUDE = -90.0;
+static constexpr double MIN_LONGITUDE = -180.0;
+
 Location::Location()
 {
-    latitude_ = 0.0;
-    longitude_ = 0.0;
+    latitude_ = MIN_LATITUDE - 1;
+    longitude_ = MIN_LONGITUDE - 1;
     altitude_ = 0.0;
     accuracy_ = 0.0;
     speed_ = 0.0;
