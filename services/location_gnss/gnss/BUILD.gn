@@ -55,6 +55,7 @@ ohos_shared_library("lbsservice_gnss") {
     "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
     "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
     "eventhandler:libeventhandler",
+    "hdf_core:libhdi",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
   ]
