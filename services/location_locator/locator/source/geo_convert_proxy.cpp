@@ -24,87 +24,87 @@ GeoConvertProxy::GeoConvertProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-int GeoConvertProxy::IsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply)
+int GeoConvertProxy::IsGeoConvertAvailable(MessageParcel &reply)
 {
-    int error = -1;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
-        return error;
-    }
-    error = Remote()->SendRequest(IS_AVAILABLE, data, reply, option);
-    LBSLOGI(GEO_CONVERT, "IsGeoConvertAvailable result from server");
-    return error;
+    return SendSimpleMsg(IS_AVAILABLE, reply);
 }
 
 int GeoConvertProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
-    int error = -1;
+    int error = REPLY_CODE_EXCEPTION;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
         return error;
     }
-    error = Remote()->SendRequest(GET_FROM_COORDINATE, data, reply, option);
+    error = SendMsgWithDataReply(GET_FROM_COORDINATE, data, reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByCoordinate result from server.");
     return error;
 }
 
 int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
-    int error = -1;
+    int error = REPLY_CODE_EXCEPTION;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
         return error;
     }
-    error = Remote()->SendRequest(GET_FROM_LOCATION_NAME_BY_BOUNDARY, data, reply, option);
+    error = SendMsgWithDataReply(GET_FROM_LOCATION_NAME_BY_BOUNDARY, data, reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
     return error;
 }
 
-bool GeoConvertProxy::EnableReverseGeocodingMock()
+int GeoConvertProxy::SendSimpleMsg(const int msgId, MessageParcel& reply)
 {
-    bool result = false;
-    int error = -1;
+    int error = REPLY_CODE_EXCEPTION;
     MessageParcel data;
-    MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
-        return false;
+        return error;
     }
-    error = Remote()->SendRequest(ENABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
-    LBSLOGI(GEO_CONVERT, "EnableReverseGeocodingMock result from server.");
+    error = SendMsgWithDataReply(msgId, data, reply);
+    return error;
+}
+
+int GeoConvertProxy::SendMsgWithDataReply(const int msgId, MessageParcel& data, MessageParcel& reply)
+{
+    int error = REPLY_CODE_EXCEPTION;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(GEO_CONVERT, "SendMsgWithDataReply remote is null");
+        return REPLY_CODE_EXCEPTION;
+    }
+    error = remote->SendRequest(msgId, data, reply, option);
+    LBSLOGD(GEO_CONVERT, "Proxy::SendMsgWithDataReply result from server.");
+    return error;
+}
+
+bool GeoConvertProxy::SendSimpleMsgAndParseResult(const int msgId)
+{
+    bool result = false;
+    MessageParcel reply;
+    int error = SendSimpleMsg(msgId, reply);
     if (error == NO_ERROR) {
         result = reply.ReadBool();
     }
     return result;
+}
+
+bool GeoConvertProxy::EnableReverseGeocodingMock()
+{
+    return SendSimpleMsgAndParseResult(ENABLE_REVERSE_GEOCODE_MOCK);
 }
 
 bool GeoConvertProxy::DisableReverseGeocodingMock()
 {
-    bool result = false;
-    int error = -1;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
-        return false;
-    }
-    error = Remote()->SendRequest(DISABLE_REVERSE_GEOCODE_MOCK, data, reply, option);
-    LBSLOGI(GEO_CONVERT, "DisableReverseGeocodingMock result from server.");
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
-    }
-    return result;
+    return SendSimpleMsgAndParseResult(DISABLE_REVERSE_GEOCODE_MOCK);
 }
 
 bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
-    bool result = false;
-    int error = -1;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -116,8 +116,8 @@ bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Ge
     for (size_t i = 0; i < mockInfo.size(); i++) {
         mockInfo[i]->Marshalling(data);
     }
-    error = Remote()->SendRequest(SET_REVERSE_GEOCODE_MOCKINFO, data, reply, option);
-    LBSLOGI(GEO_CONVERT, "SetReverseGeocodingMockInfo result from server.");
+    int error = SendMsgWithDataReply(SET_REVERSE_GEOCODE_MOCKINFO, data, reply);
+    bool result = false;
     if (error == NO_ERROR) {
         result = reply.ReadBool();
     }

@@ -51,8 +51,8 @@ public:
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) override;
     int StopLocating(sptr<ILocatorCallback>& callback) override;
-    int GetCacheLocation(MessageParcel &data, MessageParcel &replay) override;
-    int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &replay) override;
+    int GetCacheLocation(MessageParcel &replay) override;
+    int IsGeoConvertAvailable(MessageParcel &replay) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) override;
     bool IsLocationPrivacyConfirmed(const int type) override;
@@ -79,6 +79,15 @@ public:
     bool DisableReverseGeocodingMock() override;
 
     bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
+
+    int SendMsgWithDataReply(const int msgId, MessageParcel& data, MessageParcel& reply);
+
+    int SendMsgWithReply(const int msgId, MessageParcel& reply);
+
+    int SendSimpleMsg(const int msgId);
+
+    int SendRegisterMsgToRemote(const int msgId, const sptr<IRemoteObject>& callback, pid_t uid);
+
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };

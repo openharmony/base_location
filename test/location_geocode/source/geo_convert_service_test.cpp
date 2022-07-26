@@ -55,10 +55,9 @@ void GeoConvertServiceTest::TearDown()
 
 bool GeoConvertServiceTest::Available()
 {
-    MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (proxy_ != nullptr) {
-        proxy_->IsGeoConvertAvailable(dataParcel, replyParcel);
+        proxy_->IsGeoConvertAvailable(replyParcel);
     }
     replyParcel.ReadInt32();
     int temp = replyParcel.ReadInt32();

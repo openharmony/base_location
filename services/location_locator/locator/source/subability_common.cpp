@@ -26,10 +26,15 @@ namespace OHOS {
 namespace Location {
 SubAbility::SubAbility()
 {
+    label_ = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
+    newRecord_ = std::make_unique<WorkRecord>();
+    lastRecord_ = std::make_unique<WorkRecord>();
 }
 
 SubAbility::~SubAbility()
 {
+    newRecord_ = nullptr;
+    lastRecord_ = nullptr;
 }
 
 void SubAbility::SetAbility(std::string name)
@@ -37,8 +42,6 @@ void SubAbility::SetAbility(std::string name)
     name_ = name;
     label_ = CommonUtils::GetLabel(name);
     capability_ = CommonUtils::GetCapability(name);
-    newRecord_ = std::make_unique<WorkRecord>();
-    lastRecord_ = std::make_unique<WorkRecord>();
 }
 
 void SubAbility::LocationRequest(uint64_t interval, WorkRecord &workRecord)

@@ -39,7 +39,7 @@ public:
     {
         return state_;
     }
-    int IsGeoConvertAvailable(MessageParcel &data, MessageParcel &rep) override;
+    int IsGeoConvertAvailable(MessageParcel &rep) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
     bool EnableReverseGeocodingMock() override;

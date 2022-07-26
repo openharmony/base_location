@@ -32,7 +32,7 @@ public:
     bool Init();
     bool IsLocationEnabled() override;
     void ShowNotification() override;
-    void RequestPermission(napi_env env) override;
+    void RequestPermission() override;
     void RequestEnableLocation() override;
     void EnableAbility(bool enable) override;
     void StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -65,7 +65,7 @@ public:
     bool DisableLocationMock(const LocationMockConfig& config) override;
     bool SetMockedLocations(
         const LocationMockConfig& config,      const std::vector<std::shared_ptr<Location>> &location) override;
-    
+
     bool EnableReverseGeocodingMock() override;
 
     bool DisableReverseGeocodingMock() override;
