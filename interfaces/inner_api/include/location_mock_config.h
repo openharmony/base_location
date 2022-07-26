@@ -53,7 +53,7 @@ public:
     void Set(LocationMockConfig& requestConfig);
     bool IsSame(LocationMockConfig& requestConfig);
 
-public:
+private:
     int scenario_;
     int timeInterval_;
 };

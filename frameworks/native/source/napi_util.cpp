@@ -460,8 +460,8 @@ bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
     JsObjectToBool(env, value, "isFromMock", address->m_isFromMock);
     std::vector<std::string> descriptions;
     GetStringArrayValueByKey(env, value, "descriptions", descriptions);
-    size_t size = address->m_descriptionsSize > descriptions.size() ?
-        descriptions.size() : address->m_descriptionsSize;
+    size_t size = static_cast<size_t>(address->m_descriptionsSize) > descriptions.size() ?
+        descriptions.size() : static_cast<size_t>(address->m_descriptionsSize);
     for (size_t i = 0; i < size; i++) {
         address->m_descriptions.insert(std::make_pair(i, descriptions[i]));
     }
