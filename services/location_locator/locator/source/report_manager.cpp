@@ -25,6 +25,7 @@ namespace Location {
 const long NANOS_PER_MILLI = 1000000L;
 const int SECOND_TO_MILLISECOND = 1000;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
+static constexpr double MIN_LATITUDE = -90.0;
 ReportManager::ReportManager()
 {
 }
@@ -62,8 +63,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
             continue;
         }
 
-        if (!ReportIntervalCheck(location, request) ||
-            !MaxAccuracyCheck(location, request)) {
+        if (!ResultCheck(location, request)) {
             continue;
         }
         request->SetLastLocation(location);
@@ -108,34 +108,37 @@ bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback
     return true;
 }
 
-bool ReportManager::MaxAccuracyCheck(const std::unique_ptr<Location>& location,
+bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     const std::shared_ptr<Request>& request)
 {
-    if (request == nullptr || request->GetRequestConfig() == nullptr) {
+    if (request == nullptr || request->GetLastLocation() == nullptr || request->GetRequestConfig() == nullptr) {
         return true;
     }
     float maxAcc = request->GetRequestConfig()->GetMaxAccuracy();
-    LBSLOGD(REPORT_MANAGER, "MaxAccuracyCheck : maxAcc:%{public}f , location.acc:%{public}f",
-        maxAcc, location->GetAccuracy());
+    LBSLOGD(REPORT_MANAGER, "acc ResultCheck :  %{public}f - %{public}f", maxAcc, location->GetAccuracy());
     if (location->GetAccuracy() > maxAcc) {
-        LBSLOGD(REPORT_MANAGER, "location->GetAccuracy is too big,do not report location");
+        LBSLOGE(REPORT_MANAGER, "accuracy check fail, do not report location");
         return false;
     }
-    return true;
-}
-
-bool ReportManager::ReportIntervalCheck(const std::unique_ptr<Location>& location,
-    const std::shared_ptr<Request>& request)
-{
-    if (request == nullptr || request->GetLastLocation() == nullptr) {
+    if (CommonUtils::DoubleEqual(request->GetLastLocation()->GetLatitude(), MIN_LATITUDE - 1)) {
+        LBSLOGE(REPORT_MANAGER, "no valid cache location, no need to check");
         return true;
     }
     int minTime = request->GetRequestConfig()->GetTimeInterval();
     long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
-    LBSLOGD(REPORT_MANAGER, "ReportIntervalCheck : %{public}s %{public}d - %{public}ld",
+    LBSLOGD(REPORT_MANAGER, "timeInterval ResultCheck : %{public}s %{public}d - %{public}ld",
         request->GetPackageName().c_str(), minTime, deltaMs);
     if (deltaMs < (minTime * SECOND_TO_MILLISECOND - MAX_SA_SCHEDULING_JITTER_MS)) {
-        LBSLOGD(REPORT_MANAGER, "do not report location");
+        LBSLOGE(REPORT_MANAGER, "timeInterval check fail, do not report location");
+        return false;
+    }
+    
+    int distanceInterval = request->GetRequestConfig()->GetDistanceInterval();
+    double deltaDis = CommonUtils::CalDistance(location->GetLatitude(), location->GetLongitude(),
+        request->GetLastLocation()->GetLatitude(), request->GetLastLocation()->GetLongitude());
+    LBSLOGD(REPORT_MANAGER, "distanceInterval ResultCheck :  %{public}lf - %{public}d", deltaDis, distanceInterval);
+    if (deltaDis - distanceInterval < 0) {
+        LBSLOGE(REPORT_MANAGER, "distanceInterval check fail, do not report location");
         return false;
     }
     return true;

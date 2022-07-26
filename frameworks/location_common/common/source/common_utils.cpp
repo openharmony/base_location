@@ -230,5 +230,21 @@ bool CommonUtils::DoubleEqual(double a, double b)
         return false;
     }
 }
+
+double CommonUtils::CalDistance(const double lat1, const double lon1, const double lat2, const double lon2)
+{
+    double radLat1 = lat1 * PI / DEGREE_PI;
+    double radLat2 = lat2 * PI / DEGREE_PI;
+    double radLon1 = lon1 * PI / DEGREE_PI;
+    double radLon2 = lon2 * PI / DEGREE_PI;
+
+    double latDiff = radLat1 - radLat2;
+    double lonDiff = radLon1 - radLon2;
+    double temp = sqrt(pow(sin(latDiff / DIS_FROMLL_PARAMETER), DIS_FROMLL_PARAMETER) +
+        cos(radLat1) * cos(radLat2) * pow(sin(lonDiff / DIS_FROMLL_PARAMETER), DIS_FROMLL_PARAMETER));
+    double disRad = asin(temp) * DIS_FROMLL_PARAMETER;
+    double dis = disRad * EARTH_RADIUS;
+    return dis;
+}
 } // namespace Location
 } // namespace OHOS
