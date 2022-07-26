@@ -73,6 +73,8 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeoc
 {
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
     int arraySize = data.ReadInt32();
+    arraySize = arraySize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
+        arraySize;
     if (arraySize <= 0) {
         return std::vector<std::shared_ptr<GeocodingMockInfo>>();
     }

@@ -262,6 +262,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             LocationMockConfig config;
             config.Set(*mockConfig);
             int locationSize = data.ReadInt32();
+            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX : locationSize;
             std::vector<std::shared_ptr<Location>> vcLoc;
             for (int i = 0; i < locationSize; i++) {
                 vcLoc.push_back(Location::UnmarshallingShared(data));
@@ -283,6 +284,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
         case SET_REVERSE_GEOCODE_MOCKINFO: {
             std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
             int arraySize = data.ReadInt32();
+            arraySize = arraySize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX : arraySize;
             for (int i = 0; i < arraySize; i++) {
                 std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
                 info->ReadFromParcel(data);
