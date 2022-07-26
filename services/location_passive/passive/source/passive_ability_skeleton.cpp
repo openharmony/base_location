@@ -67,6 +67,8 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             LocationMockConfig config;
             config.Set(*mockConfig);
             int locationSize = data.ReadInt32();
+            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
+                locationSize;
             std::vector<std::shared_ptr<Location>> vcLoc;
             for (int i = 0; i < locationSize; i++) {
                 vcLoc.push_back(Location::UnmarshallingShared(data));

@@ -568,13 +568,13 @@ napi_value SetLocationMockState(napi_env env, napi_callback_info info, bool enab
     asyncContext->enable = enable;
     asyncContext->executeFunc = [&](void *data) -> void {
         LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
-        LocationMockConfig LocationMockInfo;
-        LocationMockInfo.scenario_ = context->scenario;
-        LocationMockInfo.timeInterval_ = context->timeInterval;
+        LocationMockConfig mockInfo;
+        mockInfo.SetScenario(context->scenario);
+        mockInfo.SetTimeInterval(context->timeInterval);
         context->errCode = LOCATION_SWITCH_ERROR;
         if (g_locatorClient->IsLocationEnabled()) {
-            bool ret = asyncContext->enable ? g_locatorClient->EnableLocationMock(LocationMockInfo) :
-                g_locatorClient->DisableLocationMock(LocationMockInfo);
+            bool ret = context->enable ? g_locatorClient->EnableLocationMock(mockInfo) :
+                g_locatorClient->DisableLocationMock(mockInfo);
             context->errCode = ret ? SUCCESS : LOCATOR_ERROR;
         }
     };
@@ -615,12 +615,12 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     ParseLocationMockParams(env, asyncContext, argv[0]);
     asyncContext->executeFunc = [&](void *data) -> void {
         LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
-        LocationMockConfig LocationMockInfo;
-        LocationMockInfo.scenario_ = context->scenario;
-        LocationMockInfo.timeInterval_ = context->timeInterval;
+        LocationMockConfig mockInfo;
+        mockInfo.SetScenario(context->scenario);
+        mockInfo.SetTimeInterval(context->timeInterval);
         context->errCode = LOCATION_SWITCH_ERROR;
         if (g_locatorClient->IsLocationEnabled()) {
-            bool ret = g_locatorClient->SetMockedLocations(LocationMockInfo, context->LocationNapi);
+            bool ret = g_locatorClient->SetMockedLocations(mockInfo, context->LocationNapi);
             context->errCode = ret ? SUCCESS : LOCATOR_ERROR;
         }
     };
