@@ -29,7 +29,13 @@ LocatorProxy::LocatorProxy(const sptr<IRemoteObject> &impl)
 
 int LocatorProxy::GetSwitchState()
 {
-    int state = SendSimpleMsg(GET_SWITCH_STATE);
+    MessageParcel reply;
+    int error = SendMsgWithReply(GET_SWITCH_STATE, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState Transact ErrCode = %{public}d", error);
+    int state = 0;
+    if (error == NO_ERROR) {
+        state = reply.ReadInt32();
+    }
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState return  %{public}d", state);
     return state;
 }
@@ -79,13 +85,7 @@ int LocatorProxy::SendMsgWithReply(const int msgId, MessageParcel& reply)
 int LocatorProxy::SendSimpleMsg(const int msgId)
 {
     MessageParcel reply;
-    int error = SendMsgWithReply(msgId, reply);
-    int state = 0;
-    if (error == NO_ERROR) {
-        state = reply.ReadInt32();
-    }
-    LBSLOGD(LOCATOR_STANDARD, "SendSimpleMsg return  %{public}d", state);
-    return state;
+    return SendMsgWithReply(msgId, reply);
 }
 
 int LocatorProxy::SendRegisterMsgToRemote(const int msgId, const sptr<IRemoteObject>& callback, pid_t uid)
