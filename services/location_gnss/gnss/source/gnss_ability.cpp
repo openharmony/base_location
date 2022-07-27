@@ -16,6 +16,7 @@
 #include "gnss_ability.h"
 #include <file_ex.h>
 #include <thread>
+#include "idevmgr_hdi.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -38,6 +39,9 @@ constexpr int AGNSS_SERVER_PORT = 7275;
 const std::string AGNSS_SERVER_ADDR = "supl.platform.hicloud.com";
 const uint32_t EVENT_REPORT_LOCATION = 0x0001;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
+constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
+constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -53,11 +57,8 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     agnssInterface_ = nullptr;
     gnssWorkingStatus_ = GNSS_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
-    ConnectHdi();
-    EnableGnss();
-    SetAgnssCallback();
-    SetAgnssServer();
     gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
+    isStarted = false;
     LBSLOGI(GNSS, "ability constructed.");
 }
 
@@ -70,6 +71,7 @@ GnssAbility::~GnssAbility()
         delete agnssCallback_;
     }
     DisableGnss();
+    RemoveHdi();
 }
 
 void GnssAbility::OnStart()
@@ -247,8 +249,16 @@ void GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
 
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGE(GNSS, "enter RequestRecord");
+    LBSLOGI(GNSS, "enter RequestRecord");
+    
     if (isAdded) {
+        if (!isStarted) {
+            ConnectHdi();
+            EnableGnss();
+            SetAgnssCallback();
+            SetAgnssServer();
+            isStarted = true;
+        }
         StartGnss();
     } else {
         StopGnss();
@@ -310,8 +320,6 @@ bool GnssAbility::EnableGnss()
     int32_t ret = gnssInterface_->EnableGnss(gnssCallback_);
     LBSLOGI(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     gnssWorkingStatus_ = (ret == 0) ? GNSS_STATUS_ENGINE_ON : GNSS_STATUS_NONE;
-    unsigned int sleepTime = 2 * 1000 * 1000;
-    usleep(sleepTime); /* sleep for 2 second. */
     return true;
 }
 
@@ -382,6 +390,23 @@ void GnssAbility::StopGnss()
 bool GnssAbility::ConnectHdi()
 {
     int32_t retry = 0;
+    auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
+    if (devmgr == nullptr) {
+        LBSLOGE(GNSS, "fail to get devmgr.");
+        return false;
+    }
+    if (devmgr->LoadDevice(GNSS_SERVICE_NAME) != 0) {
+        LBSLOGE(GNSS, "Load gnss service failed!");
+        return false;
+    }
+    if (devmgr->LoadDevice(AGNSS_SERVICE_NAME) != 0) {
+        LBSLOGE(GNSS, "Load agnss service failed!");
+        return false;
+    }
+    if (devmgr->LoadDevice(GEOFENCE_SERVICE_NAME) != 0) {
+        LBSLOGE(GNSS, "Load geofence service failed!");
+        return false;
+    }
     while (retry < GET_HDI_SERVICE_COUNT) {
         gnssInterface_ = IGnssInterface::Get();
         agnssInterface_ = IAGnssInterface::Get();
@@ -397,6 +422,28 @@ bool GnssAbility::ConnectHdi()
     }
     LBSLOGE(GNSS, "connect v1_0 hdi failed.");
     return false;
+}
+
+bool GnssAbility::RemoveHdi()
+{
+    auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
+    if (devmgr == nullptr) {
+        LBSLOGE(GNSS, "fail to get devmgr.");
+        return false;
+    }
+    if (devmgr->UnloadDevice(GNSS_SERVICE_NAME) != 0) {
+        LBSLOGE(GNSS, "Load gnss service failed!");
+        return false;
+    }
+    if (devmgr->UnloadDevice(AGNSS_SERVICE_NAME) != 0) {
+        LBSLOGE(GNSS, "Load agnss service failed!");
+        return false;
+    }
+    if (devmgr->UnloadDevice(GEOFENCE_SERVICE_NAME) != 0) {
+        LBSLOGE(GNSS, "Load geofence service failed!");
+        return false;
+    }
+    return true;
 }
 
 void GnssAbility::SetAgnssServer()
