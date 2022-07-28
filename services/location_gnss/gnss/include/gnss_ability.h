@@ -103,6 +103,7 @@ public:
     bool EnableGnss();
     void DisableGnss();
     bool ConnectHdi();
+    bool RemoveHdi();
     void SetAgnssServer();
     void SetAgnssCallback();
     void SetSetId(const SubscriberSetId& id);
@@ -115,6 +116,7 @@ private:
     bool IsGnssEnabled();
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
+    bool isStarted;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
