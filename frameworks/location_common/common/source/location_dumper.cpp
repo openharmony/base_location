@@ -14,8 +14,14 @@
  */
 
 #include "location_dumper.h"
+
 #include <functional>
+#include <iosfwd>
+#include <string>
+#include <vector>
+
 #include "location_log.h"
+
 namespace OHOS {
 namespace Location {
 const std::string ARGS_HELP = "-h";

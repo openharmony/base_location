@@ -14,6 +14,9 @@
  */
 
 #include "satellite_status.h"
+
+#include <parcel.h>
+
 #include "common_utils.h"
 
 namespace OHOS {

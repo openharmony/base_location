@@ -15,10 +15,25 @@
 
 #include "locator_proxy.h"
 
-#include "ipc_skeleton.h"
 #include "ipc_types.h"
-#include "country_code.h"
+#include "iremote_object.h"
+#include "iremote_proxy.h"
+#include "message_option.h"
+#include "message_parcel.h"
+#include "refbase.h"
+#include "string_ex.h"
+
 #include "common_utils.h"
+#include "constant_definition.h"
+#include "country_code.h"
+#include "geo_coding_mock_info.h"
+#include "i_cached_locations_callback.h"
+#include "i_locator.h"
+#include "i_locator_callback.h"
+#include "location.h"
+#include "location_log.h"
+#include "location_mock_config.h"
+#include "request_config.h"
 
 namespace OHOS {
 namespace Location {

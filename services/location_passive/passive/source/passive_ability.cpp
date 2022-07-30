@@ -14,12 +14,20 @@
  */
 
 #include "passive_ability.h"
+
 #include <file_ex.h>
+
+#include "singleton.h"
+#include "string_ex.h"
+#include "system_ability.h"
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
-#include "location_log.h"
+#include "location.h"
 #include "location_dumper.h"
+#include "location_log.h"
+#include "location_mock_config.h"
+#include "work_record.h"
 
 namespace OHOS {
 namespace Location {
