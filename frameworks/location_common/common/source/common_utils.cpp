@@ -47,12 +47,11 @@ bool CommonUtils::CheckPermission(const std::string &permission)
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
     int result = Security::AccessToken::PERMISSION_DENIED;
     if (tokenFirstCaller == 0) {
-        if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-            result = Security::AccessToken::AccessTokenKit::VerifyNativeToken(callerToken, permission);
-        } else if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
-            result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
+        if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
+            LBSLOGD(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
+            return false;
         } else {
-            LBSLOGE(COMMON_UTILS, "invalid callerToken");
+            result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
         }
     } else {
         result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, tokenFirstCaller, permission);
