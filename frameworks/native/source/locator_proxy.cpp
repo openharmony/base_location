@@ -459,5 +459,38 @@ bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geoco
     }
     return state;
 }
+
+bool LocatorProxy::ProxyUid(int32_t uid, bool isProxy)
+{
+    bool state = false;
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+
+    if (!data.WriteInt32(uid) || !data.WriteBool(isProxy)) {
+        LBSLOGE(LOCATOR_STANDARD, "[ProxyUid] fail: write data failed");
+        return false;
+    }
+    int error = SendMsgWithDataReply(PROXY_UID, data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyUid Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
+
+bool LocatorProxy::ResetAllProxy()
+{
+    bool state = false;
+    MessageParcel reply;
+    int error = SendMsgWithReply(RESET_ALL_PROXY, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::ResetAllProxy Transact ErrCodes = %{public}d", error);
+    if (error == NO_ERROR) {
+        state = reply.ReadBool();
+    }
+    return state;
+}
 } // namespace Location
 } // namespace OHOS

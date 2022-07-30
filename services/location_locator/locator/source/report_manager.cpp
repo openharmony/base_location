@@ -63,6 +63,9 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
             continue;
         }
 
+        if (locatorAbility->IsProxyUid(request->GetUid())) {
+            continue;
+        }
         if (!ResultCheck(location, request)) {
             continue;
         }

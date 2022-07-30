@@ -953,5 +953,31 @@ bool LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geo
     std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
     return geoProxy->SetReverseGeocodingMockInfo(mockInfo);
 }
+
+bool LocatorAbility::ProxyUid(int32_t uid, bool isProxy)
+{
+    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d", uid, isProxy);
+    std::lock_guard<std::mutex> lock(proxyMutex_);
+    if (isProxy) {
+        proxyUids_.insert(uid);
+    } else {
+        proxyUids_.erase(uid);
+    }
+    return true;
+}
+
+bool LocatorAbility::ResetAllProxy()
+{
+    LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
+    std::lock_guard<std::mutex> lock(proxyMutex_);
+    proxyUids_.clear();
+    return true;
+}
+
+bool LocatorAbility::IsProxyUid(int32_t uid)
+{
+    std::lock_guard<std::mutex> lock(proxyMutex_);
+    return proxyUids_.find(uid) != proxyUids_.end();
+}
 } // namespace Location
 } // namespace OHOS

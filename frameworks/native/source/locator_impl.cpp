@@ -295,5 +295,17 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfo()");
     return client_->SetReverseGeocodingMockInfo(mockInfo);
 }
+
+bool LocatorImpl::ProxyUid(int32_t uid, bool isProxy)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyUid()");
+    return client_->ProxyUid(uid, isProxy);
+}
+
+bool LocatorImpl::ResetAllProxy()
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ResetAllProxy()");
+    return client_->ResetAllProxy();
+}
 }  // namespace Location
 }  // namespace OHOS

@@ -88,6 +88,9 @@ public:
 
     int SendRegisterMsgToRemote(const int msgId, const sptr<IRemoteObject>& callback, pid_t uid);
 
+    bool ProxyUid(int32_t uid, bool isProxy) override;
+    bool ResetAllProxy() override;
+
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };
