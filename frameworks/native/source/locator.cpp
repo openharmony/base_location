@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "locator.h"
 #include "location_log.h"
 #include "locator_impl.h"

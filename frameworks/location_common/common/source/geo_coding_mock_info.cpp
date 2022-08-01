@@ -14,8 +14,13 @@
  */
 
 #include "geo_coding_mock_info.h"
+
+#include <parcel.h>
+
+#include "string_ex.h"
+
 #include "constant_definition.h"
-#include "common_utils.h"
+#include "geo_address.h"
 
 namespace OHOS {
 namespace Location {

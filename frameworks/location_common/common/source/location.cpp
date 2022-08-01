@@ -15,6 +15,11 @@
 
 #include "location.h"
 
+#include <iosfwd>
+#include <memory>
+#include <parcel.h>
+#include <string>
+
 namespace OHOS {
 namespace Location {
 static constexpr double MIN_LATITUDE = -90.0;

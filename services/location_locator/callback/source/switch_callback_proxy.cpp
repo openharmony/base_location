@@ -14,7 +14,14 @@
  */
 
 #include "switch_callback_proxy.h"
-#include "ipc_skeleton.h"
+
+#include "iremote_object.h"
+#include "iremote_proxy.h"
+#include "message_option.h"
+#include "message_parcel.h"
+#include "refbase.h"
+
+#include "i_switch_callback.h"
 #include "location_log.h"
 
 namespace OHOS {

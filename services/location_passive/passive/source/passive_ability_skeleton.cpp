@@ -14,8 +14,18 @@
  */
 
 #include "passive_ability_skeleton.h"
+
+#include "ipc_object_stub.h"
 #include "ipc_skeleton.h"
+#include "message_option.h"
+#include "message_parcel.h"
+
 #include "common_utils.h"
+#include "location.h"
+#include "location_log.h"
+#include "location_mock_config.h"
+#include "subability_common.h"
+#include "work_record.h"
 
 namespace OHOS {
 namespace Location {

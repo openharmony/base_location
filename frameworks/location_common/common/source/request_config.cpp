@@ -14,6 +14,9 @@
  */
 
 #include "request_config.h"
+
+#include <parcel.h>
+
 #include "constant_definition.h"
 
 namespace OHOS {

@@ -14,6 +14,9 @@
  */
 
 #include "location_mock_config.h"
+
+#include <parcel.h>
+
 #include "constant_definition.h"
 
 namespace OHOS {
