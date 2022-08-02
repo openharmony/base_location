@@ -119,6 +119,10 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests();
     void RegisterAction();
+    bool ProxyUidForFreeze(int32_t uid, bool isProxy) override;
+    bool ResetAllProxy() override;
+    bool IsProxyUid(int32_t uid);
+
 private:
     bool Init();
     bool CheckSaValid();
@@ -141,6 +145,9 @@ private:
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
     std::shared_ptr<CountryCodeManager> countryCodeManager_;
+
+    std::mutex proxyMutex_;
+    std::set<int32_t> proxyUids_;
 };
 } // namespace Location
 } // namespace OHOS
