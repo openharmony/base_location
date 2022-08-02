@@ -954,7 +954,7 @@ bool LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geo
     return geoProxy->SetReverseGeocodingMockInfo(mockInfo);
 }
 
-bool LocatorAbility::ProxyUid(int32_t uid, bool isProxy)
+bool LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
     LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d", uid, isProxy);
     std::lock_guard<std::mutex> lock(proxyMutex_);

@@ -72,7 +72,7 @@ public:
 
     bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
 
-    bool ProxyUid(int32_t uid, bool isProxy) override;
+    bool ProxyUidForFreeze(int32_t uid, bool isProxy) override;
     bool ResetAllProxy() override;
 
 private:

@@ -296,10 +296,10 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
     return client_->SetReverseGeocodingMockInfo(mockInfo);
 }
 
-bool LocatorImpl::ProxyUid(int32_t uid, bool isProxy)
+bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyUid()");
-    return client_->ProxyUid(uid, isProxy);
+    return client_->ProxyUidForFreeze(uid, isProxy);
 }
 
 bool LocatorImpl::ResetAllProxy()

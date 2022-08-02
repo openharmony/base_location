@@ -119,7 +119,7 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests();
     void RegisterAction();
-    bool ProxyUid(int32_t uid, bool isProxy) override;
+    bool ProxyUidForFreeze(int32_t uid, bool isProxy) override;
     bool ResetAllProxy() override;
     bool IsProxyUid(int32_t uid);
 

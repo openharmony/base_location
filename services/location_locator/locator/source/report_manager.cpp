@@ -64,6 +64,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         }
 
         if (locatorAbility->IsProxyUid(request->GetUid())) {
+            LBSLOGD(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());
             continue;
         }
         if (!ResultCheck(location, request)) {

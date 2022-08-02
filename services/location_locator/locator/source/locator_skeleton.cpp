@@ -294,10 +294,10 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             reply.WriteBool(result);
             break;
         }
-        case PROXY_UID: {
+        case PROXY_UID_FOR_FREEZE: {
             int32_t uid = data.ReadInt32();
             bool isProxy = data.ReadBool();
-            bool result = ProxyUid(uid, isProxy);
+            bool result = ProxyUidForFreeze(uid, isProxy);
             reply.WriteBool(result);
             break;
         }

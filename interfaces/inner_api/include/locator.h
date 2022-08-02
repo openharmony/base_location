@@ -109,7 +109,7 @@ public:
     virtual bool SetMockedLocations(
         const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
 
-    virtual bool ProxyUid(int32_t uid, bool isProxy) = 0;
+    virtual bool ProxyUidForFreeze(int32_t uid, bool isProxy) = 0;
     virtual bool ResetAllProxy() = 0;
 };
 } // namespace Location

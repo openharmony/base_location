@@ -67,7 +67,7 @@ public:
         SET_REVERSE_GEOCODE_MOCKINFO = 35,
         REG_COUNTRY_CODE_CALLBACK = 36,
         UNREG_COUNTRY_CODE_CALLBACK = 37,
-        PROXY_UID = 38,
+        PROXY_UID_FOR_FREEZE = 38,
         RESET_ALL_PROXY = 39,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
@@ -113,7 +113,7 @@ public:
 
     virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
 
-    virtual bool ProxyUid(int32_t uid, bool isProxy) = 0;
+    virtual bool ProxyUidForFreeze(int32_t uid, bool isProxy) = 0;
     virtual bool ResetAllProxy() = 0;
 };
 } // namespace Location

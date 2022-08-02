@@ -460,7 +460,7 @@ bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geoco
     return state;
 }
 
-bool LocatorProxy::ProxyUid(int32_t uid, bool isProxy)
+bool LocatorProxy::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
     bool state = false;
     MessageParcel data;
@@ -473,7 +473,7 @@ bool LocatorProxy::ProxyUid(int32_t uid, bool isProxy)
         LBSLOGE(LOCATOR_STANDARD, "[ProxyUid] fail: write data failed");
         return false;
     }
-    int error = SendMsgWithDataReply(PROXY_UID, data, reply);
+    int error = SendMsgWithDataReply(PROXY_UID_FOR_FREEZE, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyUid Transact ErrCodes = %{public}d", error);
     if (error == NO_ERROR) {
         state = reply.ReadBool();
