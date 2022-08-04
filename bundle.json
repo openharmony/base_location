@@ -16,7 +16,11 @@
         "name": "location",
         "subsystem": "location",
         "syscap": [
-            "SystemCapability.Location.Location"
+            "SystemCapability.Location.Location.Core",
+            "SystemCapability.Location.Location.Gnss",
+            "SystemCapability.Location.Location.Geofence",
+            "SystemCapability.Location.Location.Geocoder",
+            "SystemCapability.Location.Location.Lite"
         ],
         "features": [],
         "adapted_system_type": [
