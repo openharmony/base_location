@@ -120,7 +120,7 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
 
 napi_value DisableLocation(napi_env env, napi_callback_info info)
 {
-    size_t argc = 1;
+    size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void* data = nullptr;
@@ -150,7 +150,7 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
 
 napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 {
-    size_t argc = 1;
+    size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void* data = nullptr;
