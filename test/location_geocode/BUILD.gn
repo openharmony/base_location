@@ -31,8 +31,8 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk/",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/resourceschedule/backgroundtaskmanager/interfaces/innerkits/native/include",
     "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
@@ -44,8 +44,8 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
   ]
 
   external_deps = [
@@ -56,7 +56,7 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   module_out_path = module_output_path

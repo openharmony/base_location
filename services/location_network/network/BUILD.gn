@@ -31,7 +31,7 @@ ohos_shared_library("lbsservice_network") {
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk/",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk/",
     "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
   ]
@@ -40,8 +40,8 @@ ohos_shared_library("lbsservice_network") {
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
   ]
 
   external_deps = [
