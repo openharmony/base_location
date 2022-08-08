@@ -220,7 +220,7 @@ void LocatorAbility::InitSaAbility()
     if (objectGnss != nullptr) {
         proxyMap_->insert(make_pair(GNSS_ABILITY, objectGnss));
     } else {
-        LBSLOGI(LOCATOR, "GetRemoteObject gnss sa is null");
+        LBSLOGE(LOCATOR, "GetRemoteObject gnss sa is null");
     }
 
     // init network ability sa
@@ -229,7 +229,7 @@ void LocatorAbility::InitSaAbility()
     if (objectNetwork != nullptr) {
         proxyMap_->insert(make_pair(NETWORK_ABILITY, objectNetwork));
     } else {
-        LBSLOGI(LOCATOR, "GetRemoteObject network sa is null");
+        LBSLOGE(LOCATOR, "GetRemoteObject network sa is null");
     }
 
     // init passive ability sa
@@ -238,7 +238,7 @@ void LocatorAbility::InitSaAbility()
     if (objectPassive != nullptr) {
         proxyMap_->insert(make_pair(PASSIVE_ABILITY, objectPassive));
     } else {
-        LBSLOGI(LOCATOR, "GetRemoteObject passive sa is null");
+        LBSLOGE(LOCATOR, "GetRemoteObject passive sa is null");
     }
 
     UpdateSaAbilityHandler();
