@@ -345,9 +345,9 @@ bool LocatorAbility::IsLocationPrivacyConfirmed(const int type)
     return LocationConfigManager::GetInstance().GetPrivacyTypeState(type);
 }
 
-void LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
+void LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed, MessageParcel &replay)
 {
-    LocationConfigManager::GetInstance().SetPrivacyTypeState(type, isConfirmed);
+    LocationConfigManager::GetInstance().SetPrivacyTypeState(type, isConfirmed, replay);
 }
 
 void LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)

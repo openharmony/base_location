@@ -56,7 +56,7 @@ public:
 
     std::string GetPrivacyTypeConfigPath(const int type);
     bool GetPrivacyTypeState(const int type);
-    void SetPrivacyTypeState(const int type, bool isConfirmed);
+    void SetPrivacyTypeState(const int type, bool isConfirmed, MessageParcel &replay);
 
 private:
     LocationConfigManager();

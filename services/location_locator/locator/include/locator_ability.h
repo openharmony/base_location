@@ -81,7 +81,7 @@ public:
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) override;
 
     bool IsLocationPrivacyConfirmed(const int type) override;
-    void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
+    void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed, MessageParcel &replay) override;
 
     int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) override;

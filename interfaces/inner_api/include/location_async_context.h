@@ -151,6 +151,7 @@ class PrivacyAsyncContext : public AsyncContext {
 public:
     int type;
     bool isConfirmed;
+    bool isSuccess;
 
     PrivacyAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), type(PRIVACY_TYPE_OTHERS), isConfirmed(false) {}
