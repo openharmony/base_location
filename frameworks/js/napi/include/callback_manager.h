@@ -31,8 +31,10 @@ public:
     void AddCallback(napi_env& env, napi_ref& handlerRef, sptr<T>& callback);
     void DeleteCallback(napi_env& env, napi_value& handler);
     sptr<T> GetCallbackPtr(napi_env& env, napi_value& handler);
+    bool UnsubscribeAllCallback(napi_env& env, std::string event);
 private:
     std::map<napi_env, std::map<napi_ref, sptr<T>>> callbackMap_;
+    bool UnsubscribeCallBackByEvent(napi_env& env, std::string event, sptr<T> callbackHost);
 };
 
 template <typename T>
@@ -97,6 +99,56 @@ sptr<T> CallbackManager<T>::GetCallbackPtr(napi_env& env, napi_value& handler)
         }
     }
     return nullptr;
+}
+
+template <typename T>
+bool CallbackManager<T>::UnsubscribeCallBackByEvent(napi_env& env, std::string event, sptr<T> callbackHost) {
+    if (callbackHost == nullptr) {
+        return false;
+    }
+    if (event == "locationServiceState") {
+        UnSubscribeLocationServiceState(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    } else if (event == "locationChange") {
+        UnSubscribeLocationChange(callbackHost);
+        callbackHost->DeleteAllCallbacks();
+        callbackHost = nullptr;
+    } else if (event == "gnssStatusChange") {
+        UnSubscribeGnssStatus(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    } else if (event == "nmeaMessageChange") {
+        UnSubscribeNmeaMessage(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    } else if (event == "cachedGnssLocationsReporting") {
+        auto cachedCallback = sptr<ICachedLocationsCallback>(callbackHost);
+        UnSubscribeCacheLocationChange(cachedCallback);
+        cachedCallbackHost = nullptr;
+    } else if (event == "fenceStatusChange") {
+        UnSubscribeFenceStatusChange(env, null, null);
+    } else if (event == "countryCodeChange") {
+        UnsubscribeCountryCodeChange(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    }
+    return true;
+}
+
+template <typename T>
+bool CallbackManager<T>::UnsubscribeAllCallback(napi_env& env, std::string event)
+{
+    auto iter = callbackMap_.find(env);
+    if (iter == callbackMap_.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        UnsubscribeCallBackByEvent(env, event, callbackHost);
+    }
+    callbackMap_.clear();
+    return false;
 }
 } // namespace Location
 } // namespace OHOS
