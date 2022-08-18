@@ -364,8 +364,7 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
     NAPI_CALL(env, napi_get_value_bool(env, argv[1], &asyncContext->isConfirmed));
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<PrivacyAsyncContext*>(data);
-        context->isSuccess = g_locatorClient->SetLocationPrivacyConfirmStatus(context->type, context->isConfirmed);
-        context->errCode = (context->isSuccess) ? SUCCESS : PRIVACY_CONFIRM_STATUS_ERROR;
+        context->errCode = g_locatorClient->SetLocationPrivacyConfirmStatus(context->type, context->isConfirmed) ? SUCCESS : LOCATOR_ERROR;
     };
 
     asyncContext->completeFunc = [&](void* data) -> void {
