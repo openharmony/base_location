@@ -29,6 +29,21 @@
 
 namespace OHOS {
 namespace Location {
+void InitOffFuncMap();
+void InitOffSingleFuncMap();
+bool UnsubscribeAllLocationSwitchCallback(napi_env& env);
+bool UnsubscribeAllLocationChangeCallback(napi_env& env);
+bool UnsubscribeAllGnssStatusCallback(napi_env& env);
+bool UnsubscribeAllNmeaMessageCallback(napi_env& env);
+bool UnsubscribeAllCachedLocationsCallback(napi_env& env);
+bool UnsubscribeAllFenceStatueCallback(napi_env& env);
+bool UnsubscribeAllCountryCodeCallback(napi_env& env);
+bool OffSingleLocationServiceStateCallback(napi_env& env, napi_value& handler);
+bool OffSingleLocationChangeCallback(napi_env& env, napi_value& handler);
+bool OffSingleGnssStatusCallback(napi_env& env, napi_value& handler);
+bool OffSinglenNmeaMessageCallback(napi_env& env, napi_value& handler);
+bool OffSingleCachedLocationCallback(napi_env& env, napi_value& handler);
+bool OffSingleCountryCodeChangeCallback(napi_env& env, napi_value& handler);
 void SubscribeLocationServiceState(napi_env& env,
     napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost);
 void SubscribeGnssStatus(napi_env& env, napi_ref& handlerRef,
