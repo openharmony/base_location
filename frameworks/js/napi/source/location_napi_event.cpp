@@ -38,6 +38,18 @@ CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 std::vector<GeoFenceState*> mFences;
 auto g_locatorProxy = Locator::GetInstance();
 
+std::map<std::string, bool(*)(napi_env&)> handleFuncMap;
+
+void InitHandleMap()
+{
+    handleFuncMap->insert(make_pair("locationServiceState", &UnsubscribeAllLocationSwitchCallback));
+    handleFuncMap->insert(make_pair("locationChange", &UnsubscribeAllLocationChangeCallback));
+    handleFuncMap->insert(make_pair("gnssStatusChange", &UnsubscribeAllGnssStatusCallback));
+    handleFuncMap->insert(make_pair("nmeaMessageChange", &UnsubscribeAllNmeaMessageCallback));
+    handleFuncMap->insert(make_pair("cachedGnssLocationsReporting", &UnsubscribeAllCachedLocationsCallback));
+    handleFuncMap->insert(make_pair("countryCodeChange", &UnsubscribeAllCountryCodeCallback));
+}
+
 void SubscribeLocationServiceState(napi_env& env,
     napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
@@ -422,6 +434,133 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     return result;
 }
 
+bool UnsubscribeAllLocationSwitchCallback(napi_env& env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<LocationSwitchCallbackHost>>> callbackMap = g_switchCallbacks->GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter == callbackMap.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        if (callbackHost == nullptr) {
+            continue;
+        }
+        UnSubscribeLocationServiceState(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    }
+    callbackMap.clear();
+    return true;
+}
+
+bool UnsubscribeAllLocationChangeCallback(, napi_env& env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<LocatorCallbackHost>>> callbackMap = g_locationCallbacks->GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter == callbackMap.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        if (callbackHost == nullptr) {
+            continue;
+        }
+        auto locatorCallback = sptr<ILocatorCallback>(callbackHost)
+        UnSubscribeLocationChange(locatorCallback);
+        callbackHost->DeleteAllCallbacks();
+        callbackHost = nullptr;
+    }
+    callbackMap.clear();
+    return true;
+}
+
+bool UnsubscribeAllGnssStatusCallback(napi_env& env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<GnssStatusCallbackHost>>> callbackMap = g_gnssStatusInfoCallbacks->GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter == callbackMap.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        if (callbackHost == nullptr) {
+            continue;
+        }
+        UnSubscribeGnssStatus(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    }
+    callbackMap.clear();
+    return true;
+}
+
+bool UnsubscribeAllNmeaMessageCallback(napi_env& env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<NmeaMessageCallbackHost>>> callbackMap = g_nmeaCallbacks->GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter == callbackMap.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        if (callbackHost == nullptr) {
+            continue;
+        }
+        UnSubscribeNmeaMessage(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    }
+    callbackMap.clear();
+    return true;
+}
+
+bool UnsubscribeAllCachedLocationsCallback(napi_env& env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<CachedLocationsCallbackHost>>> callbackMap = g_cachedLocationCallbacks->GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter == callbackMap.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        if (callbackHost == nullptr) {
+            continue;
+        }
+        auto cachedCallback = sptr<ICachedLocationsCallback>(callbackHost);
+        UnSubscribeCacheLocationChange(cachedCallback);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    }
+    callbackMap.clear();
+    return true;
+}
+
+bool UnsubscribeAllFenceStatueCallback()
+{
+    return true;
+}
+
+bool UnsubscribeAllCountryCodeCallback(napi_env& env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<CountryCodeCallbackHost>>> callbackMap = g_countryCodeCallbacks->GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter == callbackMap.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        if (callbackHost == nullptr) {
+            continue;
+        }
+        UnsubscribeCountryCodeChange(callbackHost);
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    }
+    callbackMap.clear();
+    return true;
+}
+
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = PARAM2;
@@ -442,7 +581,11 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
     if(argc == PARAM1) {
         NAPI_ASSERT(env, argc == PARAM1, "number of parameters should be one");
-        g_switchCallbacks.UnsubscribeAllCallback(env, event);
+        auto unsubCallbackFunc = handleFuncMap.find(event);
+        if (unsubCallbackFunc != handleFuncMap.end() && unsubCallbackFunc->second != nullptr) {
+            auto memberFunc = unsubCallbackFunc->second;
+            bool res = (this->*memberFunc)(env);
+        }
         napi_value result = nullptr;
         NAPI_CALL(env, napi_get_undefined(env, &result));
         return result;
