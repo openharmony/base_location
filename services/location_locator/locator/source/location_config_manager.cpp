@@ -212,7 +212,7 @@ bool LocationConfigManager::GetPrivacyTypeState(const int type)
 void LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed, MessageParcel &replay)
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
-        LBSLOGI(LOCATION_NAPI, "SetPrivacyTypeState,invalid types");
+        LBSLOGE(LOCATION_NAPI, "SetPrivacyTypeState,invalid types");
         replay.WriteInt32(REPLY_CODE_EXCEPTION);
         return;
     }
