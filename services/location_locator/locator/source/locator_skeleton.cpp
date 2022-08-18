@@ -169,7 +169,7 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
             break;
         }
         case SET_PRIVACY_COMFIRM_STATUS: {
-            SetLocationPrivacyConfirmStatus(data.ReadInt32(), data.ReadBool(), reply);
+            reply.WriteInt32(SetLocationPrivacyConfirmStatus(data.ReadInt32(), data.ReadBool()));
             break;
         }
         case REG_CACHED_CALLBACK: {

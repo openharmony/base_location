@@ -251,14 +251,14 @@ bool LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bool isConfir
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus, WriteInterfaceToken failed.");
-        return false;
+        return REPLY_CODE_EXCEPTION;
     }
     data.WriteInt32(type);
     data.WriteBool(isConfirmed);
     SendMsgWithDataReply(SET_PRIVACY_COMFIRM_STATUS, data, reply);
     int error = reply.ReadInt32();
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SetLocationPrivacyConfirmStatus Transact ErrCodes = %{public}d", error);
-    return error == REPLY_CODE_NO_EXCEPTION ? true : false;
+    return error;
 }
 
 int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,

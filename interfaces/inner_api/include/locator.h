@@ -65,7 +65,7 @@ public:
 
     virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
 
-    virtual void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
+    virtual bool SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
 
     virtual bool RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
 

@@ -440,13 +440,6 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
-    if(argc == PARAM1) {
-        NAPI_ASSERT(env, argc == PARAM1, "number of parameters should be one");
-        g_switchCallbacks.UnsubscribeAllCallback(env, event);
-        napi_value result = nullptr;
-        NAPI_CALL(env, napi_get_undefined(env, &result));
-        return result;
-    }
     if (event == "locationServiceState") {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
         auto switchCallbackHost = g_switchCallbacks.GetCallbackPtr(env, argv[PARAM1]);

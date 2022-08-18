@@ -209,12 +209,11 @@ bool LocationConfigManager::GetPrivacyTypeState(const int type)
     return (mPrivacyTypeState[type] == STATE_OPEN) ? true : false;
 }
 
-void LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed, MessageParcel &replay)
+int LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
-        LBSLOGI(LOCATION_NAPI, "SetPrivacyTypeState,invalid types");
-        replay.WriteInt32(REPLY_CODE_EXCEPTION);
-        return;
+        LBSLOGE(LOCATION_NAPI, "SetPrivacyTypeState,invalid types");
+        return REPLY_CODE_EXCEPTION;
     }
     std::unique_lock<std::mutex> lock(mMutex);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
@@ -223,8 +222,7 @@ void LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed
     std::fstream fs(GetPrivacyTypeConfigPath(type));
     if (!fs.is_open()) {
         LBSLOGE(LOCATION_NAPI, "LocationConfigManager: fs.is_open false, return");
-        replay.WriteInt32(REPLY_CODE_EXCEPTION);
-        return;
+        return REPLY_CODE_EXCEPTION;
     }
     std::string content = "0";
     if (isConfirmed) {
@@ -234,7 +232,7 @@ void LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed
     fs.clear();
     fs.close();
     mPrivacyTypeState[type] = isConfirmed ? 1 : 0;
-    replay.WriteInt32(REPLY_CODE_NO_EXCEPTION);
+    return REPLY_CODE_NO_EXCEPTION;
 }
 }  // namespace Location
 }  // namespace OHOS
