@@ -245,7 +245,7 @@ bool LocatorProxy::IsLocationPrivacyConfirmed(const int type)
     return state;
 }
 
-bool LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
+int LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     MessageParcel data;
     MessageParcel reply;
