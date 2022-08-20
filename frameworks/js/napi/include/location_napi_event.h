@@ -36,7 +36,6 @@ bool UnsubscribeAllLocationChangeCallback(napi_env& env);
 bool UnsubscribeAllGnssStatusCallback(napi_env& env);
 bool UnsubscribeAllNmeaMessageCallback(napi_env& env);
 bool UnsubscribeAllCachedLocationsCallback(napi_env& env);
-bool UnsubscribeAllFenceStatueCallback(napi_env& env);
 bool UnsubscribeAllCountryCodeCallback(napi_env& env);
 bool OffSingleLocationServiceStateCallback(napi_env& env, napi_value& handler);
 bool OffSingleLocationChangeCallback(napi_env& env, napi_value& handler);

@@ -48,7 +48,6 @@ void InitOffFuncMap()
     g_offFuncMap.insert(std::make_pair("gnssStatusChange", &UnsubscribeAllGnssStatusCallback));
     g_offFuncMap.insert(std::make_pair("nmeaMessageChange", &UnsubscribeAllNmeaMessageCallback));
     g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &UnsubscribeAllCachedLocationsCallback));
-    g_offFuncMap.insert(std::make_pair("fenceStatusChange", &UnsubscribeAllFenceStatueCallback))
     g_offFuncMap.insert(std::make_pair("countryCodeChange", &UnsubscribeAllCountryCodeCallback));
 }
 
@@ -449,134 +448,140 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
 bool UnsubscribeAllLocationSwitchCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<LocationSwitchCallbackHost>>> callbackMap =
-        g_switchCallbacks->GetCallbackMap();
+        g_switchCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
+            innerIter++;
             continue;
         }
         UnSubscribeLocationServiceState(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
+        iter->second.erase(innerIter++);
     }
-    callbackMap.clear();
+    callbackMap.erase(iter++);
     return true;
 }
 
 bool UnsubscribeAllLocationChangeCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<LocatorCallbackHost>>> callbackMap =
-        g_locationCallbacks->GetCallbackMap();
+        g_locationCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
+            innerIter++;
             continue;
         }
-        auto locatorCallback = sptr<ILocatorCallback>(callbackHost)
+        auto locatorCallback = sptr<ILocatorCallback>(callbackHost);
         UnSubscribeLocationChange(locatorCallback);
         callbackHost->DeleteAllCallbacks();
         callbackHost = nullptr;
+        iter->second.erase(innerIter++);
     }
-    callbackMap.clear();
+    callbackMap.erase(iter++);
     return true;
 }
 
 bool UnsubscribeAllGnssStatusCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<GnssStatusCallbackHost>>> callbackMap =
-        g_gnssStatusInfoCallbacks->GetCallbackMap();
+        g_gnssStatusInfoCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
+            innerIter++;
             continue;
         }
         UnSubscribeGnssStatus(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
+        iter->second.erase(innerIter++);
     }
-    callbackMap.clear();
+    callbackMap.erase(iter++);
     return true;
 }
 
 bool UnsubscribeAllNmeaMessageCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<NmeaMessageCallbackHost>>> callbackMap =
-        g_nmeaCallbacks->GetCallbackMap();
+        g_nmeaCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
+            innerIter++;
             continue;
         }
         UnSubscribeNmeaMessage(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
+        iter->second.erase(innerIter++);
     }
-    callbackMap.clear();
+    callbackMap.erase(iter++);
     return true;
 }
 
 bool UnsubscribeAllCachedLocationsCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<CachedLocationsCallbackHost>>> callbackMap =
-        g_cachedLocationCallbacks->GetCallbackMap();
+        g_cachedLocationCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
+            innerIter++;
             continue;
         }
         auto cachedCallback = sptr<ICachedLocationsCallback>(callbackHost);
         UnSubscribeCacheLocationChange(cachedCallback);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
+        iter->second.erase(innerIter++);
     }
-    callbackMap.clear();
-    return true;
-}
-
-bool UnsubscribeAllFenceStatueCallback(napi_env& env)
-{
-    UnSubscribeFenceStatusChange(env, nullptr, nullptr);
+    callbackMap.erase(iter++);
     return true;
 }
 
 bool UnsubscribeAllCountryCodeCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<CountryCodeCallbackHost>>> callbackMap =
-        g_countryCodeCallbacks->GetCallbackMap();
+        g_countryCodeCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
+            innerIter++;
             continue;
         }
         UnsubscribeCountryCodeChange(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
+        iter->second.erase(innerIter++);
     }
-    callbackMap.clear();
+    callbackMap.erase(iter++);
     return true;
 }
 
@@ -688,7 +693,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         }
     } else if (argc == PARAM2) {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong, should be two");
-        InitOffSingleFuncMAP();
+        InitOffSingleFuncMap();
         auto offSingleCallbackFunc = g_offSingleFuncMap.find(event);
         if (offSingleCallbackFunc != g_offSingleFuncMap.end() && offSingleCallbackFunc->second != nullptr) {
             auto singleMemberFunc = offSingleCallbackFunc->second;
