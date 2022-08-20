@@ -62,6 +62,13 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
             !request->GetIsRequesting()) {
             continue;
         }
+        uint32_t tokenId = request->GetTokenId();
+        uint32_t firstTokenId = request->GetFirstTokenId();
+        if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
+            LBSLOGE(REPORT_MANAGER, "%{public}s has no access permission, CheckLocationPermission return false",
+                request->GetPackageName().c_str());
+            continue;
+        }
 
         if (locatorAbility->IsProxyUid(request->GetUid())) {
             LBSLOGD(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());

@@ -116,10 +116,10 @@ public:
     static sptr<IRemoteObject> GetRemoteObject(int abilityId);
     static sptr<IRemoteObject> GetRemoteObject(int abilityId, std::string deviceId);
     static std::string InitDeviceId();
-    static bool CheckLocationPermission();
-    static bool CheckBackgroundPermission();
-    static bool CheckPermission(const std::string &permission);
-    static bool CheckSecureSettings();
+    static bool CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckPermission(const std::string &permission, uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSystemCalling(pid_t uid);
     static bool GetCurrentUserId(int &userId);
     static std::string Str16ToStr8(std::u16string str);

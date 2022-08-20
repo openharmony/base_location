@@ -35,15 +35,13 @@ bool CommonUtils::CheckSystemCalling(pid_t uid)
     return true;
 }
 
-bool CommonUtils::CheckLocationPermission()
+bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
-    return CheckPermission(ACCESS_LOCATION);
+    return CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId);
 }
 
-bool CommonUtils::CheckPermission(const std::string &permission)
+bool CommonUtils::CheckPermission(const std::string &permission, uint32_t callerToken, uint32_t tokenFirstCaller)
 {
-    auto callerToken = IPCSkeleton::GetCallingTokenID();
-    auto tokenFirstCaller = IPCSkeleton::GetFirstTokenID();
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
     int result = Security::AccessToken::PERMISSION_DENIED;
     if (tokenFirstCaller == 0) {
@@ -64,14 +62,14 @@ bool CommonUtils::CheckPermission(const std::string &permission)
     }
 }
 
-bool CommonUtils::CheckBackgroundPermission()
+bool CommonUtils::CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
-    return CheckPermission(ACCESS_BACKGROUND_LOCATION);
+    return CheckPermission(ACCESS_BACKGROUND_LOCATION, tokenId, firstTokenId);
 }
 
-bool CommonUtils::CheckSecureSettings()
+bool CommonUtils::CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId)
 {
-    return CheckPermission(MANAGE_SECURE_SETTINGS);
+    return CheckPermission(MANAGE_SECURE_SETTINGS, tokenId, firstTokenId);
 }
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
