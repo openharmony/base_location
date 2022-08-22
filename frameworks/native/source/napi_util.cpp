@@ -762,11 +762,6 @@ void SendResultToJs(const napi_env& env, AsyncContext* context)
         return;
     }
 
-    if (context->result[PARAM1] == 0) {
-        LBSLOGD(LOCATOR_STANDARD, "empty message, just return.");
-        return;
-    }
-
     bool isPromise = context->deferred != nullptr;
     if (isPromise) {
         if (context->errCode != SUCCESS) {

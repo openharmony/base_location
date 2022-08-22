@@ -42,8 +42,8 @@ public:
         executeFunc = nullptr;
         completeFunc = nullptr;
         resourceName = nullptr;
-        result[PARAM0] = 0;
-        result[PARAM1] = 0;
+        result[PARAM0] = nullptr;
+        result[PARAM1] = nullptr;
         errCode = 0;
     }
 
