@@ -328,6 +328,9 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     if (event == "locationServiceState") {
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
         // the second params should be handler
         if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -344,6 +347,9 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     } else if (event == "locationChange") {
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong");
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[PARAM2], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
         if (!g_locatorProxy->IsLocationEnabled()) {
             LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
             return result;
@@ -365,6 +371,9 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     } else if (event == "gnssStatusChange") {
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
         // the second params should be handler
         if (g_gnssStatusInfoCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -381,6 +390,9 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     } else if (event == "nmeaMessageChange") {
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
         // the second params should be handler
         if (g_nmeaCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -397,6 +409,9 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     } else if (event == "cachedGnssLocationsReporting") {
         // expect for 3 params
         NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong");
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[PARAM2], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
         if (!g_locatorProxy->IsLocationEnabled()) {
             LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
             return result;
@@ -426,6 +441,9 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     } else if (event == "countryCodeChange") {
         // expect for 2 params
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
         // the third params should be handler
         if (g_countryCodeCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
             LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -453,18 +471,16 @@ bool UnsubscribeAllLocationSwitchCallback(napi_env& env)
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
-            innerIter++;
             continue;
         }
         UnSubscribeLocationServiceState(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
-        iter->second.erase(innerIter++);
     }
-    callbackMap.erase(iter++);
+    g_switchCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
 
@@ -476,19 +492,17 @@ bool UnsubscribeAllLocationChangeCallback(napi_env& env)
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
-        if (callbackHost == nullptr) {
-            innerIter++;
+        if (callbackHost == nullptr) { 
             continue;
         }
         auto locatorCallback = sptr<ILocatorCallback>(callbackHost);
         UnSubscribeLocationChange(locatorCallback);
         callbackHost->DeleteAllCallbacks();
         callbackHost = nullptr;
-        iter->second.erase(innerIter++);
     }
-    callbackMap.erase(iter++);
+    g_locationCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
 
@@ -500,18 +514,16 @@ bool UnsubscribeAllGnssStatusCallback(napi_env& env)
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
-            innerIter++;
             continue;
         }
         UnSubscribeGnssStatus(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
-        iter->second.erase(innerIter++);
     }
-    callbackMap.erase(iter++);
+    g_gnssStatusInfoCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
 
@@ -523,18 +535,16 @@ bool UnsubscribeAllNmeaMessageCallback(napi_env& env)
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
-            innerIter++;
             continue;
         }
         UnSubscribeNmeaMessage(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
-        iter->second.erase(innerIter++);
     }
-    callbackMap.erase(iter++);
+    g_nmeaCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
 
@@ -546,19 +556,17 @@ bool UnsubscribeAllCachedLocationsCallback(napi_env& env)
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
-            innerIter++;
             continue;
         }
         auto cachedCallback = sptr<ICachedLocationsCallback>(callbackHost);
         UnSubscribeCacheLocationChange(cachedCallback);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
-        iter->second.erase(innerIter++);
     }
-    callbackMap.erase(iter++);
+    g_cachedLocationCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
 
@@ -570,18 +578,16 @@ bool UnsubscribeAllCountryCodeCallback(napi_env& env)
     if (iter == callbackMap.end()) {
         return false;
     }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end();) {
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
-            innerIter++;
             continue;
         }
         UnsubscribeCountryCodeChange(callbackHost);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
-        iter->second.erase(innerIter++);
     }
-    callbackMap.erase(iter++);
+    g_countryCodeCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
 
@@ -693,6 +699,9 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         }
     } else if (argc == PARAM2) {
         NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong, should be two");
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
         InitOffSingleFuncMap();
         auto offSingleCallbackFunc = g_offSingleFuncMap.find(event);
         if (offSingleCallbackFunc != g_offSingleFuncMap.end() && offSingleCallbackFunc->second != nullptr) {
