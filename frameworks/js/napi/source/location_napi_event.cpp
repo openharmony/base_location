@@ -494,7 +494,7 @@ bool UnsubscribeAllLocationChangeCallback(napi_env& env)
     }
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
-        if (callbackHost == nullptr) { 
+        if (callbackHost == nullptr) {
             continue;
         }
         auto locatorCallback = sptr<ILocatorCallback>(callbackHost);
@@ -689,7 +689,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
-    if(argc == PARAM1) {
+    if (argc == PARAM1) {
         NAPI_ASSERT(env, argc == PARAM1, "number of parameters is wrong, should be one");
         InitOffFuncMap();
         auto unsubCallbackFunc = g_offFuncMap.find(event);
