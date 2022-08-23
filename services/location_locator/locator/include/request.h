@@ -46,11 +46,17 @@ public:
     void SetRequesting(bool state);
     sptr<Location> GetLastLocation();
     void SetLastLocation(const std::unique_ptr<Location>& location);
+    uint32_t GetTokenId();
+    uint32_t GetFirstTokenId();
+    void SetTokenId(uint32_t tokenId);
+    void SetFirstTokenId(uint32_t firstTokenId);
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
     pid_t uid_;
     pid_t pid_;
+    uint32_t tokenId_;
+    uint32_t firstTokenId_;
     sptr<Location> lastLocation_;
     std::string packageName_;
     sptr<RequestConfig> requestConfig_;

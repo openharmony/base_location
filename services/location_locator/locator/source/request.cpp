@@ -26,6 +26,8 @@ Request::Request()
 {
     this->pid_ = -1;
     this->uid_ = -1;
+    this->tokenId_ = 0;
+    this->firstTokenId_ = 0;
     this->packageName_ = "";
     this->isRequesting_ = false;
     requestConfig_ = new (std::nothrow) RequestConfig();
@@ -83,6 +85,26 @@ void Request::SetPid(pid_t pid)
 pid_t Request::GetPid()
 {
     return pid_;
+}
+
+void Request::SetTokenId(uint32_t tokenId)
+{
+    this->tokenId_ = tokenId;
+}
+
+uint32_t Request::GetTokenId()
+{
+    return tokenId_;
+}
+
+void Request::SetFirstTokenId(uint32_t firstTokenId)
+{
+    this->firstTokenId_ = firstTokenId;
+}
+
+uint32_t Request::GetFirstTokenId()
+{
+    return firstTokenId_;
 }
 
 void Request::SetPackageName(std::string packageName)
@@ -182,7 +204,9 @@ std::string Request::ToString() const
     }
     std::string str = "[request config: " + requestConfig_->ToString() +
         "] from pid:" + std::to_string(pid_) +
-        ", uid:" + std::to_string(uid_) + ", " + packageName_;
+        ", uid:" + std::to_string(uid_) +
+        ", tokenId:" + std::to_string(tokenId_) +
+        ", firstTokenId:" + std::to_string(firstTokenId_) + ", " + packageName_;
     return str;
 }
 } // namespace Location
