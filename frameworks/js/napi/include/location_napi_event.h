@@ -30,19 +30,18 @@
 namespace OHOS {
 namespace Location {
 void InitOffFuncMap();
-void InitOffSingleFuncMap();
-bool UnsubscribeAllLocationSwitchCallback(napi_env& env);
-bool UnsubscribeAllLocationChangeCallback(napi_env& env);
-bool UnsubscribeAllGnssStatusCallback(napi_env& env);
-bool UnsubscribeAllNmeaMessageCallback(napi_env& env);
-bool UnsubscribeAllCachedLocationsCallback(napi_env& env);
-bool UnsubscribeAllCountryCodeCallback(napi_env& env);
-bool OffSingleLocationServiceStateCallback(napi_env& env, napi_value& handler);
-bool OffSingleLocationChangeCallback(napi_env& env, napi_value& handler);
-bool OffSingleGnssStatusCallback(napi_env& env, napi_value& handler);
-bool OffSinglenNmeaMessageCallback(napi_env& env, napi_value& handler);
-bool OffSingleCachedLocationCallback(napi_env& env, napi_value& handler);
-bool OffSingleCountryCodeChangeCallback(napi_env& env, napi_value& handler);
+bool OffAllLocationServiceStateCallback(napi_env& env);
+bool OffAllLocationChangeCallback(napi_env& env);
+bool OffAllGnssStatusCallback(napi_env& env);
+bool OffAllNmeaMessageCallback(napi_env& env);
+bool OffAllCachedGnssLocationsReportingCallback(napi_env& env);
+bool OffAllCountryCodeChangeCallback(napi_env& env);
+bool OffLocationServiceStateCallback(napi_env& env, napi_value& handler);
+bool OffLocationChangeCallback(napi_env& env, napi_value& handler);
+bool OffGnssStatusCallback(napi_env& env, napi_value& handler);
+bool OffNmeaMessageCallback(napi_env& env, napi_value& handler);
+bool OffCachedGnssLocationsReportingCallback(napi_env& env, napi_value& handler);
+bool OffCountryCodeChangeCallback(napi_env& env, napi_value& handler);
 void SubscribeLocationServiceState(napi_env& env,
     napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost);
 void SubscribeGnssStatus(napi_env& env, napi_ref& handlerRef,

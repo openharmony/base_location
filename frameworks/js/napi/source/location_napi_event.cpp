@@ -38,27 +38,27 @@ CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 std::vector<GeoFenceState*> mFences;
 auto g_locatorProxy = Locator::GetInstance();
 
-std::map<std::string, bool(*)(napi_env &)> g_offFuncMap;
-std::map<std::string, bool(*)(napi_env &, napi_value &)> g_offSingleFuncMap;
+std::map<std::string, bool(*)(napi_env &)> g_offAllFuncMap;
+std::map<std::string, bool(*)(napi_env &, napi_value &)> g_offFuncMap;
 
 void InitOffFuncMap()
 {
-    g_offFuncMap.insert(std::make_pair("locationServiceState", &UnsubscribeAllLocationSwitchCallback));
-    g_offFuncMap.insert(std::make_pair("locationChange", &UnsubscribeAllLocationChangeCallback));
-    g_offFuncMap.insert(std::make_pair("gnssStatusChange", &UnsubscribeAllGnssStatusCallback));
-    g_offFuncMap.insert(std::make_pair("nmeaMessageChange", &UnsubscribeAllNmeaMessageCallback));
-    g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &UnsubscribeAllCachedLocationsCallback));
-    g_offFuncMap.insert(std::make_pair("countryCodeChange", &UnsubscribeAllCountryCodeCallback));
-}
+    if (g_offAllFuncMap.size() != 0 || g_offFuncMap.size() != 0) {
+        return;
+    }
+    g_offAllFuncMap.insert(std::make_pair("locationServiceState", &OffAllLocationServiceStateCallback));
+    g_offAllFuncMap.insert(std::make_pair("locationChange", &OffAllLocationChangeCallback));
+    g_offAllFuncMap.insert(std::make_pair("gnssStatusChange", &OffAllGnssStatusCallback));
+    g_offAllFuncMap.insert(std::make_pair("nmeaMessageChange", &OffAllNmeaMessageCallback));
+    g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffAllCachedGnssLocationsReportingCallback));
+    g_offAllFuncMap.insert(std::make_pair("countryCodeChange", &OffAllCountryCodeChangeCallback));
 
-void InitOffSingleFuncMap()
-{
-    g_offSingleFuncMap.insert(std::make_pair("locationServiceState", &OffSingleLocationServiceStateCallback));
-    g_offSingleFuncMap.insert(std::make_pair("locationChange", &OffSingleLocationChangeCallback));
-    g_offSingleFuncMap.insert(std::make_pair("gnssStatusChange", &OffSingleGnssStatusCallback));
-    g_offSingleFuncMap.insert(std::make_pair("nmeaMessageChange", &OffSinglenNmeaMessageCallback));
-    g_offSingleFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffSingleCachedLocationCallback));
-    g_offSingleFuncMap.insert(std::make_pair("countryCodeChange", &OffSingleCountryCodeChangeCallback));
+    g_offFuncMap.insert(std::make_pair("locationServiceState", &OffLocationServiceStateCallback));
+    g_offFuncMap.insert(std::make_pair("locationChange", &OffLocationChangeCallback));
+    g_offFuncMap.insert(std::make_pair("gnssStatusChange", &OffGnssStatusCallback));
+    g_offFuncMap.insert(std::make_pair("nmeaMessageChange", &OffNmeaMessageCallback));
+    g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
+    g_offFuncMap.insert(std::make_pair("countryCodeChange", &OffCountryCodeChangeCallback));
 }
 
 void SubscribeLocationServiceState(napi_env& env,
@@ -463,7 +463,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     return result;
 }
 
-bool UnsubscribeAllLocationSwitchCallback(napi_env& env)
+bool OffAllLocationServiceStateCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<LocationSwitchCallbackHost>>> callbackMap =
         g_switchCallbacks.GetCallbackMap();
@@ -484,7 +484,7 @@ bool UnsubscribeAllLocationSwitchCallback(napi_env& env)
     return true;
 }
 
-bool UnsubscribeAllLocationChangeCallback(napi_env& env)
+bool OffAllLocationChangeCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<LocatorCallbackHost>>> callbackMap =
         g_locationCallbacks.GetCallbackMap();
@@ -506,7 +506,7 @@ bool UnsubscribeAllLocationChangeCallback(napi_env& env)
     return true;
 }
 
-bool UnsubscribeAllGnssStatusCallback(napi_env& env)
+bool OffAllGnssStatusCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<GnssStatusCallbackHost>>> callbackMap =
         g_gnssStatusInfoCallbacks.GetCallbackMap();
@@ -527,7 +527,7 @@ bool UnsubscribeAllGnssStatusCallback(napi_env& env)
     return true;
 }
 
-bool UnsubscribeAllNmeaMessageCallback(napi_env& env)
+bool OffAllNmeaMessageCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<NmeaMessageCallbackHost>>> callbackMap =
         g_nmeaCallbacks.GetCallbackMap();
@@ -548,7 +548,7 @@ bool UnsubscribeAllNmeaMessageCallback(napi_env& env)
     return true;
 }
 
-bool UnsubscribeAllCachedLocationsCallback(napi_env& env)
+bool OffAllCachedGnssLocationsReportingCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<CachedLocationsCallbackHost>>> callbackMap =
         g_cachedLocationCallbacks.GetCallbackMap();
@@ -570,7 +570,7 @@ bool UnsubscribeAllCachedLocationsCallback(napi_env& env)
     return true;
 }
 
-bool UnsubscribeAllCountryCodeCallback(napi_env& env)
+bool OffAllCountryCodeChangeCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<CountryCodeCallbackHost>>> callbackMap =
         g_countryCodeCallbacks.GetCallbackMap();
@@ -591,7 +591,7 @@ bool UnsubscribeAllCountryCodeCallback(napi_env& env)
     return true;
 }
 
-bool OffSingleLocationServiceStateCallback(napi_env& env, napi_value& handler)
+bool OffLocationServiceStateCallback(napi_env& env, napi_value& handler)
 {
     auto switchCallbackHost = g_switchCallbacks.GetCallbackPtr(env, handler);
     if (switchCallbackHost) {
@@ -604,7 +604,7 @@ bool OffSingleLocationServiceStateCallback(napi_env& env, napi_value& handler)
     return false;
 }
 
-bool OffSingleLocationChangeCallback(napi_env& env, napi_value& handler)
+bool OffLocationChangeCallback(napi_env& env, napi_value& handler)
 {
     auto locatorCallbackHost = g_locationCallbacks.GetCallbackPtr(env, handler);
     if (locatorCallbackHost) {
@@ -618,7 +618,7 @@ bool OffSingleLocationChangeCallback(napi_env& env, napi_value& handler)
     return false;
 }
 
-bool OffSingleGnssStatusCallback(napi_env& env, napi_value& handler)
+bool OffGnssStatusCallback(napi_env& env, napi_value& handler)
 {
     auto gnssCallbackHost = g_gnssStatusInfoCallbacks.GetCallbackPtr(env, handler);
     if (gnssCallbackHost) {
@@ -631,7 +631,7 @@ bool OffSingleGnssStatusCallback(napi_env& env, napi_value& handler)
     return false;
 }
 
-bool OffSinglenNmeaMessageCallback(napi_env& env, napi_value& handler)
+bool OffNmeaMessageCallback(napi_env& env, napi_value& handler)
 {
     auto nmeaCallbackHost = g_nmeaCallbacks.GetCallbackPtr(env, handler);
     if (nmeaCallbackHost) {
@@ -644,7 +644,7 @@ bool OffSinglenNmeaMessageCallback(napi_env& env, napi_value& handler)
     return false;
 }
 
-bool OffSingleCachedLocationCallback(napi_env& env, napi_value& handler)
+bool OffCachedGnssLocationsReportingCallback(napi_env& env, napi_value& handler)
 {
     auto cachedCallbackHost = g_cachedLocationCallbacks.GetCallbackPtr(env, handler);
     if (cachedCallbackHost) {
@@ -658,7 +658,7 @@ bool OffSingleCachedLocationCallback(napi_env& env, napi_value& handler)
     return false;
 }
 
-bool OffSingleCountryCodeChangeCallback(napi_env& env, napi_value& handler)
+bool OffCountryCodeChangeCallback(napi_env& env, napi_value& handler)
 {
     auto callbackHost = g_countryCodeCallbacks.GetCallbackPtr(env, handler);
     if (callbackHost) {
@@ -673,6 +673,7 @@ bool OffSingleCountryCodeChangeCallback(napi_env& env, napi_value& handler)
 
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
+    InitOffFuncMap();
     size_t argc = PARAM2;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = 0;
@@ -691,10 +692,9 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
     if (argc == PARAM1) {
         NAPI_ASSERT(env, argc == PARAM1, "number of parameters is wrong, should be one");
-        InitOffFuncMap();
-        auto unsubCallbackFunc = g_offFuncMap.find(event);
-        if (unsubCallbackFunc != g_offFuncMap.end() && unsubCallbackFunc->second != nullptr) {
-            auto memberFunc = unsubCallbackFunc->second;
+        auto offAllCallbackFunc = g_offAllFuncMap.find(event);
+        if (offAllCallbackFunc != g_offAllFuncMap.end() && offAllCallbackFunc->second != nullptr) {
+            auto memberFunc = offAllCallbackFunc->second;
             (*memberFunc)(env);
         }
     } else if (argc == PARAM2) {
@@ -702,10 +702,9 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         napi_valuetype valueType;
         NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
         NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
-        InitOffSingleFuncMap();
-        auto offSingleCallbackFunc = g_offSingleFuncMap.find(event);
-        if (offSingleCallbackFunc != g_offSingleFuncMap.end() && offSingleCallbackFunc->second != nullptr) {
-            auto singleMemberFunc = offSingleCallbackFunc->second;
+        auto offCallbackFunc = g_offFuncMap.find(event);
+        if (offCallbackFunc != g_offFuncMap.end() && offCallbackFunc->second != nullptr) {
+            auto singleMemberFunc = offCallbackFunc->second;
             (*singleMemberFunc)(env, argv[PARAM1]);
         }
     } else if (argc == PARAM3) {
