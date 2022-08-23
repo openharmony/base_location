@@ -48,15 +48,15 @@ void InitOffFuncMap()
     }
     g_offAllFuncMap.insert(std::make_pair("locationServiceState", &OffAllLocationServiceStateCallback));
     g_offAllFuncMap.insert(std::make_pair("locationChange", &OffAllLocationChangeCallback));
-    g_offAllFuncMap.insert(std::make_pair("gnssStatusChange", &OffAllGnssStatusCallback));
-    g_offAllFuncMap.insert(std::make_pair("nmeaMessageChange", &OffAllNmeaMessageCallback));
+    g_offAllFuncMap.insert(std::make_pair("gnssStatusChange", &OffAllGnssStatusChangeCallback));
+    g_offAllFuncMap.insert(std::make_pair("nmeaMessageChange", &OffAllNmeaMessageChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffAllCachedGnssLocationsReportingCallback));
     g_offAllFuncMap.insert(std::make_pair("countryCodeChange", &OffAllCountryCodeChangeCallback));
 
     g_offFuncMap.insert(std::make_pair("locationServiceState", &OffLocationServiceStateCallback));
     g_offFuncMap.insert(std::make_pair("locationChange", &OffLocationChangeCallback));
-    g_offFuncMap.insert(std::make_pair("gnssStatusChange", &OffGnssStatusCallback));
-    g_offFuncMap.insert(std::make_pair("nmeaMessageChange", &OffNmeaMessageCallback));
+    g_offFuncMap.insert(std::make_pair("gnssStatusChange", &OffGnssStatusChangeCallback));
+    g_offFuncMap.insert(std::make_pair("nmeaMessageChange", &OffNmeaMessageChangeCallback));
     g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
     g_offFuncMap.insert(std::make_pair("countryCodeChange", &OffCountryCodeChangeCallback));
 }
@@ -506,7 +506,7 @@ bool OffAllLocationChangeCallback(napi_env& env)
     return true;
 }
 
-bool OffAllGnssStatusCallback(napi_env& env)
+bool OffAllGnssStatusChangeCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<GnssStatusCallbackHost>>> callbackMap =
         g_gnssStatusInfoCallbacks.GetCallbackMap();
@@ -527,7 +527,7 @@ bool OffAllGnssStatusCallback(napi_env& env)
     return true;
 }
 
-bool OffAllNmeaMessageCallback(napi_env& env)
+bool OffAllNmeaMessageChangeCallback(napi_env& env)
 {
     std::map<napi_env, std::map<napi_ref, sptr<NmeaMessageCallbackHost>>> callbackMap =
         g_nmeaCallbacks.GetCallbackMap();
@@ -618,7 +618,7 @@ bool OffLocationChangeCallback(napi_env& env, napi_value& handler)
     return false;
 }
 
-bool OffGnssStatusCallback(napi_env& env, napi_value& handler)
+bool OffGnssStatusChangeCallback(napi_env& env, napi_value& handler)
 {
     auto gnssCallbackHost = g_gnssStatusInfoCallbacks.GetCallbackPtr(env, handler);
     if (gnssCallbackHost) {
@@ -631,7 +631,7 @@ bool OffGnssStatusCallback(napi_env& env, napi_value& handler)
     return false;
 }
 
-bool OffNmeaMessageCallback(napi_env& env, napi_value& handler)
+bool OffNmeaMessageChangeCallback(napi_env& env, napi_value& handler)
 {
     auto nmeaCallbackHost = g_nmeaCallbacks.GetCallbackPtr(env, handler);
     if (nmeaCallbackHost) {

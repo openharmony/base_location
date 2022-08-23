@@ -32,14 +32,14 @@ namespace Location {
 void InitOffFuncMap();
 bool OffAllLocationServiceStateCallback(napi_env& env);
 bool OffAllLocationChangeCallback(napi_env& env);
-bool OffAllGnssStatusCallback(napi_env& env);
-bool OffAllNmeaMessageCallback(napi_env& env);
+bool OffAllGnssStatusChangeCallback(napi_env& env);
+bool OffAllNmeaMessageChangeCallback(napi_env& env);
 bool OffAllCachedGnssLocationsReportingCallback(napi_env& env);
 bool OffAllCountryCodeChangeCallback(napi_env& env);
 bool OffLocationServiceStateCallback(napi_env& env, napi_value& handler);
 bool OffLocationChangeCallback(napi_env& env, napi_value& handler);
-bool OffGnssStatusCallback(napi_env& env, napi_value& handler);
-bool OffNmeaMessageCallback(napi_env& env, napi_value& handler);
+bool OffGnssStatusChangeCallback(napi_env& env, napi_value& handler);
+bool OffNmeaMessageChangeCallback(napi_env& env, napi_value& handler);
 bool OffCachedGnssLocationsReportingCallback(napi_env& env, napi_value& handler);
 bool OffCountryCodeChangeCallback(napi_env& env, napi_value& handler);
 void SubscribeLocationServiceState(napi_env& env,
