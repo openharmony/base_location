@@ -213,10 +213,10 @@ bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
     return client_->IsLocationPrivacyConfirmed(type);
 }
 
-void LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
+int LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationPrivacyConfirmStatus()");
-    client_->SetLocationPrivacyConfirmStatus(type, isConfirmed);
+    return client_->SetLocationPrivacyConfirmStatus(type, isConfirmed);
 }
 
 int LocatorImpl::GetCachedGnssLocationsSize()
