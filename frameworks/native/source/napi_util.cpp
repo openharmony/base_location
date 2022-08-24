@@ -559,7 +559,10 @@ bool JsObjectToString(const napi_env& env, const napi_value& object,
 
         NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
         NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
-        NAPI_ASSERT_BASE(env, valueType == napi_string, "Wrong argument type.", false);
+        if (valueType != napi_string) {
+            LBSLOGE(LOCATOR_STANDARD, "The field type of %{public}s is wrong!", fieldStr);
+            return false;
+        }
         if (bufLen <= 0) {
             return false;
         }
