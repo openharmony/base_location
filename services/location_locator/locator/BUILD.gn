@@ -35,6 +35,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_skeleton.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/request.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",

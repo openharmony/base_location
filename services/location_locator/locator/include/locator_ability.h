@@ -29,6 +29,7 @@
 #include "locator_callback_proxy.h"
 #include "locator_event_subscriber.h"
 #include "locator_skeleton.h"
+#include "permission_status_change_cb.h"
 #include "switch_callback_proxy.h"
 #include "request.h"
 #include "request_manager.h"
@@ -128,6 +129,8 @@ private:
     bool CheckSaValid();
     static int QuerySwitchState();
     int SendGeoRequest(int type, MessageParcel &data, MessageParcel &replay);
+    void RegisterPermissionCallback(const uint32_t callingTokenId, const std::string permissionName);
+    void UnregisterPermissionCallback(const uint32_t callingTokenId);
 
     static void SaDumpInfo(std::string& result);
 
@@ -141,12 +144,14 @@ private:
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requests_;
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> receivers_;
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> proxyMap_;
+    std::shared_ptr<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>> permissionMap_;
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
     std::shared_ptr<CountryCodeManager> countryCodeManager_;
 
     std::mutex proxyMutex_;
+    std::mutex permissionMutex_;
     std::set<int32_t> proxyUids_;
 };
 } // namespace Location

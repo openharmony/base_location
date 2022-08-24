@@ -272,7 +272,14 @@ void RequestManager::HandleRequest(std::string abilityName)
         }
         pid_t uid = request->GetUid();
         pid_t pid = request->GetPid();
+        uint32_t tokenId = request->GetTokenId();
+        uint32_t firstTokenId = request->GetFirstTokenId();
         std::string packageName = request->GetPackageName();
+        // if location access permission granted, add request info to work record
+        if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
+            LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
+            continue;
+        }
         // add request info to work record
         workRecord->Add(uid, pid, packageName);
         auto requestConfig = request->GetRequestConfig();

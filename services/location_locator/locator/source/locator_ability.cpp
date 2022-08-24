@@ -64,6 +64,7 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
+    permissionMap_ = std::make_shared<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>>();
     InitRequestManagerMap();
     reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
@@ -758,11 +759,15 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     if (!CheckSaValid()) {
         InitSaAbility();
     }
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     // generate request object according to input params
     std::shared_ptr<Request> request = std::make_shared<Request>();
     if (request != nullptr) {
         request->SetUid(uid);
         request->SetPid(pid);
+        request->SetTokenId(callingTokenId);
+        request->SetFirstTokenId(callingFirstTokenid);
         request->SetPackageName(bundleName);
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
@@ -770,6 +775,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
+    RegisterPermissionCallback(callingTokenId, ACCESS_LOCATION);
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -778,6 +784,8 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     LBSLOGI(LOCATOR, "stop locating");
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    UnregisterPermissionCallback(callingTokenId);
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -978,6 +986,47 @@ bool LocatorAbility::IsProxyUid(int32_t uid)
 {
     std::lock_guard<std::mutex> lock(proxyMutex_);
     return proxyUids_.find(uid) != proxyUids_.end();
+}
+
+void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId, const std::string permissionName)
+{
+    if (permissionMap_ == nullptr) {
+        LBSLOGE(LOCATOR, "permissionMap is null.");
+        return;
+    }
+    PermStateChangeScope scopeInfo;
+    scopeInfo.permList = {permissionName};
+    scopeInfo.tokenIDs = {callingTokenId};
+    auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
+    std::lock_guard<std::mutex> lock(permissionMutex_);
+    permissionMap_->erase(callingTokenId);
+    permissionMap_->insert(std::make_pair(callingTokenId, callbackPtr));
+    LBSLOGD(LOCATOR, "after tokenId:%{public}d register, permission callback size:%{public}s",
+        callingTokenId, std::to_string(permissionMap_->size()).c_str());
+    int32_t res = AccessTokenKit::RegisterPermStateChangeCallback(callbackPtr);
+    if (res != SUCCESS) {
+        LBSLOGE(LOCATOR, "RegisterPermStateChangeCallback failed.");
+    }
+}
+
+void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
+{
+    if (permissionMap_ == nullptr) {
+        LBSLOGE(LOCATOR, "permissionMap is null.");
+        return;
+    }
+    std::lock_guard<std::mutex> lock(permissionMutex_);
+    auto iter = permissionMap_->find(callingTokenId);
+    if (iter != permissionMap_->end()) {
+        auto callbackPtr = iter->second;
+        int32_t res = AccessTokenKit::UnRegisterPermStateChangeCallback(callbackPtr);
+        if (res != SUCCESS) {
+            LBSLOGE(LOCATOR, "UnRegisterPermStateChangeCallback failed.");
+        }
+    }
+    permissionMap_->erase(callingTokenId);
+    LBSLOGD(LOCATOR, "after tokenId:%{public}d unregister, permission callback size:%{public}s",
+        callingTokenId, std::to_string(permissionMap_->size()).c_str());
 }
 } // namespace Location
 } // namespace OHOS

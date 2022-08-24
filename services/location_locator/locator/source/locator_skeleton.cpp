@@ -90,8 +90,10 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
 {
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int ret = REPLY_CODE_NO_EXCEPTION;
-    if (!CommonUtils::CheckLocationPermission()) {
+    if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         LBSLOGI(LOCATOR, "pid:%{public}d uid:%{public}d has no access permission,CheckLocationPermission return false",
                 callingPid, callingUid);
         reply.WriteInt32(REPLY_CODE_SECURITY_EXCEPTION);
@@ -316,9 +318,11 @@ int32_t LocatorAbilityStub::ProcessMsgRequirSecureSettingsPermission(uint32_t &c
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int ret = REPLY_CODE_NO_EXCEPTION;
     if (code == REG_SWITCH_CALLBACK || code == UNREG_SWITCH_CALLBACK || code == ENABLE_ABILITY) {
-        if (!CommonUtils::CheckSecureSettings()) {
+        if (!CommonUtils::CheckSecureSettings(callingTokenId, callingFirstTokenid)) {
             LBSLOGI(LOCATOR, "has no access permission,CheckSecureSettings return false");
             reply.WriteInt32(REPLY_CODE_SECURITY_EXCEPTION);
             reply.WriteString("should grant location permission");

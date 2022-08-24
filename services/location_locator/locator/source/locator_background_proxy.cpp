@@ -186,9 +186,12 @@ void LocatorBackgroundProxy::OnDeleteRequestRecord(const std::shared_ptr<Request
     }
 }
 
-bool LocatorBackgroundProxy::CheckPermission() const
+bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& request) const
 {
-    return (CommonUtils::CheckLocationPermission() && CommonUtils::CheckBackgroundPermission());
+    uint32_t tokenId = request->GetTokenId();
+    uint32_t firstTokenId = request->GetFirstTokenId();
+    return (CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+            CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId));
 }
 
 void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
@@ -202,7 +205,7 @@ void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
     }
     auto requestsList = iter->second;
     for (auto request = requestsList->begin(); request != requestsList->end();) {
-        if ((uid1 == (*request)->GetUid()) && !CheckPermission()) {
+        if ((uid1 == (*request)->GetUid()) && !CheckPermission(*request)) {
             request = requestsList->erase(request);
         } else {
             request++;
@@ -224,7 +227,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
     auto requestsList = iter->second;
     auto it = find(requestsList->begin(), requestsList->end(), request);
     if (it != requestsList->end()) {
-        if (active || !CheckPermission()) {
+        if (active || !CheckPermission(request)) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "remove request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);
             requestsList->remove(request);
@@ -233,7 +236,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
         if (request->GetRequestConfig() == nullptr) {
             return;
         }
-        if (!active && CheckPermission() && request->GetRequestConfig()->GetFixNumber() == 0
+        if (!active && CheckPermission(request) && request->GetRequestConfig()->GetFixNumber() == 0
             && CheckMaxRequestNum(request->GetUid(), request->GetPackageName())) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);
