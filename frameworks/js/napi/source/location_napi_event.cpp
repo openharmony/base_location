@@ -691,14 +691,12 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
     if (argc == PARAM1) {
-        NAPI_ASSERT(env, argc == PARAM1, "number of parameters is wrong, should be one");
         auto offAllCallbackFunc = g_offAllFuncMap.find(event);
         if (offAllCallbackFunc != g_offAllFuncMap.end() && offAllCallbackFunc->second != nullptr) {
             auto memberFunc = offAllCallbackFunc->second;
             (*memberFunc)(env);
         }
     } else if (argc == PARAM2) {
-        NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong, should be two");
         napi_valuetype valueType;
         NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
         NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
@@ -708,7 +706,6 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
             (*singleMemberFunc)(env, argv[PARAM1]);
         }
     } else if (argc == PARAM3) {
-        NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong, should be three");
         UnSubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
     }
     napi_value result = nullptr;
