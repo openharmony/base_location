@@ -90,7 +90,7 @@ public:
     virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) = 0;
     virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) = 0;
     virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
-    virtual void SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
+    virtual int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
 
     virtual int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName) = 0;
