@@ -578,7 +578,16 @@ napi_value SetLocationMockState(napi_env env, napi_callback_info info, bool enab
             context->errCode = ret ? SUCCESS : LOCATOR_ERROR;
         }
     };
-    asyncContext->completeFunc = [&](void *data) -> void {};
+    asyncContext->completeFunc = [&](void *data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "SetLocationMockState data == nullptr");
+            return;
+        }
+        auto context = static_cast<LocationMockAsyncContext *>(data);
+        if (context->errCode == SUCCESS) {
+            NAPI_CALL_RETURN_VOID(env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        }
+    };
 
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
@@ -596,7 +605,7 @@ napi_value DisableLocationMock(napi_env env, napi_callback_info info)
 
 napi_value SetMockedLocations(napi_env env, napi_callback_info info)
 {
-    size_t argc = 3;
+    size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void *data = nullptr;
@@ -624,9 +633,18 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
             context->errCode = ret ? SUCCESS : LOCATOR_ERROR;
         }
     };
-    asyncContext->completeFunc = [&](void *data) -> void {};
+    asyncContext->completeFunc = [&](void *data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "SetMockedLocations data == nullptr");
+            return;
+        }
+        auto context = static_cast<LocationMockAsyncContext *>(data);
+        if (context->errCode == SUCCESS) {
+            NAPI_CALL_RETURN_VOID(env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        }
+    };
 
-    size_t objectArgsNum = 2;
+    size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
@@ -650,7 +668,16 @@ napi_value SetReverseGeocodingMockState(napi_env env, napi_callback_info info, b
             g_locatorClient->DisableReverseGeocodingMock();
         context->errCode = ret ? SUCCESS : REVERSE_GEOCODE_ERROR;
     };
-    asyncContext->completeFunc = [&](void *data) -> void {};
+    asyncContext->completeFunc = [&](void *data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "SetReverseGeocodingMockState data == nullptr");
+            return;
+        }
+        auto context = static_cast<ReverseGeocodeMockAsyncContext *>(data);
+        if (context->errCode == SUCCESS) {
+            NAPI_CALL_RETURN_VOID(env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        }
+    };
 
     size_t nonCallbackArgNum = 0;
     return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
@@ -692,7 +719,16 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
         bool ret = g_locatorClient->SetReverseGeocodingMockInfo(context->mockInfo);
         context->errCode = ret ? SUCCESS : REVERSE_GEOCODE_ERROR;
     };
-    asyncContext->completeFunc = [&](void *data) -> void {};
+    asyncContext->completeFunc = [&](void *data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "SetReverseGeocodingMockInfo data == nullptr");
+            return;
+        }
+        auto context = static_cast<ReverseGeocodeMockAsyncContext *>(data);
+        if (context->errCode == SUCCESS) {
+            NAPI_CALL_RETURN_VOID(env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        }
+    };
 
     size_t nonCallbackArgNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, nonCallbackArgNum);
