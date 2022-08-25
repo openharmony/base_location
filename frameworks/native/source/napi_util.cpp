@@ -210,19 +210,19 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
 {
     int value = 0;
     double valueDouble = 0.0;
-    if (JsObjectToInt(env, object, "priority", value)) {
+    if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
     }
-    if (JsObjectToInt(env, object, "scenario", value)) {
+    if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         requestConfig->SetScenario(value);
     }
-    if (JsObjectToInt(env, object, "timeInterval", value)) {
+    if (JsObjectToInt(env, object, "timeInterval", value) == SUCCESS) {
         requestConfig->SetTimeInterval(value);
     }
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
     }
-    if (JsObjectToInt(env, object, "distanceInterval", value)) {
+    if (JsObjectToInt(env, object, "distanceInterval", value) == SUCCESS) {
         requestConfig->SetDistanceInterval(value);
     }
 }
@@ -232,16 +232,16 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
 {
     int value = 0;
     double valueDouble = 0.0;
-    if (JsObjectToInt(env, object, "priority", value)) {
+    if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
     }
-    if (JsObjectToInt(env, object, "scenario", value)) {
+    if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         requestConfig->SetScenario(value);
     }
-    if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble)) {
+    if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
     }
-    if (JsObjectToInt(env, object, "timeoutMs", value)) {
+    if (JsObjectToInt(env, object, "timeoutMs", value) == SUCCESS) {
         requestConfig->SetTimeOut(value);
     }
 }
@@ -275,18 +275,23 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     errorCode = JsObjectToDouble(env, object, "maxLatitude", maxLatitude);
     errorCode = JsObjectToDouble(env, object, "maxLongitude", maxLongitude);
     if(errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {
+        LBSLOGE(LOCATOR_STANDARD, "Js object to other types failed");
         return errorCode;
     }
     if (minLatitude < MIN_LATITUDE || minLatitude > MAX_LATITUDE) {
+        LBSLOGE(LOCATOR_STANDARD, "the value of minLatitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (minLongitude < MIN_LONGITUDE || minLongitude > MAX_LONGITUDE) {
+        LBSLOGE(LOCATOR_STANDARD, "the value of minLongitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (maxLatitude < MIN_LATITUDE || maxLatitude > MAX_LATITUDE) {
+        LBSLOGE(LOCATOR_STANDARD, "the value of maxLatitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (maxLongitude < MIN_LONGITUDE || maxLongitude > MAX_LONGITUDE) {
+        LBSLOGE(LOCATOR_STANDARD, "the value of maxLongitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
@@ -566,6 +571,7 @@ int JsObjectToString(const napi_env& env, const napi_value& object,
         NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
         NAPI_ASSERT_BASE(env, valueType == napi_string, "Wrong argument type.", INPUT_PARAMS_ERROR);
         if (bufLen <= 0) {
+            LBSLOGE(LOCATOR_STANDARD, "The length of buf should be greater than 0.");
             return COMMON_ERROR;
         }
         char *buf = (char *)malloc(bufLen);
