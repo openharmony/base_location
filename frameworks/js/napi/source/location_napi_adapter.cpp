@@ -622,6 +622,10 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_create_string_latin1(env,
         "SetMockedLocations", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
     ParseLocationMockParams(env, asyncContext, argv[0]);
+    // assign default value when scenario is not given.
+    if (asyncContext->scenario == 0) {
+        asyncContext->scenario = SCENE_UNSET;
+    }
     asyncContext->executeFunc = [&](void *data) -> void {
         LocationMockAsyncContext *context = static_cast<LocationMockAsyncContext *>(data);
         LocationMockConfig mockInfo;
