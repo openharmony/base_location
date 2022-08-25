@@ -185,22 +185,22 @@ void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
 {
     int value = 0;
     double doubleValue = 0.0;
-    if (JsObjectToInt(env, object, "priority", value)) {
+    if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         request->priority = value;
     }
-    if (JsObjectToInt(env, object, "scenario", value)) {
+    if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         request->scenario = value;
     }
-    if (JsObjectToDouble(env, object, "latitude", doubleValue)) {
+    if (JsObjectToDouble(env, object, "latitude", doubleValue) == SUCCESS) {
         request->geofence.latitude = doubleValue;
     }
-    if (JsObjectToDouble(env, object, "longitude", doubleValue)) {
+    if (JsObjectToDouble(env, object, "longitude", doubleValue) == SUCCESS) {
         request->geofence.longitude = doubleValue;
     }
-    if (JsObjectToDouble(env, object, "radius", doubleValue)) {
+    if (JsObjectToDouble(env, object, "radius", doubleValue) == SUCCESS) {
         request->geofence.radius = doubleValue;
     }
-    if (JsObjectToDouble(env, object, "expiration", doubleValue)) {
+    if (JsObjectToDouble(env, object, "expiration", doubleValue) == SUCCESS) {
         request->geofence.expiration = doubleValue;
     }
 }
@@ -219,7 +219,7 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     if (JsObjectToInt(env, object, "timeInterval", value)) {
         requestConfig->SetTimeInterval(value);
     }
-    if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble)) {
+    if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
     }
     if (JsObjectToInt(env, object, "distanceInterval", value)) {
@@ -256,7 +256,7 @@ void JsObjToCommand(const napi_env& env, const napi_value& object,
     JsObjectToString(env, object, "command", MAX_BUF_LEN, commandConfig->command); // max bufLen
 }
 
-bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
+int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
     std::string description = "";
     int maxItems = 0;
@@ -266,27 +266,32 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
     double maxLongitude = 0.0;
     std::string locale = "";
     int bufLen = MAX_BUF_LEN;
-    JsObjectToString(env, object, "locale", bufLen, locale);
-    JsObjectToString(env, object, "description", bufLen, description);
-    JsObjectToInt(env, object, "maxItems", maxItems);
-    JsObjectToDouble(env, object, "minLatitude", minLatitude);
-    JsObjectToDouble(env, object, "minLongitude", minLongitude);
-    JsObjectToDouble(env, object, "maxLatitude", maxLatitude);
-    JsObjectToDouble(env, object, "maxLongitude", maxLongitude);
+    int errorCode = SUCCESS;
+    errorCode = JsObjectToString(env, object, "locale", bufLen, locale);
+    errorCode = JsObjectToString(env, object, "description", bufLen, description);
+    errorCode = JsObjectToInt(env, object, "maxItems", maxItems);
+    errorCode = JsObjectToDouble(env, object, "minLatitude", minLatitude);
+    errorCode = JsObjectToDouble(env, object, "minLongitude", minLongitude);
+    errorCode = JsObjectToDouble(env, object, "maxLatitude", maxLatitude);
+    errorCode = JsObjectToDouble(env, object, "maxLongitude", maxLongitude);
+    if(errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {
+        return errorCode;
+    }
     if (minLatitude < MIN_LATITUDE || minLatitude > MAX_LATITUDE) {
-        return false;
+        return INPUT_PARAMS_ERROR;
     }
     if (minLongitude < MIN_LONGITUDE || minLongitude > MAX_LONGITUDE) {
-        return false;
+        return INPUT_PARAMS_ERROR;
     }
     if (maxLatitude < MIN_LATITUDE || maxLatitude > MAX_LATITUDE) {
-        return false;
+        return INPUT_PARAMS_ERROR;
     }
     if (maxLongitude < MIN_LONGITUDE || maxLongitude > MAX_LONGITUDE) {
-        return false;
+        return INPUT_PARAMS_ERROR;
     }
     if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
-        return false;
+        LBSLOGE(LOCATOR_STANDARD, "write interfaceToken fail!");
+        return COMMON_ERROR;
     }
     std::string str = "";
     dataParcel.WriteString(description);
@@ -300,7 +305,7 @@ bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Messag
     dataParcel.WriteString16(Str8ToStr16(str)); // locale.getCountry()
     dataParcel.WriteString16(Str8ToStr16(str)); // locale.getVariant()
     dataParcel.WriteString16(Str8ToStr16(str)); // ""
-    return true;
+    return SUCCESS;
 }
 
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
@@ -548,97 +553,90 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
     }
 }
 
-bool JsObjectToString(const napi_env& env, const napi_value& object,
+int JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), COMMON_ERROR);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
-        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
-        if (valueType != napi_string) {
-            LBSLOGE(LOCATOR_STANDARD, "The field type of %{public}s is wrong!", fieldStr);
-            return false;
-        }
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), COMMON_ERROR);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
+        NAPI_ASSERT_BASE(env, valueType == napi_string, "Wrong argument type.", INPUT_PARAMS_ERROR);
         if (bufLen <= 0) {
-            return false;
+            return COMMON_ERROR;
         }
         char *buf = (char *)malloc(bufLen);
         if (buf == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "Js object to str malloc failed!");
-            return false;
+            return COMMON_ERROR;
         }
         (void)memset_s(buf, bufLen, 0, bufLen);
         size_t result = 0;
-        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, field, buf, bufLen, &result), false);
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, field, buf, bufLen, &result), COMMON_ERROR);
         fieldRef = buf;
         free(buf);
         buf = nullptr;
-        return true;
-    } else {
-        LBSLOGD(LOCATOR_STANDARD, "Js obj to str no property: %{public}s", fieldStr);
+        return SUCCESS;
     }
-    return false;
+    LBSLOGD(LOCATOR_STANDARD, "Js obj to str no property: %{public}s", fieldStr);
+    return PARAM_IS_EMPTY;
 }
 
-bool JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef)
+int JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), COMMON_ERROR);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
-        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
-        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", false);
-        NAPI_CALL_BASE(env, napi_get_value_double(env, field, &fieldRef), false);
-        return true;
-    } else {
-        LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), COMMON_ERROR);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
+        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", INPUT_PARAMS_ERROR);
+        NAPI_CALL_BASE(env, napi_get_value_double(env, field, &fieldRef), COMMON_ERROR);
+        return SUCCESS;
     }
-    return false;
+    LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
+    return PARAM_IS_EMPTY;
 }
 
-bool JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef)
+int JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), COMMON_ERROR);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
-        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
-        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", false);
-        NAPI_CALL_BASE(env, napi_get_value_int32(env, field, &fieldRef), false);
-        return true;
-    } else {
-        LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), COMMON_ERROR);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
+        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", INPUT_PARAMS_ERROR);
+        NAPI_CALL_BASE(env, napi_get_value_int32(env, field, &fieldRef), COMMON_ERROR);
+        return SUCCESS;
     }
-    return false;
+    LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
+    return PARAM_IS_EMPTY;
 }
 
-bool JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef)
+int JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef)
 {
     bool hasProperty = false;
-    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), false);
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), COMMON_ERROR);
     if (hasProperty) {
         napi_value field;
         napi_valuetype valueType;
 
-        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), false);
-        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), false);
-        NAPI_ASSERT_BASE(env, valueType == napi_boolean, "Wrong argument type.", false);
-        NAPI_CALL_BASE(env, napi_get_value_bool(env, field, &fieldRef), false);
-        return true;
-    } else {
-        LBSLOGD(LOCATOR_STANDARD, "Js to bool no property: %{public}s", fieldStr);
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), COMMON_ERROR);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
+        NAPI_ASSERT_BASE(env, valueType == napi_boolean, "Wrong argument type.", INPUT_PARAMS_ERROR);
+        NAPI_CALL_BASE(env, napi_get_value_bool(env, field, &fieldRef), COMMON_ERROR);
+        return SUCCESS;
     }
-    return false;
+    LBSLOGD(LOCATOR_STANDARD, "Js to bool no property: %{public}s", fieldStr);
+    return PARAM_IS_EMPTY;
 }
 
 napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const char* str, napi_value& result)
