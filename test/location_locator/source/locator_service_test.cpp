@@ -174,11 +174,14 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
     MessageParcel reply;
     bool ret = false;
     if (proxy_->GetSwitchState() == 1) {
-        ret = (proxy_->GetCacheLocation(reply) == REPLY_CODE_NO_EXCEPTION) ? true : false;
+        proxy_->GetCacheLocation(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        EXPECT_EQ(true, ret);
     } else {
-        ret = (proxy_->GetCacheLocation(reply) != REPLY_CODE_NO_EXCEPTION) ? true : false;
+        proxy_->GetCacheLocation(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        EXPECT_EQ(true, ret);
     }
-    EXPECT_EQ(true, ret);
 }
 
 /*
@@ -211,7 +214,8 @@ HWTEST_F(LocatorServiceTest, OnSuspendTest001, TestSize.Level1)
      */
     backgroundProxy_->OnSuspend(request_, 0);
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
-    EXPECT_EQ(true, result);
+    // no location permission
+    EXPECT_EQ(false, result);
     backgroundProxy_->OnSuspend(request_, 1);
     result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     EXPECT_EQ(false, result);
@@ -232,7 +236,8 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
     backgroundProxy_->OnSuspend(request_, 0);
     backgroundProxy_->OnPermissionChanged(SYSTEM_UID);
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
-    EXPECT_EQ(true, result);
+    // no location permission
+    EXPECT_EQ(false, result);
     backgroundProxy_->OnDeleteRequestRecord(request_);
     result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     EXPECT_EQ(false, result);
@@ -245,7 +250,7 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
  */
 HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
 {
-    /*
+   /*
      * @tc.steps: step1. Call the onsuspend function, the process enter frozen state
      * @tc.steps: step2. Call OnSaStateChange, disable locator ability
      * @tc.expected: step2. return true, do not change proxy list
@@ -254,12 +259,15 @@ HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
      */
     backgroundProxy_->OnSuspend(request_, 0);
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
-    EXPECT_EQ(true, result);
+    // no location permission
+    EXPECT_EQ(false, result);
     backgroundProxy_->OnSaStateChange(false);
     result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
-    EXPECT_EQ(true, result);
+    // no location permission
+    EXPECT_EQ(false, result);
     backgroundProxy_->OnSaStateChange(true);
     result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
-    EXPECT_EQ(true, result);
+    // no location permission
+    EXPECT_EQ(false, result);
     backgroundProxy_->OnDeleteRequestRecord(request_);
 }
