@@ -268,25 +268,25 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     int bufLen = MAX_BUF_LEN;
     CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", bufLen, locale), false);
     CHK_ERROR_CODE("description", JsObjectToString(env, object, "description", bufLen, description), true);
+    if (description == "") {
+        LBSLOGE(LOCATOR_STANDARD, "The required description field should not be empty.");
+        return INPUT_PARAMS_ERROR;
+    }
     CHK_ERROR_CODE("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
     CHK_ERROR_CODE("minLatitude", JsObjectToDouble(env, object, "minLatitude", minLatitude), false);
     CHK_ERROR_CODE("minLongitude", JsObjectToDouble(env, object, "minLongitude", minLongitude), false);
     CHK_ERROR_CODE("maxLatitude", JsObjectToDouble(env, object, "maxLatitude", maxLatitude), false);
     CHK_ERROR_CODE("maxLongitude", JsObjectToDouble(env, object, "maxLongitude", maxLongitude), false);
     if (minLatitude < MIN_LATITUDE || minLatitude > MAX_LATITUDE) {
-        LBSLOGE(LOCATOR_STANDARD, "the value of minLatitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (minLongitude < MIN_LONGITUDE || minLongitude > MAX_LONGITUDE) {
-        LBSLOGE(LOCATOR_STANDARD, "the value of minLongitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (maxLatitude < MIN_LATITUDE || maxLatitude > MAX_LATITUDE) {
-        LBSLOGE(LOCATOR_STANDARD, "the value of maxLatitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (maxLongitude < MIN_LONGITUDE || maxLongitude > MAX_LONGITUDE) {
-        LBSLOGE(LOCATOR_STANDARD, "the value of maxLongitude is out of bound");
         return INPUT_PARAMS_ERROR;
     }
     if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
