@@ -279,8 +279,9 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
     NAPI_CALL(env,
         napi_create_string_latin1(env, "GetAddressesFromLocationName", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
-    asyncContext->errCode = JsObjToGeoCodeRequest(env, argv[0], asyncContext->geoCodeRequest) ?
-        SUCCESS : INPUT_PARAMS_ERROR;
+    asyncContext->errCode = JsObjToGeoCodeRequest(env, argv[0], asyncContext->geoCodeRequest);
+    NAPI_ASSERT(env, asyncContext->errCode != INPUT_PARAMS_ERROR,
+        "The input params should be checked first.");
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<GeoCodeAsyncContext*>(data);
         if (context->errCode != SUCCESS) {
