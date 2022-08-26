@@ -56,13 +56,13 @@ void JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig);
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<GeofenceRequest>& request);
-bool JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
+int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
-bool JsObjectToString(const napi_env& env, const napi_value& object,
+int JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef);
-bool JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
-bool JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef);
-bool JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef);
+int JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
+int JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef);
+int JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef);
 napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const char* str, napi_value& result);
 napi_status SetValueStringArray(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 napi_status SetValueInt32(const napi_env& env, const char* fieldStr, const int intValue, napi_value& result);
@@ -86,6 +86,19 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         continue; \
     } \
 }
+
+#define CHK_ERROR_CODE(type, theCall, isRequired)                                                     \
+    do {                                                                                              \
+        int errorCode = (theCall);                                                                    \
+        if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {                           \
+            LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed.");                            \
+            return errorCode;                                                                         \
+        }                                                                                             \
+        if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
+            LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
+            return INPUT_PARAMS_ERROR;                                                                \
+        }                                                                                             \
+    } while (0)
 }  // namespace Location
 }  // namespace OHOS
 #endif // NAPI_UTIL_H

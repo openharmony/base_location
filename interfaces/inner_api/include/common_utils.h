@@ -95,6 +95,8 @@ enum {
 
 enum {
     SUCCESS = 0,
+    COMMON_ERROR = 98,
+    PARAM_IS_EMPTY = 99,
     NOT_SUPPORTED = 100,
     INPUT_PARAMS_ERROR = 101,
     REVERSE_GEOCODE_ERROR,
