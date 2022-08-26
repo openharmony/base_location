@@ -86,6 +86,14 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         continue; \
     } \
 }
+
+#define CHK_ERROR_CODE(errorCode) \
+{ \
+    if(errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) { \
+        LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed."); \
+        return errorCode; \
+    } \
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // NAPI_UTIL_H
