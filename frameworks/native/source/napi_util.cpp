@@ -266,25 +266,13 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     double maxLongitude = 0.0;
     std::string locale = "";
     int bufLen = MAX_BUF_LEN;
-    int errorCode = SUCCESS;
-    errorCode = JsObjectToString(env, object, "locale", bufLen, locale);
-    CHK_ERROR_CODE(errorCode);
-    errorCode = JsObjectToString(env, object, "description", bufLen, description);
-    if (errorCode == PARAM_IS_EMPTY) {
-        LBSLOGE(LOCATOR_STANDARD， "The required field <description> should not be empty.");
-        return INPUT_PARAMS_ERROR;
-    }
-    CHK_ERROR_CODE(errorCode);
-    errorCode = JsObjectToInt(env, object, "maxItems", maxItems);
-    CHK_ERROR_CODE(errorCode);
-    errorCode = JsObjectToDouble(env, object, "minLatitude", minLatitude);
-    CHK_ERROR_CODE(errorCode);
-    errorCode = JsObjectToDouble(env, object, "minLongitude", minLongitude);
-    CHK_ERROR_CODE(errorCode);
-    errorCode = JsObjectToDouble(env, object, "maxLatitude", maxLatitude);
-    CHK_ERROR_CODE(errorCode);
-    errorCode = JsObjectToDouble(env, object, "maxLongitude", maxLongitude);
-    CHK_ERROR_CODE(errorCode);
+    CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", bufLen, locale), false);
+    CHK_ERROR_CODE("description", JsObjectToString(env, object, "description", bufLen, description), true);
+    CHK_ERROR_CODE("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
+    CHK_ERROR_CODE("minLatitude", JsObjectToDouble(env, object, "minLatitude", minLatitude), false);
+    CHK_ERROR_CODE("minLongitude", JsObjectToDouble(env, object, "minLongitude", minLongitude), false);
+    CHK_ERROR_CODE("maxLatitude", JsObjectToDouble(env, object, "maxLatitude", maxLatitude), false);
+    CHK_ERROR_CODE("maxLongitude", JsObjectToDouble(env, object, "maxLongitude", maxLongitude), false);
     if (minLatitude < MIN_LATITUDE || minLatitude > MAX_LATITUDE) {
         LBSLOGE(LOCATOR_STANDARD, "the value of minLatitude is out of bound");
         return INPUT_PARAMS_ERROR;

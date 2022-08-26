@@ -282,8 +282,6 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
     asyncContext->errCode = JsObjToGeoCodeRequest(env, argv[0], asyncContext->geoCodeRequest);
     NAPI_ASSERT(env, asyncContext->errCode != INPUT_PARAMS_ERROR,
         "The input params should be checked first.");
-    NAPI_ASSERT(env, asyncContext->errCode != COMMON_ERROR,
-        "Fail trans Js Object to other type.");
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<GeoCodeAsyncContext*>(data);
         if (context->errCode != SUCCESS) {
