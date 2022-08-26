@@ -88,16 +88,17 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
 }
 
 #define CHK_ERROR_CODE(type, errorCode, isRequired) \
-{ \
-    if(errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) { \
-        LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed."); \
-        return errorCode; \
-    } \
-    if(isRequired) { \
-        LBSLOGE(LOCATOR_STANDARD, "The required ##%{public}s field should not be empty.", type); \
-        return INPUT_PARAMS_ERROR; \
-    } \
-}
+    do { \
+        if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) { \
+            LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed."); \
+            return errorCode; \
+        } \
+        if (isRequired && errorCode == PARAM_IS_EMPTY) { \
+            LBSLOGE(LOCATOR_STANDARD, "The required ##%{public}s field should not be empty.", type); \
+            return INPUT_PARAMS_ERROR; \
+        } \
+    } while(0)
+
 }  // namespace Location
 }  // namespace OHOS
 #endif // NAPI_UTIL_H
