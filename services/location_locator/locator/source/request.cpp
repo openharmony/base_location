@@ -49,6 +49,10 @@ void Request::SetLocationMockConfig(const LocationMockConfig& locationMockConfig
     RequestConfig config;
     config.SetScenario(locationMockConfig.GetScenario());
     config.SetTimeInterval(locationMockConfig.GetTimeInterval());
+    // assign default value for priority when scenario is SCENE_UNSET.
+    if (locationMockConfig.GetScenario() == SCENE_UNSET) {
+        config.SetPriority(PRIORITY_FAST_FIRST_FIX);
+    }
     SetRequestConfig(config);
 }
 
