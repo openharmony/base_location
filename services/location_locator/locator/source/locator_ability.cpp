@@ -194,6 +194,22 @@ std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> Loca
     return requests_;
 }
 
+int LocatorAbility::GetActiveRequestNum()
+{
+    int num = 0;
+    auto gpsListIter = requests_->find(GNSS_ABILITY);
+    auto networkListIter = requests_->find(NETWORK_ABILITY);
+    if (gpsListIter != requests_->end()) {
+        auto list = &(gpsListIter->second);
+        num += list->size();
+    }
+    if (networkListIter != requests_->end()) {
+        auto list = &(networkListIter->second);
+        num += list->size();
+    }
+    return num;
+}
+
 std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> LocatorAbility::GetReceivers()
 {
     return receivers_;
@@ -759,6 +775,8 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     if (!CheckSaValid()) {
         InitSaAbility();
     }
+    // update offset before add request
+    reportManager_->UpdateRandom();
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     // generate request object according to input params
@@ -775,7 +793,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    RegisterPermissionCallback(callingTokenId, ACCESS_LOCATION);
+    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION});
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -792,16 +810,19 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 int LocatorAbility::GetCacheLocation(MessageParcel& reply)
 {
     auto lastLocation = reportManager_->GetLastLocation();
-    if (lastLocation == nullptr) {
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t firstTokenId = IPCSkeleton::GetFirstTokenID();
+    auto finalLocation = reportManager_->GetPermittedLocation(tokenId, firstTokenId, lastLocation);
+    if (finalLocation == nullptr) {
         reply.WriteInt32(REPLY_CODE_EXCEPTION);
         reply.WriteString("get no cached result");
         LBSLOGI(LOCATOR, "GetCacheLocation location is null");
         return REPLY_CODE_EXCEPTION;
     }
-    if (fabs(lastLocation->GetLatitude() - 0.0) > PRECISION
-        && fabs(lastLocation->GetLongitude() - 0.0) > PRECISION) {
+    if (fabs(finalLocation->GetLatitude() - 0.0) > PRECISION
+        && fabs(finalLocation->GetLongitude() - 0.0) > PRECISION) {
         reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
-        lastLocation->Marshalling(reply);
+        finalLocation->Marshalling(reply);
         return REPLY_CODE_NO_EXCEPTION;
     }
     reply.WriteInt32(REPLY_CODE_EXCEPTION);
@@ -988,14 +1009,15 @@ bool LocatorAbility::IsProxyUid(int32_t uid)
     return proxyUids_.find(uid) != proxyUids_.end();
 }
 
-void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId, const std::string permissionName)
+void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
+    const std::vector<std::string>& permissionNameList)
 {
     if (permissionMap_ == nullptr) {
         LBSLOGE(LOCATOR, "permissionMap is null.");
         return;
     }
     PermStateChangeScope scopeInfo;
-    scopeInfo.permList = {permissionName};
+    scopeInfo.permList = permissionNameList;
     scopeInfo.tokenIDs = {callingTokenId};
     auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
     std::lock_guard<std::mutex> lock(permissionMutex_);

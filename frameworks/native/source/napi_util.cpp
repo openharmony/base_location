@@ -25,10 +25,6 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
-static constexpr double MIN_LATITUDE = -90.0;
-static constexpr double MAX_LATITUDE = 90.0;
-static constexpr double MIN_LONGITUDE = -180.0;
-static constexpr double MAX_LONGITUDE = 180.0;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {

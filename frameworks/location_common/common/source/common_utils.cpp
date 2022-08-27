@@ -37,7 +37,7 @@ bool CommonUtils::CheckSystemCalling(pid_t uid)
 
 bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
-    return CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId);
+    return CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId);
 }
 
 bool CommonUtils::CheckPermission(const std::string &permission, uint32_t callerToken, uint32_t tokenFirstCaller)
@@ -70,6 +70,20 @@ bool CommonUtils::CheckBackgroundPermission(uint32_t tokenId, uint32_t firstToke
 bool CommonUtils::CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId)
 {
     return CheckPermission(MANAGE_SECURE_SETTINGS, tokenId, firstTokenId);
+}
+
+int CommonUtils::GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId)
+{
+    int ret = PERMISSION_INVALID;
+    if (CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId) &&
+        CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId)) {
+        ret = PERMISSION_ACCURATE;
+    } else if (CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId)) {
+        ret = PERMISSION_APPROXIMATELY;
+    } else {
+        ret = PERMISSION_INVALID;
+    }
+    return ret;
 }
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
@@ -242,6 +256,16 @@ double CommonUtils::CalDistance(const double lat1, const double lon1, const doub
     double disRad = asin(temp) * DIS_FROMLL_PARAMETER;
     double dis = disRad * EARTH_RADIUS;
     return dis;
+}
+
+double CommonUtils::DoubleRandom(double min, double max)
+{
+    double param = 0.0;
+    std::random_device rd;
+    static std::uniform_real_distribution<double> u(min, max);
+    static std::default_random_engine e(rd());
+    param = u(e);
+    return param;
 }
 } // namespace Location
 } // namespace OHOS
