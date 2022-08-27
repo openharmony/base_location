@@ -171,7 +171,7 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
 void CountryCodeManager::StartPassiveLocationListen()
 {
     auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_LOW_POWER);
+    requestConfig->SetScenario(SCENE_NO_POWER);
     requestConfig->SetTimeInterval(DEFAULT_TIME_INTERVAL);
 
     callback_ = sptr<ILocatorCallback>(new (std::nothrow) CountryCodeManager::LocatorCallback());

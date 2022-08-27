@@ -123,13 +123,14 @@ public:
     bool ProxyUidForFreeze(int32_t uid, bool isProxy) override;
     bool ResetAllProxy() override;
     bool IsProxyUid(int32_t uid);
+    int GetActiveRequestNum();
 
 private:
     bool Init();
     bool CheckSaValid();
     static int QuerySwitchState();
     int SendGeoRequest(int type, MessageParcel &data, MessageParcel &replay);
-    void RegisterPermissionCallback(const uint32_t callingTokenId, const std::string permissionName);
+    void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
 
     static void SaDumpInfo(std::string& result);
