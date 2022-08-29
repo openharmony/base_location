@@ -276,7 +276,8 @@ void RequestManager::HandleRequest(std::string abilityName)
         uint32_t firstTokenId = request->GetFirstTokenId();
         std::string packageName = request->GetPackageName();
         // if location access permission granted, add request info to work record
-        if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
+        int permissionLevel = CommonUtils::GetPermissionLevel(tokenId, firstTokenId);
+        if (permissionLevel <= PERMISSION_INVALID) {
             LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
             continue;
         }

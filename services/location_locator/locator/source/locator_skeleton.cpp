@@ -93,7 +93,8 @@ int32_t LocatorAbilityStub::ProcessMsgRequirLocationPermission(uint32_t &code,
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int ret = REPLY_CODE_NO_EXCEPTION;
-    if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+    int permissionLevel = CommonUtils::GetPermissionLevel(callingTokenId, callingFirstTokenid);
+    if (permissionLevel <= PERMISSION_INVALID) {
         LBSLOGI(LOCATOR, "pid:%{public}d uid:%{public}d has no access permission,CheckLocationPermission return false",
                 callingPid, callingUid);
         reply.WriteInt32(REPLY_CODE_SECURITY_EXCEPTION);
