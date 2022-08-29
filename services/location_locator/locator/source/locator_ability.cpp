@@ -84,6 +84,7 @@ void LocatorAbility::OnStart()
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
+    AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
 }
 
@@ -92,6 +93,45 @@ void LocatorAbility::OnStop()
     state_ = ServiceRunningState::STATE_NOT_START;
     registerToAbility_ = false;
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
+}
+
+void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+{
+    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
+        LBSLOGE(LOCATOR, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
+    }
+    if (locatorEventSubscriber_ == nullptr) {
+        LBSLOGE(LOCATOR, "OnAddSystemAbility subscribeer is nullptr");
+        return;
+    }
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locatorEventSubscriber_);
+    LBSLOGI(LOCATOR, "SubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
+    if (countryCodeManager_ == nullptr) {
+        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    }
+    countryCodeManager_->ReSubscribeEvent();
+}
+
+void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
+        LBSLOGE(LOCATOR, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
+    }
+    if (locatorEventSubscriber_ == nullptr) {
+        LBSLOGE(LOCATOR, "OnRemoveSystemAbility subscribeer is nullptr");
+        return;
+    }
+    bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locatorEventSubscriber_);
+    LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
+    if (countryCodeManager_ == nullptr) {
+        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    }
+    countryCodeManager_->ReUnsubscribeEvent();
 }
 
 bool LocatorAbility::Init()
@@ -109,7 +149,9 @@ bool LocatorAbility::Init()
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
-    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager_ == nullptr) {
+        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    }
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);

@@ -363,5 +363,25 @@ void CountryCodeManager::SimSubscriber::OnReceiveEvent(const OHOS::EventFwk::Com
     LBSLOGI(COUNTRY_CODE, "SimSubscriber::OnReceiveEvent");
     manager->GetIsoCountryCode();
 }
+
+void CountryCodeManager::ReSubscribeEvent()
+{
+    if (countryCodeCallback_->size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "no valid callback registed, no need to subscribe");
+        return;
+    }
+    SubscribeSimEvent();
+    SubscribeNetworkStatusEvent();
+}
+
+void CountryCodeManager::ReUnsubscribeEvent()
+{
+    if (countryCodeCallback_->size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "no valid callback registed, no need to unsubscribe");
+        return;
+    }
+    UnsubscribeSimEvent();
+    UnsubscribeNetworkStatusEvent();
+}
 } // namespace Location
 } // namespace OHOS

@@ -19,10 +19,12 @@
 #include <map>
 #include <singleton.h>
 #include <string>
-#include "common_event_subscriber.h"
 #include "iremote_stub.h"
+#include "system_ability_status_change_stub.h"
+#include "common_event_subscriber.h"
 #include "i_locator_callback.h"
 #include "request.h"
+
 
 namespace OHOS {
 namespace Location {
@@ -45,29 +47,13 @@ private:
     void UpdateListOnPermissionChanged(int32_t uid);
     void UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active);
     void UpdateListOnUserSwitch(int32_t userId);
-    void SubscribeUserSwtich();
-    void SubscribeUserSwtichThread();
     void InitArgsFromProp();
+    void StartEventSubscriber();
 
     bool CheckPermission(const std::shared_ptr<Request>& request) const;
     bool CheckMaxRequestNum(int32_t uid, const std::string& packageName) const;
     int32_t GetUserId(int32_t uid) const;
     const std::list<std::shared_ptr<Request>>& GetRequestsInProxy() const;
-
-    bool isLocating_ = false;
-    bool proxySwtich_ = false;
-    bool featureSwitch_ = true;
-    bool isWating_ = false;
-    bool isSubscribed_ = false;
-    int timeInterval_;
-    int32_t curUserId_ = 0;
-
-    sptr<ILocatorCallback> callback_;
-    std::shared_ptr<Request> request_;
-    std::shared_ptr<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>> requestsMap_;
-    std::shared_ptr<std::list<std::shared_ptr<Request>>> requestsList_;
-    static std::mutex requestListMutex_;
-    static std::mutex locatorMutex_;
 
     class mLocatorCallback : public IRemoteStub<ILocatorCallback> {
     public:
@@ -84,6 +70,34 @@ private:
     private:
         virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
     };
+
+    class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
+    public:
+        explicit SystemAbilityStatusChangeListener(std::shared_ptr<UserSwitchSubscriber> &subscriber);
+        ~SystemAbilityStatusChangeListener() = default;
+        virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+        virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+
+    private:
+        std::shared_ptr<UserSwitchSubscriber> subscriber_ = nullptr;
+    };
+
+    bool isLocating_ = false;
+    bool proxySwtich_ = false;
+    bool featureSwitch_ = true;
+    bool isWating_ = false;
+    bool isSubscribed_ = false;
+    int timeInterval_;
+    int32_t curUserId_ = 0;
+
+    sptr<ILocatorCallback> callback_;
+    std::shared_ptr<Request> request_;
+    std::shared_ptr<UserSwitchSubscriber> subscriber_ = nullptr;
+    sptr<ISystemAbilityStatusChange> statusChangeListener_ = nullptr;
+    std::shared_ptr<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>> requestsMap_;
+    std::shared_ptr<std::list<std::shared_ptr<Request>>> requestsList_;
+    static std::mutex requestListMutex_;
+    static std::mutex locatorMutex_;
 };
 } // namespace Location
 } // namespace OHOS
