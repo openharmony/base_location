@@ -37,7 +37,7 @@ bool CommonUtils::CheckSystemCalling(pid_t uid)
 
 bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
-    return CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId);
+    return CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId);
 }
 
 bool CommonUtils::CheckPermission(const std::string &permission, uint32_t callerToken, uint32_t tokenFirstCaller)
@@ -65,6 +65,11 @@ bool CommonUtils::CheckPermission(const std::string &permission, uint32_t caller
 bool CommonUtils::CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
     return CheckPermission(ACCESS_BACKGROUND_LOCATION, tokenId, firstTokenId);
+}
+
+bool CommonUtils::CheckApproximatelyPermission(uint32_t tokenId, uint32_t firstTokenId)
+{
+    return CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId);
 }
 
 bool CommonUtils::CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId)

@@ -276,7 +276,7 @@ HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
  * @tc.name: CheckGetCacheLocation002
  * @tc.desc: Test the function GetCacheLocation and get approximately location
  * @tc.type: FUNC
- * @tc.require: issueI5OE5Z
+ * @tc.require: issueI5OSHX
  */
 HWTEST_F(LocatorServiceTest, CheckGetCacheLocation002, TestSize.Level1)
 {
@@ -299,7 +299,7 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation002, TestSize.Level1)
  * @tc.name: CheckPermission001
  * @tc.desc: Test the function CheckPermission
  * @tc.type: FUNC
- * @tc.require: issueI5OE5Z
+ * @tc.require: issueI5OSHX
  */
 HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
 {
