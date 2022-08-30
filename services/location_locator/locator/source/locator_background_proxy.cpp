@@ -23,6 +23,8 @@
 #include "locator_ability.h"
 #include "os_account_manager.h"
 #include "request_manager.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -57,7 +59,8 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     request_->SetPackageName(PROC_NAME);
     request_->SetRequestConfig(*requestConfig);
     request_->SetLocatorCallBack(callback_);
-    SubscribeUserSwtich();
+    StartEventSubscriber();
+    isSubscribed_ = true;
 }
 
 LocatorBackgroundProxy::~LocatorBackgroundProxy() {}
@@ -69,18 +72,23 @@ void LocatorBackgroundProxy::InitArgsFromProp()
     timeInterval_ = DEFAULT_TIME_INTERVAL;
 }
 
-void LocatorBackgroundProxy::SubscribeUserSwtich()
+void LocatorBackgroundProxy::StartEventSubscriber()
 {
-    std::thread th(&LocatorBackgroundProxy::SubscribeUserSwtichThread, this);
-    th.detach();
-}
-
-void LocatorBackgroundProxy::SubscribeUserSwtichThread()
-{
-    // registering too early will cause failure(CommonEvent module has not been initialized)
-    // so delay for 5 sceonds
-    std::this_thread::sleep_for(std::chrono::seconds(SUBSCRIBE_TIME));
-    isSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    if (subscriber_ == nullptr) {
+        subscriber_ = std::make_shared<UserSwitchSubscriber>(subscriberInfo);
+    }
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    statusChangeListener_ = new (std::nothrow) SystemAbilityStatusChangeListener(subscriber_);
+    if (samgrProxy == nullptr || statusChangeListener_ == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "StartEventSubscriber samgrProxy or statusChangeListener_ is nullptr");
+        return;
+    }
+    int32_t ret = samgrProxy->SubscribeSystemAbility(COMMON_EVENT_SERVICE_ID, statusChangeListener_);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY,
+        "StartEventSubscriber SubscribeSystemAbility COMMON_EVENT_SERVICE_ID result:%{public}d", ret);
 }
 
 void LocatorBackgroundProxy::StartLocatorThread()
@@ -388,6 +396,40 @@ bool LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe()
         LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Subscribe service event error.");
     }
     return result;
+}
+
+LocatorBackgroundProxy::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener(
+    std::shared_ptr<UserSwitchSubscriber> &subscriber) : subscriber_(subscriber)
+{}
+
+void LocatorBackgroundProxy::SystemAbilityStatusChangeListener::OnAddSystemAbility(
+    int32_t systemAbilityId, const std::string& deviceId)
+{
+    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
+    }
+    if (subscriber_ == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "OnAddSystemAbility subscribeer is nullptr");
+        return;
+    }
+    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber_);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "SubscribeCommonEvent subscriber_ result = %{public}d", result);
+}
+
+void LocatorBackgroundProxy::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
+    int32_t systemAbilityId, const std::string& deviceId)
+{
+    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
+    }
+    if (subscriber_ == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "OnRemoveSystemAbility subscribeer is nullptr");
+        return;
+    }
+    bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(subscriber_);
+    LBSLOGE(LOCATOR_BACKGROUND_PROXY, "UnSubscribeCommonEvent subscriber_ result = %{public}d", result);
 }
 } // namespace OHOS
 } // namespace Location

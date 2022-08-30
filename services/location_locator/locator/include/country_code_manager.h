@@ -21,13 +21,13 @@
 #include <singleton.h>
 #include <string>
 #include "iremote_stub.h"
-#include "request.h"
-#include "country_code.h"
-#include "location.h"
 #include "common_event_subscriber.h"
+#include "country_code.h"
 #include "i_locator_callback.h"
 #include "i_country_code_callback.h"
+#include "location.h"
 #include "request.h"
+
 
 namespace OHOS {
 namespace Location {
@@ -38,6 +38,8 @@ public:
     std::shared_ptr<CountryCode> GetIsoCountryCode();
     void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
     void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    void ReSubscribeEvent();
+    void ReUnsubscribeEvent();
 
 private:
     void StartPassiveLocationListen();

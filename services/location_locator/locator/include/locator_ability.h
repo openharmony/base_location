@@ -55,6 +55,8 @@ public:
     ~LocatorAbility();
     void OnStart() override;
     void OnStop() override;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     ServiceRunningState QueryServiceState() const
     {
         return state_;
@@ -149,7 +151,7 @@ private:
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
-    std::shared_ptr<CountryCodeManager> countryCodeManager_;
+    std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
 
     std::mutex proxyMutex_;
     std::mutex permissionMutex_;
