@@ -100,6 +100,9 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
 std::unique_ptr<Location> ReportManager::GetPermittedLocation(uint32_t tokenId, uint32_t firstTokenId,
     const std::unique_ptr<Location>& location)
 {
+    if (location == nullptr) {
+        return nullptr;
+    }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     int permissionLevel = CommonUtils::GetPermissionLevel(tokenId, firstTokenId);
     if (permissionLevel == PERMISSION_APPROXIMATELY) {
@@ -193,6 +196,10 @@ void ReportManager::SetLastLocation(const std::unique_ptr<Location>& location)
 std::unique_ptr<Location> ReportManager::GetLastLocation()
 {
     auto lastLocation = std::make_unique<Location>(lastLocation_);
+    if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
+        LBSLOGE(REPORT_MANAGER, "no valid cache location");
+        return nullptr;
+    }
     return lastLocation;
 }
 

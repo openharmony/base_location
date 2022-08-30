@@ -132,6 +132,7 @@ public:
     static sptr<IRemoteObject> GetRemoteObject(int abilityId, std::string deviceId);
     static std::string InitDeviceId();
     static bool CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckApproximatelyPermission(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckPermission(const std::string &permission, uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
