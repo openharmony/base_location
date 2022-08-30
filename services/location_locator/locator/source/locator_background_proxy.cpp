@@ -190,7 +190,8 @@ bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& req
 {
     uint32_t tokenId = request->GetTokenId();
     uint32_t firstTokenId = request->GetFirstTokenId();
-    return (CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+    int permissionLevel = CommonUtils::GetPermissionLevel(tokenId, firstTokenId);
+    return ((permissionLevel > PERMISSION_INVALID) &&
             CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId));
 }
 

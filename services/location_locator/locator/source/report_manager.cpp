@@ -29,8 +29,8 @@ static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 ReportManager::ReportManager()
 {
-    clock_gettime(CLOCK_REALTIME, &mLastUpdateTime_);
-    mOffsetRandom_ = CommonUtils::DoubleRandom(0, 1);
+    clock_gettime(CLOCK_REALTIME, &lastUpdateTime_);
+    offsetRandom_ = CommonUtils::DoubleRandom(0, 1);
 }
 
 ReportManager::~ReportManager() {}
@@ -68,10 +68,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         uint32_t tokenId = request->GetTokenId();
         uint32_t firstTokenId = request->GetFirstTokenId();
         std::unique_ptr<Location> finalLocation = GetPermittedLocation(tokenId, firstTokenId, location);
-        if (finalLocation == nullptr) {
-            LBSLOGE(REPORT_MANAGER, "%{public}s has no access permission", request->GetPackageName().c_str());
-            continue;
-        }
+
         if (!ResultCheck(finalLocation, request)) {
             continue;
         }
@@ -133,6 +130,10 @@ bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback
 bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     const std::shared_ptr<Request>& request)
 {
+    if (location == nullptr) {
+        LBSLOGE(REPORT_MANAGER, "%{public}s has no access permission", request->GetPackageName().c_str());
+        return false;
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
@@ -208,8 +209,8 @@ void ReportManager::UpdateRandom()
     }
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
-    if (abs(now.tv_sec - mLastUpdateTime_.tv_sec) > LONG_TIME_INTERVAL) {
-        mOffsetRandom_ = CommonUtils::DoubleRandom(0, 1);
+    if (abs(now.tv_sec - lastUpdateTime_.tv_sec) > LONG_TIME_INTERVAL) {
+        offsetRandom_ = CommonUtils::DoubleRandom(0, 1);
     }
 }
 
@@ -218,8 +219,8 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
     std::unique_ptr<Location> coarseLocation = std::make_unique<Location>(*location);
     double startLat = coarseLocation->GetLatitude();
     double startLon = coarseLocation->GetLongitude();
-    double brg = mOffsetRandom_ * DIS_FROMLL_PARAMETER * M_PI; // 2PI
-    double dist = mOffsetRandom_ * (MAXIMUM_FUZZY_LOCATION_DISTANCE -
+    double brg = offsetRandom_ * DIS_FROMLL_PARAMETER * M_PI; // 2PI
+    double dist = offsetRandom_ * (MAXIMUM_FUZZY_LOCATION_DISTANCE -
         MINIMUM_FUZZY_LOCATION_DISTANCE) + MINIMUM_FUZZY_LOCATION_DISTANCE;
     double perlat = (DIS_FROMLL_PARAMETER * M_PI * EARTH_RADIUS) / DEGREE_DOUBLE_PI; // the radian value of per degree
 

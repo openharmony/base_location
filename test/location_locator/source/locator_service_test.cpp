@@ -271,3 +271,45 @@ HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
     EXPECT_EQ(false, result);
     backgroundProxy_->OnDeleteRequestRecord(request_);
 }
+
+/*
+ * @tc.name: CheckGetCacheLocation002
+ * @tc.desc: Test the function GetCacheLocation and get approximately location
+ * @tc.type: FUNC
+ * @tc.require: issueI5OE5Z
+ */
+HWTEST_F(LocatorServiceTest, CheckGetCacheLocation002, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. get approximately location permission.
+     * @tc.steps: step2. Call system ability and get cache location.
+     * @tc.expected: step1. get reply location is nullptr.
+     */
+    MessageParcel reply;
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        ret = locatorAbility->GetCacheLocation(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_EXCEPTION;
+        EXPECT_EQ(true, ret);
+    }
+}
+
+/*
+ * @tc.name: CheckPermission001
+ * @tc.desc: Test the function CheckPermission
+ * @tc.type: FUNC
+ * @tc.require: issueI5OE5Z
+ */
+HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. get callingTokenId and callingFirstTokenid.
+     * @tc.steps: step2. Call GetPermissionLevel and get permission level.
+     * @tc.expected: step1. get permission level is PERMISSION_INVALID.
+     */
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
+    int permissionLevel = CommonUtils::GetPermissionLevel(callingTokenId, callingFirstTokenid);
+    EXPECT_EQ(PERMISSION_INVALID, permissionLevel);
+}

@@ -40,8 +40,8 @@ public:
         const std::unique_ptr<Location>& location);
     void UpdateRandom();
 private:
-    struct timespec mLastUpdateTime_;
-    double mOffsetRandom_;
+    struct timespec lastUpdateTime_;
+    double offsetRandom_;
     Location lastLocation_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
 };
