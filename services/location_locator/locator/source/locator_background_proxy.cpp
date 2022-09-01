@@ -134,6 +134,8 @@ void LocatorBackgroundProxy::StartLocator()
 // when the app wakes up, stop proxy
 void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, bool active)
 {
+    uint32_t tokenId = request.GetTokenId();
+    uint32_t firstTokenId = request.GetFirstTokenId();
     if (!featureSwitch_) {
         return;
     }
@@ -143,7 +145,19 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
     UpdateListOnSuspend(request, active);
     if (requestsList_->empty()) {
         StopLocator();
+        if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
     } else {
+        if (CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
+        } 
+        if (CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        }
+        if (CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId)) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
         StartLocator();
     }
 }

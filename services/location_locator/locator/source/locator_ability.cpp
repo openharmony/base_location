@@ -833,29 +833,42 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
-    LBSLOGI(LOCATOR, "start locating");
+    requestManager_->RegisterSuspendChangeCallback();
     bool status = requestManager_->IsForegroundApp(bundleName);
     if (!status) {
+        RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION,
+            ACCESS_BACKGROUND_LOCATION});
         DoSuspend(uid, pid);
         return REPLY_CODE_NO_EXCEPTION;
-    } else {
-        DoActive(uid, pid);
     }
-    PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
+    DoActive(uid, pid);
+    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION});
+    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
+    }
+    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+    }
+    LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION});
     return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
     LBSLOGI(LOCATOR, "stop locating");
-    PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     UnregisterPermissionCallback(callingTokenId);
+    if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
+    } 
+    if (!CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+    }
     return REPLY_CODE_NO_EXCEPTION;
 }
 
