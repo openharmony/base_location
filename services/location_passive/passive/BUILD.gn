@@ -53,6 +53,8 @@ ohos_shared_library("lbsservice_passive") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "ability_runtime:app_manager",
+    "access_token:libprivacy_sdk"
   ]
 
   part_name = "location"

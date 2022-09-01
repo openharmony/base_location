@@ -395,5 +395,90 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
     });
     return isFound;
 }
+
+bool RequestManager::RegisterLocationStatusChangeCallback()
+{
+    if (appStateObserver_ != nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "The instance of AppStateObserver has been already created.");
+        return true;
+    }
+    appStateObserver_ = new (std::nothrow) AppStatusChangeCallback();
+    if (appStatusObserver_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Get app state observer failed.");
+        return false;
+    }
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
+        appStatusObserver_ = nullptr;
+        return false;
+    }
+    iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    int32_t result = iAppMgr_->RegisterApplicationStateObserver(appStateObserver_);
+    if (result != 0) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to Register app state observer.");
+        iAppMgr_ = nullptr;
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool RequestManager::UnregisterApplicationStateObserver()
+{
+    if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
+        iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
+    }
+    iAppMgr_ = nullptr;
+    appStateObserver_ = nullptr;
+    return true;
+}
+
+bool RequestManager::IsForegroundApp(std::string& bundleName)
+{
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "can not get iAppMgr.");
+        return false;
+    }
+    std::vector<AppExecFwk::AppStateData> fgAppList;
+    iAppMgr_->GetForegroundApplications(fgAppList);
+    for (const auto& fgApp : fgAppList) {
+        LBSLOGE(REQUEST_MANAGER, "The state of bundleName : %{public}s is %{public}d.",
+            fgApp.bundleName.c_str(), fgApp.state);
+        if (fgApp.bundleName == bundleName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void RequestManager::DoSuspend(const std::vector<SuspendAppInfo>& info)
+{
+    LBSLOGE(REQUEST_MANAGER, "RequestManager listener DoSuspend.");
+    NotifyRequestManager(info, SUSPEND);
+}
+
+void RequestManager::DoActive(const std::vector<SuspendAppInfo>& info)
+{
+    LBSLOGE(REQUEST_MANAGER, "RequestManager listener DoActive.");
+    NotifyRequestManager(info, ACTIVE);
+}
+
+void RequestManager::NotifyRequestManager(const std::vector<SuspendAppInfo>& info, int32_t flag)
+{
+    for (auto& appInfo : info) {
+        auto uid = appInfo.GetUid();
+        auto& pids = appInfo.GetPids();
+        for (auto pid : pids) {
+            DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, flag);
+        }
+    }
+}
+
 } // namespace Location
 } // namespace OHOS
