@@ -64,9 +64,9 @@ private:
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
     sptr<AppExecFwk::IAppMgr> iAppMgr_;
-    sptr<AppStatusChangeCallback> appStateObserver_;
+    sptr<SuspendChangeCallback> appStateObserver_;
 };
-class SuspendChangeCallback :: public AppExecFwk::ApplicationStateObserverStub {
+class SuspendChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
 public:
     SuspendChangeCallback();
     virtual ~SuspendChangeCallback();
