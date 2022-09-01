@@ -469,6 +469,14 @@ void RequestManager::NotifyRequestManager(int32_t uid, int32_t pid, int32_t flag
     DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, flag);
 }
 
+SuspendChangeCallback::SuspendChangeCallback()
+{
+}
+
+SuspendChangeCallback::~SuspendChangeCallback()
+{
+}
+
 void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     int32_t uid = appStateData.uid;
