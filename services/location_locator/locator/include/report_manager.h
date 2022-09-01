@@ -20,6 +20,7 @@
 #include <memory>
 #include <list>
 #include <singleton.h>
+#include <time.h>
 #include "iremote_broker.h"
 #include "location.h"
 #include "request.h"
@@ -34,9 +35,15 @@ public:
     bool OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     bool ResultCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     void SetLastLocation(const std::unique_ptr<Location>& location);
-    std::shared_ptr<Location> GetLastLocation();
+    std::unique_ptr<Location> GetLastLocation();
+    std::unique_ptr<Location> GetPermittedLocation(uint32_t tokenId, uint32_t firstTokenId,
+        const std::unique_ptr<Location>& location);
+    void UpdateRandom();
 private:
+    struct timespec lastUpdateTime_;
+    double offsetRandom_;
     Location lastLocation_;
+    std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
 };
 } // namespace OHOS
 } // namespace Location

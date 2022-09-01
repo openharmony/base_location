@@ -121,6 +121,9 @@ std::string CountryCodeManager::GetCountryCodeByLastLocation()
         std::shared_ptr<ReportManager> reportManager = DelayedSingleton<ReportManager>::GetInstance();
         if (reportManager) {
             auto lastLocation = reportManager->GetLastLocation();
+            if (lastLocation == nullptr) {
+                return code;
+            }
             auto location = std::make_unique<Location>(*lastLocation);
             code = GetCountryCodeByLocation(location);
             lastCountryByLocation_->SetCountryCodeStr(code);
@@ -171,7 +174,7 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
 void CountryCodeManager::StartPassiveLocationListen()
 {
     auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_LOW_POWER);
+    requestConfig->SetScenario(SCENE_NO_POWER);
     requestConfig->SetTimeInterval(DEFAULT_TIME_INTERVAL);
 
     callback_ = sptr<ILocatorCallback>(new (std::nothrow) CountryCodeManager::LocatorCallback());
@@ -262,14 +265,12 @@ bool CountryCodeManager::SubscribeLocaleConfigEvent()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
         LBSLOGD(COUNTRY_CODE, "LOCALE_KEY changed");
-        if (key && value && context) {
-            auto manager = DelayedSingleton<CountryCodeManager>::GetInstance();
-            if (manager == nullptr) {
-                LBSLOGE(COUNTRY_CODE, "SubscribeLocaleConfigEvent CountryCodeManager is nullptr");
-                return;
-            }
-            manager->GetIsoCountryCode();
+        auto manager = DelayedSingleton<CountryCodeManager>::GetInstance();
+        if (manager == nullptr) {
+            LBSLOGE(COUNTRY_CODE, "SubscribeLocaleConfigEvent CountryCodeManager is nullptr");
+            return;
         }
+        manager->GetIsoCountryCode();
     };
 
     int ret = WatchParameter(LOCALE_KEY.c_str(), eventCallback, nullptr);
@@ -362,6 +363,26 @@ void CountryCodeManager::SimSubscriber::OnReceiveEvent(const OHOS::EventFwk::Com
     }
     LBSLOGI(COUNTRY_CODE, "SimSubscriber::OnReceiveEvent");
     manager->GetIsoCountryCode();
+}
+
+void CountryCodeManager::ReSubscribeEvent()
+{
+    if (countryCodeCallback_->size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "no valid callback registed, no need to subscribe");
+        return;
+    }
+    SubscribeSimEvent();
+    SubscribeNetworkStatusEvent();
+}
+
+void CountryCodeManager::ReUnsubscribeEvent()
+{
+    if (countryCodeCallback_->size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "no valid callback registed, no need to unsubscribe");
+        return;
+    }
+    UnsubscribeSimEvent();
+    UnsubscribeNetworkStatusEvent();
 }
 } // namespace Location
 } // namespace OHOS

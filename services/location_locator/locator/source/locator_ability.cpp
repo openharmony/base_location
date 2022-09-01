@@ -85,6 +85,7 @@ void LocatorAbility::OnStart()
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
+    AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
     LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
 }
 
@@ -93,6 +94,45 @@ void LocatorAbility::OnStop()
     state_ = ServiceRunningState::STATE_NOT_START;
     registerToAbility_ = false;
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
+}
+
+void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+{
+    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
+        LBSLOGE(LOCATOR, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
+    }
+    if (locatorEventSubscriber_ == nullptr) {
+        LBSLOGE(LOCATOR, "OnAddSystemAbility subscribeer is nullptr");
+        return;
+    }
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locatorEventSubscriber_);
+    LBSLOGI(LOCATOR, "SubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
+    if (countryCodeManager_ == nullptr) {
+        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    }
+    countryCodeManager_->ReSubscribeEvent();
+}
+
+void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
+        LBSLOGE(LOCATOR, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
+    }
+    if (locatorEventSubscriber_ == nullptr) {
+        LBSLOGE(LOCATOR, "OnRemoveSystemAbility subscribeer is nullptr");
+        return;
+    }
+    bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locatorEventSubscriber_);
+    LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
+    if (countryCodeManager_ == nullptr) {
+        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    }
+    countryCodeManager_->ReUnsubscribeEvent();
 }
 
 bool LocatorAbility::Init()
@@ -110,7 +150,9 @@ bool LocatorAbility::Init()
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
-    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager_ == nullptr) {
+        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    }
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
@@ -193,6 +235,22 @@ void LocatorAbility::InitRequestManagerMap()
 std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> LocatorAbility::GetRequests()
 {
     return requests_;
+}
+
+int LocatorAbility::GetActiveRequestNum()
+{
+    int num = 0;
+    auto gpsListIter = requests_->find(GNSS_ABILITY);
+    auto networkListIter = requests_->find(NETWORK_ABILITY);
+    if (gpsListIter != requests_->end()) {
+        auto list = &(gpsListIter->second);
+        num += list->size();
+    }
+    if (networkListIter != requests_->end()) {
+        auto list = &(networkListIter->second);
+        num += list->size();
+    }
+    return num;
 }
 
 std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> LocatorAbility::GetReceivers()
@@ -760,6 +818,8 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     if (!CheckSaValid()) {
         InitSaAbility();
     }
+    // update offset before add request
+    reportManager_->UpdateRandom();
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     // generate request object according to input params
@@ -784,7 +844,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    RegisterPermissionCallback(callingTokenId, ACCESS_LOCATION);
+    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION});
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -802,16 +862,19 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 int LocatorAbility::GetCacheLocation(MessageParcel& reply)
 {
     auto lastLocation = reportManager_->GetLastLocation();
-    if (lastLocation == nullptr) {
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t firstTokenId = IPCSkeleton::GetFirstTokenID();
+    auto finalLocation = reportManager_->GetPermittedLocation(tokenId, firstTokenId, lastLocation);
+    if (finalLocation == nullptr) {
         reply.WriteInt32(REPLY_CODE_EXCEPTION);
         reply.WriteString("get no cached result");
         LBSLOGI(LOCATOR, "GetCacheLocation location is null");
         return REPLY_CODE_EXCEPTION;
     }
-    if (fabs(lastLocation->GetLatitude() - 0.0) > PRECISION
-        && fabs(lastLocation->GetLongitude() - 0.0) > PRECISION) {
+    if (fabs(finalLocation->GetLatitude() - 0.0) > PRECISION
+        && fabs(finalLocation->GetLongitude() - 0.0) > PRECISION) {
         reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
-        lastLocation->Marshalling(reply);
+        finalLocation->Marshalling(reply);
         return REPLY_CODE_NO_EXCEPTION;
     }
     reply.WriteInt32(REPLY_CODE_EXCEPTION);
@@ -998,14 +1061,15 @@ bool LocatorAbility::IsProxyUid(int32_t uid)
     return proxyUids_.find(uid) != proxyUids_.end();
 }
 
-void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId, const std::string permissionName)
+void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
+    const std::vector<std::string>& permissionNameList)
 {
     if (permissionMap_ == nullptr) {
         LBSLOGE(LOCATOR, "permissionMap is null.");
         return;
     }
     PermStateChangeScope scopeInfo;
-    scopeInfo.permList = {permissionName};
+    scopeInfo.permList = permissionNameList;
     scopeInfo.tokenIDs = {callingTokenId};
     auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
     std::lock_guard<std::mutex> lock(permissionMutex_);

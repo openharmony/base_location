@@ -55,6 +55,8 @@ public:
     ~LocatorAbility();
     void OnStart() override;
     void OnStop() override;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     ServiceRunningState QueryServiceState() const
     {
         return state_;
@@ -123,13 +125,14 @@ public:
     bool ProxyUidForFreeze(int32_t uid, bool isProxy) override;
     bool ResetAllProxy() override;
     bool IsProxyUid(int32_t uid);
+    int GetActiveRequestNum();
 
 private:
     bool Init();
     bool CheckSaValid();
     static int QuerySwitchState();
     int SendGeoRequest(int type, MessageParcel &data, MessageParcel &replay);
-    void RegisterPermissionCallback(const uint32_t callingTokenId, const std::string permissionName);
+    void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
 
     static void SaDumpInfo(std::string& result);
@@ -148,7 +151,7 @@ private:
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
-    std::shared_ptr<CountryCodeManager> countryCodeManager_;
+    std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
 
     std::mutex proxyMutex_;
     std::mutex permissionMutex_;
