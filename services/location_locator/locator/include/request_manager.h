@@ -33,6 +33,13 @@
 
 namespace OHOS {
 namespace Location {
+class SuspendChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
+public:
+    SuspendChangeCallback();
+    ~SuspendChangeCallback();
+
+    void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
+};
 class RequestManager : public DelayedSingleton<RequestManager> {
 public:
     RequestManager();
@@ -65,13 +72,6 @@ private:
     static std::mutex requestMutex;
     sptr<AppExecFwk::IAppMgr> iAppMgr_;
     sptr<SuspendChangeCallback> appStateObserver_;
-};
-class SuspendChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
-public:
-    SuspendChangeCallback();
-    virtual ~SuspendChangeCallback();
-
-    void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
 };
 } // namespace Location
 } // namespace OHOS

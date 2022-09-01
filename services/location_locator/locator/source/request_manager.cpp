@@ -405,7 +405,7 @@ bool RequestManager::RegisterSuspendChangeCallback()
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
-        appStatusObserver_ = nullptr;
+        appStateObserver_ = nullptr;
         return false;
     }
     iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
@@ -471,10 +471,14 @@ void RequestManager::NotifyRequestManager(int32_t uid, int32_t pid, int32_t flag
 
 void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
-    if (appStateData.state == ACTIVE) {
-        DoActive(appStateData.uid, appStateData.pid);
+    int32_t uid = appStateData.uid;
+    int32_t pid = appStateData.pid;
+    int32_t state = appStateData.state;
+    LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
+    if (state == ACTIVE) {
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
     } else {
-        DoSuspend(appStateData.uid, appStateData.pid);
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
     }
 }
 } // namespace Location
