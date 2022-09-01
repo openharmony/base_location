@@ -52,6 +52,8 @@ ohos_shared_library("lbsservice_network") {
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "ability_runtime:app_manager",
+    "access_token:libprivacy_sdk"
   ]
   part_name = "location"
   subsystem_name = "location"

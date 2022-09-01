@@ -32,6 +32,7 @@
 #include "request_manager.h"
 #include "system_ability_definition.h"
 #include "country_code.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
@@ -773,6 +774,8 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetLocatorCallBack(callback);
     }
     LBSLOGI(LOCATOR, "start locating");
+    bool status = requestManager_->IsForegroundApp(bundleName);
+    PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
     RegisterPermissionCallback(callingTokenId, ACCESS_LOCATION);
