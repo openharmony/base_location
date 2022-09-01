@@ -834,15 +834,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetLocatorCallBack(callback);
     }
     requestManager_->RegisterSuspendChangeCallback();
-    bool status = requestManager_->IsForegroundApp(bundleName);
-    if (!status) {
-        RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION,
-            ACCESS_BACKGROUND_LOCATION});
-        requestManager_->DoSuspend(uid, pid);
-        return REPLY_CODE_NO_EXCEPTION;
-    }
-    requestManager_->DoActive(uid, pid);
-    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION});
+    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
     if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
     }

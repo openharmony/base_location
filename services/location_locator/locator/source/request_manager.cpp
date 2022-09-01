@@ -486,6 +486,11 @@ void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::App
     if (state == ACTIVE) {
         DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
     } else {
+        uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+        uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
+        if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
         DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
     }
 }
