@@ -104,10 +104,11 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(uint32_t tokenId, 
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
-    int permissionLevel = CommonUtils::GetPermissionLevel(tokenId, firstTokenId);
-    if (permissionLevel == PERMISSION_APPROXIMATELY) {
+    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+        CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         finalLocation = ApproximatelyLocation(location);
-    } else if (permissionLevel == PERMISSION_INVALID) {
+    } else if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         return nullptr;
     }
     return finalLocation;
