@@ -775,6 +775,12 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     }
     LBSLOGI(LOCATOR, "start locating");
     bool status = requestManager_->IsForegroundApp(bundleName);
+    if (!status) {
+        DoSuspend(uid, pid);
+        return REPLY_CODE_NO_EXCEPTION;
+    } else {
+        DoActive(uid, pid);
+    }
     PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
@@ -785,6 +791,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
     LBSLOGI(LOCATOR, "stop locating");
+    PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();

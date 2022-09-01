@@ -44,11 +44,11 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    void DoSuspend(const std::vector<SuspendAppInfo>& info);
-    void DoActive(const std::vector<SuspendAppInfo>& info);
-    void NotifyRequestManager(const std::vector<SuspendAppInfo>& info, int32_t flage);
-    bool RegisterLocationStatusChangeCallback();
-    bool UnregisterLocationStatusChangeCallback();
+    void DoSuspend(int32_t uid, int32_t pid);
+    void DoActive(int32_t uid, int32_t pid);
+    void NotifyRequestManager(int32_t uid, int32_t pid, int32_t flag);
+    bool RegisterSuspendChangeCallback();
+    bool UnregisterSuspendChangeCallback();
     bool IsForegroundApp(std::string& bundleName);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
@@ -65,37 +65,6 @@ private:
     static std::mutex requestMutex;
     sptr<AppExecFwk::IAppMgr> iAppMgr_;
     sptr<AppStatusChangeCallback> appStateObserver_;
-};
-class SuspendInfo {
-public:
-    inline const std::string& GetName() const
-    {
-        return name_;
-    }
-    inline int32_t GetUid() const
-    {
-        return uid_;
-    }
-    inline const std::vector<int32_t>& GetPids() const
-    {
-        return pids_;
-    }
-    inline void SetName(const std::string& name)
-    {
-        name_ = name;
-    }
-    inline void SetUid(int32_t uid)
-    {
-        uid_ = uid;
-    }
-    inline void SetPids(const std::vector<int32_t>& pids)
-    {
-        pids_ = pid;
-    }
-private:
-    std::string name_;
-    int32_t uid_ {-1};
-    std::vector<int32_t> pids_;
 };
 } // namespace Location
 } // namespace OHOS

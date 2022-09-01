@@ -34,13 +34,22 @@ namespace Location {
 std::mutex RequestManager::requestMutex;
 RequestManager::RequestManager()
 {
+    appStateObserver_ = new (std::nothrow) AppStatusChangeCallback();
     DelayedSingleton<LocatorDftManager>::GetInstance()->Init();
 }
 
-RequestManager::~RequestManager() {}
+RequestManager::~RequestManager() {
+    UnregisterSuspendChangeCallback();
+}
 
 bool RequestManager::InitSystemListeners()
 {
+    if (!isPowerRegistered_) {
+        bool ret = RegisterSuspendChangeCallback();
+        if (ret) {
+            isPowerRegistered_ = true;
+        }
+    }
     LBSLOGI(REQUEST_MANAGER, "register permissions change::%{public}d, register suspend listener:%{public}d",
         isPermissionRegistered_, isPowerRegistered_);
     return (isPermissionRegistered_ && isPowerRegistered_);
@@ -396,17 +405,8 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
     return isFound;
 }
 
-bool RequestManager::RegisterLocationStatusChangeCallback()
+bool RequestManager::RegisterSuspendChangeCallback()
 {
-    if (appStateObserver_ != nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "The instance of AppStateObserver has been already created.");
-        return true;
-    }
-    appStateObserver_ = new (std::nothrow) AppStatusChangeCallback();
-    if (appStatusObserver_ == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Get app state observer failed.");
-        return false;
-    }
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
@@ -429,7 +429,7 @@ bool RequestManager::RegisterLocationStatusChangeCallback()
     return true;
 }
 
-bool RequestManager::UnregisterApplicationStateObserver()
+bool RequestManager::UnregisterSuspendChangeCallback()
 {
     if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
         iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
@@ -457,27 +457,21 @@ bool RequestManager::IsForegroundApp(std::string& bundleName)
     return false;
 }
 
-void RequestManager::DoSuspend(const std::vector<SuspendAppInfo>& info)
+void RequestManager::DoSuspend(int32_t uid, int32_t pid)
 {
     LBSLOGE(REQUEST_MANAGER, "RequestManager listener DoSuspend.");
-    NotifyRequestManager(info, SUSPEND);
+    NotifyRequestManager(uid, pid, SUSPEND);
 }
 
-void RequestManager::DoActive(const std::vector<SuspendAppInfo>& info)
+void RequestManager::DoActive(int32_t uid, int32_t pid)
 {
     LBSLOGE(REQUEST_MANAGER, "RequestManager listener DoActive.");
-    NotifyRequestManager(info, ACTIVE);
+    NotifyRequestManager(uid, pid, ACTIVE);
 }
 
-void RequestManager::NotifyRequestManager(const std::vector<SuspendAppInfo>& info, int32_t flag)
+void RequestManager::NotifyRequestManager(int32_t uid, int32_t pid, int32_t flag)
 {
-    for (auto& appInfo : info) {
-        auto uid = appInfo.GetUid();
-        auto& pids = appInfo.GetPids();
-        for (auto pid : pids) {
-            DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, flag);
-        }
-    }
+    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, flag);
 }
 
 } // namespace Location
