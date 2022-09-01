@@ -25,6 +25,7 @@
 #include "request_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
@@ -146,17 +147,17 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
     if (requestsList_->empty()) {
         StopLocator();
         if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+            PrivacyKit::StopUsingPermission(tokenId, ACCESS_BACKGROUND_LOCATION);
         }
     } else {
         if (CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
+            PrivacyKit::StartUsingPermission(tokenId, ACCESS_LOCATION);
         } 
         if (CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+            PrivacyKit::StartUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
         }
         if (CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+            PrivacyKit::StartUsingPermission(tokenId, ACCESS_BACKGROUND_LOCATION);
         }
         StartLocator();
     }

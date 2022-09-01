@@ -28,7 +28,7 @@
 #include "passive_ability_proxy.h"
 #include "request.h"
 #include "work_record.h"
-#include "app_status_change_callback.h"
+#include "application_status_observer_stub.h"
 #include "app_mgr_proxy.h"
 
 namespace OHOS {
@@ -65,6 +65,13 @@ private:
     static std::mutex requestMutex;
     sptr<AppExecFwk::IAppMgr> iAppMgr_;
     sptr<AppStatusChangeCallback> appStateObserver_;
+};
+class SuspendChangeCallback :: public AppExecFwk::ApplicationStateObserverStub {
+public:
+    SuspendChangeCallback();
+    virtual ~SuspendChangeCallback();
+
+    void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
 };
 } // namespace Location
 } // namespace OHOS

@@ -469,5 +469,13 @@ void RequestManager::NotifyRequestManager(int32_t uid, int32_t pid, int32_t flag
     DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, flag);
 }
 
+void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
+{
+    if (appStateData.state == ACTIVE) {
+        DoActive(appStateData.uid, appStateData.pid);
+    } else {
+        DoSuspend(appStateData.uid, appStateData.pid);
+    }
+}
 } // namespace Location
 } // namespace OHOS

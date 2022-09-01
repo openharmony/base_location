@@ -838,10 +838,10 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     if (!status) {
         RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION,
             ACCESS_BACKGROUND_LOCATION});
-        DoSuspend(uid, pid);
+        requestManager_->DoSuspend(uid, pid);
         return REPLY_CODE_NO_EXCEPTION;
     }
-    DoActive(uid, pid);
+    requestManager_->DoActive(uid, pid);
     RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION});
     if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
