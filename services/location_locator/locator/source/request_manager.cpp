@@ -28,13 +28,14 @@
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"
 #include "subability_common.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
 std::mutex RequestManager::requestMutex;
 RequestManager::RequestManager()
 {
-    appStateObserver_ = new (std::nothrow) AppStatusChangeCallback();
+    appStateObserver_ = new (std::nothrow) SuspendChangeCallback();
     DelayedSingleton<LocatorDftManager>::GetInstance()->Init();
 }
 
