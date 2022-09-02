@@ -40,7 +40,6 @@ RequestManager::RequestManager()
 }
 
 RequestManager::~RequestManager() {
-    UnregisterSuspendChangeCallback();
 }
 
 bool RequestManager::InitSystemListeners()
@@ -484,15 +483,15 @@ void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::App
     int32_t pid = appStateData.pid;
     int32_t state = appStateData.state;
     LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
-    if (state == ACTIVE) {
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
-    } else {
+    if (state == FOREGROUND) {
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, ACTIVE);
+    } else if (state == BACKGROUND) {
         uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
         uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
         if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
         }
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, SUSPEND);
     }
 }
 } // namespace Location

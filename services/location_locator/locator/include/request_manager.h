@@ -28,7 +28,7 @@
 #include "passive_ability_proxy.h"
 #include "request.h"
 #include "work_record.h"
-#include "application_status_observer_stub.h"
+#include "application_state_observer_stub.h"
 #include "app_mgr_proxy.h"
 
 namespace OHOS {

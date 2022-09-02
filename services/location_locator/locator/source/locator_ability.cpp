@@ -855,6 +855,7 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     UnregisterPermissionCallback(callingTokenId);
+    requestManager_->UnregisterSuspendChangeCallback();
     if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
     } 

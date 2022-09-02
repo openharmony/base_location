@@ -150,15 +150,6 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
             PrivacyKit::StopUsingPermission(tokenId, ACCESS_BACKGROUND_LOCATION);
         }
     } else {
-        if (CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StartUsingPermission(tokenId, ACCESS_LOCATION);
-        } 
-        if (CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StartUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
-        }
-        if (CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StartUsingPermission(tokenId, ACCESS_BACKGROUND_LOCATION);
-        }
         StartLocator();
     }
 }
