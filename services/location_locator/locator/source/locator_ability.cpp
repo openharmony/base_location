@@ -838,7 +838,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
     }
-    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
     }
     LBSLOGI(LOCATOR, "start locating");

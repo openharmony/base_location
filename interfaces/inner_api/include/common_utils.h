@@ -123,6 +123,11 @@ enum {
     QUERY_COUNTRY_CODE_ERROR,
 };
 
+enum {
+    PERMISSION_REVOKED_OPER = 0,
+    PERMISSION_GRANTED_OPER = 1
+};
+
 class CommonUtils {
 public:
     static void WriteInterfaceToken(const std::u16string &descriptor, MessageParcel &data);

@@ -16,12 +16,22 @@
 #include "permission_status_change_cb.h"
 #include "location_log.h"
 #include "locator_ability.h"
+#include "common_utils.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
 void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
 {
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
+    int32_t type = result.PermStateChangeType;
+    std::string permissionName = result.permissionName;
+    uint32_t tokenID = result.tokenID;
+    if (type == PERMISSION_REVOKED_OPER) {
+        PrivacyKit::StopUsingPermission(tokenID, permissionName);
+    } else if (type == PERMISSION_GRANTED_OPER) {
+        PrivacyKit::StartUsingPermission(tokenID, permissionName);
+    }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
 }
 } // namespace Location

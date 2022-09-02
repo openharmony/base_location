@@ -325,10 +325,10 @@ HWTEST_F(LocatorServiceTest, RegisterSuspendChangeCallback001, TestSize.Level1)
     /*
      * @tc.steps: step1. get the request manager
      * @tc.steps: step2. register suspend change callback
-     * @tc.expected: return true, reg process is success
+     * @tc.expected: return false, permission denied
      */
     bool ret = requestManager_->RegisterSuspendChangeCallback();
-    EXPECT_EQ(true, ret);
+    EXPECT_EQ(false, ret); // no permission
 }
 
 /*
