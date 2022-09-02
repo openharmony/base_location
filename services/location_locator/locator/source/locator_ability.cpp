@@ -158,7 +158,6 @@ bool LocatorAbility::Init()
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
     }
     RegisterAction();
-    requestManager_->RegisterSuspendChangeCallback();
     registerToAbility_ = true;
     return registerToAbility_;
 }
@@ -833,6 +832,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
+    requestManager_->RegisterSuspendChangeCallback();
     RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
     if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);

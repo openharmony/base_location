@@ -438,6 +438,14 @@ bool RequestManager::UnregisterSuspendChangeCallback()
     return true;
 }
 
+SuspendChangeCallback::SuspendChangeCallback()
+{
+}
+
+SuspendChangeCallback::~SuspendChangeCallback()
+{
+}
+
 void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     int32_t uid = appStateData.uid;
