@@ -51,12 +51,8 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    void DoSuspend(int32_t uid, int32_t pid);
-    void DoActive(int32_t uid, int32_t pid);
-    void NotifyRequestManager(int32_t uid, int32_t pid, int32_t flag);
     bool RegisterSuspendChangeCallback();
     bool UnregisterSuspendChangeCallback();
-    bool IsForegroundApp(std::string& bundleName);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);

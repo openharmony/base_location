@@ -35,7 +35,6 @@ namespace Location {
 std::mutex RequestManager::requestMutex;
 RequestManager::RequestManager()
 {
-    appStateObserver_ = new (std::nothrow) SuspendChangeCallback();
     DelayedSingleton<LocatorDftManager>::GetInstance()->Init();
 }
 
@@ -402,6 +401,11 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
 
 bool RequestManager::RegisterSuspendChangeCallback()
 {
+    if (appStateObserver_ != nullptr) {
+        LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
+        return true;
+    }
+    appStateObserver_ = new (std::nothrow) SuspendChangeCallback();
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
@@ -434,41 +438,6 @@ bool RequestManager::UnregisterSuspendChangeCallback()
     return true;
 }
 
-bool RequestManager::IsForegroundApp(std::string& bundleName)
-{
-    if (iAppMgr_ == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "can not get iAppMgr.");
-        return false;
-    }
-    std::vector<AppExecFwk::AppStateData> fgAppList;
-    iAppMgr_->GetForegroundApplications(fgAppList);
-    for (const auto& fgApp : fgAppList) {
-        LBSLOGE(REQUEST_MANAGER, "The state of bundleName : %{public}s is %{public}d.",
-            fgApp.bundleName.c_str(), fgApp.state);
-        if (fgApp.bundleName == bundleName) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void RequestManager::DoSuspend(int32_t uid, int32_t pid)
-{
-    LBSLOGE(REQUEST_MANAGER, "RequestManager listener DoSuspend.");
-    NotifyRequestManager(uid, pid, SUSPEND);
-}
-
-void RequestManager::DoActive(int32_t uid, int32_t pid)
-{
-    LBSLOGE(REQUEST_MANAGER, "RequestManager listener DoActive.");
-    NotifyRequestManager(uid, pid, ACTIVE);
-}
-
-void RequestManager::NotifyRequestManager(int32_t uid, int32_t pid, int32_t flag)
-{
-    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, flag);
-}
-
 SuspendChangeCallback::SuspendChangeCallback()
 {
 }
@@ -491,7 +460,7 @@ void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::App
         if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
         }
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, SUSPEND);
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
     }
 }
 } // namespace Location
