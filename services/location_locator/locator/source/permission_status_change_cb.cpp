@@ -33,6 +33,7 @@ void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& resu
         PrivacyKit::StartUsingPermission(tokenID, permissionName);
     }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
+    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(IPCSkeleton::GetCallingUid());
 }
 } // namespace Location
 } // namespace OHOS

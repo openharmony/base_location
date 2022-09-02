@@ -438,29 +438,24 @@ bool RequestManager::UnregisterSuspendChangeCallback()
     return true;
 }
 
-SuspendChangeCallback::SuspendChangeCallback()
-{
-}
-
-SuspendChangeCallback::~SuspendChangeCallback()
-{
-}
-
 void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     int32_t uid = appStateData.uid;
     int32_t pid = appStateData.pid;
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int32_t state = appStateData.state;
     LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     if (state == FOREGROUND) {
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, ACTIVE);
+        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StopUsingPermission(tokenId, ACCESS_BACKGROUND_LOCATION);
+        }
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
     } else if (state == BACKGROUND) {
-        uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-        uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
         if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
         }
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
     }
 }
 } // namespace Location

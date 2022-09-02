@@ -146,9 +146,6 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
     UpdateListOnSuspend(request, active);
     if (requestsList_->empty()) {
         StopLocator();
-        if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId)) {
-            PrivacyKit::StopUsingPermission(tokenId, ACCESS_BACKGROUND_LOCATION);
-        }
     } else {
         StartLocator();
     }

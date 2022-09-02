@@ -67,7 +67,7 @@ private:
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
     sptr<AppExecFwk::IAppMgr> iAppMgr_;
-    sptr<SuspendChangeCallback> appStateObserver_;
+    sptr<SuspendChangeCallback> appStateObserver_ = nullptr;
 };
 } // namespace Location
 } // namespace OHOS
