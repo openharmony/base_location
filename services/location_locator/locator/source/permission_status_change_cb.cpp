@@ -16,8 +16,10 @@
 #include "permission_status_change_cb.h"
 #include "location_log.h"
 #include "locator_ability.h"
+#include "locator_background_proxy.h"
 #include "common_utils.h"
 #include "privacy_kit.h"
+#include "ipc_skeleton.h"
 
 namespace OHOS {
 namespace Location {

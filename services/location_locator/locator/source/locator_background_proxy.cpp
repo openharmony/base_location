@@ -135,8 +135,6 @@ void LocatorBackgroundProxy::StartLocator()
 // when the app wakes up, stop proxy
 void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, bool active)
 {
-    uint32_t tokenId = request->GetTokenId();
-    uint32_t firstTokenId = request->GetFirstTokenId();
     if (!featureSwitch_) {
         return;
     }

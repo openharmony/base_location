@@ -448,7 +448,7 @@ void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::App
     LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     if (state == FOREGROUND) {
         if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-            PrivacyKit::StopUsingPermission(tokenId, ACCESS_BACKGROUND_LOCATION);
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
         }
         DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
     } else if (state == BACKGROUND) {
