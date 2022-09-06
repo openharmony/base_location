@@ -32,6 +32,7 @@
 #include "request_manager.h"
 #include "system_ability_definition.h"
 #include "country_code.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
@@ -157,7 +158,6 @@ bool LocatorAbility::Init()
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
     }
     RegisterAction();
-
     registerToAbility_ = true;
     return registerToAbility_;
 }
@@ -832,10 +832,17 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
+    requestManager_->RegisterSuspendChangeCallback();
+    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
+    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
+    }
+    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+    }
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION});
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -845,7 +852,14 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     UnregisterPermissionCallback(callingTokenId);
+    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
+    } 
+    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+    }
     return REPLY_CODE_NO_EXCEPTION;
 }
 

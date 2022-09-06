@@ -25,6 +25,7 @@
 #include "request_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
@@ -368,7 +369,7 @@ LocatorBackgroundProxy::UserSwitchSubscriber::UserSwitchSubscriber(
 
 void LocatorBackgroundProxy::UserSwitchSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
-    int32_t userId = UNKNOW_USER_ID;
+    int32_t userId = event.GetCode();
     const auto action = event.GetWant().GetAction();
     auto locatorProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "action = %{public}s, userId = %{public}d", action.c_str(), userId);

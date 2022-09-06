@@ -28,6 +28,7 @@
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"
 #include "subability_common.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
@@ -37,7 +38,8 @@ RequestManager::RequestManager()
     DelayedSingleton<LocatorDftManager>::GetInstance()->Init();
 }
 
-RequestManager::~RequestManager() {}
+RequestManager::~RequestManager() {
+}
 
 bool RequestManager::InitSystemListeners()
 {
@@ -395,6 +397,74 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
         return i == uid;
     });
     return isFound;
+}
+
+bool RequestManager::RegisterSuspendChangeCallback()
+{
+    if (appStateObserver_ != nullptr) {
+        LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
+        return true;
+    }
+    appStateObserver_ = new (std::nothrow) SuspendChangeCallback();
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    int32_t result = iAppMgr_->RegisterApplicationStateObserver(appStateObserver_);
+    if (result != 0) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to Register app state observer.");
+        iAppMgr_ = nullptr;
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool RequestManager::UnregisterSuspendChangeCallback()
+{
+    if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
+        iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
+    }
+    iAppMgr_ = nullptr;
+    appStateObserver_ = nullptr;
+    return true;
+}
+
+SuspendChangeCallback::SuspendChangeCallback()
+{
+}
+
+SuspendChangeCallback::~SuspendChangeCallback()
+{
+}
+
+void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
+{
+    int32_t uid = appStateData.uid;
+    int32_t pid = appStateData.pid;
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
+    int32_t state = appStateData.state;
+    LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
+    if (state == FOREGROUND) {
+        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
+    } else if (state == BACKGROUND) {
+        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
+        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
+    }
 }
 } // namespace Location
 } // namespace OHOS

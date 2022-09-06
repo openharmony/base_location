@@ -28,9 +28,18 @@
 #include "passive_ability_proxy.h"
 #include "request.h"
 #include "work_record.h"
+#include "application_state_observer_stub.h"
+#include "app_mgr_proxy.h"
 
 namespace OHOS {
 namespace Location {
+class SuspendChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
+public:
+    SuspendChangeCallback();
+    ~SuspendChangeCallback();
+
+    void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
+};
 class RequestManager : public DelayedSingleton<RequestManager> {
 public:
     RequestManager();
@@ -42,6 +51,8 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
+    bool RegisterSuspendChangeCallback();
+    bool UnregisterSuspendChangeCallback();
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
@@ -55,6 +66,8 @@ private:
     bool isPowerRegistered_ = false;
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
+    sptr<AppExecFwk::IAppMgr> iAppMgr_;
+    sptr<SuspendChangeCallback> appStateObserver_ = nullptr;
 };
 } // namespace Location
 } // namespace OHOS

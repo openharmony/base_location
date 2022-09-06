@@ -53,7 +53,7 @@ void LocatorServiceTest::SetUp()
     request_->SetLocatorCallBack(callbackStub_);
     request_->SetUid(SYSTEM_UID);
     request_->SetPid(getpid());
-
+    requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     SetStartUpConfirmed(true);
     ChangedLocationMode(true);
 }
@@ -312,4 +312,38 @@ HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int permissionLevel = CommonUtils::GetPermissionLevel(callingTokenId, callingFirstTokenid);
     EXPECT_EQ(PERMISSION_INVALID, permissionLevel);
+}
+
+/*
+ * @tc.name: RegisterSuspendChangeCallback001
+ * @tc.desc: Test the function register suspend change callback
+ * @tc.type: FUNC
+ * @tc.require: issueI5OSHX
+ */
+HWTEST_F(LocatorServiceTest, RegisterSuspendChangeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. get the request manager
+     * @tc.steps: step2. register suspend change callback
+     * @tc.expected: return false, permission denied
+     */
+    bool ret = requestManager_->RegisterSuspendChangeCallback();
+    EXPECT_EQ(false, ret); // no permission
+}
+
+/*
+ * @tc.name: UnregisterSuspendChangeCallback001
+ * @tc.desc: Test the function unregister suspend change callback
+ * @tc.type: FUNC
+ * @tc.require: issueI5OSHX
+ */
+HWTEST_F(LocatorServiceTest, UnregisterSuspendChangeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. get the request manager
+     * @tc.steps: step2. unregister suspend change callback
+     * @tc.expected: return true, unreg process is success
+     */
+    bool ret = requestManager_->UnregisterSuspendChangeCallback();
+    EXPECT_EQ(true, ret);
 }

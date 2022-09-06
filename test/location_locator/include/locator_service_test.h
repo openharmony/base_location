@@ -21,6 +21,7 @@
 #include "locator_callback_proxy.h"
 #include "locator_skeleton.h"
 #include "locator_proxy.h"
+#include "request_manager.h"
 
 class LocatorServiceTest : public testing::Test {
 public:
@@ -33,5 +34,6 @@ public:
     OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;
     std::shared_ptr<OHOS::Location::LocatorBackgroundProxy> backgroundProxy_;
     std::shared_ptr<OHOS::Location::Request> request_;
+    std::shared_ptr<OHOS::Location::RequestManager> requestManager_;
 };
 #endif // LOCATOR_SERVICE_TEST_H

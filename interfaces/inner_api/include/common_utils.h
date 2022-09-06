@@ -103,7 +103,9 @@ enum {
 
 enum {
     ACTIVE = 1,
-    SUSPEND = 0
+    SUSPEND = 0,
+    FOREGROUND = 2,
+    BACKGROUND = 3
 };
 
 enum {
@@ -119,6 +121,11 @@ enum {
     LAST_KNOWN_LOCATION_ERROR,
     LOCATION_REQUEST_TIMEOUT_ERROR,
     QUERY_COUNTRY_CODE_ERROR,
+};
+
+enum {
+    PERMISSION_REVOKED_OPER = 0,
+    PERMISSION_GRANTED_OPER = 1
 };
 
 class CommonUtils {
