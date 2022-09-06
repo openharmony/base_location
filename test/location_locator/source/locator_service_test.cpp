@@ -318,7 +318,7 @@ HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
  * @tc.name: RegisterSuspendChangeCallback001
  * @tc.desc: Test the function register suspend change callback
  * @tc.type: FUNC
- * @tc.require: issueI5OSHX
+ * @tc.require: issueI5PX7W
  */
 HWTEST_F(LocatorServiceTest, RegisterSuspendChangeCallback001, TestSize.Level1)
 {
@@ -335,7 +335,7 @@ HWTEST_F(LocatorServiceTest, RegisterSuspendChangeCallback001, TestSize.Level1)
  * @tc.name: UnregisterSuspendChangeCallback001
  * @tc.desc: Test the function unregister suspend change callback
  * @tc.type: FUNC
- * @tc.require: issueI5OSHX
+ * @tc.require: issueI5PX7W
  */
 HWTEST_F(LocatorServiceTest, UnregisterSuspendChangeCallback001, TestSize.Level1)
 {

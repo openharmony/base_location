@@ -53,6 +53,7 @@ public:
     void HandleRequest();
     bool RegisterSuspendChangeCallback();
     bool UnregisterSuspendChangeCallback();
+    bool IsAppBackground(const std::string& bundleName);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);

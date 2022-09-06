@@ -405,7 +405,7 @@ bool RequestManager::RegisterSuspendChangeCallback()
         LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
         return true;
     }
-    appStateObserver_ = new (std::nothrow) SuspendChangeCallback();
+    appStateObserver_ = sptr<SuspendChangeCallback>(new (std::nothrow) SuspendChangeCallback());
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
@@ -438,6 +438,24 @@ bool RequestManager::UnregisterSuspendChangeCallback()
     return true;
 }
 
+bool RequestManager::IsAppBackground(const std::string& bundleName)
+{
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed get the app manager proxy.");
+        return false;
+    }
+
+    std::vector<AppExecFwk::AppStateData> foregroundAppList;
+    iAppMgr_->GetForegroundApplications(foregroundAppList);
+
+    for (const auto& foregroundApp : foregroundAppList) {
+        if (foregroundApp.bundleName == bundleName) {
+            return false;
+        }
+    }
+    return true;
+}
+
 SuspendChangeCallback::SuspendChangeCallback()
 {
 }
@@ -458,13 +476,12 @@ void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::App
         if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
             PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
         }
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
     } else if (state == BACKGROUND) {
         if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
         }
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
     }
+    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
 }
 } // namespace Location
 } // namespace OHOS

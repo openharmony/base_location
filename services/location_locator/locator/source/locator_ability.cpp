@@ -158,6 +158,7 @@ bool LocatorAbility::Init()
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
     }
     RegisterAction();
+    requestManager_->RegisterSuspendChangeCallback();
     registerToAbility_ = true;
     return registerToAbility_;
 }
@@ -832,14 +833,8 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
-    requestManager_->RegisterSuspendChangeCallback();
+    UpdateUsingPermission(callingTokenId, callingFirstTokenid, true);
     RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
-    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
-        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
-    }
-    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-    }
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
@@ -853,14 +848,26 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     ReportLocationStatus(callback, SESSION_STOP);
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
+    UpdateUsingPermission(callingTokenId, callingFirstTokenid, false);
     UnregisterPermissionCallback(callingTokenId);
-    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
-        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
-    } 
-    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-    }
     return REPLY_CODE_NO_EXCEPTION;
+}
+
+void LocatorAbility::UpdateUsingPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid, bool isStart)
+{
+    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION) :
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
+    }
+    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION) :
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+    }
+    if (requestManager_->IsAppBackground(bundleName) &&
+        CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION) :
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+    }
 }
 
 int LocatorAbility::GetCacheLocation(MessageParcel& reply)
