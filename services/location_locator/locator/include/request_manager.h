@@ -33,13 +33,14 @@
 
 namespace OHOS {
 namespace Location {
-class SuspendChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
+class AppStateChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
 public:
-    SuspendChangeCallback();
-    ~SuspendChangeCallback();
+    AppStateChangeCallback();
+    ~AppStateChangeCallback();
 
     void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
 };
+
 class RequestManager : public DelayedSingleton<RequestManager> {
 public:
     RequestManager();
@@ -51,8 +52,8 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    bool RegisterSuspendChangeCallback();
-    bool UnregisterSuspendChangeCallback();
+    bool RegisterAppStateObserver();
+    bool UnregisterAppStateObserver();
     bool IsAppBackground(const std::string& bundleName);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
@@ -67,8 +68,8 @@ private:
     bool isPowerRegistered_ = false;
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
-    sptr<AppExecFwk::IAppMgr> iAppMgr_;
-    sptr<SuspendChangeCallback> appStateObserver_ = nullptr;
+    sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
+    sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
 };
 } // namespace Location
 } // namespace OHOS

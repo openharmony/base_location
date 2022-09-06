@@ -399,13 +399,13 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
     return isFound;
 }
 
-bool RequestManager::RegisterSuspendChangeCallback()
+bool RequestManager::RegisterAppStateObserver()
 {
     if (appStateObserver_ != nullptr) {
         LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
         return true;
     }
-    appStateObserver_ = sptr<SuspendChangeCallback>(new (std::nothrow) SuspendChangeCallback());
+    appStateObserver_ = sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
@@ -428,7 +428,7 @@ bool RequestManager::RegisterSuspendChangeCallback()
     return true;
 }
 
-bool RequestManager::UnregisterSuspendChangeCallback()
+bool RequestManager::UnregisterAppStateObserver()
 {
     if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
         iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
@@ -456,15 +456,15 @@ bool RequestManager::IsAppBackground(const std::string& bundleName)
     return true;
 }
 
-SuspendChangeCallback::SuspendChangeCallback()
+AppStateChangeCallback::AppStateChangeCallback()
 {
 }
 
-SuspendChangeCallback::~SuspendChangeCallback()
+AppStateChangeCallback::~AppStateChangeCallback()
 {
 }
 
-void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
+void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     int32_t uid = appStateData.uid;
     int32_t pid = appStateData.pid;

@@ -20,14 +20,20 @@
 #include "common_utils.h"
 #include "privacy_kit.h"
 #include "ipc_skeleton.h"
+#include "request_manager.h"
 
 namespace OHOS {
 namespace Location {
 void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
 {
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
-    int32_t type = result.PermStateChangeType;
     std::string permissionName = result.permissionName;
+    String bundleName = "";
+    bool isBackground = DelayedSingleton<RequestManager>::GetInstance().get()->IsAppBackground(bundleName);
+    if (!isBackground && permissionName == ACCESS_BACKGROUND_LOCATION) {
+        return;
+    }
+    int32_t type = result.PermStateChangeType;
     uint32_t tokenID = result.tokenID;
     if (type == PERMISSION_REVOKED_OPER) {
         PrivacyKit::StopUsingPermission(tokenID, permissionName);

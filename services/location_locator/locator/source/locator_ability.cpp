@@ -158,7 +158,7 @@ bool LocatorAbility::Init()
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
     }
     RegisterAction();
-    requestManager_->RegisterSuspendChangeCallback();
+    requestManager_->RegisterAppStateObserver();
     registerToAbility_ = true;
     return registerToAbility_;
 }
@@ -833,6 +833,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
+    bundleName_ = bundleName;
     UpdateUsingPermission(callingTokenId, callingFirstTokenid, true);
     RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
     LBSLOGI(LOCATOR, "start locating");
@@ -863,7 +864,7 @@ void LocatorAbility::UpdateUsingPermission(uint32_t callingTokenId, uint32_t cal
         isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION) :
             PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
     }
-    if (requestManager_->IsAppBackground(bundleName) &&
+    if (requestManager_->IsAppBackground(bundleName_) &&
         CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
         isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION) :
             PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
