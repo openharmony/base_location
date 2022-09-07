@@ -55,6 +55,7 @@ public:
     bool RegisterAppStateObserver();
     bool UnregisterAppStateObserver();
     bool IsAppBackground(const std::string& bundleName);
+    bool GetBundleNameByUid(int32_t uid, std::string &bundleName);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);

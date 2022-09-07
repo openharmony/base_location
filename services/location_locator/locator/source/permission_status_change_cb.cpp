@@ -27,12 +27,23 @@ namespace Location {
 void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
 {
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
+    std::shared_ptr<RequestManager> requestManager = DelayedSingleton<RequestManager>::GetInstance();
     std::string permissionName = result.permissionName;
-    String bundleName = "";
-    bool isBackground = DelayedSingleton<RequestManager>::GetInstance().get()->IsAppBackground(bundleName);
-    if (!isBackground && permissionName == ACCESS_BACKGROUND_LOCATION) {
-        return;
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    std::string bundleName;
+    if (permissionName == ACCESS_BACKGROUND_LOCATION) {
+        bool isSuccess = requestManager->GetBundleNameByUid(uid, bundleName);
+        if (!isSuccess) {
+            LBSLOGE(LOCATOR, "Can't get bundle name, start or stop using permission background failed.");
+            return;
+        }
+        bool isBackground = requestManager->IsAppBackground(bundleName);
+        if (!isBackground) {
+            LBSLOGE(LOCATOR, "Current app state is foreground.");
+            return;
+        }
     }
+    // For the current location permission change, there must be a location request corresponding to the token id
     int32_t type = result.PermStateChangeType;
     uint32_t tokenID = result.tokenID;
     if (type == PERMISSION_REVOKED_OPER) {
@@ -41,7 +52,7 @@ void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& resu
         PrivacyKit::StartUsingPermission(tokenID, permissionName);
     }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
-    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(IPCSkeleton::GetCallingUid());
+    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(uid);
 }
 } // namespace Location
 } // namespace OHOS

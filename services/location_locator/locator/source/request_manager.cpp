@@ -29,6 +29,7 @@
 #include "locator_event_manager.h"
 #include "subability_common.h"
 #include "privacy_kit.h"
+#include "bundle_mgr_interface.h"
 
 namespace OHOS {
 namespace Location {
@@ -453,6 +454,32 @@ bool RequestManager::IsAppBackground(const std::string& bundleName)
             return false;
         }
     }
+    return true;
+}
+
+bool RequestManager::GetBundleNameByUid(int32_t uid, std::string &bundleName)
+{
+    sptr<ISystemAbilityManager> systemMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemMgr == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed get the system ability mgr.");
+        return false;
+    }
+    sptr<IRemoteObject> remoteObject = sptr<IRemoteObject>(systemMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
+    if (remoteObject == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed get the bundle mgr");
+        return false;
+    }
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (bundleMgrProxy == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Bundle mgr proxy is null");
+        return false;
+    }
+    bool result = bundleMgrProxy->GetBundleNameForUid(uid, bundleName);
+    if (!result) {
+        LBSLOGE(REQUEST_MANAGER, "Get bundle name failed.");
+        return false;
+    }
+    LBSLOGE(REQUEST_MANAGER, "The bundle name is %{public}s.", bundleName.c_str());
     return true;
 }
 
