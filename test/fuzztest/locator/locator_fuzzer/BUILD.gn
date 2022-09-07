@@ -42,7 +42,7 @@ ohos_fuzztest("LocatorFuzzTest") {
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
     "//foundation/arkui/napi:ace_napi",
-    "//third_party/libuv:uv_static",
+    "//third_party/libuv:uv",
   ]
   external_deps = [
     "access_token:libaccesstoken_sdk",
