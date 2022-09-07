@@ -64,9 +64,8 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
-
-    bool isPermissionRegistered_ = false;
-    bool isPowerRegistered_ = false;
+    
+    std::string bundleName_;
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
     sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;

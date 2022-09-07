@@ -150,11 +150,28 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
 }
 
 // called when the app’s background location permission is cancelled, stop proxy
-void LocatorBackgroundProxy::OnPermissionChanged(int32_t uid)
+void LocatorBackgroundProxy::OnPermissionChanged(std::string permissionName)
 {
     if (!featureSwitch_) {
         return;
     }
+    if (permissionName == ACCESS_BACKGROUND_LOCATION) {
+        bool isBackground = DelayedSingleton<RequestManager>::GetInstance()
+            .get()->IsAppBackground(bundleName_);
+        if (!isBackground) {
+            LBSLOGE(LOCATOR, "Current app state is foreground.");
+            return;
+        }
+    }
+    // For the current location permission change, there must be a location request corresponding to the token id
+    int32_t type = result.PermStateChangeType;
+    uint32_t tokenID = result.tokenID;
+    if (type == PERMISSION_REVOKED_OPER) {
+        PrivacyKit::StopUsingPermission(tokenID, permissionName);
+    } else if (type == PERMISSION_GRANTED_OPER) {
+        PrivacyKit::StartUsingPermission(tokenID, permissionName);
+    }
+    int32_t uid = IPCSkeleton::GetCallingUid();
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnPermissionChanged %{public}d", uid);
     UpdateListOnPermissionChanged(uid);
     if (requestsList_->empty()) {
@@ -251,6 +268,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);
             requestsList->push_back(request);
+            bundleName_ = request->GetPackageName();
         }
     }
 }

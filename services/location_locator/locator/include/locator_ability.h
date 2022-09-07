@@ -156,7 +156,6 @@ private:
     std::mutex proxyMutex_;
     std::mutex permissionMutex_;
     std::set<int32_t> proxyUids_;
-    std::string bundleName_;
 };
 } // namespace Location
 } // namespace OHOS

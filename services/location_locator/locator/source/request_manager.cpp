@@ -44,9 +44,8 @@ RequestManager::~RequestManager() {
 
 bool RequestManager::InitSystemListeners()
 {
-    LBSLOGI(REQUEST_MANAGER, "register permissions change::%{public}d, register suspend listener:%{public}d",
-        isPermissionRegistered_, isPowerRegistered_);
-    return (isPermissionRegistered_ && isPowerRegistered_);
+    LBSLOGI(REQUEST_MANAGER, "Register app state observer.");
+    return RegisterAppStateObserver();
 }
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
@@ -354,10 +353,27 @@ void RequestManager::HandlePermissionChanged(int32_t uid)
     }
 }
 
-void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag)
+void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t state)
 {
-    LBSLOGD(REQUEST_MANAGER, "HandlePowerSuspendChanged pid:%{public}d, uid:%{public}d, flag:%{public}d",
-        pid, uid, flag);
+    if (!IsUidInProcessing(uid)) {
+        LBSLOGE(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
+        return;
+    }
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
+    bool isActive = false;
+    if (state == FOREGROUND) {
+        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
+        isActive = true;
+    } else if (state == BACKGROUND) {
+        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
+    } else {
+        return;
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
@@ -378,8 +394,8 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
             if ((uid1.compare(uid2) != 0) || (pid1.compare(pid2) != 0)) {
                 continue;
             }
-            request->SetRequesting(flag);
-            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnSuspend(request, flag);
+            request->SetRequesting(isActive);
+            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnSuspend(request, isActive);
         }
     }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
@@ -455,30 +471,14 @@ bool RequestManager::IsAppBackground(const std::string& bundleName)
     return true;
 }
 
-bool RequestManager::GetBundleNameByUid(int32_t uid, std::string& bundleName)
+void RequestManager::SetBundleName(std::string bundleName)
 {
-    sptr<ISystemAbilityManager> systemMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemMgr == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Failed get the system ability mgr.");
-        return false;
-    }
-    sptr<IRemoteObject> remoteObject = sptr<IRemoteObject>(systemMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
-    if (remoteObject == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Failed get the bundle mgr");
-        return false;
-    }
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (bundleMgrProxy == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Bundle mgr proxy is null");
-        return false;
-    }
-    bool result = bundleMgrProxy->GetBundleNameForUid(uid, bundleName);
-    if (!result) {
-        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Get bundle name failed.");
-        return false;
-    }
-    LBSLOGI(REQUEST_MANAGER, "Get bundleName success ! The bundle name is %{public}s.", bundleName.c_str());
-    return true;
+    bundleName_ = bundleName;
+}
+
+std::string RequestManager::GetBundleName()
+{
+    return bundleName_;
 }
 
 AppStateChangeCallback::AppStateChangeCallback()
@@ -492,25 +492,10 @@ AppStateChangeCallback::~AppStateChangeCallback()
 void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     int32_t uid = appStateData.uid;
-    if (!IsUidInProcessing(uid)) {
-        LBSLOGE(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
-        return;
-    }
     int32_t pid = appStateData.pid;
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int32_t state = appStateData.state;
     LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
-    if (state == FOREGROUND) {
-        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-        }
-    } else if (state == BACKGROUND) {
-        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-        }
-    }
-    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
+    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
 }
 } // namespace Location
 } // namespace OHOS
