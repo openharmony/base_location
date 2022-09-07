@@ -358,9 +358,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
 {
     LBSLOGD(REQUEST_MANAGER, "HandlePowerSuspendChanged pid:%{public}d, uid:%{public}d, flag:%{public}d",
         pid, uid, flag);
-    if (!IsUidInProcessing(uid)) {
-        return;
-    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
@@ -451,40 +448,41 @@ bool RequestManager::IsAppBackground(const std::string& bundleName)
 
     for (const auto& foregroundApp : foregroundAppList) {
         if (foregroundApp.bundleName == bundleName) {
+            LBSLOGE(REQUEST_MANAGER, "The app is foreground now.");
             return false;
         }
     }
     return true;
 }
 
-bool RequestManager::GetBundleNameByUid(int32_t uid, std::string &bundleName)
+bool RequestManager::GetBundleNameByUid(int32_t uid, std::string& bundleName)
 {
     sptr<ISystemAbilityManager> systemMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemMgr == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Failed get the system ability mgr.");
+        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Failed get the system ability mgr.");
         return false;
     }
     sptr<IRemoteObject> remoteObject = sptr<IRemoteObject>(systemMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
     if (remoteObject == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Failed get the bundle mgr");
+        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Failed get the bundle mgr");
         return false;
     }
     sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (bundleMgrProxy == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Bundle mgr proxy is null");
+        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Bundle mgr proxy is null");
         return false;
     }
     bool result = bundleMgrProxy->GetBundleNameForUid(uid, bundleName);
     if (!result) {
-        LBSLOGE(REQUEST_MANAGER, "Get bundle name failed.");
+        LBSLOGE(REQUEST_MANAGER, "GetBundleName : Get bundle name failed.");
         return false;
     }
-    LBSLOGE(REQUEST_MANAGER, "The bundle name is %{public}s.", bundleName.c_str());
+    LBSLOGI(REQUEST_MANAGER, "Get bundleName success ! The bundle name is %{public}s.", bundleName.c_str());
     return true;
 }
 
-AppStateChangeCallback::AppStateChangeCallback()
-{
+bool RequestManager::FindRequestIsLocating(std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requestMap) {
+
 }
 
 AppStateChangeCallback::~AppStateChangeCallback()
@@ -494,6 +492,10 @@ AppStateChangeCallback::~AppStateChangeCallback()
 void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     int32_t uid = appStateData.uid;
+    if (!IsUidInProcessing(uid)) {
+        LBSLOGE(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
+        return;
+    }
     int32_t pid = appStateData.pid;
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
