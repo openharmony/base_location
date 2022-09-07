@@ -481,8 +481,8 @@ bool RequestManager::GetBundleNameByUid(int32_t uid, std::string& bundleName)
     return true;
 }
 
-bool RequestManager::FindRequestIsLocating(std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requestMap) {
-
+AppStateChangeCallback::AppStateChangeCallback()
+{
 }
 
 AppStateChangeCallback::~AppStateChangeCallback()
