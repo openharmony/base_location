@@ -22,6 +22,7 @@
 #include "location_log.h"
 #include "locator_ability.h"
 #include "os_account_manager.h"
+#include "ipc_skeleton.h"
 #include "request_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -150,7 +151,7 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
 }
 
 // called when the app’s background location permission is cancelled, stop proxy
-void LocatorBackgroundProxy::OnPermissionChanged(std::string permissionName)
+void LocatorBackgroundProxy::OnPermissionChanged(int32_t type, uint32_t tokenID, std::string permissionName)
 {
     if (!featureSwitch_) {
         return;
@@ -164,8 +165,6 @@ void LocatorBackgroundProxy::OnPermissionChanged(std::string permissionName)
         }
     }
     // For the current location permission change, there must be a location request corresponding to the token id
-    int32_t type = result.PermStateChangeType;
-    uint32_t tokenID = result.tokenID;
     if (type == PERMISSION_REVOKED_OPER) {
         PrivacyKit::StopUsingPermission(tokenID, permissionName);
     } else if (type == PERMISSION_GRANTED_OPER) {
