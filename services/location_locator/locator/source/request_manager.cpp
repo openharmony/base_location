@@ -29,7 +29,6 @@
 #include "locator_event_manager.h"
 #include "subability_common.h"
 #include "privacy_kit.h"
-#include "bundle_mgr_interface.h"
 
 namespace OHOS {
 namespace Location {
