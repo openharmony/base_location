@@ -21,7 +21,7 @@
 #include "i_locator_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
-#include "async_context.h"
+#include "location_async_context.h"
 #include "uv.h"
 
 namespace OHOS {
@@ -45,7 +45,6 @@ public:
     void DeleteFailHandler();
     void DeleteCompleteHandler();
     void InitLatch();
-    bool InitContext(AsyncContext* context);
     bool IsSystemGeoLocationApi();
     bool IsSingleLocationRequest();
     void CountDown();
@@ -53,16 +52,125 @@ public:
     int GetCount();
     void SetCount(int count);
 
-    napi_env m_env;
-    napi_ref m_handlerCb;
-    napi_ref m_successHandlerCb;
-    napi_ref m_failHandlerCb;
-    napi_ref m_completeHandlerCb;
-    int m_fixNumber;
-    napi_deferred m_deferred;
-    std::shared_mutex m_mutex;
-    CountDownLatch* m_latch;
-    std::unique_ptr<Location> m_singleLocation;
+    template <typename T>
+    bool InitContext(T* context)
+    {
+        if (context == nullptr) {
+            LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+            return false;
+        }
+        context->env = env_;
+        if (IsSystemGeoLocationApi()) {
+            context->callback[SUCCESS_CALLBACK] = successHandlerCb_;
+            context->callback[FAIL_CALLBACK] = failHandlerCb_;
+            context->callback[COMPLETE_CALLBACK] = completeHandlerCb_;
+        } else {
+            context->callback[SUCCESS_CALLBACK] = handlerCb_;
+            context->deferred = deferred_;
+        }
+        return true;
+    }
+
+    inline napi_env GetEnv() const
+    {
+        return env_;
+    }
+
+    inline void SetEnv(const napi_env& env)
+    {
+        env_ = env;
+    }
+
+    inline napi_ref GetHandleCb() const
+    {
+        return handlerCb_;
+    }
+
+    inline void SetHandleCb(const napi_ref& handlerCb)
+    {
+        handlerCb_ = handlerCb;
+    }
+
+    inline napi_ref GetSuccHandleCb() const
+    {
+        return successHandlerCb_;
+    }
+
+    inline void SetSuccHandleCb(const napi_ref& successHandlerCb)
+    {
+        successHandlerCb_ = successHandlerCb;
+    }
+
+    inline napi_ref GetFailHandleCb() const
+    {
+        return failHandlerCb_;
+    }
+
+    inline void SetFailHandleCb(const napi_ref& failHandlerCb)
+    {
+        failHandlerCb_ = failHandlerCb;
+    }
+
+    inline napi_ref GetCompleteHandleCb() const
+    {
+        return completeHandlerCb_;
+    }
+
+    inline void SetCompleteHandleCb(const napi_ref& completeHandlerCb)
+    {
+        completeHandlerCb_ = completeHandlerCb;
+    }
+
+    inline int GetFixNumber() const
+    {
+        return fixNumber_;
+    }
+
+    inline void SetFixNumber(const int fixNumber)
+    {
+        fixNumber_ = fixNumber;
+    }
+
+    inline napi_deferred GetDeferred() const
+    {
+        return deferred_;
+    }
+
+    inline void SetDeferred(const napi_deferred& deferred)
+    {
+        deferred_ = deferred;
+    }
+
+    inline std::shared_ptr<Location> GetSingleLocation() const
+    {
+        return singleLocation_;
+    }
+
+private:
+    napi_env env_;
+    napi_ref handlerCb_;
+    napi_ref successHandlerCb_;
+    napi_ref failHandlerCb_;
+    napi_ref completeHandlerCb_;
+    int fixNumber_;
+    napi_deferred deferred_;
+    std::shared_mutex mutex_;
+    CountDownLatch* latch_;
+    LocationAsyncContext* context_;
+    std::shared_ptr<Location> singleLocation_;
+};
+
+class SingleLocationAsyncContext : public AsyncContext {
+public:
+    int timeout_;
+    sptr<LocatorCallbackHost> callbackHost_;
+
+    SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(0) {}
+
+    SingleLocationAsyncContext() = delete;
+
+    virtual ~SingleLocationAsyncContext() {}
 };
 } // namespace Location
 } // namespace OHOS

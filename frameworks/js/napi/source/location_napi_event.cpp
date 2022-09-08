@@ -107,9 +107,9 @@ void SubscribeLocationChange(napi_env& env, const napi_value& object,
     napi_ref& handlerRef, sptr<LocatorCallbackHost>& locatorCallbackHost)
 {
     auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
-    locatorCallbackHost->m_fixNumber = 0;
-    locatorCallbackHost->m_env = env;
-    locatorCallbackHost->m_handlerCb = handlerRef;
+    locatorCallbackHost->SetFixNumber(0);
+    locatorCallbackHost->SetEnv(env);
+    locatorCallbackHost->SetHandleCb(handlerRef);
     auto requestConfig = std::make_unique<RequestConfig>();
     JsObjToLocationRequest(env, object, requestConfig);
     g_locatorProxy->StartLocating(requestConfig, locatorCallback);
@@ -202,8 +202,9 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(napi_env& env,
         auto context = static_cast<SingleLocationAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
         auto callbackHost = context->callbackHost_;
-        if (callbackHost != nullptr && callbackHost->m_singleLocation != nullptr) {
-            LocationToJs(context->env, callbackHost->m_singleLocation, context->result[PARAM1]);
+        if (callbackHost != nullptr && callbackHost->GetSingleLocation() != nullptr) {
+            std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
+            LocationToJs(context->env, location, context->result[PARAM1]);
         } else {
             LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
         }
@@ -236,19 +237,14 @@ int GetObjectArgsNum(napi_env& env, const size_t argc, const napi_value* argv)
     return objectArgsNum;
 }
 
-std::unique_ptr<RequestConfig> CreateRequestConfig(napi_env& env, const napi_value* argv,
-    size_t& objectArgsNum)
+std::unique_ptr<RequestConfig> CreateRequestConfig(napi_env& env, const napi_value* argv, size_t& objectArgsNum)
 {
     auto requestConfig = std::make_unique<RequestConfig>();
     if (objectArgsNum > 0) {
         JsObjToCurrentLocationRequest(env, argv[objectArgsNum - 1], requestConfig);
     } else {
         requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
-        requestConfig->SetScenario(SCENE_UNSET);
-        requestConfig->SetMaxAccuracy(0);
     }
-    requestConfig->SetTimeInterval(1);
-    requestConfig->SetDistanceInterval(0);
     requestConfig->SetFixNumber(1);
     return requestConfig;
 }
@@ -258,7 +254,7 @@ sptr<LocatorCallbackHost> CreateSingleLocationCallbackHost()
     auto callbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
     if (callbackHost) {
-        callbackHost->m_fixNumber = 1;
+        callbackHost->SetFixNumber(1);
     }
     return callbackHost;
 }

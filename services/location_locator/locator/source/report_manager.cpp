@@ -104,6 +104,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(uint32_t tokenId, 
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
+    // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
         CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         finalLocation = ApproximatelyLocation(location);
@@ -154,7 +155,8 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     }
     float maxAcc = request->GetRequestConfig()->GetMaxAccuracy();
     LBSLOGD(REPORT_MANAGER, "acc ResultCheck :  %{public}f - %{public}f", maxAcc, location->GetAccuracy());
-    if (permissionLevel == PERMISSION_ACCURATE && location->GetAccuracy() > maxAcc) {
+    if ((permissionLevel == PERMISSION_ACCURATE) &&
+        (maxAcc > 0) && (location->GetAccuracy() > maxAcc)) {
         LBSLOGE(REPORT_MANAGER, "accuracy check fail, do not report location");
         return false;
     }
@@ -255,7 +257,7 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
     }
     coarseLocation->SetLatitude(lat);
     coarseLocation->SetLongitude(lon);
-    coarseLocation->SetAccuracy(5000); // approximately location acc
+    coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
     return coarseLocation;
 }
 } // namespace OHOS

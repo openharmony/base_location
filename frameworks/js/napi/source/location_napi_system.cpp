@@ -37,25 +37,21 @@ napi_value GetLocationOnce(const napi_env& env,
     auto requestConfig = std::make_unique<RequestConfig>();
     auto locatorCallback = sptr<ILocatorCallback>(g_systemSingleLocatorCallbackHost);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
-    requestConfig->SetScenario(SCENE_UNSET);
-    requestConfig->SetTimeInterval(0);
-    requestConfig->SetDistanceInterval(0);
-    requestConfig->SetMaxAccuracy(0);
     requestConfig->SetFixNumber(fixNumber);
-    if (g_systemSingleLocatorCallbackHost->m_successHandlerCb != nullptr ||
-        g_systemSingleLocatorCallbackHost->m_failHandlerCb != nullptr ||
-        g_systemSingleLocatorCallbackHost->m_completeHandlerCb != nullptr) {
+    if (g_systemSingleLocatorCallbackHost->GetSuccHandleCb() != nullptr ||
+        g_systemSingleLocatorCallbackHost->GetFailHandleCb() != nullptr ||
+        g_systemSingleLocatorCallbackHost->GetCompleteHandleCb() != nullptr) {
         LBSLOGI(LOCATION_NAPI, "handlers is not nullptr, stop locating first");
         g_locatorImpl->StopLocating(locatorCallback);
-        if (env == g_systemSingleLocatorCallbackHost->m_env) {
+        if (env == g_systemSingleLocatorCallbackHost->GetEnv()) {
             g_systemSingleLocatorCallbackHost->DeleteAllCallbacks();
         }
     }
-    g_systemSingleLocatorCallbackHost->m_env = env;
-    g_systemSingleLocatorCallbackHost->m_fixNumber = fixNumber;
-    g_systemSingleLocatorCallbackHost->m_successHandlerCb = successHandlerRef;
-    g_systemSingleLocatorCallbackHost->m_failHandlerCb = failHandlerRef;
-    g_systemSingleLocatorCallbackHost->m_completeHandlerCb = completeHandlerRef;
+    g_systemSingleLocatorCallbackHost->SetEnv(env);
+    g_systemSingleLocatorCallbackHost->SetFixNumber(fixNumber);
+    g_systemSingleLocatorCallbackHost->SetSuccHandleCb(successHandlerRef);
+    g_systemSingleLocatorCallbackHost->SetFailHandleCb(failHandlerRef);
+    g_systemSingleLocatorCallbackHost->SetCompleteHandleCb(completeHandlerRef);
     g_locatorImpl->StartLocating(requestConfig, locatorCallback);
     return UndefinedNapiValue(env);
 }
@@ -188,24 +184,20 @@ void SubscribeSystemLocationChange(napi_env env,
                                    sptr<LocatorCallbackHost>& locatorCallbackHost)
 {
     auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
-    if (locatorCallbackHost->m_successHandlerCb != nullptr ||
-        locatorCallbackHost->m_failHandlerCb != nullptr) {
+    if (locatorCallbackHost->GetSuccHandleCb() != nullptr ||
+        locatorCallbackHost->GetFailHandleCb() != nullptr) {
         LBSLOGI(LOCATION_NAPI, "GetHandlerCb() != nullptr, UnSubscribeLocationChange");
         g_locatorImpl->StopLocating(locatorCallback);
-        if (env == locatorCallbackHost->m_env) {
+        if (env == locatorCallbackHost->GetEnv()) {
             locatorCallbackHost->DeleteAllCallbacks();
         }
     }
-    locatorCallbackHost->m_env = env;
-    locatorCallbackHost->m_fixNumber = fixNumber;
-    locatorCallbackHost->m_successHandlerCb = successHandlerRef;
-    locatorCallbackHost->m_failHandlerCb = failHandlerRef;
+    locatorCallbackHost->SetEnv(env);
+    locatorCallbackHost->SetFixNumber(fixNumber);
+    locatorCallbackHost->SetSuccHandleCb(successHandlerRef);
+    locatorCallbackHost->SetFailHandleCb(failHandlerRef);
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
-    requestConfig->SetScenario(SCENE_UNSET);
-    requestConfig->SetTimeInterval(0);
-    requestConfig->SetDistanceInterval(0);
-    requestConfig->SetMaxAccuracy(0);
     requestConfig->SetFixNumber(fixNumber);
     g_locatorImpl->StartLocating(requestConfig, locatorCallback);
 }
@@ -248,7 +240,7 @@ napi_value Unsubscribe(napi_env env, napi_callback_info cbinfo)
     napi_value result = nullptr;
     auto locatorCallback = sptr<ILocatorCallback>(g_systemSubcribeCallbackHost);
     g_locatorImpl->StopLocating(locatorCallback);
-    if (env == g_systemSubcribeCallbackHost->m_env) {
+    if (env == g_systemSubcribeCallbackHost->GetEnv()) {
         g_systemSubcribeCallbackHost->DeleteAllCallbacks();
     }
     NAPI_CALL(env, napi_get_undefined(env, &result));

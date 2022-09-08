@@ -35,7 +35,7 @@ namespace OHOS {
         /* init locator and LocatorCallbackHost */
         std::unique_ptr<Locator> locator = Locator::GetInstance();
         int index = 0;
-        g_locatorCallbackHostForTest->m_fixNumber = data[index++];
+        g_locatorCallbackHostForTest->SetFixNumber(data[index++]);
         /* init requestConfig */
         std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
         requestConfig->SetScenario(data[index++]);

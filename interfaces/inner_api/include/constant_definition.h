@@ -36,6 +36,7 @@ const int32_t PARAM2 = 2;
 const int32_t PARAM3 = 3;
 const size_t RESULT_SIZE = 2;
 const int DEFAULT_TIMEOUT_30S = 30000;
+const int DEFAULT_APPROXIMATELY_ACCURACY = 5000;
 const int STATE_OPEN = 1;
 const int STATE_CLOSE = 0;
 const int PRIVACY_TYPE_OTHERS = 0;
