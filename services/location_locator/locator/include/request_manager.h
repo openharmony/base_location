@@ -48,14 +48,14 @@ public:
     bool InitSystemListeners();
     void HandleStartLocating(std::shared_ptr<Request> request);
     void HandleStopLocating(sptr<ILocatorCallback> callback);
-    void HandlePermissionChanged(int32_t uid);
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
     bool RegisterAppStateObserver();
     bool UnregisterAppStateObserver();
     bool IsAppBackground(const std::string& bundleName);
-    bool GetBundleNameByUid(int32_t uid, std::string &bundleName);
+    void SetBundleName(std::string bundleName);
+    std::string GetBundleName();
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
@@ -64,7 +64,7 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
-    
+
     std::string bundleName_;
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;

@@ -33,7 +33,7 @@ public:
     LocatorBackgroundProxy();
     ~LocatorBackgroundProxy();
     void OnSuspend(const std::shared_ptr<Request>& request, bool active);
-    void OnPermissionChanged(std::string permissionName);
+    void OnPermissionChanged(int32_t type, uint32_t tokenID, std::string permissionName);
     void OnSaStateChange(bool enable);
     void OnDeleteRequestRecord(const std::shared_ptr<Request>& request);
     bool IsCallbackInProxy(const sptr<ILocatorCallback>& callback) const;

@@ -344,15 +344,6 @@ sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
     return remoteObject;
 }
 
-void RequestManager::HandlePermissionChanged(int32_t uid)
-{
-    if (IsUidInProcessing(uid)) {
-        LBSLOGD(REQUEST_MANAGER, "HandlePowerSuspendChanged find running uid:%{public}d", uid);
-        DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
-        DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(uid);
-    }
-}
-
 void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t state)
 {
     if (!IsUidInProcessing(uid)) {

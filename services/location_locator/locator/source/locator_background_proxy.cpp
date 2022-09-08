@@ -249,7 +249,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
     auto userId = GetUserId(request->GetUid());
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
-        return;
+        UpdateListOnUserSwitch(userId);
     }
     auto requestsList = iter->second;
     auto it = find(requestsList->begin(), requestsList->end(), request);
