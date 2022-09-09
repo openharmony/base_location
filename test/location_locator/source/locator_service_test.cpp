@@ -234,7 +234,7 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
      * @tc.expected: step2. return true, the callback of the process is in the proxy list
      */
     backgroundProxy_->OnSuspend(request_, 0);
-    backgroundProxy_->OnPermissionChanged(SYSTEM_UID);
+    backgroundProxy_->OnPermissionChanged(PERMISSION_GRANTED_OPER, SYSTEM_UID, ACCESS_LOCATION);
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     // no location permission
     EXPECT_EQ(false, result);
@@ -315,35 +315,35 @@ HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
 }
 
 /*
- * @tc.name: RegisterSuspendChangeCallback001
- * @tc.desc: Test the function register suspend change callback
+ * @tc.name: RegisterAppStateObserver001
+ * @tc.desc: Test the function register app state observer
  * @tc.type: FUNC
- * @tc.require: issueI5OSHX
+ * @tc.require: issueI5PX7W
  */
-HWTEST_F(LocatorServiceTest, RegisterSuspendChangeCallback001, TestSize.Level1)
+HWTEST_F(LocatorServiceTest, RegisterAppStateObserver001, TestSize.Level1)
 {
     /*
      * @tc.steps: step1. get the request manager
-     * @tc.steps: step2. register suspend change callback
+     * @tc.steps: step2. register app state observer
      * @tc.expected: return false, permission denied
      */
-    bool ret = requestManager_->RegisterSuspendChangeCallback();
+    bool ret = requestManager_->RegisterAppStateObserver();
     EXPECT_EQ(false, ret); // no permission
 }
 
 /*
- * @tc.name: UnregisterSuspendChangeCallback001
- * @tc.desc: Test the function unregister suspend change callback
+ * @tc.name: UnregisterAppStateObserver001
+ * @tc.desc: Test the function unregister app state observer
  * @tc.type: FUNC
- * @tc.require: issueI5OSHX
+ * @tc.require: issueI5PX7W
  */
-HWTEST_F(LocatorServiceTest, UnregisterSuspendChangeCallback001, TestSize.Level1)
+HWTEST_F(LocatorServiceTest, UnregisterAppStateObserver001, TestSize.Level1)
 {
     /*
      * @tc.steps: step1. get the request manager
-     * @tc.steps: step2. unregister suspend change callback
+     * @tc.steps: step2. unregister app state observer
      * @tc.expected: return true, unreg process is success
      */
-    bool ret = requestManager_->UnregisterSuspendChangeCallback();
+    bool ret = requestManager_->UnregisterAppStateObserver();
     EXPECT_EQ(true, ret);
 }

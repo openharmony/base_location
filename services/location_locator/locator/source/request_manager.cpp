@@ -43,9 +43,8 @@ RequestManager::~RequestManager() {
 
 bool RequestManager::InitSystemListeners()
 {
-    LBSLOGI(REQUEST_MANAGER, "register permissions change::%{public}d, register suspend listener:%{public}d",
-        isPermissionRegistered_, isPowerRegistered_);
-    return (isPermissionRegistered_ && isPowerRegistered_);
+    LBSLOGI(REQUEST_MANAGER, "Register app state observer.");
+    return RegisterAppStateObserver();
 }
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
@@ -344,20 +343,25 @@ sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
     return remoteObject;
 }
 
-void RequestManager::HandlePermissionChanged(int32_t uid)
+void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t state)
 {
-    if (IsUidInProcessing(uid)) {
-        LBSLOGD(REQUEST_MANAGER, "HandlePowerSuspendChanged find running uid:%{public}d", uid);
-        DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
-        DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(uid);
-    }
-}
-
-void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag)
-{
-    LBSLOGD(REQUEST_MANAGER, "HandlePowerSuspendChanged pid:%{public}d, uid:%{public}d, flag:%{public}d",
-        pid, uid, flag);
     if (!IsUidInProcessing(uid)) {
+        LBSLOGE(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
+        return;
+    }
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
+    bool isActive = false;
+    if (state == FOREGROUND) {
+        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
+        isActive = true;
+    } else if (state == BACKGROUND) {
+        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+        }
+    } else {
         return;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -380,8 +384,8 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
             if ((uid1.compare(uid2) != 0) || (pid1.compare(pid2) != 0)) {
                 continue;
             }
-            request->SetRequesting(flag);
-            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnSuspend(request, flag);
+            request->SetRequesting(isActive);
+            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnSuspend(request, isActive);
         }
     }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
@@ -399,13 +403,13 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
     return isFound;
 }
 
-bool RequestManager::RegisterSuspendChangeCallback()
+bool RequestManager::RegisterAppStateObserver()
 {
     if (appStateObserver_ != nullptr) {
         LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
         return true;
     }
-    appStateObserver_ = new (std::nothrow) SuspendChangeCallback();
+    appStateObserver_ = sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
@@ -428,7 +432,7 @@ bool RequestManager::RegisterSuspendChangeCallback()
     return true;
 }
 
-bool RequestManager::UnregisterSuspendChangeCallback()
+bool RequestManager::UnregisterAppStateObserver()
 {
     if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
         iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
@@ -438,33 +442,36 @@ bool RequestManager::UnregisterSuspendChangeCallback()
     return true;
 }
 
-SuspendChangeCallback::SuspendChangeCallback()
+bool RequestManager::IsAppBackground()
+{
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed get the app manager proxy.");
+        return false;
+    }
+    std::vector<AppExecFwk::AppStateData> foregroundAppList;
+    iAppMgr_->GetForegroundApplications(foregroundAppList);
+    if (foregroundAppList.size() > 0) {
+        LBSLOGE(REQUEST_MANAGER, "The app : %{public}s is foreground now.", foregroundAppList[0].bundleName.c_str());
+        return false;
+    }
+    return true;
+}
+
+AppStateChangeCallback::AppStateChangeCallback()
 {
 }
 
-SuspendChangeCallback::~SuspendChangeCallback()
+AppStateChangeCallback::~AppStateChangeCallback()
 {
 }
 
-void SuspendChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
+void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     int32_t uid = appStateData.uid;
     int32_t pid = appStateData.pid;
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int32_t state = appStateData.state;
     LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
-    if (state == FOREGROUND) {
-        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-        }
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
-    } else if (state == BACKGROUND) {
-        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-        }
-        DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, (state == FOREGROUND));
-    }
+    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
 }
 } // namespace Location
 } // namespace OHOS

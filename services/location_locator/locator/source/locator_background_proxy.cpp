@@ -22,6 +22,7 @@
 #include "location_log.h"
 #include "locator_ability.h"
 #include "os_account_manager.h"
+#include "ipc_skeleton.h"
 #include "request_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -150,12 +151,27 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
 }
 
 // called when the app’s background location permission is cancelled, stop proxy
-void LocatorBackgroundProxy::OnPermissionChanged(int32_t uid)
+void LocatorBackgroundProxy::OnPermissionChanged(int32_t type, uint32_t tokenID, std::string permissionName)
 {
     if (!featureSwitch_) {
         return;
     }
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnPermissionChanged %{public}d", uid);
+    if (permissionName == ACCESS_BACKGROUND_LOCATION) {
+        bool isBackground = DelayedSingleton<RequestManager>::GetInstance()
+            .get()->IsAppBackground();
+        if (!isBackground) {
+            LBSLOGE(LOCATOR, "Current app state is foreground.");
+            return;
+        }
+    }
+    // For the current location permission change, there must be a location request corresponding to the token id
+    if (type == PERMISSION_REVOKED_OPER) {
+        PrivacyKit::StopUsingPermission(tokenID, permissionName);
+    } else if (type == PERMISSION_GRANTED_OPER) {
+        PrivacyKit::StartUsingPermission(tokenID, permissionName);
+    }
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnPermissionChanged : uid =  %{public}d", uid);
     UpdateListOnPermissionChanged(uid);
     if (requestsList_->empty()) {
         StopLocator();
@@ -232,7 +248,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
     auto userId = GetUserId(request->GetUid());
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
-        return;
+        UpdateListOnUserSwitch(userId);
     }
     auto requestsList = iter->second;
     auto it = find(requestsList->begin(), requestsList->end(), request);

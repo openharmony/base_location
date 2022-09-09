@@ -33,13 +33,14 @@
 
 namespace OHOS {
 namespace Location {
-class SuspendChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
+class AppStateChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
 public:
-    SuspendChangeCallback();
-    ~SuspendChangeCallback();
+    AppStateChangeCallback();
+    ~AppStateChangeCallback();
 
     void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
 };
+
 class RequestManager : public DelayedSingleton<RequestManager> {
 public:
     RequestManager();
@@ -47,12 +48,12 @@ public:
     bool InitSystemListeners();
     void HandleStartLocating(std::shared_ptr<Request> request);
     void HandleStopLocating(sptr<ILocatorCallback> callback);
-    void HandlePermissionChanged(int32_t uid);
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    bool RegisterSuspendChangeCallback();
-    bool UnregisterSuspendChangeCallback();
+    bool RegisterAppStateObserver();
+    bool UnregisterAppStateObserver();
+    bool IsAppBackground();
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
@@ -62,12 +63,10 @@ private:
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
 
-    bool isPermissionRegistered_ = false;
-    bool isPowerRegistered_ = false;
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
-    sptr<AppExecFwk::IAppMgr> iAppMgr_;
-    sptr<SuspendChangeCallback> appStateObserver_ = nullptr;
+    sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
+    sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
 };
 } // namespace Location
 } // namespace OHOS

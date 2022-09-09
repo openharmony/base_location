@@ -134,7 +134,7 @@ private:
     int SendGeoRequest(int type, MessageParcel &data, MessageParcel &replay);
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
-
+    void UpdateUsingPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid, bool isStart);
     static void SaDumpInfo(std::string& result);
 
     bool registerToAbility_ = false;
