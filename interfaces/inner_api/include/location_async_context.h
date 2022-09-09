@@ -18,13 +18,13 @@
 
 #include <list>
 #include <string>
+#include "async_context.h"
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "location.h"
 #include "location_log.h"
 #include "location_mock_config.h"
-#include "locator_callback_host.h"
 #include "message_parcel.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -210,19 +210,6 @@ public:
     GeoCodeAsyncContext() = delete;
 
     virtual ~GeoCodeAsyncContext() {}
-};
-
-class SingleLocationAsyncContext : public AsyncContext {
-public:
-    int timeout_;
-    sptr<LocatorCallbackHost> callbackHost_;
-
-    SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(0) {}
-
-    SingleLocationAsyncContext() = delete;
-
-    virtual ~SingleLocationAsyncContext() {}
 };
 }  // namespace Location
 }  // namespace OHOS

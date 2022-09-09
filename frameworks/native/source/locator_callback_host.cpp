@@ -15,7 +15,6 @@
 
 #include "locator_callback_host.h"
 
-#include "async_context.h"
 #include "ipc_object_stub.h"
 #include "js_native_api.h"
 #include "js_native_api_types.h"
@@ -32,32 +31,32 @@
 #include "location.h"
 #include "location_log.h"
 #include "napi_util.h"
-#include "location_async_context.h"
 
 namespace OHOS {
 namespace Location {
 LocatorCallbackHost::LocatorCallbackHost()
 {
-    m_env = nullptr;
-    m_handlerCb = nullptr;
-    m_successHandlerCb = nullptr;
-    m_failHandlerCb = nullptr;
-    m_completeHandlerCb = nullptr;
-    m_deferred = nullptr;
-    m_fixNumber = 0;
-    m_singleLocation = nullptr;
+    env_ = nullptr;
+    handlerCb_ = nullptr;
+    successHandlerCb_ = nullptr;
+    failHandlerCb_ = nullptr;
+    completeHandlerCb_ = nullptr;
+    deferred_ = nullptr;
+    fixNumber_ = 0;
+    singleLocation_ = nullptr;
+    context_ = new (std::nothrow) LocationAsyncContext(env_);
     InitLatch();
 }
 
 void LocatorCallbackHost::InitLatch()
 {
-    m_latch = new CountDownLatch();
-    m_latch->SetCount(1);
+    latch_ = new CountDownLatch();
+    latch_->SetCount(1);
 }
 
 LocatorCallbackHost::~LocatorCallbackHost()
 {
-    delete m_latch;
+    delete latch_;
 }
 
 int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
@@ -73,7 +72,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
             OnLocationReport(location);
-            m_singleLocation = std::move(location);
+            singleLocation_ = std::move(location);
             CountDown();
             break;
         }
@@ -142,7 +141,6 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
-            delete context;
             delete work;
     });
 }
@@ -166,7 +164,6 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
-                delete context;
                 delete work;
                 return;
             }
@@ -184,42 +181,23 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
-            delete context;
             delete work;
     });
 }
 
-bool LocatorCallbackHost::InitContext(AsyncContext* context)
-{
-    if (context == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
-        return false;
-    }
-    context->env = m_env;
-    if (IsSystemGeoLocationApi()) {
-        context->callback[SUCCESS_CALLBACK] = m_successHandlerCb;
-        context->callback[FAIL_CALLBACK] = m_failHandlerCb;
-        context->callback[COMPLETE_CALLBACK] = m_completeHandlerCb;
-    } else {
-        context->callback[SUCCESS_CALLBACK] = m_handlerCb;
-        context->deferred = m_deferred;
-    }
-    return true;
-}
-
 bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
     if (!IsSystemGeoLocationApi() && !IsSingleLocationRequest()) {
         LBSLOGE(LOCATOR_CALLBACK, "this is Callback type,cant send error msg.");
         return false;
     }
-    if (m_env == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "m_env is nullptr.");
+    if (env_ == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "env_ is nullptr.");
         return false;
     }
     uv_loop_s *loop = nullptr;
-    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
+    NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
         return false;
@@ -229,29 +207,28 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
         LBSLOGE(LOCATOR_CALLBACK, "work == nullptr.");
         return false;
     }
-    AsyncContext *context = new (std::nothrow) AsyncContext(m_env);
-    if (context == nullptr) {
+    if (context_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return false;
     }
-    if (!InitContext(context)) {
+    if (!InitContext(context_)) {
         LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
-    context->errCode = errorCode;
-    work->data = context;
+    context_->errCode = errorCode;
+    work->data = context_;
     DoSendErrorCode(loop, work);
     return true;
 }
 
 void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
-    if (m_env == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "m_env is nullptr.");
+    if (env_ == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "env_ is nullptr.");
         return;
     }
-    NAPI_CALL_RETURN_VOID(m_env, napi_get_uv_event_loop(m_env, &loop));
+    NAPI_CALL_RETURN_VOID(env_, napi_get_uv_event_loop(env_, &loop));
     if (loop == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
         return;
@@ -261,17 +238,16 @@ void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
         LBSLOGE(LOCATOR_CALLBACK, "work == nullptr.");
         return;
     }
-    auto context = new (std::nothrow) LocationAsyncContext(m_env);
-    if (context == nullptr) {
+
+    if (context_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
         return;
     }
-    auto asyncContext = static_cast<AsyncContext*>(context);
-    if (!InitContext(asyncContext)) {
+    if (!InitContext(context_)) {
         LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
-    context->loc = std::make_unique<Location>(*location);
-    work->data = context;
+    context_->loc = std::make_unique<Location>(*location);
+    work->data = context_;
     DoSendWork(loop, work);
 }
 
@@ -295,79 +271,91 @@ void LocatorCallbackHost::DeleteAllCallbacks()
 void LocatorCallbackHost::DeleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_handlerCb && m_env) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
-        m_handlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (handlerCb_ && env_) {
+        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+        handlerCb_ = nullptr;
+    }
+    if (context_) {
+        context_->callback[SUCCESS_CALLBACK] = nullptr;
     }
 }
 
 void LocatorCallbackHost::DeleteSuccessHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteSuccessHandler");
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_successHandlerCb && m_env) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_successHandlerCb));
-        m_successHandlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (successHandlerCb_ && env_) {
+        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, successHandlerCb_));
+        successHandlerCb_ = nullptr;
+    }
+    if (context_) {
+        context_->callback[SUCCESS_CALLBACK] = nullptr;
     }
 }
 
 void LocatorCallbackHost::DeleteFailHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteFailHandler");
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_failHandlerCb && m_env) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_failHandlerCb));
-        m_failHandlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (failHandlerCb_ && env_) {
+        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, failHandlerCb_));
+        failHandlerCb_ = nullptr;
+    }
+    if (context_) {
+        context_->callback[FAIL_CALLBACK] = nullptr;
     }
 }
 
 void LocatorCallbackHost::DeleteCompleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteCompleteHandler");
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_completeHandlerCb && m_env) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_completeHandlerCb));
-        m_completeHandlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (completeHandlerCb_ && env_) {
+        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, completeHandlerCb_));
+        completeHandlerCb_ = nullptr;
+    }
+    if (context_) {
+        context_->callback[COMPLETE_CALLBACK] = nullptr;
     }
 }
 
 bool LocatorCallbackHost::IsSystemGeoLocationApi()
 {
-    return (m_successHandlerCb != nullptr) ? true : false;
+    return (successHandlerCb_ != nullptr) ? true : false;
 }
 
 bool LocatorCallbackHost::IsSingleLocationRequest()
 {
-    return (m_fixNumber == 1);
+    return (fixNumber_ == 1);
 }
 
 void LocatorCallbackHost::CountDown()
 {
-    if (IsSingleLocationRequest() && m_latch != nullptr) {
-        m_latch->CountDown();
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        latch_->CountDown();
     }
 }
 
 void LocatorCallbackHost::Wait(int time)
 {
-    if (IsSingleLocationRequest() && m_latch != nullptr) {
-        m_latch->Wait(time);
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        latch_->Wait(time);
     }
 }
 
 int LocatorCallbackHost::GetCount()
 {
-    if (IsSingleLocationRequest() && m_latch != nullptr) {
-        return m_latch->GetCount();
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        return latch_->GetCount();
     }
     return 0;
 }
 
 void LocatorCallbackHost::SetCount(int count)
 {
-    if (IsSingleLocationRequest() && m_latch != nullptr) {
-        return m_latch->SetCount(count);
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        return latch_->SetCount(count);
     }
 }
 } // namespace Location
