@@ -234,7 +234,7 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
      * @tc.expected: step2. return true, the callback of the process is in the proxy list
      */
     backgroundProxy_->OnSuspend(request_, 0);
-    backgroundProxy_->OnPermissionChanged(SYSTEM_UID);
+    backgroundProxy_->OnPermissionChanged(PERMISSION_GRANTED_OPER, SYSTEM_UID, ACCESS_LOCATION);
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     // no location permission
     EXPECT_EQ(false, result);
