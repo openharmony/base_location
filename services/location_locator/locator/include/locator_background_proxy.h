@@ -54,7 +54,6 @@ private:
     bool CheckMaxRequestNum(int32_t uid, const std::string& packageName) const;
     int32_t GetUserId(int32_t uid) const;
     const std::list<std::shared_ptr<Request>>& GetRequestsInProxy() const;
-    std::string bundleName_;
 
     class mLocatorCallback : public IRemoteStub<ILocatorCallback> {
     public:

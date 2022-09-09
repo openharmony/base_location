@@ -53,9 +53,7 @@ public:
     void HandleRequest();
     bool RegisterAppStateObserver();
     bool UnregisterAppStateObserver();
-    bool IsAppBackground(const std::string& bundleName);
-    void SetBundleName(std::string bundleName);
-    std::string GetBundleName();
+    bool IsAppBackground();
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
@@ -65,7 +63,6 @@ private:
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
 
-    std::string bundleName_;
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
     sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;

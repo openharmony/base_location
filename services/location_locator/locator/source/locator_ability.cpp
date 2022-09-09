@@ -829,7 +829,6 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetTokenId(callingTokenId);
         request->SetFirstTokenId(callingFirstTokenid);
         request->SetPackageName(bundleName);
-        requestManager_->SetBundleName(bundleName);
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
@@ -863,8 +862,7 @@ void LocatorAbility::UpdateUsingPermission(uint32_t callingTokenId, uint32_t cal
         isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION) :
             PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
     }
-    std::string bundleName = requestManager_->GetBundleName();
-    if (requestManager_->IsAppBackground(bundleName) &&
+    if (requestManager_->IsAppBackground() &&
         CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
         isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION) :
             PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);

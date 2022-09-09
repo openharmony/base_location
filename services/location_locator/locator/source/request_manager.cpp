@@ -442,33 +442,19 @@ bool RequestManager::UnregisterAppStateObserver()
     return true;
 }
 
-bool RequestManager::IsAppBackground(const std::string& bundleName)
+bool RequestManager::IsAppBackground()
 {
     if (iAppMgr_ == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "Failed get the app manager proxy.");
         return false;
     }
-
     std::vector<AppExecFwk::AppStateData> foregroundAppList;
     iAppMgr_->GetForegroundApplications(foregroundAppList);
-
-    for (const auto& foregroundApp : foregroundAppList) {
-        if (foregroundApp.bundleName == bundleName) {
-            LBSLOGE(REQUEST_MANAGER, "The app is foreground now.");
-            return false;
-        }
+    if (foregroundAppList.size() > 0) {
+        LBSLOGE(REQUEST_MANAGER, "The app : %{public}s is foreground now.", foregroundAppList[0].bundleName.c_str());
+        return false;
     }
     return true;
-}
-
-void RequestManager::SetBundleName(std::string bundleName)
-{
-    bundleName_ = bundleName;
-}
-
-std::string RequestManager::GetBundleName()
-{
-    return bundleName_;
 }
 
 AppStateChangeCallback::AppStateChangeCallback()

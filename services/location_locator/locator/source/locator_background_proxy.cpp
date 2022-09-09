@@ -158,7 +158,7 @@ void LocatorBackgroundProxy::OnPermissionChanged(int32_t type, uint32_t tokenID,
     }
     if (permissionName == ACCESS_BACKGROUND_LOCATION) {
         bool isBackground = DelayedSingleton<RequestManager>::GetInstance()
-            .get()->IsAppBackground(bundleName_);
+            .get()->IsAppBackground();
         if (!isBackground) {
             LBSLOGE(LOCATOR, "Current app state is foreground.");
             return;
@@ -171,7 +171,7 @@ void LocatorBackgroundProxy::OnPermissionChanged(int32_t type, uint32_t tokenID,
         PrivacyKit::StartUsingPermission(tokenID, permissionName);
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnPermissionChanged %{public}d", uid);
+    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnPermissionChanged : uid =  %{public}d", uid);
     UpdateListOnPermissionChanged(uid);
     if (requestsList_->empty()) {
         StopLocator();
@@ -267,7 +267,6 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);
             requestsList->push_back(request);
-            bundleName_ = request->GetPackageName();
         }
     }
 }
