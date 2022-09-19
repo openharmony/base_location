@@ -10,7 +10,7 @@
     "publishAs": "code-segment",
     "private": false,
     "segment": {
-        "destPath": "base/location/location"
+        "destPath": "base/location"
     },
     "component": {
         "name": "location",
