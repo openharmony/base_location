@@ -37,48 +37,48 @@ class LocatorProxy : public IRemoteProxy<ILocator> {
 public:
     explicit LocatorProxy(const sptr<IRemoteObject> &impl);
     ~LocatorProxy() = default;
-    void UpdateSaAbility() override;
-    int GetSwitchState() override;
-    void EnableAbility(bool isEnabled) override;
-    void RegisterSwitchCallback(const sptr<IRemoteObject> &callback, pid_t uid) override;
-    void UnregisterSwitchCallback(const sptr<IRemoteObject> &callback) override;
-    void RegisterGnssStatusCallback(const sptr<IRemoteObject> &callback, pid_t uid) override;
-    void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback) override;
-    void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid) override;
-    void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback) override;
-    void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid) override;
-    void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback) override;
+    void UpdateSaAbility();
+    int GetSwitchState();
+    void EnableAbility(bool isEnabled);
+    void RegisterSwitchCallback(const sptr<IRemoteObject> &callback, pid_t uid);
+    void UnregisterSwitchCallback(const sptr<IRemoteObject> &callback);
+    void RegisterGnssStatusCallback(const sptr<IRemoteObject> &callback, pid_t uid);
+    void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback);
+    void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid);
+    void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback);
+    void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid);
+    void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback);
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) override;
-    int StopLocating(sptr<ILocatorCallback>& callback) override;
-    int GetCacheLocation(MessageParcel &replay) override;
-    int IsGeoConvertAvailable(MessageParcel &replay) override;
-    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) override;
-    int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) override;
-    bool IsLocationPrivacyConfirmed(const int type) override;
-    int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
+        sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid);
+    int StopLocating(sptr<ILocatorCallback>& callback);
+    int GetCacheLocation(MessageParcel &replay);
+    int IsGeoConvertAvailable(MessageParcel &replay);
+    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay);
+    int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay);
+    bool IsLocationPrivacyConfirmed(const int type);
+    int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
 
     int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
-        sptr<ICachedLocationsCallback>& callback, std::string bundleName) override;
-    int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
+        sptr<ICachedLocationsCallback>& callback, std::string bundleName);
+    int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback);
 
-    int GetCachedGnssLocationsSize() override;
-    int FlushCachedGnssLocations() override;
-    void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
+    int GetCachedGnssLocationsSize();
+    int FlushCachedGnssLocations();
+    void SendCommand(std::unique_ptr<LocationCommand>& commands);
 
-    void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
-    void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    std::shared_ptr<CountryCode> GetIsoCountryCode() override;
-    bool EnableLocationMock(const LocationMockConfig& config) override;
-    bool DisableLocationMock(const LocationMockConfig& config) override;
+    void AddFence(std::unique_ptr<GeofenceRequest>& request);
+    void RemoveFence(std::unique_ptr<GeofenceRequest>& request);
+    std::shared_ptr<CountryCode> GetIsoCountryCode();
+    bool EnableLocationMock(const LocationMockConfig& config);
+    bool DisableLocationMock(const LocationMockConfig& config);
     bool SetMockedLocations(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location);
 
-    bool EnableReverseGeocodingMock() override;
+    bool EnableReverseGeocodingMock();
 
-    bool DisableReverseGeocodingMock() override;
+    bool DisableReverseGeocodingMock();
 
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
 
     int SendMsgWithDataReply(const int msgId, MessageParcel& data, MessageParcel& reply);
 
@@ -88,8 +88,8 @@ public:
 
     int SendRegisterMsgToRemote(const int msgId, const sptr<IRemoteObject>& callback, pid_t uid);
 
-    bool ProxyUidForFreeze(int32_t uid, bool isProxy) override;
-    bool ResetAllProxy() override;
+    bool ProxyUidForFreeze(int32_t uid, bool isProxy);
+    bool ResetAllProxy();
 
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;

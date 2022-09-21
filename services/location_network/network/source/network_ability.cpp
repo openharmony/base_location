@@ -154,7 +154,7 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
 
 void NetworkAbility::SaDumpInfo(std::string& result)
 {
-    result += "Network Location enable status: true";
+    result += "Network Location enable status: false";
     result += "\n";
 }
 

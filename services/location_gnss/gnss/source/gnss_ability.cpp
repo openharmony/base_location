@@ -119,12 +119,6 @@ void GnssAbility::SetEnable(bool state)
     Enable(state, AsObject());
 }
 
-void GnssAbility::RemoteRequest(bool state)
-{
-    std::string deviceId = IPCSkeleton::GetCallingDeviceID();
-    HandleRemoteRequest(state, deviceId);
-}
-
 void GnssAbility::RefrashRequirements()
 {
     HandleRefrashRequirements();
@@ -250,7 +244,7 @@ void GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGI(GNSS, "enter RequestRecord");
-    
+
     if (isAdded) {
         if (!isStarted) {
             ConnectHdi();
@@ -264,7 +258,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         StopGnss();
     }
     std::string state = isAdded ? "start" : "stop";
-    WriteGnssStateEvent(state);
+    WriteGnssStateEvent(state, workRecord.GetUid(0), workRecord.GetPid(0));
 }
 
 int GnssAbility::GetCachedGnssLocationsSize()

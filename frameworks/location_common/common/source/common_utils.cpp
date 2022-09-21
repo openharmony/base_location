@@ -15,6 +15,8 @@
 
 #include <map>
 #include "accesstoken_kit.h"
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
@@ -28,11 +30,6 @@ namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
-
-bool CommonUtils::CheckSystemCalling(pid_t uid)
-{
-    return true;
-}
 
 bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
@@ -270,6 +267,32 @@ double CommonUtils::DoubleRandom(double min, double max)
     static std::default_random_engine e(rd());
     param = u(e);
     return param;
+}
+
+bool CommonUtils::CheckSystemPermission(pid_t uid, uint32_t callerTokenId)
+{
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        return true;
+    }
+    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemManager == nullptr) {
+        LBSLOGE(COMMON_UTILS, "Get system ability manager failed!");
+        return false;
+    }
+    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleMgrSa == nullptr) {
+        LBSLOGE(COMMON_UTILS, "GetSystemAbility return nullptr!");
+        return false;
+    }
+    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
+    if (bundleMgr == nullptr) {
+        LBSLOGE(COMMON_UTILS, "iface_cast return nullptr!");
+        return false;
+    }
+    bool isSysApp = bundleMgr->CheckIsSystemAppByUid(uid);
+    LBSLOGD(COMMON_UTILS, "Is system App uid[%{public}d]: %{public}d", uid, isSysApp);
+    return isSysApp;
 }
 } // namespace Location
 } // namespace OHOS

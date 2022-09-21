@@ -35,9 +35,9 @@ static void WriteEvent(const std::string& eventType, Types... args)
     }
 }
 
-void WriteGnssStateEvent(const std::string& state)
+void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t uid)
 {
-    WriteEvent("GNSS_STATE", "STATE", state, "PID", IPCSkeleton::GetCallingPid(), "UID", IPCSkeleton::GetCallingUid());
+    WriteEvent("GNSS_STATE", "STATE", state, "PID", pid, "UID", uid);
 }
 
 void WriteLocationSwitchStateEvent(const std::string& state)

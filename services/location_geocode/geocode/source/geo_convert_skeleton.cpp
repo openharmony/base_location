@@ -32,6 +32,10 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         LBSLOGE(PASSIVE, "invalid token.");
         return REPLY_CODE_EXCEPTION;
     }
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(PASSIVE, "uid pid not match locationhub process.");
+        return REPLY_CODE_EXCEPTION;
+    }
 
     int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {

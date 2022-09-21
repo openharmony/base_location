@@ -32,13 +32,17 @@ namespace Location {
 int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    pid_t lastCallingPid = IPCSkeleton::GetCallingPid();
-    pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
     LBSLOGI(PASSIVE, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
-        code, option.GetFlags(), lastCallingPid, lastCallinguid);
+        code, option.GetFlags(), callingPid, callingUid);
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
+        return REPLY_CODE_EXCEPTION;
+    }
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(PASSIVE, "uid pid not match locationhub process.");
         return REPLY_CODE_EXCEPTION;
     }
 
