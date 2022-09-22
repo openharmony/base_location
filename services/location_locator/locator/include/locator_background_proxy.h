@@ -42,6 +42,7 @@ private:
     void StartLocator();
     void StopLocator();
     void StartLocatorThread();
+    void StopLocatorThread();
     void OnUserSwitch(int32_t userId);
     void OnUserRemove(int32_t userId);
     void UpdateListOnPermissionChanged(int32_t uid);

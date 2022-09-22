@@ -108,7 +108,7 @@ void LocatorBackgroundProxy::StartLocatorThread()
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocationStatus(callback_, SESSION_START);
 }
 
-void LocatorBackgroundProxy::StopLocator()
+void LocatorBackgroundProxy::StopLocatorThread()
 {
     std::lock_guard lock(locatorMutex_);
     if (!isLocating_) {
@@ -117,6 +117,16 @@ void LocatorBackgroundProxy::StopLocator()
     DelayedSingleton<LocatorAbility>::GetInstance().get()->StopLocating(callback_);
     isLocating_ = false;
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "end locating");
+}
+
+void LocatorBackgroundProxy::StopLocator()
+{
+    std::lock_guard lock(locatorMutex_);
+    if (!isLocating_) {
+        return;
+    }
+    std::thread th(&LocatorBackgroundProxy::StopLocatorThread, this);
+    th.detach();
 }
 
 void LocatorBackgroundProxy::StartLocator()
@@ -248,7 +258,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
     auto userId = GetUserId(request->GetUid());
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
-        UpdateListOnUserSwitch(userId);
+        return;
     }
     auto requestsList = iter->second;
     auto it = find(requestsList->begin(), requestsList->end(), request);
