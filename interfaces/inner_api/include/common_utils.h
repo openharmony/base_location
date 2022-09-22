@@ -105,7 +105,7 @@ enum {
     SUSPEND = 0,
     ACTIVE = 1,
     FOREGROUND = 2,
-    BACKGROUND = 3
+    BACKGROUND = 4
 };
 
 enum {
