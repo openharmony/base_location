@@ -24,11 +24,8 @@ namespace Location {
 void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
 {
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
-    std::string permissionName = result.permissionName;
-    int32_t type = result.PermStateChangeType;
-    uint32_t tokenID = result.tokenID;
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
-    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(type, tokenID, permissionName);
+    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(result.tokenID);
 }
 } // namespace Location
 } // namespace OHOS

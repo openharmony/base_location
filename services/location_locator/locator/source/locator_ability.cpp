@@ -32,7 +32,6 @@
 #include "request_manager.h"
 #include "system_ability_definition.h"
 #include "country_code.h"
-#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
@@ -832,8 +831,6 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
-    UpdateUsingPermission(callingTokenId, callingFirstTokenid, true);
-    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
@@ -845,28 +842,7 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     LBSLOGI(LOCATOR, "stop locating");
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    UpdateUsingPermission(callingTokenId, callingFirstTokenid, false);
-    UnregisterPermissionCallback(callingTokenId);
     return REPLY_CODE_NO_EXCEPTION;
-}
-
-void LocatorAbility::UpdateUsingPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid, bool isStart)
-{
-    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
-        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION) :
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
-    }
-    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION) :
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-    }
-    if (requestManager_->IsAppBackground() &&
-        CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION) :
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-    }
 }
 
 int LocatorAbility::GetCacheLocation(MessageParcel& reply)

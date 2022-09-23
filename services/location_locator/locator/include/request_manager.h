@@ -28,19 +28,9 @@
 #include "passive_ability_proxy.h"
 #include "request.h"
 #include "work_record.h"
-#include "application_state_observer_stub.h"
-#include "app_mgr_proxy.h"
 
 namespace OHOS {
 namespace Location {
-class AppStateChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
-public:
-    AppStateChangeCallback();
-    ~AppStateChangeCallback();
-
-    void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
-};
-
 class RequestManager : public DelayedSingleton<RequestManager> {
 public:
     RequestManager();
@@ -51,9 +41,7 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    bool RegisterAppStateObserver();
-    bool UnregisterAppStateObserver();
-    bool IsAppBackground();
+    void UpdateUsingPermission(std::shared_ptr<Request> request);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
@@ -62,11 +50,9 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
-
+    
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex;
-    sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
-    sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
 };
 } // namespace Location
 } // namespace OHOS

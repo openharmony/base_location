@@ -201,6 +201,36 @@ void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> pro
     }
 }
 
+bool Request::GetLocationPermState()
+{
+    return isUsingLocationPerm_;
+}
+
+bool Request::GetBackgroundPermState()
+{
+    return isUsingBackgroundPerm_;
+}
+
+bool Request::GetApproximatelyPermState()
+{
+    return isUsingApproximatelyPerm_;
+}
+
+void Request::SetLocationPermState(bool state)
+{
+    isUsingLocationPerm_ = state;
+}
+
+void Request::SetBackgroundPermState(bool state)
+{
+    isUsingBackgroundPerm_ = state;
+}
+
+void Request::SetApproximatelyPermState(bool state)
+{
+    isUsingApproximatelyPerm_ = state;
+}
+
 std::string Request::ToString() const
 {
     if (requestConfig_ == nullptr) {

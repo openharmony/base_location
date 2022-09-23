@@ -53,7 +53,6 @@ void LocatorServiceTest::SetUp()
     request_->SetLocatorCallBack(callbackStub_);
     request_->SetUid(SYSTEM_UID);
     request_->SetPid(getpid());
-    requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     SetStartUpConfirmed(true);
     ChangedLocationMode(true);
 }
@@ -234,7 +233,7 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
      * @tc.expected: step2. return true, the callback of the process is in the proxy list
      */
     backgroundProxy_->OnSuspend(request_, 0);
-    backgroundProxy_->OnPermissionChanged(PERMISSION_GRANTED_OPER, SYSTEM_UID, ACCESS_LOCATION);
+    backgroundProxy_->OnPermissionChanged(IPCSkeleton::GetCallingTokenID());
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     // no location permission
     EXPECT_EQ(false, result);
@@ -327,7 +326,7 @@ HWTEST_F(LocatorServiceTest, RegisterAppStateObserver001, TestSize.Level1)
      * @tc.steps: step2. register app state observer
      * @tc.expected: return false, permission denied
      */
-    bool ret = requestManager_->RegisterAppStateObserver();
+    bool ret = backgroundProxy_->RegisterAppStateObserver();
     EXPECT_EQ(false, ret); // no permission
 }
 
@@ -344,6 +343,6 @@ HWTEST_F(LocatorServiceTest, UnregisterAppStateObserver001, TestSize.Level1)
      * @tc.steps: step2. unregister app state observer
      * @tc.expected: return true, unreg process is success
      */
-    bool ret = requestManager_->UnregisterAppStateObserver();
+    bool ret = backgroundProxy_->UnregisterAppStateObserver();
     EXPECT_EQ(true, ret);
 }
