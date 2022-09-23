@@ -50,6 +50,12 @@ public:
     uint32_t GetFirstTokenId();
     void SetTokenId(uint32_t tokenId);
     void SetFirstTokenId(uint32_t firstTokenId);
+    bool GetLocationPermState();
+    bool GetBackgroundPermState();
+    bool GetApproximatelyPermState();
+    void SetLocationPermState(bool state);
+    void SetBackgroundPermState(bool state);
+    void SetApproximatelyPermState(bool state);
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
@@ -62,6 +68,9 @@ private:
     sptr<RequestConfig> requestConfig_;
     sptr<ILocatorCallback> callBack_;
     bool isRequesting_;
+    bool isUsingLocationPerm_;
+    bool isUsingBackgroundPerm_;
+    bool isUsingApproximatelyPerm_;
 };
 } // namespace Location
 } // namespace OHOS

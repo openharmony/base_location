@@ -24,6 +24,8 @@
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
 #include "common_utils.h"
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
 
 namespace OHOS {
 namespace Location {
@@ -293,6 +295,26 @@ bool CommonUtils::CheckSystemPermission(pid_t uid, uint32_t callerTokenId)
     bool isSysApp = bundleMgr->CheckIsSystemAppByUid(uid);
     LBSLOGD(COMMON_UTILS, "Is system App uid[%{public}d]: %{public}d", uid, isSysApp);
     return isSysApp;
+}
+
+bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
+{
+    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (smgr == nullptr) {
+        LBSLOGE(COMMON_UTILS, "GetBundleNameByUid Fail to get system ability manager.");
+        return false;
+    }
+    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        LBSLOGE(COMMON_UTILS, "GetBundleNameByUid Fail to get system ability manager.");
+        return false;
+    }
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
+    if (bundleMgrProxy == nullptr) {
+        LBSLOGE(COMMON_UTILS, "GetBundleNameByUid Bundle mgr proxy is nullptr.");
+        return false;
+    }
+    return bundleMgrProxy->GetBundleNameForUid(uid, bundleName);
 }
 } // namespace Location
 } // namespace OHOS

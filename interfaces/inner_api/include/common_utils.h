@@ -107,13 +107,6 @@ enum {
 };
 
 enum {
-    SUSPEND = 0,
-    ACTIVE = 1,
-    FOREGROUND = 2,
-    BACKGROUND = 3
-};
-
-enum {
     SUCCESS = 0,
     COMMON_ERROR = 98,
     PARAM_IS_EMPTY = 99,
@@ -155,6 +148,7 @@ public:
     static double DoubleRandom(double min, double max);
     static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSystemPermission(pid_t uid, uint32_t callerTokenId);
+    static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
 };
 
 class CountDownLatch {

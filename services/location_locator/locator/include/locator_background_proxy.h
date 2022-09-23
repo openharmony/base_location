@@ -24,31 +24,44 @@
 #include "common_event_subscriber.h"
 #include "i_locator_callback.h"
 #include "request.h"
-
+#include "app_mgr_proxy.h"
+#include "application_state_observer_stub.h"
 
 namespace OHOS {
 namespace Location {
+class AppStateChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
+public:
+    AppStateChangeCallback();
+    ~AppStateChangeCallback();
+
+    void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
+};
+
 class LocatorBackgroundProxy : DelayedSingleton<LocatorBackgroundProxy> {
 public:
     LocatorBackgroundProxy();
     ~LocatorBackgroundProxy();
+    void UpdateListOnRequestChange(const std::shared_ptr<Request>& request);
     void OnSuspend(const std::shared_ptr<Request>& request, bool active);
-    void OnPermissionChanged(int32_t type, uint32_t tokenID, std::string permissionName);
+    void OnPermissionChanged(uint32_t tokenId);
     void OnSaStateChange(bool enable);
     void OnDeleteRequestRecord(const std::shared_ptr<Request>& request);
     bool IsCallbackInProxy(const sptr<ILocatorCallback>& callback) const;
-
+    bool IsAppBackground(std::string bundleName);
+    bool RegisterAppStateObserver();
+    bool UnregisterAppStateObserver();
 private:
     void StartLocator();
     void StopLocator();
     void StartLocatorThread();
+    void StopLocatorThread();
     void OnUserSwitch(int32_t userId);
     void OnUserRemove(int32_t userId);
-    void UpdateListOnPermissionChanged(int32_t uid);
+    void UpdateListOnPermissionChanged(int32_t userId, uint32_t tokenId);
     void UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active);
     void UpdateListOnUserSwitch(int32_t userId);
     void InitArgsFromProp();
-    void StartEventSubscriber();
+    void SubscribeSaStatusChangeListerner();
 
     bool CheckPermission(const std::shared_ptr<Request>& request) const;
     bool CheckMaxRequestNum(int32_t uid, const std::string& packageName) const;
@@ -86,7 +99,7 @@ private:
     bool proxySwtich_ = false;
     bool featureSwitch_ = true;
     bool isWating_ = false;
-    bool isSubscribed_ = false;
+    bool isUserSwitchSubscribed_ = false;
     int timeInterval_;
     int32_t curUserId_ = 0;
 
@@ -98,6 +111,8 @@ private:
     std::shared_ptr<std::list<std::shared_ptr<Request>>> requestsList_;
     static std::mutex requestListMutex_;
     static std::mutex locatorMutex_;
+    sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
+    sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
 };
 } // namespace Location
 } // namespace OHOS
