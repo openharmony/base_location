@@ -147,11 +147,6 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
     records->Clear();
 }
 
-void SubAbility::HandleRemoteRequest(bool state, std::string deviceId)
-{
-    HandleRefrashRequirements();
-}
-
 bool SubAbility::EnableLocationMock(const LocationMockConfig& config)
 {
     LBSLOGI(label_, "EnableLocationMock current state is %{public}d", mockEnabled_);

@@ -21,6 +21,8 @@
 #include <math.h>
 #include <mutex>
 #include <random>
+#include <sys/types.h>
+#include <unistd.h>
 #include "constant_definition.h"
 #include "iremote_object.h"
 #include "location_log.h"
@@ -44,6 +46,7 @@ const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
 const int DEFAULT_UID = 10001;
 const int SYSTEM_UID = 1000;
+const int ROOT_UID = 0;
 
 const int EX_HAS_REPLY_HEADER = -128;
 const int REPLY_CODE_NO_EXCEPTION = 0;
@@ -83,6 +86,8 @@ static constexpr long LONG_TIME_INTERVAL = 24 * 60 * 60;
 static constexpr int PERMISSION_ACCURATE = 2;
 static constexpr int PERMISSION_APPROXIMATELY = 1;
 static constexpr int PERMISSION_INVALID = 0;
+
+static constexpr int LOCATOR_UID = 1021;
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
@@ -136,13 +141,13 @@ public:
     static bool CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckPermission(const std::string &permission, uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckSystemCalling(pid_t uid);
     static bool GetCurrentUserId(int &userId);
     static std::string Str16ToStr8(std::u16string str);
     static bool DoubleEqual(double a, double b);
     static double CalDistance(const double lat1, const double lon1, const double lat2, const double lon2);
     static double DoubleRandom(double min, double max);
     static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckSystemPermission(pid_t uid, uint32_t callerTokenId);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
 };
 

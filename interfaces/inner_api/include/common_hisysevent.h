@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace Location {
-void WriteGnssStateEvent(const std::string& state);
+void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t uid);
 
 void WriteLocationSwitchStateEvent(const std::string& state);
 }  // namespace Location

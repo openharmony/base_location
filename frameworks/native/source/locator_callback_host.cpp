@@ -16,6 +16,7 @@
 #include "locator_callback_host.h"
 
 #include "ipc_object_stub.h"
+#include "ipc_skeleton.h"
 #include "js_native_api.h"
 #include "js_native_api_types.h"
 #include "message_option.h"
@@ -65,6 +66,11 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
         return -1;
+    }
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != LOCATOR_UID) {
+        LBSLOGE(LOCATOR_CALLBACK, "uid pid not match locationhub process.");
+        return REPLY_CODE_EXCEPTION;
     }
 
     switch (code) {

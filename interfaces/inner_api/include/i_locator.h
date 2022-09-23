@@ -71,50 +71,6 @@ public:
         RESET_ALL_PROXY = 39,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
-    virtual void UpdateSaAbility() = 0;
-    virtual int GetSwitchState() = 0;
-    virtual void EnableAbility(bool isEnabled) = 0;
-    virtual void RegisterSwitchCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
-    virtual void UnregisterSwitchCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual void RegisterGnssStatusCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
-    virtual void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
-    virtual void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid) = 0;
-    virtual void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback) = 0;
-    virtual int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid) = 0;
-    virtual int StopLocating(sptr<ILocatorCallback>& callback) = 0;
-    virtual int GetCacheLocation(MessageParcel &replay) = 0;
-    virtual int IsGeoConvertAvailable(MessageParcel &replay) = 0;
-    virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) = 0;
-    virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
-    virtual int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
-
-    virtual int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
-        sptr<ICachedLocationsCallback>& callback, std::string bundleName) = 0;
-    virtual int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
-
-    virtual int GetCachedGnssLocationsSize() = 0;
-    virtual int FlushCachedGnssLocations() = 0;
-    virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
-    virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
-    virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
-    virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
-    virtual bool SetMockedLocations(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
-
-    virtual bool EnableReverseGeocodingMock() = 0;
-
-    virtual bool DisableReverseGeocodingMock() = 0;
-
-    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
-
-    virtual bool ProxyUidForFreeze(int32_t uid, bool isProxy) = 0;
-    virtual bool ResetAllProxy() = 0;
 };
 } // namespace Location
 } // namespace OHOS

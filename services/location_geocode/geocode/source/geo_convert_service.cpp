@@ -153,7 +153,7 @@ bool GeoConvertService::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<
 
 void GeoConvertService::SaDumpInfo(std::string& result)
 {
-    result += "GeoConvert enable status: true";
+    result += "GeoConvert enable status: false";
     result += "\n";
 }
 

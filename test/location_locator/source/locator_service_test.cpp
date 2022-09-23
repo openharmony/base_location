@@ -22,6 +22,7 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
+#include "app_identity.h"
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location_log.h"
@@ -285,10 +286,15 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation002, TestSize.Level1)
      * @tc.expected: step1. get reply location is nullptr.
      */
     MessageParcel reply;
+    AppIdentity identity;
+    identity.SetPid(0);
+    identity.SetUid(LOCATOR_UID);
+    identity.SetTokenId(0);
+    identity.SetFirstTokenId(0);
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     bool ret = false;
     if (proxy_->GetSwitchState() == 1) {
-        ret = locatorAbility->GetCacheLocation(reply);
+        ret = locatorAbility->GetCacheLocation(reply, identity);
         ret = reply.ReadInt32() == REPLY_CODE_EXCEPTION;
         EXPECT_EQ(true, ret);
     }
