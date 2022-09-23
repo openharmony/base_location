@@ -38,13 +38,70 @@ RequestManager::RequestManager()
     DelayedSingleton<LocatorDftManager>::GetInstance()->Init();
 }
 
-RequestManager::~RequestManager() {
+RequestManager::~RequestManager()
+{
 }
 
 bool RequestManager::InitSystemListeners()
 {
-    LBSLOGI(REQUEST_MANAGER, "Register app state observer.");
-    return RegisterAppStateObserver();
+    LBSLOGI(REQUEST_MANAGER, "Init system listeners.");
+    return true;
+}
+
+void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
+{
+    if (request == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "request is null");
+        return;
+    }
+    uint32_t callingTokenId = request->GetTokenId();
+    uint32_t callingFirstTokenid = request->GetFirstTokenId();
+    int32_t uid = request->GetUid();
+    LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
+        callingTokenId, callingFirstTokenid);
+
+    if (IsUidInProcessing(uid) &&
+        CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
+        if (!request->GetLocationPermState()) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
+            request->SetLocationPermState(true);
+        }
+    } else {
+        if (request->GetLocationPermState()) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
+            request->SetLocationPermState(false);
+        }
+    }
+
+    if (IsUidInProcessing(uid) &&
+        CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        if (!request->GetApproximatelyPermState()) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+            request->SetApproximatelyPermState(true);
+        }
+    } else {
+        if (request->GetApproximatelyPermState()) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+            request->SetApproximatelyPermState(false);
+        }
+    }
+    std::string bundleName;
+    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        LBSLOGE(REQUEST_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+        return;
+    }
+    if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
+        IsUidInProcessing(uid) && CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+        if (!request->GetBackgroundPermState()) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+            request->SetBackgroundPermState(true);
+        }
+    } else {
+        if (request->GetBackgroundPermState()) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
+            request->SetBackgroundPermState(false);
+        }
+    }
 }
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
@@ -54,7 +111,10 @@ void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
     bool isNewRequest = RestorRequest(request);
     // update request map
     if (isNewRequest) {
+        DelayedSingleton<LocatorAbility>::GetInstance()->RegisterPermissionCallback(request->GetTokenId(),
+            {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
         UpdateRequestRecord(request, true);
+        UpdateUsingPermission(request);
         DelayedSingleton<LocatorDftManager>::GetInstance()->LocationSessionStart(request);
     }
     // process location request
@@ -198,6 +258,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
     auto deadRequests = std::make_shared<std::list<std::shared_ptr<Request>>>();
     for (auto iter = requests.begin(); iter != requests.end(); ++iter) {
         auto request = *iter;
+        locatorAbility->UnregisterPermissionCallback(request->GetTokenId());
         deadRequests->push_back(request);
         LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
     }
@@ -221,6 +282,7 @@ void RequestManager::DeleteRequestRecord(std::shared_ptr<std::list<std::shared_p
     for (auto iter = requests->begin(); iter != requests->end(); ++iter) {
         auto request = *iter;
         UpdateRequestRecord(request, false);
+        UpdateUsingPermission(request);
         DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnDeleteRequestRecord(request);
     }
 }
@@ -246,12 +308,7 @@ void RequestManager::HandleRequest()
 
 void RequestManager::HandleRequest(std::string abilityName)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
-    auto requests = locatorAbility->GetRequests();
+    auto requests = DelayedSingleton<LocatorAbility>::GetInstance()->GetRequests();
     if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         return;
@@ -262,20 +319,21 @@ void RequestManager::HandleRequest(std::string abilityName)
         return;
     }
     auto list = mapIter->second;
-
     // generate work record, and calculate interval
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
     int timeInterval = 0;
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
-        if (request == nullptr || !request->GetIsRequesting()) {
+        if (request == nullptr) {
             continue;
         }
-        pid_t uid = request->GetUid();
-        pid_t pid = request->GetPid();
+        UpdateUsingPermission(request);
+        DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->UpdateListOnRequestChange(request);
+        if (!request->GetIsRequesting()) {
+            continue;
+        }
         uint32_t tokenId = request->GetTokenId();
         uint32_t firstTokenId = request->GetFirstTokenId();
-        std::string packageName = request->GetPackageName();
         // if location access permission granted, add request info to work record
         if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
             !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
@@ -283,7 +341,7 @@ void RequestManager::HandleRequest(std::string abilityName)
             continue;
         }
         // add request info to work record
-        workRecord->Add(uid, pid, packageName);
+        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName());
         auto requestConfig = request->GetRequestConfig();
         if (requestConfig == nullptr) {
             continue;
@@ -294,7 +352,8 @@ void RequestManager::HandleRequest(std::string abilityName)
             requestType = requestConfig->GetPriority();
         }
         DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(requestType);
-        LBSLOGD(REQUEST_MANAGER, "add pid:%{public}d uid:%{public}d %{public}s", pid, uid, packageName.c_str());
+        LBSLOGD(REQUEST_MANAGER, "add pid:%{public}d uid:%{public}d %{public}s", request->GetPid(), request->GetUid(),
+            request->GetPackageName().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}s) work record:%{public}s",
         abilityName.c_str(), std::to_string(list.size()).c_str(), workRecord->ToString().c_str());
@@ -349,21 +408,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         LBSLOGE(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
         return;
     }
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    bool isActive = false;
-    if (state == FOREGROUND) {
-        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-        }
-        isActive = true;
-    } else if (state == BACKGROUND) {
-        if (CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-        }
-    } else {
-        return;
-    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
@@ -374,6 +418,7 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         return;
     }
+    bool isActive = (state == static_cast<int>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND));
     for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
         auto list = mapIter->second;
         for (auto request : list) {
@@ -401,77 +446,6 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
         return i == uid;
     });
     return isFound;
-}
-
-bool RequestManager::RegisterAppStateObserver()
-{
-    if (appStateObserver_ != nullptr) {
-        LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
-        return true;
-    }
-    appStateObserver_ = sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
-    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrClient == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
-        appStateObserver_ = nullptr;
-        return false;
-    }
-    iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
-    if (iAppMgr_ == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
-        appStateObserver_ = nullptr;
-        return false;
-    }
-    int32_t result = iAppMgr_->RegisterApplicationStateObserver(appStateObserver_);
-    if (result != 0) {
-        LBSLOGE(REQUEST_MANAGER, "Failed to Register app state observer.");
-        iAppMgr_ = nullptr;
-        appStateObserver_ = nullptr;
-        return false;
-    }
-    return true;
-}
-
-bool RequestManager::UnregisterAppStateObserver()
-{
-    if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
-        iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
-    }
-    iAppMgr_ = nullptr;
-    appStateObserver_ = nullptr;
-    return true;
-}
-
-bool RequestManager::IsAppBackground()
-{
-    if (iAppMgr_ == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Failed get the app manager proxy.");
-        return false;
-    }
-    std::vector<AppExecFwk::AppStateData> foregroundAppList;
-    iAppMgr_->GetForegroundApplications(foregroundAppList);
-    if (foregroundAppList.size() > 0) {
-        LBSLOGE(REQUEST_MANAGER, "The app : %{public}s is foreground now.", foregroundAppList[0].bundleName.c_str());
-        return false;
-    }
-    return true;
-}
-
-AppStateChangeCallback::AppStateChangeCallback()
-{
-}
-
-AppStateChangeCallback::~AppStateChangeCallback()
-{
-}
-
-void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
-{
-    int32_t uid = appStateData.uid;
-    int32_t pid = appStateData.pid;
-    int32_t state = appStateData.state;
-    LBSLOGI(REQUEST_MANAGER, "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
-    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
 }
 } // namespace Location
 } // namespace OHOS

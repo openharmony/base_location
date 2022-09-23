@@ -82,7 +82,6 @@ public:
     int IsGeoConvertAvailable(MessageParcel &replay) override;
     int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay) override;
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay) override;
-
     bool IsLocationPrivacyConfirmed(const int type) override;
     int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
 
@@ -126,15 +125,14 @@ public:
     bool ResetAllProxy() override;
     bool IsProxyUid(int32_t uid);
     int GetActiveRequestNum();
+    void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
+    void UnregisterPermissionCallback(const uint32_t callingTokenId);
 
 private:
     bool Init();
     bool CheckSaValid();
     static int QuerySwitchState();
     int SendGeoRequest(int type, MessageParcel &data, MessageParcel &replay);
-    void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
-    void UnregisterPermissionCallback(const uint32_t callingTokenId);
-    void UpdateUsingPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid, bool isStart);
     static void SaDumpInfo(std::string& result);
 
     bool registerToAbility_ = false;
