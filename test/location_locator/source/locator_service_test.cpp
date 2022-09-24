@@ -51,6 +51,7 @@ void LocatorServiceTest::SetUp()
     EXPECT_NE(nullptr, backgroundProxy_);
     request_ = std::make_shared<Request>();
     EXPECT_NE(nullptr, request_);
+    requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     request_->SetLocatorCallBack(callbackStub_);
     request_->SetUid(SYSTEM_UID);
     request_->SetPid(getpid());
@@ -234,7 +235,7 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
      * @tc.expected: step2. return true, the callback of the process is in the proxy list
      */
     backgroundProxy_->OnSuspend(request_, 0);
-    backgroundProxy_->OnPermissionChanged(IPCSkeleton::GetCallingTokenID());
+    requestManager_->HandlePermissionChanged(IPCSkeleton::GetCallingTokenID());
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     // no location permission
     EXPECT_EQ(false, result);

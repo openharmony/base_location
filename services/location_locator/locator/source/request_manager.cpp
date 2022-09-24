@@ -32,7 +32,7 @@
 
 namespace OHOS {
 namespace Location {
-std::mutex RequestManager::requestMutex;
+std::mutex RequestManager::requestMutex_;
 RequestManager::RequestManager()
 {
     DelayedSingleton<LocatorDftManager>::GetInstance()->Init();
@@ -106,7 +106,6 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
 {
-    std::lock_guard lock(requestMutex);
     // restore request to all request list
     bool isNewRequest = RestorRequest(request);
     // update request map
@@ -123,6 +122,8 @@ void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
 
 bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
 {
+    std::lock_guard lock(requestMutex_);
+
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
@@ -195,6 +196,7 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
+    std::lock_guard lock(requestMutex_);
     auto requests = locatorAbility->GetRequests();
     if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
@@ -230,7 +232,6 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
 
 void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
 {
-    std::lock_guard lock(requestMutex);
     if (callback == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "stop locating but callback is null");
         return;
@@ -272,7 +273,6 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
     deadRequests->clear();
     iterator->second.clear();
     receivers->erase(iterator);
-
     // process location request
     HandleRequest();
 }
@@ -308,14 +308,18 @@ void RequestManager::HandleRequest()
 
 void RequestManager::HandleRequest(std::string abilityName)
 {
+    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
+    lock.lock();
     auto requests = DelayedSingleton<LocatorAbility>::GetInstance()->GetRequests();
     if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        lock.unlock();
         return;
     }
     auto mapIter = requests->find(abilityName);
     if (mapIter == requests->end()) {
         LBSLOGE(REQUEST_MANAGER, "can not find %{public}s ability request list.", abilityName.c_str());
+        lock.unlock();
         return;
     }
     auto list = mapIter->second;
@@ -328,16 +332,13 @@ void RequestManager::HandleRequest(std::string abilityName)
             continue;
         }
         UpdateUsingPermission(request);
-        DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->UpdateListOnRequestChange(request);
         if (!request->GetIsRequesting()) {
             continue;
         }
-        uint32_t tokenId = request->GetTokenId();
-        uint32_t firstTokenId = request->GetFirstTokenId();
         // if location access permission granted, add request info to work record
-        if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-            !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-            LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
+        if (!CommonUtils::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId()) &&
+            !CommonUtils::CheckApproximatelyPermission(request->GetTokenId(), request->GetFirstTokenId())) {
+            LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", request->GetTokenId());
             continue;
         }
         // add request info to work record
@@ -357,6 +358,8 @@ void RequestManager::HandleRequest(std::string abilityName)
     }
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}s) work record:%{public}s",
         abilityName.c_str(), std::to_string(list.size()).c_str(), workRecord->ToString().c_str());
+    lock.unlock();
+
     ProxySendLocationRequest(abilityName, *workRecord, timeInterval);
 }
 
@@ -434,6 +437,30 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         }
     }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
+}
+
+void RequestManager::HandlePermissionChanged(uint32_t tokenId)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged locatorAbility is null");
+        return;
+    }
+    auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr || requests->empty()) {
+        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged requests map is empty");
+        return;
+    }
+    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
+        auto list = mapIter->second;
+        for (auto request : list) {
+            if (request == nullptr || tokenId != request->GetTokenId()) {
+                continue;
+            }
+            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->UpdateListOnRequestChange(
+                request);
+        }
+    }
 }
 
 bool RequestManager::IsUidInProcessing(int32_t uid)

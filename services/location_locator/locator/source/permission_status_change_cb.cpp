@@ -24,8 +24,8 @@ namespace Location {
 void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
 {
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
+    DelayedSingleton<RequestManager>::GetInstance().get()->HandlePermissionChanged(result.tokenID);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
-    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnPermissionChanged(result.tokenID);
 }
 } // namespace Location
 } // namespace OHOS
