@@ -63,6 +63,7 @@ ohos_shared_library("lbsservice_locator") {
   deps = [
     "//base/global/i18n/frameworks/intl:intl_util",
     "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -78,9 +79,13 @@ ohos_shared_library("lbsservice_locator") {
     "common_event_service:cesfwk_innerkits",
     "core_service:tel_core_service_api",
     "eventhandler:libeventhandler",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
     "os_account:os_account_innerkits",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "location"

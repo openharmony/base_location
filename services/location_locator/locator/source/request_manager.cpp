@@ -51,16 +51,13 @@ bool RequestManager::InitSystemListeners()
 void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
 {
     if (request == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "request is null");
         return;
     }
     uint32_t callingTokenId = request->GetTokenId();
     uint32_t callingFirstTokenid = request->GetFirstTokenId();
-    int32_t uid = request->GetUid();
     LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
         callingTokenId, callingFirstTokenid);
-
-    if (IsUidInProcessing(uid) &&
+    if (IsUidInProcessing(request->GetUid()) &&
         CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetLocationPermState()) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION);
@@ -72,8 +69,7 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
             request->SetLocationPermState(false);
         }
     }
-
-    if (IsUidInProcessing(uid) &&
+    if (IsUidInProcessing(request->GetUid()) &&
         CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetApproximatelyPermState()) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
@@ -86,12 +82,12 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
         }
     }
     std::string bundleName;
-    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-        LBSLOGE(REQUEST_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+    if (!CommonUtils::GetBundleNameByUid(request->GetUid(), bundleName)) {
+        LBSLOGE(REQUEST_MANAGER, "Fail to Get bundle name: uid = %{public}d.", request->GetUid());
         return;
     }
     if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
-        IsUidInProcessing(uid) && CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
+        IsUidInProcessing(request->GetUid()) && CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetBackgroundPermState()) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
             request->SetBackgroundPermState(true);

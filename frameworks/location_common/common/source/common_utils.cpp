@@ -21,6 +21,7 @@
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "iservice_registry.h"
+#include "parameters.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
 #include "common_utils.h"
