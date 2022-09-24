@@ -19,13 +19,13 @@
 #include <map>
 #include <singleton.h>
 #include <string>
-#include "iremote_stub.h"
-#include "system_ability_status_change_stub.h"
-#include "common_event_subscriber.h"
-#include "i_locator_callback.h"
-#include "request.h"
 #include "app_mgr_proxy.h"
 #include "application_state_observer_stub.h"
+#include "common_event_subscriber.h"
+#include "iremote_stub.h"
+#include "system_ability_status_change_stub.h"
+#include "i_locator_callback.h"
+#include "request.h"
 
 namespace OHOS {
 namespace Location {
@@ -43,7 +43,6 @@ public:
     ~LocatorBackgroundProxy();
     void UpdateListOnRequestChange(const std::shared_ptr<Request>& request);
     void OnSuspend(const std::shared_ptr<Request>& request, bool active);
-    void OnPermissionChanged(uint32_t tokenId);
     void OnSaStateChange(bool enable);
     void OnDeleteRequestRecord(const std::shared_ptr<Request>& request);
     bool IsCallbackInProxy(const sptr<ILocatorCallback>& callback) const;
@@ -57,7 +56,6 @@ private:
     void StopLocatorThread();
     void OnUserSwitch(int32_t userId);
     void OnUserRemove(int32_t userId);
-    void UpdateListOnPermissionChanged(int32_t userId, uint32_t tokenId);
     void UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active);
     void UpdateListOnUserSwitch(int32_t userId);
     void InitArgsFromProp();

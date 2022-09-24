@@ -32,6 +32,9 @@ Request::Request()
     this->isRequesting_ = false;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
+    isUsingLocationPerm_ = false;
+    isUsingBackgroundPerm_ = false;
+    isUsingApproximatelyPerm_ = false;
 }
 
 Request::~Request() {}

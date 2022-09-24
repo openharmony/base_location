@@ -42,6 +42,7 @@ public:
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
     void UpdateUsingPermission(std::shared_ptr<Request> request);
+    void HandlePermissionChanged(uint32_t tokenId);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
@@ -52,7 +53,7 @@ private:
     bool IsUidInProcessing(int32_t uid);
     
     std::list<int32_t> runningUids_;
-    static std::mutex requestMutex;
+    static std::mutex requestMutex_;
 };
 } // namespace Location
 } // namespace OHOS

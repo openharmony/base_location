@@ -104,13 +104,16 @@ void LocatorBackgroundProxy::SubscribeSaStatusChangeListerner()
 void LocatorBackgroundProxy::StartLocatorThread()
 {
     std::this_thread::sleep_for(std::chrono::seconds(timeInterval_));
-    std::lock_guard lock(locatorMutex_);
+    std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
+    lock.lock();
     isWating_ = false;
     if (isLocating_ || !proxySwtich_ || requestsList_->empty()) {
         LBSLOGD(LOCATOR_BACKGROUND_PROXY, "cancel locating");
+        lock.unlock();
         return;
     }
     isLocating_ = true;
+    lock.unlock();
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "real start locating");
     DelayedSingleton<RequestManager>::GetInstance().get()->HandleStartLocating(request_);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocationStatus(callback_, SESSION_START);
@@ -118,12 +121,15 @@ void LocatorBackgroundProxy::StartLocatorThread()
 
 void LocatorBackgroundProxy::StopLocatorThread()
 {
-    std::lock_guard lock(locatorMutex_);
+    std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
+    lock.lock();
     if (!isLocating_) {
+        lock.unlock();
         return;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->StopLocating(callback_);
     isLocating_ = false;
+    lock.unlock();
+    DelayedSingleton<LocatorAbility>::GetInstance().get()->StopLocating(callback_);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "end locating");
 }
 
@@ -188,21 +194,6 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
     }
 }
 
-// called when the app’s background location permission is cancelled, stop proxy
-void LocatorBackgroundProxy::OnPermissionChanged(uint32_t tokenId)
-{
-    if (!featureSwitch_) {
-        return;
-    }
-    HapTokenInfo tokenInfo;
-    AccessTokenKit::GetHapTokenInfo(tokenId, tokenInfo);
-    int32_t userId = tokenInfo.userID;
-    UpdateListOnPermissionChanged(userId, tokenId);
-    if (requestsList_->empty()) {
-        StopLocator();
-    }
-}
-
 // called when SA switch on or switch off
 // when switch on, start proxy
 // when switch off, stop proxy
@@ -226,13 +217,19 @@ void LocatorBackgroundProxy::OnDeleteRequestRecord(const std::shared_ptr<Request
     if (!featureSwitch_) {
         return;
     }
-    std::lock_guard lock(requestListMutex_);
+    bool listEmpty = false;
+    std::unique_lock<std::mutex> lock(requestListMutex_, std::defer_lock);
+    lock.lock();
     auto it = find(requestsList_->begin(), requestsList_->end(), request);
     if (it != requestsList_->end()) {
         requestsList_->remove(request);
         if (requestsList_->empty()) {
-            StopLocator();
+            listEmpty = true;
         }
+    }
+    lock.unlock();
+    if (listEmpty) {
+        StopLocator();
     }
 }
 
@@ -245,32 +242,13 @@ bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& req
             CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId));
 }
 
-void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t userId, uint32_t tokenId)
-{
-    std::lock_guard lock(requestListMutex_);
-    auto iter = requestsMap_->find(userId);
-    if (iter == requestsMap_->end()) {
-        return;
-    }
-    auto requestsList = iter->second;
-    for (auto request = requestsList->begin(); request != requestsList->end();) {
-        if ((*request) == nullptr) {
-            continue;
-        }
-        if ((tokenId == (*request)->GetTokenId()) && !CheckPermission(*request)) {
-            request = requestsList->erase(request);
-        } else {
-            request++;
-        }
-    }
-}
-
 void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active)
 {
-    std::lock_guard lock(requestListMutex_);
     if (request == nullptr) {
         return;
     }
+    DelayedSingleton<RequestManager>::GetInstance()->UpdateUsingPermission(request);
+    std::lock_guard lock(requestListMutex_);
     auto userId = GetUserId(request->GetUid());
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
@@ -282,7 +260,6 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
         if (active || !CheckPermission(request)) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "remove request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);
-            DelayedSingleton<RequestManager>::GetInstance()->UpdateUsingPermission(request);
             requestsList->remove(request);
         }
     } else {
@@ -293,7 +270,6 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
             && CheckMaxRequestNum(request->GetUid(), request->GetPackageName())) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",
                 request->ToString().c_str(), userId);
-            DelayedSingleton<RequestManager>::GetInstance()->UpdateUsingPermission(request);
             requestsList->push_back(request);
         }
     }
