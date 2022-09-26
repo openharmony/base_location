@@ -81,9 +81,13 @@ int CommonUtils::GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId)
     if (CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId) &&
         CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId)) {
         ret = PERMISSION_ACCURATE;
-    } else if (CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId)) {
+    } else if (CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId) &&
+        !CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId)) {
         ret = PERMISSION_APPROXIMATELY;
-    } else {
+    } else if (!CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId) &&
+        CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId)) {
+        ret = PERMISSION_ACCURATE;
+    }  else {
         ret = PERMISSION_INVALID;
     }
     return ret;
