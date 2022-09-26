@@ -21,6 +21,7 @@
 #include "constant_definition.h"
 #include "location_log.h"
 #include "locator_ability.h"
+#include "location_config_manager.h"
 #include "os_account_manager.h"
 #include "ipc_skeleton.h"
 #include "request_manager.h"
@@ -40,6 +41,7 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     }
     requestsMap_ = std::make_shared<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>>();
     requestsList_ = std::make_shared<std::list<std::shared_ptr<Request>>>();
+    CommonUtils::GetCurrentUserId(curUserId_);
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
@@ -61,11 +63,16 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     request_->SetPackageName(PROC_NAME);
     request_->SetRequestConfig(*requestConfig);
     request_->SetLocatorCallBack(callback_);
-    StartEventSubscriber();
-    isSubscribed_ = true;
+    SubscribeSaStatusChangeListerner();
+    isUserSwitchSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
+    proxySwtich_ = (LocationConfigManager::GetInstance().GetLocationSwitchState() == ENABLED);
+    RegisterAppStateObserver();
 }
 
-LocatorBackgroundProxy::~LocatorBackgroundProxy() {}
+LocatorBackgroundProxy::~LocatorBackgroundProxy()
+{
+    UnregisterAppStateObserver();
+}
 
 // modify the parameters, in order to make the test easier
 void LocatorBackgroundProxy::InitArgsFromProp()
@@ -74,7 +81,7 @@ void LocatorBackgroundProxy::InitArgsFromProp()
     timeInterval_ = DEFAULT_TIME_INTERVAL;
 }
 
-void LocatorBackgroundProxy::StartEventSubscriber()
+void LocatorBackgroundProxy::SubscribeSaStatusChangeListerner()
 {
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
@@ -85,24 +92,28 @@ void LocatorBackgroundProxy::StartEventSubscriber()
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     statusChangeListener_ = new (std::nothrow) SystemAbilityStatusChangeListener(subscriber_);
     if (samgrProxy == nullptr || statusChangeListener_ == nullptr) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "StartEventSubscriber samgrProxy or statusChangeListener_ is nullptr");
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY,
+            "SubscribeSaStatusChangeListerner samgrProxy or statusChangeListener_ is nullptr");
         return;
     }
     int32_t ret = samgrProxy->SubscribeSystemAbility(COMMON_EVENT_SERVICE_ID, statusChangeListener_);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY,
-        "StartEventSubscriber SubscribeSystemAbility COMMON_EVENT_SERVICE_ID result:%{public}d", ret);
+        "SubscribeSaStatusChangeListerner SubscribeSystemAbility COMMON_EVENT_SERVICE_ID result:%{public}d", ret);
 }
 
 void LocatorBackgroundProxy::StartLocatorThread()
 {
     std::this_thread::sleep_for(std::chrono::seconds(timeInterval_));
-    std::lock_guard lock(locatorMutex_);
+    std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
+    lock.lock();
     isWating_ = false;
     if (isLocating_ || !proxySwtich_ || requestsList_->empty()) {
         LBSLOGD(LOCATOR_BACKGROUND_PROXY, "cancel locating");
+        lock.unlock();
         return;
     }
     isLocating_ = true;
+    lock.unlock();
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "real start locating");
     DelayedSingleton<RequestManager>::GetInstance().get()->HandleStartLocating(request_);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocationStatus(callback_, SESSION_START);
@@ -110,12 +121,15 @@ void LocatorBackgroundProxy::StartLocatorThread()
 
 void LocatorBackgroundProxy::StopLocatorThread()
 {
-    std::lock_guard lock(locatorMutex_);
+    std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
+    lock.lock();
     if (!isLocating_) {
+        lock.unlock();
         return;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->StopLocating(callback_);
     isLocating_ = false;
+    lock.unlock();
+    DelayedSingleton<LocatorAbility>::GetInstance().get()->StopLocating(callback_);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "end locating");
 }
 
@@ -141,6 +155,26 @@ void LocatorBackgroundProxy::StartLocator()
     th.detach();
 }
 
+void LocatorBackgroundProxy::UpdateListOnRequestChange(const std::shared_ptr<Request>& request)
+{
+    if (request == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "request is null");
+        return;
+    }
+    int32_t uid = request->GetUid();
+    std::string bundleName;
+    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Fail to Get bundle name: uid = %{public}d.", uid);
+        return;
+    }
+    UpdateListOnSuspend(request, !IsAppBackground(bundleName));
+    if (requestsList_->empty()) {
+        StopLocator();
+    } else {
+        StartLocator();
+    }
+}
+
 // called when the app freezes or wakes up
 // When the app enters frozen state, start proxy
 // when the app wakes up, stop proxy
@@ -149,42 +183,14 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
     if (!featureSwitch_) {
         return;
     }
-    if (!isSubscribed_) {
-        isSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
+    if (!isUserSwitchSubscribed_) {
+        isUserSwitchSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
     }
     UpdateListOnSuspend(request, active);
     if (requestsList_->empty()) {
         StopLocator();
     } else {
         StartLocator();
-    }
-}
-
-// called when the app’s background location permission is cancelled, stop proxy
-void LocatorBackgroundProxy::OnPermissionChanged(int32_t type, uint32_t tokenID, std::string permissionName)
-{
-    if (!featureSwitch_) {
-        return;
-    }
-    if (permissionName == ACCESS_BACKGROUND_LOCATION) {
-        bool isBackground = DelayedSingleton<RequestManager>::GetInstance()
-            .get()->IsAppBackground();
-        if (!isBackground) {
-            LBSLOGE(LOCATOR, "Current app state is foreground.");
-            return;
-        }
-    }
-    // For the current location permission change, there must be a location request corresponding to the token id
-    if (type == PERMISSION_REVOKED_OPER) {
-        PrivacyKit::StopUsingPermission(tokenID, permissionName);
-    } else if (type == PERMISSION_GRANTED_OPER) {
-        PrivacyKit::StartUsingPermission(tokenID, permissionName);
-    }
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnPermissionChanged : uid =  %{public}d", uid);
-    UpdateListOnPermissionChanged(uid);
-    if (requestsList_->empty()) {
-        StopLocator();
     }
 }
 
@@ -211,13 +217,19 @@ void LocatorBackgroundProxy::OnDeleteRequestRecord(const std::shared_ptr<Request
     if (!featureSwitch_) {
         return;
     }
-    std::lock_guard lock(requestListMutex_);
+    bool listEmpty = false;
+    std::unique_lock<std::mutex> lock(requestListMutex_, std::defer_lock);
+    lock.lock();
     auto it = find(requestsList_->begin(), requestsList_->end(), request);
     if (it != requestsList_->end()) {
         requestsList_->remove(request);
         if (requestsList_->empty()) {
-            StopLocator();
+            listEmpty = true;
         }
+    }
+    lock.unlock();
+    if (listEmpty) {
+        StopLocator();
     }
 }
 
@@ -230,31 +242,13 @@ bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& req
             CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId));
 }
 
-void LocatorBackgroundProxy::UpdateListOnPermissionChanged(int32_t uid)
-{
-    std::lock_guard lock(requestListMutex_);
-    pid_t uid1 = uid;
-    auto userId = GetUserId(uid);
-    auto iter = requestsMap_->find(userId);
-    if (iter == requestsMap_->end()) {
-        return;
-    }
-    auto requestsList = iter->second;
-    for (auto request = requestsList->begin(); request != requestsList->end();) {
-        if ((uid1 == (*request)->GetUid()) && !CheckPermission(*request)) {
-            request = requestsList->erase(request);
-        } else {
-            request++;
-        }
-    }
-}
-
 void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active)
 {
-    std::lock_guard lock(requestListMutex_);
     if (request == nullptr) {
         return;
     }
+    DelayedSingleton<RequestManager>::GetInstance()->UpdateUsingPermission(request);
+    std::lock_guard lock(requestListMutex_);
     auto userId = GetUserId(request->GetUid());
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
@@ -458,6 +452,87 @@ void LocatorBackgroundProxy::SystemAbilityStatusChangeListener::OnRemoveSystemAb
     bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(subscriber_);
     LBSLOGE(LOCATOR_BACKGROUND_PROXY, "UnSubscribeCommonEvent subscriber_ result = %{public}d", result);
 }
+
+bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
+{
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
+        return false;
+    }
+    sptr<AppExecFwk::IAppMgr> iAppManager =
+        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppManager == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
+        return false;
+    }
+    std::vector<AppExecFwk::AppStateData> foregroundAppList;
+    iAppManager->GetForegroundApplications(foregroundAppList);
+    for (const auto& foregroundApp : foregroundAppList) {
+        if (foregroundApp.bundleName == bundleName) {
+            LBSLOGE(REQUEST_MANAGER, "app : %{public}s is foreground.",
+                foregroundApp.bundleName.c_str());
+            return false;
+        }
+    }
+    return true;
+}
+
+bool LocatorBackgroundProxy::RegisterAppStateObserver()
+{
+    if (appStateObserver_ != nullptr) {
+        LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
+        return true;
+    }
+    appStateObserver_ = sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    int32_t result = iAppMgr_->RegisterApplicationStateObserver(appStateObserver_);
+    if (result != 0) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to Register app state observer.");
+        iAppMgr_ = nullptr;
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool LocatorBackgroundProxy::UnregisterAppStateObserver()
+{
+    if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
+        iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
+    }
+    iAppMgr_ = nullptr;
+    appStateObserver_ = nullptr;
+    return true;
+}
+
+AppStateChangeCallback::AppStateChangeCallback()
+{
+}
+
+AppStateChangeCallback::~AppStateChangeCallback()
+{
+}
+
+void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
+{
+    int32_t pid = appStateData.pid;
+    int32_t uid = appStateData.uid;
+    int32_t state = appStateData.state;
+    LBSLOGI(REQUEST_MANAGER,
+        "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
+    DelayedSingleton<RequestManager>::GetInstance()->HandlePowerSuspendChanged(pid, uid, state);
+}
 } // namespace OHOS
 } // namespace Location
-

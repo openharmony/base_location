@@ -41,7 +41,7 @@ ohos_shared_library("lbsservice_geocode") {
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
   ]
 
   external_deps = [

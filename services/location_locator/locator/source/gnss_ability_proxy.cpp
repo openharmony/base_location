@@ -54,21 +54,6 @@ void GnssAbilityProxy::SetEnable(bool state)
     LBSLOGD(GNSS, "Enable Transact ErrCode = %{public}d", error);
 }
 
-void GnssAbilityProxy::RemoteRequest(bool state)
-{
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return;
-    }
-    data.WriteBool(state);
-
-    MessageParcel reply;
-    MessageOption option = { MessageOption::TF_ASYNC };
-    int error = Remote()->SendRequest(ISubAbility::HANDLE_REMOTE_REQUEST, data, reply, option);
-    LBSLOGD(GNSS, "RemoteRequest Transact ErrCode = %{public}d", error);
-}
-
 void GnssAbilityProxy::RefrashRequirements()
 {
     MessageParcel data;

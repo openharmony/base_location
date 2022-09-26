@@ -24,13 +24,17 @@ namespace Location {
 int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    pid_t lastCallingPid = IPCSkeleton::GetCallingPid();
-    pid_t lastCallinguid = IPCSkeleton::GetCallingUid();
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
     LBSLOGI(GNSS, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
-        code, option.GetFlags(), lastCallingPid, lastCallinguid);
+        code, option.GetFlags(), callingPid, callingUid);
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");
+        return REPLY_CODE_EXCEPTION;
+    }
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(GNSS, "uid pid not match locationhub process.");
         return REPLY_CODE_EXCEPTION;
     }
 
@@ -46,18 +50,13 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             SetEnable(data.ReadBool());
             break;
         }
-        case HANDLE_REMOTE_REQUEST: {
-            bool state = data.ReadBool();
-            RemoteRequest(state);
-            break;
-        }
         case REFRESH_REQUESTS: {
             RefrashRequirements();
             break;
         }
         case REG_GNSS_STATUS: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterGnssStatusCallback(client, lastCallinguid);
+            RegisterGnssStatusCallback(client, callingUid);
             break;
         }
         case UNREG_GNSS_STATUS: {
@@ -67,7 +66,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         }
         case REG_NMEA: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterNmeaMessageCallback(client, lastCallinguid);
+            RegisterNmeaMessageCallback(client, callingUid);
             break;
         }
         case UNREG_NMEA: {

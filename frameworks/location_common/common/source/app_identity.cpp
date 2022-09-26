@@ -13,19 +13,32 @@
  * limitations under the License.
  */
 
-#include "permission_status_change_cb.h"
-#include "location_log.h"
-#include "locator_ability.h"
-#include "locator_background_proxy.h"
-#include "common_utils.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
-void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
+AppIdentity::AppIdentity()
 {
-    LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
-    DelayedSingleton<RequestManager>::GetInstance().get()->HandlePermissionChanged(result.tokenID);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
+    uid_ = 0;
+    pid_ = 0;
+    tokenId_ = 0;
+    firstTokenId_ = 0;
+    bundleName_ = "";
+}
+
+AppIdentity::AppIdentity(pid_t uid, pid_t pid, uint32_t tokenId, uint32_t firstTokenId)
+    : uid_(uid), pid_(pid), tokenId_(tokenId), firstTokenId_(firstTokenId)
+{
+}
+
+std::string AppIdentity::ToString() const
+{
+    std::string str = "uid : " + std::to_string(uid_) +
+        ", pid : " + std::to_string(pid_) +
+        ", tokenId : " + std::to_string(tokenId_) +
+        ", firstTokenId : " + std::to_string(firstTokenId_) +
+        ", bundleName : " + bundleName_;
+    return str;
 }
 } // namespace Location
 } // namespace OHOS

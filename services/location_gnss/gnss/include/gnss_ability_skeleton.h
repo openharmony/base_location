@@ -28,7 +28,6 @@ namespace Location {
 class IGnssAbility : public ISubAbility {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssAbility");
-    virtual void RemoteRequest(bool state) = 0;
     virtual void RefrashRequirements() = 0;
     virtual void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
     virtual void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;

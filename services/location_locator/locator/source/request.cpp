@@ -32,6 +32,9 @@ Request::Request()
     this->isRequesting_ = false;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
+    isUsingLocationPerm_ = false;
+    isUsingBackgroundPerm_ = false;
+    isUsingApproximatelyPerm_ = false;
 }
 
 Request::~Request() {}
@@ -199,6 +202,36 @@ void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> pro
         default:
             break;
     }
+}
+
+bool Request::GetLocationPermState()
+{
+    return isUsingLocationPerm_;
+}
+
+bool Request::GetBackgroundPermState()
+{
+    return isUsingBackgroundPerm_;
+}
+
+bool Request::GetApproximatelyPermState()
+{
+    return isUsingApproximatelyPerm_;
+}
+
+void Request::SetLocationPermState(bool state)
+{
+    isUsingLocationPerm_ = state;
+}
+
+void Request::SetBackgroundPermState(bool state)
+{
+    isUsingBackgroundPerm_ = state;
+}
+
+void Request::SetApproximatelyPermState(bool state)
+{
+    isUsingApproximatelyPerm_ = state;
 }
 
 std::string Request::ToString() const

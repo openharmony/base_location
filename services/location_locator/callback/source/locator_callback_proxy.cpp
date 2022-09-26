@@ -14,7 +14,7 @@
  */
 
 #include "locator_callback_proxy.h"
-
+#include "common_utils.h"
 #include "ipc_skeleton.h"
 
 #include "location_log.h"
@@ -83,12 +83,16 @@ int LocatorCallbackStub::OnRemoteRequest(uint32_t code,
 {
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
-        return -1;
+        return REPLY_CODE_EXCEPTION;
     }
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     LBSLOGI(LOCATOR_CALLBACK, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
+    if (callingUid != LOCATOR_UID) {
+        LBSLOGE(LOCATOR_CALLBACK, "uid pid not match locationhub process.");
+        return REPLY_CODE_EXCEPTION;
+    }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

@@ -16,7 +16,6 @@
 #include "locator_ability.h"
 #include <cmath>
 #include <cstdlib>
-#include <file_ex.h>
 #include <thread>
 #include "constant_definition.h"
 #include "event_runner.h"
@@ -26,13 +25,11 @@
 #include "iservice_registry.h"
 #include "location_log.h"
 #include "location_config_manager.h"
-#include "location_dumper.h"
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"
 #include "request_manager.h"
 #include "system_ability_definition.h"
 #include "country_code.h"
-#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {
@@ -160,31 +157,6 @@ bool LocatorAbility::Init()
     RegisterAction();
     registerToAbility_ = true;
     return registerToAbility_;
-}
-
-void LocatorAbility::SaDumpInfo(std::string& result)
-{
-    int state = QuerySwitchState();
-    result += "Location switch state: ";
-    std::string status = state ? "on" : "off";
-    result += status + "\n";
-}
-
-int32_t LocatorAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
-{
-    std::vector<std::string> vecArgs;
-    std::transform(args.begin(), args.end(), std::back_inserter(vecArgs), [](const std::u16string &arg) {
-        return Str16ToStr8(arg);
-    });
-
-    LocationDumper dumper;
-    std::string result;
-    dumper.LocatorDump(SaDumpInfo, vecArgs, result);
-    if (!SaveStringToFd(fd, result)) {
-        LBSLOGE(GEO_CONVERT, "Gnss save string to fd failed!");
-        return ERR_OK;
-    }
-    return ERR_OK;
 }
 
 LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
@@ -809,7 +781,7 @@ bool LocatorAbility::SetMockedLocations(
 }
 
 int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-    sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid)
+    sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     if (isEnabled_ == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
@@ -819,21 +791,17 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     }
     // update offset before add request
     reportManager_->UpdateRandom();
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     // generate request object according to input params
     std::shared_ptr<Request> request = std::make_shared<Request>();
     if (request != nullptr) {
-        request->SetUid(uid);
-        request->SetPid(pid);
-        request->SetTokenId(callingTokenId);
-        request->SetFirstTokenId(callingFirstTokenid);
-        request->SetPackageName(bundleName);
+        request->SetUid(identity.GetUid());
+        request->SetPid(identity.GetPid());
+        request->SetTokenId(identity.GetTokenId());
+        request->SetFirstTokenId(identity.GetFirstTokenId());
+        request->SetPackageName(identity.GetBundleName());
         request->SetRequestConfig(*requestConfig);
         request->SetLocatorCallBack(callback);
     }
-    UpdateUsingPermission(callingTokenId, callingFirstTokenid, true);
-    RegisterPermissionCallback(callingTokenId, {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
@@ -845,36 +813,14 @@ int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     LBSLOGI(LOCATOR, "stop locating");
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    UpdateUsingPermission(callingTokenId, callingFirstTokenid, false);
-    UnregisterPermissionCallback(callingTokenId);
     return REPLY_CODE_NO_EXCEPTION;
 }
 
-void LocatorAbility::UpdateUsingPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid, bool isStart)
-{
-    if (CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
-        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_LOCATION) :
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_LOCATION);
-    }
-    if (CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION) :
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-    }
-    if (requestManager_->IsAppBackground() &&
-        CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid)) {
-        isStart ? PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION) :
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_BACKGROUND_LOCATION);
-    }
-}
-
-int LocatorAbility::GetCacheLocation(MessageParcel& reply)
+int LocatorAbility::GetCacheLocation(MessageParcel& reply, AppIdentity &identity)
 {
     auto lastLocation = reportManager_->GetLastLocation();
-    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t firstTokenId = IPCSkeleton::GetFirstTokenID();
-    auto finalLocation = reportManager_->GetPermittedLocation(tokenId, firstTokenId, lastLocation);
+    auto finalLocation = reportManager_->GetPermittedLocation(identity.GetTokenId(),
+        identity.GetFirstTokenId(), lastLocation);
     if (finalLocation == nullptr) {
         reply.WriteInt32(REPLY_CODE_EXCEPTION);
         reply.WriteString("get no cached result");

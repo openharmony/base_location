@@ -45,6 +45,11 @@ int CachedLocationsCallbackHost::OnRemoteRequest(
         LBSLOGD(CACHED_LOCATIONS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != LOCATOR_UID) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "uid pid not match locationhub process.");
+        return REPLY_CODE_EXCEPTION;
+    }
 
     switch (code) {
         case RECEIVE_CACHED_LOCATIONS_EVENT: {

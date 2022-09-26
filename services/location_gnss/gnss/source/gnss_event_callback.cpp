@@ -15,6 +15,7 @@
 
 #include "gnss_event_callback.h"
 #include <singleton.h>
+#include "ipc_skeleton.h"
 #include "common_utils.h"
 #include "gnss_ability.h"
 #include "location_log.h"
@@ -26,6 +27,7 @@ using namespace OHOS::HiviewDFX;
 
 int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 {
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
     std::unique_ptr<Location> locationNew = std::make_unique<Location>();
     locationNew->SetLatitude(location.latitude);
     locationNew->SetLongitude(location.longitude);
@@ -38,10 +40,12 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     locationNew->SetIsFromMock(false);
     if (DelayedSingleton<GnssAbility>::GetInstance()->IsMockEnabled()) {
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
+        IPCSkeleton::SetCallingIdentity(identity);
         return ERR_OK;
     }
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;
 }
 

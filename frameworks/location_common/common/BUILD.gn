@@ -18,6 +18,7 @@ LOCATION_COMMON_ROOT = "//base/location/frameworks/location_common/common"
 
 ohos_shared_library("lbsservice_common") {
   sources = [
+    "$LOCATION_COMMON_ROOT/source/app_identity.cpp",
     "$LOCATION_COMMON_ROOT/source/common_hisysevent.cpp",
     "$LOCATION_COMMON_ROOT/source/common_utils.cpp",
     "$LOCATION_COMMON_ROOT/source/geo_address.cpp",
@@ -54,6 +55,7 @@ ohos_shared_library("lbsservice_common") {
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
