@@ -241,9 +241,12 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
+    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
+    lock.lock();
     auto receivers = locatorAbility->GetReceivers();
     if (receivers == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "receivers map is empty");
+        lock.unlock();
         return;
     }
     sptr<IRemoteObject> deadCallback = callback->AsObject();
@@ -252,6 +255,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
     auto iterator = receivers->find(deadCallback);
     if (iterator == receivers->end()) {
         LBSLOGD(REQUEST_MANAGER, "this callback has no record in receiver map");
+        lock.unlock();
         return;
     }
 
@@ -264,15 +268,15 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "get %{public}s dead request", std::to_string(deadRequests->size()).c_str());
-
+    iterator->second.clear();
+    receivers->erase(iterator);
+    lock.unlock();
     // update request map
     if (deadRequests->size() == 0) {
         return;
     }
     DeleteRequestRecord(deadRequests);
     deadRequests->clear();
-    iterator->second.clear();
-    receivers->erase(iterator);
     // process location request
     HandleRequest();
 }
