@@ -41,9 +41,6 @@ const std::string ACCESS_LOCATION = "ohos.permission.LOCATION";
 const std::string ACCESS_APPROXIMATELY_LOCATION = "ohos.permission.APPROXIMATELY_LOCATION";
 const std::string ACCESS_BACKGROUND_LOCATION = "ohos.permission.LOCATION_IN_BACKGROUND";
 const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTINGS";
-const std::string LOCATION_DIR = "/data/service/el1/public/location/";
-const std::string SWITCH_CONFIG_NAME = "location_switch";
-const std::string PRIVACY_CONFIG_NAME = "location_privacy";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
