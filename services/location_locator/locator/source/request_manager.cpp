@@ -268,13 +268,14 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "get %{public}s dead request", std::to_string(deadRequests->size()).c_str());
+    // update request map
+    if (deadRequests->size() == 0) {
+        lock.unlock();
+        return;
+    }
     iterator->second.clear();
     receivers->erase(iterator);
     lock.unlock();
-    // update request map
-    if (deadRequests->size() == 0) {
-        return;
-    }
     DeleteRequestRecord(deadRequests);
     deadRequests->clear();
     // process location request
