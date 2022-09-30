@@ -17,6 +17,8 @@
 
 #include <cstdlib>
 
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
@@ -352,4 +354,64 @@ HWTEST_F(LocatorServiceTest, UnregisterAppStateObserver001, TestSize.Level1)
      */
     bool ret = backgroundProxy_->UnregisterAppStateObserver();
     EXPECT_EQ(true, ret);
+}
+
+/*
+ * @tc.name: UpdateListOnRequestChange001
+ * @tc.desc: Test update list on request change in normal scenario
+ * @tc.type: FUNC
+ * @tc.require: issueI5PX7W
+ */
+HWTEST_F(LocatorServiceTest, UpdateListOnRequestChange001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. get user id
+     * @tc.steps: step2. get uid by bundle name and userId
+     */
+    int32_t userId = 0;
+    CommonUtils::GetCurrentUserId(userId);
+
+    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(nullptr, smgr);
+    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_NE(nullptr, remoteObject);
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
+    EXPECT_NE(nullptr, bundleMgrProxy);
+    std::string name = "ohos.global.systemres";
+    int32_t uid = bundleMgrProxy->GetUidByBundleName(name, userId);
+
+    LBSLOGD(LOCATOR, "bundleName : %{public}s, uid = %{public}d", name.c_str(), uid);
+
+    request_->SetUid(uid);
+    request_->SetPackageName(name);
+
+    /*
+     * @tc.steps: step3. test update list on request change function
+     * @tc.expected: normal scenario covered
+     */
+    backgroundProxy_->UpdateListOnRequestChange(request_);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: UpdateListOnRequestChange002
+ * @tc.desc: Test update list on request change in abnormal scenario
+ * @tc.type: FUNC
+ * @tc.require: issueI5PX7W
+ */
+HWTEST_F(LocatorServiceTest, UpdateListOnRequestChange002, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. cannot find bundle name if uid is not restored
+     * @tc.expected: early return because bundleName can not be found
+     */
+    backgroundProxy_->UpdateListOnRequestChange(request_);
+    EXPECT_EQ(true, true);
+
+    /*
+     * @tc.steps: step2. request is null
+     * @tc.expected: early return because request is nullptr
+     */
+    backgroundProxy_->UpdateListOnRequestChange(nullptr);
+    EXPECT_EQ(true, true);
 }
