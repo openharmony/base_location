@@ -361,13 +361,10 @@ std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
     MessageParcel reply;
     int error = SendMsgWithReply(GET_ISO_COUNTRY_CODE, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", error);
-    std::string country = "";
-    int countryType = 0;
-    int result = 0;
     if (error == NO_ERROR) {
-        country = reply.ReadString();
-        countryType = reply.ReadInt32();
-        result = reply.ReadInt32();
+        std::string country = reply.ReadString();
+        int countryType = reply.ReadInt32();
+        int result = reply.ReadInt32();
         auto countryCode = std::make_shared<CountryCode>();
         countryCode->SetCountryCodeStr(country);
         countryCode->SetCountryCodeType(countryType);

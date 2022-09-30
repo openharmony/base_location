@@ -468,12 +468,12 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
     }
     std::vector<AppExecFwk::AppStateData> foregroundAppList;
     iAppManager->GetForegroundApplications(foregroundAppList);
-    for (const auto& foregroundApp : foregroundAppList) {
-        if (foregroundApp.bundleName == bundleName) {
-            LBSLOGE(REQUEST_MANAGER, "app : %{public}s is foreground.",
-                foregroundApp.bundleName.c_str());
-            return false;
-        }
+    auto it = std::find_if(foregroundAppList.begin(), foregroundAppList.end(), [bundleName] (auto foregroundApp) {
+        return bundleName.compare(foregroundApp.bundleName) == 0;
+    });
+    if (it != foregroundAppList.end()) {
+        LBSLOGE(REQUEST_MANAGER, "app : %{public}s is foreground.", bundleName.c_str());
+        return false;
     }
     return true;
 }

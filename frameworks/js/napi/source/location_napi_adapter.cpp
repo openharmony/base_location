@@ -493,8 +493,6 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
-
     CountryCodeContext *asyncContext = new (std::nothrow) CountryCodeContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     napi_create_string_latin1(env, "CountryCodeContext", NAPI_AUTO_LENGTH, &asyncContext->resourceName);

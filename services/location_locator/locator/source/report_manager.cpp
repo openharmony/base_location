@@ -135,6 +135,9 @@ bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback
 bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     const std::shared_ptr<Request>& request)
 {
+    if (request == nullptr) {
+        return false;
+    }
     if (location == nullptr) {
         LBSLOGE(REPORT_MANAGER, "%{public}s has no access permission", request->GetPackageName().c_str());
         return false;
@@ -147,10 +150,8 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         LBSLOGD(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());
         return false;
     }
-    uint32_t tokenId = request->GetTokenId();
-    uint32_t firstTokenId = request->GetFirstTokenId();
-    int permissionLevel = CommonUtils::GetPermissionLevel(tokenId, firstTokenId);
-    if (request == nullptr || request->GetLastLocation() == nullptr || request->GetRequestConfig() == nullptr) {
+    int permissionLevel = CommonUtils::GetPermissionLevel(request->GetTokenId(), request->GetFirstTokenId());
+    if (request->GetLastLocation() == nullptr || request->GetRequestConfig() == nullptr) {
         return true;
     }
     float maxAcc = request->GetRequestConfig()->GetMaxAccuracy();
