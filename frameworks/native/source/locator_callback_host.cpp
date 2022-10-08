@@ -215,6 +215,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
     }
     if (context_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     if (!InitContext(context_)) {
@@ -247,6 +248,7 @@ void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
 
     if (context_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        delete work;
         return;
     }
     if (!InitContext(context_)) {

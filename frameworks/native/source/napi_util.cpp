@@ -360,7 +360,7 @@ bool GetLocationInfo(const napi_env& env, const napi_value& object,
     return false;
 }
 
-napi_value GetNapiValueByKey(napi_env env, const std::string keyChar, napi_value object)
+napi_value GetNapiValueByKey(napi_env env, const std::string& keyChar, napi_value object)
 {
     if (object == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "GetNapiValueByKey object is nullptr.");
@@ -380,7 +380,7 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
 {
     uint32_t arrayLength = 0;
     NAPI_CALL_BASE(env, napi_get_array_length(env, value, &arrayLength), false);
-    if (arrayLength <= 0) {
+    if (arrayLength == 0) {
         LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
         return false;
     }
@@ -405,7 +405,7 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
 bool GetStringArrayValueByKey(
     napi_env env, napi_value jsObject, std::string key, std::vector<std::string>& outArray)
 {
-    napi_value array = GetNapiValueByKey(env, key.c_str(), jsObject);
+    napi_value array = GetNapiValueByKey(env, key, jsObject);
     if (array == nullptr) {
         return false;
     }
@@ -419,7 +419,7 @@ bool GetStringArrayValueByKey(
 }
 
 bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
-    const std::string fieldStr, std::shared_ptr<GeoAddress> address)
+    const std::string& fieldStr, std::shared_ptr<GeoAddress> address)
 {
     napi_value value = GetNapiValueByKey(env, fieldStr, object);
     if (value == nullptr) {
@@ -480,7 +480,7 @@ bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
     }
     uint32_t arrayLength = 0;
     NAPI_CALL_BASE(env, napi_get_array_length(env, object, &arrayLength), false);
-    if (arrayLength <= 0) {
+    if (arrayLength == 0) {
         LBSLOGE(LOCATOR_STANDARD, "JsObjToRevGeocodeMock:The array is empty.");
         return false;
     }
@@ -503,7 +503,7 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
 {
     uint32_t arrayLength = 0;
     NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, object, &arrayLength));
-    if (arrayLength <= 0) {
+    if (arrayLength == 0) {
         LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
         return;
     }

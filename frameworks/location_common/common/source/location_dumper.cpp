@@ -17,6 +17,7 @@
 
 #include <functional>
 #include <iosfwd>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -29,9 +30,10 @@ const std::string ARGS_HELP = "-h";
 void LocationDumper::PrintArgs(const std::vector<std::string>& vecArgs)
 {
     std::string strArgs;
-    for (auto& each: vecArgs) {
-        strArgs += each + "|";
-    }
+    strArgs = std::accumulate(vecArgs.begin(), vecArgs.end(), strArgs,
+    [vecArgs](std::string strArgs, const std::string &each) {
+        return strArgs + each + "|";
+    });
     LBSLOGI(COMMON_UTILS, "Dumper[%{public}zu] args: %{public}s", vecArgs.size(), strArgs.c_str());
 }
 

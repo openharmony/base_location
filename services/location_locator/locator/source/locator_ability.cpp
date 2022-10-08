@@ -731,9 +731,7 @@ bool LocatorAbility::ProcessLocationMockMsg(
     const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    if (request != nullptr) {
-        request->SetLocationMockConfig(config);
-    }
+    request->SetLocationMockConfig(config);
     std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxys);
     if (proxys->empty()) {
