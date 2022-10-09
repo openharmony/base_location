@@ -77,6 +77,8 @@ bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
 std::string GetErrorMsgByCode(int code);
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
 void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContext, const napi_value& object);
+void DeleteQueueWork(AsyncContext* context);
+void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 { \

@@ -24,9 +24,9 @@ namespace OHOS {
 namespace Location {
 CachedLocationsCallbackHost::CachedLocationsCallbackHost()
 {
-    m_env = nullptr;
-    m_handlerCb = nullptr;
-    m_remoteDied = false;
+    env_ = nullptr;
+    handlerCb_ = nullptr;
+    remoteDied_ = false;
 }
 
 CachedLocationsCallbackHost::~CachedLocationsCallbackHost()
@@ -41,7 +41,7 @@ int CachedLocationsCallbackHost::OnRemoteRequest(
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "invalid token.");
         return -1;
     }
-    if (m_remoteDied) {
+    if (remoteDied_) {
         LBSLOGD(CACHED_LOCATIONS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
@@ -71,15 +71,15 @@ int CachedLocationsCallbackHost::OnRemoteRequest(
 
 bool CachedLocationsCallbackHost::IsRemoteDied()
 {
-    return m_remoteDied;
+    return remoteDied_;
 }
 
 bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& locations)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
 
     uv_loop_s *loop = nullptr;
-    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
+    NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
         return false;
@@ -89,13 +89,13 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& l
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
         return false;
     }
-    CachedLocationAsyncContext *context = new (std::nothrow) CachedLocationAsyncContext(m_env);
+    CachedLocationAsyncContext *context = new (std::nothrow) CachedLocationAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
         return false;
     }
-    context->env = m_env;
-    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
     context->locationList = locations;
     work->data = context;
     UvQueueWork(loop, work);
@@ -116,7 +116,7 @@ void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CachedLocationAsyncContext *>(work->data);
-            if (context == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -155,10 +155,17 @@ void CachedLocationsCallbackHost::OnCacheLocationsReport(const std::vector<std::
 
 void CachedLocationsCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_handlerCb) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
-        m_handlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    auto context = new (std::nothrow) AsyncContext(env_);
+    if (context == nullptr) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
+        return;
+    }
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (handlerCb_ && env_) {
+        DeleteQueueWork(context);
+        handlerCb_ = nullptr;
     }
 }
 }  // namespace Location
