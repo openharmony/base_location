@@ -89,10 +89,6 @@ int LocatorCallbackStub::OnRemoteRequest(uint32_t code,
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     LBSLOGI(LOCATOR_CALLBACK, "OnReceived cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
-    if (callingUid != LOCATOR_UID) {
-        LBSLOGE(LOCATOR_CALLBACK, "uid pid not match locationhub process.");
-        return REPLY_CODE_EXCEPTION;
-    }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

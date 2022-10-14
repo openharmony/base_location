@@ -281,6 +281,10 @@ bool CommonUtils::CheckSystemPermission(pid_t uid, uint32_t callerTokenId)
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
         return true;
     }
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL ||
+        tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
+        return false;
+    }
     auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
         LBSLOGE(COMMON_UTILS, "Get system ability manager failed!");

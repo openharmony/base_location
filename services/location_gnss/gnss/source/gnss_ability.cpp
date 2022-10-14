@@ -258,7 +258,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         StopGnss();
     }
     std::string state = isAdded ? "start" : "stop";
-    WriteGnssStateEvent(state, workRecord.GetUid(0), workRecord.GetPid(0));
+    WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
 int GnssAbility::GetCachedGnssLocationsSize()
