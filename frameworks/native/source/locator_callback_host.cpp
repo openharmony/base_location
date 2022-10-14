@@ -67,11 +67,6 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
         LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
         return -1;
     }
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid != LOCATOR_UID) {
-        LBSLOGE(LOCATOR_CALLBACK, "uid pid not match locationhub process.");
-        return REPLY_CODE_EXCEPTION;
-    }
 
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {

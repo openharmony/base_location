@@ -41,11 +41,6 @@ int LocationSwitchCallbackHost::OnRemoteRequest(
         LBSLOGE(SWITCH_CALLBACK, "invalid token.");
         return -1;
     }
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid != LOCATOR_UID) {
-        LBSLOGE(SWITCH_CALLBACK, "uid pid not match locationhub process.");
-        return REPLY_CODE_EXCEPTION;
-    }
     if (remoteDied_) {
         LBSLOGD(SWITCH_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;

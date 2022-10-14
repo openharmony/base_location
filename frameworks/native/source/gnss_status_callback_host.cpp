@@ -41,11 +41,6 @@ int GnssStatusCallbackHost::OnRemoteRequest(
         LBSLOGE(GNSS_STATUS_CALLBACK, "invalid token.");
         return -1;
     }
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid != LOCATOR_UID) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "uid pid not match locationhub process.");
-        return REPLY_CODE_EXCEPTION;
-    }
     if (remoteDied_) {
         LBSLOGD(GNSS_STATUS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
