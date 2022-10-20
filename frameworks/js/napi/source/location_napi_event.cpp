@@ -64,24 +64,24 @@ void InitOffFuncMap()
 void SubscribeLocationServiceState(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
-    switchCallbackHost->m_env = env;
-    switchCallbackHost->m_handlerCb = handlerRef;
+    switchCallbackHost->SetEnv(env);
+    switchCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterSwitchCallback(switchCallbackHost->AsObject(), DEFAULT_UID);
 }
 
 void SubscribeGnssStatus(const napi_env& env, const napi_ref& handlerRef,
     sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
-    gnssStatusCallbackHost->m_env = env;
-    gnssStatusCallbackHost->m_handlerCb = handlerRef;
+    gnssStatusCallbackHost->SetEnv(env);
+    gnssStatusCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterGnssStatusCallback(gnssStatusCallbackHost->AsObject(), DEFAULT_UID);
 }
 
 void SubscribeNmeaMessage(const napi_env& env, const napi_ref& handlerRef,
     sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
-    nmeaMessageCallbackHost->m_env = env;
-    nmeaMessageCallbackHost->m_handlerCb = handlerRef;
+    nmeaMessageCallbackHost->SetEnv(env);
+    nmeaMessageCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), DEFAULT_UID);
 }
 
@@ -134,8 +134,8 @@ void SubscribeCacheLocationChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<CachedLocationsCallbackHost>& cachedCallbackHost)
 {
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
-    cachedCallbackHost->m_env = env;
-    cachedCallbackHost->m_handlerCb = handlerRef;
+    cachedCallbackHost->SetEnv(env);
+    cachedCallbackHost->SetHandleCb(handlerRef);
     auto request = std::make_unique<CachedGnssLocationsRequest>();
     JsObjToCachedLocationRequest(env, object, request);
     g_locatorProxy->RegisterCachedLocationCallback(request, cachedCallback);

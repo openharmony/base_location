@@ -24,10 +24,9 @@ namespace OHOS {
 namespace Location {
 LocationSwitchCallbackHost::LocationSwitchCallbackHost()
 {
-    m_env = nullptr;
-    m_handlerCb = nullptr;
-    m_remoteDied = false;
-    m_fixNumber = 0;
+    env_ = nullptr;
+    handlerCb_ = nullptr;
+    remoteDied_ = false;
 }
 
 LocationSwitchCallbackHost::~LocationSwitchCallbackHost()
@@ -42,7 +41,7 @@ int LocationSwitchCallbackHost::OnRemoteRequest(
         LBSLOGE(SWITCH_CALLBACK, "invalid token.");
         return -1;
     }
-    if (m_remoteDied) {
+    if (remoteDied_) {
         LBSLOGD(SWITCH_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
@@ -62,21 +61,21 @@ int LocationSwitchCallbackHost::OnRemoteRequest(
 
 bool LocationSwitchCallbackHost::IsRemoteDied()
 {
-    return m_remoteDied;
+    return remoteDied_;
 }
 
 napi_value LocationSwitchCallbackHost::PackResult(bool switchState)
 {
     napi_value result;
-    NAPI_CALL(m_env, napi_get_boolean(m_env, switchState, &result));
+    NAPI_CALL(env_, napi_get_boolean(env_, switchState, &result));
     return result;
 }
 
 bool LocationSwitchCallbackHost::Send(int switchState)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
-    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
+    NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(SWITCH_CALLBACK, "loop == nullptr.");
         return false;
@@ -86,13 +85,13 @@ bool LocationSwitchCallbackHost::Send(int switchState)
         LBSLOGE(SWITCH_CALLBACK, "work == nullptr.");
         return false;
     }
-    SwitchAsyncContext *context = new (std::nothrow) SwitchAsyncContext(m_env);
+    SwitchAsyncContext *context = new (std::nothrow) SwitchAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(SWITCH_CALLBACK, "context == nullptr.");
         return false;
     }
-    context->env = m_env;
-    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
     context->enable = (switchState == 1 ? true : false);
     work->data = context;
     UvQueueWork(loop, work);
@@ -113,7 +112,7 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<SwitchAsyncContext *>(work->data);
-            if (context == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -152,10 +151,17 @@ void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
 
 void LocationSwitchCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_handlerCb) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
-        m_handlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    auto context = new (std::nothrow) AsyncContext(env_);
+    if (context == nullptr) {
+        LBSLOGE(SWITCH_CALLBACK, "context == nullptr.");
+        return;
+    }
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (handlerCb_ && env_) {
+        DeleteQueueWork(context);
+        handlerCb_ = nullptr;
     }
 }
 }  // namespace Location
