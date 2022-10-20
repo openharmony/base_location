@@ -18,15 +18,14 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <math.h>
 #include <mutex>
-#include <random>
-#include <sys/types.h>
 #include <unistd.h>
-#include "constant_definition.h"
+#include <string>
+
 #include "iremote_object.h"
-#include "location_log.h"
 #include "string_ex.h"
+
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {

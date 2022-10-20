@@ -16,14 +16,8 @@ import("//build/ohos.gni")
 ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
-    "//third_party/node/src",
-    "//native_engine",
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
     "//base/location/frameworks/js/napi/include",
     "//base/location/interfaces/inner_api/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
   sources = [
@@ -38,13 +32,11 @@ ohos_shared_library("geolocation") {
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
     "//foundation/arkui/napi:ace_napi",
-    "//third_party/libuv:uv",
   ]
 
   external_deps = [
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
 

@@ -17,15 +17,13 @@
 #define REQUEST_MANAGER_H
 
 #include <list>
-#include <map>
 #include <mutex>
 #include <singleton.h>
 #include <string>
-#include "iremote_stub.h"
-#include "nocopyable.h"
-#include "gnss_ability_proxy.h"
-#include "network_ability_proxy.h"
-#include "passive_ability_proxy.h"
+
+#include "iremote_object.h"
+
+#include "i_locator_callback.h"
 #include "request.h"
 #include "work_record.h"
 
@@ -51,6 +49,9 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
+    void UpdateUsingLocationPermission(std::shared_ptr<Request> request);
+    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
+    void UpdateUsingBackgroundPermission(std::shared_ptr<Request> request);
     
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex_;

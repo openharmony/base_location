@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 #include "location_config_manager.h"
+
+#include <fstream>
+
 #include "common_utils.h"
-#include "ipc_skeleton.h"
+#include "constant_definition.h"
 #include "location_log.h"
-#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace Location {

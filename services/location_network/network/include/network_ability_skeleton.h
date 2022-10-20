@@ -16,9 +16,10 @@
 #ifndef NETWORK_ABILITY_SKELETON_H
 #define NETWORK_ABILITY_SKELETON_H
 
-#include "iremote_object.h"
-#include "iremote_proxy.h"
+#include "message_parcel.h"
+#include "message_option.h"
 #include "iremote_stub.h"
+
 #include "subability_common.h"
 
 namespace OHOS {

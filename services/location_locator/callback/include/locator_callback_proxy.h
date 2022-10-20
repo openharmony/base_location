@@ -16,9 +16,15 @@
 #ifndef LOCATOR_CALLBACK_PROXY_H
 #define LOCATOR_CALLBACK_PROXY_H
 
-#include "i_locator_callback.h"
+#include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
+
+#include "message_parcel.h"
+#include "message_option.h"
+
+#include "i_locator_callback.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {

@@ -16,11 +16,14 @@
 #ifndef LOCATOR_EVENT_MANAGER_H
 #define LOCATOR_EVENT_MANAGER_H
 
-#include <iostream>
+#include <list>
 #include <map>
 #include <singleton.h>
 #include <string>
+
 #include "event_handler.h"
+#include "event_runner.h"
+
 #include "request.h"
 
 namespace OHOS {

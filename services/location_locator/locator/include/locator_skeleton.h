@@ -16,15 +16,16 @@
 #ifndef LOCATOR_SKELETON_H
 #define LOCATOR_SKELETON_H
 
-#include "iremote_broker.h"
+#include <map>
+#include <string>
+
 #include "iremote_object.h"
-#include "iremote_proxy.h"
 #include "iremote_stub.h"
+#include "message_option.h"
+#include "message_parcel.h"
+
 #include "app_identity.h"
-#include "location.h"
-#include "request_config.h"
 #include "i_locator.h"
-#include "i_locator_callback.h"
 
 namespace OHOS {
 namespace Location {

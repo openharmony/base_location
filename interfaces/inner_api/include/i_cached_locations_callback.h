@@ -18,7 +18,6 @@
 
 #include <vector>
 #include "iremote_broker.h"
-#include "ipc_types.h"
 #include "location.h"
 
 namespace OHOS {

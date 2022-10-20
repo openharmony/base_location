@@ -15,13 +15,18 @@
 #ifndef LOCATOR_IMPL_H
 #define LOCATOR_IMPL_H
 
+#include <vector>
+
+#include "iremote_object.h"
+
 #include "constant_definition.h"
-#include "i_cached_locations_callback.h"
+#include "country_code.h"
+#include "geo_address.h"
 #include "geo_coding_mock_info.h"
+#include "i_cached_locations_callback.h"
 #include "locator.h"
 #include "locator_proxy.h"
-#include "geo_address.h"
-#include "country_code.h"
+#include "location_mock_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -64,7 +69,7 @@ public:
     bool EnableLocationMock(const LocationMockConfig& config) override;
     bool DisableLocationMock(const LocationMockConfig& config) override;
     bool SetMockedLocations(
-        const LocationMockConfig& config,      const std::vector<std::shared_ptr<Location>> &location) override;
+        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
 
     bool EnableReverseGeocodingMock() override;
 

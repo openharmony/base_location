@@ -21,22 +21,21 @@
 #include <singleton.h>
 
 #include "event_handler.h"
-#include "if_system_ability_manager.h"
 #include "system_ability.h"
+
 #include "app_identity.h"
-#include "common_hisysevent.h"
 #include "common_utils.h"
-#include "geo_convert_proxy.h"
-#include "locator_callback_proxy.h"
+#include "country_code_manager.h"
+#include "country_code.h"
+#include "geo_coding_mock_info.h"
+#include "i_switch_callback.h"
+#include "i_cached_locations_callback.h"
 #include "locator_event_subscriber.h"
 #include "locator_skeleton.h"
 #include "permission_status_change_cb.h"
-#include "switch_callback_proxy.h"
 #include "request.h"
 #include "request_manager.h"
 #include "report_manager.h"
-#include "country_code_manager.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {

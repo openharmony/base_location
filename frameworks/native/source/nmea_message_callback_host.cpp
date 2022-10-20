@@ -19,6 +19,7 @@
 #include "location_log.h"
 #include "location_napi_adapter.h"
 #include "napi/native_api.h"
+#include "napi/native_common.h"
 
 namespace OHOS {
 namespace Location {

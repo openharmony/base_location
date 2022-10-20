@@ -32,7 +32,6 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "request_config.h"
 
 namespace OHOS {

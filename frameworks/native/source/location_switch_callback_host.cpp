@@ -16,9 +16,7 @@
 #include "location_switch_callback_host.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
-#include "i_switch_callback.h"
 #include "location_log.h"
-#include "location_napi_adapter.h"
 
 namespace OHOS {
 namespace Location {

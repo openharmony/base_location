@@ -14,10 +14,11 @@
  */
 #include "cached_locations_callback_host.h"
 
-#include "common_utils.h"
 #include "ipc_skeleton.h"
+#include "napi/native_common.h"
+
+#include "common_utils.h"
 #include "location_log.h"
-#include "location_napi_adapter.h"
 #include "napi_util.h"
 
 namespace OHOS {

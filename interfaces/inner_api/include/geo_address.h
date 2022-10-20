@@ -16,10 +16,9 @@
 #ifndef GEO_ADDRESS_H
 #define GEO_ADDRESS_H
 
+#include <map>
 #include <parcel.h>
 #include <string>
-#include <set>
-#include <map>
 
 namespace OHOS {
 namespace Location {

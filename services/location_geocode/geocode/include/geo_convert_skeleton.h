@@ -16,13 +16,13 @@
 #ifndef GEO_CONVERT_SKELETON_H
 #define GEO_CONVERT_SKELETON_H
 
+#include <vector>
+
 #include "iremote_broker.h"
-#include "iremote_proxy.h"
-#include "iremote_object.h"
 #include "iremote_stub.h"
+#include "message_parcel.h"
 #include "string_ex.h"
 
-#include "constant_definition.h"
 #include "geo_coding_mock_info.h"
 
 namespace OHOS {

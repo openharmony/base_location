@@ -16,7 +16,12 @@
 #ifndef NMEA_MESSAGE_CALLBACK_PROXY_H
 #define NMEA_MESSAGE_CALLBACK_PROXY_H
 
+#include <string>
+
+#include "iremote_broker.h"
+#include "iremote_object.h"
 #include "iremote_proxy.h"
+
 #include "i_nmea_message_callback.h"
 
 namespace OHOS {

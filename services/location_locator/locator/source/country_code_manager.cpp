@@ -12,19 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "country_code_manager.h"
 
-#include "request_manager.h"
-#include "constant_definition.h"
-#include "location_log.h"
-#include "core_service_client.h"
 #include "cellular_data_client.h"
+#include "core_service_client.h"
 #include "locale_config.h"
-#include "country_code.h"
+#include "parameter.h"
+
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "common_utils.h"
+#include "constant_definition.h"
+#include "country_code.h"
+#include "location_log.h"
 #include "locator_ability.h"
-#include "parameter.h"
+#include "request.h"
+#include "request_manager.h"
 
 namespace OHOS {
 namespace Location {

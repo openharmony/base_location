@@ -13,19 +13,13 @@
  * limitations under the License.
  */
 #include "location_napi_event.h"
-#include <unistd.h>
-#include "common_utils.h"
-#include "constant_definition.h"
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "location_log.h"
-#include "location_napi_adapter.h"
-#include "napi_util.h"
-#include "locator.h"
-#include "request_config.h"
-#include "system_ability_definition.h"
+
 #include "callback_manager.h"
+#include "common_utils.h"
+#include "location_log.h"
 #include "country_code_callback_host.h"
+#include "locator.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
@@ -237,7 +231,8 @@ int GetObjectArgsNum(const napi_env& env, const size_t argc, const napi_value* a
     return objectArgsNum;
 }
 
-std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env, const napi_value* argv, const size_t& objectArgsNum)
+std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env,
+    const napi_value* argv, const size_t& objectArgsNum)
 {
     auto requestConfig = std::make_unique<RequestConfig>();
     if (objectArgsNum > 0) {

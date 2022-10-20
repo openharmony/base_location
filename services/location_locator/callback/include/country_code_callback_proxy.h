@@ -16,7 +16,9 @@
 #ifndef COUNTRY_CODE_CALLBACK_PROXY_H
 #define COUNTRY_CODE_CALLBACK_PROXY_H
 
+#include "iremote_object.h"
 #include "iremote_proxy.h"
+
 #include "i_country_code_callback.h"
 #include "country_code.h"
 

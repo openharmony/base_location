@@ -15,20 +15,19 @@
 
 #include "request_manager.h"
 
-#include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
-#include "iservice_registry.h"
-#include "system_ability_definition.h"
+#include "privacy_kit.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "gnss_ability_proxy.h"
 #include "fusion_controller.h"
 #include "location_log.h"
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"
-#include "subability_common.h"
-#include "privacy_kit.h"
+#include "network_ability_proxy.h"
+#include "passive_ability_proxy.h"
+#include "request_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -54,12 +53,18 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
         LBSLOGE(REQUEST_MANAGER, "request is null");
         return;
     }
+    LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
+        request->GetTokenId(), request->GetFirstTokenId());
+    UpdateUsingLocationPermission(request);
+    UpdateUsingApproximatelyPermission(request);
+    UpdateUsingBackgroundPermission(request);
+}
+
+void RequestManager::UpdateUsingLocationPermission(std::shared_ptr<Request> request)
+{
     uint32_t callingTokenId = request->GetTokenId();
     uint32_t callingFirstTokenid = request->GetFirstTokenId();
     int32_t uid = request->GetUid();
-    LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
-        callingTokenId, callingFirstTokenid);
-
     if (IsUidInProcessing(uid) &&
         CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetLocationPermState()) {
@@ -72,7 +77,13 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
             request->SetLocationPermState(false);
         }
     }
+}
 
+void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request)
+{
+    uint32_t callingTokenId = request->GetTokenId();
+    uint32_t callingFirstTokenid = request->GetFirstTokenId();
+    int32_t uid = request->GetUid();
     if (IsUidInProcessing(uid) &&
         CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetApproximatelyPermState()) {
@@ -85,6 +96,13 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
             request->SetApproximatelyPermState(false);
         }
     }
+}
+
+void RequestManager::UpdateUsingBackgroundPermission(std::shared_ptr<Request> request)
+{
+    uint32_t callingTokenId = request->GetTokenId();
+    uint32_t callingFirstTokenid = request->GetFirstTokenId();
+    int32_t uid = request->GetUid();
     std::string bundleName;
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGE(REQUEST_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);

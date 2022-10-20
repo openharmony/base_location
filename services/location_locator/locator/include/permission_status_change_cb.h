@@ -16,7 +16,7 @@
 #ifndef PERMISSION_STATUS_CHANGE_CB_H
 #define PERMISSION_STATUS_CHANGE_CB_H
 
-#include "accesstoken_kit.h"
+#include "permission_state_change_info.h"
 #include "perm_state_change_callback_customize.h"
 
 namespace OHOS {
