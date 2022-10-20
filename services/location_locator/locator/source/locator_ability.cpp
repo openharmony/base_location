@@ -14,22 +14,25 @@
  */
 
 #include "locator_ability.h"
-#include <cmath>
-#include <cstdlib>
-#include <thread>
-#include "constant_definition.h"
+
+#include "accesstoken_kit.h"
 #include "event_runner.h"
-#include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "iservice_registry.h"
-#include "location_log.h"
-#include "location_config_manager.h"
-#include "locator_background_proxy.h"
-#include "locator_event_manager.h"
-#include "request_manager.h"
 #include "system_ability_definition.h"
+#include "switch_callback_proxy.h"
+
+#include "common_event_manager.h"
+#include "common_hisysevent.h"
+#include "common_utils.h"
+#include "constant_definition.h"
 #include "country_code.h"
+#include "geo_convert_proxy.h"
+#include "gnss_ability_proxy.h"
+#include "locator_background_proxy.h"
+#include "location_config_manager.h"
+#include "location_log.h"
+#include "network_ability_proxy.h"
+#include "passive_ability_proxy.h"
+#include "permission_status_change_cb.h"
 
 namespace OHOS {
 namespace Location {

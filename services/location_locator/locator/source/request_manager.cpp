@@ -15,20 +15,19 @@
 
 #include "request_manager.h"
 
-#include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
-#include "iservice_registry.h"
-#include "system_ability_definition.h"
+#include "privacy_kit.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "gnss_ability_proxy.h"
 #include "fusion_controller.h"
 #include "location_log.h"
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"
-#include "subability_common.h"
-#include "privacy_kit.h"
+#include "network_ability_proxy.h"
+#include "passive_ability_proxy.h"
+#include "request_config.h"
 
 namespace OHOS {
 namespace Location {

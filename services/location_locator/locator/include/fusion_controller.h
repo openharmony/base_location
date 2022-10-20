@@ -16,8 +16,9 @@
 #ifndef FUSION_CONTROLLER_H
 #define FUSION_CONTROLLER_H
 
-#include <cstdint>
 #include <singleton.h>
+#include <string>
+
 #include "location.h"
 
 namespace OHOS {

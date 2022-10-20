@@ -16,10 +16,7 @@
 #ifndef CALLBACK_MANAGER_H
 #define CALLBACK_MANAGER_H
 
-#include <unistd.h>
 #include <mutex>
-#include "napi_util.h"
-#include "location_napi_event.h"
 
 namespace OHOS {
 namespace Location {

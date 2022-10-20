@@ -17,11 +17,11 @@
 #define REQUEST_H
 
 #include <list>
+#include <string>
+
 #include "i_locator_callback.h"
 #include "request_config.h"
-#include "work_record.h"
 #include "location_mock_config.h"
-
 
 namespace OHOS {
 namespace Location {

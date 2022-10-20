@@ -18,12 +18,9 @@
 #include "ipc_object_stub.h"
 #include "ipc_skeleton.h"
 #include "js_native_api.h"
-#include "js_native_api_types.h"
 #include "message_option.h"
 #include "message_parcel.h"
 #include "napi/native_common.h"
-#include "node_api.h"
-#include "refbase.h"
 #include "uv.h"
 
 #include "common_utils.h"

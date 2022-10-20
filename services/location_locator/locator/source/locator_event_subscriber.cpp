@@ -14,11 +14,6 @@
  */
 
 #include "locator_event_subscriber.h"
-
-#include "ipc_skeleton.h"
-#include "system_ability_definition.h"
-
-#include "common_utils.h"
 #include "location_log.h"
 #include "locator_ability.h"
 

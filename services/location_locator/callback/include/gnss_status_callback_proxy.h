@@ -17,7 +17,10 @@
 #define GNSS_STATUS_CALLBACK_PROXY_H
 
 #include "iremote_proxy.h"
+#include "iremote_object.h"
+
 #include "i_gnss_status_callback.h"
+#include "satellite_status.h"
 
 namespace OHOS {
 namespace Location {

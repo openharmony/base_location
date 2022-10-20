@@ -14,7 +14,7 @@
  */
 
 #include "location_napi_adapter.h"
-#include "country_code.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {

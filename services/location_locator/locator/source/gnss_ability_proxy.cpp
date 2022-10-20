@@ -14,7 +14,10 @@
  */
 
 #include "gnss_ability_proxy.h"
-#include "ipc_skeleton.h"
+
+#include "string_ex.h"
+
+#include "common_utils.h"
 #include "location_log.h"
 
 namespace OHOS {

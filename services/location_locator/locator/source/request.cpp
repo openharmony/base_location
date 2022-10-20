@@ -16,9 +16,6 @@
 #include "request.h"
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "i_locator_callback.h"
-#include "location_log.h"
-#include "request_config.h"
 
 namespace OHOS {
 namespace Location {

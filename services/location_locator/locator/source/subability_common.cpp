@@ -14,13 +14,13 @@
  */
 
 #include "subability_common.h"
+
 #include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "common_utils.h"
-#include "gnss_ability_proxy.h"
-#include "locator_ability.h"
 #include "string_ex.h"
+
+#include "common_utils.h"
+#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {

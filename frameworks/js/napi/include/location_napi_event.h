@@ -16,16 +16,13 @@
 #ifndef LOCATION_NAPI_EVENT_H
 #define LOCATION_NAPI_EVENT_H
 
-#include <string>
 #include "cached_locations_callback_host.h"
 #include "geofence_state.h"
 #include "gnss_status_callback_host.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_host.h"
-#include "napi/native_api.h"
 #include "nmea_message_callback_host.h"
 #include "request_config.h"
-#include "want_agent_helper.h"
 
 namespace OHOS {
 namespace Location {

@@ -16,9 +16,9 @@
 #ifndef LOCATOR_EVENT_SUBSCRIBER_H
 #define LOCATOR_EVENT_SUBSCRIBER_H
 
-#include <string>
-#include "common_event_manager.h"
-#include "locator_skeleton.h"
+#include "common_event_data.h"
+#include "common_event_subscribe_info.h"
+#include "common_event_subscriber.h"
 
 namespace OHOS {
 namespace Location {

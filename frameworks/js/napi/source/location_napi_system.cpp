@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "location_napi_system.h"
+
 #include "locator_callback_host.h"
 #include "location_log.h"
 #include "locator.h"
-#include "system_ability_definition.h"
 #include "napi_util.h"
 
 namespace OHOS {

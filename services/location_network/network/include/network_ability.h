@@ -16,11 +16,13 @@
 #ifndef NETWORK_ABILITY_H
 #define NETWORK_ABILITY_H
 
-#include <mutex>
+#include <string>
 #include <singleton.h>
+
 #include "event_handler.h"
-#include "if_system_ability_manager.h"
+#include "event_runner.h"
 #include "system_ability.h"
+
 #include "common_utils.h"
 #include "network_ability_skeleton.h"
 #include "subability_common.h"

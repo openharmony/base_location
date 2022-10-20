@@ -15,8 +15,6 @@
 
 #include "geo_address.h"
 
-#include <parcel.h>
-
 namespace OHOS {
 namespace Location {
 GeoAddress::GeoAddress()

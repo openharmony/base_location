@@ -14,10 +14,11 @@
  */
 
 #include "country_code_callback_proxy.h"
-#include "common_utils.h"
-#include "ipc_skeleton.h"
-#include "location_log.h"
+
+#include "message_option.h"
+
 #include "country_code.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {

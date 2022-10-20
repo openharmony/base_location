@@ -18,9 +18,13 @@
 
 #include <shared_mutex>
 #include "i_switch_callback.h"
+
 #include "iremote_stub.h"
+#include "message_parcel.h"
+#include "message_option.h"
 #include "napi_util.h"
 #include "napi/native_api.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace Location {

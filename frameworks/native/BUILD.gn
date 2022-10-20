@@ -22,11 +22,8 @@ ohos_shared_library("locator_sdk") {
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
     "//base/location/interfaces/inner_api/include",
     "//base/location/frameworks/js/napi/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-    "//systemabilitymgr/safwk/include",
     "//native_engine",
     "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
   ]
 
   sources = [
@@ -52,7 +49,6 @@ ohos_shared_library("locator_sdk") {
   external_deps = [
     "c_utils:utils",
     "ipc:ipc_core",
-    "samgr:samgr_proxy",
   ]
 
   cflags_cc = [

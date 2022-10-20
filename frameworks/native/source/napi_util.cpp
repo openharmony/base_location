@@ -12,15 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "napi_util.h"
-#include <string>
+
+#include "securec.h"
+#include "string_ex.h"
+
+#include "country_code.h"
 #include "common_utils.h"
 #include "geo_address.h"
 #include "location_log.h"
+#include "locator_proxy.h"
 #include "request_config.h"
-#include "securec.h"
-#include "string_ex.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {

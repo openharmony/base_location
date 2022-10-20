@@ -17,10 +17,17 @@
 #define CACHED_LOCATIONS_CALLBACK_HOST_H
 
 #include <shared_mutex>
-#include "i_cached_locations_callback.h"
+#include <vector>
+
 #include "iremote_stub.h"
+#include "message_option.h"
+#include "message_parcel.h"
 #include "napi_util.h"
 #include "napi/native_api.h"
+#include "uv.h"
+
+#include "i_cached_locations_callback.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {

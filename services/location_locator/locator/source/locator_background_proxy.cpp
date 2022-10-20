@@ -14,20 +14,21 @@
  */
 
 #include "locator_background_proxy.h"
+
 #include <thread>
+
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "iservice_registry.h"
+#include "os_account_manager.h"
+#include "system_ability_definition.h"
+
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "location_config_manager.h"
 #include "location_log.h"
 #include "locator_ability.h"
-#include "location_config_manager.h"
-#include "os_account_manager.h"
-#include "ipc_skeleton.h"
 #include "request_manager.h"
-#include "iservice_registry.h"
-#include "system_ability_definition.h"
-#include "privacy_kit.h"
 
 namespace OHOS {
 namespace Location {

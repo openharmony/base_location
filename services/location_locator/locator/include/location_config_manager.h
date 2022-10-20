@@ -18,9 +18,7 @@
 
 #include <atomic>
 #include <mutex>
-#include <fstream>
 #include <string>
-#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {

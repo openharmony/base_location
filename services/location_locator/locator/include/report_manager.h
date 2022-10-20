@@ -16,12 +16,11 @@
 #ifndef REPORT_MANAGER_H
 #define REPORT_MANAGER_H
 
-#include <map>
-#include <memory>
-#include <list>
 #include <singleton.h>
+#include <string>
 #include <time.h>
-#include "iremote_broker.h"
+
+#include "i_locator_callback.h"
 #include "location.h"
 #include "request.h"
 

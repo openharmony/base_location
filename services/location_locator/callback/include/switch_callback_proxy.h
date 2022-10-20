@@ -16,7 +16,10 @@
 #ifndef SWITCH_CALLBACK_PROXY_H
 #define SWITCH_CALLBACK_PROXY_H
 
+#include "iremote_broker.h"
+#include "iremote_object.h"
 #include "iremote_proxy.h"
+
 #include "i_switch_callback.h"
 
 namespace OHOS {

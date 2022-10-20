@@ -17,10 +17,15 @@
 #define GNSS_STATUS_CALLBACK_HOST_H
 
 #include <shared_mutex>
-#include "i_gnss_status_callback.h"
+
 #include "iremote_stub.h"
+#include "message_option.h"
+#include "message_parcel.h"
 #include "napi_util.h"
 #include "napi/native_api.h"
+#include "uv.h"
+
+#include "i_gnss_status_callback.h"
 #include "satellite_status.h"
 
 namespace OHOS {

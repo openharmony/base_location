@@ -16,7 +16,6 @@
 #include "location_dumper.h"
 
 #include <functional>
-#include <iosfwd>
 #include <numeric>
 #include <string>
 #include <vector>

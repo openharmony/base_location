@@ -16,10 +16,16 @@
 #ifndef PASSIVE_ABILITY_PROXY_H
 #define PASSIVE_ABILITY_PROXY_H
 
+#include <vector>
+
+#include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
-#include "iremote_stub.h"
+
+#include "location.h"
+#include "location_mock_config.h"
 #include "passive_ability_skeleton.h"
+#include "work_record.h"
 
 namespace OHOS {
 namespace Location {

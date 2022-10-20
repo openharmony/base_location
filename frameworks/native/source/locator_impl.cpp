@@ -14,7 +14,6 @@
  */
 #include "locator_impl.h"
 #include "common_utils.h"
-#include "iservice_registry.h"
 #include "location_log.h"
 #include "system_ability_definition.h"
 #include "country_code.h"

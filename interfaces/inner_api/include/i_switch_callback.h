@@ -17,7 +17,6 @@
 #define I_SWITCH_CALLBACK_H
 
 #include "iremote_broker.h"
-#include "ipc_types.h"
 
 namespace OHOS {
 namespace Location {

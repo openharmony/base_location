@@ -15,6 +15,9 @@
 
 #include "report_manager.h"
 
+#include <cmath>
+
+#include "common_utils.h"
 #include "fusion_controller.h"
 #include "i_locator_callback.h"
 #include "location_log.h"
