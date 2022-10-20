@@ -49,6 +49,9 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
+    void UpdateUsingLocationPermission(std::shared_ptr<Request> request);
+    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
+    void UpdateUsingBackgroundPermission(std::shared_ptr<Request> request);
     
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex_;

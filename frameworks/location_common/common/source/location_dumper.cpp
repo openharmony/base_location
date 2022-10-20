@@ -28,8 +28,7 @@ const std::string ARGS_HELP = "-h";
 
 void LocationDumper::PrintArgs(const std::vector<std::string>& vecArgs)
 {
-    std::string strArgs;
-    strArgs = std::accumulate(vecArgs.begin(), vecArgs.end(), strArgs,
+    std::string strArgs = std::accumulate(vecArgs.begin(), vecArgs.end(), std::string(""),
     [vecArgs](std::string strArgs, const std::string &each) {
         return strArgs + each + "|";
     });

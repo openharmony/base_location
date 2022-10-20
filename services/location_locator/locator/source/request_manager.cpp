@@ -53,12 +53,18 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
         LBSLOGE(REQUEST_MANAGER, "request is null");
         return;
     }
+    LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
+        request->GetTokenId(), request->GetFirstTokenId());
+    UpdateUsingLocationPermission(request);
+    UpdateUsingApproximatelyPermission(request);
+    UpdateUsingBackgroundPermission(request);
+}
+
+void RequestManager::UpdateUsingLocationPermission(std::shared_ptr<Request> request)
+{
     uint32_t callingTokenId = request->GetTokenId();
     uint32_t callingFirstTokenid = request->GetFirstTokenId();
     int32_t uid = request->GetUid();
-    LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
-        callingTokenId, callingFirstTokenid);
-
     if (IsUidInProcessing(uid) &&
         CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetLocationPermState()) {
@@ -71,7 +77,13 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
             request->SetLocationPermState(false);
         }
     }
+}
 
+void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request)
+{
+    uint32_t callingTokenId = request->GetTokenId();
+    uint32_t callingFirstTokenid = request->GetFirstTokenId();
+    int32_t uid = request->GetUid();
     if (IsUidInProcessing(uid) &&
         CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetApproximatelyPermState()) {
@@ -84,6 +96,13 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
             request->SetApproximatelyPermState(false);
         }
     }
+}
+
+void RequestManager::UpdateUsingBackgroundPermission(std::shared_ptr<Request> request)
+{
+    uint32_t callingTokenId = request->GetTokenId();
+    uint32_t callingFirstTokenid = request->GetFirstTokenId();
+    int32_t uid = request->GetUid();
     std::string bundleName;
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGE(REQUEST_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);

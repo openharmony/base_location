@@ -231,7 +231,8 @@ int GetObjectArgsNum(const napi_env& env, const size_t argc, const napi_value* a
     return objectArgsNum;
 }
 
-std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env, const napi_value* argv, const size_t& objectArgsNum)
+std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env,
+    const napi_value* argv, const size_t& objectArgsNum)
 {
     auto requestConfig = std::make_unique<RequestConfig>();
     if (objectArgsNum > 0) {
