@@ -17,7 +17,7 @@
 #define I_GNSS_STATUS_CALLBACK_H
 
 #include "iremote_broker.h"
-#include "ipc_types.h"
+
 #include "satellite_status.h"
 
 namespace OHOS {

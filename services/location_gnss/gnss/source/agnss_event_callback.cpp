@@ -14,11 +14,14 @@
  */
 
 #include "agnss_event_callback.h"
+
 #include <singleton.h>
+
+#include "cellular_data_client.h"
+
 #include "common_utils.h"
 #include "gnss_ability.h"
 #include "location_log.h"
-#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {

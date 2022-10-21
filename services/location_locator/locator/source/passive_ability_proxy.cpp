@@ -14,8 +14,12 @@
  */
 
 #include "passive_ability_proxy.h"
-#include "ipc_skeleton.h"
+
+#include "message_parcel.h"
+#include "message_option.h"
+
 #include "location_log.h"
+#include "subability_common.h"
 
 namespace OHOS {
 namespace Location {

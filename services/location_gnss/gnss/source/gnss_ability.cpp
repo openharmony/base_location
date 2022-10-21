@@ -14,21 +14,25 @@
  */
 
 #include "gnss_ability.h"
+
 #include <file_ex.h>
 #include <thread>
+
+#include "core_service_client.h"
+#include "event_runner.h"
 #include "idevmgr_hdi.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-#include "common_utils.h"
-#include "location_log.h"
-#include "location_dumper.h"
+
 #include "agnss_event_callback.h"
+#include "common_hisysevent.h"
+#include "common_utils.h"
 #include "gnss_event_callback.h"
-#include "gnss_status_callback_proxy.h"
-#include "nmea_message_callback_proxy.h"
-#include "core_service_client.h"
-#include "event_runner.h"
+#include "i_cached_locations_callback.h"
+#include "location_dumper.h"
+#include "location_log.h"
+#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {

@@ -17,17 +17,6 @@
 #define I_LOCATOR_H
 
 #include "iremote_broker.h"
-#include "ipc_types.h"
-
-#include "constant_definition.h"
-#include "geo_coding_mock_info.h"
-#include "i_cached_locations_callback.h"
-#include "i_locator_callback.h"
-#include "location.h"
-#include "request_config.h"
-#include "satellite_status.h"
-#include "location_mock_config.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {

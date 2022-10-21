@@ -16,8 +16,9 @@
 #ifndef SATELLITE_STATUS_H
 #define SATELLITE_STATUS_H
 
-#include <parcel.h>
 #include <vector>
+
+#include <parcel.h>
 
 namespace OHOS {
 namespace Location {

@@ -25,16 +25,7 @@ ohos_shared_library("lbsservice_geocode") {
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "$SUBSYSTEM_DIR/location_gnss/gnss/include",
-    "$SUBSYSTEM_DIR/location_locator/callback/include",
-    "$SUBSYSTEM_DIR/location_locator/distribute/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
-    "$SUBSYSTEM_DIR/location_network/network/include",
-    "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk/",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
   ]
 
   deps = [

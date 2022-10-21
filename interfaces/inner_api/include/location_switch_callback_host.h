@@ -18,9 +18,13 @@
 
 #include <shared_mutex>
 #include "i_switch_callback.h"
+
 #include "iremote_stub.h"
+#include "message_parcel.h"
+#include "message_option.h"
 #include "napi_util.h"
 #include "napi/native_api.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace Location {
@@ -37,11 +41,41 @@ public:
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
-    napi_env m_env;
-    napi_ref m_handlerCb;
-    int m_fixNumber;
-    bool m_remoteDied;
-    std::shared_mutex m_mutex;
+    inline napi_env GetEnv() const
+    {
+        return env_;
+    }
+
+    inline void SetEnv(const napi_env& env)
+    {
+        env_ = env;
+    }
+
+    inline napi_ref GetHandleCb() const
+    {
+        return handlerCb_;
+    }
+
+    inline void SetHandleCb(const napi_ref& handlerCb)
+    {
+        handlerCb_ = handlerCb;
+    }
+
+    inline bool GetRemoteDied() const
+    {
+        return remoteDied_;
+    }
+
+    inline void SetRemoteDied(const bool remoteDied)
+    {
+        remoteDied_ = remoteDied;
+    }
+
+private:
+    napi_env env_;
+    napi_ref handlerCb_;
+    bool remoteDied_;
+    std::shared_mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

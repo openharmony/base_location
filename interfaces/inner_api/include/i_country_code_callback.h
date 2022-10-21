@@ -17,7 +17,7 @@
 #define I_COUNTRY_CODE_CALLBACK_H
 
 #include "iremote_broker.h"
-#include "ipc_types.h"
+
 #include "country_code.h"
 
 namespace OHOS {

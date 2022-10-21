@@ -16,14 +16,13 @@
 #ifndef SUBABILITY_COMMON_H
 #define SUBABILITY_COMMON_H
 
-#include <dlfcn.h>
-#include <map>
-#include <unistd.h>
-#include <singleton.h>
-#include "common_hisysevent.h"
-#include "i_locator_callback.h"
+#include <vector>
+
 #include "iremote_broker.h"
-#include "location_log.h"
+
+#include "i_locator_callback.h"
+#include "location.h"
+#include "hilog/log.h"
 #include "location_mock_config.h"
 #include "work_record.h"
 

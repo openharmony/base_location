@@ -17,12 +17,15 @@
 #define LOCATOR_CALLBACK_HOST_H
 
 #include <shared_mutex>
-#include "common_utils.h"
-#include "i_locator_callback.h"
+
 #include "iremote_stub.h"
 #include "napi/native_api.h"
-#include "location_async_context.h"
 #include "uv.h"
+
+#include "common_utils.h"
+#include "constant_definition.h"
+#include "i_locator_callback.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {
@@ -156,21 +159,7 @@ private:
     napi_deferred deferred_;
     std::shared_mutex mutex_;
     CountDownLatch* latch_;
-    LocationAsyncContext* context_;
     std::shared_ptr<Location> singleLocation_;
-};
-
-class SingleLocationAsyncContext : public AsyncContext {
-public:
-    int timeout_;
-    sptr<LocatorCallbackHost> callbackHost_;
-
-    SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(0) {}
-
-    SingleLocationAsyncContext() = delete;
-
-    virtual ~SingleLocationAsyncContext() {}
 };
 } // namespace Location
 } // namespace OHOS

@@ -15,8 +15,6 @@
 
 #include "location.h"
 
-#include <iosfwd>
-#include <memory>
 #include <parcel.h>
 #include <string>
 

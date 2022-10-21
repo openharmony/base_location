@@ -16,23 +16,9 @@
 #ifndef LOCATION_NAPI_ADAPTER_H
 #define LOCATION_NAPI_ADAPTER_H
 
-#include <array>
-#include <string>
-
-#include "ipc_skeleton.h"
-#include "system_ability_definition.h"
-
 #include "common_utils.h"
-#include "constant_definition.h"
-#include "geo_coding_mock_info.h"
-#include "location.h"
-#include "location_log.h"
 #include "locator.h"
-#include "message_parcel.h"
 #include "napi_util.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "request_config.h"
 
 namespace OHOS {
 namespace Location {

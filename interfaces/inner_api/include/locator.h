@@ -16,17 +16,18 @@
 #define LOCATOR_H
 
 #include <list>
+#include <vector>
+
 #include "iremote_object.h"
-#include "constant_definition.h"
+
+#include "country_code.h"
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator_callback.h"
 #include "location.h"
 #include "request_config.h"
-#include "napi/native_api.h"
 #include "location_mock_config.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {

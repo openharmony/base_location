@@ -19,6 +19,8 @@
 #include <parcel.h>
 #include <string>
 
+#include "location_mock_config.h"
+
 namespace OHOS {
 namespace Location {
 class LocationMockConfig : public Parcelable {

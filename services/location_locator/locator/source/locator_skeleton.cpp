@@ -17,11 +17,12 @@
 
 #include <file_ex.h>
 #include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "country_code.h"
 #include "common_utils.h"
+#include "i_locator_callback.h"
+#include "location.h"
 #include "locator_ability.h"
 #include "location_dumper.h"
+#include "request_config.h"
 
 namespace OHOS {
 namespace Location {

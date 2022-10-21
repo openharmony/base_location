@@ -17,7 +17,6 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
-#include "location_napi_adapter.h"
 #include "napi/native_api.h"
 #include "country_code.h"
 #include "napi_util.h"
@@ -106,7 +105,7 @@ void CountryCodeCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CountryCodeContext *>(work->data);
-            if (context == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -163,10 +162,16 @@ void CountryCodeCallbackHost::SetCallback(napi_ref cb)
 void CountryCodeCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(mutex_);
+    auto context = new (std::nothrow) AsyncContext(env_);
+    if (context == nullptr) {
+        LBSLOGE(COUNTRY_CODE_CALLBACK, "context == nullptr.");
+        return;
+    }
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
     if (handlerCb_ && env_) {
-        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+        DeleteQueueWork(context);
         handlerCb_ = nullptr;
-        env_ = nullptr;
     }
 }
 }  // namespace Location

@@ -14,7 +14,9 @@
  */
 
 #include "gnss_status_callback_proxy.h"
-#include "ipc_skeleton.h"
+
+#include "message_option.h"
+
 #include "location_log.h"
 
 namespace OHOS {

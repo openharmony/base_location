@@ -16,8 +16,9 @@
 #ifndef I_NMEA_MESSAGE_CALLBACK_H
 #define I_NMEA_MESSAGE_CALLBACK_H
 
+#include <string>
+
 #include "iremote_broker.h"
-#include "ipc_types.h"
 
 namespace OHOS {
 namespace Location {

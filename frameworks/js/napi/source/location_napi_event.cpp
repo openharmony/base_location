@@ -13,19 +13,13 @@
  * limitations under the License.
  */
 #include "location_napi_event.h"
-#include <unistd.h>
-#include "common_utils.h"
-#include "constant_definition.h"
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "location_log.h"
-#include "location_napi_adapter.h"
-#include "napi_util.h"
-#include "locator.h"
-#include "request_config.h"
-#include "system_ability_definition.h"
+
 #include "callback_manager.h"
+#include "common_utils.h"
+#include "location_log.h"
 #include "country_code_callback_host.h"
+#include "locator.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
@@ -64,24 +58,24 @@ void InitOffFuncMap()
 void SubscribeLocationServiceState(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
-    switchCallbackHost->m_env = env;
-    switchCallbackHost->m_handlerCb = handlerRef;
+    switchCallbackHost->SetEnv(env);
+    switchCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterSwitchCallback(switchCallbackHost->AsObject(), DEFAULT_UID);
 }
 
 void SubscribeGnssStatus(const napi_env& env, const napi_ref& handlerRef,
     sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
-    gnssStatusCallbackHost->m_env = env;
-    gnssStatusCallbackHost->m_handlerCb = handlerRef;
+    gnssStatusCallbackHost->SetEnv(env);
+    gnssStatusCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterGnssStatusCallback(gnssStatusCallbackHost->AsObject(), DEFAULT_UID);
 }
 
 void SubscribeNmeaMessage(const napi_env& env, const napi_ref& handlerRef,
     sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
-    nmeaMessageCallbackHost->m_env = env;
-    nmeaMessageCallbackHost->m_handlerCb = handlerRef;
+    nmeaMessageCallbackHost->SetEnv(env);
+    nmeaMessageCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), DEFAULT_UID);
 }
 
@@ -134,8 +128,8 @@ void SubscribeCacheLocationChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<CachedLocationsCallbackHost>& cachedCallbackHost)
 {
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
-    cachedCallbackHost->m_env = env;
-    cachedCallbackHost->m_handlerCb = handlerRef;
+    cachedCallbackHost->SetEnv(env);
+    cachedCallbackHost->SetHandleCb(handlerRef);
     auto request = std::make_unique<CachedGnssLocationsRequest>();
     JsObjToCachedLocationRequest(env, object, request);
     g_locatorProxy->RegisterCachedLocationCallback(request, cachedCallback);
@@ -237,7 +231,8 @@ int GetObjectArgsNum(const napi_env& env, const size_t argc, const napi_value* a
     return objectArgsNum;
 }
 
-std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env, const napi_value* argv, const size_t& objectArgsNum)
+std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env,
+    const napi_value* argv, const size_t& objectArgsNum)
 {
     auto requestConfig = std::make_unique<RequestConfig>();
     if (objectArgsNum > 0) {

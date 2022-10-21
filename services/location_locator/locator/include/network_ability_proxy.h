@@ -16,11 +16,16 @@
 #ifndef NETWORK_ABILITY_PROXY_H
 #define NETWORK_ABILITY_PROXY_H
 
+#include <vector>
+
+#include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
-#include "iremote_stub.h"
 
+#include "location.h"
+#include "location_mock_config.h"
 #include "network_ability_skeleton.h"
+#include "work_record.h"
 
 namespace OHOS {
 namespace Location {

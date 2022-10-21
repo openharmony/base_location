@@ -14,6 +14,8 @@
  */
 #include "gnss_status_callback_host.h"
 
+#include "napi/native_common.h"
+
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
@@ -24,9 +26,9 @@ namespace OHOS {
 namespace Location {
 GnssStatusCallbackHost::GnssStatusCallbackHost()
 {
-    m_env = nullptr;
-    m_handlerCb = nullptr;
-    m_remoteDied = false;
+    env_ = nullptr;
+    handlerCb_ = nullptr;
+    remoteDied_ = false;
 }
 
 GnssStatusCallbackHost::~GnssStatusCallbackHost()
@@ -41,7 +43,7 @@ int GnssStatusCallbackHost::OnRemoteRequest(
         LBSLOGE(GNSS_STATUS_CALLBACK, "invalid token.");
         return -1;
     }
-    if (m_remoteDied) {
+    if (remoteDied_) {
         LBSLOGD(GNSS_STATUS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
@@ -62,15 +64,15 @@ int GnssStatusCallbackHost::OnRemoteRequest(
 
 bool GnssStatusCallbackHost::IsRemoteDied()
 {
-    return m_remoteDied;
+    return remoteDied_;
 }
 
 bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
 
     uv_loop_s *loop = nullptr;
-    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
+    NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "loop == nullptr.");
         return false;
@@ -80,13 +82,13 @@ bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
         LBSLOGE(GNSS_STATUS_CALLBACK, "work == nullptr.");
         return false;
     }
-    GnssStatusAsyncContext *context = new (std::nothrow) GnssStatusAsyncContext(m_env);
+    GnssStatusAsyncContext *context = new (std::nothrow) GnssStatusAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
         return false;
     }
-    context->env = m_env;
-    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
     context->statusInfo = std::move(statusInfo);
     work->data = context;
     UvQueueWork(loop, work);
@@ -107,7 +109,7 @@ void GnssStatusCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<GnssStatusAsyncContext *>(work->data);
-            if (context == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -148,10 +150,17 @@ void GnssStatusCallbackHost::OnStatusChange(const std::unique_ptr<SatelliteStatu
 
 void GnssStatusCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_handlerCb) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
-        m_handlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    auto context = new (std::nothrow) AsyncContext(env_);
+    if (context == nullptr) {
+        LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
+        return;
+    }
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (handlerCb_ && env_) {
+        DeleteQueueWork(context);
+        handlerCb_ = nullptr;
     }
 }
 }  // namespace Location

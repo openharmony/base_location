@@ -18,7 +18,6 @@
 
 #include <v1_0/ia_gnss_callback.h>
 #include "core_service_client.h"
-#include "cellular_data_client.h"
 #include "cell_information.h"
 
 namespace OHOS {

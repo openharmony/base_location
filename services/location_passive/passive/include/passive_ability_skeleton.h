@@ -16,10 +16,12 @@
 #ifndef PASSIVE_ABILITY_SKELETON_H
 #define PASSIVE_ABILITY_SKELETON_H
 
-#include "subability_common.h"
-#include "iremote_object.h"
-#include "iremote_proxy.h"
 #include "iremote_stub.h"
+
+#include "message_option.h"
+#include "message_parcel.h"
+
+#include "subability_common.h"
 
 namespace OHOS {
 namespace Location {

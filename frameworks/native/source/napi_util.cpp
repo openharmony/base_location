@@ -12,15 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "napi_util.h"
-#include <string>
+
+#include "securec.h"
+#include "string_ex.h"
+
+#include "country_code.h"
 #include "common_utils.h"
 #include "geo_address.h"
 #include "location_log.h"
+#include "locator_proxy.h"
 #include "request_config.h"
-#include "securec.h"
-#include "string_ex.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -844,6 +847,68 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
         CreateAsyncWork(env, asyncContext);
         return promise;
     }
+}
+
+void DeleteQueueWork(AsyncContext* context)
+{
+    uv_loop_s *loop = nullptr;
+    if (context->env == nullptr) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "env is nullptr.");
+        return;
+    }
+    NAPI_CALL_RETURN_VOID(context->env, napi_get_uv_event_loop(context->env, &loop));
+    if (loop == nullptr) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
+        return;
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
+        return;
+    }
+    work->data = context;
+    DeleteCallbackHandler(loop, work);
+}
+
+void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
+{
+    uv_queue_work(loop, work, [](uv_work_t *work) {},
+        [](uv_work_t *work, int status) {
+            AsyncContext *context = nullptr;
+            napi_handle_scope scope = nullptr;
+            if (work == nullptr) {
+                LBSLOGE(LOCATOR_CALLBACK, "work is nullptr");
+                return;
+            }
+            context = static_cast<AsyncContext *>(work->data);
+            if (context == nullptr || context->env == nullptr) {
+                LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
+                delete work;
+                return;
+            }
+            NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
+            if (scope == nullptr) {
+                LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
+                delete context;
+                delete work;
+                return;
+            }
+            if (context->callback[SUCCESS_CALLBACK] != nullptr) {
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_delete_reference(context->env, context->callback[SUCCESS_CALLBACK]));
+            }
+            if (context->callback[FAIL_CALLBACK] != nullptr) {
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_delete_reference(context->env, context->callback[FAIL_CALLBACK]));
+            }
+            if (context->callback[COMPLETE_CALLBACK] != nullptr) {
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_delete_reference(context->env, context->callback[COMPLETE_CALLBACK]));
+            }
+            NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
+            delete context;
+            delete work;
+    });
 }
 }  // namespace Location
 }  // namespace OHOS

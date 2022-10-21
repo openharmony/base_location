@@ -14,18 +14,17 @@
  */
 
 #include <map>
+#include <random>
+
 #include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
+
 #include "common_utils.h"
-#include "bundle_mgr_interface.h"
-#include "bundle_mgr_proxy.h"
 
 namespace OHOS {
 namespace Location {
