@@ -24,9 +24,9 @@ namespace OHOS {
 namespace Location {
 NmeaMessageCallbackHost::NmeaMessageCallbackHost()
 {
-    m_env = nullptr;
-    m_handlerCb = nullptr;
-    m_remoteDied = false;
+    env_ = nullptr;
+    handlerCb_ = nullptr;
+    remoteDied_ = false;
 }
 
 NmeaMessageCallbackHost::~NmeaMessageCallbackHost()
@@ -41,7 +41,7 @@ int NmeaMessageCallbackHost::OnRemoteRequest(
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "invalid token.");
         return -1;
     }
-    if (m_remoteDied) {
+    if (remoteDied_) {
         LBSLOGD(NMEA_MESSAGE_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
@@ -62,22 +62,22 @@ int NmeaMessageCallbackHost::OnRemoteRequest(
 
 bool NmeaMessageCallbackHost::IsRemoteDied()
 {
-    return m_remoteDied;
+    return remoteDied_;
 }
 
 napi_value NmeaMessageCallbackHost::PackResult(const std::string msg)
 {
     napi_value result;
-    NAPI_CALL(m_env, napi_create_string_utf8(m_env, msg.c_str(), NAPI_AUTO_LENGTH, &result));
+    NAPI_CALL(env_, napi_create_string_utf8(env_, msg.c_str(), NAPI_AUTO_LENGTH, &result));
     return result;
 }
 
 bool NmeaMessageCallbackHost::Send(const std::string msg)
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
+    std::shared_lock<std::shared_mutex> guard(mutex_);
 
     uv_loop_s *loop = nullptr;
-    NAPI_CALL_BASE(m_env, napi_get_uv_event_loop(m_env, &loop), false);
+    NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "loop == nullptr.");
         return false;
@@ -87,13 +87,13 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "work == nullptr.");
         return false;
     }
-    NmeaAsyncContext *context = new (std::nothrow) NmeaAsyncContext(m_env);
+    NmeaAsyncContext *context = new (std::nothrow) NmeaAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
         return false;
     }
-    context->env = m_env;
-    context->callback[SUCCESS_CALLBACK] = m_handlerCb;
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
     context->msg = msg;
     work->data = context;
     UvQueueWork(loop, work);
@@ -115,7 +115,7 @@ void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<NmeaAsyncContext *>(work->data);
-            if (context == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -155,10 +155,17 @@ void NmeaMessageCallbackHost::OnMessageChange(const std::string msg)
 
 void NmeaMessageCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(m_mutex);
-    if (m_handlerCb) {
-        NAPI_CALL_RETURN_VOID(m_env, napi_delete_reference(m_env, m_handlerCb));
-        m_handlerCb = nullptr;
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    auto context = new (std::nothrow) AsyncContext(env_);
+    if (context == nullptr) {
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
+        return;
+    }
+    context->env = env_;
+    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (handlerCb_ && env_) {
+        DeleteQueueWork(context);
+        handlerCb_ = nullptr;
     }
 }
 }  // namespace Location
