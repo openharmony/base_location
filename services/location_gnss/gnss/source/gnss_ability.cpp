@@ -626,7 +626,10 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         case ISubAbility::SEND_LOCATION_REQUEST: {
             int64_t interval = event->GetParam();
             std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
-            DelayedSingleton<GnssAbility>::GetInstance()->LocationRequest((uint64_t)interval, *workrecord);
+            if (workrecord != nullptr) {
+                DelayedSingleton<GnssAbility>::GetInstance()->
+                    LocationRequest((uint64_t)interval, *workrecord);
+            }
             break;
         }
         default:
