@@ -18,6 +18,7 @@
 #include "ipc_skeleton.h"
 
 #include "common_utils.h"
+#include "gnss_ability.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,9 +42,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
         case SEND_LOCATION_REQUEST: {
-            int64_t interval = data.ReadInt64();
-            std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
-            SendLocationRequest((uint64_t)interval, *workrecord);
+            SendMessage(code, data);
             break;
         }
         case SET_ENABLE: {

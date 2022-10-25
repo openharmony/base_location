@@ -41,7 +41,7 @@ constexpr int32_t GET_HDI_SERVICE_COUNT = 30;
 constexpr uint32_t WAIT_MS = 200;
 constexpr int AGNSS_SERVER_PORT = 7275;
 const std::string AGNSS_SERVER_ADDR = "supl.platform.hicloud.com";
-const uint32_t EVENT_REPORT_LOCATION = 0x0001;
+const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
@@ -62,20 +62,23 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     gnssWorkingStatus_ = GNSS_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
     gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
-    isStarted = false;
+    isHdiConnected_ = false;
     LBSLOGI(GNSS, "ability constructed.");
 }
 
 GnssAbility::~GnssAbility()
 {
-    if (gnssCallback_) {
-        delete gnssCallback_;
+    if (gnssCallback_ != nullptr) {
+        gnssCallback_ = nullptr;
     }
-    if (agnssCallback_) {
-        delete agnssCallback_;
+    if (agnssCallback_ != nullptr) {
+        agnssCallback_ = nullptr;
     }
-    DisableGnss();
-    RemoveHdi();
+    if (isHdiConnected_) {
+        DisableGnss();
+        RemoveHdi();
+        isHdiConnected_ = false;
+    }
 }
 
 void GnssAbility::OnStart()
@@ -248,18 +251,23 @@ void GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGI(GNSS, "enter RequestRecord");
-
     if (isAdded) {
-        if (!isStarted) {
+        if (!isHdiConnected_) {
             ConnectHdi();
             EnableGnss();
             SetAgnssCallback();
             SetAgnssServer();
-            isStarted = true;
+            isHdiConnected_ = true;
         }
         StartGnss();
     } else {
-        StopGnss();
+        if (isHdiConnected_) {
+            StopGnss();
+            if (GetRequestNum() == 0) {
+                RemoveHdi();
+                isHdiConnected_ = false;
+            }
+        }
     }
     std::string state = isAdded ? "start" : "stop";
     WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
@@ -318,8 +326,6 @@ bool GnssAbility::EnableGnss()
     int32_t ret = gnssInterface_->EnableGnss(gnssCallback_);
     LBSLOGI(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     gnssWorkingStatus_ = (ret == 0) ? GNSS_STATUS_ENGINE_ON : GNSS_STATUS_NONE;
-    unsigned int sleepTime = 2 * 1000 * 1000;
-    usleep(sleepTime); /* sleep for 2 second. */
     return true;
 }
 
@@ -389,7 +395,6 @@ void GnssAbility::StopGnss()
 
 bool GnssAbility::ConnectHdi()
 {
-    int32_t retry = 0;
     auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
     if (devmgr == nullptr) {
         LBSLOGE(GNSS, "fail to get devmgr.");
@@ -407,6 +412,7 @@ bool GnssAbility::ConnectHdi()
         LBSLOGE(GNSS, "Load geofence service failed!");
         return false;
     }
+    int32_t retry = 0;
     while (retry < GET_HDI_SERVICE_COUNT) {
         gnssInterface_ = IGnssInterface::Get();
         agnssInterface_ = IAGnssInterface::Get();
@@ -588,6 +594,22 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
     return ERR_OK;
 }
 
+void GnssAbility::SendMessage(uint32_t code, MessageParcel &data)
+{
+    switch (code) {
+        case SEND_LOCATION_REQUEST: {
+            int64_t interval = data.ReadInt64();
+            std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+                Get(code, workrecord, interval);
+            gnssHandler_->SendEvent(event);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
 
 GnssHandler::~GnssHandler() {}
@@ -599,6 +621,12 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
             DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocationMock();
+            break;
+        }
+        case ISubAbility::SEND_LOCATION_REQUEST: {
+            int64_t interval = event->GetParam();
+            std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
+            DelayedSingleton<GnssAbility>::GetInstance()->LocationRequest((uint64_t)interval, *workrecord);
             break;
         }
         default:

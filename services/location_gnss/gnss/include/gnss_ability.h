@@ -95,6 +95,7 @@ public:
     bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
+    void SendMessage(uint32_t code, MessageParcel &data) override;
     void StartGnss();
     void StopGnss();
     bool EnableGnss();
@@ -113,7 +114,7 @@ private:
     bool IsGnssEnabled();
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
-    bool isStarted;
+    bool isHdiConnected_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
