@@ -149,7 +149,7 @@ public:
     static double CalDistance(const double lat1, const double lon1, const double lat2, const double lon2);
     static double DoubleRandom(double min, double max);
     static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckSystemPermission(pid_t uid, uint32_t callerTokenId);
+    static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
 };
 
