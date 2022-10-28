@@ -16,11 +16,11 @@
 #ifndef GNSS_ABILITY_PROXY_H
 #define GNSS_ABILITY_PROXY_H
 
+#include <vector>
+
 #include "iremote_object.h"
 #include "iremote_proxy.h"
-#include "iremote_stub.h"
 
-#include "common_utils.h"
 #include "gnss_ability_skeleton.h"
 
 namespace OHOS {

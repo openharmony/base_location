@@ -16,12 +16,14 @@
 #ifndef NAPI_UTIL_H
 #define NAPI_UTIL_H
 
-#include <chrono>
-#include <condition_variable>
-#include <ctime>
 #include <list>
-#include <mutex>
 #include <string>
+
+#include "message_parcel.h"
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
+#include "uv.h"
+
 #include "location_async_context.h"
 #include "async_context.h"
 #include "constant_definition.h"
@@ -29,13 +31,8 @@
 #include "geo_address.h"
 #include "location.h"
 #include "location_log.h"
-#include "locator_proxy.h"
-#include "message_parcel.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
 #include "request_config.h"
 #include "satellite_status.h"
-#include "uv.h"
 
 namespace OHOS {
 namespace Location {

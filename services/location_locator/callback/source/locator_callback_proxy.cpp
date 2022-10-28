@@ -14,9 +14,10 @@
  */
 
 #include "locator_callback_proxy.h"
-#include "common_utils.h"
+
 #include "ipc_skeleton.h"
 
+#include "common_utils.h"
 #include "location_log.h"
 #include "locator_background_proxy.h"
 

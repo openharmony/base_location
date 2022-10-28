@@ -16,21 +16,19 @@
 #ifndef GNSS_ABILITY_H
 #define GNSS_ABILITY_H
 
-#include <mutex>
 #include <singleton.h>
 #include <v1_0/ignss_interface.h>
 #include <v1_0/ia_gnss_interface.h>
+
 #include "event_handler.h"
-#include "i_gnss_status_callback.h"
-#include "i_nmea_message_callback.h"
-#include "i_cached_locations_callback.h"
-#include "if_system_ability_manager.h"
 #include "system_ability.h"
+
+#include "agnss_event_callback.h"
 #include "common_utils.h"
 #include "gnss_ability_skeleton.h"
-#include "locator_ability.h"
+#include "i_gnss_status_callback.h"
+#include "i_nmea_message_callback.h"
 #include "subability_common.h"
-#include "agnss_event_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -97,6 +95,7 @@ public:
     bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
+    void SendMessage(uint32_t code, MessageParcel &data) override;
     void StartGnss();
     void StopGnss();
     bool EnableGnss();
@@ -115,7 +114,7 @@ private:
     bool IsGnssEnabled();
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
-    bool isStarted;
+    bool isHdiConnected_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;

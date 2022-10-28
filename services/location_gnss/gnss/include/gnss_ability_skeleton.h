@@ -16,12 +16,14 @@
 #ifndef GNSS_ABILITY_SKELETON_H
 #define GNSS_ABILITY_SKELETON_H
 
-#include "constant_definition.h"
-#include "subability_common.h"
+#include "message_option.h"
+#include "message_parcel.h"
 #include "iremote_object.h"
-#include "iremote_proxy.h"
 #include "iremote_stub.h"
+
+#include "constant_definition.h"
 #include "location_mock_config.h"
+#include "subability_common.h"
 
 namespace OHOS {
 namespace Location {
@@ -48,6 +50,7 @@ class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    virtual void SendMessage(uint32_t code, MessageParcel &data) = 0;
 };
 } // namespace Location
 } // namespace OHOS

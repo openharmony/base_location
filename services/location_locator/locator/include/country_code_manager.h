@@ -16,18 +16,17 @@
 #ifndef COUNTRY_CODE_MANAGER_H
 #define COUNTRY_CODE_MANAGER_H
 
-#include <list>
 #include <map>
 #include <singleton.h>
 #include <string>
+
 #include "iremote_stub.h"
 #include "common_event_subscriber.h"
+
 #include "country_code.h"
 #include "i_locator_callback.h"
 #include "i_country_code_callback.h"
 #include "location.h"
-#include "request.h"
-
 
 namespace OHOS {
 namespace Location {

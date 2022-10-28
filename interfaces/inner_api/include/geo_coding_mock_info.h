@@ -17,7 +17,6 @@
 #define LOCATION_GEO_CODEING_MOCK_INFO_H
 
 #include <parcel.h>
-#include <string>
 
 #include "constant_definition.h"
 #include "geo_address.h"

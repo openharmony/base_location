@@ -16,8 +16,13 @@
 #ifndef CACHED_LOCATIONS_CALLBACK_PROXY_H
 #define CACHED_LOCATIONS_CALLBACK_PROXY_H
 
+#include <vector>
+
 #include "iremote_proxy.h"
+#include "iremote_object.h"
+
 #include "i_cached_locations_callback.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {

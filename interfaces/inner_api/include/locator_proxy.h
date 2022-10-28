@@ -16,20 +16,21 @@
 #ifndef LOCATOR_PROXY_H
 #define LOCATOR_PROXY_H
 
+#include <vector>
+
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
-#include "iremote_stub.h"
 
 #include "constant_definition.h"
+#include "country_code.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator.h"
 #include "i_locator_callback.h"
 #include "location.h"
+#include "location_mock_config.h"
 #include "request_config.h"
-#include "satellite_status.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {

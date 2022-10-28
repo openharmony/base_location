@@ -17,7 +17,6 @@
 #define I_LOCATOR_CALLBACK_H
 
 #include "iremote_broker.h"
-#include "ipc_types.h"
 
 #include "location.h"
 

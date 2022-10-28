@@ -18,7 +18,7 @@
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
-#include "iremote_stub.h"
+
 #include "common_utils.h"
 #include "geo_coding_mock_info.h"
 #include "geo_convert_skeleton.h"

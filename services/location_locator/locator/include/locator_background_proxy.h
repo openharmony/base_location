@@ -19,11 +19,13 @@
 #include <map>
 #include <singleton.h>
 #include <string>
-#include "app_mgr_proxy.h"
+
+#include "app_mgr_interface.h"
+#include "app_state_data.h"
 #include "application_state_observer_stub.h"
 #include "common_event_subscriber.h"
-#include "iremote_stub.h"
 #include "system_ability_status_change_stub.h"
+
 #include "i_locator_callback.h"
 #include "request.h"
 

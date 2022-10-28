@@ -14,7 +14,6 @@
  */
 
 #include "geo_convert_proxy.h"
-#include "ipc_skeleton.h"
 #include "location_log.h"
 
 namespace OHOS {

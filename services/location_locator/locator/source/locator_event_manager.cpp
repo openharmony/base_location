@@ -15,11 +15,9 @@
 
 #include "locator_event_manager.h"
 
-#include "hisysevent.h"
+#include <vector>
 
-#include "common_utils.h"
 #include "constant_definition.h"
-#include "location_log.h"
 
 namespace OHOS {
 namespace Location {

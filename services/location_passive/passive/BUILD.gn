@@ -23,18 +23,8 @@ ohos_shared_library("lbsservice_passive") {
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
-    "//base/location/services/location_geocode/geocode/include",
-    "//base/location/services/location_gnss/gnss/include",
-    "//base/location/services/location_locator/callback/include",
-    "//base/location/services/location_locator/distribute/include",
     "//base/location/services/location_locator/locator/include",
-    "//base/location/services/location_network/network/include",
     "//base/location/services/location_passive/passive/include",
-    "//base/location/services/location_passive/passive/visibility/include",
-    "//systemabilitymgr/safwk/include",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk/",
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
   ]
 
   deps = [
@@ -46,7 +36,6 @@ ohos_shared_library("lbsservice_passive") {
 
   external_deps = [
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
   ]
 

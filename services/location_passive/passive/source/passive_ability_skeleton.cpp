@@ -24,7 +24,6 @@
 #include "location.h"
 #include "location_log.h"
 #include "location_mock_config.h"
-#include "subability_common.h"
 #include "work_record.h"
 
 namespace OHOS {

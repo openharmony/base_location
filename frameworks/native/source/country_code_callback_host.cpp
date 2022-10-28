@@ -17,7 +17,6 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
-#include "location_napi_adapter.h"
 #include "napi/native_api.h"
 #include "country_code.h"
 #include "napi_util.h"

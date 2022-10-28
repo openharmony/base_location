@@ -18,10 +18,15 @@
 
 #include <shared_mutex>
 #include <string>
-#include "i_nmea_message_callback.h"
+
 #include "iremote_stub.h"
+#include "message_option.h"
+#include "message_parcel.h"
 #include "napi_util.h"
 #include "napi/native_api.h"
+#include "uv.h"
+
+#include "i_nmea_message_callback.h"
 
 namespace OHOS {
 namespace Location {

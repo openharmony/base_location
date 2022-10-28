@@ -15,11 +15,9 @@
 
 #include "common_hisysevent.h"
 
-#include <iosfwd>
 #include <string>
 
 #include "hisysevent.h"
-#include "ipc_skeleton.h"
 
 #include "location_log.h"
 

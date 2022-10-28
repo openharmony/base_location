@@ -14,6 +14,8 @@
  */
 #include "gnss_status_callback_host.h"
 
+#include "napi/native_common.h"
+
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"

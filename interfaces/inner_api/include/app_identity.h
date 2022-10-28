@@ -17,7 +17,6 @@
 #define APP_IDENTITY_H
 
 #include <string>
-#include "iremote_object.h"
 
 namespace OHOS {
 namespace Location {

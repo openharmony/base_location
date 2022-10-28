@@ -18,20 +18,21 @@
 
 #include <list>
 #include <string>
+
+#include "message_parcel.h"
+#include "napi/native_api.h"
+
 #include "async_context.h"
 #include "constant_definition.h"
+#include "country_code.h"
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "location.h"
 #include "location_log.h"
 #include "location_mock_config.h"
-#include "message_parcel.h"
 #include "locator_callback_host.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
 #include "request_config.h"
 #include "satellite_status.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {

@@ -17,11 +17,15 @@
 #define LOCATOR_CALLBACK_HOST_H
 
 #include <shared_mutex>
-#include "common_utils.h"
-#include "i_locator_callback.h"
+
 #include "iremote_stub.h"
 #include "napi/native_api.h"
 #include "uv.h"
+
+#include "common_utils.h"
+#include "constant_definition.h"
+#include "i_locator_callback.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {

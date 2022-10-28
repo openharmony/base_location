@@ -18,8 +18,6 @@
 
 #include <string>
 
-#include <geo_address.h>
-
 namespace OHOS {
 namespace Location {
 // error type

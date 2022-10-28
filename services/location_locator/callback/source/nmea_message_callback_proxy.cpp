@@ -14,8 +14,12 @@
  */
 
 #include "nmea_message_callback_proxy.h"
-#include "common_utils.h"
-#include "ipc_skeleton.h"
+
+#include "string_ex.h"
+
+#include "message_parcel.h"
+#include "message_option.h"
+
 #include "location_log.h"
 
 namespace OHOS {
