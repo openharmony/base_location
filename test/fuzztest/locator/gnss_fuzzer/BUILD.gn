@@ -22,7 +22,7 @@ ohos_fuzztest("GnssFuzzTest") {
   include_dirs = [
     "//base/location/services/location_gnss/gnss/include",
     "//base/location/services/location_locator/locator/include",
-    "//base/location/interfaces/inner_api/include"
+    "//base/location/interfaces/inner_api/include",
   ]
   cflags = [
     "-g",
