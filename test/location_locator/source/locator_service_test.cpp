@@ -38,6 +38,12 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::Location;
 
+const int32_t NUM_0  = 0;
+const int32_t NUM_1  = 1;
+const int32_t NUM_2  = 2;
+const int32_t NUM_3  = 3;
+const int32_t LOCATION_PERM_NUM = 4;
+
 void LocatorServiceTest::SetUp()
 {
     /*
@@ -76,14 +82,14 @@ void LocatorServiceTest::TearDown()
 
 void LocatorServiceTest::AddPermission()
 {
-    const char *perms[4];
-    perms[0] = ACCESS_LOCATION.c_str();
-    perms[1] = ACCESS_APPROXIMATELY_LOCATION.c_str();
-    perms[2] = ACCESS_BACKGROUND_LOCATION.c_str();
-    perms[3] = MANAGE_SECURE_SETTINGS.c_str();
+    const char *perms[LOCATION_PERM_NUM];
+    perms[NUM_0] = ACCESS_LOCATION.c_str();
+    perms[NUM_1] = ACCESS_APPROXIMATELY_LOCATION.c_str();
+    perms[NUM_2] = ACCESS_BACKGROUND_LOCATION.c_str();
+    perms[NUM_3] = MANAGE_SECURE_SETTINGS.c_str();
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 4,
+        .permsNum = LOCATION_PERM_NUM,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
