@@ -14,17 +14,33 @@
  */
 
 #include "locator_fuzzer.h"
+
+#include "accesstoken_kit.h" 
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
+#include "message_option.h"
+#include "message_parcel.h"
+#include "nativetoken_kit.h"
+#include "system_ability_definition.h"
+#include "token_setproc.h"
+
+#include "common_utils.h"
+#include "i_locator_callback.h"
 #include "locator.h"
 #include "locator_callback_host.h"
+#include "location_log.h"
 #include "request_config.h"
-#include "i_locator_callback.h"
 
 const int FUZZ_DATA_LEN = 8;
+const int32_t MAX_CODE_LEN  = 512;
+const int32_t MAX_CODE_NUM = 40;
+const int32_t MIN_SIZE_NUM = 4;
 
 namespace OHOS {
     using namespace OHOS::Location;
-    auto g_locatorCallbackHostForTest =
+    auto locatorCallbackHostForTest_ =
                 sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    bool isGranted_ = true;
 
     bool TestStartLocating(const uint8_t* data, size_t size)
     {
@@ -35,7 +51,7 @@ namespace OHOS {
         /* init locator and LocatorCallbackHost */
         std::unique_ptr<Locator> locator = Locator::GetInstance();
         int index = 0;
-        g_locatorCallbackHostForTest->SetFixNumber(data[index++]);
+        locatorCallbackHostForTest_->SetFixNumber(data[index++]);
         /* init requestConfig */
         std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
         requestConfig->SetScenario(data[index++]);
@@ -46,7 +62,7 @@ namespace OHOS {
         requestConfig->SetFixNumber(data[index++]);
         requestConfig->SetTimeOut(data[index++]);
         /* test StartLocating */
-        sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(g_locatorCallbackHostForTest);
+        sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHostForTest_);
         locator->StartLocating(requestConfig, locatorCallback);
         /* test StopLocating */
         locator->StopLocating(locatorCallback);
@@ -56,13 +72,77 @@ namespace OHOS {
         locator->StopLocating(locatorCallback);
         return result;
     }
+    
+    bool LocatorProxySendRequestTest(const uint8_t* data, size_t size)
+    {
+        if ((data == nullptr) || (size > MAX_CODE_LEN) || (size < MIN_SIZE_NUM)) {
+            LBSLOGE(LOCATOR, "param error");
+            return false;
+        }
+        uint32_t cmdCode = *(reinterpret_cast<const uint32_t*>(data));
+        cmdCode %= MAX_CODE_NUM;
+        sptr<ISystemAbilityManager> systemAbilityManager =
+            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        sptr<IRemoteObject> object = systemAbilityManager->GetSystemAbility(LOCATION_LOCATOR_SA_ID);
+        auto client = std::make_unique<LocatorProxyTestFuzzer>(object);
+        if (client == nullptr) {
+            LBSLOGE(LOCATOR, "client is nullptr");
+            return false;
+        }
+        MessageParcel request;
+        if (!request.WriteInterfaceToken(client->GetDescriptor())) {
+            LBSLOGE(LOCATOR, "cannot write interface token");
+            return false;
+        }
+        MessageParcel reply;
+        MessageOption option;
+        sptr<IRemoteObject> remote = client->GetRemote();
+        if (remote == nullptr) {
+            LBSLOGE(LOCATOR, "cannot get remote object");
+            return false;
+        }
+        size -= sizeof(uint32_t);
+        request.WriteBuffer(data + sizeof(uint32_t), size);
+        request.RewindRead(0);
+        int32_t result = remote->SendRequest(cmdCode, request, reply, option);
+        return result == SUCCESS;
+    }
+    
+    void AddPermission()
+    {
+        if(isGranted_) {
+            const char *perms[4];
+            perms[0] = ACCESS_LOCATION.c_str();
+            perms[1] = ACCESS_APPROXIMATELY_LOCATION.c_str();
+            perms[2] = ACCESS_BACKGROUND_LOCATION.c_str();
+            perms[3] = MANAGE_SECURE_SETTINGS.c_str();
+            NativeTokenInfoParams infoInstance = {
+                .dcapsNum = 0,
+                .permsNum = 4,
+                .aclsNum = 0,
+                .dcaps = nullptr,
+                .perms = perms,
+                .acls = nullptr,
+                .processName = "LocatorFuzzer",
+                .aplStr = "system_basic",
+            };
+            uint64_t tokenId = GetAccessTokenId(&infoInstance);
+            SetSelfTokenID(tokenId);
+            Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+            isGranted_ = false;
+        }
+    }
 }
+
+
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
+    OHOS::AddPermission();
     OHOS::TestStartLocating(data, size);
+    OHOS::LocatorProxySendRequestTest(data, size);
     return 0;
 }
 

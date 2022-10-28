@@ -14,5 +14,8 @@
 import("//build/test.gni")
 group("fuzztest") {
   testonly = true
-  deps = [ "locator/locator_fuzzer:fuzztest" ]
+  deps = [
+    "locator/locator_fuzzer:LocatorFuzzTest",
+    "locator/gnss_fuzzer:GnssFuzzTest"
+  ]
 }
