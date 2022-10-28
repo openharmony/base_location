@@ -348,7 +348,6 @@ void RequestManager::HandleRequest(std::string abilityName)
     auto list = mapIter->second;
     // generate work record, and calculate interval
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
-    int timeInterval = 0;
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
         if (request == nullptr) {
@@ -364,13 +363,13 @@ void RequestManager::HandleRequest(std::string abilityName)
             LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", request->GetTokenId());
             continue;
         }
-        // add request info to work record
-        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName());
         auto requestConfig = request->GetRequestConfig();
         if (requestConfig == nullptr) {
             continue;
         }
-        timeInterval = requestConfig->GetTimeInterval();
+        // add request info to work record
+        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName(),
+            requestConfig->GetTimeInterval(), std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
         int requestType = requestConfig->GetScenario();
         if (requestType == SCENE_UNSET) {
             requestType = requestConfig->GetPriority();
@@ -383,10 +382,10 @@ void RequestManager::HandleRequest(std::string abilityName)
         abilityName.c_str(), std::to_string(list.size()).c_str(), workRecord->ToString().c_str());
     lock.unlock();
 
-    ProxySendLocationRequest(abilityName, *workRecord, timeInterval);
+    ProxySendLocationRequest(abilityName, *workRecord);
 }
 
-void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval)
+void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
     sptr<IRemoteObject> remoteObject = GetRemoteObject(abilityName);
     if (remoteObject == nullptr) {
@@ -395,13 +394,13 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
         std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(remoteObject);
-        gnssProxy->SendLocationRequest(timeInterval, workRecord);
+        gnssProxy->SendLocationRequest(workRecord);
     } else if (abilityName == NETWORK_ABILITY) {
         std::unique_ptr<NetworkAbilityProxy> networkProxy = std::make_unique<NetworkAbilityProxy>(remoteObject);
-        networkProxy->SendLocationRequest(timeInterval, workRecord);
+        networkProxy->SendLocationRequest(workRecord);
     } else if (abilityName == PASSIVE_ABILITY) {
         std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
-        passiveProxy->SendLocationRequest(timeInterval, workRecord);
+        passiveProxy->SendLocationRequest(workRecord);
     }
     DelayedSingleton<FusionController>::GetInstance()->Process(abilityName);
 }

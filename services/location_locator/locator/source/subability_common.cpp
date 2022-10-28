@@ -44,9 +44,9 @@ void SubAbility::SetAbility(std::string name)
     capability_ = CommonUtils::GetCapability(name);
 }
 
-void SubAbility::LocationRequest(uint64_t interval, WorkRecord &workRecord)
+void SubAbility::LocationRequest(WorkRecord &workRecord)
 {
-    interval_ = interval;
+    LBSLOGI(label_, "test1103, LocationRequest, before clear");
     newRecord_->Clear();
     newRecord_->Set(workRecord);
     HandleRefrashRequirements();
@@ -81,11 +81,12 @@ void SubAbility::HandleRemoveRecord(WorkRecord &newRecord)
     for (int i = 0; i < lastRecord_->Size(); i++) {
         int uid = lastRecord_->GetUid(i);
         bool isFind = newRecord.Find(uid, lastRecord_->GetName(i));
-        LBSLOGD(label_, "remove record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
+        LBSLOGI(label_, "remove record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-            workRecord->Add(uid, lastRecord_->GetPid(i), lastRecord_->GetName(i));
+            workRecord->Add(uid, lastRecord_->GetPid(i), lastRecord_->GetName(i),
+                lastRecord_->GetTimeInterval(i), lastRecord_->GetUUid(i));
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(*workRecord, false);
         }
@@ -97,14 +98,12 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
     for (int i = 0; i < newRecord.Size(); i++) {
         int uid = newRecord.GetUid(i);
         bool isFind = lastRecord_->Find(uid, newRecord.GetName(i));
-        LBSLOGD(label_, "add record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
+        LBSLOGI(label_, "add record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-            if (workRecord == nullptr) {
-                continue;
-            }
-            workRecord->Add(uid, newRecord.GetPid(i), newRecord.GetName(i));
+            workRecord->Add(uid, newRecord.GetPid(i), newRecord.GetName(i),
+                newRecord.GetTimeInterval(i), newRecord.GetUUid(i));
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(*workRecord, true);
         }
@@ -137,13 +136,14 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
 {
     std::unique_ptr<WorkRecord> records = std::make_unique<WorkRecord>();
     std::string name = Str16ToStr8(u"ohos");
+    std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
     records->Set(*lastRecord_);
     if (state) {
-        records->Add(uid, pid, name);
+        records->Add(uid, pid, name, 1, uuid);
     } else {
         records->Remove(uid, pid, name);
     }
-    LocationRequest(interval_, *records);
+    LocationRequest(*records);
     records->Clear();
 }
 

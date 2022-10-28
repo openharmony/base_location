@@ -49,6 +49,8 @@ const int SA_NUM = 3;
 const int DEFAULT_UID = 10001;
 const int SYSTEM_UID = 1000;
 const int ROOT_UID = 0;
+static constexpr int MIN_INT_RANDOM = 10000;
+static constexpr int MAX_INT_RANDOM = 99999;
 
 const int EX_HAS_REPLY_HEADER = -128;
 const int REPLY_CODE_NO_EXCEPTION = 0;
@@ -68,6 +70,7 @@ const int DFT_IPC_CALLING_ERROR = 201;
 const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int SEC_TO_MILLI_SEC = 1000;
+const int CONNECT_TIME_OUT = 10;
 
 const char DEFAULT_STRING[] = "error";
 const std::wstring DEFAULT_WSTRING = L"error";
@@ -148,6 +151,7 @@ public:
     static bool DoubleEqual(double a, double b);
     static double CalDistance(const double lat1, const double lon1, const double lat2, const double lon2);
     static double DoubleRandom(double min, double max);
+    static int IntRandom(int min, int max);
     static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSystemPermission(pid_t uid, uint32_t callerTokenId);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);

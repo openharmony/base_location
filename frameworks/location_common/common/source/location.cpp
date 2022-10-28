@@ -36,6 +36,9 @@ Location::Location()
     additions_ = "";
     additionSize_ = 0;
     isFromMock_ = false;
+    soueceType_ = 0;
+    floorNo_ = 0;
+    floorAccuracy_ = 0.0;
 }
 
 Location::Location(Location& location)
@@ -51,6 +54,9 @@ Location::Location(Location& location)
     additions_ = location.GetAdditions();
     additionSize_ = location.GetAdditionSize();
     isFromMock_ = location.GetIsFromMock();
+    soueceType_ = location.GetSoueceType();
+    floorNo_ = location.GetFloorNo();
+    floorAccuracy_ = location.GetFloorAccuracy();
 }
 
 void Location::ReadFromParcel(Parcel& parcel)
@@ -66,6 +72,9 @@ void Location::ReadFromParcel(Parcel& parcel)
     additions_ = parcel.ReadString();
     additionSize_ = parcel.ReadInt64();
     isFromMock_ = parcel.ReadBool();
+    soueceType_ = parcel.ReadInt32();
+    floorNo_ = parcel.ReadInt32();
+    floorAccuracy_ = parcel.ReadDouble();
 }
 
 std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
@@ -94,7 +103,10 @@ bool Location::Marshalling(Parcel& parcel) const
            parcel.WriteInt64(timeSinceBoot_) &&
            parcel.WriteString(additions_) &&
            parcel.WriteInt64(additionSize_) &&
-           parcel.WriteBool(isFromMock_);
+           parcel.WriteBool(isFromMock_) &&
+           parcel.WriteInt32(soueceType_) &&
+           parcel.WriteInt32(floorNo_) &&
+           parcel.WriteDouble(floorAccuracy_);
 }
 
 std::string Location::ToString() const
@@ -106,7 +118,10 @@ std::string Location::ToString() const
         ", speed : " + std::to_string(speed_) +
         ", direction : " + std::to_string(direction_) +
         ", timeStamp : " + std::to_string(timeStamp_) +
-        ", timeSinceBoot : " + std::to_string(timeSinceBoot_);
+        ", timeSinceBoot : " + std::to_string(timeSinceBoot_) +
+        ", soueceType : " + std::to_string(soueceType_) +
+        ", floorNo : " + std::to_string(floorNo_) +
+        ", floorAccuracy : " + std::to_string(floorAccuracy_);
     return str;
 }
 } // namespace Location

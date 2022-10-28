@@ -15,14 +15,19 @@
 
 #include "network_ability.h"
 #include <file_ex.h>
+#include "ability_connect_callback_interface.h"
+#include "ability_connect_callback_stub.h"
+#include "ability_manager_client.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "want_agent_helper.h"
 
 #include "common_utils.h"
 #include "location_log.h"
 #include "location_dumper.h"
 #include "locator_ability.h"
+#include "network_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -74,9 +79,70 @@ bool NetworkAbility::Init()
     return true;
 }
 
-void NetworkAbility::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+class CloudConnection : public AAFwk::AbilityConnectionStub {
+public:
+    void OnAbilityConnectDone(
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
+    {
+        std::string uri = element.GetURI();
+        LBSLOGI(NETWORK, "Connected uri is %{public}s, result is %{public}d.", uri.c_str(), resultCode);
+        if (resultCode != ERR_OK) {
+            return;
+        }
+        DelayedSingleton<NetworkAbility>::GetInstance().get()->notifyConnected(remoteObject);
+    }
+
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int) override
+    {
+        std::string uri = element.GetURI();
+        LBSLOGI(NETWORK, "Disconnected uri is %{public}s.", uri.c_str());
+        DelayedSingleton<NetworkAbility>::GetInstance().get()->notifyDisConnected();
+    }
+};
+
+bool NetworkAbility::ConnectHms()
 {
-    LocationRequest(interval, workrecord);
+    LBSLOGI(NETWORK, "start ConnectHms");
+    std::unique_lock<std::mutex> uniqueLock(connectMutex_);
+    if (!connectServiceReady_) {
+        AAFwk::Want connectionWant;
+        connectionWant.SetElementName("com.huawei.hms.hmscore", "LocationExtAbility");
+        sptr<AAFwk::IAbilityConnection> cloudConnection = new CloudConnection();
+        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, cloudConnection, -1);
+        if (ret != ERR_OK) {
+            LBSLOGE(NETWORK, "Connect cloud service failed!");
+            return false;
+        }
+
+        auto waitStatus = connectCondition_.wait_for(
+            uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return connectServiceReady_; });
+        if (!waitStatus) {
+            LBSLOGE(NETWORK, "Connect cloudService timeout!");
+            return false;
+        }
+    }
+    return true;
+}
+
+void NetworkAbility::notifyConnected(const sptr<IRemoteObject>& remoteObject)
+{
+    std::unique_lock<std::mutex> uniqueLock(connectMutex_);
+    connectServiceReady_ = true;
+    cloudServiceProxy_ = remoteObject;
+    connectCondition_.notify_all();
+}
+
+void NetworkAbility::notifyDisConnected()
+{
+    std::unique_lock<std::mutex> uniqueLock(connectMutex_);
+    connectServiceReady_ = false;
+    cloudServiceProxy_ = nullptr;
+    connectCondition_.notify_all();
+}
+
+void NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
+{
+    LocationRequest(workrecord);
 }
 
 void NetworkAbility::SetEnable(bool state)
@@ -92,7 +158,35 @@ void NetworkAbility::SelfRequest(bool state)
 
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGE(NETWORK, "enter RequestRecord");
+    LBSLOGE(NETWORK, "test enter RequestRecord");
+    if (!ConnectHms()) {
+        return;
+    }
+    if (cloudServiceProxy_ != nullptr) {
+        MessageParcel data, reply;
+        MessageOption option;
+        if (isAdded) {
+            sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+            data.WriteString(workRecord.GetUUid(0));
+            data.WriteInt64(workRecord.GetTimeInterval(0));
+            data.WriteInt32(PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
+            data.WriteRemoteObject(callback->AsObject());
+            int error = cloudServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
+            if (error != ERR_OK) {
+                LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
+                return;
+            }
+            LBSLOGE(NETWORK, "start network location.");
+        } else {
+            data.WriteString(workRecord.GetUUid(0));
+            int error = cloudServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
+            if (error != ERR_OK) {
+                LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
+                return;
+            }
+            LBSLOGE(NETWORK, "stop network location.");
+        } 
+    }
 }
 
 bool NetworkAbility::EnableMock(const LocationMockConfig& config)

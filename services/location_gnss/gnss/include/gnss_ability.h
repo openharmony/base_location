@@ -71,7 +71,7 @@ public:
     {
         return state_;
     }
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
+    void SendLocationRequest(WorkRecord &workrecord) override;
     void SetEnable(bool state) override;
     void RefrashRequirements() override;
     void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;

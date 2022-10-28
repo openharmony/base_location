@@ -36,7 +36,9 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
         int uid = parcel.ReadInt32();
         int pid = parcel.ReadInt32();
         std::string name = parcel.ReadString();
-        Add(uid, pid, name);
+        int timeInterval = parcel.ReadInt32();
+        std::string uuid = parcel.ReadString();
+        Add(uid, pid, name, timeInterval, uuid);
     }
     deviceId_ = parcel.ReadString();
 }
@@ -57,6 +59,8 @@ bool WorkRecord::Marshalling(Parcel& parcel) const
         parcel.WriteInt32(uids_[i]);
         parcel.WriteInt32(pids_[i]);
         parcel.WriteString(names_[i]);
+        parcel.WriteInt32(timeInterval_[i]);
+        parcel.WriteString(uuid_[i]);
     }
     parcel.WriteString(deviceId_);
     return true;
@@ -90,6 +94,10 @@ std::string WorkRecord::ToString()
             result += ",";
             result += names_[i];
             result += "; ";
+            result += std::to_string(timeInterval_[i]);
+            result += "; ";
+            result += uuid_[i];
+            result += "; ";
         }
     }
     result += "]";
@@ -120,6 +128,22 @@ int WorkRecord::GetPid(int index)
     return -1;
 }
 
+int WorkRecord::GetTimeInterval(int index)
+{
+    if (index >= 0 && index < num_) {
+        return timeInterval_[index];
+    }
+    return -1;
+}
+
+std::string WorkRecord::GetUUid(int index)
+{
+    if (index >= 0 && index < num_) {
+        return uuid_[index];
+    }
+    return "";
+}
+
 void WorkRecord::SetDeviceId(std::string deviceId)
 {
     deviceId_ = deviceId;
@@ -143,12 +167,14 @@ bool WorkRecord::IsEmpty()
     return false;
 }
 
-bool WorkRecord::Add(int uid, int pid, std::string name)
+bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::string uuid)
 {
     if (num_ <= 0) {
         uids_.insert(uids_.begin(), uid);
         pids_.insert(pids_.begin(), pid);
         names_.insert(names_.begin(), name);
+        timeInterval_.insert(timeInterval_.begin(), timeInterval);
+        uuid_.insert(uuid_.begin(), uuid);
         num_++;
         return true;
     }
@@ -166,6 +192,8 @@ bool WorkRecord::Add(int uid, int pid, std::string name)
     uids_.insert(uids_.begin() + i, uid);
     pids_.insert(pids_.begin() + i, pid);
     names_.insert(names_.begin() + i, name);
+    timeInterval_.insert(timeInterval_.begin() + i, timeInterval);
+    uuid_.insert(uuid_.begin() + i, uuid);
     num_++;
     return true;
 }
@@ -190,6 +218,8 @@ bool WorkRecord::Remove(int uid, int pid, std::string name)
     uids_.erase(uids_.begin() + i);
     pids_.erase(pids_.begin() + i);
     names_.erase(names_.begin() + i);
+    timeInterval_.erase(timeInterval_.begin() + i);
+    uuid_.erase(uuid_.begin() + i);
     num_--;
     return true;
 }
@@ -211,6 +241,8 @@ bool WorkRecord::Remove(std::string name)
     uids_.erase(uids_.begin() + i);
     pids_.erase(pids_.begin() + i);
     names_.erase(names_.begin() + i);
+    timeInterval_.erase(timeInterval_.begin() + i);
+    uuid_.erase(uuid_.begin() + i);
     num_--;
     return true;
 }
@@ -237,6 +269,8 @@ void WorkRecord::Clear()
     uids_.clear();
     pids_.clear();
     names_.clear();
+    timeInterval_.clear();
+    uuid_.clear();
     num_ = 0;
 }
 
@@ -248,7 +282,9 @@ void WorkRecord::Set(WorkRecord &workRecord)
         int uid = workRecord.GetUid(i);
         int pid = workRecord.GetPid(i);
         std::string name = workRecord.GetName(i);
-        Add(uid, pid, name);
+        int timeInterval = workRecord.GetTimeInterval(i);
+        std::string uuid = workRecord.GetUUid(i);
+        Add(uid, pid, name, timeInterval, uuid);
     }
 }
 } // namespace Location

@@ -136,6 +136,36 @@ public:
         isFromMock_ = fromMock;
     }
 
+    inline int32_t GetSoueceType() const
+    {
+        return soueceType_;
+    }
+
+    inline void SetSoueceType(int32_t soueceType)
+    {
+        soueceType_ = soueceType;
+    }
+
+    inline int32_t GetFloorNo() const
+    {
+        return floorNo_;
+    }
+
+    inline void SetFloorNo(int32_t floorNo)
+    {
+        floorNo_ = floorNo;
+    }
+
+    inline double GetFloorAccuracy() const
+    {
+        return floorAccuracy_;
+    }
+
+    inline void SetFloorAccuracy(double floorAccuracy)
+    {
+        floorAccuracy_ = floorAccuracy;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -153,6 +183,9 @@ private:
     std::string additions_;
     int64_t additionSize_;
     bool isFromMock_;
+    int32_t soueceType_;
+    int32_t floorNo_;
+    double floorAccuracy_;
 };
 } // namespace Location
 } // namespace OHOS

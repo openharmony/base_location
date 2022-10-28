@@ -29,6 +29,8 @@
 
 namespace OHOS {
 namespace Location {
+static constexpr int REQUEST_NETWORK_LOCATION = 1;
+static constexpr int REMOVE_NETWORK_LOCATION = 2;
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
     explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
@@ -50,7 +52,7 @@ public:
     {
         return state_;
     }
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
+    void SendLocationRequest(WorkRecord &workrecord) override;
     void SetEnable(bool state) override;
     void SelfRequest(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
@@ -60,11 +62,18 @@ public:
     bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
     void ProcessReportLocationMock();
+    bool ConnectHms();
+    void notifyConnected(const sptr<IRemoteObject>& remoteObject);
+    void notifyDisConnected();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
+    bool connectServiceReady_ = false;
+    std::mutex connectMutex_;
+    sptr<IRemoteObject> cloudServiceProxy_;
+    std::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
