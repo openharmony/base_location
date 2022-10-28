@@ -17,12 +17,15 @@
 
 #include <cstdlib>
 
+#include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "nativetoken_kit.h"
 #include "system_ability_definition.h"
+#include "token_setproc.h"
 
 #include "app_identity.h"
 #include "common_utils.h"
@@ -59,6 +62,7 @@ void LocatorServiceTest::SetUp()
     request_->SetPid(getpid());
     SetStartUpConfirmed(true);
     ChangedLocationMode(true);
+    AddPermission();
 }
 
 void LocatorServiceTest::TearDown()
@@ -68,6 +72,28 @@ void LocatorServiceTest::TearDown()
      */
     proxy_ = nullptr;
     callbackStub_ = nullptr;
+}
+
+void LocatorServiceTest::AddPermission()
+{
+    const char *perms[4];
+    perms[0] = ACCESS_LOCATION.c_str();
+    perms[1] = ACCESS_APPROXIMATELY_LOCATION.c_str();
+    perms[2] = ACCESS_BACKGROUND_LOCATION.c_str();
+    perms[3] = MANAGE_SECURE_SETTINGS.c_str();
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 4,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "LocatorTest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 void LocatorServiceTest::SetStartUpConfirmed(bool isAuthorized)
@@ -178,11 +204,11 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
     bool ret = false;
     if (proxy_->GetSwitchState() == 1) {
         proxy_->GetCacheLocation(reply);
-        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        ret = reply.ReadInt32() == REPLY_CODE_EXCEPTION;
         EXPECT_EQ(true, ret);
     } else {
         proxy_->GetCacheLocation(reply);
-        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        ret = reply.ReadInt32() == REPLY_CODE_NO_EXCEPTION;
         EXPECT_EQ(true, ret);
     }
 }
@@ -314,12 +340,12 @@ HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
     /*
      * @tc.steps: step1. get callingTokenId and callingFirstTokenid.
      * @tc.steps: step2. Call GetPermissionLevel and get permission level.
-     * @tc.expected: step1. get permission level is PERMISSION_INVALID.
+     * @tc.expected: step1. get permission level is PERMISSION_ACCURATE.
      */
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
     int permissionLevel = CommonUtils::GetPermissionLevel(callingTokenId, callingFirstTokenid);
-    EXPECT_EQ(PERMISSION_INVALID, permissionLevel);
+    EXPECT_EQ(PERMISSION_ACCURATE, permissionLevel);
 }
 
 /*
@@ -336,7 +362,7 @@ HWTEST_F(LocatorServiceTest, RegisterAppStateObserver001, TestSize.Level1)
      * @tc.expected: return false, permission denied
      */
     bool ret = backgroundProxy_->RegisterAppStateObserver();
-    EXPECT_EQ(false, ret); // no permission
+    EXPECT_EQ(true, ret);
 }
 
 /*

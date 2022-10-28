@@ -180,7 +180,7 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
 }
 
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
-    std::unique_ptr<GeofenceRequest>& request)
+    const std::unique_ptr<GeofenceRequest>& request)
 {
     int value = 0;
     double doubleValue = 0.0;
@@ -406,7 +406,7 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
 }
 
 bool GetStringArrayValueByKey(
-    napi_env env, napi_value jsObject, std::string key, std::vector<std::string>& outArray)
+    napi_env env, napi_value jsObject, const std::string key, std::vector<std::string>& outArray)
 {
     napi_value array = GetNapiValueByKey(env, key, jsObject);
     if (array == nullptr) {
@@ -568,7 +568,7 @@ int JsObjectToString(const napi_env& env, const napi_value& object,
             LBSLOGE(LOCATOR_STANDARD, "The length of buf should be greater than 0.");
             return COMMON_ERROR;
         }
-        char *buf = (char *)malloc(bufLen);
+        char *buf = static_cast<char *>(malloc(bufLen));
         if (buf == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "Js object to str malloc failed!");
             return COMMON_ERROR;
@@ -711,7 +711,7 @@ static bool InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext,
     return true;
 }
 
-void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode)
+void CreateFailCallBackParams(AsyncContext& context, const std::string msg, int32_t errorCode)
 {
     SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
     SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
@@ -814,7 +814,7 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
                 LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
                 return;
             }
-            AsyncContext* context = (AsyncContext *)data;
+            AsyncContext* context = static_cast<AsyncContext *>(data);
             context->executeFunc(context);
         },
         [](napi_env env, napi_status status, void* data) {
@@ -822,12 +822,12 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
                 LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
                 return;
             }
-            AsyncContext* context = (AsyncContext *)data;
+            AsyncContext* context = static_cast<AsyncContext *>(data);
             context->completeFunc(data);
             CreateResultObject(env, context);
             SendResultToJs(env, context);
             MemoryReclamation(env, context);
-        }, (void*)asyncContext, &asyncContext->work));
+        }, static_cast<void*>(asyncContext), &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
     return UndefinedNapiValue(env);
 }
