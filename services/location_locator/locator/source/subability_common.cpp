@@ -101,9 +101,6 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-            if (workRecord == nullptr) {
-                continue;
-            }
             workRecord->Add(uid, newRecord.GetPid(i), newRecord.GetName(i));
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(*workRecord, true);

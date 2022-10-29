@@ -363,8 +363,6 @@ std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
     if (error == NO_ERROR) {
         std::string country = reply.ReadString();
         int countryType = reply.ReadInt32();
-        int result = 0;
-        result = reply.ReadInt32();
         auto countryCode = std::make_shared<CountryCode>();
         countryCode->SetCountryCodeStr(country);
         countryCode->SetCountryCodeType(countryType);

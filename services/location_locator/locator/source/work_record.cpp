@@ -44,9 +44,7 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
 std::unique_ptr<WorkRecord> WorkRecord::Unmarshalling(Parcel& parcel)
 {
     std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-    if (workRecord != nullptr) {
-        workRecord->ReadFromParcel(parcel);
-    }
+    workRecord->ReadFromParcel(parcel);
     return workRecord;
 }
 
