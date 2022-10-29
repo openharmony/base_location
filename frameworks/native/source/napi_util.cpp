@@ -28,6 +28,8 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
+static constexpr int NUM_ZERO = 0;
+static constexpr int MAX_CALLBACK_NUM = 3;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -568,17 +570,12 @@ int JsObjectToString(const napi_env& env, const napi_value& object,
             LBSLOGE(LOCATOR_STANDARD, "The length of buf should be greater than 0.");
             return COMMON_ERROR;
         }
-        char *buf = static_cast<char *>(malloc(bufLen));
-        if (buf == nullptr) {
-            LBSLOGE(LOCATOR_STANDARD, "Js object to str malloc failed!");
-            return COMMON_ERROR;
-        }
-        (void)memset_s(buf, bufLen, 0, bufLen);
+        int32_t actBuflen = bufLen + 1;
+        std::unique_ptr<char[]> buf = std::make_unique<char[]>(actBuflen);
+        (void)memset_s(buf.get(), actBuflen, 0, actBuflen);
         size_t result = 0;
-        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, field, buf, bufLen, &result), COMMON_ERROR);
-        fieldRef = buf;
-        free(buf);
-        buf = nullptr;
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, field, buf.get(), actBuflen, &result), COMMON_ERROR);
+        fieldRef = buf.get();
         return SUCCESS;
     }
     LBSLOGD(LOCATOR_STANDARD, "Js obj to str no property: %{public}s", fieldStr);
@@ -695,7 +692,11 @@ static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext
         napi_valuetype valuetype;
         NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);
         NAPI_ASSERT_BASE(env, valuetype == napi_function,  "Wrong argument type.", false);
-        NAPI_CALL_BASE(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - objectArgsNum]), false);
+        size_t index = i - objectArgsNum;
+        if (index < NUM_ZERO || index >= MAX_CALLBACK_NUM) {
+            break;
+        }
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[index]), false);
     }
     return true;
 }
