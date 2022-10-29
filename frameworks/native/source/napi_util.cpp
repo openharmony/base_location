@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
-static constexpr int NUM_ZERO = 0;
+static constexpr int MIN_CALLBACK_NUM = 0;
 static constexpr int MAX_CALLBACK_NUM = 3;
 
 napi_value UndefinedNapiValue(const napi_env& env)
@@ -534,12 +534,12 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         double direction = 0.0;
         JsObjectToDouble(env, elementValue, "direction", direction);
         locationAdapter->SetDirection(direction);
-        int32_t timeStamp = 0;
-        JsObjectToInt(env, elementValue, "timeStamp", timeStamp);
-        locationAdapter->SetTimeStamp(static_cast<int64_t>(accuracy));
-        int32_t timeSinceBoot = 0;
-        JsObjectToInt(env, elementValue, "timeSinceBoot", timeSinceBoot);
-        locationAdapter->SetTimeSinceBoot(static_cast<int64_t>(timeSinceBoot));
+        int64_t timeStamp = 0;
+        JsObjectToInt64(env, elementValue, "timeStamp", timeStamp);
+        locationAdapter->SetTimeStamp(timeStamp);
+        int64_t timeSinceBoot = 0;
+        JsObjectToInt64(env, elementValue, "timeSinceBoot", timeSinceBoot);
+        locationAdapter->SetTimeSinceBoot(timeSinceBoot);
         std::string additions = " ";
         int buffLen = 100;
         JsObjectToString(env, elementValue, "additions", buffLen, additions);
@@ -618,6 +618,24 @@ int JsObjectToInt(const napi_env& env, const napi_value& object, const char* fie
     return PARAM_IS_EMPTY;
 }
 
+int JsObjectToInt64(const napi_env& env, const napi_value& object, const char* fieldStr, int64_t& fieldRef)
+{
+    bool hasProperty = false;
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), COMMON_ERROR);
+    if (hasProperty) {
+        napi_value field;
+        napi_valuetype valueType;
+
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), COMMON_ERROR);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
+        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", INPUT_PARAMS_ERROR);
+        NAPI_CALL_BASE(env, napi_get_value_int64(env, field, &fieldRef), COMMON_ERROR);
+        return SUCCESS;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
+    return PARAM_IS_EMPTY;
+}
+
 int JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef)
 {
     bool hasProperty = false;
@@ -688,12 +706,12 @@ static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext
     if (asyncContext == nullptr || argv == nullptr) {
         return false;
     }
-    for (size_t i = objectArgsNum; i != argc; ++i) {
+    for (size_t i = objectArgsNum; i < argc; ++i) {
         napi_valuetype valuetype;
         NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);
         NAPI_ASSERT_BASE(env, valuetype == napi_function,  "Wrong argument type.", false);
         size_t index = i - objectArgsNum;
-        if (index < NUM_ZERO || index >= MAX_CALLBACK_NUM) {
+        if (index < MIN_CALLBACK_NUM || index >= MAX_CALLBACK_NUM) {
             break;
         }
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[index]), false);
