@@ -46,9 +46,6 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
-    if (requestConfig == nullptr) {
-        return;
-    }
     requestConfig->SetPriority(PRIORITY_LOW_POWER);
     requestConfig->SetTimeInterval(timeInterval_);
     callback_ = sptr<mLocatorCallback>(new (std::nothrow) LocatorBackgroundProxy::mLocatorCallback());
@@ -408,10 +405,6 @@ bool LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe()
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<UserSwitchSubscriber> subscriber = std::make_shared<UserSwitchSubscriber>(subscriberInfo);
-    if (subscriber == nullptr) {
-        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "subscriber is null.");
-        return false;
-    }
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
     if (result) {
     } else {

@@ -30,6 +30,8 @@ public:
     bool StartAndStopForLocating(OHOS::MessageParcel& data);
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
+    void AddPermission();
+
     OHOS::sptr<OHOS::Location::LocatorProxy> proxy_;
     OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;
     std::shared_ptr<OHOS::Location::LocatorBackgroundProxy> backgroundProxy_;
