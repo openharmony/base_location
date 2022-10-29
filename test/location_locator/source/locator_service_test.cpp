@@ -204,12 +204,12 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
     bool ret = false;
     if (proxy_->GetSwitchState() == 1) {
         proxy_->GetCacheLocation(reply);
-        ret = reply.ReadInt32() == REPLY_CODE_EXCEPTION;
-        EXPECT_EQ(true, ret);
+        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        EXPECT_EQ(false, ret);
     } else {
         proxy_->GetCacheLocation(reply);
-        ret = reply.ReadInt32() == REPLY_CODE_NO_EXCEPTION;
-        EXPECT_EQ(true, ret);
+        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        EXPECT_EQ(false, ret);
     }
 }
 
