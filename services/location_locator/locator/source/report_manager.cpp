@@ -59,9 +59,6 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
 
     auto requestList = requestListIter->second;
     auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
-    if (deadRequests == nullptr) {
-        return false;
-    }
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
         if (request == nullptr || request->GetRequestConfig() == nullptr ||

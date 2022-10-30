@@ -52,13 +52,14 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
 void JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig);
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
-    std::unique_ptr<GeofenceRequest>& request);
+    const std::unique_ptr<GeofenceRequest>& request);
 int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 int JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef);
 int JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
 int JsObjectToInt(const napi_env& env, const napi_value& object, const char* fieldStr, int& fieldRef);
+int JsObjectToInt64(const napi_env& env, const napi_value& object, const char* fieldStr, int64_t& fieldRef);
 int JsObjectToBool(const napi_env& env, const napi_value& object, const char* fieldStr, bool& fieldRef);
 napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const char* str, napi_value& result);
 napi_status SetValueStringArray(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
@@ -68,7 +69,7 @@ napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const doub
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result);
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum);
-void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode);
+void CreateFailCallBackParams(AsyncContext& context, const std::string msg, int32_t errorCode);
 bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
 std::string GetErrorMsgByCode(int code);
