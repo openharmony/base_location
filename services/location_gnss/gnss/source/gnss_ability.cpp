@@ -68,12 +68,8 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 
 GnssAbility::~GnssAbility()
 {
-    if (gnssCallback_ != nullptr) {
-        gnssCallback_ = nullptr;
-    }
-    if (agnssCallback_ != nullptr) {
-        agnssCallback_ = nullptr;
-    }
+    gnssCallback_ = nullptr;
+    agnssCallback_ = nullptr;
     if (isHdiConnected_) {
         DisableGnss();
         RemoveHdi();

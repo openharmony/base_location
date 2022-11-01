@@ -15,7 +15,7 @@
 
 #include "locator_fuzzer.h"
 
-#include "accesstoken_kit.h" 
+#include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "message_option.h"
@@ -31,16 +31,15 @@
 #include "location_log.h"
 #include "request_config.h"
 
-const int FUZZ_DATA_LEN = 8;
-const int32_t MAX_CODE_LEN  = 512;
-const int32_t MAX_CODE_NUM = 40;
-const int32_t MIN_SIZE_NUM = 4;
-
 namespace OHOS {
     using namespace OHOS::Location;
     auto locatorCallbackHostForTest_ =
                 sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-    bool isGranted_ = true;
+    bool g_isGrant = false;
+    const int FUZZ_DATA_LEN = 8;
+    const int32_t MAX_CODE_LEN  = 512;
+    const int32_t MAX_CODE_NUM = 40;
+    const int32_t MIN_SIZE_NUM = 4;
 
     bool TestStartLocating(const uint8_t* data, size_t size)
     {
@@ -110,12 +109,11 @@ namespace OHOS {
     
     void AddPermission()
     {
-        if(isGranted_) {
-            const char *perms[4];
-            perms[0] = ACCESS_LOCATION.c_str();
-            perms[1] = ACCESS_APPROXIMATELY_LOCATION.c_str();
-            perms[2] = ACCESS_BACKGROUND_LOCATION.c_str();
-            perms[3] = MANAGE_SECURE_SETTINGS.c_str();
+        if (!g_isGrant) {
+            const char *perms[] = {
+                ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+                ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+            };
             NativeTokenInfoParams infoInstance = {
                 .dcapsNum = 0,
                 .permsNum = 4,
@@ -129,12 +127,10 @@ namespace OHOS {
             uint64_t tokenId = GetAccessTokenId(&infoInstance);
             SetSelfTokenID(tokenId);
             Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-            isGranted_ = false;
+            g_isGrant = true;
         }
     }
 }
-
-
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
