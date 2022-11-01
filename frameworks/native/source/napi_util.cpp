@@ -706,7 +706,9 @@ static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext
     if (asyncContext == nullptr || argv == nullptr) {
         return false;
     }
-    for (size_t i = objectArgsNum; i < argc; ++i) {
+    size_t startLoop = objectArgsNum;
+    size_t endLoop = argc;
+    for (size_t i = startLoop; i < endLoop; ++i) {
         napi_valuetype valuetype;
         NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);
         NAPI_ASSERT_BASE(env, valuetype == napi_function,  "Wrong argument type.", false);
