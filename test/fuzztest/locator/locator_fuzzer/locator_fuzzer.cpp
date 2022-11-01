@@ -35,7 +35,7 @@ namespace OHOS {
     using namespace OHOS::Location;
     auto locatorCallbackHostForTest_ =
                 sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-    bool grant_ = false;
+    bool g_isGrant = false;
     const int FUZZ_DATA_LEN = 8;
     const int32_t MAX_CODE_LEN  = 512;
     const int32_t MAX_CODE_NUM = 40;
@@ -109,7 +109,7 @@ namespace OHOS {
     
     void AddPermission()
     {
-        if (!grant_) {
+        if (!g_isGrant) {
             const char *perms[] = {
                 ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
                 ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
@@ -127,7 +127,7 @@ namespace OHOS {
             uint64_t tokenId = GetAccessTokenId(&infoInstance);
             SetSelfTokenID(tokenId);
             Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-            grant_ = true;
+            g_isGrant = true;
         }
     }
 }
