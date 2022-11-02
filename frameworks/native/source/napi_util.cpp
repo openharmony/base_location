@@ -28,7 +28,6 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
-static constexpr int MIN_CALLBACK_NUM = 0;
 static constexpr int MAX_CALLBACK_NUM = 3;
 
 napi_value UndefinedNapiValue(const napi_env& env)
