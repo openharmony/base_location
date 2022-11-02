@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,4 +13,19 @@
  * limitations under the License.
  */
 
-FUZZ
+#ifndef GNSS_ABILITY_TEST_H
+#define GNSS_ABILITY_TEST_H
+
+#include <gtest/gtest.h>
+#include "gnss_ability_proxy.h"
+#include "gnss_status_callback_proxy.h"
+#include "gnss_ability.h"
+
+class GnssAbilityTest : public testing::Test {
+public:
+    void SetUp();
+    void TearDown();
+    OHOS::sptr<OHOS::Location::GnssAbilityProxy> proxy_;
+    OHOS::sptr<OHOS::Location::GnssStatusCallbackHost> callbackStub_;
+};
+#endif  // GNSS_ABILITY_TEST_H

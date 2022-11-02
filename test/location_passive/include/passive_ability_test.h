@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,4 +13,17 @@
  * limitations under the License.
  */
 
-FUZZ
+#ifndef PASSIVE_ABILITY_TEST_H
+#define PASSIVE_ABILITY_TEST_H
+
+#include <gtest/gtest.h>
+#include "passive_ability_proxy.h"
+
+class PassiveAbilityTest : public testing::Test {
+public:
+    void SetUp();
+    void TearDown();
+    OHOS::sptr<OHOS::Location::PassiveAbilityProxy> proxy_;
+};
+
+#endif // PASSIVE_ABILITY_TEST_H

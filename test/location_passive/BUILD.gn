@@ -16,37 +16,39 @@ import("//build/test.gni")
 SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
-ohos_unittest("GeocodeServiceAbilityTest") {
+ohos_unittest("PassiveAbilityTest") {
   module_out_path = module_output_path
   sources = [
-    "//base/location/test/location_geocode/source/geo_convert_service_test.cpp",
+    "//base/location/test/location_passive/source/passive_ability_test.cpp",
   ]
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "//base/location/test/location_geocode/include",
+    "//base/location/test/location_passive/include",
+    "$SUBSYSTEM_DIR/location_passive/passive/include",
   ]
 
   deps = [
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+    "$SUBSYSTEM_DIR/location_passive/passive:lbsservice_passive",
     "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//base/location/frameworks/native:locator_sdk",
     "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   module_out_path = module_output_path
@@ -55,5 +57,6 @@ ohos_unittest("GeocodeServiceAbilityTest") {
 group("unittest") {
   testonly = true
   deps = []
-  deps += [ ":GeocodeServiceAbilityTest" ]
+
+  deps += [ ":PassiveAbilityTest" ]
 }

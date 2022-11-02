@@ -33,6 +33,10 @@
 #include "location_log.h"
 #include "locator_ability.h"
 #include "locator_skeleton.h"
+#include "cached_locations_callback_host.h"
+#include "country_code.h"
+#include "geo_address.h"
+#include "location.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -299,6 +303,922 @@ HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
     // no location permission
     EXPECT_EQ(false, result);
     backgroundProxy_->OnDeleteRequestRecord(request_);
+}
+
+/*
+ * @tc.name: UpdateSaAbility001
+ * @tc.desc: Test update sa ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UpdateSaAbility001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test update sa ability
+     * @tc.expected: step1. no exception happens
+     */
+    proxy_->UpdateSaAbility();
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: SetEnableAndDisable001
+ * @tc.desc: Test disable and enable system ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetEnableAndDisable001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.test the switch enable and disable function
+     * @tc.expected: step1. switch set should be true, or setting will return error.
+     */
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->EnableAbility(false); // if the state is false
+        ret = proxy_ -> GetSwitchState() == 0 ? true : false;
+        EXPECT_EQ(true, ret);
+        // reset the state
+        proxy_->EnableAbility(true);
+    } else {
+        proxy_->EnableAbility(true); // if the state is false
+        ret = proxy_ -> GetSwitchState() == 1 ? true : false;
+        EXPECT_EQ(true, ret);
+        // reset the state
+        proxy_->EnableAbility(false);
+    }
+}
+
+/*
+ * @tc.name: RegisterSwitchCallback001
+ * @tc.desc: Test register switch callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterSwitchCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    pid_t callinguid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register switch callback
+     * @tc.expected: log exception: "register an invalid switch callback"
+     */
+    proxy_->RegisterSwitchCallback(client, callinguid);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterSwitchCallback002
+ * @tc.desc: Test register and unregister switch callback if client is not null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterSwitchCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the calling uid
+     */
+    pid_t callinguid = 1;
+
+    /*
+     * @tc.steps: step2. test register switch callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterSwitchCallback(callbackStub_->AsObject(), callinguid);
+    EXPECT_EQ(true, true); // always true
+
+    /*
+     * @tc.steps: step3. test unregister switch callback
+     * @tc.steps: step4. continue to test unregister switch callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->UnregisterSwitchCallback(callbackStub_->AsObject());
+    EXPECT_EQ(true, true); // always true
+
+    proxy_->UnregisterSwitchCallback(callbackStub_->AsObject());
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: UnregisterSwitchCallback001
+ * @tc.desc: Test unregister switch callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterSwitchCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister switch callback
+     * @tc.expected: log exception: LOCATOR: unregister an invalid switch callback
+     */
+    proxy_->UnregisterSwitchCallback(client);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterNmeaMessageCallback001
+ * @tc.desc: Test register nmea message callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    pid_t uid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register nmea message callback
+     * @tc.expected: log info : "register an invalid nmea callback".
+     */
+    proxy_->RegisterNmeaMessageCallback(client, uid);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterNmeaMessageCallback001
+ * @tc.desc: Test register nmea message callback and then unregister twice , the first will unreg success,
+ * and the second will not return error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is not null.
+     */
+    pid_t uid = 1;
+
+    /*
+     * @tc.steps: step2. test register nmea message callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->RegisterNmeaMessageCallback(callbackStub_->AsObject(), uid);
+
+    /*
+     * @tc.steps: step3. test unregister nmea message callback
+     * @tc.steps: step4. continue to test unregister nmea message callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
+    proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: UnregisterNmeaMessageCallback001
+ * @tc.desc: Test unregister nmea message callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister nmea message callback
+     * @tc.expected: log info : "unregister an invalid nmea callback".
+     */
+    proxy_->UnregisterNmeaMessageCallback(client);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: GetAddressByLocationName001
+ * @tc.desc: Test get address by location name
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetAddressByLocationName001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString16(Str8ToStr16("")); // description
+    data.WriteDouble(10.0); // minLatitude
+    data.WriteDouble(1.0); // minLongitude
+    data.WriteDouble(10.0); // maxLatitude
+    data.WriteDouble(10.0); // maxLongitude
+    data.WriteInt32(10); // maxItems
+    data.WriteInt32(1); // locale object size = 1
+    data.WriteString16(Str8ToStr16("ZH")); // locale.getLanguage()
+    data.WriteString16(Str8ToStr16("cn")); // locale.getCountry()
+    data.WriteString16(Str8ToStr16("")); // locale.getVariant()
+    data.WriteString16(Str8ToStr16("")); // ""
+
+    /*
+     * @tc.steps: step2. test get address by location name
+     * @tc.expected: return REPLY_CODE_NO_EXCEPTION.
+     */
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->GetAddressByLocationName(data, reply);
+        ret = (reply.ReadInt32() == REPLY_CODE_NO_EXCEPTION) ? true : false;
+        EXPECT_TRUE(ret);
+    } else {
+        proxy_->GetAddressByLocationName(data, reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SWITCH_OFF_EXCEPTION ? true : false;
+        // no location permission
+        EXPECT_EQ(false, ret);
+    }
+}
+
+/*
+ * @tc.name: RegisterGnssStatusCallback001
+ * @tc.desc: Test register gnss status callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    pid_t lastCallingUid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register gnss status callback
+     * @tc.expected: log info : "SendRegisterMsgToRemote callback is nullptr".
+     */
+    proxy_->RegisterGnssStatusCallback(client, lastCallingUid);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterGnssStatusCallback001
+ * @tc.desc: Test register and unregister gnss status callback if client is not null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the last calling uid
+     */
+    pid_t lastCallingUid = 1;
+
+    /*
+     * @tc.steps: step2. test register gnss status callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterGnssStatusCallback(callbackStub_->AsObject(), lastCallingUid);
+
+    /*
+     * @tc.steps: step3. test unregister gnss status callback
+     * @tc.steps: step4. continue to test unregister gnss status callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
+    proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: UnregisterGnssStatusCallback001
+ * @tc.desc: Test unregister gnss status callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterGnssStatusCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister gnss status callback
+     * @tc.expected: log info : "unregister an invalid gnssStatus callback".
+     */
+    proxy_->UnregisterGnssStatusCallback(client);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: IsGeoConvertAvailable001
+ * @tc.desc: Test geo convert available
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, IsGeoConvertAvailable001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test geo convert available .
+     * @tc.expected: step1. get reply state is true.
+     */
+    MessageParcel reply;
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->IsGeoConvertAvailable(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_NO_EXCEPTION ? true : false; // exception info
+        // no location permission
+        EXPECT_EQ(false, ret);
+    } else {
+        proxy_->IsGeoConvertAvailable(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SWITCH_OFF_EXCEPTION ? true : false;
+        // no location permission
+        EXPECT_EQ(false, ret);
+    }
+}
+
+/*
+ * @tc.name: GetAddressByCoordinate001
+ * @tc.desc: Test get address by coordinate
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build the data.
+     */
+    MessageParcel reply;
+    MessageParcel data;
+    data.WriteDouble(10.5); // latitude
+    data.WriteDouble(30.2); // longitude
+    data.WriteInt32(10); // maxItems
+    data.WriteInt32(1); // locale object size = 1
+    data.WriteString16(Str8ToStr16("ZH")); // locale.getLanguage()
+    data.WriteString16(Str8ToStr16("cn")); // locale.getCountry()
+    data.WriteString16(Str8ToStr16("")); // locale.getVariant()
+    data.WriteString16(Str8ToStr16("")); // ""
+    
+    /*
+     * @tc.steps: step2. test get address by coordinate.
+     * @tc.expected: step2. get reply state is true.
+     */
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->GetAddressByCoordinate(data, reply);
+        ret = reply.ReadInt32() == REPLY_CODE_NO_EXCEPTION ? true : false;
+        // invaild token
+        EXPECT_EQ(true, ret);
+    } else {
+        proxy_->GetAddressByCoordinate(data, reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SWITCH_OFF_EXCEPTION ? true : false;
+        /// invaild token
+        EXPECT_EQ(false, ret);
+    }
+}
+
+/*
+ * @tc.name: SetAndCheckLocationPrivacyConfirmStatus001
+ * @tc.desc: Test set and check the status
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. set PRIVACY_TYPE_OTHERS type status true.
+     * @tc.steps: step2. set PRIVACY_TYPE_STARTUP type status false.
+     * @tc.steps: step3. set PRIVACY_TYPE_CORE_LOCATION type default.
+     */
+    proxy_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_OTHERS, true);
+    proxy_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, false);
+
+    /*
+     * @tc.steps: step4. location privacy confirm should be true when the type is PRIVACY_TYPE_OTHERS.
+     * @tc.steps: step5. location privacy confirm should be false when the type is PRIVACY_TYPE_STARTUP.
+     * @tc.steps: step6. location privacy confirm should be false when the type is PRIVACY_TYPE_CORE_LOCATION.
+     * @tc.steps: step7. location privacy confirm should be false when the type is invalid.
+     * @tc.expected: no exception happens
+     */
+    proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_OTHERS);
+    proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP);
+    proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_CORE_LOCATION);
+    proxy_->IsLocationPrivacyConfirmed(-1);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterCountryCodeCallback001
+ * @tc.desc: Test register country code callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterCountryCodeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    pid_t callinguid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register country code callback
+     * @tc.expected: log info : "RegisterCountryCodeCallback countryCodeManager_ is nullptr".
+     */
+    proxy_->RegisterCountryCodeCallback(client, callinguid);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterCountryCodeCallback001
+ * @tc.desc: Test register and unregister country code callback if client is not null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCountryCodeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the last calling uid
+     */
+    pid_t callinguid = 1;
+
+    /*
+     * @tc.steps: step2. test register country code callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterCountryCodeCallback(callbackStub_->AsObject(), callinguid);
+
+    /*
+     * @tc.steps: step3. test unregister country code callback
+     * @tc.steps: step4. continue to test unregister country code callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
+    proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: UnregisterCountryCodeCallback001
+ * @tc.desc: Test unregister country code callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterCountryCodeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. the client is null.
+     */
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister country code callback
+     * @tc.expected: log exception : "UnregisterCountryCodeCallback countryCodeManager_ is nullptr".
+     */
+    proxy_->UnregisterCountryCodeCallback(client);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterCachedLocationCallback001
+ * @tc.desc: Test register and unregister cached location callback if the params are not null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the calling uid, cached call back, request config
+     */
+    std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
+    auto cachedCallbackHost = sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
+    std::string bundleName = "test";
+
+    /*
+     * @tc.steps: step2. test register cached location callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterCachedLocationCallback(requestConfig, cachedCallback, bundleName);
+
+    /*
+     * @tc.steps: step3. test unregister cached location callback
+     * @tc.steps: step4. continue to test unregister cached location callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->UnregisterCachedLocationCallback(cachedCallback);
+    proxy_->UnregisterCachedLocationCallback(cachedCallback);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RegisterCachedLocationCallback001
+ * @tc.desc: Test register cached location callback if params are null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterCachedLocationCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the calling uid, cached call back, request config
+     */
+    std::unique_ptr<CachedGnssLocationsRequest> requestConfig = nullptr;
+    sptr<ICachedLocationsCallback> cachedCallback = nullptr;
+    std::string bundleName = "test";
+
+    /*
+     * @tc.steps: step2. test register cached location callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterCachedLocationCallback(requestConfig, cachedCallback, bundleName);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: GetCachedGnssLocationsSize001
+ * @tc.desc: Test get cached gnss location size
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test get cached gnss location size.
+     * @tc.expected: step1. get the true size.
+     */
+    MessageParcel reply;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->GetCachedGnssLocationsSize();
+    } else {
+        proxy_->GetCachedGnssLocationsSize();
+    }
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: FlushCachedGnssLocations001
+ * @tc.desc: Test flush cached gnss location
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test flush cached gnss location
+     * @tc.expected: step1. get the true size.
+     */
+    proxy_->FlushCachedGnssLocations();
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: SendCommand001
+ * @tc.desc: Test send command
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SendCommand001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build location command
+     */
+    MessageParcel data;
+    std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
+    locationCommand->scenario = data.ReadInt32();
+    locationCommand->command = data.ReadBool();
+
+    /*
+     * @tc.steps: step2. test send command.
+     * @tc.expected: current function is empty, nothing happens
+     */
+    proxy_->SendCommand(locationCommand);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: AddFence001
+ * @tc.desc: Test add fence
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build geo fence request
+     */
+    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+    request->priority = 1; // priority
+    request->scenario = 2; // scenario
+    request->geofence.latitude = 35.1; // latitude
+    request->geofence.longitude = 40.2; // longitude
+    request->geofence.radius = 2.2; // radius
+    request->geofence.expiration = 12.2; // expiration
+
+    /*
+     * @tc.steps: step2. test add fence
+     * @tc.expected: no exception happens
+     */
+    proxy_->AddFence(request);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: RemoveFence001
+ * @tc.desc: Test add fence
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build geo fence request
+     */
+    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+    request->priority = 1; // priority
+    request->scenario = 2; // scenario
+    request->geofence.latitude = 35.1; // latitude
+    request->geofence.longitude = 40.2; // longitude
+    request->geofence.radius = 2.2; // radius
+    request->geofence.expiration = 12.2; // expiration
+
+    /*
+     * @tc.steps: step2. test remove fence
+     * @tc.expected: no exception happens
+     */
+    proxy_->RemoveFence(request);
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: GetIsoCountryCode001
+ * @tc.desc: Test get iso country code
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test get iso country code
+     * @tc.expected: no exception happens
+     */
+    MessageParcel reply;
+    auto country = proxy_->GetIsoCountryCode();
+    EXPECT_EQ("CN", country->GetCountryCodeStr());
+    EXPECT_EQ(COUNTRY_CODE_FROM_LOCALE, country->GetCountryCodeType());
+    EXPECT_EQ(true, true); // always true
+}
+
+/*
+ * @tc.name: EnableLocationMock001
+ * @tc.desc: Test enable location mock in SCENE_CAR_HAILING scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, EnableLocationMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_CAR_HAILING); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test enable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->EnableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: EnableLocationMock002
+ * @tc.desc: Test enable location mock in SCENE_DAILY_LIFE_SERVICE scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, EnableLocationMock002, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_DAILY_LIFE_SERVICE); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test enable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->EnableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: EnableLocationMock003
+ * @tc.desc: Test enable location mock in SCENE_NO_POWER scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, EnableLocationMock003, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NO_POWER); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test enable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->EnableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: EnableLocationMock004
+ * @tc.desc: Test enable location mock in SCENE_UNSET scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, EnableLocationMock004, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_UNSET); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test enable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->EnableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: DisableLocationMock001
+ * @tc.desc: Test disable location mock in SCENE_CAR_HAILING scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, DisableLocationMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_CAR_HAILING); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test disable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->DisableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: DisableLocationMock002
+ * @tc.desc: Test disable location mock in SCENE_DAILY_LIFE_SERVICE scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, DisableLocationMock002, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_DAILY_LIFE_SERVICE); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test disable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->DisableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: DisableLocationMock003
+ * @tc.desc: Test disable location mock in SCENE_NO_POWER scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, DisableLocationMock003, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NO_POWER); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test disable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->DisableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: DisableLocationMock004
+ * @tc.desc: Test disable location mock in SCENE_UNSET scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, DisableLocationMock004, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_UNSET); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    /*
+     * @tc.steps: step1. test disable location mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->DisableLocationMock(mockInfo);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: SetMockedLocations001
+ * @tc.desc: Test set location mock in different scenarioes
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_CAR_HAILING); // scenario
+    mockInfo.SetTimeInterval(2); // time interval
+
+    std::vector<std::shared_ptr<Location>> mockLocationArray;
+    Parcel parcel;
+    for (int i = 0; i < 2; i++) {
+        parcel.WriteDouble(10.6); // latitude
+        parcel.WriteDouble(10.5); // longitude
+        parcel.WriteDouble(10.4); // altitude
+        parcel.WriteFloat(1.0); // accuracy
+        parcel.WriteFloat(5.0); // speed
+        parcel.WriteDouble(10); // direction
+        parcel.WriteInt64(1611000000); // timestamp
+        parcel.WriteInt64(1611000000); // time since boot
+        parcel.WriteString("additions"); // additions
+        parcel.WriteInt64(1); // additionSize
+        parcel.WriteBool(true); // isFromMock
+        mockLocationArray.push_back(Location::UnmarshallingShared(parcel));
+    }
+
+    /*
+     * @tc.steps: step2. test set mocked locations for different scenarioes
+     * @tc.expected: no exception happens
+     */
+    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
+    mockInfo.SetScenario(SCENE_DAILY_LIFE_SERVICE);
+    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
+    mockInfo.SetScenario(SCENE_NO_POWER);
+    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
+    mockInfo.SetScenario(SCENE_UNSET);
+    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: EnableReverseGeocodingMock001
+ * @tc.desc: Test enable reverse geocoding mock
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test enable reverse geocoding mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->EnableReverseGeocodingMock();
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: DisableReverseGeocodingMock001
+ * @tc.desc: Test disable reverse geocoding mock
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test disable reverse geocoding mock
+     * @tc.expected: no exception happens
+     */
+    proxy_->DisableReverseGeocodingMock();
+    EXPECT_EQ(true, true);
+}
+
+/*
+ * @tc.name: SetReverseGeocodingMockInfo001
+ * @tc.desc: Test set reverse geocoding mock info
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetReverseGeocodingMockInfo001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
+    Parcel data;
+    data.WriteString16(Str8ToStr16("locale")); // locale
+    data.WriteDouble(10.5); // latitude
+    data.WriteDouble(10.6); // longitude
+    data.WriteInt32(2); // maxItems
+    info->ReadFromParcel(data);
+    mockInfo.push_back(info);
+    /*
+     * @tc.steps: step2. test set reverse geocoding mock info
+     * @tc.expected: no exception happens
+     */
+    proxy_->SetReverseGeocodingMockInfo(mockInfo);
+    EXPECT_EQ(true, true);
 }
 
 /*

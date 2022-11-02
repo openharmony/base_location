@@ -16,37 +16,42 @@ import("//build/test.gni")
 SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
-ohos_unittest("GeocodeServiceAbilityTest") {
+ohos_unittest("GnssAbilityTest") {
   module_out_path = module_output_path
-  sources = [
-    "//base/location/test/location_geocode/source/geo_convert_service_test.cpp",
-  ]
+  sources =
+      [ "//base/location/test/location_gnss/source/gnss_ability_test.cpp" ]
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "//base/location/test/location_geocode/include",
+    "$SUBSYSTEM_DIR/location_gnss/gnss/include",
+    "//base/location/test/location_gnss/include",
   ]
 
   deps = [
+    "$SUBSYSTEM_DIR/location_gnss/gnss:lbsservice_gnss",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//base/location/frameworks/native:locator_sdk",
     "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
+    "cellular_data:tel_cellular_data_api",
     "common_event_service:cesfwk_innerkits",
+    "core_service:tel_core_service_api",
+    "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
+    "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "hdf_core:libhdi",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   module_out_path = module_output_path
@@ -55,5 +60,6 @@ ohos_unittest("GeocodeServiceAbilityTest") {
 group("unittest") {
   testonly = true
   deps = []
-  deps += [ ":GeocodeServiceAbilityTest" ]
+
+  deps += [ ":GnssAbilityTest" ]
 }

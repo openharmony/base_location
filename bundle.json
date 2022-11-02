@@ -76,6 +76,9 @@
             "test": [
                 "//base/location/test/location_locator:unittest",
                 "//base/location/test/location_geocode:unittest",
+                "//base/location/test/location_gnss:unittest",
+                "//base/location/test/location_network:unittest",
+                "//base/location/test/location_passive:unittest",
                 "//base/location/test/fuzztest:fuzztest"
             ]
         }
