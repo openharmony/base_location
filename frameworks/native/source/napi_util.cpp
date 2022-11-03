@@ -28,7 +28,6 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
-static constexpr int MIN_CALLBACK_NUM = 0;
 static constexpr int MAX_CALLBACK_NUM = 3;
 
 napi_value UndefinedNapiValue(const napi_env& env)
@@ -713,7 +712,7 @@ static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext
         NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);
         NAPI_ASSERT_BASE(env, valuetype == napi_function,  "Wrong argument type.", false);
         size_t index = i - objectArgsNum;
-        if (index < MIN_CALLBACK_NUM || index >= MAX_CALLBACK_NUM) {
+        if (index >= MAX_CALLBACK_NUM) {
             break;
         }
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[index]), false);
