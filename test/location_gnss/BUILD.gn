@@ -24,6 +24,7 @@ ohos_unittest("GnssAbilityTest") {
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
     "//base/location/test/location_gnss/include",
   ]
 

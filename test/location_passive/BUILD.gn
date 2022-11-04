@@ -24,7 +24,9 @@ ohos_unittest("PassiveAbilityTest") {
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
+    "//base/location/test/location_locator/include",
     "//base/location/test/location_passive/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
   ]
 

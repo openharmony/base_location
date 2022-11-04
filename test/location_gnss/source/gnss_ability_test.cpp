@@ -17,6 +17,8 @@
 
 #include <cstdlib>
 
+#include "test_utils.h"
+
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
@@ -34,6 +36,7 @@ void GnssAbilityTest::SetUp()
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
+    TestUtils::MockNativePermission();
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(nullptr, systemAbilityManager);

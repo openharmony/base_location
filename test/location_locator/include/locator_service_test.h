@@ -17,10 +17,10 @@
 #define LOCATOR_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
+#include "i_locator_callback.h"
 #include "locator_background_proxy.h"
-#include "locator_callback_proxy.h"
-#include "locator_skeleton.h"
 #include "locator_proxy.h"
+#include "request.h"
 #include "request_manager.h"
 
 class LocatorServiceTest : public testing::Test {

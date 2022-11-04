@@ -23,9 +23,11 @@ ohos_unittest("GeocodeServiceAbilityTest") {
   ]
 
   include_dirs = [
-    "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
+    "//base/location/interfaces/inner_api/include",
     "//base/location/test/location_geocode/include",
+    "//base/location/test/location_locator/include",
   ]
 
   deps = [

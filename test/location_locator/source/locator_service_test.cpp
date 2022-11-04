@@ -17,26 +17,24 @@
 
 #include <cstdlib>
 
-#include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "nativetoken_kit.h"
 #include "system_ability_definition.h"
-#include "token_setproc.h"
 
 #include "app_identity.h"
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "location.h"
 #include "location_log.h"
 #include "locator_ability.h"
 #include "locator_skeleton.h"
 #include "cached_locations_callback_host.h"
 #include "country_code.h"
 #include "geo_address.h"
-#include "location.h"
+#include "test_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -48,6 +46,7 @@ void LocatorServiceTest::SetUp()
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
+    TestUtils::MockNativePermission();
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(nullptr, systemAbilityManager);
@@ -67,7 +66,6 @@ void LocatorServiceTest::SetUp()
     request_->SetPid(getpid());
     SetStartUpConfirmed(true);
     ChangedLocationMode(true);
-    AddPermission();
 }
 
 void LocatorServiceTest::TearDown()
@@ -77,27 +75,6 @@ void LocatorServiceTest::TearDown()
      */
     proxy_ = nullptr;
     callbackStub_ = nullptr;
-}
-
-void LocatorServiceTest::AddPermission()
-{
-    const char *perms[] = {
-        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
-        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-    };
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = LOCATION_PERM_NUM,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .processName = "LocatorTest",
-        .aplStr = "system_basic",
-    };
-    uint64_t tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
-    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 void LocatorServiceTest::SetStartUpConfirmed(bool isAuthorized)

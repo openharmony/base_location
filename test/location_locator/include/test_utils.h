@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef GEO_CONVERT_SERVICE_TEST_H
-#define GEO_CONVERT_SERVICE_TEST_H
+#ifndef TEST_UTILS_H
+#define TEST_UTILS_H
 
-#include <gtest/gtest.h>
-#include "geo_convert_proxy.h"
-
-class GeoConvertServiceTest : public testing::Test {
+class TestUtils {
 public:
-    void SetUp();
-    void TearDown();
-    bool Available();
-    OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
-    bool available_;
+    static void MockNativePermission();
 };
-
-#endif // GEO_CONVERT_SERVICE_TEST_H
+#endif // TEST_UTILS_H

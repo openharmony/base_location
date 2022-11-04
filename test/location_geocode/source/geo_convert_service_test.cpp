@@ -14,17 +14,21 @@
  */
 
 #include "geo_convert_service_test.h"
+
+#include "parameters.h"
 #include <string>
-#include "common_utils.h"
-#include "geo_convert_service.h"
-#include "geo_convert_skeleton.h"
+#include "string_ex.h"
+
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "location_log.h"
-#include "parameters.h"
-#include "string_ex.h"
 #include "system_ability_definition.h"
+
+#include "common_utils.h"
+#include "geo_convert_service.h"
+#include "geo_convert_skeleton.h"
+#include "location_log.h"
+#include "test_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -35,6 +39,7 @@ void GeoConvertServiceTest::SetUp()
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
+    TestUtils::MockNativePermission();
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(nullptr, systemAbilityManager);

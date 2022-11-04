@@ -18,8 +18,7 @@
 
 #include <gtest/gtest.h>
 #include "gnss_ability_proxy.h"
-#include "gnss_status_callback_proxy.h"
-#include "gnss_ability.h"
+#include "gnss_status_callback_host.h"
 
 class GnssAbilityTest : public testing::Test {
 public:

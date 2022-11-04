@@ -21,6 +21,7 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
+#include "test_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -31,6 +32,7 @@ void PassiveAbilityTest::SetUp()
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
+    TestUtils::MockNativePermission();
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(nullptr, systemAbilityManager);

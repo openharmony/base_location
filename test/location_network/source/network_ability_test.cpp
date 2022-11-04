@@ -26,6 +26,7 @@
 #include "constant_definition.h"
 #include "location_log.h"
 #include "network_ability_skeleton.h"
+#include "test_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -36,6 +37,7 @@ void NetworkAbilityTest::SetUp()
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
+    TestUtils::MockNativePermission();
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(nullptr, systemAbilityManager);

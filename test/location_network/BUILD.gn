@@ -24,9 +24,10 @@ ohos_unittest("NetworkAbilityTest") {
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
+    "//base/location/test/location_locator/include",
     "//base/location/test/location_network/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
-    "//base/location/interfaces/inner_api/include",
   ]
 
   deps = [
