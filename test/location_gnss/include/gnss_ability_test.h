@@ -13,24 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef GEO_CONVERT_SERVICE_TEST_H
-#define GEO_CONVERT_SERVICE_TEST_H
+#ifndef GNSS_ABILITY_TEST_H
+#define GNSS_ABILITY_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "geo_convert_proxy.h"
-#include "geo_convert_service.h"
+#include "gnss_ability.h"
+#include "gnss_ability_proxy.h"
+#include "gnss_status_callback_host.h"
 
-class GeoConvertServiceTest : public testing::Test {
+class GnssAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool Available();
     void MockNativePermission();
-    
-    OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
-    OHOS::sptr<OHOS::Location::GeoConvertService> service_;
-    bool available_;
-};
 
-#endif // GEO_CONVERT_SERVICE_TEST_H
+    OHOS::sptr<OHOS::Location::GnssAbilityProxy> proxy_;
+    OHOS::sptr<OHOS::Location::GnssStatusCallbackHost> callbackStub_;
+    OHOS::sptr<OHOS::Location::GnssAbility> ability_;
+};
+#endif  // GNSS_ABILITY_TEST_H

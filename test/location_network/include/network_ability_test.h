@@ -13,24 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef GEO_CONVERT_SERVICE_TEST_H
-#define GEO_CONVERT_SERVICE_TEST_H
+#ifndef NETWORK_ABILITY_TEST_H
+#define NETWORK_ABILITY_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "geo_convert_proxy.h"
-#include "geo_convert_service.h"
+#include "network_ability.h"
+#include "network_ability_proxy.h"
 
-class GeoConvertServiceTest : public testing::Test {
+class NetworkAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool Available();
     void MockNativePermission();
     
-    OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
-    OHOS::sptr<OHOS::Location::GeoConvertService> service_;
-    bool available_;
+    OHOS::sptr<OHOS::Location::NetworkAbilityProxy> proxy_;
+    OHOS::sptr<OHOS::Location::NetworkAbility> ability_;
 };
 
-#endif // GEO_CONVERT_SERVICE_TEST_H
+#endif // NETWORK_ABILITY_TEST_H
