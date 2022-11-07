@@ -17,12 +17,13 @@
 
 #include <cstdlib>
 
-#include "test_utils.h"
-
+#include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "nativetoken_kit.h"
 #include "system_ability_definition.h"
+#include "token_setproc.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
@@ -31,23 +32,19 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::Location;
 
+const int32_t LOCATION_PERM_NUM = 4;
+
 void GnssAbilityTest::SetUp()
 {
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
-    TestUtils::MockNativePermission();
-    sptr<ISystemAbilityManager> systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, systemAbilityManager);
-    if (systemAbilityManager->CheckSystemAbility(LOCATION_GNSS_SA_ID) == nullptr) {
-        LBSLOGE(GNSS, "Can not get SA, return.");
-    }
-    sptr<IRemoteObject> systemAbility = systemAbilityManager->GetSystemAbility(LOCATION_GNSS_SA_ID);
-    EXPECT_NE(nullptr, systemAbility);
+    MockNativePermission();
+    ability_ = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, ability_);
     callbackStub_ = new (std::nothrow) GnssStatusCallbackHost();
     EXPECT_NE(nullptr, callbackStub_);
-    proxy_ = new (std::nothrow) GnssAbilityProxy(systemAbility);
+    proxy_ = new (std::nothrow) GnssAbilityProxy(ability_);
     EXPECT_NE(nullptr, proxy_);
 }
 
@@ -58,6 +55,27 @@ void GnssAbilityTest::TearDown()
      */
     proxy_ = nullptr;
     callbackStub_ = nullptr;
+}
+
+void GnssAbilityTest::MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "GnssAbilityTest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 /*
@@ -118,38 +136,6 @@ HWTEST_F(GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1)
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     sptr<IRemoteObject> object2 = systemAbilityManager2->GetSystemAbility(LOCATION_GNSS_SA_ID);
     EXPECT_NE(nullptr, object2); // SA can be given
-}
-
-/*
- * @tc.name: HandleRemoteRequest001
- * @tc.desc: Test handle remote request when state is true.
- * @tc.type: FUNC
- */
-HWTEST_F(GnssAbilityTest, HandleRemoteRequest001, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. test handle remote request
-     * @tc.expected: step1. no exception happens.
-     */
-    proxy_->RemoteRequest(true);
-
-    EXPECT_EQ(true, true); // always true
-}
-
-/*
- * @tc.name: HandleRemoteRequest002
- * @tc.desc: Test handle remote request when state is false.
- * @tc.type: FUNC
- */
-HWTEST_F(GnssAbilityTest, HandleRemoteRequest002, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. test handle remote request
-     * @tc.expected: step1. no exception happens.
-     */
-    proxy_->RemoteRequest(false);
-
-    EXPECT_EQ(true, true); // always true
 }
 
 /*

@@ -19,33 +19,34 @@
 #include <string>
 #include "string_ex.h"
 
+#include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "nativetoken_kit.h"
 #include "system_ability_definition.h"
+#include "token_setproc.h"
 
 #include "common_utils.h"
 #include "geo_convert_service.h"
 #include "geo_convert_skeleton.h"
 #include "location_log.h"
-#include "test_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::Location;
+
+const int32_t LOCATION_PERM_NUM = 4;
 
 void GeoConvertServiceTest::SetUp()
 {
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
-    TestUtils::MockNativePermission();
-    sptr<ISystemAbilityManager> systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, systemAbilityManager);
-    sptr<IRemoteObject> object = systemAbilityManager->GetSystemAbility(LOCATION_GEO_CONVERT_SA_ID);
-    EXPECT_NE(nullptr, object);
-    proxy_ = new (std::nothrow) GeoConvertProxy(object);
+    MockNativePermission();
+    service_ = new (std::nothrow) GeoConvertService();
+    EXPECT_NE(nullptr, service_);
+    proxy_ = new (std::nothrow) GeoConvertProxy(service_);
     EXPECT_NE(nullptr, proxy_);
     available_ = Available();
 }
@@ -56,6 +57,27 @@ void GeoConvertServiceTest::TearDown()
      * @tc.teardown: release memory.
      */
     proxy_ = nullptr;
+}
+
+void GeoConvertServiceTest::MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "GeoCodeServiceTest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 bool GeoConvertServiceTest::Available()

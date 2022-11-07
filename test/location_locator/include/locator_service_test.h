@@ -30,7 +30,7 @@ public:
     bool StartAndStopForLocating(OHOS::MessageParcel& data);
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
-    void AddPermission();
+    void MockNativePermission();
 
     OHOS::sptr<OHOS::Location::LocatorProxy> proxy_;
     OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;

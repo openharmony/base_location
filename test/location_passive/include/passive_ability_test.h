@@ -17,13 +17,18 @@
 #define PASSIVE_ABILITY_TEST_H
 
 #include <gtest/gtest.h>
+
+#include "passive_ability.h"
 #include "passive_ability_proxy.h"
 
 class PassiveAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    void MockNativePermission();
+    
     OHOS::sptr<OHOS::Location::PassiveAbilityProxy> proxy_;
+    OHOS::sptr<OHOS::Location::PassiveAbility> ability_;
 };
 
 #endif // PASSIVE_ABILITY_TEST_H

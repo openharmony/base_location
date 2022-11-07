@@ -17,14 +17,19 @@
 #define GEO_CONVERT_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
+
 #include "geo_convert_proxy.h"
+#include "geo_convert_service.h"
 
 class GeoConvertServiceTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
     bool Available();
+    void MockNativePermission();
+    
     OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
+    OHOS::sptr<OHOS::Location::GeoConvertService> service_;
     bool available_;
 };
 

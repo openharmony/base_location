@@ -24,7 +24,6 @@ ohos_unittest("PassiveAbilityTest") {
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
-    "//base/location/test/location_locator/include",
     "//base/location/test/location_passive/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
@@ -35,6 +34,8 @@ ohos_unittest("PassiveAbilityTest") {
     "$SUBSYSTEM_DIR/location_passive/passive:lbsservice_passive",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
+    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
@@ -44,6 +45,7 @@ ohos_unittest("PassiveAbilityTest") {
   ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",

@@ -15,33 +15,31 @@
 
 #include "passive_ability_test.h"
 
+#include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "nativetoken_kit.h"
 #include "system_ability_definition.h"
+#include "token_setproc.h"
 
 #include "common_utils.h"
-#include "test_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::Location;
+
+const int32_t LOCATION_PERM_NUM = 4;
 
 void PassiveAbilityTest::SetUp()
 {
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
-    TestUtils::MockNativePermission();
-    sptr<ISystemAbilityManager> systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, systemAbilityManager);
-    if (systemAbilityManager->CheckSystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID) == nullptr) {
-        LBSLOGE(PASSIVE, "Can not get SA, return.");
-    }
-    sptr<IRemoteObject> systemAbility = systemAbilityManager->GetSystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID);
-    EXPECT_NE(nullptr, systemAbility);
-    proxy_ = new (std::nothrow) PassiveAbilityProxy(systemAbility);
+    MockNativePermission();
+    ability_ = new (std::nothrow) PassiveAbility();
+    EXPECT_NE(nullptr, ability_);
+    proxy_ = new (std::nothrow) PassiveAbilityProxy(ability_);
     EXPECT_NE(nullptr, proxy_);
 }
 
@@ -51,6 +49,27 @@ void PassiveAbilityTest::TearDown()
      * @tc.teardown: release memory.
      */
     proxy_ = nullptr;
+}
+
+void PassiveAbilityTest::MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "PassiveAbilityTest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 /*

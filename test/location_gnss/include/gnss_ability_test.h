@@ -17,6 +17,8 @@
 #define GNSS_ABILITY_TEST_H
 
 #include <gtest/gtest.h>
+
+#include "gnss_ability.h"
 #include "gnss_ability_proxy.h"
 #include "gnss_status_callback_host.h"
 
@@ -24,7 +26,10 @@ class GnssAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    void MockNativePermission();
+
     OHOS::sptr<OHOS::Location::GnssAbilityProxy> proxy_;
     OHOS::sptr<OHOS::Location::GnssStatusCallbackHost> callbackStub_;
+    OHOS::sptr<OHOS::Location::GnssAbility> ability_;
 };
 #endif  // GNSS_ABILITY_TEST_H

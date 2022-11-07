@@ -22,9 +22,9 @@ ohos_unittest("GnssAbilityTest") {
       [ "//base/location/test/location_gnss/source/gnss_ability_test.cpp" ]
 
   include_dirs = [
-    "//base/location/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
+    "//base/location/interfaces/inner_api/include",
     "//base/location/test/location_gnss/include",
   ]
 
@@ -33,6 +33,9 @@ ohos_unittest("GnssAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
+    "//base/location/test/location_locator:LocatorServiceAbilityTest",
+    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//base/startup/init/interfaces/innerkits:libbegetutil",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
@@ -43,6 +46,7 @@ ohos_unittest("GnssAbilityTest") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "cellular_data:tel_cellular_data_api",
     "common_event_service:cesfwk_innerkits",
