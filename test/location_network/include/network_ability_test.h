@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,4 +13,22 @@
  * limitations under the License.
  */
 
-FUZZ
+#ifndef NETWORK_ABILITY_TEST_H
+#define NETWORK_ABILITY_TEST_H
+
+#include <gtest/gtest.h>
+
+#include "network_ability.h"
+#include "network_ability_proxy.h"
+
+class NetworkAbilityTest : public testing::Test {
+public:
+    void SetUp();
+    void TearDown();
+    void MockNativePermission();
+    
+    OHOS::sptr<OHOS::Location::NetworkAbilityProxy> proxy_;
+    OHOS::sptr<OHOS::Location::NetworkAbility> ability_;
+};
+
+#endif // NETWORK_ABILITY_TEST_H

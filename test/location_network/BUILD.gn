@@ -16,23 +16,24 @@ import("//build/test.gni")
 SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
-ohos_unittest("GeocodeServiceAbilityTest") {
+ohos_unittest("NetworkAbilityTest") {
   module_out_path = module_output_path
   sources = [
-    "//base/location/test/location_geocode/source/geo_convert_service_test.cpp",
+    "//base/location/test/location_network/source/network_ability_test.cpp",
   ]
 
   include_dirs = [
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
     "//base/location/interfaces/inner_api/include",
-    "//base/location/test/location_geocode/include",
+    "//base/location/test/location_network/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
+    "$SUBSYSTEM_DIR/location_network/network/include",
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/location_geocode/geocode:lbsservice_geocode",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+    "$SUBSYSTEM_DIR/location_network/network:lbsservice_network",
     "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//base/location/frameworks/native:locator_sdk",
     "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
     "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//base/startup/init/interfaces/innerkits:libbegetutil",
@@ -40,18 +41,17 @@ ohos_unittest("GeocodeServiceAbilityTest") {
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
+    "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   module_out_path = module_output_path
@@ -60,5 +60,6 @@ ohos_unittest("GeocodeServiceAbilityTest") {
 group("unittest") {
   testonly = true
   deps = []
-  deps += [ ":GeocodeServiceAbilityTest" ]
+
+  deps += [ ":NetworkAbilityTest" ]
 }
