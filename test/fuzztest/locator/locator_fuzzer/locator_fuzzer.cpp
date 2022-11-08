@@ -33,8 +33,9 @@
 #include "gnss_status_callback_host.h"
 #include "i_locator_callback.h"
 #include "location.h"
-#include "locator.h"
 #include "location_switch_callback_host.h"
+#include "locator.h"
+#include "locator_ability.h"
 #include "locator_callback_host.h"
 #include "location_log.h"
 #include "nmea_message_callback_host.h"
@@ -363,6 +364,123 @@ namespace OHOS {
         nmeaCallbackHost->DeleteHandler();
         return true;
     }
+
+    bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size)
+    {
+        auto locatorAbility =
+            sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+        int32_t systemAbilityId = *(reinterpret_cast<const int32_t*>(data));
+        std::string deviceId((const char*) data, size);
+        locatorAbility->OnAddSystemAbility(systemAbilityId, deviceId);
+        locatorAbility->OnRemoveSystemAbility(systemAbilityId, deviceId);
+        locatorAbility->QueryServiceState();
+        locatorAbility->InitSaAbility();
+        locatorAbility->InitRequestManagerMap();
+        locatorAbility->UpdateSaAbility();
+        locatorAbility->GetSwitchState();
+        locatorAbility->EnableAbility(true);
+        locatorAbility->EnableAbility(false);
+        pid_t uid = *reinterpret_cast<const pid_t*>(data);
+        auto switchCallbackHost =
+            sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        locatorAbility->RegisterSwitchCallback(switchCallbackHost, uid);
+        locatorAbility->UnregisterSwitchCallback(switchCallbackHost);
+        auto gnssCallbackHost =
+            sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        locatorAbility->RegisterGnssStatusCallback(gnssCallbackHost, uid);
+        locatorAbility->UnregisterGnssStatusCallback(gnssCallbackHost);
+
+        auto nmeaCallbackHost =
+            sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, uid);
+        locatorAbility->UnregisterNmeaMessageCallback(nmeaCallbackHost);
+
+        auto countryCodeCallbackHost =
+            sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        locatorAbility->RegisterCountryCodeCallback(countryCodeCallbackHost, uid);
+        locatorAbility->UnregisterCountryCodeCallback(countryCodeCallbackHost);
+        sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHostForTest_);
+        AppIdentity identity;
+        locatorAbility->StopLocating(locatorCallback);
+        MessageParcel reply;
+        locatorAbility->GetCacheLocation(reply, identity);
+        locatorAbility->IsGeoConvertAvailable(reply);
+
+        MessageParcel request;
+        request.WriteBuffer(data + sizeof(uint32_t), size);
+        request.RewindRead(0);
+        locatorAbility->GetAddressByCoordinate(request, reply);
+        locatorAbility->GetAddressByLocationName(request, reply);
+        return true;
+    }
+
+    bool LocatorAbility002FuzzerTest(const uint8_t* data, size_t size)
+    {
+        auto locatorAbility =
+            sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+        int type = *(reinterpret_cast<const int*>(data));
+        locatorAbility->IsLocationPrivacyConfirmed(type);
+        locatorAbility->SetLocationPrivacyConfirmStatus(type, true);
+        locatorAbility->SetLocationPrivacyConfirmStatus(type, false);
+        auto cachedLocationsCallbackHost =
+            sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
+        auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
+        locatorAbility->RegisterCachedLocationCallback(cachedRequest, cachedCallback, "fuzz.test");
+        locatorAbility->UnregisterCachedLocationCallback(cachedCallback);
+        locatorAbility->GetCachedGnssLocationsSize();
+        locatorAbility->FlushCachedGnssLocations();
+
+        std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
+        locatorAbility->SendCommand(command);
+
+        std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
+        locatorAbility->AddFence(fence);
+        locatorAbility->RemoveFence(fence);
+        locatorAbility->GetIsoCountryCode();
+        return true;
+    }
+
+    bool LocatorAbility003FuzzerTest(const uint8_t* data, size_t size)
+    {
+        auto locatorAbility =
+            sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+        pid_t uid = *reinterpret_cast<const pid_t*>(data);
+        LocationMockConfig mockInfo;
+        mockInfo.SetScenario(*(reinterpret_cast<const int32_t*>(data)));
+        mockInfo.SetTimeInterval(*(reinterpret_cast<const int32_t*>(data)));
+        locatorAbility->EnableLocationMock(mockInfo);
+        locatorAbility->DisableLocationMock(mockInfo);
+        std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+        locatorAbility->SetMockedLocations(mockInfo, locations);
+        locatorAbility->EnableReverseGeocodingMock();
+        locatorAbility->DisableReverseGeocodingMock();
+        std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfo;
+        locatorAbility->SetReverseGeocodingMockInfo(geoMockInfo);
+
+        auto location = std::make_unique<OHOS::Location::Location>();
+        std::string abilityName((const char*) data, size);
+        locatorAbility->ReportLocation(location, abilityName);
+        int msgId = *(reinterpret_cast<const int*>(data));
+        locatorAbility->ProcessLocationMockMsg(mockInfo, locations, msgId);
+        locatorAbility->SendLocationMockMsgToGnssSa(nullptr, mockInfo, locations, msgId);
+        locatorAbility->SendLocationMockMsgToNetworkSa(nullptr, mockInfo, locations, msgId);
+        locatorAbility->GetRequests();
+        locatorAbility->GetReceivers();
+        locatorAbility->GetProxyMap();
+        locatorAbility->UpdateSaAbilityHandler();
+        locatorAbility->RegisterAction();
+        locatorAbility->ProxyUidForFreeze(uid, true);
+        locatorAbility->ProxyUidForFreeze(uid, false);
+        locatorAbility->ResetAllProxy();
+        locatorAbility->IsProxyUid(uid);
+        locatorAbility->GetActiveRequestNum();
+        uint32_t tokenId = *(reinterpret_cast<const uint32_t*>(data));
+        std::vector<std::string> permissionNameList;
+        locatorAbility->RegisterPermissionCallback(tokenId, permissionNameList);
+        locatorAbility->UnregisterPermissionCallback(tokenId);
+        return true;
+    }
 }
 
 /* Fuzzer entry point */
@@ -375,6 +493,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::LocatorImplFuzzerTest(data, size);
     OHOS::TestMockFunc(data, size);
     OHOS::TestCallbackRegister(data, size);
+
+    OHOS::LocatorAbility001FuzzerTest(data, size);
+    OHOS::LocatorAbility002FuzzerTest(data, size);
+    OHOS::LocatorAbility003FuzzerTest(data, size);
 
     OHOS::CachedLocationsCallbackHostFuzzerTest(data, size);
     OHOS::CountryCodeCallbackHostFuzzerTest(data, size);
