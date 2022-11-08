@@ -20,11 +20,19 @@
 #include "ipc_skeleton.h"
 #include "iremote_object.h"
 
+#include "cached_locations_callback_host.h"
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "country_code_callback_host.h"
+#include "gnss_ability.h"
+#include "gnss_ability_proxy.h"
+#include "gnss_status_callback_host.h"
 #include "location.h"
 #include "location_mock_config.h"
+#include "location_switch_callback_host.h"
+#include "nmea_message_callback_host.h"
 #include "subability_common.h"
+#include "work_record.h"
 
 namespace OHOS {
     using namespace OHOS::Location;
@@ -41,7 +49,6 @@ namespace OHOS {
             code, option.GetFlags(), callingPid, callingUid);
         switch (code) {
             case SEND_LOCATION_REQUEST: {
-                SendMessage(code, data);
                 break;
             }
             case SET_ENABLE: {
@@ -158,6 +165,46 @@ namespace OHOS {
         int32_t ret = gnssAbilityFuzzer->OnRemoteRequest(code, parcel, reply, option);
         return ret;
     }
+
+    bool GnssProxyFuzzTest(const uint8_t* data, size_t size)
+    {
+        sptr<OHOS::Location::GnssAbility> ability = new (std::nothrow) GnssAbility();
+        sptr<OHOS::Location::GnssAbilityProxy> proxy =
+            new (std::nothrow) GnssAbilityProxy(ability);
+        proxy->SetEnable(true);
+        proxy->SetEnable(false);
+        proxy->RefrashRequirements();
+        auto gnssCallbackHost =
+            sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        pid_t uid = *(reinterpret_cast<const pid_t*>(data));
+        proxy->RegisterGnssStatusCallback(gnssCallbackHost, uid);
+        proxy->UnregisterGnssStatusCallback(gnssCallbackHost);
+        auto nmeaCallbackHost =
+            sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        proxy->RegisterNmeaMessageCallback(nmeaCallbackHost, uid);
+        proxy->UnregisterNmeaMessageCallback(nmeaCallbackHost);
+        auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
+        auto cachedLocationsCallbackHost =
+            sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        proxy->RegisterCachedCallback(cachedRequest, cachedLocationsCallbackHost);
+        proxy->UnregisterCachedCallback(cachedLocationsCallbackHost);
+
+        proxy->GetCachedGnssLocationsSize();
+        proxy->FlushCachedGnssLocations();
+        std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
+        proxy->SendCommand(command);
+        std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
+        proxy->AddFence(fence);
+        proxy->RemoveFence(fence);
+        LocationMockConfig mockInfo;
+        mockInfo.SetScenario(*(reinterpret_cast<const int32_t*>(data)));
+        mockInfo.SetTimeInterval(*(reinterpret_cast<const int32_t*>(data)));
+        std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+        proxy->EnableMock(mockInfo);
+        proxy->DisableMock(mockInfo);
+        proxy->SetMocked(mockInfo, locations);
+        return true;
+    }
 }
 
 /* Fuzzer entry point */
@@ -165,6 +212,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
     OHOS::GnssAbilityFuzzTest(data, size);
+    OHOS::GnssProxyFuzzTest(data, size);
     return 0;
 }
 
