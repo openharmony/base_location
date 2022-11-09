@@ -1,0 +1,64 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/config/features.gni")
+import("//build/test.gni")
+
+##############################fuzztest##########################################
+ohos_fuzztest("CountryCodeManagerFuzzTest") {
+  module_out_path = "location/services"
+  fuzz_config_file =
+      "//base/location/test/fuzztest/locator/countrycodemanager_fuzzer"
+  include_dirs = [
+    "//base/location/services/location_locator/locator/include",
+    "//base/location/interfaces/inner_api/include",
+  ]
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "countrycodemanager_fuzzer.cpp" ]
+  deps = [
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/location/frameworks/js/napi:geolocation",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//base/location/frameworks/native:locator_sdk",
+    "//base/location/services/location_locator/locator:lbsservice_locator",
+    "//foundation/arkui/napi:ace_napi",
+    "//third_party/libuv:uv",
+  ]
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+}
+
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":CountryCodeManagerFuzzTest",
+  ]
+}
+###############################################################################

@@ -46,7 +46,6 @@ void SubAbility::SetAbility(std::string name)
 
 void SubAbility::LocationRequest(WorkRecord &workRecord)
 {
-    LBSLOGI(label_, "test1103, LocationRequest, before clear");
     newRecord_->Clear();
     newRecord_->Set(workRecord);
     HandleRefrashRequirements();

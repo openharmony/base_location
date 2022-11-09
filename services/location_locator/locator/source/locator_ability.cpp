@@ -342,9 +342,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
-        if (callback != nullptr) {
-            callback->OnSwitchChange(state);
-        }
+        callback->OnSwitchChange(state);
     }
 }
 
@@ -794,15 +792,14 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     reportManager_->UpdateRandom();
     // generate request object according to input params
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    if (request != nullptr) {
-        request->SetUid(identity.GetUid());
-        request->SetPid(identity.GetPid());
-        request->SetTokenId(identity.GetTokenId());
-        request->SetFirstTokenId(identity.GetFirstTokenId());
-        request->SetPackageName(identity.GetBundleName());
-        request->SetRequestConfig(*requestConfig);
-        request->SetLocatorCallBack(callback);
-    }
+    request->SetUid(identity.GetUid());
+    request->SetPid(identity.GetPid());
+    request->SetTokenId(identity.GetTokenId());
+    request->SetFirstTokenId(identity.GetFirstTokenId());
+    request->SetPackageName(identity.GetBundleName());
+    request->SetRequestConfig(*requestConfig);
+    request->SetLocatorCallBack(callback);
+    request->SetUUid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);

@@ -30,7 +30,6 @@ int NetworkCallbackHost::OnRemoteRequest(
     }
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
-            LBSLOGI(NETWORK, "NetworkCallbackHost::RECEIVE_LOCATION_INFO_EVENT");
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             OnLocationReport(location);
             break;
@@ -45,7 +44,7 @@ int NetworkCallbackHost::OnRemoteRequest(
 
 void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    LBSLOGI(NETWORK, "NetworkCallbackHost::OnLocationReport!");
+    LBSLOGI(NETWORK, "NetworkCallbackHost::OnLocationReport! [%{public}s]", location->ToString().c_str());
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(location, NETWORK_ABILITY);
 }
 

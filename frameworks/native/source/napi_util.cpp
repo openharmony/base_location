@@ -28,6 +28,7 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
+static constexpr int MAX_CALLBACK_NUM = 3;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -180,7 +181,7 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
 }
 
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
-    std::unique_ptr<GeofenceRequest>& request)
+    const std::unique_ptr<GeofenceRequest>& request)
 {
     int value = 0;
     double doubleValue = 0.0;
@@ -406,7 +407,7 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
 }
 
 bool GetStringArrayValueByKey(
-    napi_env env, napi_value jsObject, std::string key, std::vector<std::string>& outArray)
+    napi_env env, napi_value jsObject, const std::string key, std::vector<std::string>& outArray)
 {
     napi_value array = GetNapiValueByKey(env, key, jsObject);
     if (array == nullptr) {
@@ -532,12 +533,12 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         double direction = 0.0;
         JsObjectToDouble(env, elementValue, "direction", direction);
         locationAdapter->SetDirection(direction);
-        int32_t timeStamp = 0;
-        JsObjectToInt(env, elementValue, "timeStamp", timeStamp);
-        locationAdapter->SetTimeStamp(static_cast<int64_t>(accuracy));
-        int32_t timeSinceBoot = 0;
-        JsObjectToInt(env, elementValue, "timeSinceBoot", timeSinceBoot);
-        locationAdapter->SetTimeSinceBoot(static_cast<int64_t>(timeSinceBoot));
+        int64_t timeStamp = 0;
+        JsObjectToInt64(env, elementValue, "timeStamp", timeStamp);
+        locationAdapter->SetTimeStamp(timeStamp);
+        int64_t timeSinceBoot = 0;
+        JsObjectToInt64(env, elementValue, "timeSinceBoot", timeSinceBoot);
+        locationAdapter->SetTimeSinceBoot(timeSinceBoot);
         std::string additions = " ";
         int buffLen = 100;
         JsObjectToString(env, elementValue, "additions", buffLen, additions);
@@ -568,17 +569,12 @@ int JsObjectToString(const napi_env& env, const napi_value& object,
             LBSLOGE(LOCATOR_STANDARD, "The length of buf should be greater than 0.");
             return COMMON_ERROR;
         }
-        char *buf = (char *)malloc(bufLen);
-        if (buf == nullptr) {
-            LBSLOGE(LOCATOR_STANDARD, "Js object to str malloc failed!");
-            return COMMON_ERROR;
-        }
-        (void)memset_s(buf, bufLen, 0, bufLen);
+        int32_t actBuflen = bufLen + 1;
+        std::unique_ptr<char[]> buf = std::make_unique<char[]>(actBuflen);
+        (void)memset_s(buf.get(), actBuflen, 0, actBuflen);
         size_t result = 0;
-        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, field, buf, bufLen, &result), COMMON_ERROR);
-        fieldRef = buf;
-        free(buf);
-        buf = nullptr;
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, field, buf.get(), actBuflen, &result), COMMON_ERROR);
+        fieldRef = buf.get();
         return SUCCESS;
     }
     LBSLOGD(LOCATOR_STANDARD, "Js obj to str no property: %{public}s", fieldStr);
@@ -615,6 +611,24 @@ int JsObjectToInt(const napi_env& env, const napi_value& object, const char* fie
         NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
         NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", INPUT_PARAMS_ERROR);
         NAPI_CALL_BASE(env, napi_get_value_int32(env, field, &fieldRef), COMMON_ERROR);
+        return SUCCESS;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
+    return PARAM_IS_EMPTY;
+}
+
+int JsObjectToInt64(const napi_env& env, const napi_value& object, const char* fieldStr, int64_t& fieldRef)
+{
+    bool hasProperty = false;
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, fieldStr, &hasProperty), COMMON_ERROR);
+    if (hasProperty) {
+        napi_value field;
+        napi_valuetype valueType;
+
+        NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), COMMON_ERROR);
+        NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
+        NAPI_ASSERT_BASE(env, valueType == napi_number, "Wrong argument type.", INPUT_PARAMS_ERROR);
+        NAPI_CALL_BASE(env, napi_get_value_int64(env, field, &fieldRef), COMMON_ERROR);
         return SUCCESS;
     }
     LBSLOGD(LOCATOR_STANDARD, "Js to int no property: %{public}s", fieldStr);
@@ -691,11 +705,17 @@ static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext
     if (asyncContext == nullptr || argv == nullptr) {
         return false;
     }
-    for (size_t i = objectArgsNum; i != argc; ++i) {
+    size_t startLoop = objectArgsNum;
+    size_t endLoop = argc;
+    for (size_t i = startLoop; i < endLoop; ++i) {
         napi_valuetype valuetype;
         NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);
         NAPI_ASSERT_BASE(env, valuetype == napi_function,  "Wrong argument type.", false);
-        NAPI_CALL_BASE(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[i - objectArgsNum]), false);
+        size_t index = i - objectArgsNum;
+        if (index >= MAX_CALLBACK_NUM) {
+            break;
+        }
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[i], 1, &asyncContext->callback[index]), false);
     }
     return true;
 }
@@ -711,7 +731,7 @@ static bool InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext,
     return true;
 }
 
-void CreateFailCallBackParams(AsyncContext& context, std::string msg, int32_t errorCode)
+void CreateFailCallBackParams(AsyncContext& context, const std::string msg, int32_t errorCode)
 {
     SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
     SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
@@ -814,7 +834,7 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
                 LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
                 return;
             }
-            AsyncContext* context = (AsyncContext *)data;
+            AsyncContext* context = static_cast<AsyncContext *>(data);
             context->executeFunc(context);
         },
         [](napi_env env, napi_status status, void* data) {
@@ -822,12 +842,12 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
                 LBSLOGE(LOCATOR_STANDARD, "Async data parameter is null");
                 return;
             }
-            AsyncContext* context = (AsyncContext *)data;
+            AsyncContext* context = static_cast<AsyncContext *>(data);
             context->completeFunc(data);
             CreateResultObject(env, context);
             SendResultToJs(env, context);
             MemoryReclamation(env, context);
-        }, (void*)asyncContext, &asyncContext->work));
+        }, static_cast<void*>(asyncContext), &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
     return UndefinedNapiValue(env);
 }

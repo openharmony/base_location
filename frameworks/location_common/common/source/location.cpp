@@ -17,6 +17,7 @@
 
 #include <parcel.h>
 #include <string>
+#include "string_ex.h"
 
 namespace OHOS {
 namespace Location {
@@ -64,12 +65,12 @@ void Location::ReadFromParcel(Parcel& parcel)
     latitude_ = parcel.ReadDouble();
     longitude_ = parcel.ReadDouble();
     altitude_ = parcel.ReadDouble();
-    accuracy_ = parcel.ReadFloat();
-    speed_ = parcel.ReadFloat();
+    accuracy_ = parcel.ReadDouble();
+    speed_ = parcel.ReadDouble();
     direction_ = parcel.ReadDouble();
     timeStamp_ = parcel.ReadInt64();
     timeSinceBoot_ = parcel.ReadInt64();
-    additions_ = parcel.ReadString();
+    additions_ = Str16ToStr8(parcel.ReadString16());
     additionSize_ = parcel.ReadInt64();
     isFromMock_ = parcel.ReadBool();
     soueceType_ = parcel.ReadInt32();
@@ -96,12 +97,12 @@ bool Location::Marshalling(Parcel& parcel) const
     return parcel.WriteDouble(latitude_) &&
            parcel.WriteDouble(longitude_) &&
            parcel.WriteDouble(altitude_) &&
-           parcel.WriteFloat(accuracy_) &&
-           parcel.WriteFloat(speed_) &&
+           parcel.WriteDouble(accuracy_) &&
+           parcel.WriteDouble(speed_) &&
            parcel.WriteDouble(direction_) &&
            parcel.WriteInt64(timeStamp_) &&
            parcel.WriteInt64(timeSinceBoot_) &&
-           parcel.WriteString(additions_) &&
+           parcel.WriteString16(Str8ToStr16(additions_)) &&
            parcel.WriteInt64(additionSize_) &&
            parcel.WriteBool(isFromMock_) &&
            parcel.WriteInt32(soueceType_) &&
@@ -119,6 +120,9 @@ std::string Location::ToString() const
         ", direction : " + std::to_string(direction_) +
         ", timeStamp : " + std::to_string(timeStamp_) +
         ", timeSinceBoot : " + std::to_string(timeSinceBoot_) +
+        ", additions : " + additions_ +
+        ", additionSize : " + std::to_string(additionSize_) +
+        ", isFromMock : " + std::to_string(isFromMock_) +
         ", soueceType : " + std::to_string(soueceType_) +
         ", floorNo : " + std::to_string(floorNo_) +
         ", floorAccuracy : " + std::to_string(floorAccuracy_);

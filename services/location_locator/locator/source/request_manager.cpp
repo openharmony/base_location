@@ -369,7 +369,7 @@ void RequestManager::HandleRequest(std::string abilityName)
         }
         // add request info to work record
         workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName(),
-            requestConfig->GetTimeInterval(), std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+            requestConfig->GetTimeInterval(), request->GetUUid());
         int requestType = requestConfig->GetScenario();
         if (requestType == SCENE_UNSET) {
             requestType = requestConfig->GetPriority();

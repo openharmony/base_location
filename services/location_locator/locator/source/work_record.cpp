@@ -46,9 +46,7 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
 std::unique_ptr<WorkRecord> WorkRecord::Unmarshalling(Parcel& parcel)
 {
     std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-    if (workRecord != nullptr) {
-        workRecord->ReadFromParcel(parcel);
-    }
+    workRecord->ReadFromParcel(parcel);
     return workRecord;
 }
 
@@ -93,9 +91,9 @@ std::string WorkRecord::ToString()
             result += std::to_string(pids_[i]);
             result += ",";
             result += names_[i];
-            result += "; ";
+            result += ",";
             result += std::to_string(timeInterval_[i]);
-            result += "; ";
+            result += ",";
             result += uuid_[i];
             result += "; ";
         }

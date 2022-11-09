@@ -175,8 +175,8 @@ private:
     double latitude_;
     double longitude_;
     double altitude_;
-    float accuracy_;
-    float speed_;
+    double accuracy_;
+    double speed_;
     double direction_;
     int64_t timeStamp_;
     int64_t timeSinceBoot_;

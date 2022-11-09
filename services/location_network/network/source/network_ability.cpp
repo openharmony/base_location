@@ -158,17 +158,19 @@ void NetworkAbility::SelfRequest(bool state)
 
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGE(NETWORK, "test enter RequestRecord");
-    if (!ConnectHms()) {
+    LBSLOGI(NETWORK, "enter RequestRecord. %{public}d", isAdded ? 1 : 0);
+    if (!connectServiceReady_ && !ConnectHms()) {
         return;
     }
+    LBSLOGI(NETWORK, "test enter RequestRecord, [%{public}s]", workRecord.ToString().c_str());
     if (cloudServiceProxy_ != nullptr) {
         MessageParcel data, reply;
         MessageOption option;
         if (isAdded) {
             sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
-            data.WriteString(workRecord.GetUUid(0));
-            data.WriteInt64(workRecord.GetTimeInterval(0));
+            LBSLOGI(NETWORK, "test1109, uuid:%{public}s, timeInterval:%{public}d", workRecord.GetUUid(0).c_str(), workRecord.GetTimeInterval(0));
+            data.WriteString16(Str8ToStr16(workRecord.GetUUid(0)));
+            data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
             data.WriteInt32(PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
             data.WriteRemoteObject(callback->AsObject());
             int error = cloudServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
@@ -178,7 +180,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             }
             LBSLOGE(NETWORK, "start network location.");
         } else {
-            data.WriteString(workRecord.GetUUid(0));
+            data.WriteString16(Str8ToStr16(workRecord.GetUUid(0)));
             int error = cloudServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
             if (error != ERR_OK) {
                 LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
