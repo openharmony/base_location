@@ -52,6 +52,10 @@ bool GnssStatusCallbackHostFuzzerTest(const uint8_t* data, size_t size);
 bool LocationSwitchCallbackHostFuzzerTest(const uint8_t* data, size_t size);
 bool LocationCallbackHostFuzzerTest(const uint8_t* data, size_t size);
 bool NmeaMessageCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+
+bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size);
+bool LocatorAbility002FuzzerTest(const uint8_t* data, size_t size);
+bool LocatorAbility003FuzzerTest(const uint8_t* data, size_t size);
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_FUZZER_H

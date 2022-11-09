@@ -22,6 +22,7 @@ ohos_fuzztest("LocatorFuzzTest") {
   include_dirs = [
     "//base/location/frameworks/js/napi/include",
     "//base/location/interfaces/inner_api/include",
+    "//base/location/services/location_locator/locator/include",
     "//utils/system/safwk/native/include",
   ]
   cflags = [
@@ -36,9 +37,11 @@ ohos_fuzztest("LocatorFuzzTest") {
     "//base/location/frameworks/js/napi:geolocation",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
+    "//base/location/services/location_locator/locator:lbsservice_locator",
     "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
     "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//foundation/arkui/napi:ace_napi",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//third_party/libuv:uv",
   ]
   external_deps = [
