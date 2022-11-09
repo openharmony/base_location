@@ -18,22 +18,24 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
-
+    const int MIN_DATA_LEN = 5;
     bool LocationConfigManagerFuzzerTest(const uint8_t* data, size_t size)
     {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
+        int index = 0;
         LocationConfigManager::GetInstance().Init();
         LocationConfigManager::GetInstance().GetLocationSwitchState();
-        int state = *reinterpret_cast<const int*>(data);
-        LocationConfigManager::GetInstance().SetLocationSwitchState(state);
+        LocationConfigManager::GetInstance().SetLocationSwitchState(data[index++]);
         std::string fileName((const char*) data, size);
         LocationConfigManager::GetInstance().IsExistFile(fileName);
         std::string fileData((const char*) data, size);
         LocationConfigManager::GetInstance().CreateFile(fileName, fileData);
-        int type = *reinterpret_cast<const int*>(data);
-        LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(type);
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(type);
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(type, true);
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(type, false);
+        LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(data[index++]);
+        LocationConfigManager::GetInstance().GetPrivacyTypeState(data[index++]);
+        LocationConfigManager::GetInstance().SetPrivacyTypeState(data[index++], true);
+        LocationConfigManager::GetInstance().SetPrivacyTypeState(data[index++], false);
         return true;
     }
 }

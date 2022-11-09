@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,5 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef REQUEST_MANAGER_FUZZER_H
+#define REQUEST_MANAGER_FUZZER_H
 
-FUZZ
+#include "request_manager.h"
+
+namespace OHOS {
+namespace Location {
+bool RequestFuzzerTest(const uint8_t* data, size_t size);
+bool RequestManagerFuzzerTest(const uint8_t* data, size_t size);
+} // namespace Location
+} // namespace OHOS
+#endif // REQUEST_MANAGER_FUZZER_H

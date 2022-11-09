@@ -21,5 +21,9 @@ group("fuzztest") {
     "locator/gnss_fuzzer:GnssFuzzTest",
     "locator/locationconfigmanager_fuzzer:LocationConfigManagerFuzzTest",
     "locator/locator_fuzzer:LocatorFuzzTest",
+    "locator/locatorbackgroundproxy_fuzzer:LocatorBackgroundProxyFuzzTest",
+    "locator/locatoreventmanager_fuzzer:LocatorEventManagerFuzzTest",
+    "locator/reportmanager_fuzzer:ReportManagerFuzzTest",
+    "locator/requestmanager_fuzzer:RequestManagerFuzzTest",
   ]
 }

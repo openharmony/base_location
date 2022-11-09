@@ -38,7 +38,7 @@ namespace OHOS {
     using namespace OHOS::Location;
     const int32_t MAX_CODE_LEN  = 512;
     const int32_t MAX_CODE_NUM = 27;
-
+    const int32_t MIN_DATA_LEN = 4;
     int GnssAbilityTestFuzzer::OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
@@ -147,27 +147,27 @@ namespace OHOS {
 
     bool GnssAbilityFuzzTest(const uint8_t* data, size_t size)
     {
-        if ((data == nullptr) || (size <= 0)) {
+        if ((data == nullptr) || (size == 0)) {
             return false;
         }
         if (size > MAX_CODE_LEN) {
             return false;
         }
         MessageParcel parcel;
-        uint32_t code = *(reinterpret_cast<const uint32_t*>(data));
-        code %= MAX_CODE_NUM;
-        size -= sizeof(uint32_t);
-        parcel.WriteBuffer(data + sizeof(uint32_t), size);
-        parcel.RewindRead(0);
-        sptr<GnssAbilityTestFuzzer> gnssAbilityFuzzer = new GnssAbilityTestFuzzer();
         MessageParcel reply;
         MessageOption option;
-        int32_t ret = gnssAbilityFuzzer->OnRemoteRequest(code, parcel, reply, option);
+        sptr<GnssAbilityTestFuzzer> gnssAbilityFuzzer = new GnssAbilityTestFuzzer();
+        int index = 0;
+        int32_t ret = gnssAbilityFuzzer->OnRemoteRequest(data[index++] % MAX_CODE_NUM, parcel, reply, option);
         return ret;
     }
 
     bool GnssProxyFuzzTest(const uint8_t* data, size_t size)
     {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
+        int index = 0;
         sptr<OHOS::Location::GnssAbility> ability = new (std::nothrow) GnssAbility();
         sptr<OHOS::Location::GnssAbilityProxy> proxy =
             new (std::nothrow) GnssAbilityProxy(ability);
@@ -176,12 +176,11 @@ namespace OHOS {
         proxy->RefrashRequirements();
         auto gnssCallbackHost =
             sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-        pid_t uid = *(reinterpret_cast<const pid_t*>(data));
-        proxy->RegisterGnssStatusCallback(gnssCallbackHost, uid);
+        proxy->RegisterGnssStatusCallback(gnssCallbackHost, data[index++]);
         proxy->UnregisterGnssStatusCallback(gnssCallbackHost);
         auto nmeaCallbackHost =
             sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
-        proxy->RegisterNmeaMessageCallback(nmeaCallbackHost, uid);
+        proxy->RegisterNmeaMessageCallback(nmeaCallbackHost, data[index++]);
         proxy->UnregisterNmeaMessageCallback(nmeaCallbackHost);
         auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
         auto cachedLocationsCallbackHost =
@@ -197,8 +196,8 @@ namespace OHOS {
         proxy->AddFence(fence);
         proxy->RemoveFence(fence);
         LocationMockConfig mockInfo;
-        mockInfo.SetScenario(*(reinterpret_cast<const int32_t*>(data)));
-        mockInfo.SetTimeInterval(*(reinterpret_cast<const int32_t*>(data)));
+        mockInfo.SetScenario(data[index++]);
+        mockInfo.SetTimeInterval(data[index++]);
         std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
         proxy->EnableMock(mockInfo);
         proxy->DisableMock(mockInfo);
