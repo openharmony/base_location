@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COUNTRYCODE_MANAGER_FUZZER_H
-#define COUNTRYCODE_MANAGER_FUZZER_H
+#ifndef LOCATOR_BACKGROUND_PROXY_FUZZER_H
+#define LOCATOR_BACKGROUND_PROXY_FUZZER_H
 
-#include "country_code_manager.h"
+#include "locator_background_proxy.h"
+
 namespace OHOS {
 namespace Location {
-bool CountrycodeManagerFuzzerTest(const uint8_t* data, size_t size);
+bool LocatorBackgroundProxyFuzzerTest(const uint8_t* data, size_t size);
 } // namespace Location
 } // namespace OHOS
-#endif // COUNTRYCODE_MANAGER_FUZZER_H
+#endif // LOCATOR_BACKGROUND_PROXY_FUZZER_H
