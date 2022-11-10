@@ -140,7 +140,6 @@ namespace OHOS {
 
     bool LocatorImplFuzzerTest(const uint8_t* data, size_t size)
     {
-
         int index = 0;
         g_locatorImpl->IsLocationEnabled();
         g_locatorImpl->ShowNotification();

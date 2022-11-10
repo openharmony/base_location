@@ -15,8 +15,7 @@
 #ifndef LOCATION_CONFIG_MANAGER_FUZZER_H
 #define LOCATION_CONFIG_MANAGER_FUZZER_H
 
-#include "stdint.h"
-#include "stddef.h"
+#include "location_config_manager.h"
 
 namespace OHOS {
 namespace Location {
