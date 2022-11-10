@@ -13,25 +13,27 @@
  * limitations under the License.
  */
 
-#include "countrycodemanager_fuzzer.h"
-#include "country_code_manager.h"
+#include "locatoreventmanager_fuzzer.h"
+
+#include "request.h"
 
 namespace OHOS {
     using namespace OHOS::Location;
-
-    bool CountrycodeManagerFuzzTest(const uint8_t* data, size_t size)
+    bool LocatorEventManagerFuzzerTest(const uint8_t* data, size_t size)
     {
         if (size == 0) {
             return true;
         }
-        std::shared_ptr<CountryCodeManager> countryCodeManager =
-            std::make_shared<CountryCodeManager>();
-        countryCodeManager->GetIsoCountryCode();
-        countryCodeManager->UnregisterCountryCodeCallback(nullptr);
+        auto locatorDftManager =
+            DelayedSingleton<LocatorDftManager>::GetInstance();
         int index = 0;
-        countryCodeManager->RegisterCountryCodeCallback(nullptr, data[index++]);
-        countryCodeManager->ReSubscribeEvent();
-        countryCodeManager->ReUnsubscribeEvent();
+        locatorDftManager->IpcCallingErr(data[index++]);
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        locatorDftManager->LocationSessionStart(request);
+        locatorDftManager->DistributionSessionStart();
+        locatorDftManager->DistributionDisconnect();
+        locatorDftManager->SendDistributionDailyCount();
+        locatorDftManager->SendRequestDailyCount();
         return true;
     }
 }
@@ -40,6 +42,6 @@ namespace OHOS {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::CountrycodeManagerFuzzTest(data, size);
+    OHOS::LocatorEventManagerFuzzerTest(data, size);
     return 0;
 }

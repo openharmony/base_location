@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COUNTRYCODE_MANAGER_FUZZER_H
-#define COUNTRYCODE_MANAGER_FUZZER_H
+#ifndef REPORT_MANAGER_FUZZER_H
+#define REPORT_MANAGER_FUZZER_H
 
-#include "country_code_manager.h"
+#include "report_manager.h"
+
 namespace OHOS {
 namespace Location {
-bool CountrycodeManagerFuzzerTest(const uint8_t* data, size_t size);
+bool ReportManagerFuzzerTest(const uint8_t* data, size_t size);
 } // namespace Location
 } // namespace OHOS
-#endif // COUNTRYCODE_MANAGER_FUZZER_H
+#endif // REPORT_MANAGER_FUZZER_H

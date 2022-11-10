@@ -22,17 +22,19 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
-
+    const int MIN_DATA_LEN = 3;
     bool GeoConvertProxyFuzzerTest(const uint8_t* data, size_t size)
     {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
+        int index = 0;
         sptr<GeoConvertService> service =
             new (std::nothrow) GeoConvertService();
         std::shared_ptr<GeoConvertProxy> geoConvertProxy =
             std::make_shared<GeoConvertProxy>(service);
         MessageParcel request;
         MessageParcel reply;
-        request.WriteBuffer(data + sizeof(uint32_t), size);
-        request.RewindRead(0);
         geoConvertProxy->IsGeoConvertAvailable(request);
         geoConvertProxy->GetAddressByCoordinate(request, reply);
         geoConvertProxy->GetAddressByLocationName(request, reply);
@@ -40,10 +42,9 @@ namespace OHOS {
         geoConvertProxy->DisableReverseGeocodingMock();
         std::vector<std::shared_ptr<GeocodingMockInfo>> geocodingMockInfos;
         geoConvertProxy->SetReverseGeocodingMockInfo(geocodingMockInfos);
-        int msgId = *(reinterpret_cast<const int*>(data));
-        geoConvertProxy->SendSimpleMsgAndParseResult(msgId);
-        geoConvertProxy->SendSimpleMsg(msgId, request);
-        geoConvertProxy->SendMsgWithDataReply(msgId, request, reply);
+        geoConvertProxy->SendSimpleMsgAndParseResult(data[index++]);
+        geoConvertProxy->SendSimpleMsg(data[index++], request);
+        geoConvertProxy->SendMsgWithDataReply(data[index++], request, reply);
         return true;
     }
 }
