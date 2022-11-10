@@ -20,17 +20,17 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
-
     bool FusionControllerFuzzerTest(const uint8_t* data, size_t size)
     {
+        if (size == 0) {
+            return true;
+        }
         std::shared_ptr<FusionController> fusionController =
             std::make_shared<FusionController>();
-        int type = *(reinterpret_cast<const int*>(data));
-        fusionController->ActiveFusionStrategies(type);
-
+        int index = 0;
+        fusionController->ActiveFusionStrategies(data[index++]);
         std::string abilityName((const char*) data, size);
         fusionController->Process(abilityName);
-
         auto location = std::make_unique<OHOS::Location::Location>();
         fusionController->FuseResult(abilityName, location);
         return true;
