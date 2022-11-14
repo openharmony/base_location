@@ -17,10 +17,10 @@
 #define LOCATOR_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
+#include "i_locator_callback.h"
 #include "locator_background_proxy.h"
-#include "locator_callback_proxy.h"
-#include "locator_skeleton.h"
 #include "locator_proxy.h"
+#include "request.h"
 #include "request_manager.h"
 
 class LocatorServiceTest : public testing::Test {
@@ -30,7 +30,7 @@ public:
     bool StartAndStopForLocating(OHOS::MessageParcel& data);
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
-    void AddPermission();
+    void MockNativePermission();
 
     OHOS::sptr<OHOS::Location::LocatorProxy> proxy_;
     OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;

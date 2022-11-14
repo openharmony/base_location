@@ -13,24 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef GEO_CONVERT_SERVICE_TEST_H
-#define GEO_CONVERT_SERVICE_TEST_H
+#ifndef PASSIVE_ABILITY_TEST_H
+#define PASSIVE_ABILITY_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "geo_convert_proxy.h"
-#include "geo_convert_service.h"
+#include "passive_ability.h"
+#include "passive_ability_proxy.h"
 
-class GeoConvertServiceTest : public testing::Test {
+class PassiveAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool Available();
     void MockNativePermission();
     
-    OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
-    OHOS::sptr<OHOS::Location::GeoConvertService> service_;
-    bool available_;
+    OHOS::sptr<OHOS::Location::PassiveAbilityProxy> proxy_;
+    OHOS::sptr<OHOS::Location::PassiveAbility> ability_;
 };
 
-#endif // GEO_CONVERT_SERVICE_TEST_H
+#endif // PASSIVE_ABILITY_TEST_H
