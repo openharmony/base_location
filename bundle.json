@@ -73,6 +73,17 @@
                 "//base/location/services/etc:etc",
                 "//base/location/sa_profile:location_sa_profile"
             ],
+            "inner_kits": [
+                {
+                    "header" : {
+                        "header_base": "//base/location/interfaces/inner_api/include",
+                        "header_files": [
+                            "locator_impl.h"
+                        ]
+                    },
+                    "name" : "//base/location/frameworks/native:locator_sdk"
+                }
+            ],
             "test": [
                 "//base/location/test/location_locator:unittest",
                 "//base/location/test/location_geocode:unittest",
