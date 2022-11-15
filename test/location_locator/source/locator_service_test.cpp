@@ -32,12 +32,18 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
+#include "country_code_callback_host.h"
 #include "geo_address.h"
+#include "gnss_status_callback_host.h"
 #include "location.h"
 #include "location_log.h"
+#include "location_switch_callback_host.h"
+#include "locator.h"
 #include "locator_ability.h"
+#include "locator_callback_host.h"
 #include "locator_callback_proxy.h"
 #include "locator_skeleton.h"
+#include "nmea_message_callback_host.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -124,6 +130,44 @@ bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
     proxy_->StartLocating(requestConfig, callbackStub_, "ohos.unit", pid, uid);
     bool ret = (proxy_->StopLocating(callbackStub_)) != REPLY_CODE_SECURITY_EXCEPTION ? true : false;
     return ret;
+}
+
+std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocodingMockInfo()
+{
+    std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfos;
+    std::shared_ptr<GeocodingMockInfo> geocodingMockInfo =
+        std::make_shared<GeocodingMockInfo>();
+    MessageParcel parcel;
+    parcel.WriteString16(Str8ToStr16("locale"));
+    parcel.WriteDouble(99.0); // latitude
+    parcel.WriteDouble(100.0); // longitude
+    parcel.WriteInt32(1);
+    parcel.WriteString("localeLanguage");
+    parcel.WriteString("localeCountry");
+    parcel.WriteInt32(1); // size
+    parcel.WriteInt32(0); // line
+    parcel.WriteString("line");
+    parcel.WriteString("placeName");
+    parcel.WriteString("administrativeArea");
+    parcel.WriteString("subAdministrativeArea");
+    parcel.WriteString("locality");
+    parcel.WriteString("subLocality");
+    parcel.WriteString("roadName");
+    parcel.WriteString("subRoadName");
+    parcel.WriteString("premises");
+    parcel.WriteString("postalCode");
+    parcel.WriteString("countryCode");
+    parcel.WriteString("countryName");
+    parcel.WriteInt32(1); // hasLatitude
+    parcel.WriteDouble(99.0); // latitude
+    parcel.WriteInt32(1); // hasLongitude
+    parcel.WriteDouble(100.0); // longitude
+    parcel.WriteString("phoneNumber");
+    parcel.WriteString("addressUrl");
+    parcel.WriteBool(true);
+    geocodingMockInfo->ReadFromParcel(parcel);
+    geoMockInfos.emplace_back(std::move(geocodingMockInfo));
+    return geoMockInfos;
 }
 
 /*
@@ -1362,4 +1406,189 @@ HWTEST_F(LocatorServiceTest, UpdateListOnRequestChange002, TestSize.Level1)
      */
     backgroundProxy_->UpdateListOnRequestChange(nullptr);
     EXPECT_EQ(true, true);
+}
+
+HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    locatorImpl->ShowNotification();
+    locatorImpl->RequestPermission();
+    locatorImpl->RequestEnableLocation();
+
+    locatorImpl->EnableAbility(false);
+    EXPECT_EQ(false, locatorImpl->IsLocationEnabled());
+    locatorImpl->EnableAbility(true);
+    EXPECT_EQ(true, locatorImpl->IsLocationEnabled());
+
+    EXPECT_EQ(nullptr, locatorImpl->GetCachedLocation());
+
+    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(1));
+    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
+    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
+    EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorImpl->SetLocationPrivacyConfirmStatus(-1, true));
+    EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
+    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
+
+    EXPECT_EQ(-1, locatorImpl->GetCachedGnssLocationsSize());
+
+    EXPECT_EQ(REPLY_CODE_UNSUPPORT, locatorImpl->FlushCachedGnssLocations());
+
+    std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
+    command->scenario = SCENE_NAVIGATION;
+    command->command = "cmd";
+    EXPECT_EQ(true, locatorImpl->SendCommand(command));
+
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    fenceRequest->priority = 1;
+    fenceRequest->scenario = SCENE_NAVIGATION;
+    GeoFence geofence;
+    geofence.latitude = 1.0;
+    geofence.longitude = 2.0;
+    geofence.radius = 3.0;
+    geofence.expiration = 4.0;
+    fenceRequest->geofence = geofence;
+    EXPECT_EQ(true, locatorImpl->AddFence(fenceRequest));
+    EXPECT_EQ(true, locatorImpl->RemoveFence(fenceRequest));
+
+    EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
+
+    EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, true));
+    EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
+    EXPECT_EQ(true, locatorImpl->ResetAllProxy());
+
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NAVIGATION);
+    mockInfo.SetTimeInterval(2);
+    EXPECT_EQ(true, locatorImpl->EnableLocationMock(mockInfo));
+    std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+    EXPECT_EQ(true, locatorImpl->SetMockedLocations(mockInfo, locations));
+    EXPECT_EQ(true, locatorImpl->DisableLocationMock(mockInfo));
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
+    EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
+    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+    EXPECT_EQ(true, locatorImpl->IsGeoServiceAvailable());
+
+    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+    EXPECT_EQ(false, locatorImpl->IsGeoServiceAvailable());
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    MessageParcel request001;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
+    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
+    EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
+    request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request001.WriteDouble(1.0); // latitude
+    request001.WriteDouble(2.0); // longitude
+    request001.WriteInt32(3); // maxItems
+    request001.WriteInt32(1); // locale object size = 1
+    request001.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request001.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request001.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request001.WriteString16(Str8ToStr16("")); // ""
+    locatorImpl->GetAddressByCoordinate(request001, geoAddressList001);
+    EXPECT_EQ(false, geoAddressList001.empty());
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    MessageParcel request002;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
+    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+    request002.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request002.WriteDouble(1.0); // latitude
+    request002.WriteDouble(2.0); // longitude
+    request002.WriteInt32(3); // maxItems
+    request002.WriteInt32(1); // locale object size = 1
+    request002.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request002.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request002.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request002.WriteString16(Str8ToStr16("")); // ""
+    locatorImpl->GetAddressByCoordinate(request002, geoAddressList002);
+    EXPECT_EQ(true, geoAddressList002.empty());
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGetAddressByLocationName001, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    MessageParcel request003;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList003;
+    request003.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request003.WriteString16(Str8ToStr16("description")); // description
+    request003.WriteDouble(1.0); // minLatitude
+    request003.WriteDouble(2.0); // minLongitude
+    request003.WriteDouble(3.0); // maxLatitude
+    request003.WriteDouble(4.0); // maxLongitude
+    request003.WriteInt32(3); // maxItems
+    request003.WriteInt32(1); // locale object size = 1
+    request003.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request003.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request003.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request003.WriteString16(Str8ToStr16("")); // ""
+    locatorImpl->GetAddressByLocationName(request003, geoAddressList003);
+    EXPECT_EQ(true, geoAddressList003.empty());
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    auto switchCallbackHost =
+        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+    EXPECT_NE(nullptr, switchCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
+
+    auto gnssCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    EXPECT_NE(nullptr, gnssCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterGnssStatusCallback(gnssCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterGnssStatusCallback(gnssCallbackHost->AsObject()));
+
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    EXPECT_NE(nullptr, nmeaCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
+
+    auto countryCodeCallbackHost =
+        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    EXPECT_NE(nullptr, countryCodeCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterCountryCodeCallback(countryCodeCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterCountryCodeCallback(countryCodeCallbackHost->AsObject()));
+
+    auto cachedLocationsCallbackHost =
+        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    EXPECT_NE(nullptr, cachedLocationsCallbackHost);
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
+    EXPECT_NE(nullptr, cachedCallback);
+    auto request = std::make_unique<CachedGnssLocationsRequest>();
+    EXPECT_NE(nullptr, request);
+    request->reportingPeriodSec = 10;
+    request->wakeUpCacheQueueFull = true;
+    locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
+    locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
 }
