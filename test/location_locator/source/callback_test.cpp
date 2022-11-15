@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "callback_proxy_test.h"
+#include "callback_test.h"
 
 #include "message_parcel.h"
 
@@ -31,15 +31,15 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::Location;
 
-void CallbackProxyTest::SetUp()
+void CallbackTest::SetUp()
 {
 }
 
-void CallbackProxyTest::TearDown()
+void CallbackTest::TearDown()
 {
 }
 
-HWTEST_F(CallbackProxyTest, OnCacheLocationsReport001, TestSize.Level1)
+HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
 {
     auto cachedLocationsCallbackHost =
         sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
@@ -66,10 +66,9 @@ HWTEST_F(CallbackProxyTest, OnCacheLocationsReport001, TestSize.Level1)
     location->ReadFromParcel(parcel);
     locations.emplace_back(std::move(location));
     cachedLocationsCallbackProxy->OnCacheLocationsReport(locations);
-    EXPECT_NE(nullptr, locations);
 }
 
-HWTEST_F(CallbackProxyTest, OnSwitchChange001, TestSize.Level1)
+HWTEST_F(CallbackTest, OnSwitchChange001, TestSize.Level1)
 {
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
@@ -81,7 +80,7 @@ HWTEST_F(CallbackProxyTest, OnSwitchChange001, TestSize.Level1)
     switchCallbackProxy->OnSwitchChange(state);
 }
 
-HWTEST_F(CallbackProxyTest, OnMessageChange001, TestSize.Level1)
+HWTEST_F(CallbackTest, OnMessageChange001, TestSize.Level1)
 {
     auto nmeaCallbackHost =
         sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
@@ -91,10 +90,9 @@ HWTEST_F(CallbackProxyTest, OnMessageChange001, TestSize.Level1)
     EXPECT_NE(nullptr, nmeaCallbackProxy);
     std::string msg = "msg";
     nmeaCallbackProxy->OnMessageChange(msg);
-    EXPECT_NE(nullptr, msg);
 }
 
-HWTEST_F(CallbackProxyTest, LocationCallbackProxy001, TestSize.Level1)
+HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level1)
 {
     auto locatorCallbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
@@ -104,15 +102,28 @@ HWTEST_F(CallbackProxyTest, LocationCallbackProxy001, TestSize.Level1)
     EXPECT_NE(nullptr, locatorCallbackProxy);
     auto location =
         std::make_unique<OHOS::Location::Location>();
+    MessageParcel parcel;
+    parcel.WriteDouble(1.0); // latitude
+    parcel.WriteDouble(2.0); // longitude
+    parcel.WriteDouble(3.0); // altitude
+    parcel.WriteFloat(4.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(6.0); // direction
+    parcel.WriteInt64(1000000000); // timeStamp
+    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock
     EXPECT_NE(nullptr, location);
-    locatorCallbackProxy->OnLocationReport(location);
+    location->ReadFromParcel(parcel);
+    locatorCallbackProxy->OnLocationReport(nullptr); // nullptr error
     int status = 1;
     locatorCallbackProxy->OnLocatingStatusChange(status);
     int errorCode = 0;
     locatorCallbackProxy->OnErrorReport(errorCode);
 }
 
-HWTEST_F(CallbackProxyTest, GnssStatusCallbackProxy001, TestSize.Level1)
+HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
 {
     auto gnssStatusCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
@@ -135,7 +146,7 @@ HWTEST_F(CallbackProxyTest, GnssStatusCallbackProxy001, TestSize.Level1)
     gnssStatusCallbackProxy->OnStatusChange(statusInfo);
 }
 
-HWTEST_F(CallbackProxyTest, CountryCodeCallbackProxy001, TestSize.Level1)
+HWTEST_F(CallbackTest, CountryCodeCallbackProxy001, TestSize.Level1)
 {
     auto countryCodeCallbackHost =
         sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
@@ -150,4 +161,70 @@ HWTEST_F(CallbackProxyTest, CountryCodeCallbackProxy001, TestSize.Level1)
     country->ReadFromParcel(parcel);
     EXPECT_NE(nullptr, country);
     countryCodeCallbackProxy->OnCountryCodeChange(country);
+}
+
+HWTEST_F(CallbackTest, CachedLocationsCallbackHost001, TestSize.Level1)
+{
+    auto cachedCallbackHost =
+        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    EXPECT_NE(nullptr, cachedCallbackHost);
+    EXPECT_NE(true, cachedCallbackHost->IsRemoteDied());
+
+    std::vector<std::unique_ptr<OHOS::Location::Location>> locationsForReport;
+    cachedCallbackHost->OnCacheLocationsReport(locationsForReport);
+    EXPECT_EQ(0, locationsForReport.size());
+    cachedCallbackHost->DeleteHandler();
+}
+
+HWTEST_F(CallbackTest, CountryCodeCallbackHost001, TestSize.Level1)
+{
+    auto callbackHost =
+            sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    EXPECT_NE(nullptr, callbackHost);
+    callbackHost->SetEnv(nullptr);
+    callbackHost->SetCallback(nullptr);
+    callbackHost->DeleteHandler();
+}
+
+HWTEST_F(CallbackTest, GnssStatusCallbackHost001, TestSize.Level1)
+{
+    auto gnssCallbackHost =
+            sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    EXPECT_NE(true, gnssCallbackHost->IsRemoteDied());
+    gnssCallbackHost->OnStatusChange(nullptr);
+    gnssCallbackHost->DeleteHandler();
+}
+
+HWTEST_F(CallbackTest, LocationSwitchCallbackHost001, TestSize.Level1)
+{
+    auto switchCallbackHost =
+            sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+    EXPECT_NE(true, switchCallbackHost->IsRemoteDied());
+    switchCallbackHost->PackResult(true);
+    switchCallbackHost->DeleteHandler();
+}
+
+HWTEST_F(CallbackTest, LocationCallbackHost001, TestSize.Level1)
+{
+    auto callbackHost =
+            sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    
+    std::unique_ptr<OHOS::Location::Location> location =
+        std::make_unique<OHOS::Location::Location>();
+    EXPECT_NE(true, callbackHost->IsSystemGeoLocationApi());
+    EXPECT_NE(true, callbackHost->IsSingleLocationRequest());
+    callbackHost->CountDown();
+    callbackHost->Wait(1);
+    callbackHost->SetCount(1);
+    EXPECT_EQ(0, callbackHost->GetCount());
+    callbackHost->DeleteAllCallbacks();
+}
+
+HWTEST_F(CallbackTest, NmeaMessageCallbackHost001, TestSize.Level1)
+{
+    auto nmeaCallbackHost =
+            sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    EXPECT_NE(true, nmeaCallbackHost->IsRemoteDied());
+    nmeaCallbackHost->PackResult("msg");
+    nmeaCallbackHost->DeleteHandler();
 }

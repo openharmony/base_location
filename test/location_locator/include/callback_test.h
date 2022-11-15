@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef CALLBACK_PROXY_TEST_H
-#define CALLBACK_PROXY_TEST_H
+#ifndef CALLBACK_TEST_H
+#define CALLBACK_TEST_H
 
 #include <gtest/gtest.h>
 
@@ -25,9 +25,9 @@
 #include "nmea_message_callback_proxy.h"
 #include "switch_callback_proxy.h"
 
-class CallbackProxyTest : public testing::Test {
+class CallbackTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
 };
-#endif // CALLBACK_PROXY_TEST_H
+#endif // CALLBACK_TEST_H
