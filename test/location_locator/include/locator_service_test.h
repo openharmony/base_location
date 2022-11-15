@@ -17,6 +17,8 @@
 #define LOCATOR_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
+
+#include "geo_coding_mock_info.h"
 #include "i_locator_callback.h"
 #include "locator_background_proxy.h"
 #include "locator_proxy.h"
@@ -31,6 +33,7 @@ public:
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
     void MockNativePermission();
+    std::vector<std::shared_ptr<OHOS::Location::GeocodingMockInfo>> SetGeocodingMockInfo();
 
     OHOS::sptr<OHOS::Location::LocatorProxy> proxy_;
     OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;

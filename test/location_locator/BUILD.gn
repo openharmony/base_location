@@ -19,6 +19,7 @@ module_output_path = "location/service"
 ohos_unittest("LocatorServiceAbilityTest") {
   module_out_path = module_output_path
   sources = [
+    "//base/location/test/location_locator/source/callback_test.cpp",
     "//base/location/test/location_locator/source/locator_service_test.cpp",
   ]
 
