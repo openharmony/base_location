@@ -33,7 +33,7 @@ public:
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
     void MockNativePermission();
-    std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
+    std::vector<std::shared_ptr<OHOS::Location::GeocodingMockInfo>> SetGeocodingMockInfo();
 
     OHOS::sptr<OHOS::Location::LocatorProxy> proxy_;
     OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;
