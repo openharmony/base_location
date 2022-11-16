@@ -21,6 +21,8 @@
 #include "geo_convert_proxy.h"
 #include "geo_convert_service.h"
 
+namespace OHOS {
+namespace Location {
 class GeoConvertServiceTest : public testing::Test {
 public:
     void SetUp();
@@ -28,9 +30,10 @@ public:
     bool Available();
     void MockNativePermission();
     
-    OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
-    OHOS::sptr<OHOS::Location::GeoConvertService> service_;
+    sptr<GeoConvertProxy> proxy_;
+    sptr<GeoConvertService> service_;
     bool available_;
 };
-
+} // namespace Location
+} // namespace OHOS
 #endif // GEO_CONVERT_SERVICE_TEST_H

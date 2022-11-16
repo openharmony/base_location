@@ -31,11 +31,9 @@
 #include "network_ability_skeleton.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
-
+namespace OHOS {
+namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-
 void NetworkAbilityTest::SetUp()
 {
     /*
@@ -102,7 +100,6 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
      * @tc.expected: step2. no exception happens.
      */
     proxy_->SendLocationRequest(interval, *workRecord);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -145,7 +142,6 @@ HWTEST_F(NetworkAbilityTest, SelfRequest001, TestSize.Level1)
      * @tc.expected: step1. no exception happens.
      */
     proxy_->SelfRequest(true);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -160,5 +156,6 @@ HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
      * @tc.expected: step1. no exception happens.
      */
     proxy_->SelfRequest(false);
-    EXPECT_EQ(true, true); // always true
 }
+} // namespace Location
+} // namespace OHOS

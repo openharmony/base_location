@@ -29,11 +29,10 @@
 #include "constant_definition.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
 
+namespace OHOS {
+namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-
 void GnssAbilityTest::SetUp()
 {
     /*
@@ -103,7 +102,6 @@ HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
      * @tc.expected: step2. no exception happens.
      */
     proxy_->SendLocationRequest(interval, *workRecord);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -150,7 +148,6 @@ HWTEST_F(GnssAbilityTest, RefrashRequirements001, TestSize.Level1)
      * @tc.expected: no exception happens.
      */
     proxy_->RefrashRequirements();
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -171,7 +168,6 @@ HWTEST_F(GnssAbilityTest, RegisterGnssStatusCallback001, TestSize.Level1)
      * @tc.expected: log info : "SendRegisterMsgToRemote callback is nullptr".
      */
     proxy_->RegisterGnssStatusCallback(client, lastCallingUid);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -197,8 +193,6 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.L
      * @tc.expected: no exception happens
      */
     proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
-
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -218,7 +212,6 @@ HWTEST_F(GnssAbilityTest, UnregisterGnssStatusCallback001, TestSize.Level1)
      * @tc.expected: log info : "unregister an invalid gnssStatus callback".
      */
     proxy_->UnregisterGnssStatusCallback(client);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -239,7 +232,6 @@ HWTEST_F(GnssAbilityTest, RegisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.expected: log info : "register an invalid nmea callback".
      */
     proxy_->RegisterNmeaMessageCallback(client, uid);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -265,7 +257,6 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.
      * @tc.expected: no exception happens.
      */
     proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -285,7 +276,6 @@ HWTEST_F(GnssAbilityTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.expected: log info : "unregister an invalid nmea callback".
      */
     proxy_->UnregisterNmeaMessageCallback(client);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -309,7 +299,6 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback001, TestSize.Level1)
      * @tc.expected: log info : "register an invalid cached location callback"
      */
     proxy_->RegisterCachedCallback(requestConfig, callback);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -331,7 +320,6 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject());
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -359,8 +347,6 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level
      * @tc.expected: no exception happens.
      */
     proxy_->UnregisterCachedCallback(callbackStub_->AsObject());
-
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -380,7 +366,6 @@ HWTEST_F(GnssAbilityTest, UnregisterCachedCallback001, TestSize.Level1)
      * @tc.expected: log info : "register an invalid cached location callback"
      */
     proxy_->UnregisterCachedCallback(callback);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -432,7 +417,6 @@ HWTEST_F(GnssAbilityTest, SendCommand001, TestSize.Level1)
      * @tc.expected: current function is empty, nothing happens
      */
     proxy_->SendCommand(locationCommand);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -458,7 +442,6 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->AddFence(request);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -484,5 +467,6 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->RemoveFence(request);
-    EXPECT_EQ(true, true); // always true
 }
+}  // namespace Location
+}  // namespace OHOS

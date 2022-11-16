@@ -13,26 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef REQUEST_MANAGER_TEST_H
-#define REQUEST_MANAGER_TEST_H
+#ifndef LOCATION_COMMON_TEST_H
+#define LOCATION_COMMON_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "i_locator_callback.h"
-#include "request.h"
-#include "request_manager.h"
-
 namespace OHOS {
 namespace Location {
-class RequestManagerTest : public testing::Test {
+class LocationCommonTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    std::shared_ptr<RequestManager> requestManager_;
-    std::shared_ptr<Request> request_;
-    sptr<ILocatorCallback> callback_;
-    uint64_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // REQUEST_MANAGER_TEST_H
+#endif // LOCATION_COMMON_TEST_H
