@@ -1458,8 +1458,8 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Leve
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
     EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
     request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
-    request001.WriteDouble(1.0); // latitude
-    request001.WriteDouble(2.0); // longitude
+    request001.WriteDouble(99.0); // latitude
+    request001.WriteDouble(100.0); // longitude
     request001.WriteInt32(3); // maxItems
     request001.WriteInt32(1); // locale object size = 1
     request001.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()

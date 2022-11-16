@@ -37,21 +37,14 @@ void LocationCommonTest::TearDown()
 {
 }
 
-/*
- * @tc.name: GeoAddressTest001
- * @tc.desc: read from parcel.
- * @tc.type: FUNC
- */
-HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
+void LocationCommonTest::SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress)
 {
-    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     MessageParcel parcel;
     parcel.WriteString("localeLanguage");
     parcel.WriteString("localeCountry");
     parcel.WriteInt32(1); // size
     parcel.WriteInt32(0); // line
     parcel.WriteString("line");
-
     parcel.WriteString("placeName");
     parcel.WriteString("administrativeArea");
     parcel.WriteString("subAdministrativeArea");
@@ -71,6 +64,10 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
     parcel.WriteString("addressUrl");
     parcel.WriteBool(true);
     geoAddress->ReadFromParcel(parcel);
+}
+
+void LocationCommonTest::VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddress>& geoAddress)
+{
     EXPECT_EQ("localeLanguage", geoAddress->m_localeLanguage);
     EXPECT_EQ("localeCountry", geoAddress->m_localeCountry);
     EXPECT_EQ(1, geoAddress->m_descriptions.size());
@@ -96,9 +93,10 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
     EXPECT_EQ("phoneNumber", geoAddress->m_phoneNumber);
     EXPECT_EQ("addressUrl", geoAddress->m_addressUrl);
     EXPECT_EQ(true, geoAddress->m_isFromMock);
+}
 
-    MessageParcel newParcel;
-    geoAddress->Marshalling(newParcel);
+void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
+{
     EXPECT_EQ("localeLanguage", newParcel.ReadString());
     EXPECT_EQ("localeCountry", newParcel.ReadString());
     EXPECT_EQ(1, newParcel.ReadInt32());
@@ -122,6 +120,22 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
     EXPECT_EQ("phoneNumber", newParcel.ReadString());
     EXPECT_EQ("addressUrl", newParcel.ReadString());
     EXPECT_EQ(true, newParcel.ReadBool());
+}
+
+/*
+ * @tc.name: GeoAddressTest001
+ * @tc.desc: read from parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
+{
+    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
+    SetGeoAddress(geoAddress);
+    VerifyGeoAddressReadFromParcel(geoAddress);
+    
+    MessageParcel newParcel;
+    geoAddress->Marshalling(newParcel);
+    VerifyGeoAddressMarshalling(newParcel);
 }
 
 /*

@@ -17,9 +17,8 @@ module_output_path = "location/common"
 
 ohos_unittest("LocationCommonTest") {
   module_out_path = module_output_path
-  sources = [
-    "//base/location/test/location_common/source/location_common_test.cpp",
-  ]
+  sources =
+      [ "//base/location/test/location_common/source/location_common_test.cpp" ]
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",

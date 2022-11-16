@@ -13,28 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef REQUEST_MANAGER_TEST_H
-#define REQUEST_MANAGER_TEST_H
+#ifndef REPORT_MANAGER_TEST_H
+#define REPORT_MANAGER_TEST_H
 
 #include <gtest/gtest.h>
-
-#include "i_locator_callback.h"
-#include "request.h"
-#include "request_manager.h"
+#include "report_manager.h"
 
 namespace OHOS {
 namespace Location {
-class RequestManagerTest : public testing::Test {
+class ReportManagerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
-    
-    std::shared_ptr<RequestManager> requestManager_;
-    std::shared_ptr<Request> request_;
-    sptr<ILocatorCallback> callback_;
+
+    std::shared_ptr<ReportManager> reportManager_;
     uint64_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // REQUEST_MANAGER_TEST_H
+#endif // REPORT_MANAGER_TEST_H

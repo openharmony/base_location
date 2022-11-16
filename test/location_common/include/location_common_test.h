@@ -18,12 +18,20 @@
 
 #include <gtest/gtest.h>
 
+#include "message_parcel.h"
+
+#include "geo_address.h"
+
 namespace OHOS {
 namespace Location {
 class LocationCommonTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+
+    void SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress);
+    void VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddress>& geoAddress);
+    void VerifyGeoAddressMarshalling(MessageParcel& newParcel);
 };
 } // namespace Location
 } // namespace OHOS
