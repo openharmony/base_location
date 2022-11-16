@@ -46,11 +46,10 @@
 #include "nmea_message_callback_host.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
 
+namespace OHOS {
+namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-
 void LocatorServiceTest::SetUp()
 {
     /*
@@ -363,7 +362,6 @@ HWTEST_F(LocatorServiceTest, UpdateSaAbility001, TestSize.Level1)
      * @tc.expected: step1. no exception happens
      */
     proxy_->UpdateSaAbility();
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -411,7 +409,6 @@ HWTEST_F(LocatorServiceTest, RegisterSwitchCallback001, TestSize.Level1)
      * @tc.expected: log exception: "register an invalid switch callback"
      */
     proxy_->RegisterSwitchCallback(client, callinguid);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -431,7 +428,6 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterSwitchCallback001, TestSize.Le
      * @tc.expected: no exception happens.
      */
     proxy_->RegisterSwitchCallback(callbackStub_->AsObject(), callinguid);
-    EXPECT_EQ(true, true); // always true
 
     /*
      * @tc.steps: step3. test unregister switch callback
@@ -439,10 +435,8 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterSwitchCallback001, TestSize.Le
      * @tc.expected: no exception happens.
      */
     proxy_->UnregisterSwitchCallback(callbackStub_->AsObject());
-    EXPECT_EQ(true, true); // always true
 
     proxy_->UnregisterSwitchCallback(callbackStub_->AsObject());
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -462,7 +456,6 @@ HWTEST_F(LocatorServiceTest, UnregisterSwitchCallback001, TestSize.Level1)
      * @tc.expected: log exception: LOCATOR: unregister an invalid switch callback
      */
     proxy_->UnregisterSwitchCallback(client);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -483,7 +476,6 @@ HWTEST_F(LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.expected: log info : "register an invalid nmea callback".
      */
     proxy_->RegisterNmeaMessageCallback(client, uid);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -512,7 +504,6 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterNmeaMessageCallback001, TestSi
      */
     proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
     proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -532,7 +523,6 @@ HWTEST_F(LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.expected: log info : "unregister an invalid nmea callback".
      */
     proxy_->UnregisterNmeaMessageCallback(client);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -594,7 +584,6 @@ HWTEST_F(LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1)
      * @tc.expected: log info : "SendRegisterMsgToRemote callback is nullptr".
      */
     proxy_->RegisterGnssStatusCallback(client, lastCallingUid);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -622,7 +611,6 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterGnssStatusCallback001, TestSiz
      */
     proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
     proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -642,7 +630,6 @@ HWTEST_F(LocatorServiceTest, UnregisterGnssStatusCallback001, TestSize.Level1)
      * @tc.expected: log info : "unregister an invalid gnssStatus callback".
      */
     proxy_->UnregisterGnssStatusCallback(client);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -736,7 +723,6 @@ HWTEST_F(LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSiz
     proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP);
     proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_CORE_LOCATION);
     proxy_->IsLocationPrivacyConfirmed(-1);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -757,7 +743,6 @@ HWTEST_F(LocatorServiceTest, RegisterCountryCodeCallback001, TestSize.Level1)
      * @tc.expected: log info : "RegisterCountryCodeCallback countryCodeManager_ is nullptr".
      */
     proxy_->RegisterCountryCodeCallback(client, callinguid);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -785,7 +770,6 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCountryCodeCallback001, TestSi
      */
     proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
     proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -805,7 +789,6 @@ HWTEST_F(LocatorServiceTest, UnregisterCountryCodeCallback001, TestSize.Level1)
      * @tc.expected: log exception : "UnregisterCountryCodeCallback countryCodeManager_ is nullptr".
      */
     proxy_->UnregisterCountryCodeCallback(client);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -836,7 +819,6 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, Tes
      */
     proxy_->UnregisterCachedLocationCallback(cachedCallback);
     proxy_->UnregisterCachedLocationCallback(cachedCallback);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -858,7 +840,6 @@ HWTEST_F(LocatorServiceTest, RegisterCachedLocationCallback001, TestSize.Level1)
      * @tc.expected: no exception happens.
      */
     proxy_->RegisterCachedLocationCallback(requestConfig, cachedCallback, bundleName);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -878,7 +859,6 @@ HWTEST_F(LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1)
     } else {
         proxy_->GetCachedGnssLocationsSize();
     }
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -893,7 +873,6 @@ HWTEST_F(LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1)
      * @tc.expected: step1. get the true size.
      */
     proxy_->FlushCachedGnssLocations();
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -916,7 +895,6 @@ HWTEST_F(LocatorServiceTest, SendCommand001, TestSize.Level1)
      * @tc.expected: current function is empty, nothing happens
      */
     proxy_->SendCommand(locationCommand);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -942,7 +920,6 @@ HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->AddFence(request);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -968,7 +945,6 @@ HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->RemoveFence(request);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -986,7 +962,6 @@ HWTEST_F(LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1)
     auto country = proxy_->GetIsoCountryCode();
     EXPECT_EQ("CN", country->GetCountryCodeStr());
     EXPECT_EQ(COUNTRY_CODE_FROM_LOCALE, country->GetCountryCodeType());
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -1008,7 +983,6 @@ HWTEST_F(LocatorServiceTest, EnableLocationMock001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->EnableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1030,7 +1004,6 @@ HWTEST_F(LocatorServiceTest, EnableLocationMock002, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->EnableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1052,7 +1025,6 @@ HWTEST_F(LocatorServiceTest, EnableLocationMock003, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->EnableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1074,7 +1046,6 @@ HWTEST_F(LocatorServiceTest, EnableLocationMock004, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->EnableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1096,7 +1067,6 @@ HWTEST_F(LocatorServiceTest, DisableLocationMock001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->DisableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1118,7 +1088,6 @@ HWTEST_F(LocatorServiceTest, DisableLocationMock002, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->DisableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1140,7 +1109,6 @@ HWTEST_F(LocatorServiceTest, DisableLocationMock003, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->DisableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1162,7 +1130,6 @@ HWTEST_F(LocatorServiceTest, DisableLocationMock004, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->DisableLocationMock(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1179,7 +1146,7 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
     mockInfo.SetScenario(SCENE_CAR_HAILING); // scenario
     mockInfo.SetTimeInterval(2); // time interval
 
-    std::vector<std::shared_ptr<OHOS::Location::Location>> mockLocationArray;
+    std::vector<std::shared_ptr<Location>> mockLocationArray;
     Parcel parcel;
     for (int i = 0; i < 2; i++) {
         parcel.WriteDouble(10.6); // latitude
@@ -1193,7 +1160,7 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
         parcel.WriteString("additions"); // additions
         parcel.WriteInt64(1); // additionSize
         parcel.WriteBool(true); // isFromMock
-        mockLocationArray.push_back(OHOS::Location::Location::UnmarshallingShared(parcel));
+        mockLocationArray.push_back(Location::UnmarshallingShared(parcel));
     }
 
     /*
@@ -1207,7 +1174,6 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
     proxy_->SetMockedLocations(mockInfo, mockLocationArray);
     mockInfo.SetScenario(SCENE_UNSET);
     proxy_->SetMockedLocations(mockInfo, mockLocationArray);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1222,7 +1188,6 @@ HWTEST_F(LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->EnableReverseGeocodingMock();
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1237,7 +1202,6 @@ HWTEST_F(LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->DisableReverseGeocodingMock();
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1264,7 +1228,6 @@ HWTEST_F(LocatorServiceTest, SetReverseGeocodingMockInfo001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->SetReverseGeocodingMockInfo(mockInfo);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1382,7 +1345,6 @@ HWTEST_F(LocatorServiceTest, UpdateListOnRequestChange001, TestSize.Level1)
      * @tc.expected: normal scenario covered
      */
     backgroundProxy_->UpdateListOnRequestChange(request_);
-    EXPECT_EQ(true, true);
 }
 
 /*
@@ -1398,14 +1360,12 @@ HWTEST_F(LocatorServiceTest, UpdateListOnRequestChange002, TestSize.Level1)
      * @tc.expected: early return because bundleName can not be found
      */
     backgroundProxy_->UpdateListOnRequestChange(request_);
-    EXPECT_EQ(true, true);
 
     /*
      * @tc.steps: step2. request is null
      * @tc.expected: early return because request is nullptr
      */
     backgroundProxy_->UpdateListOnRequestChange(nullptr);
-    EXPECT_EQ(true, true);
 }
 
 HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
@@ -1461,7 +1421,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     mockInfo.SetScenario(SCENE_NAVIGATION);
     mockInfo.SetTimeInterval(2);
     EXPECT_EQ(true, locatorImpl->EnableLocationMock(mockInfo));
-    std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+    std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(true, locatorImpl->SetMockedLocations(mockInfo, locations));
     EXPECT_EQ(true, locatorImpl->DisableLocationMock(mockInfo));
 }
@@ -1498,8 +1458,8 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Leve
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
     EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
     request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
-    request001.WriteDouble(1.0); // latitude
-    request001.WriteDouble(2.0); // longitude
+    request001.WriteDouble(99.0); // latitude
+    request001.WriteDouble(100.0); // longitude
     request001.WriteInt32(3); // maxItems
     request001.WriteInt32(1); // locale object size = 1
     request001.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
@@ -1592,3 +1552,5 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
 }
+}  // namespace Location
+}  // namespace OHOS

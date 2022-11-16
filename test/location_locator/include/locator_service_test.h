@@ -25,20 +25,24 @@
 #include "request.h"
 #include "request_manager.h"
 
+namespace OHOS {
+namespace Location {
 class LocatorServiceTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool StartAndStopForLocating(OHOS::MessageParcel& data);
+    bool StartAndStopForLocating(MessageParcel& data);
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
     void MockNativePermission();
-    std::vector<std::shared_ptr<OHOS::Location::GeocodingMockInfo>> SetGeocodingMockInfo();
+    std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
 
-    OHOS::sptr<OHOS::Location::LocatorProxy> proxy_;
-    OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;
-    std::shared_ptr<OHOS::Location::LocatorBackgroundProxy> backgroundProxy_;
-    std::shared_ptr<OHOS::Location::Request> request_;
-    std::shared_ptr<OHOS::Location::RequestManager> requestManager_;
+    sptr<LocatorProxy> proxy_;
+    sptr<ILocatorCallback> callbackStub_;
+    std::shared_ptr<LocatorBackgroundProxy> backgroundProxy_;
+    std::shared_ptr<Request> request_;
+    std::shared_ptr<RequestManager> requestManager_;
 };
+} // namespace Location
+} // namespace OHOS
 #endif // LOCATOR_SERVICE_TEST_H

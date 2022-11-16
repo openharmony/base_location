@@ -26,11 +26,10 @@
 #include "common_utils.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
 
+namespace OHOS {
+namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-
 void PassiveAbilityTest::SetUp()
 {
     /*
@@ -97,7 +96,6 @@ HWTEST_F(PassiveAbilityTest, SendLocationRequest001, TestSize.Level1)
      * @tc.expected: step2. no exception happens.
      */
     proxy_->SendLocationRequest(interval, *workRecord);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -127,3 +125,5 @@ HWTEST_F(PassiveAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     sptr<IRemoteObject> object2 = systemAbilityManager2->GetSystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID);
     EXPECT_NE(nullptr, object2); // SA can be given
 }
+} // namespace Location
+} // namespace OHOS
