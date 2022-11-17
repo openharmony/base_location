@@ -21,14 +21,17 @@
 #include "passive_ability.h"
 #include "passive_ability_proxy.h"
 
+namespace OHOS {
+namespace Location {
 class PassiveAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
     
-    OHOS::sptr<OHOS::Location::PassiveAbilityProxy> proxy_;
-    OHOS::sptr<OHOS::Location::PassiveAbility> ability_;
+    sptr<PassiveAbilityProxy> proxy_;
+    sptr<PassiveAbility> ability_;
 };
-
+} // namespace Location
+} // namespace OHOS
 #endif // PASSIVE_ABILITY_TEST_H

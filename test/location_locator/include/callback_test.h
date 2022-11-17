@@ -25,9 +25,13 @@
 #include "nmea_message_callback_proxy.h"
 #include "switch_callback_proxy.h"
 
+namespace OHOS {
+namespace Location {
 class CallbackTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
 };
+} // namespace Location
+} // namespace OHOS
 #endif // CALLBACK_TEST_H

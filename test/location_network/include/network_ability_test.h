@@ -21,14 +21,17 @@
 #include "network_ability.h"
 #include "network_ability_proxy.h"
 
+namespace OHOS {
+namespace Location {
 class NetworkAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
     
-    OHOS::sptr<OHOS::Location::NetworkAbilityProxy> proxy_;
-    OHOS::sptr<OHOS::Location::NetworkAbility> ability_;
+    sptr<NetworkAbilityProxy> proxy_;
+    sptr<NetworkAbility> ability_;
 };
-
+} // namespace Location
+} // namespace OHOS
 #endif // NETWORK_ABILITY_TEST_H
