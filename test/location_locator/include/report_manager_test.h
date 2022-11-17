@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,27 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef GEO_CONVERT_SERVICE_TEST_H
-#define GEO_CONVERT_SERVICE_TEST_H
+#ifndef REPORT_MANAGER_TEST_H
+#define REPORT_MANAGER_TEST_H
 
 #include <gtest/gtest.h>
-
-#include "geo_convert_proxy.h"
-#include "geo_convert_service.h"
+#include "report_manager.h"
 
 namespace OHOS {
 namespace Location {
-class GeoConvertServiceTest : public testing::Test {
+class ReportManagerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool Available();
     void MockNativePermission();
-    
-    sptr<GeoConvertProxy> proxy_;
-    sptr<GeoConvertService> service_;
-    bool available_;
+
+    std::shared_ptr<ReportManager> reportManager_;
+    uint64_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GEO_CONVERT_SERVICE_TEST_H
+#endif // REPORT_MANAGER_TEST_H

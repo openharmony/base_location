@@ -33,11 +33,10 @@
 #include "location_log.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
 
+namespace OHOS {
+namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-
 void GeoConvertServiceTest::SetUp()
 {
     /*
@@ -189,3 +188,5 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
     }
     EXPECT_TRUE(ret);
 }
+} // namespace Location
+} // namespace OHOS

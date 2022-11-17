@@ -28,9 +28,8 @@
 #include "satellite_status.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
-
+namespace OHOS {
+namespace Location {
 void CallbackTest::SetUp()
 {
 }
@@ -47,9 +46,9 @@ HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
     auto cachedLocationsCallbackProxy =
         new (std::nothrow) CachedLocationsCallbackProxy(cachedLocationsCallbackHost);
     EXPECT_NE(nullptr, cachedLocationsCallbackProxy);
-    std::vector<std::unique_ptr<OHOS::Location::Location>> locations;
+    std::vector<std::unique_ptr<Location>> locations;
     auto location =
-        std::make_unique<OHOS::Location::Location>();
+        std::make_unique<Location>();
     MessageParcel parcel;
     parcel.WriteDouble(1.0); // latitude
     parcel.WriteDouble(2.0); // longitude
@@ -101,7 +100,7 @@ HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level1)
             new (std::nothrow) LocatorCallbackProxy(locatorCallbackHost);
     EXPECT_NE(nullptr, locatorCallbackProxy);
     auto location =
-        std::make_unique<OHOS::Location::Location>();
+        std::make_unique<Location>();
     MessageParcel parcel;
     parcel.WriteDouble(1.0); // latitude
     parcel.WriteDouble(2.0); // longitude
@@ -170,7 +169,7 @@ HWTEST_F(CallbackTest, CachedLocationsCallbackHost001, TestSize.Level1)
     EXPECT_NE(nullptr, cachedCallbackHost);
     EXPECT_NE(true, cachedCallbackHost->IsRemoteDied());
 
-    std::vector<std::unique_ptr<OHOS::Location::Location>> locationsForReport;
+    std::vector<std::unique_ptr<Location>> locationsForReport;
     cachedCallbackHost->OnCacheLocationsReport(locationsForReport);
     EXPECT_EQ(0, locationsForReport.size());
     cachedCallbackHost->DeleteHandler();
@@ -209,8 +208,8 @@ HWTEST_F(CallbackTest, LocationCallbackHost001, TestSize.Level1)
     auto callbackHost =
             sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
     
-    std::unique_ptr<OHOS::Location::Location> location =
-        std::make_unique<OHOS::Location::Location>();
+    std::unique_ptr<Location> location =
+        std::make_unique<Location>();
     EXPECT_NE(true, callbackHost->IsSystemGeoLocationApi());
     EXPECT_NE(true, callbackHost->IsSingleLocationRequest());
     callbackHost->CountDown();
@@ -228,3 +227,5 @@ HWTEST_F(CallbackTest, NmeaMessageCallbackHost001, TestSize.Level1)
     nmeaCallbackHost->PackResult("msg");
     nmeaCallbackHost->DeleteHandler();
 }
+}  // namespace Location
+}  // namespace OHOS
