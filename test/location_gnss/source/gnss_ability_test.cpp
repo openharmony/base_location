@@ -25,14 +25,21 @@
 #include "system_ability_definition.h"
 #include "token_setproc.h"
 
+#include "agnss_event_callback.h"
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "gnss_event_callback.h"
+#include "location_dumper.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
+using HDI::Location::Agnss::V1_0::IAGnssCallback;
+using HDI::Location::Gnss::V1_0::IGnssCallback;
+using HDI::Location::Gnss::V1_0::LocationInfo;
 const int32_t LOCATION_PERM_NUM = 4;
+const std::string ARGS_HELP = "-h";
 void GnssAbilityTest::SetUp()
 {
     /*
@@ -467,6 +474,64 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
      * @tc.expected: no exception happens
      */
     proxy_->RemoveFence(request);
+}
+
+HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
+{
+    LocationMockConfig config;
+    std::vector<std::shared_ptr<Location>> locations;
+    EXPECT_EQ(true, proxy_->EnableMock(config));
+    EXPECT_EQ(true, proxy_->SetMocked(config, locations));
+    
+    EXPECT_EQ(true, proxy_->DisableMock(config));
+    EXPECT_EQ(false, proxy_->SetMocked(config, locations));
+}
+
+HWTEST_F(GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1)
+{
+    ability_->OnStart(); // start ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    ability_->OnStop(); // stop ability
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
+}
+
+HWTEST_F(GnssAbilityTest, GnssDump001, TestSize.Level1)
+{
+    int32_t fd = 0;
+    std::vector<std::u16string> args;
+    std::u16string arg1 = Str8ToStr16("arg1");
+    args.emplace_back(arg1);
+    std::u16string arg2 = Str8ToStr16("arg2");
+    args.emplace_back(arg2);
+    std::u16string arg3 = Str8ToStr16("arg3");
+    args.emplace_back(arg3);
+    std::u16string arg4 = Str8ToStr16("arg4");
+    args.emplace_back(arg4);
+    ability_->Dump(fd, args);
+
+    std::vector<std::u16string> emptyArgs;
+    ability_->Dump(fd, emptyArgs);
+
+    std::vector<std::u16string> helpArgs;
+    std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
+    helpArgs.emplace_back(helpArg1);
+    ability_->Dump(fd, emptyArgs);
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackTest001, TestSize.Level1)
+{
+    sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_EQ(ERR_OK, agnssCallback->RequestAgnssRefInfo());
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackTest001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    std::string nmea = "nmea";
+    EXPECT_EQ(ERR_OK, gnssCallback->ReportNmea(1000000000, nmea, 1));
+    EXPECT_EQ(ERR_OK, gnssCallback->RequestPredictGnssData());
+    std::vector<LocationInfo> gnssLocations;
+    EXPECT_EQ(ERR_OK, gnssCallback->ReportCachedLocation(gnssLocations));
 }
 }  // namespace Location
 }  // namespace OHOS

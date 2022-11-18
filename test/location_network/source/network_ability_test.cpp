@@ -27,6 +27,7 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "location_dumper.h"
 #include "location_log.h"
 #include "network_ability_skeleton.h"
 
@@ -34,6 +35,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
+const std::string ARGS_HELP = "-h";
 void NetworkAbilityTest::SetUp()
 {
     /*
@@ -156,6 +158,48 @@ HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
      * @tc.expected: step1. no exception happens.
      */
     proxy_->SelfRequest(false);
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1)
+{
+    LocationMockConfig config;
+    std::vector<std::shared_ptr<Location>> locations;
+    EXPECT_EQ(true, proxy_->EnableMock(config));
+    EXPECT_EQ(true, proxy_->SetMocked(config, locations));
+    
+    EXPECT_EQ(true, proxy_->DisableMock(config));
+    EXPECT_EQ(false, proxy_->SetMocked(config, locations));
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)
+{
+    ability_->OnStart(); // start ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    ability_->OnStop(); // stop ability
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkDump001, TestSize.Level1)
+{
+    int32_t fd = 0;
+    std::vector<std::u16string> args;
+    std::u16string arg1 = Str8ToStr16("arg1");
+    args.emplace_back(arg1);
+    std::u16string arg2 = Str8ToStr16("arg2");
+    args.emplace_back(arg2);
+    std::u16string arg3 = Str8ToStr16("arg3");
+    args.emplace_back(arg3);
+    std::u16string arg4 = Str8ToStr16("arg4");
+    args.emplace_back(arg4);
+    ability_->Dump(fd, args);
+
+    std::vector<std::u16string> emptyArgs;
+    ability_->Dump(fd, emptyArgs);
+
+    std::vector<std::u16string> helpArgs;
+    std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
+    helpArgs.emplace_back(helpArg1);
+    ability_->Dump(fd, emptyArgs);
 }
 } // namespace Location
 } // namespace OHOS
