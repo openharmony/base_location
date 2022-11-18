@@ -1426,6 +1426,20 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->DisableLocationMock(mockInfo));
 }
 
+HWTEST_F(LocatorServiceTest, locatorImplStartLocating001, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    auto requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    requestConfig->SetScenario(SCENE_NAVIGATION);
+    requestConfig->SetTimeInterval(2);
+    requestConfig->SetMaxAccuracy(1000.0);
+    requestConfig->SetDistanceInterval(1);
+    locatorImpl->StartLocating(requestConfig, callbackStub_);
+    locatorImpl->StopLocating(callbackStub_);
+}
+
 HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
 {
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();

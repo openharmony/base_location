@@ -28,8 +28,10 @@
 #include "token_setproc.h"
 
 #include "common_utils.h"
+#include "geo_coding_mock_info.h"
 #include "geo_convert_service.h"
 #include "geo_convert_skeleton.h"
+#include "location_dumper.h"
 #include "location_log.h"
 
 using namespace testing::ext;
@@ -37,6 +39,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
+const std::string ARGS_HELP = "-h";
 void GeoConvertServiceTest::SetUp()
 {
     /*
@@ -187,6 +190,47 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
         ret = true;
     }
     EXPECT_TRUE(ret);
+}
+
+HWTEST_F(GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1)
+{
+    EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+
+    EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
+    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertServiceOnStartAndOnStop001, TestSize.Level1)
+{
+    service_->OnStart(); // start ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, service_->QueryServiceState());
+    service_->OnStop(); // stop ability
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, service_->QueryServiceState());
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1)
+{
+    int32_t fd = 0;
+    std::vector<std::u16string> args;
+    std::u16string arg1 = Str8ToStr16("arg1");
+    args.emplace_back(arg1);
+    std::u16string arg2 = Str8ToStr16("arg2");
+    args.emplace_back(arg2);
+    std::u16string arg3 = Str8ToStr16("arg3");
+    args.emplace_back(arg3);
+    std::u16string arg4 = Str8ToStr16("arg4");
+    args.emplace_back(arg4);
+    service_->Dump(fd, args);
+
+    std::vector<std::u16string> emptyArgs;
+    service_->Dump(fd, emptyArgs);
+
+    std::vector<std::u16string> helpArgs;
+    std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
+    helpArgs.emplace_back(helpArg1);
+    service_->Dump(fd, emptyArgs);
 }
 } // namespace Location
 } // namespace OHOS

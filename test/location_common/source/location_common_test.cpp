@@ -18,13 +18,17 @@
 #include "message_parcel.h"
 #include "string_ex.h"
 
+#include "app_identity.h"
+#include "common_hisysevent.h"
 #include "constant_definition.h"
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
+#include "geofence_state.h"
 #include "location.h"
 #include "location_mock_config.h"
 #include "request_config.h"
 #include "satellite_status.h"
+#include "want_agent.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -259,6 +263,42 @@ HWTEST_F(LocationCommonTest, RequestConfigTest001, TestSize.Level1)
     EXPECT_EQ(1, newParcel.ReadInt32());
 }
 
+HWTEST_F(LocationCommonTest, RequestConfigTest002, TestSize.Level1)
+{
+    std::unique_ptr<RequestConfig> requestConfigForCompare =
+        std::make_unique<RequestConfig>();
+
+    RequestConfig requestConfigForSet1;
+    requestConfigForSet1.SetScenario(1);
+    requestConfigForSet1.SetPriority(2);
+    requestConfigForSet1.SetTimeInterval(3);
+    requestConfigForSet1.SetDistanceInterval(4);
+    requestConfigForSet1.SetMaxAccuracy(1000.0); // accuracy
+    requestConfigForSet1.SetFixNumber(1);
+    requestConfigForCompare->Set(requestConfigForSet1);
+    EXPECT_NE("", requestConfigForCompare->ToString());
+    EXPECT_EQ(true, requestConfigForCompare->IsSame(requestConfigForSet1));
+
+    RequestConfig requestConfigForSet2;
+    requestConfigForSet2.SetScenario(2);
+    EXPECT_NE("", requestConfigForCompare->ToString());
+    EXPECT_EQ(false, requestConfigForCompare->IsSame(requestConfigForSet2));
+
+    RequestConfig requestConfigForSet3;
+    requestConfigForSet3.SetScenario(SCENE_UNSET);
+    requestConfigForSet3.SetPriority(2);
+    requestConfigForCompare->SetScenario(SCENE_UNSET);
+    EXPECT_NE("", requestConfigForCompare->ToString());
+    EXPECT_EQ(true, requestConfigForCompare->IsSame(requestConfigForSet3));
+
+    RequestConfig requestConfigForSet4;
+    requestConfigForSet4.SetScenario(SCENE_UNSET);
+    requestConfigForSet4.SetPriority(1);
+    requestConfigForCompare->SetScenario(SCENE_UNSET);
+    EXPECT_NE("", requestConfigForCompare->ToString());
+    EXPECT_EQ(false, requestConfigForCompare->IsSame(requestConfigForSet4));
+}
+
 /*
  * @tc.name: LocationMockConfigTest001
  * @tc.desc: read from parcel.
@@ -278,6 +318,20 @@ HWTEST_F(LocationCommonTest, LocationMockConfigTest001, TestSize.Level1)
     mockConfig->Marshalling(newParcel);
     EXPECT_EQ(1, newParcel.ReadInt32());
     EXPECT_EQ(2, newParcel.ReadInt32());
+}
+
+HWTEST_F(LocationCommonTest, LocationMockConfigTest002, TestSize.Level1)
+{
+    std::unique_ptr<LocationMockConfig> mockConfig = std::make_unique<LocationMockConfig>();
+    LocationMockConfig locationMockConfigSet1;
+    locationMockConfigSet1.SetScenario(1);
+    locationMockConfigSet1.SetTimeInterval(2);
+    mockConfig->Set(locationMockConfigSet1);
+    mockConfig->IsSame(locationMockConfigSet1);
+
+    LocationMockConfig locationMockConfigSet2;
+    locationMockConfigSet2.SetScenario(2);
+    mockConfig->IsSame(locationMockConfigSet2);
 }
 
 /*
@@ -307,6 +361,56 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest001, TestSize.Level1)
     EXPECT_EQ(12.0, newParcel.ReadDouble());
     EXPECT_EQ(13.0, newParcel.ReadDouble());
     EXPECT_EQ(1, newParcel.ReadInt32());
+}
+
+HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
+{
+    AppIdentity identity;
+    identity.SetPid(1);
+    identity.SetUid(2);
+    identity.SetTokenId(3);
+    identity.SetFirstTokenId(4);
+    identity.SetBundleName("bundleName");
+    EXPECT_EQ(1, identity.GetPid());
+    EXPECT_EQ(2, identity.GetUid());
+    EXPECT_EQ(3, identity.GetTokenId());
+    EXPECT_EQ(4, identity.GetFirstTokenId());
+    EXPECT_EQ("bundleName", identity.GetBundleName());
+    EXPECT_NE("", identity.ToString());
+}
+
+HWTEST_F(LocationCommonTest, CommonHisyseventTest001, TestSize.Level1)
+{
+    std::string state = "state";
+    pid_t pid = 1;
+    pid_t uid = 2;
+    WriteGnssStateEvent(state, pid, uid);
+    WriteLocationSwitchStateEvent(state);
+}
+
+HWTEST_F(LocationCommonTest, GeoFenceStateTest001, TestSize.Level1)
+{
+    GeoFence fence;
+    fence.latitude = 1.0;
+    fence.longitude = 2.0;
+    fence.radius = 3.0;
+    fence.expiration = 4.0;
+    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
+    auto state = new (std::nothrow) GeoFenceState(fence, wantAgent);
+    EXPECT_NE(nullptr, state);
+}
+
+HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)
+{
+    std::unique_ptr<GeocodingMockInfo> mockInfo = std::make_unique<GeocodingMockInfo>();
+    
+    auto reverseGeocodeRequest = std::make_shared<ReverseGeocodeRequest>();
+    mockInfo->SetLocation(reverseGeocodeRequest);
+    EXPECT_NE(nullptr, mockInfo->GetLocation());
+
+    std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
+    mockInfo->SetGeoAddressInfo(geoAddress);
+    EXPECT_NE(nullptr, mockInfo->GetGeoAddressInfo());
 }
 } // namespace Location
 } // namespace OHOS
