@@ -33,6 +33,8 @@
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
+const double MOCK_LATITUDE = 99.0;
+const double MOCK_LONGITUDE = 100.0;
 void LocationCommonTest::SetUp()
 {
 }
@@ -61,9 +63,9 @@ void LocationCommonTest::SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress)
     parcel.WriteString("countryCode");
     parcel.WriteString("countryName");
     parcel.WriteInt32(1); // hasLatitude
-    parcel.WriteDouble(99.0); // latitude
+    parcel.WriteDouble(MOCK_LATITUDE); // latitude
     parcel.WriteInt32(1); // hasLongitude
-    parcel.WriteDouble(100.0); // longitude
+    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
     parcel.WriteString("phoneNumber");
     parcel.WriteString("addressUrl");
     parcel.WriteBool(true);
@@ -91,9 +93,9 @@ void LocationCommonTest::VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddre
     EXPECT_EQ("countryCode", geoAddress->m_countryCode);
     EXPECT_EQ("countryName", geoAddress->m_countryName);
     EXPECT_EQ(1, geoAddress->m_hasLatitude);
-    EXPECT_EQ(99.0, geoAddress->m_latitude);
+    EXPECT_EQ(MOCK_LATITUDE, geoAddress->m_latitude);
     EXPECT_EQ(1, geoAddress->m_hasLongitude);
-    EXPECT_EQ(100.0, geoAddress->m_longitude);
+    EXPECT_EQ(MOCK_LONGITUDE, geoAddress->m_longitude);
     EXPECT_EQ("phoneNumber", geoAddress->m_phoneNumber);
     EXPECT_EQ("addressUrl", geoAddress->m_addressUrl);
     EXPECT_EQ(true, geoAddress->m_isFromMock);
@@ -118,9 +120,9 @@ void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
     EXPECT_EQ("countryCode", newParcel.ReadString());
     EXPECT_EQ("countryName", newParcel.ReadString());
     EXPECT_EQ(1, newParcel.ReadInt32());
-    EXPECT_EQ(99.0, newParcel.ReadDouble());
+    EXPECT_EQ(MOCK_LATITUDE, newParcel.ReadDouble());
     EXPECT_EQ(1, newParcel.ReadInt32());
-    EXPECT_EQ(100.0, newParcel.ReadDouble());
+    EXPECT_EQ(MOCK_LATITUDE, newParcel.ReadDouble());
     EXPECT_EQ("phoneNumber", newParcel.ReadString());
     EXPECT_EQ("addressUrl", newParcel.ReadString());
     EXPECT_EQ(true, newParcel.ReadBool());

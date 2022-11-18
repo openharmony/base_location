@@ -50,6 +50,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
+const double MOCK_LATITUDE = 99.0;
+const double MOCK_LONGITUDE = 100.0;
 void LocatorServiceTest::SetUp()
 {
     /*
@@ -138,8 +140,8 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocoding
         std::make_shared<GeocodingMockInfo>();
     MessageParcel parcel;
     parcel.WriteString16(Str8ToStr16("locale"));
-    parcel.WriteDouble(99.0); // latitude
-    parcel.WriteDouble(100.0); // longitude
+    parcel.WriteDouble(MOCK_LATITUDE); // latitude
+    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
     parcel.WriteInt32(1);
     parcel.WriteString("localeLanguage");
     parcel.WriteString("localeCountry");
@@ -158,9 +160,9 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocoding
     parcel.WriteString("countryCode");
     parcel.WriteString("countryName");
     parcel.WriteInt32(1); // hasLatitude
-    parcel.WriteDouble(99.0); // latitude
+    parcel.WriteDouble(MOCK_LATITUDE); // latitude
     parcel.WriteInt32(1); // hasLongitude
-    parcel.WriteDouble(100.0); // longitude
+    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
     parcel.WriteString("phoneNumber");
     parcel.WriteString("addressUrl");
     parcel.WriteBool(true);
@@ -1472,8 +1474,8 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Leve
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
     EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
     request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
-    request001.WriteDouble(99.0); // latitude
-    request001.WriteDouble(100.0); // longitude
+    request001.WriteDouble(MOCK_LATITUDE); // latitude
+    request001.WriteDouble(MOCK_LONGITUDE); // longitude
     request001.WriteInt32(3); // maxItems
     request001.WriteInt32(1); // locale object size = 1
     request001.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
