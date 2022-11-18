@@ -32,6 +32,7 @@ ohos_unittest("LocationCommonTest") {
   ]
 
   external_deps = [
+    "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
