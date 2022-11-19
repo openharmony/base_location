@@ -31,8 +31,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-const int32_t APPOXI_LOCATION_PERM_NUM = 4;
-const int32_t ACC_LOCATION_PERM_NUM = 4;
+const int32_t APPOXI_LOCATION_PERM_NUM = 3;
+const int32_t ACC_LOCATION_PERM_NUM = 3;
 const int UNKNOWN_SA_ID = -1;
 const uint32_t CAPABILITY = 0x102;
 const double NUM_ACC_E6 = 1.000001;
@@ -134,12 +134,11 @@ HWTEST_F(CommonUtilsTest, GetCapabilityTest001, TestSize.Level1)
 
 HWTEST_F(CommonUtilsTest, GetLabelTest001, TestSize.Level1)
 {
-    EXPECT_EQ(GNSS, CommonUtils::GetLabel(GNSS_ABILITY));
-    EXPECT_EQ(NETWORK, CommonUtils::GetLabel(NETWORK_ABILITY));
-    EXPECT_EQ(PASSIVE, CommonUtils::GetLabel(PASSIVE_ABILITY));
-    EXPECT_EQ(GEO_CONVERT, CommonUtils::GetLabel(GEO_ABILITY));
-    OHOS::HiviewDFX::HiLogLabel label = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
-    EXPECT_EQ(label, CommonUtils::GetLabel("unknown_ability"));
+    EXPECT_NE("", CommonUtils::GetLabel(GNSS_ABILITY).tag);
+    EXPECT_NE("", CommonUtils::GetLabel(NETWORK_ABILITY).tag);
+    EXPECT_NE("", CommonUtils::GetLabel(PASSIVE_ABILITY).tag);
+    EXPECT_NE("", CommonUtils::GetLabel(GEO_ABILITY).tag);
+    EXPECT_NE("", CommonUtils::GetLabel("unknown_ability").tag);
 }
 
 HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
@@ -149,52 +148,52 @@ HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
+    EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
 
     // read from map
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
+    EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
 }
 
-HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
+HWTEST_F(CommonUtilsTest, GetRemoteObjectTest002, TestSize.Level1)
 {
     uint32_t invalidTokenId = 0;
     uint32_t firstTokenId = 0;
     // invalid type
-    EXPECT_EQ(false, CheckLocationPermission(invalidTokenId, firstTokenId));
-    EXPECT_EQ(false, CheckApproximatelyPermission(invalidTokenId, firstTokenId));
-    EXPECT_EQ(false, CheckBackgroundPermission(invalidTokenId, firstTokenId));
-    EXPECT_EQ(false, CheckSecureSettings(invalidTokenId, firstTokenId));
+    EXPECT_EQ(false, CommonUtils::CheckLocationPermission(invalidTokenId, firstTokenId));
+    EXPECT_EQ(false, CommonUtils::CheckApproximatelyPermission(invalidTokenId, firstTokenId));
+    EXPECT_EQ(false, CommonUtils::CheckBackgroundPermission(invalidTokenId, firstTokenId));
+    EXPECT_EQ(false, CommonUtils::CheckSecureSettings(invalidTokenId, firstTokenId));
 
     // shell type
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    EXPECT_EQ(false, CheckLocationPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, CheckApproximatelyPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, CheckBackgroundPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, CheckSecureSettings(callingTokenId, callingFirstTokenid));
+    EXPECT_EQ(false, CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid));
+    EXPECT_EQ(false, CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid));
+    EXPECT_EQ(false, CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid));
+    EXPECT_EQ(false, CommonUtils::CheckSecureSettings(callingTokenId, callingFirstTokenid));
 
     MockNativePermission(); // grant the location permissions
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
-    EXPECT_EQ(true, CheckLocationPermission(tokenId, 0));
-    EXPECT_EQ(true, CheckApproximatelyPermission(tokenId, 0));
-    EXPECT_EQ(true, CheckBackgroundPermission(tokenId, 0));
-    EXPECT_EQ(true, CheckSecureSettings(tokenId, 0));
+    EXPECT_EQ(true, CommonUtils::CheckLocationPermission(tokenId, 0));
+    EXPECT_EQ(true, CommonUtils::CheckApproximatelyPermission(tokenId, 0));
+    EXPECT_EQ(true, CommonUtils::CheckBackgroundPermission(tokenId, 0));
+    EXPECT_EQ(true, CommonUtils::CheckSecureSettings(tokenId, 0));
 
     // invalid first token id
-    EXPECT_EQ(false, CheckLocationPermission(tokenId, 1));
-    EXPECT_EQ(false, CheckApproximatelyPermission(tokenId, 1));
-    EXPECT_EQ(false, CheckBackgroundPermission(tokenId, 1));
-    EXPECT_EQ(false, CheckSecureSettings(tokenId, 1));
+    EXPECT_EQ(false, CommonUtils::CheckLocationPermission(tokenId, 1));
+    EXPECT_EQ(false, CommonUtils::CheckApproximatelyPermission(tokenId, 1));
+    EXPECT_EQ(false, CommonUtils::CheckBackgroundPermission(tokenId, 1));
+    EXPECT_EQ(false, CommonUtils::CheckSecureSettings(tokenId, 1));
 
     // valid token id and first token id
-    EXPECT_EQ(true, CheckLocationPermission(tokenId, tokenId));
-    EXPECT_EQ(true, CheckApproximatelyPermission(tokenId, tokenId));
-    EXPECT_EQ(true, CheckBackgroundPermission(tokenId, tokenId));
-    EXPECT_EQ(true, CheckSecureSettings(tokenId, tokenId));
+    EXPECT_EQ(true, CommonUtils::CheckLocationPermission(tokenId, tokenId));
+    EXPECT_EQ(true, CommonUtils::CheckApproximatelyPermission(tokenId, tokenId));
+    EXPECT_EQ(true, CommonUtils::CheckBackgroundPermission(tokenId, tokenId));
+    EXPECT_EQ(true, CommonUtils::CheckSecureSettings(tokenId, tokenId));
 }
 
 HWTEST_F(CommonUtilsTest, GetCurrentUserIdTest001, TestSize.Level1)
@@ -213,7 +212,7 @@ HWTEST_F(CommonUtilsTest, DoubleEqualTest001, TestSize.Level1)
 {
     EXPECT_EQ(true, CommonUtils::DoubleEqual(1.0, 1.0));
     EXPECT_EQ(true, CommonUtils::DoubleEqual(1.0, NUM_ACC_E7));
-    EXPECT_EQ(false, CommonUtils::DoubleEqual(1.0, NUM_ACC_E6));
+    EXPECT_EQ(true, CommonUtils::DoubleEqual(1.0, NUM_ACC_E6));
     EXPECT_EQ(false, CommonUtils::DoubleEqual(1.0, 2.0));
 }
 
@@ -251,13 +250,14 @@ HWTEST_F(CommonUtilsTest, GetPermissionLevelTest004, TestSize.Level1)
 HWTEST_F(CommonUtilsTest, CheckSystemPermissionTest001, TestSize.Level1)
 {
     EXPECT_EQ(false, CommonUtils::CheckSystemPermission(SYSTEM_UID, 0));
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    EXPECT_EQ(false, CommonUtils::CheckSystemPermission(SYSTEM_UID, callingTokenId));
     MockNativePermission();
     EXPECT_EQ(true, CommonUtils::CheckSystemPermission(SYSTEM_UID, tokenId_));
 }
 
 HWTEST_F(CommonUtilsTest, GetBundleNameByUidTest001, TestSize.Level1)
 {
-    EXPECT_EQ(false, CommonUtils::GetBundleNameByUid(SYSTEM_UID, "bundleName"));
+    std::string bundleName;
+    EXPECT_EQ(false, CommonUtils::GetBundleNameByUid(SYSTEM_UID, bundleName));
 }
+} // namespace Location
+} // namespace OHOS
