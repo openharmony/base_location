@@ -122,7 +122,7 @@ void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
     EXPECT_EQ(1, newParcel.ReadInt32());
     EXPECT_EQ(MOCK_LATITUDE, newParcel.ReadDouble());
     EXPECT_EQ(1, newParcel.ReadInt32());
-    EXPECT_EQ(MOCK_LATITUDE, newParcel.ReadDouble());
+    EXPECT_EQ(MOCK_LONGITUDE, newParcel.ReadDouble());
     EXPECT_EQ("phoneNumber", newParcel.ReadString());
     EXPECT_EQ("addressUrl", newParcel.ReadString());
     EXPECT_EQ(true, newParcel.ReadBool());
