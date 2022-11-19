@@ -87,7 +87,8 @@ void RequestManagerTest::FillRequestField(std::shared_ptr<Request>& request)
     request->SetTokenId(0);
     request->SetFirstTokenId(0);
     request->SetPackageName("pkg.name");
-    RequestConfig requestConfig;
+    std::unique_ptr<RequestConfig> requestConfig =
+        std::make_unique<RequestConfig>();
     request->SetRequestConfig(*requestConfig);
     sptr<LocatorCallbackHost> locatorCallbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
@@ -97,8 +98,7 @@ void RequestManagerTest::FillRequestField(std::shared_ptr<Request>& request)
     locationMockConfig.SetScenario(SCENE_UNSET);
     request->SetLocationMockConfig(locationMockConfig);
     request->SetRequesting(false);
-    std::unique_ptr<Location> location =
-        std::make_unique<Location>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
     request->SetLastLocation(location);
     request->SetLocationPermState(true);
     request->SetBackgroundPermState(true);
@@ -202,8 +202,9 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest001, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest002, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig1;
-    requestConfig1.SetScenario(SCENE_NAVIGATION);
+    std::unique_ptr<RequestConfig> requestConfig1 =
+        std::make_unique<RequestConfig>();
+    requestConfig1->SetScenario(SCENE_NAVIGATION);
     request->SetRequestConfig(*requestConfig1);
     auto proxyList1 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList1);
@@ -213,8 +214,9 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest002, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest003, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig2;
-    requestConfig2.SetScenario(SCENE_TRAJECTORY_TRACKING);
+    std::unique_ptr<RequestConfig> requestConfig2 =
+        std::make_unique<RequestConfig>();
+    requestConfig2->SetScenario(SCENE_TRAJECTORY_TRACKING);
     request->SetRequestConfig(*requestConfig2);
     auto proxyList2 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList2);
@@ -224,8 +226,9 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest003, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest004, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig3;
-    requestConfig3.SetScenario(SCENE_CAR_HAILING);
+    std::unique_ptr<RequestConfig> requestConfig3 =
+        std::make_unique<RequestConfig>();
+    requestConfig3->SetScenario(SCENE_CAR_HAILING);
     request->SetRequestConfig(*requestConfig3);
     auto proxyList3 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList3);
@@ -235,8 +238,9 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest004, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest005, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig4;
-    requestConfig4.SetScenario(SCENE_DAILY_LIFE_SERVICE);
+    std::unique_ptr<RequestConfig> requestConfig4 =
+        std::make_unique<RequestConfig>();
+    requestConfig4->SetScenario(SCENE_DAILY_LIFE_SERVICE);
     request->SetRequestConfig(*requestConfig4);
     auto proxyList4 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList4);
@@ -246,8 +250,9 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest005, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest006, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig5;
-    requestConfig5.SetScenario(SCENE_NO_POWER);
+    std::unique_ptr<RequestConfig> requestConfig5 =
+        std::make_unique<RequestConfig>();
+    requestConfig5->SetScenario(SCENE_NO_POWER);
     request->SetRequestConfig(*requestConfig5);
     auto proxyList5 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList5);
@@ -257,9 +262,10 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest006, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest007, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig6;
-    requestConfig6.SetScenario(SCENE_UNSET);
-    requestConfig6.SetPriority(PRIORITY_ACCURACY);
+    std::unique_ptr<RequestConfig> requestConfig6 =
+        std::make_unique<RequestConfig>();
+    requestConfig6->SetScenario(SCENE_UNSET);
+    requestConfig6->SetPriority(PRIORITY_ACCURACY);
     request->SetRequestConfig(*requestConfig6);
     auto proxyList6 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList6);
@@ -269,9 +275,10 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest007, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest008, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig7;
-    requestConfig7.SetScenario(SCENE_UNSET);
-    requestConfig7.SetPriority(PRIORITY_LOW_POWER);
+    std::unique_ptr<RequestConfig> requestConfig7 =
+        std::make_unique<RequestConfig>();
+    requestConfig7->SetScenario(SCENE_UNSET);
+    requestConfig7->SetPriority(PRIORITY_LOW_POWER);
     request->SetRequestConfig(*requestConfig7);
     auto proxyList7 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList7);
@@ -281,9 +288,10 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest008, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest009, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig8;
-    requestConfig8.SetScenario(SCENE_UNSET);
-    requestConfig8.SetPriority(PRIORITY_FAST_FIRST_FIX);
+    std::unique_ptr<RequestConfig> requestConfig8 =
+        std::make_unique<RequestConfig>();
+    requestConfig8->SetScenario(SCENE_UNSET);
+    requestConfig8->SetPriority(PRIORITY_FAST_FIRST_FIX);
     request->SetRequestConfig(*requestConfig8);
     auto proxyList8 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList8);
@@ -293,20 +301,22 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest009, TestSize.Level1)
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest010, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig9;
-    requestConfig9.SetScenario(SCENE_UNSET);
-    requestConfig9.SetPriority(UNKNOWN_PRIORITY);
+    std::unique_ptr<RequestConfig> requestConfig9 =
+        std::make_unique<RequestConfig>();
+    requestConfig9->SetScenario(SCENE_UNSET);
+    requestConfig9->SetPriority(UNKNOWN_PRIORITY);
     request->SetRequestConfig(*requestConfig9);
     auto proxyList9 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList9);
     EXPECT_EQ(true, proxyList9->empty());
 }
 
-HWTEST_F(RequestManagerTest, RequestGetProxyNameTest010, TestSize.Level1)
+HWTEST_F(RequestManagerTest, RequestGetProxyNameTest011, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    RequestConfig requestConfig10;
-    requestConfig10.SetScenario(UNKNOWN_SCENE);
+    std::unique_ptr<RequestConfig> requestConfig10 =
+        std::make_unique<RequestConfig>();
+    requestConfig10->SetScenario(UNKNOWN_SCENE);
     request->SetRequestConfig(*requestConfig10);
     auto proxyList10 = std::make_shared<std::list<std::string>>();
     request->GetProxyName(proxyList10);
