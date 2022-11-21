@@ -125,12 +125,11 @@ void LocatorServiceTest::ChangedLocationMode(bool isEnable)
 
 bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
 {
-    pid_t pid = 0;
-    pid_t uid = 0;
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     std::unique_ptr<RequestConfig> requestConfig = RequestConfig::Unmarshalling(data);
-    proxy_->StartLocating(requestConfig, callbackStub_, "ohos.unit", pid, uid);
-    bool ret = (proxy_->StopLocating(callbackStub_)) != REPLY_CODE_SECURITY_EXCEPTION ? true : false;
-    return ret;
+    locatorImpl->StartLocating(requestConfig, callbackStub_);
+    locatorImpl->StopLocating(callbackStub_);
+    return true;
 }
 
 std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocodingMockInfo()
@@ -235,8 +234,8 @@ HWTEST_F(LocatorServiceTest, CheckStopLocating001, TestSize.Level1)
      * @tc.steps: step1. Call system ability and stop locating whit illegal param.
      * @tc.expected: step1. get reply state is false.
      */
-    bool ret = (proxy_->StopLocating(callbackStub_) != REPLY_CODE_SECURITY_EXCEPTION) ? true : false;
-    EXPECT_EQ(true, ret);
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    locatorImpl->StopLocating(callbackStub_);
 }
 
 /*
@@ -1385,9 +1384,9 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
 
     EXPECT_EQ(nullptr, locatorImpl->GetCachedLocation());
 
-    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(1));
+    EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
     EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
+    EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
     EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorImpl->SetLocationPrivacyConfirmStatus(-1, true));
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
     EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
@@ -1426,20 +1425,6 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(true, locatorImpl->SetMockedLocations(mockInfo, locations));
     EXPECT_EQ(true, locatorImpl->DisableLocationMock(mockInfo));
-}
-
-HWTEST_F(LocatorServiceTest, locatorImplStartLocating001, TestSize.Level1)
-{
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
-    EXPECT_NE(nullptr, locatorImpl);
-    auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_ACCURACY);
-    requestConfig->SetScenario(SCENE_NAVIGATION);
-    requestConfig->SetTimeInterval(2);
-    requestConfig->SetMaxAccuracy(1000.0);
-    requestConfig->SetDistanceInterval(1);
-    locatorImpl->StartLocating(requestConfig, callbackStub_);
-    locatorImpl->StopLocating(callbackStub_);
 }
 
 HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
