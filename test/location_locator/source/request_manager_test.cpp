@@ -189,7 +189,7 @@ HWTEST_F(RequestManagerTest, RequestTest001, TestSize.Level1)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
     FillRequestField(request);
-    VerifyRequestField(request);   
+    VerifyRequestField(request);
 }
 
 HWTEST_F(RequestManagerTest, RequestGetProxyNameTest001, TestSize.Level1)
