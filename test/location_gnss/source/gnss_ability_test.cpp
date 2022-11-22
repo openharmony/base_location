@@ -482,11 +482,11 @@ HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
     LocationMockConfig config;
     std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(true, proxy_->EnableMock(config));
-    EXPECT_EQ(true, proxy_->IsMockEnabled());
+    EXPECT_EQ(true, ability_->IsMockEnabled());
     EXPECT_EQ(true, proxy_->SetMocked(config, locations));
     
     EXPECT_EQ(true, proxy_->DisableMock(config));
-    EXPECT_EQ(false, proxy_->IsMockEnabled());
+    EXPECT_EQ(false, ability_->IsMockEnabled());
     EXPECT_EQ(false, proxy_->SetMocked(config, locations));
 }
 
@@ -525,7 +525,6 @@ HWTEST_F(GnssAbilityTest, GnssDump001, TestSize.Level1)
     helpArgs.emplace_back(helpArg1);
     ability_->Dump(fd, emptyArgs);
 }
-
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
 {
@@ -611,7 +610,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
     ability_->SendReportMockLocationEvent(); // do not report mocked location
 }
 
-HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent004, TestSize.Level1)
 {
     ability_->SendReportMockLocationEvent(); // clear location mock
 
@@ -661,27 +660,6 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
     }
     status->ReadFromParcel(parcel);
     ability_->ReportSv(status);
-
-    auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-    ability_->RegisterGnssStatusCallback(gnssCallbackHost, SYSTEM_UID); // after reg gnss status callback
-    ability_->ReportSv(status);
-}
-
-HWTEST_F(GnssAbilityTest, AGnssEventCallbackTest001, TestSize.Level1)
-{
-    sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
-    EXPECT_EQ(ERR_OK, agnssCallback->RequestAgnssRefInfo());
-}
-
-HWTEST_F(GnssAbilityTest, GnssEventCallbackTest001, TestSize.Level1)
-{
-    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
-    std::string nmea = "nmea";
-    EXPECT_EQ(ERR_OK, gnssCallback->ReportNmea(1000000000, nmea, 1));
-    EXPECT_EQ(ERR_OK, gnssCallback->RequestPredictGnssData());
-    std::vector<LocationInfo> gnssLocations;
-    EXPECT_EQ(ERR_OK, gnssCallback->ReportCachedLocation(gnssLocations));
 }
 }  // namespace Location
 }  // namespace OHOS

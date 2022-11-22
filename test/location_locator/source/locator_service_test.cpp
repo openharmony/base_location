@@ -1657,62 +1657,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     locatorAbility->UnregisterCachedLocationCallback(cachedCallback);
 }
 
-HWTEST_F(LocatorServiceTest, locatorServiceGeoIsAvailable001, TestSize.Level1)
-{
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    EXPECT_EQ(true, locatorAbility->EnableReverseGeocodingMock());
-    MessageParcel reply1;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorAbility->IsGeoConvertAvailable(reply1));
-
-    EXPECT_EQ(true, locatorAbility->DisableReverseGeocodingMock());
-    MessageParcel reply2;
-    EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorAbility->IsGeoConvertAvailable(reply2));
-}
-
-HWTEST_F(LocatorServiceTest, locatorServiceGetAddressByCoordinate001, TestSize.Level1)
-{
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-
-    EXPECT_EQ(true, locatorAbility->EnableReverseGeocodingMock());
-    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
-    EXPECT_EQ(true, locatorAbility->SetReverseGeocodingMockInfo(mockInfos));
-
-    MessageParcel request001;
-    request001.WriteDouble(MOCK_LATITUDE); // latitude
-    request001.WriteDouble(MOCK_LONGITUDE); // longitude
-    request001.WriteInt32(3); // maxItems
-    request001.WriteInt32(1); // locale object size = 1
-    request001.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
-    request001.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
-    request001.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
-    request001.WriteString16(Str8ToStr16("")); // ""
-    MessageParcel reply;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorAbility->GetAddressByCoordinate(request001, reply));
-}
-
-HWTEST_F(LocatorServiceTest, locatorServiceGetAddressByLocationName001, TestSize.Level1)
-{
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    MessageParcel request;
-    request.WriteString16(Str8ToStr16("description")); // description
-    request.WriteDouble(1.0); // minLatitude
-    request.WriteDouble(2.0); // minLongitude
-    request.WriteDouble(3.0); // maxLatitude
-    request.WriteDouble(4.0); // maxLongitude
-    request.WriteInt32(3); // maxItems
-    request.WriteInt32(1); // locale object size = 1
-    request.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
-    request.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
-    request.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
-    request.WriteString16(Str8ToStr16("")); // ""
-    MessageParcel reply;
-    locatorAbility->GetAddressByLocationName(request, reply);
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply.ReadInt32());
-}
-
 HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Level1)
 {
     auto locatorAbility =
@@ -1720,14 +1664,6 @@ HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Lev
     EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
         locatorAbility->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, true));
     EXPECT_EQ(true, locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP));
-}
-
-HWTEST_F(LocatorServiceTest, locatorServiceCachedGnssSize001, TestSize.Level1)
-{
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    EXPECT_EQ(-1, locatorAbility->GetCachedGnssLocationsSize());
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, locatorAbility->FlushCachedGnssLocations());
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
@@ -1776,7 +1712,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceLocationMock001, TestSize.Level1)
     EXPECT_EQ(true, locatorAbility->SetMockedLocations(mockInfo, locations));
 
     EXPECT_EQ(true, locatorAbility->DisableLocationMock(mockInfo));
-    std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(true, locatorAbility->SetMockedLocations(mockInfo, locations));
 }
 

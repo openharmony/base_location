@@ -294,7 +294,7 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent003, TestSize.Lev
     ability_->SendReportMockLocationEvent(); // do not report mocked location
 }
 
-HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent003, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent004, TestSize.Level1)
 {
     ability_->SendReportMockLocationEvent(); // clear location mock
 
