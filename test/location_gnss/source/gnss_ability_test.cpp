@@ -661,6 +661,11 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
     }
     status->ReadFromParcel(parcel);
     ability_->ReportSv(status);
+
+    auto gnssCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    ability_->RegisterGnssStatusCallback(gnssCallbackHost, SYSTEM_UID); // after reg gnss status callback
+    ability_->ReportSv(status);
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackTest001, TestSize.Level1)

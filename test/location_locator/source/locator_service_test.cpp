@@ -1657,30 +1657,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     locatorAbility->UnregisterCachedLocationCallback(cachedCallback);
 }
 
-HWTEST_F(LocatorServiceTest, locatorServiceCacheLocation001, TestSize.Level1)
-{
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    AppIdentity identity;
-    identity.SetPid(callingPid);
-    identity.SetUid(callingUid);
-    identity.SetTokenId(callingTokenId);
-    identity.SetFirstTokenId(callingFirstTokenid);
-    identity.SetBundleName("test.bundle");
-    MessageParcel reply1;
-    EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorAbility->GetCacheLocation(reply1, identity));
-    std::unique_ptr<Location> locationNew = std::make_unique<Location>();
-    locationNew->SetLatitude(0.0);
-    locationNew->SetLongitude(0.0);
-    locatorAbility->ReportLocation(locationNew, GNSS_ABILITY);
-    MessageParcel reply2;
-    EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorAbility->GetCacheLocation(reply2, identity));
-}
-
 HWTEST_F(LocatorServiceTest, locatorServiceGeoIsAvailable001, TestSize.Level1)
 {
     auto locatorAbility =
@@ -1721,7 +1697,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceGetAddressByLocationName001, TestSize
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     MessageParcel request;
-    request.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     request.WriteString16(Str8ToStr16("description")); // description
     request.WriteDouble(1.0); // minLatitude
     request.WriteDouble(2.0); // minLongitude
@@ -1762,7 +1737,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
     std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
     command->scenario = SCENE_NAVIGATION;
     command->command = "cmd";
-    EXPECT_EQ(true, locatorAbility->SendCommand(command));
+    locatorAbility->SendCommand(command);
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)

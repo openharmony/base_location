@@ -29,6 +29,7 @@ public:
 
     std::shared_ptr<ReportManager> reportManager_;
     uint64_t tokenId_;
+    uint64_t approxiTokenId_;
 };
 } // namespace Location
 } // namespace OHOS
