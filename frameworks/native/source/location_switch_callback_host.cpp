@@ -150,6 +150,10 @@ void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
 void LocationSwitchCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (handlerCb_ == nullptr || env_ == nullptr) {
+        LBSLOGE(SWITCH_CALLBACK, "handler or env is nullptr.");
+        return;
+    }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(SWITCH_CALLBACK, "context == nullptr.");
@@ -157,10 +161,8 @@ void LocationSwitchCallbackHost::DeleteHandler()
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    if (handlerCb_ && env_) {
-        DeleteQueueWork(context);
-        handlerCb_ = nullptr;
-    }
+    DeleteQueueWork(context);
+    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS
