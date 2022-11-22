@@ -17,7 +17,6 @@
 
 #include "i_locator_callback.h"
 #include "location.h"
-#include "location_mock_config.h"
 #include "locator_callback_host.h"
 #include "report_manager.h"
 #include "request.h"

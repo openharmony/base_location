@@ -26,7 +26,6 @@
 #include "location.h"
 #include "location_dumper.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -92,20 +91,20 @@ void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGE(PASSIVE, "enter RequestRecord");
 }
 
-bool PassiveAbility::EnableMock(const LocationMockConfig& config)
+bool PassiveAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool PassiveAbility::DisableMock(const LocationMockConfig& config)
+bool PassiveAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
-bool PassiveAbility::SetMocked(const LocationMockConfig& config,
+bool PassiveAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 void PassiveAbility::SendReportMockLocationEvent()

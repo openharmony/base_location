@@ -160,6 +160,60 @@ void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& call
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
 }
 
+int LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote WriteInterfaceToken failed");
+        return REPLY_CODE_EXCEPTION;
+    }
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        return REPLY_CODE_EXCEPTION;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote remote is null");
+        return REPLY_CODE_EXCEPTION;
+    }
+    int result = 0;
+    int ret = remote->SendRequest(REG_NMEA_CALLBACK_v9, data, reply, option);
+    if (ret == NO_ERROR) {
+        result = reply.ReadInt32();
+    }
+    return result;
+}
+
+int LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote WriteInterfaceToken failed");
+        return REPLY_CODE_EXCEPTION;
+    }
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        return REPLY_CODE_EXCEPTION;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote remote is null");
+        return REPLY_CODE_EXCEPTION;
+    }
+    int result = 0;
+    int ret = remote->SendRequest(UNREG_NMEA_CALLBACK_v9, data, reply, option);
+    if (ret == NO_ERROR) {
+        result = reply.ReadInt32();
+    }
+    return result;
+}
+
 void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid)
 {
     int error = SendRegisterMsgToRemote(REG_COUNTRY_CODE_CALLBACK, callback, uid);
@@ -372,14 +426,13 @@ std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
     }
 }
 
-bool LocatorProxy::EnableLocationMock(const LocationMockConfig& config)
+bool LocatorProxy::EnableLocationMock()
 {
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    config.Marshalling(data);
     int error = SendMsgWithDataReply(ENABLE_LOCATION_MOCK, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableLocationMock Transact ErrCodes = %{public}d", error);
     bool state = false;
@@ -389,14 +442,13 @@ bool LocatorProxy::EnableLocationMock(const LocationMockConfig& config)
     return state;
 }
 
-bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
+bool LocatorProxy::DisableLocationMock()
 {
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    config.Marshalling(data);
     int error = SendMsgWithDataReply(DISABLE_LOCATION_MOCK, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableLocationMock Transact ErrCodes = %{public}d", error);
     bool state = false;
@@ -407,14 +459,14 @@ bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
 }
 
 bool LocatorProxy::SetMockedLocations(
-    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+    const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    config.Marshalling(data);
+    data.WriteInt32(timeInterval);
     int locationSize = static_cast<int>(location.size());
     data.WriteInt32(locationSize);
     for (int i = 0; i < locationSize; i++) {

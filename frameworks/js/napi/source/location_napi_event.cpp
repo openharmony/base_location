@@ -17,6 +17,7 @@
 #include "callback_manager.h"
 #include "common_utils.h"
 #include "location_log.h"
+#include "location_napi_errcode.h"
 #include "country_code_callback_host.h"
 #include "locator.h"
 #include "napi_util.h"
@@ -34,24 +35,61 @@ auto g_locatorProxy = Locator::GetInstance();
 
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const napi_value &)> g_offFuncMap;
+std::map<std::string, bool(*)(const napi_env &, const size_t, const napi_value *)> g_onFuncMap;
+
+void InitOnFuncMap()
+{
+    if (g_onFuncMap.size() != 0) {
+        return;
+    }
+#ifdef ENABLE_NAPI_MANAGER
+    g_onFuncMap.insert(std::make_pair("locationEnabledChange", &OnLocationServiceStateCallback));
+    g_onFuncMap.insert(std::make_pair("cachedGnssLocationsChange", &OnCachedGnssLocationsReportingCallback));
+    g_onFuncMap.insert(std::make_pair("satelliteStatusChange", &OnGnssStatusChangeCallback));
+    g_onFuncMap.insert(std::make_pair("gnssFenceStatusChange", &OnFenceStatusChangeCallback));
+    g_onFuncMap.insert(std::make_pair("nmeaMessage", &OnNmeaMessageChangeCallback));
+#else
+    g_onFuncMap.insert(std::make_pair("locationServiceState", &OnLocationServiceStateCallback));
+    g_onFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OnCachedGnssLocationsReportingCallback));
+    g_onFuncMap.insert(std::make_pair("gnssStatusChange", &OnGnssStatusChangeCallback));
+    g_onFuncMap.insert(std::make_pair("fenceStatusChange", &OnFenceStatusChangeCallback));
+    g_onFuncMap.insert(std::make_pair("nmeaMessageChange", &OnNmeaMessageChangeCallback));
+#endif
+    g_onFuncMap.insert(std::make_pair("locationChange", &OnLocationChangeCallback));
+    g_onFuncMap.insert(std::make_pair("countryCodeChange", &OnCountryCodeChangeCallback));
+}
 
 void InitOffFuncMap()
 {
     if (g_offAllFuncMap.size() != 0 || g_offFuncMap.size() != 0) {
         return;
     }
+#ifdef ENABLE_NAPI_MANAGER
+    g_offAllFuncMap.insert(std::make_pair("locationEnabledChange", &OffAllLocationServiceStateCallback));
+    g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsChange", &OffAllCachedGnssLocationsReportingCallback));
+    g_offAllFuncMap.insert(std::make_pair("satelliteStatusChange", &OffAllGnssStatusChangeCallback));
+    g_offAllFuncMap.insert(std::make_pair("nmeaMessage", &OffAllNmeaMessageChangeCallback));
+#else
     g_offAllFuncMap.insert(std::make_pair("locationServiceState", &OffAllLocationServiceStateCallback));
-    g_offAllFuncMap.insert(std::make_pair("locationChange", &OffAllLocationChangeCallback));
+    g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffAllCachedGnssLocationsReportingCallback));
     g_offAllFuncMap.insert(std::make_pair("gnssStatusChange", &OffAllGnssStatusChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("nmeaMessageChange", &OffAllNmeaMessageChangeCallback));
-    g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffAllCachedGnssLocationsReportingCallback));
+#endif
+    g_offAllFuncMap.insert(std::make_pair("locationChange", &OffAllLocationChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("countryCodeChange", &OffAllCountryCodeChangeCallback));
 
+#ifdef ENABLE_NAPI_MANAGER
+    g_offFuncMap.insert(std::make_pair("locationEnabledChange", &OffLocationServiceStateCallback));
+    g_offFuncMap.insert(std::make_pair("cachedGnssLocationsChange", &OffCachedGnssLocationsReportingCallback));
+    g_offFuncMap.insert(std::make_pair("satelliteStatusChange", &OffGnssStatusChangeCallback));
+    g_offFuncMap.insert(std::make_pair("nmeaMessage", &OffNmeaMessageChangeCallback));
+#else
     g_offFuncMap.insert(std::make_pair("locationServiceState", &OffLocationServiceStateCallback));
-    g_offFuncMap.insert(std::make_pair("locationChange", &OffLocationChangeCallback));
+    g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
     g_offFuncMap.insert(std::make_pair("gnssStatusChange", &OffGnssStatusChangeCallback));
     g_offFuncMap.insert(std::make_pair("nmeaMessageChange", &OffNmeaMessageChangeCallback));
-    g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
+#endif
+    g_offFuncMap.insert(std::make_pair("locationChange", &OffLocationChangeCallback));
     g_offFuncMap.insert(std::make_pair("countryCodeChange", &OffCountryCodeChangeCallback));
 }
 
@@ -79,6 +117,21 @@ void SubscribeNmeaMessage(const napi_env& env, const napi_ref& handlerRef,
     g_locatorProxy->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), DEFAULT_UID);
 }
 
+int SubscribeNmeaMessageV9(const napi_env& env, const napi_ref& handlerRef,
+    sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
+{
+    if (!g_locatorProxy->IsLocationEnabled()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    nmeaMessageCallbackHost->SetEnv(env);
+    nmeaMessageCallbackHost->SetHandleCb(handlerRef);
+    int ret = g_locatorProxy->RegisterNmeaMessageCallbackV9(nmeaMessageCallbackHost->AsObject(), DEFAULT_UID);
+    if (ret != 0) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    return 0;
+}
+
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeLocationServiceState");
@@ -95,6 +148,19 @@ void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHo
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeNmeaMessage");
     g_locatorProxy->UnregisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject());
+}
+
+int UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
+{
+    if (!g_locatorProxy->IsLocationEnabled()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    LBSLOGI(LOCATION_NAPI, "UnSubscribeNmeaMessageV9");
+    int ret = g_locatorProxy->UnregisterNmeaMessageCallbackV9(nmeaMessageCallbackHost->AsObject());
+    if (ret != 0) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    return 0;
 }
 
 void SubscribeLocationChange(const napi_env& env, const napi_value& object,
@@ -298,17 +364,279 @@ bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi
     return isEqual;
 }
 
+bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    napi_valuetype valueType;
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    if (valueType != napi_function) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+#else
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    NAPI_ASSERT_BASE(env, valueType == napi_function,
+        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+#endif
+    if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto switchCallbackHost =
+        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+    if (switchCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
+        g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
+        SubscribeLocationServiceState(env, handlerRef, switchCallbackHost);
+    }
+    return true;
+}
+
+bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    napi_valuetype valueType;
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM3) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
+    if (valueType != napi_function) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+#else
+    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
+    NAPI_ASSERT_BASE(env, valueType == napi_function,
+        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+#endif
+    if (!g_locatorProxy->IsLocationEnabled()) {
+#ifdef ENABLE_NAPI_MANAGER
+        HandleSyncErrCode(env, ERRCODE_SWITCH_OFF);
+#else
+        LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
+#endif
+        return false;
+    }
+    // the third params should be handler
+    if (g_cachedLocationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto cachedCallbackHost =
+        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    if (cachedCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef), false);
+        g_cachedLocationCallbacks.AddCallback(env, handlerRef, cachedCallbackHost);
+        SubscribeCacheLocationChange(env, argv[PARAM1], handlerRef, cachedCallbackHost);
+    }
+    return true;
+}
+
+bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    napi_valuetype valueType;
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    if (valueType != napi_function) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+#else
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    NAPI_ASSERT_BASE(env, valueType == napi_function,
+        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+#endif
+    if (g_gnssStatusInfoCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto gnssCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    if (gnssCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
+        g_gnssStatusInfoCallbacks.AddCallback(env, handlerRef, gnssCallbackHost);
+        SubscribeGnssStatus(env, handlerRef, gnssCallbackHost);
+    }
+    return true;
+}
+
+bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    napi_valuetype valueType;
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM3) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
+    if (valueType != napi_function) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+#else
+    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
+    NAPI_ASSERT_BASE(env, valueType == napi_function,
+        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+#endif
+    if (!g_locatorProxy->IsLocationEnabled()) {
+#ifdef ENABLE_NAPI_MANAGER
+        HandleSyncErrCode(env, ERRCODE_SWITCH_OFF);
+#else
+        LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
+#endif
+        return false;
+    }
+    // the third params should be handler
+    if (g_locationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    if (locatorCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef), false);
+        g_locationCallbacks.AddCallback(env, handlerRef, locatorCallbackHost);
+        // argv[1]:request params, argv[2]:handler
+        SubscribeLocationChange(env, argv[PARAM1], handlerRef, locatorCallbackHost);
+    }
+    return true;
+}
+
+bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    napi_valuetype valueType;
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    if (valueType != napi_function) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+#else
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    NAPI_ASSERT_BASE(env, valueType == napi_function,
+        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+#endif
+    if (g_nmeaCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    if (nmeaCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
+        g_nmeaCallbacks.AddCallback(env, handlerRef, nmeaCallbackHost);
+#ifdef ENABLE_NAPI_MANAGER
+        int ret = SubscribeNmeaMessageV9(env, handlerRef, nmeaCallbackHost);
+        if (ret != REPLY_CODE_NO_EXCEPTION) {
+            HandleSyncErrCode(env, ret);
+            return false;
+        }
+#else
+        SubscribeNmeaMessage(env, handlerRef, nmeaCallbackHost);
+#endif
+    }
+    return true;
+}
+
+bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    napi_valuetype valueType;
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    if (valueType != napi_function) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+#else
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
+    NAPI_ASSERT_BASE(env, valueType == napi_function,
+        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+#endif
+    if (g_countryCodeCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto callbackHost =
+        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    if (callbackHost) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
+        g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
+        SubscribeCountryCodeChange(env, handlerRef, callbackHost);
+    }
+    return true;
+}
+
+bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM3) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+#else
+    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+#endif
+    if (!g_locatorProxy->IsLocationEnabled()) {
+#ifdef ENABLE_NAPI_MANAGER
+        HandleSyncErrCode(env, ERRCODE_SWITCH_OFF);
+#else
+        LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
+#endif
+        return false;
+    }
+    // the third params should be handler
+    SubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
+    return true;
+}
+
 napi_value On(napi_env env, napi_callback_info cbinfo)
 {
+    InitOnFuncMap();
     size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = 0;
-    napi_value result = nullptr;
     LBSLOGI(LOCATION_NAPI, "On function entry");
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype eventName = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &eventName));
+#ifdef ENABLE_NAPI_MANAGER
+    if (eventName != napi_string) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+#else
     NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
+#endif
+    
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
 
     char type[64] = {0}; // max length
@@ -316,142 +644,12 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
-    if (event == "locationServiceState") {
-        // expect for 2 params
-        NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
-        // the second params should be handler
-        if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
-            LBSLOGE(LOCATION_NAPI, "This request already exists");
-            return result;
-        }
-        auto switchCallbackHost =
-            sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
-        if (switchCallbackHost != nullptr) {
-            napi_ref handlerRef = nullptr;
-            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
-            g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
-            SubscribeLocationServiceState(env, handlerRef, switchCallbackHost);
-        }
-    } else if (event == "locationChange") {
-        // expect for 2 params
-        NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong");
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM2], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
-        if (!g_locatorProxy->IsLocationEnabled()) {
-            LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
-            return result;
-        }
-        // the third params should be handler
-        if (g_locationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
-            LBSLOGE(LOCATION_NAPI, "This request already exists");
-            return result;
-        }
-        auto locatorCallbackHost =
-            sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-        if (locatorCallbackHost != nullptr) {
-            napi_ref handlerRef = nullptr;
-            NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef));
-            g_locationCallbacks.AddCallback(env, handlerRef, locatorCallbackHost);
-            // argv[1]:request params, argv[2]:handler
-            SubscribeLocationChange(env, argv[PARAM1], handlerRef, locatorCallbackHost);
-        }
-    } else if (event == "gnssStatusChange") {
-        // expect for 2 params
-        NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
-        // the second params should be handler
-        if (g_gnssStatusInfoCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
-            LBSLOGE(LOCATION_NAPI, "This request already exists");
-            return result;
-        }
-        auto gnssCallbackHost =
-            sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-        if (gnssCallbackHost != nullptr) {
-            napi_ref handlerRef = nullptr;
-            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
-            g_gnssStatusInfoCallbacks.AddCallback(env, handlerRef, gnssCallbackHost);
-            SubscribeGnssStatus(env, handlerRef, gnssCallbackHost);
-        }
-    } else if (event == "nmeaMessageChange") {
-        // expect for 2 params
-        NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
-        // the second params should be handler
-        if (g_nmeaCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
-            LBSLOGE(LOCATION_NAPI, "This request already exists");
-            return result;
-        }
-        auto nmeaCallbackHost =
-            sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
-        if (nmeaCallbackHost != nullptr) {
-            napi_ref handlerRef = nullptr;
-            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
-            g_nmeaCallbacks.AddCallback(env, handlerRef, nmeaCallbackHost);
-            SubscribeNmeaMessage(env, handlerRef, nmeaCallbackHost);
-        }
-    } else if (event == "cachedGnssLocationsReporting") {
-        // expect for 3 params
-        NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong");
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM2], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
-        if (!g_locatorProxy->IsLocationEnabled()) {
-            LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
-            return result;
-        }
-        // the third params should be handler
-        if (g_cachedLocationCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
-            LBSLOGE(LOCATION_NAPI, "This request already exists");
-            return result;
-        }
-        auto cachedCallbackHost =
-            sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
-        if (cachedCallbackHost != nullptr) {
-            napi_ref handlerRef = nullptr;
-            NAPI_CALL(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef));
-            g_cachedLocationCallbacks.AddCallback(env, handlerRef, cachedCallbackHost);
-            SubscribeCacheLocationChange(env, argv[PARAM1], handlerRef, cachedCallbackHost);
-        }
-    } else if (event == "fenceStatusChange") {
-        // expect for 3 params
-        NAPI_ASSERT(env, argc == PARAM3, "number of parameters is wrong");
-        if (!g_locatorProxy->IsLocationEnabled()) {
-            LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
-            return result;
-        }
-        // the third params should be handler
-        SubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
-    } else if (event == "countryCodeChange") {
-        // expect for 2 params
-        NAPI_ASSERT(env, argc == PARAM2, "number of parameters is wrong");
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "callback should be function, mismatch for param.");
-        // the third params should be handler
-        if (g_countryCodeCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
-            LBSLOGE(LOCATION_NAPI, "This request already exists");
-            return result;
-        }
-        auto callbackHost =
-            sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
-        if (callbackHost) {
-            napi_ref handlerRef = nullptr;
-            NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef));
-            g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
-            SubscribeCountryCodeChange(env, handlerRef, callbackHost);
-        }
+    auto onCallbackFunc = g_onFuncMap.find(event);
+    if (onCallbackFunc != g_onFuncMap.end() && onCallbackFunc->second != nullptr) {
+        auto memberFunc = onCallbackFunc->second;
+        (*memberFunc)(env, argc, argv);
     }
-
-    NAPI_CALL(env, napi_get_undefined(env, &result));
-    return result;
+    return UndefinedNapiValue(env);
 }
 
 bool OffAllLocationServiceStateCallback(const napi_env& env)
@@ -531,7 +729,15 @@ bool OffAllNmeaMessageChangeCallback(const napi_env& env)
         if (callbackHost == nullptr) {
             continue;
         }
+#ifdef ENABLE_NAPI_MANAGER
+        int ret = UnSubscribeNmeaMessageV9(callbackHost);
+        if (ret != REPLY_CODE_NO_EXCEPTION) {
+            HandleSyncErrCode(env, ret);
+            return false;
+        }
+#else
         UnSubscribeNmeaMessage(callbackHost);
+#endif
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
     }
@@ -626,7 +832,15 @@ bool OffNmeaMessageChangeCallback(const napi_env& env, const napi_value& handler
 {
     auto nmeaCallbackHost = g_nmeaCallbacks.GetCallbackPtr(env, handler);
     if (nmeaCallbackHost) {
+#ifdef ENABLE_NAPI_MANAGER
+        int ret = UnSubscribeNmeaMessageV9(nmeaCallbackHost);
+        if (ret != REPLY_CODE_NO_EXCEPTION) {
+            HandleSyncErrCode(env, ret);
+            return false;
+        }
+#else
         UnSubscribeNmeaMessage(nmeaCallbackHost);
+#endif
         g_nmeaCallbacks.DeleteCallback(env, handler);
         nmeaCallbackHost->DeleteHandler();
         nmeaCallbackHost = nullptr;
@@ -670,10 +884,22 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     napi_value thisVar = 0;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
-
+#ifdef ENABLE_NAPI_MANAGER
+    if (argc < PARAM1) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+#endif
     napi_valuetype eventName = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &eventName));
+#ifdef ENABLE_NAPI_MANAGER
+    if (eventName != napi_string) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+#else
     NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
+#endif
     LBSLOGI(LOCATION_NAPI, "Off function entry");
 
     char type[64] = {0};
@@ -699,9 +925,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     } else if (argc == PARAM3) {
         UnSubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
     }
-    napi_value result = nullptr;
-    NAPI_CALL(env, napi_get_undefined(env, &result));
-    return result;
+    return UndefinedNapiValue(env);
 }
 
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
@@ -718,14 +942,28 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 
     if (argc == PARAM1) {
         NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
+#ifdef ENABLE_NAPI_MANAGER
+        if (valueType != napi_function && valueType != napi_object) {
+            HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+            return UndefinedNapiValue(env);
+        }
+#else
         NAPI_ASSERT(env, valueType == napi_function || valueType == napi_object, "type mismatch for parameter 2");
+#endif
     }
     if (argc == PARAM2) {
         napi_valuetype valueType1 = napi_undefined;
         NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
         NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType1));
+#ifdef ENABLE_NAPI_MANAGER
+        if (valueType != napi_object || valueType1 != napi_function) {
+            HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+            return UndefinedNapiValue(env);
+        }
+#else
         NAPI_ASSERT(env, valueType == napi_object, "type mismatch for parameter 1");
         NAPI_ASSERT(env, valueType1 == napi_function, "type mismatch for parameter 2");
+#endif
     }
     return RequestLocationOnce(env, argc, argv);
 }

@@ -29,7 +29,6 @@
 #include "geo_coding_mock_info.h"
 #include "location.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "locator_callback_host.h"
 #include "request_config.h"
 #include "satellite_status.h"
@@ -63,13 +62,12 @@ public:
 
 class LocationMockAsyncContext : public AsyncContext {
 public:
-    int32_t scenario;
     int32_t timeInterval;
     bool enable;
 
     std::vector<std::shared_ptr<Location>> LocationNapi;
     LocationMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), scenario(0), timeInterval(0), enable(false) {}
+        : AsyncContext(env, work, deferred), timeInterval(0), enable(false) {}
 
     LocationMockAsyncContext() = delete;
 

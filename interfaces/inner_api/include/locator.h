@@ -27,7 +27,6 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "request_config.h"
-#include "location_mock_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -76,6 +75,10 @@ public:
 
     virtual bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
 
+    virtual int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+
+    virtual int UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) = 0;
+
     virtual bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
 
     virtual bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) = 0;
@@ -103,12 +106,12 @@ public:
 
     virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
 
-    virtual bool EnableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool EnableLocationMock() = 0;
 
-    virtual bool DisableLocationMock(const LocationMockConfig& config) = 0;
+    virtual bool DisableLocationMock() = 0;
 
     virtual bool SetMockedLocations(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) = 0;
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
 
     virtual bool ProxyUidForFreeze(int32_t uid, bool isProxy) = 0;
     virtual bool ResetAllProxy() = 0;

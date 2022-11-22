@@ -58,6 +58,8 @@ public:
         UNREG_COUNTRY_CODE_CALLBACK = 37,
         PROXY_UID_FOR_FREEZE = 38,
         RESET_ALL_PROXY = 39,
+        REG_NMEA_CALLBACK_v9 = 40,
+        UNREG_NMEA_CALLBACK_v9 = 41,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
 };

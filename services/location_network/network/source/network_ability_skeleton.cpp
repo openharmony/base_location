@@ -23,7 +23,6 @@
 #include "common_utils.h"
 #include "location.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "subability_common.h"
 #include "work_record.h"
 
@@ -63,25 +62,17 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case ENABLE_LOCATION_MOCK: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
-            bool result = EnableMock(config);
+            bool result = EnableMock();
             reply.WriteBool(result);
             break;
         }
         case DISABLE_LOCATION_MOCK: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
-            bool result = DisableMock(config);
+            bool result = DisableMock();
             reply.WriteBool(result);
             break;
         }
         case SET_MOCKED_LOCATIONS: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
+            int timeInterval = data.ReadInt32();
             int locationSize = data.ReadInt32();
             locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
                 locationSize;
@@ -89,7 +80,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
             for (int i = 0; i < locationSize; i++) {
                 vcLoc.push_back(Location::UnmarshallingShared(data));
             }
-            bool result = SetMocked(config, vcLoc);
+            bool result = SetMocked(timeInterval, vcLoc);
             reply.WriteBool(result);
             break;
         }

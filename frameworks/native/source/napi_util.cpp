@@ -247,14 +247,15 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     }
 }
 
-void JsObjToCommand(const napi_env& env, const napi_value& object,
+int JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig)
 {
     if (commandConfig == nullptr) {
-        return;
+        return COMMON_ERROR;
     }
-    JsObjectToInt(env, object, "scenario", commandConfig->scenario);
-    JsObjectToString(env, object, "command", MAX_BUF_LEN, commandConfig->command); // max bufLen
+    CHK_ERROR_CODE("scenario", JsObjectToInt(env, object, "scenario", commandConfig->scenario), true);
+    CHK_ERROR_CODE("command", JsObjectToString(env, object, "command", MAX_BUF_LEN, commandConfig->command), true);
+    return SUCCESS;
 }
 
 int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
@@ -316,10 +317,10 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     int maxItems = 0;
     std::string locale = "";
 
-    JsObjectToDouble(env, object, "latitude", latitude);
-    JsObjectToDouble(env, object, "longitude", longitude);
-    JsObjectToInt(env, object, "maxItems", maxItems);
-    JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale); // max bufLen
+    CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
+    CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
+    CHK_ERROR_CODE("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
+    CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale), false); // max bufLen
 
     if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
         return false;
@@ -735,12 +736,6 @@ static bool InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext,
     return true;
 }
 
-void CreateFailCallBackParams(AsyncContext& context, const std::string msg, int32_t errorCode)
-{
-    SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
-    SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
-}
-
 std::string GetErrorMsgByCode(int code)
 {
     static std::map<int, std::string> errorCodeMap = {
@@ -754,13 +749,39 @@ std::string GetErrorMsgByCode(int code)
         {LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR"},
         {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"},
         {QUERY_COUNTRY_CODE_ERROR, "QUERY_COUNTRY_CODE_ERROR"},
+        { LocationNapiErrCode::ERRCODE_PERMISSION_DENIED, "Permission denied." },
+        { LocationNapiErrCode::ERRCODE_INVALID_PARAM, "Parameter error." },
+        { LocationNapiErrCode::ERRCODE_NOT_SUPPORTED, "Capability not supported." },
+        { LocationNapiErrCode::ERRCODE_SERVICE_UNAVAILABLE, "Location service is unavailable." },
+        { LocationNapiErrCode::ERRCODE_SWITCH_OFF, "The location switch is off." },
+        { LocationNapiErrCode::ERRCODE_LOCATING_FAIL, "Failed to obtain the geographical location." },
+        { LocationNapiErrCode::ERRCODE_REVERSE_GEOCODING_FAIL, "Reverse geocoding query failed." },
+        { LocationNapiErrCode::ERRCODE_GEOCODING_FAIL, "Geocoding query failed." },
+        { LocationNapiErrCode::ERRCODE_COUNTRYCODE_FAIL, "Failed to query the area information." },
+        { LocationNapiErrCode::ERRCODE_GEOFENCE_FAIL, "Failed to operate the geofence." },
+        { LocationNapiErrCode::ERRCODE_NO_RESPONSE, "No response to the request." },
     };
 
     auto iter = errorCodeMap.find(code);
-    if (iter == errorCodeMap.end()) {
-        return "";
+    if (iter != errorCodeMap.end()) {
+        std::string errMessage = "BussinessError ";
+        errMessage.append(std::to_string(code)).append(": ").append(iter->second);
+        return errMessage;
     }
-    return iter->second;
+    return "undefined error.";
+}
+
+napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string errMsg)
+{
+    napi_value businessError = nullptr;
+    napi_value eCode = nullptr;
+    napi_value eMsg = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, errCode, &eCode));
+    NAPI_CALL(env, napi_create_string_utf8(env, errMsg.c_str(),  errMsg.length(), &eMsg));
+    NAPI_CALL(env, napi_create_object(env, &businessError));
+    NAPI_CALL(env, napi_set_named_property(env, businessError, "code", eCode));
+    NAPI_CALL(env, napi_set_named_property(env, businessError, "message", eMsg));
+    return businessError;
 }
 
 void CreateResultObject(const napi_env& env, AsyncContext* context)
@@ -770,10 +791,8 @@ void CreateResultObject(const napi_env& env, AsyncContext* context)
         return;
     }
     if (context->errCode != SUCCESS) {
-        std::string msg = GetErrorMsgByCode(context->errCode);
-        NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &context->result[PARAM0]));
-        SetValueInt32(env, "code", context->errCode, context->result[PARAM0]);
-        SetValueUtf8String(env, "data", msg.c_str(), context->result[PARAM0]);
+        std::string errMsg = GetErrorMsgByCode(context->errCode);
+        context->result[PARAM0] = GetErrorObject(env, context->errCode, errMsg);
         NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
     } else {
         NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM0]));

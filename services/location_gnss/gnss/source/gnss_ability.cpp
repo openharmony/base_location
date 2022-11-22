@@ -528,20 +528,20 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
     return ERR_OK;
 }
 
-bool GnssAbility::EnableMock(const LocationMockConfig& config)
+bool GnssAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool GnssAbility::DisableMock(const LocationMockConfig& config)
+bool GnssAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
-bool GnssAbility::SetMocked(const LocationMockConfig& config,
+bool GnssAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 bool GnssAbility::IsMockEnabled()

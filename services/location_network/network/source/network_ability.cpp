@@ -95,20 +95,20 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGE(NETWORK, "enter RequestRecord");
 }
 
-bool NetworkAbility::EnableMock(const LocationMockConfig& config)
+bool NetworkAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool NetworkAbility::DisableMock(const LocationMockConfig& config)
+bool NetworkAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
-bool NetworkAbility::SetMocked(const LocationMockConfig& config,
+bool NetworkAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 void NetworkAbility::ProcessReportLocationMock()

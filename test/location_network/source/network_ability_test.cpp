@@ -162,13 +162,13 @@ HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
 
 HWTEST_F(NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1)
 {
-    LocationMockConfig config;
+    int timeInterval = 1;
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, proxy_->EnableMock(config));
-    EXPECT_EQ(true, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
     
-    EXPECT_EQ(true, proxy_->DisableMock(config));
-    EXPECT_EQ(false, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(true, proxy_->DisableMock());
+    EXPECT_EQ(false, proxy_->SetMocked(timeInterval, locations));
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)

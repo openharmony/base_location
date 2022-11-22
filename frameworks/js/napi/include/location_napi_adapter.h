@@ -36,12 +36,14 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info);
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info);
 napi_value SendCommand(napi_env env, napi_callback_info info);
 napi_value GetIsoCountryCode(napi_env env, napi_callback_info inf);
+#ifdef ENABLE_NAPI_MANAGER
 napi_value EnableLocationMock(napi_env env, napi_callback_info info);
 napi_value DisableLocationMock(napi_env env, napi_callback_info info);
 napi_value SetMockedLocations(napi_env env, napi_callback_info info);
 napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info);
 napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info);
 napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info);
+#endif
 }  // namespace Location
 }  // namespace OHOS
 #endif // LOCATION_NAPI_ADAPTER_H

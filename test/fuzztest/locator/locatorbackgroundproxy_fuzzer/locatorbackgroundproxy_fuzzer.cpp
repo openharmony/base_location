@@ -16,7 +16,6 @@
 #include "locatorbackgroundproxy_fuzzer.h"
 
 #include "i_locator_callback.h"
-#include "location_mock_config.h"
 #include "locator_background_proxy.h"
 #include "locator_callback_proxy.h"
 #include "request.h"
@@ -46,8 +45,6 @@ namespace OHOS {
         requestConfig->SetFixNumber(data[index++]);
         requestConfig->SetTimeOut(data[index++]);
         request->SetRequestConfig(*requestConfig);
-        LocationMockConfig mockInfo;
-        request->SetLocationMockConfig(mockInfo);
         request->SetRequesting(true);
         request->SetTokenId(data[index++]);
         request->SetFirstTokenId(data[index++]);
