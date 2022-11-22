@@ -878,16 +878,19 @@ void DeleteQueueWork(AsyncContext* context)
     uv_loop_s *loop = nullptr;
     if (context->env == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "env is nullptr.");
+        delete context;
         return;
     }
     NAPI_CALL_RETURN_VOID(context->env, napi_get_uv_event_loop(context->env, &loop));
     if (loop == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
+        delete context;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
+        delete context;
         return;
     }
     work->data = context;
