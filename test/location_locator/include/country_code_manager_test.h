@@ -13,30 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef REQUEST_MANAGER_TEST_H
-#define REQUEST_MANAGER_TEST_H
+#ifndef COUNTRY_CODE_MANAGER_TEST_H
+#define COUNTRY_CODE_MANAGER_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "i_locator_callback.h"
-#include "request.h"
-#include "request_manager.h"
-
 namespace OHOS {
 namespace Location {
-class RequestManagerTest : public testing::Test {
+class CountryCodeManagerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    void MockNativePermission();
-    void FillRequestField(std::shared_ptr<Request>& request);
-    void VerifyRequestField(std::shared_ptr<Request>& request);
-
-    std::shared_ptr<RequestManager> requestManager_;
-    std::shared_ptr<Request> request_;
-    sptr<ILocatorCallback> callback_;
-    uint64_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // REQUEST_MANAGER_TEST_H
+#endif // COUNTRY_CODE_MANAGER_TEST_H

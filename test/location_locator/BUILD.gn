@@ -20,6 +20,9 @@ ohos_unittest("LocatorServiceAbilityTest") {
   module_out_path = module_output_path
   sources = [
     "//base/location/test/location_locator/source/callback_test.cpp",
+    "//base/location/test/location_locator/source/country_code_manager_test.cpp",
+    "//base/location/test/location_locator/source/fusion_controller_test.cpp",
+    "//base/location/test/location_locator/source/location_config_manager_test.cpp",
     "//base/location/test/location_locator/source/locator_service_test.cpp",
     "//base/location/test/location_locator/source/report_manager_test.cpp",
     "//base/location/test/location_locator/source/request_manager_test.cpp",
