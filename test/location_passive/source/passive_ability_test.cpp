@@ -24,6 +24,7 @@
 #include "token_setproc.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "location_dumper.h"
 
 using namespace testing::ext;
