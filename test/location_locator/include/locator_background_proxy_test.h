@@ -24,6 +24,8 @@ class LocatorBackgroundProxyTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    void MockNativePermission();
+
     uint64_t tokenId_;
 };
 } // namespace Location

@@ -15,10 +15,15 @@
 
 #include "locator_background_proxy_test.h"
 
+#include "accesstoken_kit.h"
 #include "app_state_data.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "locator_background_proxy.h"
+#include "locator_callback_host.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -57,23 +62,18 @@ HWTEST_F(LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Lev
 {
     auto appStateObserver =
         sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
-    MessageParcel parcel;
-    parcel.WriteString("bundleName");
-    parcel.WriteInt32(SYSTEM_UID); // uid
     int32_t state = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
-    parcel.WriteInt32(state); 
-    parcel.WriteInt32(0); // pid
-    parcel.WriteInt32(0); // accessTokenId
-    parcel.WriteBool(false); // isFocused
     AppExecFwk::AppStateData appStateData;
-    appStateData.ReadFromParcel(parcel);
+    appStateData.uid = 1;
+    appStateData.pid = 0;
+    appStateData.state = state;
     appStateObserver->OnForegroundApplicationChanged(appStateData);
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.Level1)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
-    EXPECT_EQ(nullptr, locatorBackgroundProxy);
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
     request1->SetPid(0);
@@ -82,13 +82,13 @@ HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.
     request1->SetPackageName("LocatorBackgroundProxyTest");
     locatorBackgroundProxy->UpdateListOnRequestChange(nullptr);
 
-    locatorBackgroundProxy->UpdateListOnRequestChange(request);
+    locatorBackgroundProxy->UpdateListOnRequestChange(request1);
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
-    EXPECT_EQ(nullptr, locatorBackgroundProxy);
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
     request1->SetPid(0);
@@ -103,7 +103,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
 HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest001, TestSize.Level1)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
-    EXPECT_EQ(nullptr, locatorBackgroundProxy);
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
     locatorBackgroundProxy->OnSaStateChange(true);
     
     locatorBackgroundProxy->OnSaStateChange(false);
@@ -114,7 +114,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest001, TestSize.Level1)
 HWTEST_F(LocatorBackgroundProxyTest, OnDeleteRequestRecord001, TestSize.Level1)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
-    EXPECT_EQ(nullptr, locatorBackgroundProxy);
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
     request1->SetPid(0);
@@ -127,10 +127,10 @@ HWTEST_F(LocatorBackgroundProxyTest, OnDeleteRequestRecord001, TestSize.Level1)
 HWTEST_F(LocatorBackgroundProxyTest, IsCallbackInProxyTest001, TestSize.Level1)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
-    EXPECT_EQ(nullptr, locatorBackgroundProxy);
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
     sptr<LocatorCallbackHost> locatorCallbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
-    callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    auto callback = sptr<ILocatorCallback>(locatorCallbackHost);
     EXPECT_EQ(false, locatorBackgroundProxy->IsCallbackInProxy(callback));
 
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
@@ -147,23 +147,23 @@ HWTEST_F(LocatorBackgroundProxyTest, IsCallbackInProxyTest001, TestSize.Level1)
     requestConfig1->SetFixNumber(0);
     request1->SetRequestConfig(*requestConfig1);
     locatorBackgroundProxy->OnSuspend(request1, false);
-    EXPECT_EQ(true, locatorBackgroundProxy->IsCallbackInProxy(callback));
+    EXPECT_EQ(false, locatorBackgroundProxy->IsCallbackInProxy(callback));
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, IsAppBackgroundTest001, TestSize.Level1)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
-    EXPECT_EQ(nullptr, locatorBackgroundProxy);
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
     EXPECT_EQ(true, locatorBackgroundProxy->IsAppBackground("LocatorBackgroundProxyTest"));
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.Level1)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
-    EXPECT_EQ(nullptr, locatorBackgroundProxy);
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver()); // unreg first
-    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
-    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver()); // register again
+    EXPECT_EQ(false, locatorBackgroundProxy->RegisterAppStateObserver());
+    EXPECT_EQ(false, locatorBackgroundProxy->RegisterAppStateObserver()); // register again
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
 }
 }  // namespace Location

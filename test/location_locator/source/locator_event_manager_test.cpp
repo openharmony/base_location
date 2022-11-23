@@ -18,6 +18,7 @@
 #include "event_handler.h"
 #include "event_runner.h"
 
+#include "constant_definition.h"
 #include "locator_event_manager.h"
 #include "request.h"
 #include "request_config.h"
@@ -25,7 +26,6 @@
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
-const int COUNT_MAX = 500;
 void LocatorEventManagerTest::SetUp()
 {
 }
@@ -43,12 +43,13 @@ HWTEST_F(LocatorEventManagerTest, DftEventTest001, TestSize.Level1)
     EXPECT_EQ(0, dftEvent->GetInt("name_not_exist"));
 }
 
-HWTEST_F(LocatorEventManagerTest, DftHandlerTest001, TestSize.Level1)
+HWTEST_F(LocatorEventManagerTest, DftHandlerTest002, TestSize.Level1)
 {
     std::shared_ptr<DftHandler> dftHandler =
         std::make_shared<DftHandler>(AppExecFwk::EventRunner::Create(true));
     EXPECT_NE(nullptr, dftHandler);
-    AppExecFwk::InnerEvent::Pointer event;
+    AppExecFwk::InnerEvent::Pointer event =
+        AppExecFwk::InnerEvent::Get(0, dftHandler, 0);
     dftHandler->ProcessEvent(event); // empty func
 }
 
@@ -74,7 +75,6 @@ HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest001, TestSize.Level1)
         DelayedSingleton<LocatorDftManager>::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
     locatorDftManager->LocationSessionStart(nullptr);
-    EXPECT_EQ(nullptr, locatorDftManager->GetTopRequest());
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
     request1->SetPid(0);
@@ -89,9 +89,7 @@ HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest001, TestSize.Level1)
     requestConfig1->SetFixNumber(1);
     request1->SetRequestConfig(*requestConfig1);
     locatorDftManager->LocationSessionStart(request1); // has request config
-    EXPECT_NE(nullptr, locatorDftManager->GetTopRequest());
     locatorDftManager->LocationSessionStart(request1); // the same request
-    EXPECT_NE(nullptr, locatorDftManager->GetTopRequest());
     
     std::shared_ptr<Request> request2 = std::make_shared<Request>();
     request2->SetUid(1000);
@@ -106,7 +104,6 @@ HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest001, TestSize.Level1)
     requestConfig2->SetFixNumber(1);
     request2->SetRequestConfig(*requestConfig2);
     locatorDftManager->LocationSessionStart(request2); // different request config
-    EXPECT_NE(nullptr, locatorDftManager->GetTopRequest());
 }
 
 HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest002, TestSize.Level1)
@@ -128,11 +125,9 @@ HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest002, TestSize.Level1)
     requestConfig1->SetFixNumber(1);
     request1->SetRequestConfig(*requestConfig1);
     locatorDftManager->LocationSessionStart(request1); // has request config
-    EXPECT_NE(nullptr, locatorDftManager->GetTopRequest());
 
     locatorDftManager->LocationSessionStart(request1); // the same request
-    EXPECT_NE(nullptr, locatorDftManager->GetTopRequest());
-    
+  
     std::shared_ptr<Request> request2 = std::make_shared<Request>();
     request2->SetUid(1000);
     request2->SetPid(0);
@@ -147,10 +142,9 @@ HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest002, TestSize.Level1)
     requestConfig2->SetFixNumber(1);
     request2->SetRequestConfig(*requestConfig2);
     locatorDftManager->LocationSessionStart(request2); // different request config
-    EXPECT_NE(nullptr, locatorDftManager->GetTopRequest());
 }
 
-HWTEST_F(LocatorEventManagerTest, LocatorDftManagerDistributionTest002, TestSize.Level1)
+HWTEST_F(LocatorEventManagerTest, LocatorDftManagerDistributionTest001, TestSize.Level1)
 {
     auto locatorDftManager =
         DelayedSingleton<LocatorDftManager>::GetInstance();
