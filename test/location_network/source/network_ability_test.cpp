@@ -21,21 +21,24 @@
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "message_parcel.h"
 #include "nativetoken_kit.h"
 #include "system_ability_definition.h"
 #include "token_setproc.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "location.h"
+#include "location_dumper.h"
 #include "location_log.h"
+#include "location_mock_config.h"
 #include "network_ability_skeleton.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
-
+namespace OHOS {
+namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-
+const std::string ARGS_HELP = "-h";
 void NetworkAbilityTest::SetUp()
 {
     /*
@@ -102,7 +105,6 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
      * @tc.expected: step2. no exception happens.
      */
     proxy_->SendLocationRequest(*workRecord);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -145,7 +147,6 @@ HWTEST_F(NetworkAbilityTest, SelfRequest001, TestSize.Level1)
      * @tc.expected: step1. no exception happens.
      */
     proxy_->SelfRequest(true);
-    EXPECT_EQ(true, true); // always true
 }
 
 /*
@@ -160,5 +161,165 @@ HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
      * @tc.expected: step1. no exception happens.
      */
     proxy_->SelfRequest(false);
-    EXPECT_EQ(true, true); // always true
 }
+
+HWTEST_F(NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1)
+{
+    LocationMockConfig config;
+    std::vector<std::shared_ptr<Location>> locations;
+    EXPECT_EQ(true, proxy_->EnableMock(config));
+    EXPECT_EQ(true, proxy_->SetMocked(config, locations));
+    
+    EXPECT_EQ(true, proxy_->DisableMock(config));
+    EXPECT_EQ(false, proxy_->SetMocked(config, locations));
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)
+{
+    ability_->OnStart(); // start ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    ability_->OnStart(); // start ability again
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+
+    ability_->OnStop(); // stop ability
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
+    ability_->OnStart(); // restart ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkDump001, TestSize.Level1)
+{
+    int32_t fd = 0;
+    std::vector<std::u16string> args;
+    std::u16string arg1 = Str8ToStr16("arg1");
+    args.emplace_back(arg1);
+    std::u16string arg2 = Str8ToStr16("arg2");
+    args.emplace_back(arg2);
+    std::u16string arg3 = Str8ToStr16("arg3");
+    args.emplace_back(arg3);
+    std::u16string arg4 = Str8ToStr16("arg4");
+    args.emplace_back(arg4);
+    ability_->Dump(fd, args);
+
+    std::vector<std::u16string> emptyArgs;
+    ability_->Dump(fd, emptyArgs);
+
+    std::vector<std::u16string> helpArgs;
+    std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
+    helpArgs.emplace_back(helpArg1);
+    ability_->Dump(fd, emptyArgs);
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent001, TestSize.Level1)
+{
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NAVIGATION);
+    mockInfo.SetTimeInterval(2);
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
+    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+
+    EXPECT_EQ(true, proxy_->EnableMock(mockInfo)); // enable mock
+    ability_->SendReportMockLocationEvent(); // report mocked location
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Level1)
+{
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NAVIGATION);
+    mockInfo.SetTimeInterval(2);
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
+    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+
+    EXPECT_EQ(true, proxy_->DisableMock(mockInfo)); // disable mock
+    ability_->SendReportMockLocationEvent(); // do not report mocked location
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent003, TestSize.Level1)
+{
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NAVIGATION);
+    mockInfo.SetTimeInterval(2);
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(false); // isFromMock is false
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
+    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+
+    EXPECT_EQ(true, proxy_->EnableMock(mockInfo)); // enable mock
+    ability_->SendReportMockLocationEvent(); // do not report mocked location
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent004, TestSize.Level1)
+{
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NAVIGATION);
+    mockInfo.SetTimeInterval(2);
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(false); // isFromMock is false
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
+    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+
+    EXPECT_EQ(true, proxy_->DisableMock(mockInfo)); // disable mock
+    ability_->SendReportMockLocationEvent(); // do not report mocked location
+}
+} // namespace Location
+} // namespace OHOS

@@ -17,19 +17,25 @@
 #define GNSS_ABILITY_TEST_H
 
 #include <gtest/gtest.h>
+#include <v1_0/ia_gnss_interface.h>
+#include <v1_0/ignss_interface.h>
 
 #include "gnss_ability.h"
 #include "gnss_ability_proxy.h"
 #include "gnss_status_callback_host.h"
 
+namespace OHOS {
+namespace Location {
 class GnssAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
 
-    OHOS::sptr<OHOS::Location::GnssAbilityProxy> proxy_;
-    OHOS::sptr<OHOS::Location::GnssStatusCallbackHost> callbackStub_;
-    OHOS::sptr<OHOS::Location::GnssAbility> ability_;
+    sptr<GnssAbilityProxy> proxy_;
+    sptr<GnssStatusCallbackHost> callbackStub_;
+    sptr<GnssAbility> ability_;
 };
+} // namespace Location
+} // namespace OHOS
 #endif  // GNSS_ABILITY_TEST_H

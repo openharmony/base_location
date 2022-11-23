@@ -31,6 +31,8 @@ namespace OHOS {
 namespace Location {
 static constexpr int REQUEST_NETWORK_LOCATION = 1;
 static constexpr int REMOVE_NETWORK_LOCATION = 2;
+static constexpr std::string SERVICE_NAME = "com.huawei.hms.hmscore";
+static constexpr std::string ABILITY_NAME = "LocationServiceAbility";
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
     explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);

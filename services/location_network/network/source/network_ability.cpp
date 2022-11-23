@@ -106,7 +106,7 @@ bool NetworkAbility::ConnectHms()
     std::unique_lock<std::mutex> uniqueLock(connectMutex_);
     if (!connectServiceReady_) {
         AAFwk::Want connectionWant;
-        connectionWant.SetElementName("com.huawei.hms.hmscore", "LocationExtAbility");
+        connectionWant.SetElementName(SERVICE_NAME, ABILITY_NAME);
         sptr<AAFwk::IAbilityConnection> cloudConnection = new CloudConnection();
         int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, cloudConnection, -1);
         if (ret != ERR_OK) {
@@ -168,7 +168,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         MessageOption option;
         if (isAdded) {
             sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
-            LBSLOGI(NETWORK, "test1109, uuid:%{public}s, timeInterval:%{public}d", workRecord.GetUUid(0).c_str(), workRecord.GetTimeInterval(0));
+            LBSLOGI(NETWORK, "test1126, uuid:%{public}s, timeInterval:%{public}d", workRecord.GetUUid(0).c_str(), workRecord.GetTimeInterval(0));
             data.WriteString16(Str8ToStr16(workRecord.GetUUid(0)));
             data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
             data.WriteInt32(PRIORITY_TYPE_BALANCED_POWER_ACCURACY);

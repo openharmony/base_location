@@ -14,18 +14,22 @@
  */
 
 #include "countrycodemanager_fuzzer.h"
+#include "country_code_manager.h"
 
 namespace OHOS {
     using namespace OHOS::Location;
 
     bool CountrycodeManagerFuzzTest(const uint8_t* data, size_t size)
     {
+        if (size == 0) {
+            return true;
+        }
         std::shared_ptr<CountryCodeManager> countryCodeManager =
             std::make_shared<CountryCodeManager>();
         countryCodeManager->GetIsoCountryCode();
-        pid_t uid = *reinterpret_cast<const pid_t*>(data);
         countryCodeManager->UnregisterCountryCodeCallback(nullptr);
-        countryCodeManager->RegisterCountryCodeCallback(nullptr, uid);
+        int index = 0;
+        countryCodeManager->RegisterCountryCodeCallback(nullptr, data[index++]);
         countryCodeManager->ReSubscribeEvent();
         countryCodeManager->ReUnsubscribeEvent();
         return true;

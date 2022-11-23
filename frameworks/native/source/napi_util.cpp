@@ -29,6 +29,7 @@ namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
 static constexpr int MAX_CALLBACK_NUM = 3;
+static constexpr int MAX_ARGU_NUM = 10;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -707,11 +708,14 @@ static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext
     }
     size_t startLoop = objectArgsNum;
     size_t endLoop = argc;
+    if (startLoop > MAX_ARGU_NUM || endLoop > MAX_ARGU_NUM) {
+        return false;
+    }
     for (size_t i = startLoop; i < endLoop; ++i) {
         napi_valuetype valuetype;
         NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);
         NAPI_ASSERT_BASE(env, valuetype == napi_function,  "Wrong argument type.", false);
-        size_t index = i - objectArgsNum;
+        size_t index = i - startLoop;
         if (index >= MAX_CALLBACK_NUM) {
             break;
         }
@@ -874,16 +878,19 @@ void DeleteQueueWork(AsyncContext* context)
     uv_loop_s *loop = nullptr;
     if (context->env == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "env is nullptr.");
+        delete context;
         return;
     }
     NAPI_CALL_RETURN_VOID(context->env, napi_get_uv_event_loop(context->env, &loop));
     if (loop == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
+        delete context;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
+        delete context;
         return;
     }
     work->data = context;

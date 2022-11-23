@@ -69,9 +69,9 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         uint32_t firstTokenId = request->GetFirstTokenId();
         std::unique_ptr<Location> finalLocation = GetPermittedLocation(tokenId, firstTokenId, location);
 
-        // if (!ResultCheck(finalLocation, request)) {
-        //     continue;
-        // }
+        if (!ResultCheck(finalLocation, request)) {
+            continue;
+        }
         request->SetLastLocation(finalLocation);
         auto locatorCallback = request->GetLocatorCallBack();
         if (locatorCallback != nullptr) {

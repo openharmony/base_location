@@ -157,6 +157,10 @@ void NmeaMessageCallbackHost::OnMessageChange(const std::string msg)
 void NmeaMessageCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (handlerCb_ == nullptr || env_ == nullptr) {
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "handler or env is nullptr.");
+        return;
+    }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
@@ -164,10 +168,8 @@ void NmeaMessageCallbackHost::DeleteHandler()
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    if (handlerCb_ && env_) {
-        DeleteQueueWork(context);
-        handlerCb_ = nullptr;
-    }
+    DeleteQueueWork(context);
+    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS
