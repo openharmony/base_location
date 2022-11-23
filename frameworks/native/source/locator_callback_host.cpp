@@ -273,6 +273,10 @@ void LocatorCallbackHost::DeleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
     std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (env_ == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
+        return;
+    }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
@@ -281,15 +285,13 @@ void LocatorCallbackHost::DeleteHandler()
     if (!InitContext(context)) {
         LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
-    if (env_) {
-        DeleteQueueWork(context);
-        if (IsSystemGeoLocationApi()) {
-            successHandlerCb_ = nullptr;
-            failHandlerCb_ = nullptr;
-            completeHandlerCb_ = nullptr;
-        } else {
-            handlerCb_ = nullptr;
-        }
+    DeleteQueueWork(context);
+    if (IsSystemGeoLocationApi()) {
+        successHandlerCb_ = nullptr;
+        failHandlerCb_ = nullptr;
+        completeHandlerCb_ = nullptr;
+    } else {
+        handlerCb_ = nullptr;
     }
 }
 

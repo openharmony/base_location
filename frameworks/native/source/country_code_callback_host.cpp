@@ -162,6 +162,10 @@ void CountryCodeCallbackHost::SetCallback(napi_ref cb)
 void CountryCodeCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (handlerCb_ == nullptr || env_ == nullptr) {
+        LBSLOGE(COUNTRY_CODE_CALLBACK, "handler or env is nullptr.");
+        return;
+    }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "context == nullptr.");
@@ -169,10 +173,8 @@ void CountryCodeCallbackHost::DeleteHandler()
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    if (handlerCb_ && env_) {
-        DeleteQueueWork(context);
-        handlerCb_ = nullptr;
-    }
+    DeleteQueueWork(context);
+    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS

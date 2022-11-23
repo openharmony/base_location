@@ -151,6 +151,10 @@ void GnssStatusCallbackHost::OnStatusChange(const std::unique_ptr<SatelliteStatu
 void GnssStatusCallbackHost::DeleteHandler()
 {
     std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (handlerCb_ == nullptr || env_ == nullptr) {
+        LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
+        return;
+    }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
@@ -158,10 +162,8 @@ void GnssStatusCallbackHost::DeleteHandler()
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    if (handlerCb_ && env_) {
-        DeleteQueueWork(context);
-        handlerCb_ = nullptr;
-    }
+    DeleteQueueWork(context);
+    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS
