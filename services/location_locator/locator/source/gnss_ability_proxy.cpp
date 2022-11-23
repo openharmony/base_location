@@ -231,7 +231,6 @@ void GnssAbilityProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return;
     }
-    data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
     data.WriteDouble(request->geofence.longitude);
@@ -255,7 +254,6 @@ void GnssAbilityProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return;
     }
-    data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
     data.WriteDouble(request->geofence.longitude);

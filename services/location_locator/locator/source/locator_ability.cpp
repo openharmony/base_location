@@ -643,7 +643,6 @@ void LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
             return;
         }
-        dataToStub.WriteInt32(request->priority);
         dataToStub.WriteInt32(request->scenario);
         dataToStub.WriteDouble(request->geofence.latitude);
         dataToStub.WriteDouble(request->geofence.longitude);
@@ -667,7 +666,6 @@ void LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
             return;
         }
-        dataToStub.WriteInt32(request->priority);
         dataToStub.WriteInt32(request->scenario);
         dataToStub.WriteDouble(request->geofence.latitude);
         dataToStub.WriteDouble(request->geofence.longitude);

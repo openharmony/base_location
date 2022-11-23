@@ -46,7 +46,7 @@ public:
     void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback);
     void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid);
     void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback);
-    int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback, pid_t uid);
+    int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
     int UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
     void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid);
     void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback);

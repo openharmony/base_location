@@ -85,7 +85,7 @@ private:
     LocatorMsgHandleMap locatorHandleMap_;
     bool CheckLocationPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckSettingsPermission(MessageParcel &reply, AppIdentity &identity);
-    bool CheckAccessLocationPermission(MessageParcel &reply, AppIdentity &identity);
+    bool CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity);
     static void SaDumpInfo(std::string& result);
 };
 

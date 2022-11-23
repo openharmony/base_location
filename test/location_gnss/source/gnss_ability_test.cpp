@@ -36,6 +36,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 using HDI::Location::Agnss::V1_0::IAGnssCallback;
+using HDI::Location::Agnss::V1_0::AGnssRefInfo;
 using HDI::Location::Gnss::V1_0::IGnssCallback;
 using HDI::Location::Gnss::V1_0::LocationInfo;
 const int32_t LOCATION_PERM_NUM = 4;
@@ -437,7 +438,6 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
      * @tc.steps: step1. build geo fence request
      */
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1;
     request->scenario = 2;
     request->geofence.latitude = 35.1;
     request->geofence.longitude = 40.2;
@@ -462,7 +462,6 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
      * @tc.steps: step1. build geo fence request
      */
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1;
     request->scenario = 2;
     request->geofence.latitude = 35.1;
     request->geofence.longitude = 40.2;
@@ -481,9 +480,11 @@ HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, ability_->IsMockEnabled());
     EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
     
     EXPECT_EQ(true, proxy_->DisableMock());
+    EXPECT_EQ(false, ability_->IsMockEnabled());
     EXPECT_EQ(false, proxy_->SetMocked(timeInterval, locations));
 }
 
@@ -491,8 +492,13 @@ HWTEST_F(GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1)
 {
     ability_->OnStart(); // start ability
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    ability_->OnStart(); // start ability again
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+
     ability_->OnStop(); // stop ability
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
+    ability_->OnStart(); // restart ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
 }
 
 HWTEST_F(GnssAbilityTest, GnssDump001, TestSize.Level1)
@@ -518,20 +524,132 @@ HWTEST_F(GnssAbilityTest, GnssDump001, TestSize.Level1)
     ability_->Dump(fd, emptyArgs);
 }
 
-HWTEST_F(GnssAbilityTest, AGnssEventCallbackTest001, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
 {
-    sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
-    EXPECT_EQ(ERR_OK, agnssCallback->RequestAgnssRefInfo());
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    int timeInterval = 2;
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
+
+    EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
+    ability_->SendReportMockLocationEvent(); // report mocked location
 }
 
-HWTEST_F(GnssAbilityTest, GnssEventCallbackTest001, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1)
 {
-    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
-    std::string nmea = "nmea";
-    EXPECT_EQ(ERR_OK, gnssCallback->ReportNmea(1000000000, nmea, 1));
-    EXPECT_EQ(ERR_OK, gnssCallback->RequestPredictGnssData());
-    std::vector<LocationInfo> gnssLocations;
-    EXPECT_EQ(ERR_OK, gnssCallback->ReportCachedLocation(gnssLocations));
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    int timeInterval = 2;
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
+
+    EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
+    ability_->SendReportMockLocationEvent(); // do not report mocked location
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
+{
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    int timeInterval = 2;
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(false); // isFromMock is false
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
+
+    EXPECT_EQ(true, proxy_->EnableMock()); // enable mock
+    ability_->SendReportMockLocationEvent(); // do not report mocked location
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent004, TestSize.Level1)
+{
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    int timeInterval = 2;
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(false); // isFromMock is false
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
+
+    EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
+    ability_->SendReportMockLocationEvent(); // do not report mocked location
+}
+
+HWTEST_F(GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1)
+{
+    std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
+    ability_->AddFence(fence);
+    ability_->RemoveFence(fence);
+}
+
+HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
+{
+    std::unique_ptr<SatelliteStatus> status = std::make_unique<SatelliteStatus>();
+    MessageParcel parcel;
+    int sateNum = 2;
+    parcel.WriteInt64(2); // satellitesNumber
+    for (int i = 0; i < sateNum; i++) {
+        parcel.WriteInt64(i); // satelliteId
+        parcel.WriteDouble(i + 1.0); // carrierToNoiseDensity
+        parcel.WriteDouble(i + 2.0); // altitude
+        parcel.WriteDouble(i + 3.0); // azimuth
+        parcel.WriteDouble(i + 4.0); // carrierFrequency
+    }
+    status->ReadFromParcel(parcel);
+    ability_->ReportSv(status);
 }
 }  // namespace Location
 }  // namespace OHOS

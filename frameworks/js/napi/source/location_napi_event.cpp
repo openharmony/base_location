@@ -125,7 +125,7 @@ int SubscribeNmeaMessageV9(const napi_env& env, const napi_ref& handlerRef,
     }
     nmeaMessageCallbackHost->SetEnv(env);
     nmeaMessageCallbackHost->SetHandleCb(handlerRef);
-    int ret = g_locatorProxy->RegisterNmeaMessageCallbackV9(nmeaMessageCallbackHost->AsObject(), DEFAULT_UID);
+    int ret = g_locatorProxy->RegisterNmeaMessageCallbackV9(nmeaMessageCallbackHost->AsObject());
     if (ret != 0) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -454,6 +454,10 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
+    if (!g_locatorProxy->IsLocationEnabled()) {
+        HandleSyncErrCode(env, ERRCODE_SWITCH_OFF);
+        return false;
+    }
 #else
     NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
@@ -530,6 +534,10 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
     if (valueType != napi_function) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    if (!g_locatorProxy->IsLocationEnabled()) {
+        HandleSyncErrCode(env, ERRCODE_SWITCH_OFF);
         return false;
     }
 #else
@@ -922,7 +930,11 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
             auto singleMemberFunc = offCallbackFunc->second;
             (*singleMemberFunc)(env, argv[PARAM1]);
         }
-    } else if (argc == PARAM3) {
+#ifdef ENABLE_NAPI_MANAGER
+    } else if (argc == PARAM3 && event == "gnssFenceStatusChange") {
+#else
+    } else if (argc == PARAM3 && event == "fenceStatusChange") {
+#endif
         UnSubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
     }
     return UndefinedNapiValue(env);

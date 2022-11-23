@@ -160,28 +160,22 @@ void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& call
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
 }
 
-int LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid)
+int LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
+    int result = 0;
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote WriteInterfaceToken failed");
+        LBSLOGE(LOCATOR_STANDARD, "WriteInterfaceToken failed");
         return REPLY_CODE_EXCEPTION;
     }
     if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
         return REPLY_CODE_EXCEPTION;
     }
     data.WriteObject<IRemoteObject>(callback);
-    MessageParcel reply;
-    MessageOption option;
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote remote is null");
-        return REPLY_CODE_EXCEPTION;
-    }
-    int result = 0;
-    int ret = remote->SendRequest(REG_NMEA_CALLBACK_v9, data, reply, option);
-    if (ret == NO_ERROR) {
+    int error SendMsgWithDataReply(REG_NMEA_CALLBACK_v9, data, reply);
+    if (error == NO_ERROR) {
         result = reply.ReadInt32();
     }
     return result;
@@ -189,26 +183,20 @@ int LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callb
 
 int LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
+    int result = 0;
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote WriteInterfaceToken failed");
+        LBSLOGE(LOCATOR_STANDARD, "WriteInterfaceToken failed");
         return REPLY_CODE_EXCEPTION;
     }
     if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
         return REPLY_CODE_EXCEPTION;
     }
     data.WriteObject<IRemoteObject>(callback);
-    MessageParcel reply;
-    MessageOption option;
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote remote is null");
-        return REPLY_CODE_EXCEPTION;
-    }
-    int result = 0;
-    int ret = remote->SendRequest(UNREG_NMEA_CALLBACK_v9, data, reply, option);
-    if (ret == NO_ERROR) {
+    int error SendMsgWithDataReply(UNREG_NMEA_CALLBACK_v9, data, reply);
+    if (error == NO_ERROR) {
         result = reply.ReadInt32();
     }
     return result;
@@ -382,7 +370,6 @@ void LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
     data.WriteDouble(request->geofence.longitude);
@@ -399,7 +386,6 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
     data.WriteDouble(request->geofence.longitude);

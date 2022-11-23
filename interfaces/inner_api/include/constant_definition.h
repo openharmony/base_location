@@ -74,7 +74,7 @@ enum {
     COUNTRY_CODE_FROM_NETWORK,
 };
 
-enum LocationNapiErrCode {
+enum LocationErrCode {
     ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
     ERRCODE_INVALID_PARAM = 401,              /* invalid params */
     ERRCODE_NOT_SUPPORTED = 801,              /* capability not supported */
@@ -106,7 +106,6 @@ typedef struct {
 } GeoFence;
 
 typedef struct {
-    int priority;
     int scenario;
     GeoFence geofence;
 } GeofenceRequest;

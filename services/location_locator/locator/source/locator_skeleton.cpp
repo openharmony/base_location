@@ -180,20 +180,12 @@ int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessagePar
 
 int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (DelayedSingleton<LocatorAbility>::GetInstance().get()->GetSwitchState() == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
-    }
     int ret = DelayedSingleton<LocatorAbility>::GetInstance().get()->GetAddressByCoordinate(data, reply);
     return ret;
 }
 
 int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (DelayedSingleton<LocatorAbility>::GetInstance().get()->GetSwitchState() == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
-    }
     int ret = DelayedSingleton<LocatorAbility>::GetInstance().get()->GetAddressByLocationName(data, reply);
     return ret;
 }
@@ -251,7 +243,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
 int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckAccessLocationPermission(reply, identity)) {
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
         return REPLY_CODE_SECURITY_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
@@ -262,7 +254,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
 int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckAccessLocationPermission(reply, identity)) {
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
         return REPLY_CODE_SECURITY_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
@@ -285,12 +277,12 @@ int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, Messa
 int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
-    }
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
+        return REPLY_CODE_SECURITY_EXCEPTION;
+    }
+    if (!CheckSettingsPermission(reply, identity)) {
         return REPLY_CODE_SECURITY_EXCEPTION;
     }
     int ret = DelayedSingleton<LocatorAbility>::GetInstance().get()->SetLocationPrivacyConfirmStatus(data.ReadInt32(),
@@ -388,7 +380,6 @@ int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, A
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
     }
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = data.ReadInt32();
     request->scenario = data.ReadInt32();
     request->geofence.latitude = data.ReadDouble();
     request->geofence.longitude = data.ReadDouble();
@@ -408,7 +399,6 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
     }
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = data.ReadInt32();
     request->scenario = data.ReadInt32();
     request->geofence.latitude = data.ReadDouble();
     request->geofence.longitude = data.ReadDouble();
@@ -585,13 +575,13 @@ bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdenti
     }
 }
 
-bool LocatorAbilityStub::CheckAccessLocationPermission(MessageParcel &reply, AppIdentity &identity)
+bool LocatorAbilityStub::CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity)
 {
     uint32_t callingTokenId = identity.GetTokenId();
     uint32_t callingFirstTokenid = identity.GetFirstTokenId();
     if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid) ||
         !CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        LBSLOGE(LOCATOR, "CheckAccessLocationPermission return false.");
+        LBSLOGE(LOCATOR, "CheckPreciseLocationPermissions return false.");
         reply.WriteInt32(REPLY_CODE_SECURITY_EXCEPTION);
         reply.WriteString("should grant location permission");
         return false;

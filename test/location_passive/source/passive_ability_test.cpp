@@ -24,6 +24,7 @@
 #include "token_setproc.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "location_dumper.h"
 
 using namespace testing::ext;
@@ -143,8 +144,13 @@ HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop001, TestSize.Level1)
 {
     ability_->OnStart(); // start ability
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    ability_->OnStart(); // start ability again
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+
     ability_->OnStop(); // stop ability
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
+    ability_->OnStart(); // restart ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
 }
 
 HWTEST_F(PassiveAbilityTest, PassiveDump001, TestSize.Level1)
@@ -168,6 +174,31 @@ HWTEST_F(PassiveAbilityTest, PassiveDump001, TestSize.Level1)
     std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
     helpArgs.emplace_back(helpArg1);
     ability_->Dump(fd, emptyArgs);
+}
+
+HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent001, TestSize.Level1)
+{
+    ability_->SendReportMockLocationEvent(); // clear location mock
+
+    int timeInterval = 2;
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteFloat(1.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
+
+    ability_->SendReportMockLocationEvent(); // report mocked location
 }
 } // namespace Location
 } // namespace OHOS

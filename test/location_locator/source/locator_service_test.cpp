@@ -52,6 +52,8 @@ namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
+const int REQUEST_MAX_NUM = 3;
+const int UNKNOWN_SERVICE_ID = -1;
 void LocatorServiceTest::SetUp()
 {
     /*
@@ -909,7 +911,6 @@ HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
      * @tc.steps: step1. build geo fence request
      */
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1; // priority
     request->scenario = 2; // scenario
     request->geofence.latitude = 35.1; // latitude
     request->geofence.longitude = 40.2; // longitude
@@ -934,7 +935,6 @@ HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
      * @tc.steps: step1. build geo fence request
      */
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1; // priority
     request->scenario = 2; // scenario
     request->geofence.latitude = 35.1; // latitude
     request->geofence.longitude = 40.2; // longitude
@@ -1252,7 +1252,6 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->SendCommand(command));
 
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->priority = 1;
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;
     geofence.latitude = 1.0;
@@ -1401,6 +1400,206 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     request->wakeUpCacheQueueFull = true;
     locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceStartAndStop001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->OnStart();
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, locatorAbility->QueryServiceState());
+    locatorAbility->OnStart(); // after state running
+
+    locatorAbility->OnStop();
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, locatorAbility->QueryServiceState());
+    locatorAbility->OnStart(); // after stop
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, locatorAbility->QueryServiceState());
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceStartAndStopSA001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->OnAddSystemAbility(UNKNOWN_SERVICE_ID, "device-id");
+
+    locatorAbility->RegisterAction();
+    locatorAbility->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID, "device-id");
+
+    locatorAbility->OnRemoveSystemAbility(UNKNOWN_SERVICE_ID, "device-id");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceInitSaAbility001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->InitSaAbility();
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceInitRequestManager001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->InitRequestManagerMap();
+    EXPECT_EQ(REQUEST_MAX_NUM, locatorAbility->GetRequests()->size());
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceUpdateSaAbility001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->UpdateSaAbility();
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->EnableAbility(true);
+    EXPECT_EQ(ENABLED, locatorAbility->GetSwitchState());
+    locatorAbility->EnableAbility(false);
+    EXPECT_EQ(DISABLED, locatorAbility->GetSwitchState());
+
+    locatorAbility->EnableAbility(true);
+    EXPECT_EQ(ENABLED, locatorAbility->GetSwitchState());
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    auto switchCallbackHost =
+        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+    locatorAbility->RegisterSwitchCallback(nullptr, SYSTEM_UID); // invalid callback
+    locatorAbility->RegisterSwitchCallback(switchCallbackHost, SYSTEM_UID);
+    locatorAbility->UnregisterSwitchCallback(nullptr);
+    locatorAbility->UnregisterSwitchCallback(switchCallbackHost);
+
+    auto gnssCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    locatorAbility->RegisterGnssStatusCallback(nullptr, SYSTEM_UID); // invalid callback
+    locatorAbility->RegisterGnssStatusCallback(gnssCallbackHost, SYSTEM_UID);
+    locatorAbility->UnregisterGnssStatusCallback(nullptr); // invalid callback
+    locatorAbility->UnregisterGnssStatusCallback(gnssCallbackHost);
+
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    locatorAbility->RegisterNmeaMessageCallback(nullptr, SYSTEM_UID); // invalid callback
+    locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, SYSTEM_UID);
+    locatorAbility->UnregisterNmeaMessageCallback(nullptr); // invalid callback
+    locatorAbility->UnregisterNmeaMessageCallback(nmeaCallbackHost);
+
+    auto countryCodeCallbackHost =
+        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    locatorAbility->RegisterCountryCodeCallback(nullptr, SYSTEM_UID); // invalid callback
+    locatorAbility->RegisterCountryCodeCallback(countryCodeCallbackHost, SYSTEM_UID);
+    locatorAbility->UnregisterCountryCodeCallback(nullptr); // invalid callback
+    locatorAbility->UnregisterCountryCodeCallback(countryCodeCallbackHost);
+
+    auto cachedLocationsCallbackHost =
+        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
+    auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
+    locatorAbility->RegisterCachedLocationCallback(cachedRequest, cachedCallback, "unit.test");
+    locatorAbility->UnregisterCachedLocationCallback(cachedCallback);
+}
+
+HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+        locatorAbility->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, true));
+    EXPECT_EQ(true, locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP));
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
+    command->scenario = SCENE_NAVIGATION;
+    command->command = "cmd";
+    locatorAbility->SendCommand(command);
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    fenceRequest->scenario = SCENE_NAVIGATION;
+    GeoFence geofence;
+    geofence.latitude = 1.0;
+    geofence.longitude = 2.0;
+    geofence.radius = 3.0;
+    geofence.expiration = 4.0;
+    fenceRequest->geofence = geofence;
+    locatorAbility->AddFence(fenceRequest);
+    locatorAbility->RemoveFence(fenceRequest);
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceIsoCountryCode001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    EXPECT_EQ(nullptr, locatorAbility->GetIsoCountryCode());
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceLocationMock001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    int timeInterval = 2;
+    EXPECT_EQ(true, locatorAbility->EnableLocationMock());
+    std::vector<std::shared_ptr<Location>> locations;
+    EXPECT_EQ(true, locatorAbility->SetMockedLocations(timeInterval, locations));
+
+    EXPECT_EQ(true, locatorAbility->DisableLocationMock());
+    EXPECT_EQ(true, locatorAbility->SetMockedLocations(timeInterval, locations));
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceReportLocationStatus001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    if (locatorAbility->GetSwitchState() == ENABLED) {
+        EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorAbility->ReportLocationStatus(callbackStub_, 0));
+    } else {
+        EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorAbility->ReportLocationStatus(callbackStub_, 0));
+    }
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceReportErrorStatus001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    if (locatorAbility->GetSwitchState() == ENABLED) {
+        EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorAbility->ReportErrorStatus(callbackStub_, 0));
+    } else {
+        EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorAbility->ReportErrorStatus(callbackStub_, 0));
+    }
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceGetReceivers001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    EXPECT_EQ(0, locatorAbility->GetReceivers()->size());
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceProxyUidForFreeze001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->ProxyUidForFreeze(SYSTEM_UID, true);
+    EXPECT_EQ(true, locatorAbility->IsProxyUid(SYSTEM_UID));
+    locatorAbility->ProxyUidForFreeze(SYSTEM_UID, false);
+    EXPECT_EQ(false, locatorAbility->IsProxyUid(SYSTEM_UID));
+
+    locatorAbility->ProxyUidForFreeze(SYSTEM_UID, true);
+    EXPECT_EQ(true, locatorAbility->IsProxyUid(SYSTEM_UID));
+    locatorAbility->ResetAllProxy();
+    EXPECT_EQ(false, locatorAbility->IsProxyUid(SYSTEM_UID));
 }
 }  // namespace Location
 }  // namespace OHOS

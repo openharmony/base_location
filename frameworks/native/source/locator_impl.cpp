@@ -127,9 +127,9 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     return true;
 }
 
-int LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid)
+int LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    return client_->RegisterNmeaMessageCallbackV9(callback, DEFAULT_UID);
+    return client_->RegisterNmeaMessageCallbackV9(callback);
 }
 
 int LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)

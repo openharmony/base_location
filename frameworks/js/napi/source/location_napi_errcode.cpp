@@ -16,34 +16,10 @@
 #include "location_napi_errcode.h"
 #include <map>
 #include "common_utils.h"
+#include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
-
-static std::map<int32_t, std::string> g_napiErrMsgMap {
-    {SUCCESS, "SUCCESS"},
-    {NOT_SUPPORTED, "NOT_SUPPORTED"},
-    {INPUT_PARAMS_ERROR, "INPUT_PARAMS_ERROR"},
-    {REVERSE_GEOCODE_ERROR, "REVERSE_GEOCODE_ERROR"},
-    {GEOCODE_ERROR, "GEOCODE_ERROR"},
-    {LOCATOR_ERROR, "LOCATOR_ERROR"},
-    {LOCATION_SWITCH_ERROR, "LOCATION_SWITCH_ERROR"},
-    {LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR"},
-    {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"},
-    {QUERY_COUNTRY_CODE_ERROR, "QUERY_COUNTRY_CODE_ERROR"},
-    { LocationNapiErrCode::ERRCODE_PERMISSION_DENIED, "Permission denied." },
-    { LocationNapiErrCode::ERRCODE_INVALID_PARAM, "Parameter error." },
-    { LocationNapiErrCode::ERRCODE_NOT_SUPPORTED, "Capability not supported." },
-    { LocationNapiErrCode::ERRCODE_SERVICE_UNAVAILABLE, "Location service is unavailable." },
-    { LocationNapiErrCode::ERRCODE_SWITCH_OFF, "The location switch is off." },
-    { LocationNapiErrCode::ERRCODE_LOCATING_FAIL, "Failed to obtain the geographical location." },
-    { LocationNapiErrCode::ERRCODE_REVERSE_GEOCODING_FAIL, "Reverse geocoding query failed." },
-    { LocationNapiErrCode::ERRCODE_GEOCODING_FAIL, "Geocoding query failed." },
-    { LocationNapiErrCode::ERRCODE_COUNTRYCODE_FAIL, "Failed to query the area information." },
-    { LocationNapiErrCode::ERRCODE_GEOFENCE_FAIL, "Failed to operate the geofence." },
-    { LocationNapiErrCode::ERRCODE_NO_RESPONSE, "No response to the request." },
-};
-
 napi_value GetErrorValue(napi_env env, const int32_t errCode, const std::string errMsg)
 {
     napi_value businessError = nullptr;
@@ -57,21 +33,10 @@ napi_value GetErrorValue(napi_env env, const int32_t errCode, const std::string 
     return businessError;
 }
 
-std::string GetNapiErrMsg(const napi_env &env, const int32_t errCode)
-{
-    auto iter = g_napiErrMsgMap.find(errCode);
-    if (iter != g_napiErrMsgMap.end()) {
-        std::string errMessage = "BussinessError ";
-        errMessage.append(std::to_string(errCode)).append(": ").append(iter->second);
-        return errMessage;
-    }
-    return "undefined error.";
-}
-
 void HandleSyncErrCode(const napi_env &env, int32_t errCode)
 {
     LBSLOGI(LOCATOR_STANDARD, "HandleSyncErrCode, errCode = %{public}d", errCode);
-    std::string errMsg = GetNapiErrMsg(env, errCode);
+    std::string errMsg = GetErrorMsgByCode(errCode);
     if (errMsg != "") {
         napi_throw_error(env, std::to_string(errCode).c_str(), errMsg.c_str());
     }

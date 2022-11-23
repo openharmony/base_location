@@ -49,7 +49,7 @@ public:
     bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
     bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) override;
     int UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) override;
     bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;

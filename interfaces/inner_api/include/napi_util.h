@@ -72,6 +72,7 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
 bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
 std::string GetErrorMsgByCode(int code);
+void CreateFailCallBackParams(AsyncContext& context, const std::string msg, int32_t errorCode);
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
 void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContext, const napi_value& object);
 void DeleteQueueWork(AsyncContext* context);

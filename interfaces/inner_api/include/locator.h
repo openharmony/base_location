@@ -75,7 +75,7 @@ public:
 
     virtual bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
 
-    virtual int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) = 0;
 
     virtual int UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) = 0;
 

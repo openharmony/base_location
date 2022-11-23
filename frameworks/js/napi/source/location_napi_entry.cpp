@@ -92,13 +92,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getCachedGnssLocationsSize", GetCachedGnssLocationsSize),
         DECLARE_NAPI_FUNCTION("flushCachedGnssLocations", FlushCachedGnssLocations),
         DECLARE_NAPI_FUNCTION("sendCommand", SendCommand),
-        
-        DECLARE_NAPI_FUNCTION("subscribe", Subscribe),
-        DECLARE_NAPI_FUNCTION("unsubscribe", Unsubscribe),
-        DECLARE_NAPI_FUNCTION("getLocation", GetLocation),
-        DECLARE_NAPI_FUNCTION("getLocationType", GetLocationType),
         DECLARE_NAPI_FUNCTION("getCountryCode", GetIsoCountryCode),
-        DECLARE_NAPI_FUNCTION("getSupportedCoordTypes", GetSupportedCoordTypes),
         DECLARE_NAPI_FUNCTION("enableLocationMock", EnableLocationMock),
         DECLARE_NAPI_FUNCTION("disableLocationMock", DisableLocationMock),
         DECLARE_NAPI_FUNCTION("setMockedLocations", SetMockedLocations),

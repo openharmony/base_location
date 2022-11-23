@@ -173,8 +173,8 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
                 NAPI_CALL_RETURN_VOID(context->env,
                     napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler));
-                std::string errMsg = GetErrorMsgByCode(context->errCode);
-                context->result[PARAM0] = GetErrorObject(context->env, context->errCode, errMsg);
+                std::string msg = GetErrorMsgByCode(context->errCode);
+                CreateFailCallBackParams(*context, msg, context->errCode);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
                     context->result, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report system error failed");
@@ -273,6 +273,10 @@ void LocatorCallbackHost::DeleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
     std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (env_ == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
+        return;
+    }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
@@ -281,15 +285,13 @@ void LocatorCallbackHost::DeleteHandler()
     if (!InitContext(context)) {
         LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
     }
-    if (env_) {
-        DeleteQueueWork(context);
-        if (IsSystemGeoLocationApi()) {
-            successHandlerCb_ = nullptr;
-            failHandlerCb_ = nullptr;
-            completeHandlerCb_ = nullptr;
-        } else {
-            handlerCb_ = nullptr;
-        }
+    DeleteQueueWork(context);
+    if (IsSystemGeoLocationApi()) {
+        successHandlerCb_ = nullptr;
+        failHandlerCb_ = nullptr;
+        completeHandlerCb_ = nullptr;
+    } else {
+        handlerCb_ = nullptr;
     }
 }
 
