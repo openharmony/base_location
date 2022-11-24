@@ -183,13 +183,16 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             LocationMockConfig mockConfig;
             mockConfig.SetTimeInterval(timeInterval);
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
-            if (vcLoc != nullptr) {
-                std::vector<std::shared_ptr<Location>> mockLocations;
-                for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
-                    mockLocations.push_back(*it);
-                }
-                DelayedSingleton<PassiveAbility>::GetInstance()->SetMocked(
-                    mockConfig, mockLocations);
+            if (vcLoc == nullptr) {
+                break;
+            }
+            std::vector<std::shared_ptr<Location>> mockLocations;
+            for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
+                mockLocations.push_back(*it);
+            }
+            auto passiveAbility = DelayedSingleton<PassiveAbility>::GetInstance();
+            if (passiveAbility != nullptr) {
+                passiveAbility->SetMocked(mockConfig, mockLocations);
             }
             break;
         }

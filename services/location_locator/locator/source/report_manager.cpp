@@ -41,7 +41,12 @@ ReportManager::~ReportManager() {}
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     LBSLOGI(REPORT_MANAGER, "receive location : %{public}s", abilityName.c_str());
-    DelayedSingleton<FusionController>::GetInstance()->FuseResult(abilityName, location);
+    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    if (fusionController == nullptr) {
+        LBSLOGE(LOCATOR, "OnReportLocation: FusionController is nullptr.");
+        return false;
+    }
+    fusionController->FuseResult(abilityName, location);
     SetLastLocation(location);
     LBSLOGI(REPORT_MANAGER, "after SetLastLocation");
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -84,13 +89,17 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
             continue;
         }
     }
-
     for (auto iter = deadRequests->begin(); iter != deadRequests->end(); ++iter) {
         auto request = *iter;
         if (request == nullptr) {
             continue;
         }
-        DelayedSingleton<RequestManager>::GetInstance()->UpdateRequestRecord(request, false);
+        auto requestManger = DelayedSingleton<RequestManager>::GetInstance();
+        if (requestManger == nullptr) {
+            LBSLOGE(LOCATOR, "OnReportLocation: RequestManager is nullptr.");
+            break;
+        }
+        requestManger->UpdateRequestRecord(request, false);
     }
     locatorAbility->ApplyRequests();
     deadRequests->clear();

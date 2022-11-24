@@ -152,8 +152,11 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
         LBSLOGE(NETWORK, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, NETWORK_ABILITY);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if(locatorAbility != nullptr) {
+        locatorAbility.get()->ReportLocation(locationNew, NETWORK_ABILITY);
+        locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    }
     return ERR_OK;
 }
 

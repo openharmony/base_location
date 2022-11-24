@@ -586,8 +586,13 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(GNSS, "ReportMockedLocation: locator ability is nullptr");
+        return ERR_OK;
+    }
+    locatorAbility.get()->ReportLocation(locationNew, GNSS_ABILITY);
+    locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
     return ERR_OK;
 }
 
@@ -633,19 +638,23 @@ GnssHandler::~GnssHandler() {}
 
 void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocationMock();
+            gnssAbility->ProcessReportLocationMock();
             break;
         }
         case ISubAbility::SEND_LOCATION_REQUEST: {
             int64_t interval = event->GetParam();
             std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
             if (workrecord != nullptr) {
-                DelayedSingleton<GnssAbility>::GetInstance()->
-                    LocationRequest((uint64_t)interval, *workrecord);
+                gnssAbility->LocationRequest((uint64_t)interval, *workrecord);
             }
             break;
         }
@@ -659,8 +668,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
                 for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
                     mockLocations.push_back(*it);
                 }
-                DelayedSingleton<GnssAbility>::GetInstance()->SetMocked(
-                    mockConfig, mockLocations);
+                gnssAbility->SetMocked(mockConfig, mockLocations);
             }
             break;
         }

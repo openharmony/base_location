@@ -26,6 +26,8 @@ namespace OHOS {
 namespace Location {
 void FusionControllerTest::SetUp()
 {
+    fusionController_ = DelayedSingleton<FusionController>::GetInstance();
+    EXPECT_NE(nullptr, fusionController_);
 }
 
 void FusionControllerTest::TearDown()
@@ -34,72 +36,72 @@ void FusionControllerTest::TearDown()
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies001, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(GNSS_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(SCENE_NAVIGATION);
+    fusionController_->Process(GNSS_ABILITY);
+    fusionController_->ActiveFusionStrategies(SCENE_NAVIGATION);
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies002, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(GNSS_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(SCENE_TRAJECTORY_TRACKING);
+    fusionController_->Process(GNSS_ABILITY);
+    fusionController_->ActiveFusionStrategies(SCENE_TRAJECTORY_TRACKING);
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies003, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(GNSS_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(PRIORITY_FAST_FIRST_FIX);
+    fusionController_->Process(GNSS_ABILITY);
+    fusionController_->ActiveFusionStrategies(PRIORITY_FAST_FIRST_FIX);
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies004, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(GNSS_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(0);
+    fusionController_->Process(GNSS_ABILITY);
+    fusionController_->ActiveFusionStrategies(0);
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies005, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(PASSIVE_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(SCENE_NAVIGATION);
+    fusionController_->Process(PASSIVE_ABILITY);
+    fusionController_->ActiveFusionStrategies(SCENE_NAVIGATION);
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies006, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(PASSIVE_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(SCENE_TRAJECTORY_TRACKING);
+    fusionController_->Process(PASSIVE_ABILITY);
+    fusionController_->ActiveFusionStrategies(SCENE_TRAJECTORY_TRACKING);
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies007, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(PASSIVE_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(PRIORITY_FAST_FIRST_FIX);
+    fusionController_->Process(PASSIVE_ABILITY);
+    fusionController_->ActiveFusionStrategies(PRIORITY_FAST_FIRST_FIX);
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies008, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(PASSIVE_ABILITY);
-    DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(0);
+    fusionController_->Process(PASSIVE_ABILITY);
+    fusionController_->ActiveFusionStrategies(0);
 }
 
 HWTEST_F(FusionControllerTest, Process001, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(GNSS_ABILITY);
+    fusionController_->Process(GNSS_ABILITY);
 }
 
 HWTEST_F(FusionControllerTest, Process002, TestSize.Level1)
 {
-    DelayedSingleton<FusionController>::GetInstance()->Process(PASSIVE_ABILITY);
+    fusionController_->Process(PASSIVE_ABILITY);
 }
 
 HWTEST_F(FusionControllerTest, FuseResult001, TestSize.Level1)
 {
     auto location = std::make_unique<Location>();
-    DelayedSingleton<FusionController>::GetInstance()->FuseResult(GNSS_ABILITY, location);
+    fusionController_->FuseResult(GNSS_ABILITY, location);
 }
 
 HWTEST_F(FusionControllerTest, FuseResult002, TestSize.Level1)
 {
     auto location = std::make_unique<Location>();
-    DelayedSingleton<FusionController>::GetInstance()->FuseResult(NETWORK_ABILITY, location);
+    fusionController_->FuseResult(NETWORK_ABILITY, location);
 }
 } // namespace Location
 } // namespace OHOS
