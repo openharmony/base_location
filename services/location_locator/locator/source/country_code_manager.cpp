@@ -176,6 +176,13 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
 
 void CountryCodeManager::StartPassiveLocationListen()
 {
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (requestManager == nullptr || locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK,
+            "StartPassiveLocationListen: RequestManager is nullptr or LocatorAbility is nullptr.");
+        return;
+    }
     auto requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetScenario(SCENE_NO_POWER);
     requestConfig->SetTimeInterval(DEFAULT_TIME_INTERVAL);
@@ -193,8 +200,8 @@ void CountryCodeManager::StartPassiveLocationListen()
     request->SetRequestConfig(*requestConfig);
     request->SetLocatorCallBack(callback_);
     LBSLOGE(COUNTRY_CODE, "StartPassiveLocationListen");
-    DelayedSingleton<RequestManager>::GetInstance().get()->HandleStartLocating(request);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocationStatus(callback_, SESSION_START);
+    requestManager.get()->HandleStartLocating(request);
+    locatorAbility.get()->ReportLocationStatus(callback_, SESSION_START);
 }
 
 std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()

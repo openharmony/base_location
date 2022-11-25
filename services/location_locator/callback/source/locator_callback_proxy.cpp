@@ -41,7 +41,12 @@ void LocatorCallbackProxy::OnLocationReport(const std::unique_ptr<Location>& loc
     }
     location->Marshalling(data);
     MessageOption option;
-    if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsCallbackInProxy(this)) {
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    if (locatorBackgroundProxy == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "OnLocationReport: locator background proxy is nullptr.");
+        return;
+    }
+    if (locatorBackgroundProxy.get()->IsCallbackInProxy(this)) {
         // if callback is from locatorBackgroundProxy, should send sync message to wake up app
         option = { MessageOption::TF_SYNC };
         LBSLOGD(LOCATOR_CALLBACK, "OnLocationReport Transact TF_SYNC");

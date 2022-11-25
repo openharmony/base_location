@@ -34,6 +34,7 @@ class PassiveAbilityStub : public IRemoteStub<IPassiveAbility> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
 };
 } // namespace Location
 } // namespace OHOS
