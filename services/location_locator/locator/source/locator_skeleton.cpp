@@ -548,6 +548,9 @@ int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel 
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetIsoCountryCode: LocatorAbility is nullptr.");
+        reply.WriteString("");
+        reply.WriteInt32(QUERY_COUNTRY_CODE_ERROR);
+        reply.WriteInt32(QUERY_COUNTRY_CODE_ERROR);
         return REPLY_CODE_EXCEPTION;
     }
     auto country = locatorAbility.get()->GetIsoCountryCode();
@@ -572,7 +575,7 @@ int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreGetIsoCountryCode: LocatorAbility is nullptr.");
+        LBSLOGE(LOCATOR, "PreEnableLocationMock: LocatorAbility is nullptr.");
         return REPLY_CODE_EXCEPTION;
     }
     std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
