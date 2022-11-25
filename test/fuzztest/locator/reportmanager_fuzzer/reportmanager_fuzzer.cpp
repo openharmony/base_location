@@ -32,6 +32,9 @@ namespace OHOS {
         }
         std::shared_ptr<ReportManager> reportManager =
             DelayedSingleton<ReportManager>::GetInstance();
+        if (reportManager == nullptr) {
+            return false;
+        }
         std::unique_ptr<OHOS::Location::Location> location =
             std::make_unique<OHOS::Location::Location>();
         auto locatorCallbackHostForTest =

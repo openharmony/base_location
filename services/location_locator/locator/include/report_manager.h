@@ -43,6 +43,8 @@ private:
     double offsetRandom_;
     Location lastLocation_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
+    bool ProcessRequestForReport(std::shared_ptr<Request>& request,
+        std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location);
 };
 } // namespace OHOS
 } // namespace Location

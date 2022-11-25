@@ -37,6 +37,7 @@ const bool REGISTER_RESULT = PassiveAbility::MakeAndRegisterAbility(
 PassiveAbility::PassiveAbility() : SystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID, true)
 {
     SetAbility(PASSIVE_ABILITY);
+    passiveHandler_ = std::make_shared<PassiveHandler>(AppExecFwk::EventRunner::Create(true));
     LBSLOGI(PASSIVE, "ability constructed.");
 }
 
@@ -102,6 +103,11 @@ bool PassiveAbility::DisableMock(const LocationMockConfig& config)
     return DisableLocationMock(config);
 }
 
+bool PassiveAbility::IsMockEnabled()
+{
+    return IsLocationMocked();
+}
+
 bool PassiveAbility::SetMocked(const LocationMockConfig& config,
     const std::vector<std::shared_ptr<Location>> &location)
 {
@@ -133,6 +139,69 @@ int32_t PassiveAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
         return ERR_OK;
     }
     return ERR_OK;
+}
+
+void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
+{
+    if (passiveHandler_ == nullptr) {
+        return;
+    }
+    switch (code) {
+        case SET_MOCKED_LOCATIONS: {
+            if (!IsMockEnabled()) {
+                reply.WriteBool(false);
+                break;
+            }
+            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            int locationSize = data.ReadInt32();
+            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
+                locationSize;
+            std::shared_ptr<std::vector<std::shared_ptr<Location>>> vcLoc =
+                std::make_shared<std::vector<std::shared_ptr<Location>>>();
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc->push_back(Location::UnmarshallingShared(data));
+            }
+            AppExecFwk::InnerEvent::Pointer event =
+                AppExecFwk::InnerEvent::Get(code, vcLoc, mockConfig->GetTimeInterval());
+            bool result = passiveHandler_->SendEvent(event);
+            reply.WriteBool(result);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+PassiveHandler::PassiveHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+
+PassiveHandler::~PassiveHandler() {}
+
+void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    uint32_t eventId = event->GetInnerEventId();
+    LBSLOGI(PASSIVE, "ProcessEvent event:%{public}d", eventId);
+    switch (eventId) {
+        case ISubAbility::SET_MOCKED_LOCATIONS: {
+            int timeInterval = event->GetParam();
+            LocationMockConfig mockConfig;
+            mockConfig.SetTimeInterval(timeInterval);
+            auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
+            if (vcLoc == nullptr) {
+                break;
+            }
+            std::vector<std::shared_ptr<Location>> mockLocations;
+            for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
+                mockLocations.push_back(*it);
+            }
+            auto passiveAbility = DelayedSingleton<PassiveAbility>::GetInstance();
+            if (passiveAbility != nullptr) {
+                passiveAbility->SetMocked(mockConfig, mockLocations);
+            }
+            break;
+        }
+        default:
+            break;
+    }
 }
 } // namespace Location
 } // namespace OHOS

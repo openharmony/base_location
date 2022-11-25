@@ -18,12 +18,15 @@
 
 #include <gtest/gtest.h>
 
+#include "fusion_controller.h"
+
 namespace OHOS {
 namespace Location {
 class FusionControllerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    std::shared_ptr<FusionController> fusionController_;
 };
 } // namespace Location
 } // namespace OHOS
