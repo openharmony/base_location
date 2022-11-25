@@ -441,7 +441,6 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
 
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info)
 {
-    
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;

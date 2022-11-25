@@ -72,16 +72,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case SET_MOCKED_LOCATIONS: {
-            int timeInterval = data.ReadInt32();
-            int locationSize = data.ReadInt32();
-            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
-                locationSize;
-            std::vector<std::shared_ptr<Location>> vcLoc;
-            for (int i = 0; i < locationSize; i++) {
-                vcLoc.push_back(Location::UnmarshallingShared(data));
-            }
-            bool result = SetMocked(timeInterval, vcLoc);
-            reply.WriteBool(result);
+            SendMessage(code, data, reply);
             break;
         }
         default:

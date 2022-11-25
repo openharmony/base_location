@@ -114,7 +114,9 @@ void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::stri
     if (countryCodeManager_ == nullptr) {
         countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
     }
-    countryCodeManager_->ReSubscribeEvent();
+    if (countryCodeManager_ != nullptr) {
+        countryCodeManager_->ReSubscribeEvent();
+    }
 }
 
 void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
@@ -132,7 +134,9 @@ void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
     if (countryCodeManager_ == nullptr) {
         countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
     }
-    countryCodeManager_->ReUnsubscribeEvent();
+    if (countryCodeManager_ != nullptr) {
+        countryCodeManager_->ReUnsubscribeEvent();
+    }
 }
 
 bool LocatorAbility::Init()
@@ -168,25 +172,33 @@ LocatorHandler::~LocatorHandler() {}
 
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_UPDATE_SA: {
-            DelayedSingleton<LocatorAbility>::GetInstance()->UpdateSaAbilityHandler();
+            if (locatorAbility != nullptr) {
+                locatorAbility->UpdateSaAbilityHandler();
+            }
             break;
         }
         case EVENT_RETRY_REGISTER_ACTION: {
-            DelayedSingleton<LocatorAbility>::GetInstance()->RegisterAction();
+            if (locatorAbility != nullptr) {
+                locatorAbility->RegisterAction();
+            }
             break;
         }
         case EVENT_INIT_REQUEST_MANAGER: {
-            if (!DelayedSingleton<RequestManager>::GetInstance()->InitSystemListeners()) {
+            if (requestManager == nullptr || !requestManager->InitSystemListeners()) {
                 LBSLOGE(LOCATOR, "InitSystemListeners failed");
             }
             break;
         }
         case EVENT_APPLY_REQUIREMENTS: {
-            DelayedSingleton<RequestManager>::GetInstance()->HandleRequest();
+            if (requestManager != nullptr) {
+                requestManager->HandleRequest();
+            }
             break;
         }
         default:
@@ -239,7 +251,9 @@ std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> LocatorAbility::GetP
 
 void LocatorAbility::ApplyRequests()
 {
-    locatorHandler_->SendHighPriorityEvent(EVENT_APPLY_REQUIREMENTS, 0, RETRY_INTERVAL_UNITE);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendHighPriorityEvent(EVENT_APPLY_REQUIREMENTS, 0, RETRY_INTERVAL_UNITE);
+    }
 }
 
 void LocatorAbility::InitSaAbility()
@@ -321,7 +335,12 @@ void LocatorAbility::UpdateSaAbilityHandler()
     if (proxyMap_ == nullptr) {
         return;
     }
-    DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnSaStateChange(isEnabled_);
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    if (locatorBackgroundProxy == nullptr) {
+        LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
+        return;
+    }
+    locatorBackgroundProxy.get()->OnSaStateChange(isEnabled_);
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
         MessageParcel data;
@@ -791,6 +810,9 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         InitSaAbility();
     }
     // update offset before add request
+    if (reportManager_ == nullptr || requestManager_ == nullptr) {
+        return REPLY_CODE_EXCEPTION;
+    }
     reportManager_->UpdateRandom();
     // generate request object according to input params
     std::shared_ptr<Request> request = std::make_shared<Request>();
@@ -810,6 +832,9 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
     LBSLOGI(LOCATOR, "stop locating");
+    if (requestManager_ == nullptr) {
+        return REPLY_CODE_EXCEPTION;
+    }
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
     return REPLY_CODE_NO_EXCEPTION;

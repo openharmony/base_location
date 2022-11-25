@@ -13,21 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef FUSION_CONTROLLER_TEST_H
-#define FUSION_CONTROLLER_TEST_H
+#ifndef LOCATOR_EVENT_MANAGER_TEST_H
+#define LOCATOR_EVENT_MANAGER_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "fusion_controller.h"
-
 namespace OHOS {
 namespace Location {
-class FusionControllerTest : public testing::Test {
+class LocatorEventManagerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    std::shared_ptr<FusionController> fusionController_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // FUSION_CONTROLLER_TEST_H
+#endif // LOCATOR_EVENT_MANAGER_TEST_H

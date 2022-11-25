@@ -28,6 +28,9 @@ namespace OHOS {
     {
         std::shared_ptr<RequestManager> requestManager =
             DelayedSingleton<RequestManager>::GetInstance();
+        if (requestManager == nullptr) {
+            return false;
+        }
         std::shared_ptr<Request> request = std::make_shared<Request>();
         requestManager->InitSystemListeners();
         auto locatorCallbackHostForTest =

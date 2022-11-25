@@ -95,7 +95,7 @@ public:
     bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
-    void SendMessage(uint32_t code, MessageParcel &data) override;
+    void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
     void StartGnss();
     void StopGnss();
     bool EnableGnss();

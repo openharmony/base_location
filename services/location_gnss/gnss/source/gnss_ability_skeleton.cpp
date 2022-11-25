@@ -41,8 +41,9 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 
     int ret = REPLY_CODE_NO_EXCEPTION;
     switch (code) {
-        case SEND_LOCATION_REQUEST: {
-            SendMessage(code, data);
+        case SEND_LOCATION_REQUEST: // fall through
+        case SET_MOCKED_LOCATIONS: {
+            SendMessage(code, data, reply);
             break;
         }
         case SET_ENABLE: {
@@ -108,19 +109,6 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         }
         case DISABLE_LOCATION_MOCK: {
             bool result = DisableMock();
-            reply.WriteBool(result);
-            break;
-        }
-        case SET_MOCKED_LOCATIONS: {
-            int timeInterval = data.ReadInt32();
-            int locationSize = data.ReadInt32();
-            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
-                locationSize;
-            std::vector<std::shared_ptr<Location>> vcLoc;
-            for (int i = 0; i < locationSize; i++) {
-                vcLoc.push_back(Location::UnmarshallingShared(data));
-            }
-            bool result = SetMocked(timeInterval, vcLoc);
             reply.WriteBool(result);
             break;
         }

@@ -74,6 +74,7 @@ void LocatorServiceTest::SetUp()
     request_ = std::make_shared<Request>();
     EXPECT_NE(nullptr, request_);
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
+    EXPECT_NE(nullptr, requestManager_);
     request_->SetLocatorCallBack(callbackStub_);
     request_->SetUid(SYSTEM_UID);
     request_->SetPid(getpid());
@@ -1102,6 +1103,7 @@ HWTEST_F(LocatorServiceTest, CheckGetCacheLocation002, TestSize.Level1)
     identity.SetTokenId(0);
     identity.SetFirstTokenId(0);
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    EXPECT_NE(nullptr, locatorAbility);
     bool ret = false;
     if (proxy_->GetSwitchState() == 1) {
         ret = locatorAbility->GetCacheLocation(reply, identity);

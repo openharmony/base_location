@@ -29,6 +29,9 @@ namespace OHOS {
         int index = 0;
         auto backgroundProxy =
             DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+        if (backgroundProxy == nullptr) {
+            return false;
+        }
         std::shared_ptr<Request> request =
             std::make_shared<Request>();
         std::string bundleName((const char*) data, size);

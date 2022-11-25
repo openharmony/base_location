@@ -174,7 +174,7 @@ int LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callb
         return REPLY_CODE_EXCEPTION;
     }
     data.WriteObject<IRemoteObject>(callback);
-    int error SendMsgWithDataReply(REG_NMEA_CALLBACK_v9, data, reply);
+    int error = SendMsgWithDataReply(REG_NMEA_CALLBACK_v9, data, reply);
     if (error == NO_ERROR) {
         result = reply.ReadInt32();
     }
@@ -195,7 +195,7 @@ int LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& cal
         return REPLY_CODE_EXCEPTION;
     }
     data.WriteObject<IRemoteObject>(callback);
-    int error SendMsgWithDataReply(UNREG_NMEA_CALLBACK_v9, data, reply);
+    int error = SendMsgWithDataReply(UNREG_NMEA_CALLBACK_v9, data, reply);
     if (error == NO_ERROR) {
         result = reply.ReadInt32();
     }

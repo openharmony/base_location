@@ -60,6 +60,8 @@ public:
     bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
     void ProcessReportLocationMock();
+    bool IsMockEnabled();
+    void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);

@@ -105,6 +105,11 @@ bool NetworkAbility::DisableMock()
     return DisableLocationMock();
 }
 
+bool NetworkAbility::IsMockEnabled()
+{
+    return IsLocationMocked();
+}
+
 bool NetworkAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
@@ -116,7 +121,10 @@ void NetworkAbility::ProcessReportLocationMock()
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
-        networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        if (networkHandler_ != nullptr) {
+            networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+                0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        }
     } else {
         ClearLocationMock();
         mockLocationIndex_ = 0;
@@ -125,6 +133,9 @@ void NetworkAbility::ProcessReportLocationMock()
 
 void NetworkAbility::SendReportMockLocationEvent()
 {
+    if (networkHandler_ == nullptr) {
+        return;
+    }
     networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
 }
 
@@ -147,8 +158,11 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
         LBSLOGE(NETWORK, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, NETWORK_ABILITY);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility.get()->ReportLocation(locationNew, NETWORK_ABILITY);
+        locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    }
     return ERR_OK;
 }
 
@@ -175,17 +189,65 @@ int32_t NetworkAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
     return ERR_OK;
 }
 
+void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
+{
+    if (networkHandler_ == nullptr) {
+        return;
+    }
+    switch (code) {
+        case SET_MOCKED_LOCATIONS: {
+            if (!IsMockEnabled()) {
+                reply.WriteBool(false);
+                break;
+            }
+            int timeInterval = data.ReadInt32();
+            int locationSize = data.ReadInt32();
+            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
+                locationSize;
+            std::shared_ptr<std::vector<std::shared_ptr<Location>>> vcLoc =
+                std::make_shared<std::vector<std::shared_ptr<Location>>>();
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc->push_back(Location::UnmarshallingShared(data));
+            }
+            AppExecFwk::InnerEvent::Pointer event =
+                AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
+            bool result = networkHandler_->SendEvent(event);
+            reply.WriteBool(result);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
 
 NetworkHandler::~NetworkHandler() {}
 
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
+    auto networkAbility = DelayedSingleton<NetworkAbility>::GetInstance();
+    if (networkAbility == nullptr) {
+        LBSLOGE(NETWORK, "ProcessEvent: NetworkAbility is nullptr");
+        return;
+    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocationMock();
+            networkAbility->ProcessReportLocationMock();
+            break;
+        }
+        case ISubAbility::SET_MOCKED_LOCATIONS: {
+            int timeInterval = event->GetParam();
+            auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
+            if (vcLoc != nullptr) {
+                std::vector<std::shared_ptr<Location>> mockLocations;
+                for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
+                    mockLocations.push_back(*it);
+                }
+                networkAbility->SetMocked(timeInterval, mockLocations);
+            }
             break;
         }
         default:
