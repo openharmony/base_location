@@ -346,7 +346,12 @@ void RequestManager::HandleRequest(std::string abilityName)
 {
     std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
-    auto requests = DelayedSingleton<LocatorAbility>::GetInstance()->GetRequests();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        lock.unlock();
+        return;
+    }
+    auto requests = locatorAbility->GetRequests();
     if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         lock.unlock();
@@ -364,33 +369,11 @@ void RequestManager::HandleRequest(std::string abilityName)
     int timeInterval = 0;
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
-        if (request == nullptr) {
+        if (!AddRequestToWorkRecord(request, workRecord)) {
             continue;
         }
-        UpdateUsingPermission(request);
-        if (!request->GetIsRequesting()) {
+        if (!ActiveLocatingStrategies(request, timeInterval)) {
             continue;
-        }
-        // if location access permission granted, add request info to work record
-        if (!CommonUtils::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId()) &&
-            !CommonUtils::CheckApproximatelyPermission(request->GetTokenId(), request->GetFirstTokenId())) {
-            LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", request->GetTokenId());
-            continue;
-        }
-        // add request info to work record
-        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName());
-        auto requestConfig = request->GetRequestConfig();
-        if (requestConfig == nullptr) {
-            continue;
-        }
-        timeInterval = requestConfig->GetTimeInterval();
-        int requestType = requestConfig->GetScenario();
-        if (requestType == SCENE_UNSET) {
-            requestType = requestConfig->GetPriority();
-        }
-        auto fusionController = DelayedSingleton<FusionController>::GetInstance();
-        if (fusionController != nullptr) {
-            fusionController->ActiveFusionStrategies(requestType);
         }
         LBSLOGD(REQUEST_MANAGER, "add pid:%{public}d uid:%{public}d %{public}s", request->GetPid(), request->GetUid(),
             request->GetPackageName().c_str());
@@ -400,6 +383,50 @@ void RequestManager::HandleRequest(std::string abilityName)
     lock.unlock();
 
     ProxySendLocationRequest(abilityName, *workRecord, timeInterval);
+}
+
+bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& request, int& timeInterval)
+{
+    std::shared_ptr<Request> newRequest = request;
+    if (newRequest == nullptr) {
+        return false;
+    }
+    auto requestConfig = newRequest->GetRequestConfig();
+    if (requestConfig == nullptr) {
+        return false;
+    }
+    timeInterval = requestConfig->GetTimeInterval();
+    int requestType = requestConfig->GetScenario();
+    if (requestType == SCENE_UNSET) {
+        requestType = requestConfig->GetPriority();
+    }
+    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    if (fusionController != nullptr) {
+        fusionController->ActiveFusionStrategies(requestType);
+    }
+    return true;
+}
+
+bool RequestManager::AddRequestToWorkRecord(const std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord)
+{
+    std::shared_ptr<Request> newRequest = request;
+    UpdateUsingPermission(newRequest);
+    if (!newRequest->GetIsRequesting()) {
+        return false;
+    }
+    uint32_t tokenId = newRequest->GetTokenId();
+    uint32_t firstTokenId = newRequest->GetFirstTokenId();
+    // if location access permission granted, add request info to work record
+    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
+        return false;
+    }
+    // add request info to work record
+    if (workRecord != nullptr) {
+        workRecord->Add(newRequest->GetUid(), newRequest->GetPid(), newRequest->GetPackageName());
+    }
+    return true;
 }
 
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval)

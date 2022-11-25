@@ -43,7 +43,6 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     LBSLOGI(REPORT_MANAGER, "receive location : %{public}s", abilityName.c_str());
     auto fusionController = DelayedSingleton<FusionController>::GetInstance();
     if (fusionController == nullptr) {
-        LBSLOGE(LOCATOR, "OnReportLocation: FusionController is nullptr.");
         return false;
     }
     fusionController->FuseResult(abilityName, location);
@@ -66,43 +65,51 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
-        if (request == nullptr || request->GetRequestConfig() == nullptr ||
-            !request->GetIsRequesting()) {
-            continue;
-        }
-        uint32_t tokenId = request->GetTokenId();
-        uint32_t firstTokenId = request->GetFirstTokenId();
-        std::unique_ptr<Location> finalLocation = GetPermittedLocation(tokenId, firstTokenId, location);
-
-        if (!ResultCheck(finalLocation, request)) {
-            continue;
-        }
-        request->SetLastLocation(finalLocation);
-        auto locatorCallback = request->GetLocatorCallBack();
-        if (locatorCallback != nullptr) {
-            locatorCallback->OnLocationReport(finalLocation);
-        }
-
-        int fixTime = request->GetRequestConfig()->GetFixNumber();
-        if (fixTime > 0) {
-            deadRequests->push_back(request);
+        if(!ProcessRequestForReport(request, deadRequests, location)) {
             continue;
         }
     }
+    
     for (auto iter = deadRequests->begin(); iter != deadRequests->end(); ++iter) {
         auto request = *iter;
         if (request == nullptr) {
             continue;
         }
         auto requestManger = DelayedSingleton<RequestManager>::GetInstance();
-        if (requestManger == nullptr) {
-            LBSLOGE(LOCATOR, "OnReportLocation: RequestManager is nullptr.");
-            break;
+        if (requestManger != nullptr) {
+            requestManger->UpdateRequestRecord(request, false);
         }
-        requestManger->UpdateRequestRecord(request, false);
     }
     locatorAbility->ApplyRequests();
     deadRequests->clear();
+    return true;
+}
+
+bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
+    std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location)
+{
+    if (request == nullptr || request->GetRequestConfig() == nullptr ||
+        !request->GetIsRequesting()) {
+        return false;
+    }
+    uint32_t tokenId = request->GetTokenId();
+    uint32_t firstTokenId = request->GetFirstTokenId();
+    std::unique_ptr<Location> finalLocation = GetPermittedLocation(tokenId, firstTokenId, location);
+
+    if (!ResultCheck(finalLocation, request)) {
+        return false;
+    }
+    request->SetLastLocation(finalLocation);
+    auto locatorCallback = request->GetLocatorCallBack();
+    if (locatorCallback != nullptr) {
+        locatorCallback->OnLocationReport(finalLocation);
+    }
+
+    int fixTime = request->GetRequestConfig()->GetFixNumber();
+    if (fixTime > 0) {
+        deadRequests->push_back(request);
+        return false;
+    }
     return true;
 }
 

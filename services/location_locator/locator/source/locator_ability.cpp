@@ -808,6 +808,9 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         InitSaAbility();
     }
     // update offset before add request
+    if (reportManager_ == nullptr || requestManager_ == nullptr) {
+        return REPLY_CODE_EXCEPTION;
+    }
     reportManager_->UpdateRandom();
     // generate request object according to input params
     std::shared_ptr<Request> request = std::make_shared<Request>();
@@ -827,6 +830,9 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
     LBSLOGI(LOCATOR, "stop locating");
+    if (requestManager_ == nullptr) {
+        return REPLY_CODE_EXCEPTION;
+    }
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
     return REPLY_CODE_NO_EXCEPTION;

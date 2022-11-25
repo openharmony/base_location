@@ -153,7 +153,7 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
         return ERR_OK;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if(locatorAbility != nullptr) {
+    if (locatorAbility != nullptr) {
         locatorAbility.get()->ReportLocation(locationNew, NETWORK_ABILITY);
         locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
     }
