@@ -121,7 +121,10 @@ void NetworkAbility::ProcessReportLocationMock()
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
-        networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        if (networkHandler_ != nullptr) {
+            networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+                0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        }
     } else {
         ClearLocationMock();
         mockLocationIndex_ = 0;
@@ -130,6 +133,9 @@ void NetworkAbility::ProcessReportLocationMock()
 
 void NetworkAbility::SendReportMockLocationEvent()
 {
+    if (networkHandler_ == nullptr) {
+        return;
+    }
     networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
 }
 
@@ -185,6 +191,9 @@ int32_t NetworkAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
 
 void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
+    if (networkHandler_ == nullptr) {
+        return;
+    }
     switch (code) {
         case SET_MOCKED_LOCATIONS: {
             if (!IsMockEnabled()) {
@@ -217,11 +226,16 @@ NetworkHandler::~NetworkHandler() {}
 
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
+    auto networkAbility = DelayedSingleton<NetworkAbility>::GetInstance();
+    if (networkAbility == nullptr) {
+        LBSLOGE(NETWORK, "ProcessEvent: NetworkAbility is nullptr");
+        return;
+    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocationMock();
+            networkAbility->ProcessReportLocationMock();
             break;
         }
         case ISubAbility::SET_MOCKED_LOCATIONS: {
@@ -234,8 +248,7 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
                 for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
                     mockLocations.push_back(*it);
                 }
-                DelayedSingleton<NetworkAbility>::GetInstance()->SetMocked(
-                    mockConfig, mockLocations);
+                networkAbility->SetMocked(mockConfig, mockLocations);
             }
             break;
         }

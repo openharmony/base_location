@@ -143,6 +143,9 @@ int32_t PassiveAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
 
 void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
+    if (passiveHandler_ == nullptr) {
+        return;
+    }
     switch (code) {
         case SET_MOCKED_LOCATIONS: {
             if (!IsMockEnabled()) {

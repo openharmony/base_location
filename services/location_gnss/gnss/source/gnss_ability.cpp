@@ -555,7 +555,10 @@ void GnssAbility::ProcessReportLocationMock()
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
-        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        if (gnssHandler_ != nullptr) {
+            gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+                0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        }
     } else {
         ClearLocationMock();
         mockLocationIndex_ = 0;
@@ -564,7 +567,9 @@ void GnssAbility::ProcessReportLocationMock()
 
 void GnssAbility::SendReportMockLocationEvent()
 {
-    gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
+    if (gnssHandler_ != nullptr) {
+        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
+    }
 }
 
 int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> location)
@@ -598,6 +603,9 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
 
 void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
+    if (gnssHandler_ == nullptr) {
+        return;
+    }
     switch (code) {
         case SEND_LOCATION_REQUEST: {
             int64_t interval = data.ReadInt64();

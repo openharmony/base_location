@@ -411,6 +411,9 @@ bool RequestManager::AddRequestToWorkRecord(const std::shared_ptr<Request>& requ
     std::shared_ptr<WorkRecord>& workRecord)
 {
     std::shared_ptr<Request> newRequest = request;
+    if (newRequest == nullptr) {
+        return false;
+    }
     UpdateUsingPermission(newRequest);
     if (!newRequest->GetIsRequesting()) {
         return false;
