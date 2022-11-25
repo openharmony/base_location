@@ -65,7 +65,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
-        if(!ProcessRequestForReport(request, deadRequests, location)) {
+        if (!ProcessRequestForReport(request, deadRequests, location)) {
             continue;
         }
     }

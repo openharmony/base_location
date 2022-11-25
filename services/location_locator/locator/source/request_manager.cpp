@@ -407,7 +407,8 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
     return true;
 }
 
-bool RequestManager::AddRequestToWorkRecord(const std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord)
+bool RequestManager::AddRequestToWorkRecord(const std::shared_ptr<Request>& request,
+    std::shared_ptr<WorkRecord>& workRecord)
 {
     std::shared_ptr<Request> newRequest = request;
     UpdateUsingPermission(newRequest);
