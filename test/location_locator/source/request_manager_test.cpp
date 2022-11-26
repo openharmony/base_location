@@ -94,9 +94,6 @@ void RequestManagerTest::FillRequestField(std::shared_ptr<Request>& request)
         sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
     auto callback = sptr<ILocatorCallback>(locatorCallbackHost);
     request->SetLocatorCallBack(callback);
-    LocationMockConfig locationMockConfig;
-    locationMockConfig.SetScenario(SCENE_UNSET);
-    request->SetLocationMockConfig(locationMockConfig);
     request->SetRequesting(false);
     std::unique_ptr<Location> location = std::make_unique<Location>();
     request->SetLastLocation(location);

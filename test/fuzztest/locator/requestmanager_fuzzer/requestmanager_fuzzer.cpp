@@ -16,7 +16,6 @@
 #include "requestmanager_fuzzer.h"
 
 #include "i_locator_callback.h"
-#include "location_mock_config.h"
 #include "locator_callback_host.h"
 #include "request.h"
 #include "request_config.h"
@@ -62,8 +61,6 @@ namespace OHOS {
         request->SetPackageName(packageName);
         auto requestConfig = std::make_unique<RequestConfig>();
         request->SetRequestConfig(*requestConfig);
-        LocationMockConfig mockInfo;
-        request->SetLocationMockConfig(mockInfo);
         request->SetLocatorCallBack(nullptr);
         request->SetRequesting(true);
         request->SetTokenId(data[index++]);

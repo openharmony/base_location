@@ -22,7 +22,6 @@
 #include "iremote_stub.h"
 
 #include "constant_definition.h"
-#include "location_mock_config.h"
 #include "subability_common.h"
 
 namespace OHOS {

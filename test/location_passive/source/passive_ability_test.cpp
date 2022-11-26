@@ -131,13 +131,13 @@ HWTEST_F(PassiveAbilityTest, SetEnableAndDisable001, TestSize.Level1)
 
 HWTEST_F(PassiveAbilityTest, PassiveLocationMock001, TestSize.Level1)
 {
-    LocationMockConfig config;
+    int timeInterval = 1;
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, proxy_->EnableMock(config));
-    EXPECT_EQ(true, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
     
-    EXPECT_EQ(true, proxy_->DisableMock(config));
-    EXPECT_EQ(false, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(true, proxy_->DisableMock());
+    EXPECT_EQ(false, proxy_->SetMocked(timeInterval, locations));
 }
 
 HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop001, TestSize.Level1)
@@ -180,9 +180,7 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent001, TestSize.Lev
 {
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(2);
+    int timeInterval = 2;
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
@@ -197,8 +195,8 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent001, TestSize.Lev
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
-    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
 
     ability_->SendReportMockLocationEvent(); // report mocked location
 }

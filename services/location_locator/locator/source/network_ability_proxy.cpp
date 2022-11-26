@@ -72,7 +72,7 @@ void NetworkAbilityProxy::SelfRequest(bool state)
     LBSLOGD(NETWORK, "Proxy::SelfRequest Transact ErrCodes = %{public}d", error);
 }
 
-bool NetworkAbilityProxy::EnableMock(const LocationMockConfig& config)
+bool NetworkAbilityProxy::EnableMock()
 {
     MessageParcel data;
     MessageParcel reply;
@@ -86,7 +86,6 @@ bool NetworkAbilityProxy::EnableMock(const LocationMockConfig& config)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    config.Marshalling(data);
     int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
     LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", error);
     bool result = false;
@@ -96,7 +95,7 @@ bool NetworkAbilityProxy::EnableMock(const LocationMockConfig& config)
     return result;
 }
 
-bool NetworkAbilityProxy::DisableMock(const LocationMockConfig& config)
+bool NetworkAbilityProxy::DisableMock()
 {
     MessageParcel data;
     MessageParcel reply;
@@ -110,7 +109,6 @@ bool NetworkAbilityProxy::DisableMock(const LocationMockConfig& config)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    config.Marshalling(data);
     int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
     LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", error);
     bool result = false;
@@ -121,7 +119,7 @@ bool NetworkAbilityProxy::DisableMock(const LocationMockConfig& config)
 }
 
 bool NetworkAbilityProxy::SetMocked(
-    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+    const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -135,7 +133,7 @@ bool NetworkAbilityProxy::SetMocked(
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    config.Marshalling(data);
+    data.WriteInt32(timeInterval);
     int locationSize = static_cast<int>(location.size());
     data.WriteInt32(locationSize);
     for (int i = 0; i < locationSize; i++) {

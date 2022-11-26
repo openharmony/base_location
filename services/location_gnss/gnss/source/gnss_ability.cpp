@@ -32,7 +32,6 @@
 #include "i_cached_locations_callback.h"
 #include "location_dumper.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "locator_ability.h"
 
 namespace OHOS {
@@ -529,20 +528,20 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
     return ERR_OK;
 }
 
-bool GnssAbility::EnableMock(const LocationMockConfig& config)
+bool GnssAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool GnssAbility::DisableMock(const LocationMockConfig& config)
+bool GnssAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
-bool GnssAbility::SetMocked(const LocationMockConfig& config,
+bool GnssAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 bool GnssAbility::IsMockEnabled()
@@ -620,7 +619,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
                 reply.WriteBool(false);
                 break;
             }
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            int timeInterval = data.ReadInt32();
             int locationSize = data.ReadInt32();
             locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
                 locationSize;
@@ -630,7 +629,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
                 vcLoc->push_back(Location::UnmarshallingShared(data));
             }
             AppExecFwk::InnerEvent::Pointer event =
-                AppExecFwk::InnerEvent::Get(code, vcLoc, mockConfig->GetTimeInterval());
+                AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
             bool result = gnssHandler_->SendEvent(event);
             reply.WriteBool(result);
             break;
@@ -668,15 +667,13 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case ISubAbility::SET_MOCKED_LOCATIONS: {
             int timeInterval = event->GetParam();
-            LocationMockConfig mockConfig;
-            mockConfig.SetTimeInterval(timeInterval);
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
             if (vcLoc != nullptr) {
                 std::vector<std::shared_ptr<Location>> mockLocations;
                 for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
                     mockLocations.push_back(*it);
                 }
-                gnssAbility->SetMocked(mockConfig, mockLocations);
+                gnssAbility->SetMocked(timeInterval, mockLocations);
             }
             break;
         }

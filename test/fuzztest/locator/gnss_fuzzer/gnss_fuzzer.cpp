@@ -28,7 +28,6 @@
 #include "gnss_ability_proxy.h"
 #include "gnss_status_callback_host.h"
 #include "location.h"
-#include "location_mock_config.h"
 #include "location_switch_callback_host.h"
 #include "nmea_message_callback_host.h"
 #include "subability_common.h"
@@ -109,25 +108,17 @@ namespace OHOS {
                 break;
             }
             case ENABLE_LOCATION_MOCK: {
-                std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-                LocationMockConfig config;
-                config.Set(*mockConfig);
-                bool result = EnableMock(config);
+                bool result = EnableMock();
                 reply.WriteBool(result);
                 break;
             }
             case DISABLE_LOCATION_MOCK: {
-                std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-                LocationMockConfig config;
-                config.Set(*mockConfig);
-                bool result = DisableMock(config);
+                bool result = DisableMock();
                 reply.WriteBool(result);
                 break;
             }
             case SET_MOCKED_LOCATIONS: {
-                std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-                LocationMockConfig config;
-                config.Set(*mockConfig);
+                int timeInterval = data.ReadInt32();
                 int locationSize = data.ReadInt32();
                 locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
                     locationSize;
@@ -135,7 +126,7 @@ namespace OHOS {
                 for (int i = 0; i < locationSize; i++) {
                     vcLoc.push_back(Location::UnmarshallingShared(data));
                 }
-                bool result = SetMocked(config, vcLoc);
+                bool result = SetMocked(timeInterval, vcLoc);
                 reply.WriteBool(result);
                 break;
             }
@@ -195,13 +186,10 @@ namespace OHOS {
         std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
         proxy->AddFence(fence);
         proxy->RemoveFence(fence);
-        LocationMockConfig mockInfo;
-        mockInfo.SetScenario(data[index++]);
-        mockInfo.SetTimeInterval(data[index++]);
         std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
-        proxy->EnableMock(mockInfo);
-        proxy->DisableMock(mockInfo);
-        proxy->SetMocked(mockInfo, locations);
+        proxy->EnableMock();
+        proxy->DisableMock();
+        proxy->SetMocked(data[index++], locations);
         return true;
     }
 }

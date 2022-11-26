@@ -55,9 +55,9 @@ public:
     void SelfRequest(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
-    bool EnableMock(const LocationMockConfig& config) override;
-    bool DisableMock(const LocationMockConfig& config) override;
-    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock() override;
+    bool DisableMock() override;
+    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
     void ProcessReportLocationMock();
     bool IsMockEnabled();

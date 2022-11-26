@@ -144,29 +144,28 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
     records->Clear();
 }
 
-bool SubAbility::EnableLocationMock(const LocationMockConfig& config)
+bool SubAbility::EnableLocationMock()
 {
     LBSLOGI(label_, "EnableLocationMock current state is %{public}d", mockEnabled_);
     mockEnabled_ = true;
     return true;
 }
 
-bool SubAbility::DisableLocationMock(const LocationMockConfig& config)
+bool SubAbility::DisableLocationMock()
 {
     LBSLOGI(label_, "DisableLocationMock current state is %{public}d", mockEnabled_);
     mockEnabled_ = false;
     return true;
 }
 
-bool SubAbility::SetMockedLocations(const LocationMockConfig& config,
-    const std::vector<std::shared_ptr<Location>> &location)
+bool SubAbility::SetMockedLocations(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     if (!mockEnabled_) {
         LBSLOGE(label_, "SetMockedLocations current state is %{public}d, need enbale it", mockEnabled_);
         return false;
     }
     CacheLocationMock(location);
-    mockTimeInterval_ = config.GetTimeInterval();
+    mockTimeInterval_ = timeInterval;
     SendReportMockLocationEvent();
     return true;
 }

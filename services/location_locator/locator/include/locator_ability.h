@@ -96,10 +96,10 @@ public:
     void AddFence(std::unique_ptr<GeofenceRequest>& request);
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request);
     std::shared_ptr<CountryCode> GetIsoCountryCode();
-    bool EnableLocationMock(const LocationMockConfig& config);
-    bool DisableLocationMock(const LocationMockConfig& config);
+    bool EnableLocationMock();
+    bool DisableLocationMock();
     bool SetMockedLocations(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location);
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
 
     bool EnableReverseGeocodingMock();
     bool DisableReverseGeocodingMock();
@@ -109,11 +109,13 @@ public:
     int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
     int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
     bool ProcessLocationMockMsg(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
     bool SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
     bool SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+    bool SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();

@@ -74,6 +74,20 @@ enum {
     COUNTRY_CODE_FROM_NETWORK,
 };
 
+enum LocationErrCode {
+    ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
+    ERRCODE_INVALID_PARAM = 401,              /* invalid params */
+    ERRCODE_NOT_SUPPORTED = 801,              /* capability not supported */
+    ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* location service is unavailable */
+    ERRCODE_SWITCH_OFF = 3301100,             /* location switch is off */
+    ERRCODE_LOCATING_FAIL = 3301200,          /* Failed to obtain the geographical location. */
+    ERRCODE_REVERSE_GEOCODING_FAIL = 3301300, /* Reverse geocoding query failed */
+    ERRCODE_GEOCODING_FAIL = 3301400,         /* Geocoding query failed */
+    ERRCODE_COUNTRYCODE_FAIL  = 3301500,      /* Failed to query the area information */
+    ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
+    ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
+};
+
 typedef struct {
     int reportingPeriodSec;
     bool wakeUpCacheQueueFull;
@@ -92,7 +106,6 @@ typedef struct {
 } GeoFence;
 
 typedef struct {
-    int priority;
     int scenario;
     GeoFence geofence;
 } GeofenceRequest;

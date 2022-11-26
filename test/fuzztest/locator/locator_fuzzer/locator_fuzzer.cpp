@@ -211,14 +211,11 @@ namespace OHOS {
 
     bool TestMockFunc(const uint8_t* data, size_t size)
     {
-        LocationMockConfig mockInfo;
         int index = 0;
-        mockInfo.SetScenario(data[index++]);
-        mockInfo.SetTimeInterval(data[index++]);
-        g_locatorImpl->EnableLocationMock(mockInfo);
+        g_locatorImpl->EnableLocationMock();
         std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
-        g_locatorImpl->SetMockedLocations(mockInfo, locations);
-        g_locatorImpl->DisableLocationMock(mockInfo);
+        g_locatorImpl->SetMockedLocations(data[index++], locations);
+        g_locatorImpl->DisableLocationMock();
 
         g_locatorImpl->EnableReverseGeocodingMock();
         std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfo;
@@ -422,14 +419,11 @@ namespace OHOS {
     {
         auto locatorAbility =
             sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-        LocationMockConfig mockInfo;
         int index = 0;
-        mockInfo.SetScenario(data[index++]);
-        mockInfo.SetTimeInterval(data[index++]);
-        locatorAbility->EnableLocationMock(mockInfo);
-        locatorAbility->DisableLocationMock(mockInfo);
+        locatorAbility->EnableLocationMock();
+        locatorAbility->DisableLocationMock();
         std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
-        locatorAbility->SetMockedLocations(mockInfo, locations);
+        locatorAbility->SetMockedLocations(data[index++], locations);
         locatorAbility->EnableReverseGeocodingMock();
         locatorAbility->DisableReverseGeocodingMock();
         std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfo;
@@ -437,10 +431,11 @@ namespace OHOS {
 
         auto location = std::make_unique<OHOS::Location::Location>();
         std::string abilityName((const char*) data, size);
+        int timeInterval = 2;
         locatorAbility->ReportLocation(location, abilityName);
-        locatorAbility->ProcessLocationMockMsg(mockInfo, locations, data[index++]);
-        locatorAbility->SendLocationMockMsgToGnssSa(nullptr, mockInfo, locations, data[index++]);
-        locatorAbility->SendLocationMockMsgToNetworkSa(nullptr, mockInfo, locations, data[index++]);
+        locatorAbility->ProcessLocationMockMsg(timeInterval, locations, data[index++]);
+        locatorAbility->SendLocationMockMsgToGnssSa(nullptr, timeInterval, locations, data[index++]);
+        locatorAbility->SendLocationMockMsgToNetworkSa(nullptr, timeInterval, locations, data[index++]);
         locatorAbility->GetRequests();
         locatorAbility->GetReceivers();
         locatorAbility->GetProxyMap();
