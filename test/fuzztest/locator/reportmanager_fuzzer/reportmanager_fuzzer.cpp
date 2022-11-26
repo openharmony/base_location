@@ -17,7 +17,6 @@
 
 #include "i_locator_callback.h"
 #include "location.h"
-#include "location_mock_config.h"
 #include "locator_callback_host.h"
 #include "report_manager.h"
 #include "request.h"
@@ -32,6 +31,9 @@ namespace OHOS {
         }
         std::shared_ptr<ReportManager> reportManager =
             DelayedSingleton<ReportManager>::GetInstance();
+        if (reportManager == nullptr) {
+            return false;
+        }
         std::unique_ptr<OHOS::Location::Location> location =
             std::make_unique<OHOS::Location::Location>();
         auto locatorCallbackHostForTest =

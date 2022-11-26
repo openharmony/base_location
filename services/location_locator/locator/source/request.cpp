@@ -44,18 +44,6 @@ void Request::SetRequestConfig(RequestConfig& requestConfig)
     this->requestConfig_->Set(requestConfig);
 }
 
-void Request::SetLocationMockConfig(const LocationMockConfig& locationMockConfig)
-{
-    RequestConfig config;
-    config.SetScenario(locationMockConfig.GetScenario());
-    config.SetTimeInterval(locationMockConfig.GetTimeInterval());
-    // assign default value for priority when scenario is SCENE_UNSET.
-    if (locationMockConfig.GetScenario() == SCENE_UNSET) {
-        config.SetPriority(PRIORITY_FAST_FIRST_FIX);
-    }
-    SetRequestConfig(config);
-}
-
 void Request::SetLocatorCallBack(const sptr<ILocatorCallback>& callback)
 {
     this->callBack_ = callback;
@@ -136,12 +124,12 @@ sptr<Location> Request::GetLastLocation()
     return lastLocation_;
 }
 
-std::string Request::GetUUid()
+std::string Request::GetUuid()
 {
     return uuid_;
 }
 
-void Request::SetUUid(std::string uuid)
+void Request::SetUuid(std::string uuid)
 {
     this->uuid_ = uuid;
 }

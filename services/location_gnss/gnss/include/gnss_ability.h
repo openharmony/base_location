@@ -90,12 +90,12 @@ public:
     void ReportGnssSessionStatus(int status);
     void ReportNmea(const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
-    bool EnableMock(const LocationMockConfig& config) override;
-    bool DisableMock(const LocationMockConfig& config) override;
-    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock() override;
+    bool DisableMock() override;
+    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
-    void SendMessage(uint32_t code, MessageParcel &data) override;
+    void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
     void StartGnss();
     void StopGnss();
     bool EnableGnss();

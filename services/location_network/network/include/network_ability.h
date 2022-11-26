@@ -25,14 +25,15 @@
 
 #include "common_utils.h"
 #include "network_ability_skeleton.h"
+#include "network_callback_host.h"
 #include "subability_common.h"
 
 namespace OHOS {
 namespace Location {
 static constexpr int REQUEST_NETWORK_LOCATION = 1;
 static constexpr int REMOVE_NETWORK_LOCATION = 2;
-static constexpr std::string SERVICE_NAME = "com.huawei.hms.hmscore";
-static constexpr std::string ABILITY_NAME = "LocationServiceAbility";
+const std::string SERVICE_NAME = "com.huawei.hms.hmscore";
+const std::string ABILITY_NAME = "LocationServiceAbility";
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
     explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
@@ -59,23 +60,27 @@ public:
     void SelfRequest(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
-    bool EnableMock(const LocationMockConfig& config) override;
-    bool DisableMock(const LocationMockConfig& config) override;
-    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock() override;
+    bool DisableMock() override;
+    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
     void ProcessReportLocationMock();
-    bool ConnectHms();
-    void notifyConnected(const sptr<IRemoteObject>& remoteObject);
-    void notifyDisConnected();
+    bool ConnectNetworkService();
+    void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
+    void NotifyDisConnected();
+    bool IsMockEnabled();
+    void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
-    bool connectServiceReady_ = false;
+    bool networkServiceReady_ = false;
     std::mutex connectMutex_;
-    sptr<IRemoteObject> cloudServiceProxy_;
+    std::string uuid_;
+    sptr<IRemoteObject> networkServiceProxy_;
     std::condition_variable connectCondition_;
+    sptr<NetworkCallbackHost> callback_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;

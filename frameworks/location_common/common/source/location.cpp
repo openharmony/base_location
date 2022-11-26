@@ -37,7 +37,7 @@ Location::Location()
     additions_ = "";
     additionSize_ = 0;
     isFromMock_ = false;
-    soueceType_ = 0;
+    sourceType_ = 0;
     floorNo_ = 0;
     floorAccuracy_ = 0.0;
 }
@@ -55,7 +55,7 @@ Location::Location(Location& location)
     additions_ = location.GetAdditions();
     additionSize_ = location.GetAdditionSize();
     isFromMock_ = location.GetIsFromMock();
-    soueceType_ = location.GetSoueceType();
+    sourceType_ = location.GetSoueceType();
     floorNo_ = location.GetFloorNo();
     floorAccuracy_ = location.GetFloorAccuracy();
 }
@@ -73,7 +73,7 @@ void Location::ReadFromParcel(Parcel& parcel)
     additions_ = Str16ToStr8(parcel.ReadString16());
     additionSize_ = parcel.ReadInt64();
     isFromMock_ = parcel.ReadBool();
-    soueceType_ = parcel.ReadInt32();
+    sourceType_ = parcel.ReadInt32();
     floorNo_ = parcel.ReadInt32();
     floorAccuracy_ = parcel.ReadDouble();
 }
@@ -105,7 +105,7 @@ bool Location::Marshalling(Parcel& parcel) const
            parcel.WriteString16(Str8ToStr16(additions_)) &&
            parcel.WriteInt64(additionSize_) &&
            parcel.WriteBool(isFromMock_) &&
-           parcel.WriteInt32(soueceType_) &&
+           parcel.WriteInt32(sourceType_) &&
            parcel.WriteInt32(floorNo_) &&
            parcel.WriteDouble(floorAccuracy_);
 }
@@ -123,7 +123,7 @@ std::string Location::ToString() const
         ", additions : " + additions_ +
         ", additionSize : " + std::to_string(additionSize_) +
         ", isFromMock : " + std::to_string(isFromMock_) +
-        ", soueceType : " + std::to_string(soueceType_) +
+        ", soueceType : " + std::to_string(sourceType_) +
         ", floorNo : " + std::to_string(floorNo_) +
         ", floorAccuracy : " + std::to_string(floorAccuracy_);
     return str;

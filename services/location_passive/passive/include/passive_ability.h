@@ -18,14 +18,25 @@
 
 #include <mutex>
 #include <singleton.h>
+
+#include "event_handler.h"
+#include "event_runner.h"
 #include "if_system_ability_manager.h"
 #include "system_ability.h"
+
 #include "common_utils.h"
 #include "passive_ability_skeleton.h"
 #include "subability_common.h"
 
 namespace OHOS {
 namespace Location {
+class PassiveHandler : public AppExecFwk::EventHandler {
+public:
+    explicit PassiveHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~PassiveHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+};
+
 class PassiveAbility : public SystemAbility, public PassiveAbilityStub, public SubAbility,
     DelayedSingleton<PassiveAbility> {
 DECLEAR_SYSTEM_ABILITY(PassiveAbility);
@@ -44,13 +55,17 @@ public:
     void SetEnable(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
-    bool EnableMock(const LocationMockConfig& config) override;
-    bool DisableMock(const LocationMockConfig& config) override;
-    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock() override;
+    bool DisableMock() override;
+    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
+    bool IsMockEnabled();
+    void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
+
+    std::shared_ptr<PassiveHandler> passiveHandler_;
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
 };

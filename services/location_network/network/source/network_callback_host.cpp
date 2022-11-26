@@ -23,7 +23,6 @@ namespace Location {
 int NetworkCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGI(NETWORK, "NetworkCallbackHost::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(NETWORK, "invalid token.");
         return -1;
@@ -44,18 +43,18 @@ int NetworkCallbackHost::OnRemoteRequest(
 
 void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    LBSLOGI(NETWORK, "NetworkCallbackHost::OnLocationReport! [%{public}s]", location->ToString().c_str());
+    LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport, [%{public}s]", location->ToString().c_str());
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(location, NETWORK_ABILITY);
 }
 
 void NetworkCallbackHost::OnLocatingStatusChange(const int status)
 {
-    LBSLOGI(NETWORK, "NetworkCallbackHost::OnLocatingStatusChange!");
+    LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocatingStatusChange!");
 }
 
 void NetworkCallbackHost::OnErrorReport(const int errorCode)
 {
-    LBSLOGI(NETWORK, "NetworkCallbackHost::OnErrorReport!");
+    LBSLOGD(NETWORK, "NetworkCallbackHost::OnErrorReport!");
 }
 } // namespace Location
 } // namespace OHOS

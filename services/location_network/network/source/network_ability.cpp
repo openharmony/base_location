@@ -27,7 +27,6 @@
 #include "location_log.h"
 #include "location_dumper.h"
 #include "locator_ability.h"
-#include "network_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -76,10 +75,17 @@ bool NetworkAbility::Init()
         }
         registerToAbility_ = true;
     }
+    uuid_ = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
+    callback_ = new (std::nothrow) NetworkCallbackHost();
+    if (callback_ == nullptr) {
+        LBSLOGE(NETWORK, "create NetworkCallbackHost failed.");
+        return false;
+    }
+    LBSLOGI(NETWORK, "Init() success.");
     return true;
 }
 
-class CloudConnection : public AAFwk::AbilityConnectionStub {
+class AbilityConnection : public AAFwk::AbilityConnectionStub {
 public:
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
@@ -89,33 +95,33 @@ public:
         if (resultCode != ERR_OK) {
             return;
         }
-        DelayedSingleton<NetworkAbility>::GetInstance().get()->notifyConnected(remoteObject);
+        DelayedSingleton<NetworkAbility>::GetInstance().get()->NotifyConnected(remoteObject);
     }
 
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int) override
     {
         std::string uri = element.GetURI();
         LBSLOGI(NETWORK, "Disconnected uri is %{public}s.", uri.c_str());
-        DelayedSingleton<NetworkAbility>::GetInstance().get()->notifyDisConnected();
+        DelayedSingleton<NetworkAbility>::GetInstance().get()->NotifyDisConnected();
     }
 };
 
-bool NetworkAbility::ConnectHms()
+bool NetworkAbility::ConnectNetworkService()
 {
-    LBSLOGI(NETWORK, "start ConnectHms");
+    LBSLOGI(NETWORK, "start ConnectNetworkService");
     std::unique_lock<std::mutex> uniqueLock(connectMutex_);
-    if (!connectServiceReady_) {
+    if (!networkServiceReady_) {
         AAFwk::Want connectionWant;
         connectionWant.SetElementName(SERVICE_NAME, ABILITY_NAME);
-        sptr<AAFwk::IAbilityConnection> cloudConnection = new CloudConnection();
-        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, cloudConnection, -1);
+        sptr<AAFwk::IAbilityConnection> conn = new AbilityConnection();
+        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn, -1);
         if (ret != ERR_OK) {
             LBSLOGE(NETWORK, "Connect cloud service failed!");
             return false;
         }
 
         auto waitStatus = connectCondition_.wait_for(
-            uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return connectServiceReady_; });
+            uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return networkServiceReady_; });
         if (!waitStatus) {
             LBSLOGE(NETWORK, "Connect cloudService timeout!");
             return false;
@@ -124,19 +130,19 @@ bool NetworkAbility::ConnectHms()
     return true;
 }
 
-void NetworkAbility::notifyConnected(const sptr<IRemoteObject>& remoteObject)
+void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
 {
     std::unique_lock<std::mutex> uniqueLock(connectMutex_);
-    connectServiceReady_ = true;
-    cloudServiceProxy_ = remoteObject;
+    networkServiceReady_ = true;
+    networkServiceProxy_ = remoteObject;
     connectCondition_.notify_all();
 }
 
-void NetworkAbility::notifyDisConnected()
+void NetworkAbility::NotifyDisConnected()
 {
     std::unique_lock<std::mutex> uniqueLock(connectMutex_);
-    connectServiceReady_ = false;
-    cloudServiceProxy_ = nullptr;
+    networkServiceReady_ = false;
+    networkServiceProxy_ = nullptr;
     connectCondition_.notify_all();
 }
 
@@ -152,59 +158,71 @@ void NetworkAbility::SetEnable(bool state)
 
 void NetworkAbility::SelfRequest(bool state)
 {
-    LBSLOGE(NETWORK, "SelfRequest %{public}d", state);
+    LBSLOGI(NETWORK, "SelfRequest %{public}d", state);
     HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
 }
 
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGI(NETWORK, "enter RequestRecord. %{public}d", isAdded ? 1 : 0);
-    if (!connectServiceReady_ && !ConnectHms()) {
+    if (!networkServiceReady_ && !ConnectNetworkService()) {
+        LBSLOGE(NETWORK, "network service is not ready.");
         return;
     }
-    LBSLOGI(NETWORK, "test enter RequestRecord, [%{public}s]", workRecord.ToString().c_str());
-    if (cloudServiceProxy_ != nullptr) {
-        MessageParcel data, reply;
-        MessageOption option;
-        if (isAdded) {
-            sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
-            LBSLOGI(NETWORK, "test1126, uuid:%{public}s, timeInterval:%{public}d", workRecord.GetUUid(0).c_str(), workRecord.GetTimeInterval(0));
-            data.WriteString16(Str8ToStr16(workRecord.GetUUid(0)));
-            data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
-            data.WriteInt32(PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
-            data.WriteRemoteObject(callback->AsObject());
-            int error = cloudServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
-            if (error != ERR_OK) {
-                LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
-                return;
-            }
-            LBSLOGE(NETWORK, "start network location.");
-        } else {
-            data.WriteString16(Str8ToStr16(workRecord.GetUUid(0)));
-            int error = cloudServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
-            if (error != ERR_OK) {
-                LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
-                return;
-            }
-            LBSLOGE(NETWORK, "stop network location.");
-        } 
+    if (networkServiceProxy_ == nullptr) {
+        LBSLOGE(NETWORK, "networkProxy is nullptr.");
+        return;
+    }
+    MessageParcel data, reply;
+    MessageOption option;
+    if (isAdded) {
+        LBSLOGD(NETWORK, "start network location, uuid=%{public}s", uuid_.c_str());
+        if (GetRequestNum() == 0) {
+            LBSLOGE(NETWORK, "no valid request.");
+            return;
+        }
+        data.WriteString16(Str8ToStr16(uuid_));
+        data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
+        data.WriteInt32(LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
+        data.WriteRemoteObject(callback_->AsObject());
+        int error = networkServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
+        if (error != ERR_OK) {
+            LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
+            return;
+        }
+    } else {
+        LBSLOGD(NETWORK, "stop network location, uuid=%{public}s", uuid_.c_str());
+        if (GetRequestNum() != 0) {
+            LBSLOGE(NETWORK, "exist valid request.");
+            return;
+        }
+        data.WriteString16(Str8ToStr16(uuid_));
+        int error = networkServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
+        if (error != ERR_OK) {
+            LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
+            return;
+        }
     }
 }
 
-bool NetworkAbility::EnableMock(const LocationMockConfig& config)
+bool NetworkAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool NetworkAbility::DisableMock(const LocationMockConfig& config)
+bool NetworkAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
-bool NetworkAbility::SetMocked(const LocationMockConfig& config,
+bool NetworkAbility::IsMockEnabled()
+{
+    return IsLocationMocked();
+}
+
+bool NetworkAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 void NetworkAbility::ProcessReportLocationMock()
@@ -212,7 +230,10 @@ void NetworkAbility::ProcessReportLocationMock()
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
-        networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        if (networkHandler_ != nullptr) {
+            networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+                0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        }
     } else {
         ClearLocationMock();
         mockLocationIndex_ = 0;
@@ -221,6 +242,9 @@ void NetworkAbility::ProcessReportLocationMock()
 
 void NetworkAbility::SendReportMockLocationEvent()
 {
+    if (networkHandler_ == nullptr) {
+        return;
+    }
     networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
 }
 
@@ -243,8 +267,11 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
         LBSLOGE(NETWORK, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, NETWORK_ABILITY);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility.get()->ReportLocation(locationNew, NETWORK_ABILITY);
+        locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    }
     return ERR_OK;
 }
 
@@ -271,17 +298,65 @@ int32_t NetworkAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
     return ERR_OK;
 }
 
+void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
+{
+    if (networkHandler_ == nullptr) {
+        return;
+    }
+    switch (code) {
+        case SET_MOCKED_LOCATIONS: {
+            if (!IsMockEnabled()) {
+                reply.WriteBool(false);
+                break;
+            }
+            int timeInterval = data.ReadInt32();
+            int locationSize = data.ReadInt32();
+            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
+                locationSize;
+            std::shared_ptr<std::vector<std::shared_ptr<Location>>> vcLoc =
+                std::make_shared<std::vector<std::shared_ptr<Location>>>();
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc->push_back(Location::UnmarshallingShared(data));
+            }
+            AppExecFwk::InnerEvent::Pointer event =
+                AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
+            bool result = networkHandler_->SendEvent(event);
+            reply.WriteBool(result);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
 
 NetworkHandler::~NetworkHandler() {}
 
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
+    auto networkAbility = DelayedSingleton<NetworkAbility>::GetInstance();
+    if (networkAbility == nullptr) {
+        LBSLOGE(NETWORK, "ProcessEvent: NetworkAbility is nullptr");
+        return;
+    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<NetworkAbility>::GetInstance()->ProcessReportLocationMock();
+            networkAbility->ProcessReportLocationMock();
+            break;
+        }
+        case ISubAbility::SET_MOCKED_LOCATIONS: {
+            int timeInterval = event->GetParam();
+            auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
+            if (vcLoc != nullptr) {
+                std::vector<std::shared_ptr<Location>> mockLocations;
+                for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
+                    mockLocations.push_back(*it);
+                }
+                networkAbility->SetMocked(timeInterval, mockLocations);
+            }
             break;
         }
         default:

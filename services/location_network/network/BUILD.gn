@@ -40,7 +40,6 @@ ohos_shared_library("lbsservice_network") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
-    "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_core",

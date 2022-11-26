@@ -138,12 +138,12 @@ public:
 
     inline int32_t GetSoueceType() const
     {
-        return soueceType_;
+        return sourceType_;
     }
 
     inline void SetSoueceType(int32_t soueceType)
     {
-        soueceType_ = soueceType;
+        sourceType_ = soueceType;
     }
 
     inline int32_t GetFloorNo() const
@@ -183,7 +183,7 @@ private:
     std::string additions_;
     int64_t additionSize_;
     bool isFromMock_;
-    int32_t soueceType_;
+    int32_t sourceType_;
     int32_t floorNo_;
     double floorAccuracy_;
 };

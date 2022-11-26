@@ -34,7 +34,10 @@ namespace Location {
 std::mutex RequestManager::requestMutex_;
 RequestManager::RequestManager()
 {
-    DelayedSingleton<LocatorDftManager>::GetInstance()->Init();
+    auto locatorDftManager = DelayedSingleton<LocatorDftManager>::GetInstance();
+    if (locatorDftManager != nullptr) {
+        locatorDftManager->Init();
+    }
 }
 
 RequestManager::~RequestManager()
@@ -124,15 +127,20 @@ void RequestManager::UpdateUsingBackgroundPermission(std::shared_ptr<Request> re
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
 {
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorDftManager = DelayedSingleton<LocatorDftManager>::GetInstance();
+    if (locatorAbility == nullptr || locatorDftManager == nullptr) {
+        return;
+    }
     // restore request to all request list
     bool isNewRequest = RestorRequest(request);
     // update request map
     if (isNewRequest) {
-        DelayedSingleton<LocatorAbility>::GetInstance()->RegisterPermissionCallback(request->GetTokenId(),
+        locatorAbility->RegisterPermissionCallback(request->GetTokenId(),
             {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
         UpdateRequestRecord(request, true);
         UpdateUsingPermission(request);
-        DelayedSingleton<LocatorDftManager>::GetInstance()->LocationSessionStart(request);
+        locatorDftManager->LocationSessionStart(request);
     }
     // process location request
     HandleRequest();
@@ -306,7 +314,12 @@ void RequestManager::DeleteRequestRecord(std::shared_ptr<std::list<std::shared_p
         auto request = *iter;
         UpdateRequestRecord(request, false);
         UpdateUsingPermission(request);
-        DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnDeleteRequestRecord(request);
+        auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+        if (locatorBackgroundProxy == nullptr) {
+            LBSLOGE(REQUEST_MANAGER, "DeleteRequestRecord: LocatorBackgroundProxy is nullptr.");
+            break;
+        }
+        locatorBackgroundProxy.get()->OnDeleteRequestRecord(request);
     }
 }
 
@@ -333,7 +346,12 @@ void RequestManager::HandleRequest(std::string abilityName)
 {
     std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
-    auto requests = DelayedSingleton<LocatorAbility>::GetInstance()->GetRequests();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        lock.unlock();
+        return;
+    }
+    auto requests = locatorAbility->GetRequests();
     if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         lock.unlock();
@@ -350,39 +368,73 @@ void RequestManager::HandleRequest(std::string abilityName)
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
-        if (request == nullptr) {
+        if (!AddRequestToWorkRecord(request, workRecord)) {
             continue;
         }
-        UpdateUsingPermission(request);
-        if (!request->GetIsRequesting()) {
+        if (!ActiveLocatingStrategies(request)) {
             continue;
         }
-        // if location access permission granted, add request info to work record
-        if (!CommonUtils::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId()) &&
-            !CommonUtils::CheckApproximatelyPermission(request->GetTokenId(), request->GetFirstTokenId())) {
-            LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", request->GetTokenId());
-            continue;
-        }
-        auto requestConfig = request->GetRequestConfig();
-        if (requestConfig == nullptr) {
-            continue;
-        }
-        // add request info to work record
-        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName(),
-            requestConfig->GetTimeInterval(), request->GetUUid());
-        int requestType = requestConfig->GetScenario();
-        if (requestType == SCENE_UNSET) {
-            requestType = requestConfig->GetPriority();
-        }
-        DelayedSingleton<FusionController>::GetInstance()->ActiveFusionStrategies(requestType);
         LBSLOGD(REQUEST_MANAGER, "add pid:%{public}d uid:%{public}d %{public}s", request->GetPid(), request->GetUid(),
             request->GetPackageName().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}s) work record:%{public}s",
+        
         abilityName.c_str(), std::to_string(list.size()).c_str(), workRecord->ToString().c_str());
     lock.unlock();
 
     ProxySendLocationRequest(abilityName, *workRecord);
+}
+
+bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& request)
+{
+    std::shared_ptr<Request> newRequest = request;
+    if (newRequest == nullptr) {
+        return false;
+    }
+    auto requestConfig = newRequest->GetRequestConfig();
+    if (requestConfig == nullptr) {
+        return false;
+    }
+    int requestType = requestConfig->GetScenario();
+    if (requestType == SCENE_UNSET) {
+        requestType = requestConfig->GetPriority();
+    }
+    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    if (fusionController != nullptr) {
+        fusionController->ActiveFusionStrategies(requestType);
+    }
+    return true;
+}
+
+bool RequestManager::AddRequestToWorkRecord(const std::shared_ptr<Request>& request,
+    std::shared_ptr<WorkRecord> workRecord)
+{
+    std::shared_ptr<Request> newRequest = request;
+    if (newRequest == nullptr) {
+        return false;
+    }
+    UpdateUsingPermission(newRequest);
+    if (!newRequest->GetIsRequesting()) {
+        return false;
+    }
+    uint32_t tokenId = newRequest->GetTokenId();
+    uint32_t firstTokenId = newRequest->GetFirstTokenId();
+    // if location access permission granted, add request info to work record
+    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
+        return false;
+    }
+    auto requestConfig = request->GetRequestConfig();
+    if (requestConfig == nullptr) {
+        return false;
+    }
+    // add request info to work record
+    if (workRecord != nullptr) {
+        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName(),
+            requestConfig->GetTimeInterval(), request->GetUuid());
+    }
+    return true;
 }
 
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
@@ -402,7 +454,10 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
         passiveProxy->SendLocationRequest(workRecord);
     }
-    DelayedSingleton<FusionController>::GetInstance()->Process(abilityName);
+    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    if (fusionController != nullptr) {
+        fusionController->Process(abilityName);
+    }
 }
 
 sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
@@ -455,10 +510,15 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
                 continue;
             }
             request->SetRequesting(isActive);
-            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->OnSuspend(request, isActive);
+            auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+            if (locatorBackgroundProxy != nullptr) {
+                locatorBackgroundProxy.get()->OnSuspend(request, isActive);
+            }
         }
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
+    if (DelayedSingleton<LocatorAbility>::GetInstance() != nullptr) {
+        DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
+    }
 }
 
 void RequestManager::HandlePermissionChanged(uint32_t tokenId)
@@ -479,8 +539,10 @@ void RequestManager::HandlePermissionChanged(uint32_t tokenId)
             if (request == nullptr || tokenId != request->GetTokenId()) {
                 continue;
             }
-            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->UpdateListOnRequestChange(
-                request);
+            auto backgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+            if (backgroundProxy != nullptr) {
+                backgroundProxy.get()->UpdateListOnRequestChange(request);
+            }
         }
     }
 }

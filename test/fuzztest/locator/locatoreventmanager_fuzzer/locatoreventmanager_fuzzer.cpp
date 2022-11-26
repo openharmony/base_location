@@ -26,6 +26,9 @@ namespace OHOS {
         }
         auto locatorDftManager =
             DelayedSingleton<LocatorDftManager>::GetInstance();
+        if (locatorDftManager == nullptr) {
+            return false;
+        }
         int index = 0;
         locatorDftManager->IpcCallingErr(data[index++]);
         std::shared_ptr<Request> request = std::make_shared<Request>();

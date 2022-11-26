@@ -438,7 +438,6 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
      * @tc.steps: step1. build geo fence request
      */
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1;
     request->scenario = 2;
     request->geofence.latitude = 35.1;
     request->geofence.longitude = 40.2;
@@ -463,7 +462,6 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
      * @tc.steps: step1. build geo fence request
      */
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1;
     request->scenario = 2;
     request->geofence.latitude = 35.1;
     request->geofence.longitude = 40.2;
@@ -479,15 +477,15 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
 
 HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
 {
-    LocationMockConfig config;
+    int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, proxy_->EnableMock(config));
+    EXPECT_EQ(true, proxy_->EnableMock());
     EXPECT_EQ(true, ability_->IsMockEnabled());
-    EXPECT_EQ(true, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
     
-    EXPECT_EQ(true, proxy_->DisableMock(config));
+    EXPECT_EQ(true, proxy_->DisableMock());
     EXPECT_EQ(false, ability_->IsMockEnabled());
-    EXPECT_EQ(false, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(false, proxy_->SetMocked(timeInterval, locations));
 }
 
 HWTEST_F(GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1)
@@ -530,9 +528,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
 {
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(2);
+    int timeInterval = 2;
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
@@ -547,10 +543,10 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock is true
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
-    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
 
-    EXPECT_EQ(true, proxy_->EnableMock(mockInfo)); // enable mock
+    EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // report mocked location
 }
 
@@ -558,9 +554,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1)
 {
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(2);
+    int timeInterval = 2;
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
@@ -575,10 +569,10 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1)
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock is true
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
-    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
 
-    EXPECT_EQ(true, proxy_->DisableMock(mockInfo)); // disable mock
+    EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
 }
 
@@ -586,9 +580,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
 {
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(2);
+    int timeInterval = 2;
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
@@ -603,10 +595,10 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(false); // isFromMock is false
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
-    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
 
-    EXPECT_EQ(true, proxy_->EnableMock(mockInfo)); // enable mock
+    EXPECT_EQ(true, proxy_->EnableMock()); // enable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
 }
 
@@ -614,9 +606,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent004, TestSize.Level1)
 {
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(2);
+    int timeInterval = 2;
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
@@ -631,10 +621,10 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent004, TestSize.Level1)
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(false); // isFromMock is false
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, proxy_->EnableMock(mockInfo));
-    EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
 
-    EXPECT_EQ(true, proxy_->DisableMock(mockInfo)); // disable mock
+    EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
 }
 

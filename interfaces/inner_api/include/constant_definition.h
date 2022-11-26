@@ -74,7 +74,7 @@ enum {
     COUNTRY_CODE_FROM_NETWORK,
 };
 
-enum {
+enum LocationRequestType {
     PRIORITY_TYPE_HIGH_ACCURACY = 100,            // GNSS定位+NLP融合定位
     PRIORITY_TYPE_BALANCED_POWER_ACCURACY = 102,  // NLP定位
     PRIORITY_TYPE_LOW_POWER = 104,                // NLP定位
@@ -82,6 +82,20 @@ enum {
     PRIORITY_TYPE_HD_ACCURACY = 200,              // HD高精度定位
     PRIORITY_TYPE_INDOOR = 300,                   // 室内定位
     PRIORITY_TYPE_HIGH_ACCURACY_AND_INDOOR = 400  // 室内定位+GNSS
+};
+
+enum LocationErrCode {
+    ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
+    ERRCODE_INVALID_PARAM = 401,              /* invalid params */
+    ERRCODE_NOT_SUPPORTED = 801,              /* capability not supported */
+    ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* location service is unavailable */
+    ERRCODE_SWITCH_OFF = 3301100,             /* location switch is off */
+    ERRCODE_LOCATING_FAIL = 3301200,          /* Failed to obtain the geographical location. */
+    ERRCODE_REVERSE_GEOCODING_FAIL = 3301300, /* Reverse geocoding query failed */
+    ERRCODE_GEOCODING_FAIL = 3301400,         /* Geocoding query failed */
+    ERRCODE_COUNTRYCODE_FAIL  = 3301500,      /* Failed to query the area information */
+    ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
+    ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
 };
 
 typedef struct {
@@ -102,7 +116,6 @@ typedef struct {
 } GeoFence;
 
 typedef struct {
-    int priority;
     int scenario;
     GeoFence geofence;
 } GeofenceRequest;

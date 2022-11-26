@@ -25,7 +25,6 @@
 #include "geo_coding_mock_info.h"
 #include "geofence_state.h"
 #include "location.h"
-#include "location_mock_config.h"
 #include "request_config.h"
 #include "satellite_status.h"
 #include "want_agent.h"
@@ -299,41 +298,6 @@ HWTEST_F(LocationCommonTest, RequestConfigTest002, TestSize.Level1)
     requestConfigForCompare->SetScenario(SCENE_UNSET);
     EXPECT_NE("", requestConfigForCompare->ToString());
     EXPECT_EQ(false, requestConfigForCompare->IsSame(requestConfigForSet4));
-}
-
-/*
- * @tc.name: LocationMockConfigTest001
- * @tc.desc: read from parcel.
- * @tc.type: FUNC
- */
-HWTEST_F(LocationCommonTest, LocationMockConfigTest001, TestSize.Level1)
-{
-    std::unique_ptr<LocationMockConfig> mockConfig = std::make_unique<LocationMockConfig>();
-    MessageParcel parcel;
-    parcel.WriteInt32(1); // scenario
-    parcel.WriteInt32(2); // timeInterval
-    mockConfig->ReadFromParcel(parcel);
-    EXPECT_EQ(1, mockConfig->GetScenario());
-    EXPECT_EQ(2, mockConfig->GetTimeInterval());
-
-    MessageParcel newParcel;
-    mockConfig->Marshalling(newParcel);
-    EXPECT_EQ(1, newParcel.ReadInt32());
-    EXPECT_EQ(2, newParcel.ReadInt32());
-}
-
-HWTEST_F(LocationCommonTest, LocationMockConfigTest002, TestSize.Level1)
-{
-    std::unique_ptr<LocationMockConfig> mockConfig = std::make_unique<LocationMockConfig>();
-    LocationMockConfig locationMockConfigSet1;
-    locationMockConfigSet1.SetScenario(1);
-    locationMockConfigSet1.SetTimeInterval(2);
-    mockConfig->Set(locationMockConfigSet1);
-    mockConfig->IsSame(locationMockConfigSet1);
-
-    LocationMockConfig locationMockConfigSet2;
-    locationMockConfigSet2.SetScenario(2);
-    mockConfig->IsSame(locationMockConfigSet2);
 }
 
 /*

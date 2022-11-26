@@ -13,21 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef FUSION_CONTROLLER_TEST_H
-#define FUSION_CONTROLLER_TEST_H
+#ifndef LOCATION_NAPI_ERRCODE_H
+#define LOCATION_NAPI_ERRCODE_H
 
-#include <gtest/gtest.h>
-
-#include "fusion_controller.h"
+#include <string>
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
-class FusionControllerTest : public testing::Test {
-public:
-    void SetUp();
-    void TearDown();
-    std::shared_ptr<FusionController> fusionController_;
-};
-} // namespace Location
-} // namespace OHOS
-#endif // FUSION_CONTROLLER_TEST_H
+void HandleSyncErrCode(const napi_env &env, int32_t errCode);
+napi_value GetErrorValue(napi_env env, const int32_t errCode, const std::string errMsg);
+}  // namespace Location
+}  // namespace OHOS
+
+#endif // LOCATION_NAPI_ERRCODE_H

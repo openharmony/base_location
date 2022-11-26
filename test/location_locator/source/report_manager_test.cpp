@@ -37,6 +37,7 @@ void ReportManagerTest::SetUp()
 {
     MockNativePermission();
     reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
+    EXPECT_NE(nullptr, reportManager_);
 }
 
 void ReportManagerTest::TearDown()

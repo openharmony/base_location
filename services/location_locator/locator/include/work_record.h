@@ -27,11 +27,10 @@ public:
     WorkRecord();
     virtual ~WorkRecord() = default;
     bool Add(int uid, int pid, std::string name, int timeInterval, std::string uuid);
-    bool Remove(int uid, int pid, std::string name);
-    bool Find(int uid, std::string name);
+    bool Remove(int uid, int pid, std::string name, std::string uuid);
+    bool Find(int uid, std::string name, std::string uuid);
     void Clear();
     void Set(WorkRecord &workRecord);
-    bool Remove(int uid, std::string name);
     bool Remove(std::string name);
     std::string GetDeviceId();
     void SetDeviceId(std::string deviceId);
@@ -41,7 +40,7 @@ public:
     int GetUid(int index);
     int GetPid(int index);
     int GetTimeInterval(int index);
-    std::string GetUUid(int index);
+    std::string GetUuid(int index);
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     bool MarshallingWorkRecord(Parcel& parcel) const;

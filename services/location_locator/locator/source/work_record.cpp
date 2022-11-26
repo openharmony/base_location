@@ -134,7 +134,7 @@ int WorkRecord::GetTimeInterval(int index)
     return -1;
 }
 
-std::string WorkRecord::GetUUid(int index)
+std::string WorkRecord::GetUuid(int index)
 {
     if (index >= 0 && index < num_) {
         return uuid_[index];
@@ -167,36 +167,16 @@ bool WorkRecord::IsEmpty()
 
 bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::string uuid)
 {
-    if (num_ <= 0) {
-        uids_.insert(uids_.begin(), uid);
-        pids_.insert(pids_.begin(), pid);
-        names_.insert(names_.begin(), name);
-        timeInterval_.insert(timeInterval_.begin(), timeInterval);
-        uuid_.insert(uuid_.begin(), uuid);
-        num_++;
-        return true;
-    }
-    int i = 0;
-    for (auto it = uids_.begin(); it != uids_.end(); it++, i++) {
-        if (*it == uid) {
-            int diff = name.compare(names_[i]);
-            if (diff == 0) {
-                return false;
-            } else {
-                break;
-            }
-        }
-    }
-    uids_.insert(uids_.begin() + i, uid);
-    pids_.insert(pids_.begin() + i, pid);
-    names_.insert(names_.begin() + i, name);
-    timeInterval_.insert(timeInterval_.begin() + i, timeInterval);
-    uuid_.insert(uuid_.begin() + i, uuid);
+    uids_.push_back(uid);
+    pids_.push_back(pid);
+    names_.push_back(name);
+    timeInterval_.push_back(timeInterval);
+    uuid_.push_back(uuid);
     num_++;
     return true;
 }
 
-bool WorkRecord::Remove(int uid, int pid, std::string name)
+bool WorkRecord::Remove(int uid, int pid, std::string name, std::string uuid)
 {
     if (uids_.size() <= 0) {
         return false;
@@ -204,8 +184,7 @@ bool WorkRecord::Remove(int uid, int pid, std::string name)
     unsigned int i = 0;
     for (auto iterUid = uids_.begin(); iterUid != uids_.end(); iterUid++, i++) {
         if (*iterUid == uid) {
-            int diff = name.compare(names_[i]);
-            if (diff == 0) {
+            if ((name.compare(names_[i]) == 0) && (uuid.compare(uuid_[i]) == 0)) {
                 break;
             }
         }
@@ -245,7 +224,7 @@ bool WorkRecord::Remove(std::string name)
     return true;
 }
 
-bool WorkRecord::Find(int uid, std::string name)
+bool WorkRecord::Find(int uid, std::string name, std::string uuid)
 {
     if (uids_.size() <= 0) {
         return false;
@@ -253,8 +232,7 @@ bool WorkRecord::Find(int uid, std::string name)
     int i = 0;
     for (auto iterUid = uids_.begin(); iterUid != uids_.end(); iterUid++, i++) {
         if (*iterUid == uid) {
-            int diff = name.compare(names_[i]);
-            if (diff == 0) {
+            if ((name.compare(names_[i]) == 0) && (uuid.compare(uuid_[i]) == 0)) {
                 return true;
             }
         }
@@ -281,7 +259,7 @@ void WorkRecord::Set(WorkRecord &workRecord)
         int pid = workRecord.GetPid(i);
         std::string name = workRecord.GetName(i);
         int timeInterval = workRecord.GetTimeInterval(i);
-        std::string uuid = workRecord.GetUUid(i);
+        std::string uuid = workRecord.GetUuid(i);
         Add(uid, pid, name, timeInterval, uuid);
     }
 }

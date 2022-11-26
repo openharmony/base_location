@@ -29,7 +29,6 @@
 #include "i_locator.h"
 #include "i_locator_callback.h"
 #include "location.h"
-#include "location_mock_config.h"
 #include "request_config.h"
 
 namespace OHOS {
@@ -47,6 +46,8 @@ public:
     void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback);
     void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid);
     void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback);
+    int RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
+    int UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
     void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid);
     void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback);
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -70,10 +71,10 @@ public:
     void AddFence(std::unique_ptr<GeofenceRequest>& request);
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request);
     std::shared_ptr<CountryCode> GetIsoCountryCode();
-    bool EnableLocationMock(const LocationMockConfig& config);
-    bool DisableLocationMock(const LocationMockConfig& config);
+    bool EnableLocationMock();
+    bool DisableLocationMock();
     bool SetMockedLocations(
-        const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location);
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
 
     bool EnableReverseGeocodingMock();
 

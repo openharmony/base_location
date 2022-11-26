@@ -149,10 +149,10 @@ HWTEST_F(LocatorEventManagerTest, LocatorDftManagerDistributionTest001, TestSize
     auto locatorDftManager =
         DelayedSingleton<LocatorDftManager>::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
-    for (int i = 0; i <= COUNT_MAX; i++) {
+    for (uint32_t i = 0; i <= COUNT_MAX; i++) {
         locatorDftManager->DistributionDisconnect();
     }
-    for (int i = 0; i <= COUNT_MAX; i++) {
+    for (uint32_t i = 0; i <= COUNT_MAX; i++) {
         locatorDftManager->DistributionSessionStart();
     }
 }

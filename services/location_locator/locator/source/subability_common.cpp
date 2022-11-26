@@ -46,6 +46,7 @@ void SubAbility::SetAbility(std::string name)
 
 void SubAbility::LocationRequest(WorkRecord &workRecord)
 {
+    interval_ = workRecord.GetTimeInterval(0);
     newRecord_->Clear();
     newRecord_->Set(workRecord);
     HandleRefrashRequirements();
@@ -79,13 +80,13 @@ void SubAbility::HandleRemoveRecord(WorkRecord &newRecord)
 {
     for (int i = 0; i < lastRecord_->Size(); i++) {
         int uid = lastRecord_->GetUid(i);
-        bool isFind = newRecord.Find(uid, lastRecord_->GetName(i));
-        LBSLOGI(label_, "remove record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
+        bool isFind = newRecord.Find(uid, lastRecord_->GetName(i), lastRecord_->GetUuid(i));
+        LBSLOGD(label_, "remove record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
             workRecord->Add(uid, lastRecord_->GetPid(i), lastRecord_->GetName(i),
-                lastRecord_->GetTimeInterval(i), lastRecord_->GetUUid(i));
+                lastRecord_->GetTimeInterval(i), lastRecord_->GetUuid(i));
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(*workRecord, false);
         }
@@ -96,13 +97,13 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
 {
     for (int i = 0; i < newRecord.Size(); i++) {
         int uid = newRecord.GetUid(i);
-        bool isFind = lastRecord_->Find(uid, newRecord.GetName(i));
-        LBSLOGI(label_, "add record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
+        bool isFind = lastRecord_->Find(uid, newRecord.GetName(i), lastRecord_->GetUuid(i));
+        LBSLOGD(label_, "add record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
             workRecord->Add(uid, newRecord.GetPid(i), newRecord.GetName(i),
-                newRecord.GetTimeInterval(i), newRecord.GetUUid(i));
+                newRecord.GetTimeInterval(i), newRecord.GetUuid(i));
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(*workRecord, true);
         }
@@ -138,37 +139,36 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
     std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
     records->Set(*lastRecord_);
     if (state) {
-        records->Add(uid, pid, name, 1, uuid);
+        records->Add(uid, pid, name, interval_, uuid);
     } else {
-        records->Remove(uid, pid, name);
+        records->Remove(uid, pid, name, uuid);
     }
     LocationRequest(*records);
     records->Clear();
 }
 
-bool SubAbility::EnableLocationMock(const LocationMockConfig& config)
+bool SubAbility::EnableLocationMock()
 {
     LBSLOGI(label_, "EnableLocationMock current state is %{public}d", mockEnabled_);
     mockEnabled_ = true;
     return true;
 }
 
-bool SubAbility::DisableLocationMock(const LocationMockConfig& config)
+bool SubAbility::DisableLocationMock()
 {
     LBSLOGI(label_, "DisableLocationMock current state is %{public}d", mockEnabled_);
     mockEnabled_ = false;
     return true;
 }
 
-bool SubAbility::SetMockedLocations(const LocationMockConfig& config,
-    const std::vector<std::shared_ptr<Location>> &location)
+bool SubAbility::SetMockedLocations(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     if (!mockEnabled_) {
         LBSLOGE(label_, "SetMockedLocations current state is %{public}d, need enbale it", mockEnabled_);
         return false;
     }
     CacheLocationMock(location);
-    mockTimeInterval_ = config.GetTimeInterval();
+    mockTimeInterval_ = timeInterval;
     SendReportMockLocationEvent();
     return true;
 }

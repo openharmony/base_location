@@ -41,7 +41,12 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
     SubscriberSetId setId;
     setId.type = HDI::Location::Agnss::V1_0::SETID_TYPE_IMSI;
     setId.id = imsi;
-    DelayedSingleton<GnssAbility>::GetInstance().get()->SetSetId(setId);
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "RequestSubscriberSetId: gnss ability is nullptr");
+        return ERR_OK;
+    }
+    gnssAbility.get()->SetSetId(setId);
     return ERR_OK;
 }
 
@@ -82,7 +87,12 @@ int32_t AGnssEventCallback::RequestAgnssRefInfo()
             default:
                 break;
         }
-        DelayedSingleton<GnssAbility>::GetInstance().get()->SetRefInfo(refInfo);
+        auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+        if (gnssAbility == nullptr) {
+            LBSLOGE(GNSS, "RequestAgnssRefInfo: gnss ability is nullptr");
+            break;
+        }
+        gnssAbility.get()->SetRefInfo(refInfo);
         break;
     }
     return ERR_OK;
