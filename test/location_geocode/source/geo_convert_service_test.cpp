@@ -208,6 +208,8 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertServiceOnStartAndOnStop001, TestSize.L
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, service_->QueryServiceState());
     service_->OnStop(); // stop ability
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, service_->QueryServiceState());
+    service_->OnStart(); // restart ability
+    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, service_->QueryServiceState());
 }
 
 HWTEST_F(GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1)
