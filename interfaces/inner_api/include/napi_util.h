@@ -77,7 +77,7 @@ void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& co
 void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContext, const napi_value& object);
 void DeleteQueueWork(AsyncContext* context);
 void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work);
-napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string errMsg);
+napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string& errMsg);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 { \

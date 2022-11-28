@@ -24,7 +24,6 @@
 namespace OHOS {
 namespace Location {
 void HandleSyncErrCode(const napi_env &env, int32_t errCode);
-napi_value GetErrorValue(napi_env env, const int32_t errCode, const std::string errMsg);
 }  // namespace Location
 }  // namespace OHOS
 
