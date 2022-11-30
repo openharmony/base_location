@@ -163,6 +163,30 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     EXPECT_EQ(1000.0, location->GetAccuracy());
 }
 
+HWTEST_F(ReportManagerTest, GetPermittedLocationTest002, TestSize.Level1)
+{
+    AccessTokenKit::RevokePermission(tokenId_, ACCESS_LOCATION, 0);
+    EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(tokenId_, 0, nullptr));
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0); // latitude
+    parcel.WriteDouble(13.0); // longitude
+    parcel.WriteDouble(14.0); // altitude
+    parcel.WriteFloat(1000.0); // accuracy
+    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(90.0); // direction
+    parcel.WriteInt64(1000000000); // timeStamp
+    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(false); // isFromMock
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcel(parcel);
+    EXPECT_NE(nullptr, reportManager_->GetPermittedLocation(tokenId_, 0, location));
+    EXPECT_NE(12.0, location->GetLatitude());
+    EXPECT_NE(13.0, location->GetLongitude());
+    EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, location->GetAccuracy());
+}
+
 HWTEST_F(ReportManagerTest, UpdateRandomTest001, TestSize.Level1)
 {
     reportManager_->UpdateRandom();
@@ -186,6 +210,26 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
     location->ReadFromParcel(parcel);
 
     reportManager_->OnReportLocation(location, UNKNOWN_ABILITY);
+}
+
+HWTEST_F(ReportManagerTest, OnReportLocationTest002, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0); // latitude
+    parcel.WriteDouble(13.0); // longitude
+    parcel.WriteDouble(14.0); // altitude
+    parcel.WriteFloat(1000.0); // accuracy
+    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(90.0); // direction
+    parcel.WriteInt64(1000000000); // timeStamp
+    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(false); // isFromMock
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcel(parcel);
+
+    reportManager_->OnReportLocation(location, GNSS_ABILITY);
 }
 }  // namespace Location
 }  // namespace OHOS
