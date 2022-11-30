@@ -651,5 +651,131 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
     status->ReadFromParcel(parcel);
     ability_->ReportSv(status);
 }
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestSetUpAgnssDataLink001, TestSize.Level1)
+{
+    sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssDataLinkRequest request;
+    request.agnssType = HDI::Location::Agnss::V1_0::AGNSS_TYPE_SUPL;
+    request.setUpType = HDI::Location::Agnss::V1_0::ESTABLISH_DATA_CONNECTION;
+    EXPECT_EQ(ERR_OK, agnssCallback->RequestSetUpAgnssDataLink(request));
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestSubscriberSetId001, TestSize.Level1)
+{
+    sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    SubscriberSetIdType type = HDI::Location::Agnss::V1_0::SETID_TYPE_IMSI;
+    EXPECT_EQ(ERR_OK, agnssCallback->RequestSubscriberSetId(type));
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo001, TestSize.Level1)
+{
+    sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    EXPECT_EQ(ERR_OK, agnssCallback->RequestAgnssRefInfo());
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportLocation001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    LocationInfo locationInfo;
+    locationInfo.latitude = 1.0;
+    locationInfo.longitude = 2.0;
+    locationInfo.altitude = 1.0;
+    locationInfo.accuracy = 1.0;
+    locationInfo.speed = 1.0;
+    locationInfo.direction= 1.0;
+    locationInfo.timeStamp = 1000000000;
+    locationInfo.timeSinceBoot = 1000000000;
+    gnssCallback->ReportLocation(locationInfo);
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    GnssWorkingStatus status = HDI::Location::Gnss::V1_0::GNSS_STATUS_NONE;
+    gnssCallback->ReportGnssWorkingStatus(status);
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportNmea001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    gnssCallback->ReportNmea(0, "nmea", 0);
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssCapabilities001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    GnssCapabilities capabilities = HDI::Location::Gnss::V1_0::GNSS_CAP_SUPPORT_MSB;
+    gnssCallback->ReportGnssCapabilities(capabilities);
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    SatelliteStatusInfo statusInfo;
+    statusInfo.satellitesNumber = 1;
+    statusInfo.satelliteIds[0] = 1;
+    statusInfo.constellation[0] = HDI::Location::Gnss::V1_0::GNSS_CONSTELLATION_GPS;
+    statusInfo.carrierToNoiseDensitys[0] = 1.0;
+    statusInfo.elevation[0] = 1.0;
+    statusInfo.azimuths[0] = 2.0;
+    statusInfo.carrierFrequencies[0] = 1.0;
+    statusInfo.flags =
+        HDI::Location::Gnss::V1_0::SATELLITES_STATUS_HAS_EPHEMERIS_DATA;
+    gnssCallback->ReportSatelliteStatusInfo(statusInfo);
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo002, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    SatelliteStatusInfo statusInfo;
+    statusInfo.satellitesNumber = 0;
+    statusInfo.flags =
+        HDI::Location::Gnss::V1_0::SATELLITES_STATUS_HAS_EPHEMERIS_DATA;
+    gnssCallback->ReportSatelliteStatusInfo(statusInfo);
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackRequestGnssReferenceInfo001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    GnssRefInfoType type = HDI::Location::Gnss::V1_0::GNSS_REF_INFO_TIME;
+    gnssCallback->RequestGnssReferenceInfo(type);
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackRequestPredictGnssData001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    gnssCallback->RequestPredictGnssData();
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Level1)
+{
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    std::vector<LocationInfo> gnssLocations;
+    LocationInfo locationInfo;
+    locationInfo.latitude = 1.0;
+    locationInfo.longitude = 2.0;
+    locationInfo.altitude = 1.0;
+    locationInfo.accuracy = 1.0;
+    locationInfo.speed = 1.0;
+    locationInfo.direction= 1.0;
+    locationInfo.timeStamp = 1000000000;
+    locationInfo.timeSinceBoot = 1000000000;
+    gnssLocations.push_back(locationInfo);
+    gnssCallback->ReportCachedLocation(gnssLocations);
+}
+
 }  // namespace Location
 }  // namespace OHOS
