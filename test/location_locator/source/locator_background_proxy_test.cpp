@@ -17,11 +17,22 @@
 
 #include "accesstoken_kit.h"
 #include "app_state_data.h"
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
+#include "common_event_manager.h"
+#include "common_event_subscriber.h"
+#include "common_event_support.h"
+#include "if_system_ability_manager.h"
+#include "ipc_skeleton.h"
+#include "iservice_registry.h"
+#include "message_parcel.h"
 #include "nativetoken_kit.h"
+#include "system_ability_definition.h"
 #include "token_setproc.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "location.h"
 #include "locator_background_proxy.h"
 #include "locator_callback_host.h"
 
@@ -72,7 +83,7 @@ HWTEST_F(LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Lev
 
 HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.Level1)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
@@ -87,7 +98,7 @@ HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
@@ -95,14 +106,114 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
     request1->SetPackageName("LocatorBackgroundProxyTest");
-    locatorBackgroundProxy->OnSuspend(request1, true);
-    
-    locatorBackgroundProxy->OnSuspend(request1, false);
+    locatorBackgroundProxy->OnSuspend(request1, true); // cant find uid in requestMap
+
+    locatorBackgroundProxy->OnSuspend(request1, false); // cant find uid in requestMap
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1)
+{
+    int32_t userId = 0;
+    CommonUtils::GetCurrentUserId(userId);
+
+    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(nullptr, smgr);
+    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_NE(nullptr, remoteObject);
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
+    EXPECT_NE(nullptr, bundleMgrProxy);
+    std::string name = "ohos.global.systemres";
+    int32_t uid = bundleMgrProxy->GetUidByBundleName(name, userId);
+
+    LBSLOGD(LOCATOR, "bundleName : %{public}s, uid = %{public}d", name.c_str(), uid);
+
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    request1->SetUid(uid);
+    request1->SetPid(0);
+    request1->SetTokenId(tokenId_);
+    request1->SetFirstTokenId(0);
+    request1->SetPackageName(name);
+    auto requestConfig = std::make_unique<RequestConfig>();
+    EXPECT_NE(nullptr, requestConfig);
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetFixNumber(0);
+    request1->SetRequestConfig(*requestConfig);
+    locatorBackgroundProxy->OnSuspend(request1, true); // cant find request in list
+    locatorBackgroundProxy->OnSuspend(request1, false); // add to requestsList
+    locatorBackgroundProxy->OnSuspend(request1, false); // max num is 1, cant add request
+    locatorBackgroundProxy->OnSuspend(request1, true); // remove from requestList
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest003, TestSize.Level1)
+{
+    int32_t userId = 0;
+    CommonUtils::GetCurrentUserId(userId);
+
+    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(nullptr, smgr);
+    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_NE(nullptr, remoteObject);
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
+    EXPECT_NE(nullptr, bundleMgrProxy);
+    std::string name = "ohos.global.systemres";
+    int32_t uid = bundleMgrProxy->GetUidByBundleName(name, userId);
+
+    LBSLOGD(LOCATOR, "bundleName : %{public}s, uid = %{public}d", name.c_str(), uid);
+
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    request1->SetUid(uid);
+    request1->SetPid(0);
+    request1->SetTokenId(tokenId_);
+    request1->SetFirstTokenId(0);
+    request1->SetPackageName(name);
+    auto requestConfig = std::make_unique<RequestConfig>();
+    EXPECT_NE(nullptr, requestConfig);
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetFixNumber(1); // fix number is 1
+    request1->SetRequestConfig(*requestConfig);
+    locatorBackgroundProxy->OnSuspend(request1, false); // add to requestsList
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest004, TestSize.Level1)
+{
+    int32_t userId = 0;
+    CommonUtils::GetCurrentUserId(userId);
+
+    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(nullptr, smgr);
+    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_NE(nullptr, remoteObject);
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
+    EXPECT_NE(nullptr, bundleMgrProxy);
+    std::string name = "ohos.global.systemres";
+    int32_t uid = bundleMgrProxy->GetUidByBundleName(name, userId);
+
+    LBSLOGD(LOCATOR, "bundleName : %{public}s, uid = %{public}d", name.c_str(), uid);
+
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    request1->SetUid(uid);
+    request1->SetPid(0);
+    request1->SetTokenId(0); // invalid token id
+    request1->SetFirstTokenId(0);
+    request1->SetPackageName(name);
+    auto requestConfig = std::make_unique<RequestConfig>();
+    EXPECT_NE(nullptr, requestConfig);
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetFixNumber(0);
+    request1->SetRequestConfig(*requestConfig);
+    locatorBackgroundProxy->OnSuspend(request1, false); // permission denied, cant add to requestsList
+    locatorBackgroundProxy->OnSuspend(request1, true); // permission denied, cant remove from requestList
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest001, TestSize.Level1)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     locatorBackgroundProxy->OnSaStateChange(true);
     
@@ -113,7 +224,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest001, TestSize.Level1)
 
 HWTEST_F(LocatorBackgroundProxyTest, OnDeleteRequestRecord001, TestSize.Level1)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
@@ -126,7 +237,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnDeleteRequestRecord001, TestSize.Level1)
 
 HWTEST_F(LocatorBackgroundProxyTest, IsCallbackInProxyTest001, TestSize.Level1)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     sptr<LocatorCallbackHost> locatorCallbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
@@ -152,18 +263,18 @@ HWTEST_F(LocatorBackgroundProxyTest, IsCallbackInProxyTest001, TestSize.Level1)
 
 HWTEST_F(LocatorBackgroundProxyTest, IsAppBackgroundTest001, TestSize.Level1)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     EXPECT_EQ(true, locatorBackgroundProxy->IsAppBackground("LocatorBackgroundProxyTest"));
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.Level1)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver()); // unreg first
-    EXPECT_EQ(false, locatorBackgroundProxy->RegisterAppStateObserver());
-    EXPECT_EQ(false, locatorBackgroundProxy->RegisterAppStateObserver()); // register again
+    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver()); // register again
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
 }
 }  // namespace Location

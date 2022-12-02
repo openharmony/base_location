@@ -513,15 +513,15 @@ HWTEST_F(GnssAbilityTest, GnssDump001, TestSize.Level1)
     args.emplace_back(arg3);
     std::u16string arg4 = Str8ToStr16("arg4");
     args.emplace_back(arg4);
-    ability_->Dump(fd, args);
+    EXPECT_EQ(ERR_OK, ability_->Dump(fd, args));
 
     std::vector<std::u16string> emptyArgs;
-    ability_->Dump(fd, emptyArgs);
+    EXPECT_EQ(ERR_OK, ability_->Dump(fd, emptyArgs));
 
     std::vector<std::u16string> helpArgs;
     std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
     helpArgs.emplace_back(helpArg1);
-    ability_->Dump(fd, emptyArgs);
+    EXPECT_EQ(ERR_OK, ability_->Dump(fd, helpArgs));
 }
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
@@ -714,23 +714,6 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssCapabilities001, TestSize.L
     EXPECT_NE(nullptr, gnssCallback);
     GnssCapabilities capabilities = HDI::Location::Gnss::V1_0::GNSS_CAP_SUPPORT_MSB;
     gnssCallback->ReportGnssCapabilities(capabilities);
-}
-
-HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo001, TestSize.Level1)
-{
-    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
-    EXPECT_NE(nullptr, gnssCallback);
-    SatelliteStatusInfo statusInfo;
-    statusInfo.satellitesNumber = 1;
-    statusInfo.satelliteIds[0] = 1;
-    statusInfo.constellation[0] = HDI::Location::Gnss::V1_0::GNSS_CONSTELLATION_GPS;
-    statusInfo.carrierToNoiseDensitys[0] = 1.0;
-    statusInfo.elevation[0] = 1.0;
-    statusInfo.azimuths[0] = 2.0;
-    statusInfo.carrierFrequencies[0] = 1.0;
-    statusInfo.flags =
-        HDI::Location::Gnss::V1_0::SATELLITES_STATUS_HAS_EPHEMERIS_DATA;
-    gnssCallback->ReportSatelliteStatusInfo(statusInfo);
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo002, TestSize.Level1)

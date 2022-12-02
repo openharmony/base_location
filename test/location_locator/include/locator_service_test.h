@@ -42,6 +42,7 @@ public:
     std::shared_ptr<LocatorBackgroundProxy> backgroundProxy_;
     std::shared_ptr<Request> request_;
     std::shared_ptr<RequestManager> requestManager_;
+    uint64_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS

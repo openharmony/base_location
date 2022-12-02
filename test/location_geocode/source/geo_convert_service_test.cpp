@@ -222,15 +222,37 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1)
     args.emplace_back(arg3);
     std::u16string arg4 = Str8ToStr16("arg4");
     args.emplace_back(arg4);
-    service_->Dump(fd, args);
+    EXPECT_EQ(ERR_OK, service_->Dump(fd, args));
 
     std::vector<std::u16string> emptyArgs;
-    service_->Dump(fd, emptyArgs);
+    EXPECT_EQ(ERR_OK, service_->Dump(fd, emptyArgs));
 
     std::vector<std::u16string> helpArgs;
     std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
     helpArgs.emplace_back(helpArg1);
-    service_->Dump(fd, emptyArgs);
+    EXPECT_EQ(ERR_OK, service_->Dump(fd, helpArgs));
 }
-} // namespace Location
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSize.Level1)
+{
+    MessageParcel parcel1;
+    MessageParcel reply1;
+    EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
+    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, proxy_->GetAddressByCoordinate(parcel1, reply1));
+
+    MessageParcel parcel2;
+    MessageParcel reply2;
+    EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
+    proxy_->GetAddressByCoordinate(parcel2, reply2);
+    EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply2.ReadInt32());
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByLocationName001, TestSize.Level1)
+{
+    MessageParcel parcel;
+    MessageParcel reply;
+    proxy_->GetAddressByLocationName(parcel, reply);
+    EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply.ReadInt32());
+}
+}  // namespace Location
 } // namespace OHOS
