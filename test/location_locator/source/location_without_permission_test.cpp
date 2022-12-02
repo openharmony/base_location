@@ -98,7 +98,12 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, Tes
     MessageParcel request002;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
     locatorImpl->GetAddressByLocationName(request002, geoAddressList002);
+}
 
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
     EXPECT_NE(nullptr, gnssCallbackHost);
@@ -122,7 +127,12 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, Tes
 
     EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
     EXPECT_EQ(true, locatorImpl->ResetAllProxy());
+}
 
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, TestSize.Level1)
+{
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;

@@ -394,7 +394,7 @@ HWTEST_F(LocationCommonTest, PermStateChangeCallbackTest001, TestSize.Level1)
     PermStateChangeScope scopeInfo;
     scopeInfo.permList = {"ohos.permission.LOCATION"};
     scopeInfo.tokenIDs = {callingTokenId};
-    auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo); //std::shared_ptr<PermissionStatusChangeCb>
+    auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
     struct PermStateChangeInfo result{0, callingTokenId, ACCESS_LOCATION};
     callbackPtr->PermStateChangeCallback(result);
 }

@@ -237,7 +237,8 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
     locatorImpl->StartLocating(requestConfig, callbackStub); // start locating
     sleep(1);
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report location successfully
-    EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report the same location, result check is false
+    EXPECT_EQ(true,
+        reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report the same location, result check is false
     locatorImpl->StopLocating(callbackStub);
 }
 
