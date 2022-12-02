@@ -34,7 +34,7 @@ namespace Location {
 class AppStateChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
 public:
     AppStateChangeCallback();
-    ~AppStateChangeCallback();
+    ~AppStateChangeCallback() override;
 
     void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
 };

@@ -59,7 +59,7 @@ static napi_value Init(napi_env env, napi_value exports)
 static napi_module g_locationModule = {
     .nm_version = 1,
     .nm_flags = 0,
-    .nm_filename = NULL,
+    .nm_filename = nullptr,
     .nm_register_func = Init,
     .nm_modname = "geolocation",
     .nm_priv = ((void *)0),

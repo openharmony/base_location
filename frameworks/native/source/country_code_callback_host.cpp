@@ -156,7 +156,7 @@ void CountryCodeCallbackHost::SetEnv(napi_env env)
 void CountryCodeCallbackHost::SetCallback(napi_ref cb)
 {
     std::shared_lock<std::shared_mutex> guard(mutex_);
-    handlerCb_= cb;
+    handlerCb_ = cb;
 }
 
 void CountryCodeCallbackHost::DeleteHandler()

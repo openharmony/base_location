@@ -64,7 +64,7 @@ DECLEAR_SYSTEM_ABILITY(GnssAbility);
 public:
     DISALLOW_COPY_AND_MOVE(GnssAbility);
     GnssAbility();
-    ~GnssAbility();
+    ~GnssAbility() override;
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const

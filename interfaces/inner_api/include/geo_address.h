@@ -25,7 +25,7 @@ namespace Location {
 class GeoAddress : public Parcelable {
 public:
     GeoAddress();
-    virtual ~GeoAddress() = default;
+    ~GeoAddress() override = default;
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<GeoAddress> Unmarshalling(Parcel& parcel);
     std::string GetDescriptions(int index);

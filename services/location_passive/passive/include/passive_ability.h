@@ -44,7 +44,7 @@ DECLEAR_SYSTEM_ABILITY(PassiveAbility);
 public:
     DISALLOW_COPY_AND_MOVE(PassiveAbility);
     PassiveAbility();
-    ~PassiveAbility();
+    ~PassiveAbility() override;
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const

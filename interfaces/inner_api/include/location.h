@@ -25,7 +25,7 @@ class Location : public Parcelable {
 public:
     Location();
     explicit Location(Location &location);
-    virtual ~Location() = default;
+    ~Location() override = default;
 
     inline double GetLatitude() const
     {

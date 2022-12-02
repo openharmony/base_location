@@ -43,7 +43,7 @@ DECLEAR_SYSTEM_ABILITY(NetworkAbility);
 public:
     DISALLOW_COPY_AND_MOVE(NetworkAbility);
     NetworkAbility();
-    ~NetworkAbility();
+    ~NetworkAbility() override;
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const

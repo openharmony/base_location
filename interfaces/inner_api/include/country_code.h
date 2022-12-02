@@ -38,7 +38,7 @@ public:
         SetCountryCodeType(country.GetCountryCodeType());
     }
 
-    virtual ~CountryCode() = default;
+    ~CountryCode() override = default;
 
     inline bool IsSame(CountryCode& country) const
     {
