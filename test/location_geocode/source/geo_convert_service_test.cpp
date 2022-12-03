@@ -202,14 +202,6 @@ HWTEST_F(GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1)
     EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertServiceOnStartAndOnStop001, TestSize.Level1)
-{
-    service_->OnStart(); // start ability
-    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, service_->QueryServiceState());
-    service_->OnStop(); // stop ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, service_->QueryServiceState());
-}
-
 HWTEST_F(GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1)
 {
     int32_t fd = 0;
