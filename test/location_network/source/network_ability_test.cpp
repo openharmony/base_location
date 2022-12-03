@@ -199,15 +199,15 @@ HWTEST_F(NetworkAbilityTest, NetworkDump001, TestSize.Level1)
     args.emplace_back(arg3);
     std::u16string arg4 = Str8ToStr16("arg4");
     args.emplace_back(arg4);
-    ability_->Dump(fd, args);
+    EXPECT_EQ(ERR_OK, ability_->Dump(fd, args));
 
     std::vector<std::u16string> emptyArgs;
-    ability_->Dump(fd, emptyArgs);
+    EXPECT_EQ(ERR_OK, ability_->Dump(fd, emptyArgs));
 
     std::vector<std::u16string> helpArgs;
     std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
     helpArgs.emplace_back(helpArg1);
-    ability_->Dump(fd, emptyArgs);
+    EXPECT_EQ(ERR_OK, ability_->Dump(fd, helpArgs));
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent001, TestSize.Level1)
