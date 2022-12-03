@@ -13,23 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef REPORT_MANAGER_TEST_H
-#define REPORT_MANAGER_TEST_H
+#ifndef LOCATION_APPROXIMATELY_PERMISSION_TEST_H
+#define LOCATION_APPROXIMATELY_PERMISSION_TEST_H
 
 #include <gtest/gtest.h>
+
 #include "report_manager.h"
 
 namespace OHOS {
 namespace Location {
-class ReportManagerTest : public testing::Test {
+class LocationApproximatelyPermissionTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
 
-    std::shared_ptr<ReportManager> reportManager_;
     uint64_t tokenId_;
+    std::shared_ptr<ReportManager> reportManager_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // REPORT_MANAGER_TEST_H
+#endif // LOCATION_APPROXIMATELY_PERMISSION_TEST_H
