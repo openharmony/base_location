@@ -35,6 +35,7 @@
 #include "country_code_callback_host.h"
 #include "geo_address.h"
 #include "gnss_status_callback_host.h"
+#include "i_locator.h"
 #include "location.h"
 #include "location_log.h"
 #include "location_switch_callback_host.h"
@@ -54,6 +55,7 @@ const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
 const int REQUEST_MAX_NUM = 3;
 const int UNKNOWN_SERVICE_ID = -1;
+const std::string ARGS_HELP = "-h";
 void LocatorServiceTest::SetUp()
 {
     /*
@@ -107,8 +109,8 @@ void LocatorServiceTest::MockNativePermission()
         .processName = "LocatorTest",
         .aplStr = "system_basic",
     };
-    uint64_t tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
+    tokenId_ = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
@@ -912,7 +914,6 @@ HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
      * @tc.steps: step1. build geo fence request
      */
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1; // priority
     request->scenario = 2; // scenario
     request->geofence.latitude = 35.1; // latitude
     request->geofence.longitude = 40.2; // longitude
@@ -1405,7 +1406,6 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->SendCommand(command));
 
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->priority = 1;
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;
     geofence.latitude = 1.0;
@@ -1683,7 +1683,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->priority = 1;
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;
     geofence.latitude = 1.0;
@@ -1759,6 +1758,30 @@ HWTEST_F(LocatorServiceTest, locatorServiceProxyUidForFreeze001, TestSize.Level1
     EXPECT_EQ(true, locatorAbility->IsProxyUid(SYSTEM_UID));
     locatorAbility->ResetAllProxy();
     EXPECT_EQ(false, locatorAbility->IsProxyUid(SYSTEM_UID));
+}
+
+HWTEST_F(LocatorServiceTest, LocatorAbilityStubDump001, TestSize.Level1)
+{
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    int32_t fd = 0;
+    std::vector<std::u16string> args;
+    std::u16string arg1 = Str8ToStr16("arg1");
+    args.emplace_back(arg1);
+    std::u16string arg2 = Str8ToStr16("arg2");
+    args.emplace_back(arg2);
+    std::u16string arg3 = Str8ToStr16("arg3");
+    args.emplace_back(arg3);
+    std::u16string arg4 = Str8ToStr16("arg4");
+    args.emplace_back(arg4);
+    EXPECT_EQ(ERR_OK, locatorAbility->Dump(fd, args));
+
+    std::vector<std::u16string> emptyArgs;
+    EXPECT_EQ(ERR_OK, locatorAbility->Dump(fd, emptyArgs));
+
+    std::vector<std::u16string> helpArgs;
+    std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
+    helpArgs.emplace_back(helpArg1);
+    EXPECT_EQ(ERR_OK, locatorAbility->Dump(fd, helpArgs));
 }
 }  // namespace Location
 }  // namespace OHOS

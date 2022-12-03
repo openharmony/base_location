@@ -22,8 +22,10 @@
 
 #include "i_locator_callback.h"
 #include "location.h"
+#include "locator.h"
 #include "locator_ability.h"
 #include "locator_callback_host.h"
+#include "locator_callback_proxy.h"
 #include "report_manager.h"
 #include "request.h"
 #include "request_manager.h"
@@ -157,10 +159,11 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     parcel.WriteBool(true); // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    EXPECT_NE(nullptr, reportManager_->GetPermittedLocation(tokenId_, 0, location));
-    EXPECT_EQ(12.0, location->GetLatitude());
-    EXPECT_EQ(13.0, location->GetLongitude());
-    EXPECT_EQ(1000.0, location->GetAccuracy());
+    auto newLocation = reportManager_->GetPermittedLocation(tokenId_, 0, location);
+    EXPECT_NE(nullptr, newLocation);
+    EXPECT_EQ(12.0, newLocation->GetLatitude());
+    EXPECT_EQ(13.0, newLocation->GetLongitude());
+    EXPECT_EQ(1000.0, newLocation->GetAccuracy());
 }
 
 HWTEST_F(ReportManagerTest, UpdateRandomTest001, TestSize.Level1)
@@ -185,7 +188,88 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
 
-    reportManager_->OnReportLocation(location, UNKNOWN_ABILITY);
+    EXPECT_EQ(false, reportManager_->OnReportLocation(location, UNKNOWN_ABILITY));
+}
+
+HWTEST_F(ReportManagerTest, OnReportLocationTest002, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0); // latitude
+    parcel.WriteDouble(13.0); // longitude
+    parcel.WriteDouble(14.0); // altitude
+    parcel.WriteFloat(1000.0); // accuracy
+    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(90.0); // direction
+    parcel.WriteInt64(1000000000); // timeStamp
+    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(false); // isFromMock
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcel(parcel);
+    EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // is not requesting
+}
+
+HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0);         // latitude
+    parcel.WriteDouble(13.0);         // longitude
+    parcel.WriteDouble(14.0);         // altitude
+    parcel.WriteFloat(1000.0);        // accuracy
+    parcel.WriteFloat(10.0);          // speed
+    parcel.WriteDouble(90.0);         // direction
+    parcel.WriteInt64(1000000000);    // timeStamp
+    parcel.WriteInt64(1000000000);    // timeSinceBoot
+    parcel.WriteString("additions");  // additions
+    parcel.WriteInt64(1);             // additionSize
+    parcel.WriteBool(false);          // isFromMock
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcel(parcel);
+
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    requestConfig->SetFixNumber(0);
+    requestConfig->SetTimeInterval(1);
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    locatorImpl->EnableAbility(true);
+    locatorImpl->StartLocating(requestConfig, callbackStub); // start locating
+    sleep(1);
+    EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report location successfully
+    EXPECT_EQ(true,
+        reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report the same location, result check is false
+    locatorImpl->StopLocating(callbackStub);
+}
+
+HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0);         // latitude
+    parcel.WriteDouble(13.0);         // longitude
+    parcel.WriteDouble(14.0);         // altitude
+    parcel.WriteFloat(1000.0);        // accuracy
+    parcel.WriteFloat(10.0);          // speed
+    parcel.WriteDouble(90.0);         // direction
+    parcel.WriteInt64(1000000000);    // timeStamp
+    parcel.WriteInt64(1000000000);    // timeSinceBoot
+    parcel.WriteString("additions");  // additions
+    parcel.WriteInt64(1);             // additionSize
+    parcel.WriteBool(false);          // isFromMock
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcel(parcel);
+
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    requestConfig->SetFixNumber(1); // locating once
+    requestConfig->SetTimeOut(120000);
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    locatorImpl->EnableAbility(true);
+    locatorImpl->StartLocating(requestConfig, callbackStub); // start locating
+    sleep(1);
+    EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // will resolve deadRequests
+    locatorImpl->StopLocating(callbackStub);
 }
 }  // namespace Location
 }  // namespace OHOS
