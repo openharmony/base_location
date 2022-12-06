@@ -140,12 +140,46 @@ HWTEST_F(RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1)
 
 HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged001, TestSize.Level1)
 {
+    requestManager_->UpdateRequestRecord(request_, true);
     int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
         request_->GetUid(), state1);
     int32_t state2 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
         request_->GetUid(), state2);
+}
+
+HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged002, TestSize.Level1)
+{
+    requestManager_->UpdateRequestRecord(request_, false);
+    int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
+    requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
+        request_->GetUid(), state1);
+    int32_t state2 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND);
+    requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
+        request_->GetUid(), state2);
+}
+
+HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged003, TestSize.Level1)
+{
+    requestManager_->UpdateRequestRecord(request_, false);
+    int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
+    requestManager_->HandlePowerSuspendChanged(request_->GetPid() + 1,
+        request_->GetUid(), state1);
+    int32_t state2 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND);
+    requestManager_->HandlePowerSuspendChanged(request_->GetPid() + 1,
+        request_->GetUid(), state2);
+}
+
+HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged004, TestSize.Level1)
+{
+    requestManager_->UpdateRequestRecord(request_, false);
+    int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
+    requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
+        request_->GetUid() + 1, state1);
+    int32_t state2 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND);
+    requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
+        request_->GetUid() + 1, state2);
 }
 
 HWTEST_F(RequestManagerTest, UpdateRequestRecord001, TestSize.Level1)
@@ -157,7 +191,10 @@ HWTEST_F(RequestManagerTest, UpdateRequestRecord001, TestSize.Level1)
 HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1)
 {
     requestManager_->UpdateUsingPermission(nullptr);
+}
 
+HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest002, TestSize.Level1)
+{
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(false, request_->GetApproximatelyPermState());
@@ -165,15 +202,23 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1)
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(false, request_->GetApproximatelyPermState());
+}
 
-    std::shared_ptr<Request> requestWithoutPermission = std::make_shared<Request>();
-    EXPECT_EQ(false, requestWithoutPermission->GetLocationPermState());
-    EXPECT_EQ(false, requestWithoutPermission->GetBackgroundPermState());
-    EXPECT_EQ(false, requestWithoutPermission->GetApproximatelyPermState());
-    requestManager_->UpdateUsingPermission(requestWithoutPermission);
-    EXPECT_EQ(false, requestWithoutPermission->GetLocationPermState());
-    EXPECT_EQ(false, requestWithoutPermission->GetBackgroundPermState());
-    EXPECT_EQ(false, requestWithoutPermission->GetApproximatelyPermState());
+HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest003, TestSize.Level1)
+{
+    requestManager_->UpdateRequestRecord(request_, true);
+    EXPECT_EQ(false, request_->GetLocationPermState());
+    EXPECT_EQ(false, request_->GetBackgroundPermState());
+    EXPECT_EQ(false, request_->GetApproximatelyPermState());
+    requestManager_->UpdateUsingPermission(request_);
+    EXPECT_EQ(true, request_->GetLocationPermState());
+    EXPECT_EQ(false, request_->GetBackgroundPermState());
+    EXPECT_EQ(true, request_->GetApproximatelyPermState());
+
+    requestManager_->UpdateRequestRecord(request_, false);
+    EXPECT_EQ(true, request_->GetLocationPermState());
+    EXPECT_EQ(false, request_->GetBackgroundPermState());
+    EXPECT_EQ(true, request_->GetApproximatelyPermState());
 }
 
 HWTEST_F(RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1)
