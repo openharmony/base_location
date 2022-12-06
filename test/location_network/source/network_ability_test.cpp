@@ -233,6 +233,7 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent001, TestSize.Lev
 
     EXPECT_EQ(true, proxy_->EnableMock()); // enable mock
     ability_->SendReportMockLocationEvent(); // report mocked location
+    sleep(2);
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Level1)
@@ -259,6 +260,7 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
 
     EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
+    sleep(2);
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent003, TestSize.Level1)
@@ -285,6 +287,7 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent003, TestSize.Lev
 
     EXPECT_EQ(true, proxy_->EnableMock()); // enable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
+    sleep(2);
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent004, TestSize.Level1)
@@ -311,6 +314,7 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent004, TestSize.Lev
 
     EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
+    sleep(2);
 }
 } // namespace Location
 } // namespace OHOS
