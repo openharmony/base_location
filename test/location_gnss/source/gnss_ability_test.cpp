@@ -548,6 +548,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
 
     EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // report mocked location
+    sleep(2);
 }
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1)
@@ -574,6 +575,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1)
 
     EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
+    sleep(2);
 }
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
@@ -600,6 +602,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
 
     EXPECT_EQ(true, proxy_->EnableMock()); // enable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
+    sleep(2);
 }
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent004, TestSize.Level1)
@@ -626,6 +629,7 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent004, TestSize.Level1)
 
     EXPECT_EQ(true, proxy_->DisableMock()); // disable mock
     ability_->SendReportMockLocationEvent(); // do not report mocked location
+    sleep(2);
 }
 
 HWTEST_F(GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1)

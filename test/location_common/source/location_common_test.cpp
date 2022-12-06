@@ -153,6 +153,29 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
 }
 
 /*
+ * @tc.name: GeoAddressTest001
+ * @tc.desc: read from parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, GeoAddressTest002, TestSize.Level1)
+{
+    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
+    geoAddress->m_hasLatitude = true;
+    geoAddress->m_latitude = 1.0;
+    EXPECT_EQ(1.0, geoAddress->GetLatitude());
+
+    geoAddress->m_hasLatitude = false;
+    EXPECT_EQ(0.0, geoAddress->GetLatitude());
+
+    geoAddress->m_hasLongitude = true;
+    geoAddress->m_longitude = 1.0;
+    EXPECT_EQ(1.0, geoAddress->GetLongitude());
+
+    geoAddress->m_hasLongitude = false;
+    EXPECT_EQ(0.0, geoAddress->GetLongitude());
+}
+
+/*
  * @tc.name: LocationTest001
  * @tc.desc: read from parcel.
  * @tc.type: FUNC
