@@ -90,14 +90,18 @@ HWTEST_F(WorkRecordTest, FindWorkRecord001, TestSize.Level1)
     EXPECT_EQ(false, workrecord->Find(SYSTEM_UID, "name", "0"));
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0"));
     EXPECT_EQ("name", workrecord->GetName(0));
-    EXPECT_EQ("", workrecord->GetName(1));
+    EXPECT_EQ("", workrecord->GetName(1)); // out of range
+    EXPECT_EQ("", workrecord->GetName(-1)); // out of range
     EXPECT_EQ(SYSTEM_UID, workrecord->GetUid(0));
-    EXPECT_EQ(-1, workrecord->GetUid(1));
+    EXPECT_EQ(-1, workrecord->GetUid(1)); // out of range
+    EXPECT_EQ(-1, workrecord->GetUid(-1)); // out of range
     EXPECT_EQ(0, workrecord->GetPid(0));
-    EXPECT_EQ(-1, workrecord->GetPid(1));
+    EXPECT_EQ(-1, workrecord->GetPid(1)); // out of range
+    EXPECT_EQ(-1, workrecord->GetPid(-1)); // out of range
     EXPECT_EQ(false, workrecord->Find(999, "name", "0"));
     EXPECT_EQ(false, workrecord->Find(999, "WrongName", "0"));
     EXPECT_EQ(true, workrecord->Find(SYSTEM_UID, "name", "0"));
+    EXPECT_EQ(false, workrecord->Find(SYSTEM_UID, "WrongName", "0"));
 }
 
 HWTEST_F(WorkRecordTest, ClearWorkRecord001, TestSize.Level1)
@@ -139,6 +143,15 @@ HWTEST_F(WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1)
     EXPECT_EQ(2, parcel.ReadInt32()); // names number
     EXPECT_EQ("name1", Str16ToStr8(parcel.ReadString16()));
     EXPECT_EQ("name2", Str16ToStr8(parcel.ReadString16()));
+}
+
+HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
+{
+    std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
+    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID + 1, 0, "name", 1, "0"));
+    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0")); // diff uid, add to record
+    EXPECT_EQ(false, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0")); // the same name in record
+    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "DiffName", 1, "0")); // diff name, add to record
 }
 } // namespace Location
 } // namespace OHOS

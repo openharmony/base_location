@@ -43,7 +43,7 @@ int NetworkCallbackHost::OnRemoteRequest(
 
 void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport, [%{public}s]", location->ToString().c_str());
+    LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport");
     DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(location, NETWORK_ABILITY);
 }
 

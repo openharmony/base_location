@@ -17,7 +17,11 @@
 
 #include "message_parcel.h"
 #include "string_ex.h"
-
+#include "ipc_skeleton.h"
+#include "want.h"
+#include "common_event_subscriber.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "app_identity.h"
 #include "common_hisysevent.h"
 #include "constant_definition.h"
@@ -28,10 +32,15 @@
 #include "request_config.h"
 #include "satellite_status.h"
 #include "want_agent.h"
+#include "permission_status_change_cb.h"
+#include "common_utils.h"
+#include "locator_event_subscriber.h"
+#include "country_code_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
+using Want = OHOS::AAFwk::Want;
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
 void LocationCommonTest::SetUp()
@@ -141,6 +150,29 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
     MessageParcel newParcel;
     geoAddress->Marshalling(newParcel);
     VerifyGeoAddressMarshalling(newParcel);
+}
+
+/*
+ * @tc.name: GeoAddressTest001
+ * @tc.desc: read from parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, GeoAddressTest002, TestSize.Level1)
+{
+    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
+    geoAddress->m_hasLatitude = true;
+    geoAddress->m_latitude = 1.0;
+    EXPECT_EQ(1.0, geoAddress->GetLatitude());
+
+    geoAddress->m_hasLatitude = false;
+    EXPECT_EQ(0.0, geoAddress->GetLatitude());
+
+    geoAddress->m_hasLongitude = true;
+    geoAddress->m_longitude = 1.0;
+    EXPECT_EQ(1.0, geoAddress->GetLongitude());
+
+    geoAddress->m_hasLongitude = false;
+    EXPECT_EQ(0.0, geoAddress->GetLongitude());
 }
 
 /*
@@ -378,5 +410,64 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)
     mockInfo->SetGeoAddressInfo(geoAddress);
     EXPECT_NE(nullptr, mockInfo->GetGeoAddressInfo());
 }
+
+HWTEST_F(LocationCommonTest, PermStateChangeCallbackTest001, TestSize.Level1)
+{
+    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    PermStateChangeScope scopeInfo;
+    scopeInfo.permList = {"ohos.permission.LOCATION"};
+    scopeInfo.tokenIDs = {callingTokenId};
+    auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
+    struct PermStateChangeInfo result{0, callingTokenId, ACCESS_LOCATION};
+    callbackPtr->PermStateChangeCallback(result);
+}
+
+HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest001, TestSize.Level1)
+{
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    auto locatorEventSubscriber = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
+    Want want;
+    want.SetAction("usual.event.location.MODE_STATE_CHANGED");
+    OHOS::EventFwk::CommonEventData data;
+    data.SetWant(want);
+    locatorEventSubscriber->OnReceiveEvent(data);
+}
+
+HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1)
+{
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    auto locatorEventSubscriber = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
+    Want want;
+    want.SetAction("Invalid action");
+    OHOS::EventFwk::CommonEventData data;
+    data.SetWant(want);
+    locatorEventSubscriber->OnReceiveEvent(data);
+}
+
+HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest001, TestSize.Level1)
+{
+    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
+    SetGeoAddress(geoAddress);
+    geoAddress->GetDescriptions(0);
+}
+
+HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest002, TestSize.Level1)
+{
+    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
+    SetGeoAddress(geoAddress);
+    geoAddress->GetDescriptions(1);
+}
+
+HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
+{
+    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
+    SetGeoAddress(geoAddress);
+    geoAddress->GetDescriptions(-1);
+}
+
 } // namespace Location
 } // namespace OHOS

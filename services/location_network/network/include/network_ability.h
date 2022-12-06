@@ -25,7 +25,6 @@
 
 #include "common_utils.h"
 #include "network_ability_skeleton.h"
-#include "network_callback_host.h"
 #include "subability_common.h"
 
 namespace OHOS {
@@ -77,10 +76,8 @@ private:
 
     bool networkServiceReady_ = false;
     std::mutex connectMutex_;
-    std::string uuid_;
     sptr<IRemoteObject> networkServiceProxy_;
     std::condition_variable connectCondition_;
-    sptr<NetworkCallbackHost> callback_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;

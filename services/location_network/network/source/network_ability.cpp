@@ -27,6 +27,7 @@
 #include "location_log.h"
 #include "location_dumper.h"
 #include "locator_ability.h"
+#include "network_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -75,13 +76,6 @@ bool NetworkAbility::Init()
         }
         registerToAbility_ = true;
     }
-    uuid_ = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
-    callback_ = new (std::nothrow) NetworkCallbackHost();
-    if (callback_ == nullptr) {
-        LBSLOGE(NETWORK, "create NetworkCallbackHost failed.");
-        return false;
-    }
-    LBSLOGI(NETWORK, "Init() success.");
     return true;
 }
 
@@ -175,27 +169,20 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     MessageParcel data, reply;
     MessageOption option;
     if (isAdded) {
-        LBSLOGD(NETWORK, "start network location, uuid=%{public}s", uuid_.c_str());
-        if (GetRequestNum() == 0) {
-            LBSLOGE(NETWORK, "no valid request.");
-            return;
-        }
-        data.WriteString16(Str8ToStr16(uuid_));
+        LBSLOGD(NETWORK, "start network location");
+        sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+        data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
         data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
         data.WriteInt32(LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
-        data.WriteRemoteObject(callback_->AsObject());
+        data.WriteRemoteObject(callback->AsObject());
         int error = networkServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
         if (error != ERR_OK) {
             LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
             return;
         }
     } else {
-        LBSLOGD(NETWORK, "stop network location, uuid=%{public}s", uuid_.c_str());
-        if (GetRequestNum() != 0) {
-            LBSLOGE(NETWORK, "exist valid request.");
-            return;
-        }
-        data.WriteString16(Str8ToStr16(uuid_));
+        LBSLOGD(NETWORK, "stop network location");
+        data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
         int error = networkServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
         if (error != ERR_OK) {
             LBSLOGE(NETWORK, "SendRequest to cloud service failed.");

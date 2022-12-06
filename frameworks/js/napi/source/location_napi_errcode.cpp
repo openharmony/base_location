@@ -20,19 +20,6 @@
 
 namespace OHOS {
 namespace Location {
-napi_value GetErrorValue(napi_env env, const int32_t errCode, const std::string errMsg)
-{
-    napi_value businessError = nullptr;
-    napi_value eCode = nullptr;
-    napi_value eMsg = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, errCode, &eCode));
-    NAPI_CALL(env, napi_create_string_utf8(env, errMsg.c_str(),  errMsg.length(), &eMsg));
-    NAPI_CALL(env, napi_create_object(env, &businessError));
-    NAPI_CALL(env, napi_set_named_property(env, businessError, "code", eCode));
-    NAPI_CALL(env, napi_set_named_property(env, businessError, "message", eMsg));
-    return businessError;
-}
-
 void HandleSyncErrCode(const napi_env &env, int32_t errCode)
 {
     LBSLOGI(LOCATOR_STANDARD, "HandleSyncErrCode, errCode = %{public}d", errCode);

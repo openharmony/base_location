@@ -774,7 +774,7 @@ std::string GetErrorMsgByCode(int code)
     return "undefined error.";
 }
 
-napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string errMsg)
+napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string& errMsg)
 {
     napi_value businessError = nullptr;
     napi_value eCode = nullptr;
