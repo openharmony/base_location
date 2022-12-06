@@ -201,6 +201,7 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent001, TestSize.Lev
     EXPECT_EQ(true, proxy_->SetMocked(mockInfo, locations));
 
     ability_->SendReportMockLocationEvent(); // report mocked location
+    sleep(2);
 }
 } // namespace Location
 } // namespace OHOS

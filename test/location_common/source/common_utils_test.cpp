@@ -259,5 +259,29 @@ HWTEST_F(CommonUtilsTest, GetBundleNameByUidTest001, TestSize.Level1)
     std::string bundleName;
     EXPECT_EQ(false, CommonUtils::GetBundleNameByUid(SYSTEM_UID, bundleName));
 }
+
+HWTEST_F(CommonUtilsTest, CountDownLatchWaitTest001, TestSize.Level1)
+{
+    auto latch = std::make_shared<CountDownLatch>();
+    latch->SetCount(0);
+    latch->Wait(0); // count is 0
+    EXPECT_EQ(0, latch->GetCount());
+}
+
+HWTEST_F(CommonUtilsTest, CountDownLatchWaitTest002, TestSize.Level1)
+{
+    auto latch = std::make_shared<CountDownLatch>();
+    latch->SetCount(1);
+    latch->Wait(0); // wait 0ms
+    EXPECT_EQ(0, latch->GetCount());
+}
+
+HWTEST_F(CommonUtilsTest, CountDownLatchCountDownTest001, TestSize.Level1)
+{
+    auto latch = std::make_shared<CountDownLatch>();
+    latch->SetCount(1);
+    latch->CountDown();
+    EXPECT_EQ(0, latch->GetCount());
+}
 } // namespace Location
 } // namespace OHOS

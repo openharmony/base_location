@@ -33,9 +33,13 @@ void LocationConfigManagerTest::TearDown()
 {
 }
 
-HWTEST_F(LocationConfigManagerTest, LocationConfigManagerTest001, TestSize.Level1)
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.Level1)
 {
     EXPECT_EQ(0, LocationConfigManager::GetInstance().Init());
+}
+
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, TestSize.Level1)
+{
     EXPECT_EQ(0,
         LocationConfigManager::GetInstance().SetLocationSwitchState(STATE_CLOSE));
     EXPECT_EQ(STATE_CLOSE,
@@ -50,18 +54,10 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerTest001, TestSize.Level
         LocationConfigManager::GetInstance().SetLocationSwitchState(STATE_UNKNOWN));
     EXPECT_EQ(STATE_OPEN,
         LocationConfigManager::GetInstance().GetLocationSwitchState());
+}
 
-    EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().IsExistFile("invalid_path"));
-    int userId = 0;
-    CommonUtils::GetCurrentUserId(userId);
-    std::string configPath = LOCATION_DIR + SWITCH_CONFIG_NAME + "_" + std::to_string(userId) + ".conf";
-    EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().IsExistFile("/wrongpath" + configPath));
-    EXPECT_EQ(true,
-        LocationConfigManager::GetInstance().IsExistFile(configPath));
-    EXPECT_EQ(true, LocationConfigManager::GetInstance().CreateFile("filename", "filedata"));
-
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001, TestSize.Level1)
+{
     EXPECT_EQ(REPLY_CODE_EXCEPTION,
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true));
     EXPECT_EQ(false,
@@ -70,7 +66,7 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerTest001, TestSize.Level
     EXPECT_EQ(REPLY_CODE_EXCEPTION,
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true));
     EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT));
+        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT));
     
     EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true));
@@ -81,6 +77,29 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerTest001, TestSize.Level
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, false));
     EXPECT_EQ(false,
         LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION));
+}
+
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerIsExistFileTest001, TestSize.Level1)
+{
+    EXPECT_EQ(false,
+        LocationConfigManager::GetInstance().IsExistFile("invalid_path"));
+    int userId = 0;
+    CommonUtils::GetCurrentUserId(userId);
+    std::string configPath = LOCATION_DIR + SWITCH_CONFIG_NAME + "_" + std::to_string(userId) + ".conf";
+    EXPECT_EQ(false,
+        LocationConfigManager::GetInstance().IsExistFile("/wrongpath" + configPath));
+    EXPECT_EQ(true,
+        LocationConfigManager::GetInstance().IsExistFile(configPath));
+}
+
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerCreateFileTest001, TestSize.Level1)
+{
+    EXPECT_EQ(true, LocationConfigManager::GetInstance().CreateFile("filename", "filedata"));
+}
+
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeConfigTest001, TestSize.Level1)
+{
+    EXPECT_NE("", LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(PRIVACY_TYPE_INVALID_LEFT));
 }
 }  // namespace Location
 }  // namespace OHOS
