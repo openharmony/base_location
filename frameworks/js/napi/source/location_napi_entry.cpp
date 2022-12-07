@@ -108,7 +108,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
 static napi_module g_locationManagerModule = {
     .nm_version = 1,
     .nm_flags = 0,
-    .nm_filename = NULL,
+    .nm_filename = nullptr,
     .nm_register_func = InitManager,
     .nm_modname = "geoLocationManager",
     .nm_priv = ((void *)0),

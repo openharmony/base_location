@@ -248,7 +248,7 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 
 void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
 {
-    asyncContext->executeFunc = [&](void * data) -> void {
+    asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<ReverseGeoCodeAsyncContext*>(data);
         if (context->errCode != SUCCESS) {
             return;
@@ -274,7 +274,7 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
 #endif
         }
     };
-    asyncContext->completeFunc = [&](void * data) -> void {
+    asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<ReverseGeoCodeAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_array_with_length(context->env, context->replyList.size(), &context->result[PARAM1]));
@@ -284,7 +284,7 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
 
 void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
 {
-    asyncContext->executeFunc = [&](void * data) -> void {
+    asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<GeoCodeAsyncContext*>(data);
         if (context->errCode != SUCCESS) {
             return;
@@ -310,7 +310,7 @@ void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
 #endif
         }
     };
-    asyncContext->completeFunc = [&](void * data) -> void {
+    asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<GeoCodeAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_array_with_length(context->env, context->replyList.size(), &context->result[PARAM1]));
@@ -556,7 +556,7 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
 
 void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
 {
-    asyncContext->executeFunc = [&](void * data) -> void {
+    asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CommandAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
         if (context->command != nullptr) {
@@ -570,7 +570,7 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
         context->errCode = NOT_SUPPORTED;
 #endif
     };
-    asyncContext->completeFunc = [&](void * data) -> void {
+    asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<CommandAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
         NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
