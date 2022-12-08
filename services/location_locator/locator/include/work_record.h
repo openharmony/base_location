@@ -25,7 +25,7 @@ namespace Location {
 class WorkRecord : public Parcelable {
 public:
     WorkRecord();
-    virtual ~WorkRecord() = default;
+    ~WorkRecord() override = default;
     bool Add(int uid, int pid, std::string name);
     bool Remove(int uid, int pid, std::string name);
     bool Find(int uid, std::string name);

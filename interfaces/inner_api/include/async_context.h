@@ -33,7 +33,7 @@ public:
     napi_value result[RESULT_SIZE];
     int errCode;
 
-    AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr)
+    explicit AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr)
     {
         env = e;
         work = w;

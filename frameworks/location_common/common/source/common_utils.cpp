@@ -204,16 +204,16 @@ void CountDownLatch::CountDown()
 {
     LBSLOGD(LOCATOR_STANDARD, "enter CountDown");
     std::unique_lock<std::mutex> lock(mutex_);
-    int old_c = count_.load();
-    while (old_c > 0) {
-        if (count_.compare_exchange_strong(old_c, old_c - 1)) {
-            if (old_c == 1) {
+    int oldC = count_.load();
+    while (oldC > 0) {
+        if (count_.compare_exchange_strong(oldC, oldC - 1)) {
+            if (oldC == 1) {
                 LBSLOGD(LOCATOR_STANDARD, "notify_all");
                 condition_.notify_all();
             }
             break;
         }
-        old_c = count_.load();
+        oldC = count_.load();
     }
 }
 

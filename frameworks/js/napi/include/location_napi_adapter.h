@@ -36,7 +36,7 @@ napi_value SendCommand(napi_env env, napi_callback_info info);
 #ifdef ENABLE_NAPI_MANAGER
 napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info);
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info);
-napi_value GetIsoCountryCode(napi_env env, napi_callback_info inf);
+napi_value GetIsoCountryCode(napi_env env, napi_callback_info info);
 napi_value EnableLocationMock(napi_env env, napi_callback_info info);
 napi_value DisableLocationMock(napi_env env, napi_callback_info info);
 napi_value SetMockedLocations(napi_env env, napi_callback_info info);

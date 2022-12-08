@@ -176,18 +176,18 @@ void SubscribeLocationChange(const napi_env& env, const napi_value& object,
 }
 
 void SubscribeCountryCodeChange(const napi_env& env,
-    const napi_ref& handlerRef, sptr<CountryCodeCallbackHost>& CallbackHost)
+    const napi_ref& handlerRef, sptr<CountryCodeCallbackHost>& callbackHost)
 {
-    auto callbackPtr = sptr<ICountryCodeCallback>(CallbackHost);
-    CallbackHost->SetEnv(env);
-    CallbackHost->SetCallback(handlerRef);
+    auto callbackPtr = sptr<ICountryCodeCallback>(callbackHost);
+    callbackHost->SetEnv(env);
+    callbackHost->SetCallback(handlerRef);
     g_locatorProxy->RegisterCountryCodeCallback(callbackPtr->AsObject(), DEFAULT_UID);
 }
 
-void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& CallbackHost)
+void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& callbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnsubscribeCountryCodeChange");
-    g_locatorProxy->UnregisterCountryCodeCallback(CallbackHost->AsObject());
+    g_locatorProxy->UnregisterCountryCodeCallback(callbackHost->AsObject());
 }
 
 void SubscribeCacheLocationChange(const napi_env& env, const napi_value& object,
@@ -631,7 +631,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     InitOnFuncMap();
     size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};
-    napi_value thisVar = 0;
+    napi_value thisVar = nullptr;
     LBSLOGI(LOCATION_NAPI, "On function entry");
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype eventName = napi_undefined;
@@ -889,7 +889,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     InitOffFuncMap();
     size_t argc = PARAM2;
     napi_value argv[PARAM3] = {0};
-    napi_value thisVar = 0;
+    napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
 #ifdef ENABLE_NAPI_MANAGER
@@ -944,7 +944,7 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};
-    napi_value thisVar = 0;
+    napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
 

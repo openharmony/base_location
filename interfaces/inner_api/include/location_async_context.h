@@ -39,12 +39,12 @@ class LocationAsyncContext : public AsyncContext {
 public:
     std::unique_ptr<Location> loc;
 
-    LocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit LocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), loc(nullptr) {}
 
     LocationAsyncContext() = delete;
 
-    virtual ~LocationAsyncContext() {}
+    ~LocationAsyncContext() override {}
 };
 
 class ReverseGeocodeMockAsyncContext : public AsyncContext {
@@ -52,12 +52,12 @@ public:
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
     bool enable;
 
-    ReverseGeocodeMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit ReverseGeocodeMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), enable(false) {}
 
     ReverseGeocodeMockAsyncContext() = delete;
 
-    virtual ~ReverseGeocodeMockAsyncContext() {}
+    ~ReverseGeocodeMockAsyncContext() override {}
 };
 
 class LocationMockAsyncContext : public AsyncContext {
@@ -71,19 +71,19 @@ public:
 
     LocationMockAsyncContext() = delete;
 
-    virtual ~LocationMockAsyncContext() {}
+    ~LocationMockAsyncContext() override {}
 };
 
 class CountryCodeContext : public AsyncContext {
 public:
     std::shared_ptr<CountryCode> country;
 
-    CountryCodeContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit CountryCodeContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), country(nullptr) {}
 
     CountryCodeContext() = delete;
 
-    virtual ~CountryCodeContext() {}
+    ~CountryCodeContext() override {}
 };
 
 class LocationRequestAsyncContext : public AsyncContext {
@@ -91,60 +91,60 @@ public:
     std::unique_ptr<Location> loc;
     std::unique_ptr<RequestConfig> request;
 
-    LocationRequestAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit LocationRequestAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), loc(nullptr), request(nullptr) {}
 
     LocationRequestAsyncContext() = delete;
 
-    virtual ~LocationRequestAsyncContext() {}
+    ~LocationRequestAsyncContext() override {}
 };
 
 class SwitchAsyncContext : public AsyncContext {
 public:
     bool enable;
 
-    SwitchAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit SwitchAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), enable(false) {}
 
     SwitchAsyncContext() = delete;
 
-    virtual ~SwitchAsyncContext() {}
+    ~SwitchAsyncContext() override {}
 };
 
 class NmeaAsyncContext : public AsyncContext {
 public:
     std::string msg;
 
-    NmeaAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit NmeaAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), msg("") {}
 
     NmeaAsyncContext() = delete;
 
-    virtual ~NmeaAsyncContext() {}
+    ~NmeaAsyncContext() override {}
 };
 
 class GnssStatusAsyncContext : public AsyncContext {
 public:
     std::shared_ptr<SatelliteStatus> statusInfo;
 
-    GnssStatusAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit GnssStatusAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), statusInfo(nullptr) {}
 
     GnssStatusAsyncContext() = delete;
 
-    virtual ~GnssStatusAsyncContext() {}
+    ~GnssStatusAsyncContext() override {}
 };
 
 class CachedLocationAsyncContext : public AsyncContext {
 public:
     std::vector<std::shared_ptr<Location>> locationList;
 
-    CachedLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit CachedLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}
 
     CachedLocationAsyncContext() = delete;
 
-    virtual ~CachedLocationAsyncContext() {}
+    ~CachedLocationAsyncContext() override {}
 };
 
 class PrivacyAsyncContext : public AsyncContext {
@@ -152,12 +152,12 @@ public:
     int type;
     bool isConfirmed;
 
-    PrivacyAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit PrivacyAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), type(PRIVACY_TYPE_OTHERS), isConfirmed(false) {}
 
     PrivacyAsyncContext() = delete;
 
-    virtual ~PrivacyAsyncContext() {}
+    ~PrivacyAsyncContext() override {}
 };
 
 class CachedAsyncContext : public AsyncContext {
@@ -165,12 +165,12 @@ public:
     bool enable;
     int locationSize;
 
-    CachedAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit CachedAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), enable(false), locationSize(0) {}
 
     CachedAsyncContext() = delete;
 
-    virtual ~CachedAsyncContext() {}
+    ~CachedAsyncContext() override {}
 };
 
 class CommandAsyncContext : public AsyncContext {
@@ -178,12 +178,12 @@ public:
     bool enable;
     std::unique_ptr<LocationCommand> command;
 
-    CommandAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit CommandAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), enable(false), command(nullptr) {}
 
     CommandAsyncContext() = delete;
 
-    virtual ~CommandAsyncContext() {}
+    ~CommandAsyncContext() override {}
 };
 
 class ReverseGeoCodeAsyncContext : public AsyncContext {
@@ -191,12 +191,12 @@ public:
     MessageParcel reverseGeoCodeRequest;
     std::list<std::shared_ptr<GeoAddress>> replyList;
 
-    ReverseGeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit ReverseGeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}
 
     ReverseGeoCodeAsyncContext() = delete;
 
-    virtual ~ReverseGeoCodeAsyncContext() {}
+    ~ReverseGeoCodeAsyncContext() override {}
 };
 
 class GeoCodeAsyncContext : public AsyncContext {
@@ -204,12 +204,12 @@ public:
     MessageParcel geoCodeRequest;
     std::list<std::shared_ptr<GeoAddress>> replyList;
 
-    GeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit GeoCodeAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}
 
     GeoCodeAsyncContext() = delete;
 
-    virtual ~GeoCodeAsyncContext() {}
+    ~GeoCodeAsyncContext() override {}
 };
 
 class SingleLocationAsyncContext : public AsyncContext {
@@ -217,12 +217,12 @@ public:
     int timeout_;
     sptr<LocatorCallbackHost> callbackHost_;
 
-    SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(0) {}
 
     SingleLocationAsyncContext() = delete;
 
-    virtual ~SingleLocationAsyncContext() {}
+    ~SingleLocationAsyncContext() override {}
 };
 }  // namespace Location
 }  // namespace OHOS
