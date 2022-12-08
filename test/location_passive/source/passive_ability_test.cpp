@@ -213,7 +213,9 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent002, TestSize.Lev
     LBSLOGI(PASSIVE, "[PassiveAbilityTest] PassiveSendReportMockLocationEvent002 begin");
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    int timeInterval = 0;
+    LocationMockConfig mockInfo;
+    mockInfo.SetScenario(SCENE_NAVIGATION);
+    mockInfo.SetTimeInterval(0);
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
@@ -228,8 +230,8 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent002, TestSize.Lev
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(false); // isFromMock is true
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, ability_->EnableMock());
-    EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(true, ability_->EnableMock(mockInfo));
+    EXPECT_EQ(true, ability_->SetMocked(mockInfo, locations));
     sleep(2);
     LBSLOGI(PASSIVE, "[PassiveAbilityTest] PassiveSendReportMockLocationEvent002 end");
 }
