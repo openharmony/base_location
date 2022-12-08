@@ -33,6 +33,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location.h"
+#include "location_log.h"
 #include "locator_background_proxy.h"
 #include "locator_callback_host.h"
 
@@ -40,8 +41,10 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
+const int VAL_UID = 20010044;
 void LocatorBackgroundProxyTest::SetUp()
 {
+    MockNativePermission();
 }
 
 void LocatorBackgroundProxyTest::TearDown()
@@ -83,6 +86,9 @@ HWTEST_F(LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Lev
 
 HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.Level1";
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest001 begin");
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
@@ -91,13 +97,26 @@ HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
     request1->SetPackageName("LocatorBackgroundProxyTest");
-    locatorBackgroundProxy->UpdateListOnRequestChange(nullptr);
-
     locatorBackgroundProxy->UpdateListOnRequestChange(request1);
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest002 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    locatorBackgroundProxy->UpdateListOnRequestChange(nullptr);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest002 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1";
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] OnSuspendTest001 begin");
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
@@ -109,32 +128,22 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
     locatorBackgroundProxy->OnSuspend(request1, true); // cant find uid in requestMap
 
     locatorBackgroundProxy->OnSuspend(request1, false); // cant find uid in requestMap
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] OnSuspendTest001 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1)
 {
-    int32_t userId = 0;
-    CommonUtils::GetCurrentUserId(userId);
-
-    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, smgr);
-    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    EXPECT_NE(nullptr, remoteObject);
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
-    EXPECT_NE(nullptr, bundleMgrProxy);
-    std::string name = "ohos.global.systemres";
-    int32_t uid = bundleMgrProxy->GetUidByBundleName(name, userId);
-
-    LBSLOGD(LOCATOR, "bundleName : %{public}s, uid = %{public}d", name.c_str(), uid);
-
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSuspendTest002 begin");
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
-    request1->SetUid(uid);
+    request1->SetUid(VAL_UID);
     request1->SetPid(0);
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
-    request1->SetPackageName(name);
+    request1->SetPackageName("name");
     auto requestConfig = std::make_unique<RequestConfig>();
     EXPECT_NE(nullptr, requestConfig);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
@@ -144,64 +153,44 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1)
     locatorBackgroundProxy->OnSuspend(request1, false); // add to requestsList
     locatorBackgroundProxy->OnSuspend(request1, false); // max num is 1, cant add request
     locatorBackgroundProxy->OnSuspend(request1, true); // remove from requestList
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSuspendTest002 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest003, TestSize.Level1)
 {
-    int32_t userId = 0;
-    CommonUtils::GetCurrentUserId(userId);
-
-    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, smgr);
-    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    EXPECT_NE(nullptr, remoteObject);
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
-    EXPECT_NE(nullptr, bundleMgrProxy);
-    std::string name = "ohos.global.systemres";
-    int32_t uid = bundleMgrProxy->GetUidByBundleName(name, userId);
-
-    LBSLOGD(LOCATOR, "bundleName : %{public}s, uid = %{public}d", name.c_str(), uid);
-
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnSuspendTest003, TestSize.Level1";
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] OnSuspendTest003 begin");
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
-    request1->SetUid(uid);
+    request1->SetUid(VAL_UID);
     request1->SetPid(0);
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
-    request1->SetPackageName(name);
+    request1->SetPackageName("name");
     auto requestConfig = std::make_unique<RequestConfig>();
     EXPECT_NE(nullptr, requestConfig);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetFixNumber(1); // fix number is 1
     request1->SetRequestConfig(*requestConfig);
     locatorBackgroundProxy->OnSuspend(request1, false); // add to requestsList
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] OnSuspendTest003 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest004, TestSize.Level1)
 {
-    int32_t userId = 0;
-    CommonUtils::GetCurrentUserId(userId);
-
-    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, smgr);
-    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    EXPECT_NE(nullptr, remoteObject);
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
-    EXPECT_NE(nullptr, bundleMgrProxy);
-    std::string name = "ohos.global.systemres";
-    int32_t uid = bundleMgrProxy->GetUidByBundleName(name, userId);
-
-    LBSLOGD(LOCATOR, "bundleName : %{public}s, uid = %{public}d", name.c_str(), uid);
-
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnSuspendTest004, TestSize.Level1";
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] OnSuspendTest004 begin");
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
-    request1->SetUid(uid);
+    request1->SetUid(VAL_UID);
     request1->SetPid(0);
     request1->SetTokenId(0); // invalid token id
     request1->SetFirstTokenId(0);
-    request1->SetPackageName(name);
+    request1->SetPackageName("name");
     auto requestConfig = std::make_unique<RequestConfig>();
     EXPECT_NE(nullptr, requestConfig);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
@@ -209,6 +198,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest004, TestSize.Level1)
     request1->SetRequestConfig(*requestConfig);
     locatorBackgroundProxy->OnSuspend(request1, false); // permission denied, cant add to requestsList
     locatorBackgroundProxy->OnSuspend(request1, true); // permission denied, cant remove from requestList
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] OnSuspendTest004 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest001, TestSize.Level1)

@@ -19,12 +19,14 @@ module_output_path = "location/service"
 ohos_unittest("PassiveAbilityTest") {
   module_out_path = module_output_path
   sources = [
+    "//base/location/test/location_passive/source/passive_ability_stub_test.cpp",
     "//base/location/test/location_passive/source/passive_ability_test.cpp",
   ]
 
   include_dirs = [
     "//base/location/interfaces/inner_api/include",
     "//base/location/test/location_passive/include",
+    "//base/location/test/location_passive/mock/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
   ]
@@ -41,6 +43,7 @@ ohos_unittest("PassiveAbilityTest") {
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
