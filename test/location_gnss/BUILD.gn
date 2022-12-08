@@ -18,14 +18,17 @@ module_output_path = "location/service"
 
 ohos_unittest("GnssAbilityTest") {
   module_out_path = module_output_path
-  sources =
-      [ "//base/location/test/location_gnss/source/gnss_ability_test.cpp" ]
+  sources = [
+    "//base/location/test/location_gnss/source/gnss_ability_stub_test.cpp",
+    "//base/location/test/location_gnss/source/gnss_ability_test.cpp",
+  ]
 
   include_dirs = [
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "//base/location/interfaces/inner_api/include",
     "//base/location/test/location_gnss/include",
+    "//base/location/test/location_gnss/mock/include",
   ]
 
   deps = [
@@ -41,6 +44,7 @@ ohos_unittest("GnssAbilityTest") {
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
