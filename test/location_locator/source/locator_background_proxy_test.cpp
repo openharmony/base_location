@@ -143,7 +143,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1)
     request1->SetPid(0);
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
-    request1->SetPackageName(name);
+    request1->SetPackageName("name");
     auto requestConfig = std::make_unique<RequestConfig>();
     EXPECT_NE(nullptr, requestConfig);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
@@ -168,7 +168,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest003, TestSize.Level1)
     request1->SetPid(0);
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
-    request1->SetPackageName(name);
+    request1->SetPackageName("name");
     auto requestConfig = std::make_unique<RequestConfig>();
     EXPECT_NE(nullptr, requestConfig);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
@@ -190,7 +190,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest004, TestSize.Level1)
     request1->SetPid(0);
     request1->SetTokenId(0); // invalid token id
     request1->SetFirstTokenId(0);
-    request1->SetPackageName(name);
+    request1->SetPackageName("name");
     auto requestConfig = std::make_unique<RequestConfig>();
     EXPECT_NE(nullptr, requestConfig);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);

@@ -28,50 +28,19 @@ public:
     MockIRemoteObject() : IRemoteObject(u"mock_i_remote_object") {}
     ~MockIRemoteObject() {}
     MOCK_METHOD(int, SendRequest, (uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    bool IsProxyObject() const override
-    {
-        return true;
-    }
-
-    bool CheckObjectLegality() const override
-    {
-        return true;
-    }
-
-    bool AddDeathRecipient(const sptr<DeathRecipient> &recipient) override
-    {
-        return true;
-    }
-
-    bool RemoveDeathRecipient(const sptr<DeathRecipient> &recipient) override
-    {
-        return true;
-    }
-
-    bool Marshalling(Parcel &parcel) const override
-    {
-        return true;
-    }
-
-    sptr<IRemoteBroker> AsInterface() override
-    {
-        return nullptr;
-    }
-
-    int Dump(int fd, const std::vector<std::u16string> &args) override
-    {
-        return 0;
-    }
+    MOCK_METHOD(bool, IsProxyObject, (), (const, override));
+    MOCK_METHOD(bool, CheckObjectLegality, (), (const, override));
+    MOCK_METHOD(bool, AddDeathRecipient, (const sptr<DeathRecipient> &recipient), (override));
+    MOCK_METHOD(bool, RemoveDeathRecipient, (const sptr<DeathRecipient> &recipient), (override));
+    MOCK_METHOD(bool, Marshalling, (Parcel &parcel), (const, override));
+    MOCK_METHOD(sptr<IRemoteBroker>, AsInterface, (), (override));
+    MOCK_METHOD(int, Dump, (int fd, const std::vector<std::u16string> &args), (override));
+    MOCK_METHOD(int32_t, GetObjectRefCount, (), (override));
 
     std::u16string GetObjectDescriptor() const
     {
         std::u16string descriptor = std::u16string();
         return descriptor;
-    }
-
-    int32_t GetObjectRefCount() override
-    {
-        return 0;
     }
 };
 } // namespace Location
