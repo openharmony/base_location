@@ -38,6 +38,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "//base/location/interfaces/inner_api/include",
     "//base/location/test/location_locator/include",
+    "//base/location/test/mock/include",
   ]
 
   deps = [
@@ -51,6 +52,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 

@@ -27,11 +27,14 @@
 #include "nmea_message_callback_host.h"
 #include "satellite_status.h"
 
+using namespace testing;
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 void CallbackTest::SetUp()
 {
+    iremoteObject_ = new (std::nothrow) MockIRemoteObject();
+    ASSERT_TRUE(iremoteObject_ != nullptr);
 }
 
 void CallbackTest::TearDown()
@@ -93,14 +96,61 @@ HWTEST_F(CallbackTest, OnMessageChange001, TestSize.Level1)
 
 HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "CallbackTest, LocationCallbackProxy001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy001 begin");
     auto locatorCallbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
     EXPECT_NE(nullptr, locatorCallbackHost);
     auto locatorCallbackProxy =
             new (std::nothrow) LocatorCallbackProxy(locatorCallbackHost);
     EXPECT_NE(nullptr, locatorCallbackProxy);
-    auto location =
-        std::make_unique<Location>();
+    locatorCallbackProxy->OnLocationReport(nullptr); // nullptr error
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy001 end");
+}
+
+HWTEST_F(CallbackTest, LocationCallbackProxy002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, LocationCallbackProxy002, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy002 begin");
+    auto locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    EXPECT_NE(nullptr, locatorCallbackHost);
+    auto locatorCallbackProxy =
+            new (std::nothrow) LocatorCallbackProxy(locatorCallbackHost);
+    EXPECT_NE(nullptr, locatorCallbackProxy);
+    int status = 1;
+    locatorCallbackProxy->OnLocatingStatusChange(status);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy002 end");
+}
+
+HWTEST_F(CallbackTest, LocationCallbackProxy003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, LocationCallbackProxy003, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy003 begin");
+    auto locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    EXPECT_NE(nullptr, locatorCallbackHost);
+    auto locatorCallbackProxy =
+            new (std::nothrow) LocatorCallbackProxy(locatorCallbackHost);
+    EXPECT_NE(nullptr, locatorCallbackProxy);
+    int errorCode = 0;
+    locatorCallbackProxy->OnErrorReport(errorCode);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy003 end");
+}
+
+HWTEST_F(CallbackTest, LocationCallbackProxy004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, LocationCallbackProxy004, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy004 begin");
+    EXPECT_CALL(*iremoteObject_, SendRequest(_, _, _, _)).WillOnce(DoAll(Return(NO_ERROR)));
+    auto locatorCallbackProxy =
+        new (std::nothrow) LocatorCallbackProxy(iremoteObject_);
+    EXPECT_NE(nullptr, locatorCallbackProxy);
+    auto location = std::make_unique<Location>();
     MessageParcel parcel;
     parcel.WriteDouble(1.0); // latitude
     parcel.WriteDouble(2.0); // longitude
@@ -115,11 +165,8 @@ HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level1)
     parcel.WriteBool(true); // isFromMock
     EXPECT_NE(nullptr, location);
     location->ReadFromParcel(parcel);
-    locatorCallbackProxy->OnLocationReport(nullptr); // nullptr error
-    int status = 1;
-    locatorCallbackProxy->OnLocatingStatusChange(status);
-    int errorCode = 0;
-    locatorCallbackProxy->OnErrorReport(errorCode);
+    locatorCallbackProxy->OnLocationReport(location);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy004 end");
 }
 
 HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
@@ -143,6 +190,21 @@ HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
     statusInfo->ReadFromParcel(parcel);
     EXPECT_NE(nullptr, statusInfo);
     gnssStatusCallbackProxy->OnStatusChange(statusInfo);
+}
+
+HWTEST_F(CallbackTest, GnssStatusCallbackProxy002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, GnssStatusCallbackProxy002, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackProxy002 begin");
+    auto gnssStatusCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    EXPECT_NE(nullptr, gnssStatusCallbackHost);
+    auto gnssStatusCallbackProxy =
+        new (std::nothrow) GnssStatusCallbackProxy(gnssStatusCallbackHost);
+    EXPECT_NE(nullptr, gnssStatusCallbackProxy);
+    gnssStatusCallbackProxy->OnStatusChange(nullptr);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackProxy002 end");
 }
 
 HWTEST_F(CallbackTest, CountryCodeCallbackProxy001, TestSize.Level1)
