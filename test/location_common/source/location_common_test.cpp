@@ -472,15 +472,5 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
     SetGeoAddress(geoAddress);
     geoAddress->GetDescriptions(-1);
 }
-
-HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationCommonTest, AppIdentityTest001, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[LocationCommonTest] AppIdentityTest001 begin");
-    AppIdentity id(0, 0, 0, 0);
-    EXPECT_NE("", id.ToString());
-    LBSLOGI(COMMON_UTILS, "[LocationCommonTest] AppIdentityTest001 end");
-}
 } // namespace Location
 } // namespace OHOS
