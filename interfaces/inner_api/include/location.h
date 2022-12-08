@@ -25,7 +25,7 @@ class Location : public Parcelable {
 public:
     Location();
     explicit Location(Location &location);
-    virtual ~Location() = default;
+    ~Location() override = default;
 
     inline double GetLatitude() const
     {
@@ -136,12 +136,12 @@ public:
         isFromMock_ = fromMock;
     }
 
-    inline int32_t GetSoueceType() const
+    inline int32_t GetSourceType() const
     {
         return sourceType_;
     }
 
-    inline void SetSoueceType(int32_t soueceType)
+    inline void SetSourceType(int32_t soueceType)
     {
         sourceType_ = soueceType;
     }

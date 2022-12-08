@@ -85,8 +85,8 @@ public:
     void ClearLocationMock();
 private:
     void HandleLocalRequest(WorkRecord &record);
-    void HandleRemoveRecord(WorkRecord &record);
-    void HandleAddRecord(WorkRecord &record);
+    void HandleRemoveRecord(WorkRecord &newRecord);
+    void HandleAddRecord(WorkRecord &newRecord);
     void CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location);
     virtual void RequestRecord(WorkRecord &workRecord, bool isAdded) = 0;
     virtual void SendReportMockLocationEvent() = 0;

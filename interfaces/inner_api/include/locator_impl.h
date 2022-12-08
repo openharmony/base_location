@@ -32,7 +32,7 @@ namespace Location {
 class LocatorImpl : public Locator {
 public:
     explicit LocatorImpl();
-    ~LocatorImpl();
+    ~LocatorImpl() override;
     bool Init();
     bool IsLocationEnabled() override;
     void ShowNotification() override;

@@ -32,7 +32,7 @@ using OHOS::Telephony::CellInformation;
 
 class AGnssEventCallback : public IAGnssCallback {
 public:
-    virtual ~AGnssEventCallback() {}
+    ~AGnssEventCallback() override {}
     int32_t RequestSetUpAgnssDataLink(const AGnssDataLinkRequest& request) override;
     int32_t RequestSubscriberSetId(SubscriberSetIdType type) override;
     int32_t RequestAgnssRefInfo() override;

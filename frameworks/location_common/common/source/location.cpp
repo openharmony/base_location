@@ -55,7 +55,7 @@ Location::Location(Location& location)
     additions_ = location.GetAdditions();
     additionSize_ = location.GetAdditionSize();
     isFromMock_ = location.GetIsFromMock();
-    sourceType_ = location.GetSoueceType();
+    sourceType_ = location.GetSourceType();
     floorNo_ = location.GetFloorNo();
     floorAccuracy_ = location.GetFloorAccuracy();
 }

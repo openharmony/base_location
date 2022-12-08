@@ -91,16 +91,16 @@ private:
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    virtual void OnRemoteDied(const wptr<IRemoteObject> &object);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     LocatorCallbackDeathRecipient();
-    virtual ~LocatorCallbackDeathRecipient();
+    ~LocatorCallbackDeathRecipient() override;
 };
 
 class SwitchCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    virtual void OnRemoteDied(const wptr<IRemoteObject> &object);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     SwitchCallbackDeathRecipient();
-    virtual ~SwitchCallbackDeathRecipient();
+    ~SwitchCallbackDeathRecipient() override;
 };
 } // namespace Location
 } // namespace OHOS

@@ -273,7 +273,7 @@ HWTEST_F(CommonUtilsTest, CountDownLatchWaitTest002, TestSize.Level1)
     auto latch = std::make_shared<CountDownLatch>();
     latch->SetCount(1);
     latch->Wait(0); // wait 0ms
-    EXPECT_EQ(0, latch->GetCount());
+    EXPECT_EQ(1, latch->GetCount());
 }
 
 HWTEST_F(CommonUtilsTest, CountDownLatchCountDownTest001, TestSize.Level1)

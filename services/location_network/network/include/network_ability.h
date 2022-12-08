@@ -31,7 +31,7 @@ namespace OHOS {
 namespace Location {
 static constexpr int REQUEST_NETWORK_LOCATION = 1;
 static constexpr int REMOVE_NETWORK_LOCATION = 2;
-const std::string SERVICE_NAME = "com.huawei.hms.hmscore";
+const std::string SERVICE_CONFIG_FILE = "/system/etc/location/location_service.conf";
 const std::string ABILITY_NAME = "LocationServiceAbility";
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
@@ -47,7 +47,7 @@ DECLEAR_SYSTEM_ABILITY(NetworkAbility);
 public:
     DISALLOW_COPY_AND_MOVE(NetworkAbility);
     NetworkAbility();
-    ~NetworkAbility();
+    ~NetworkAbility() override;
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const
@@ -64,7 +64,8 @@ public:
     bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
     void ProcessReportLocationMock();
-    bool ConnectNetworkService();
+    bool ConnectNlpService();
+    void ReConnectNlpService();
     void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
     void NotifyDisConnected();
     bool IsMockEnabled();
@@ -74,9 +75,9 @@ private:
     static void SaDumpInfo(std::string& result);
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
 
-    bool networkServiceReady_ = false;
-    std::mutex connectMutex_;
-    sptr<IRemoteObject> networkServiceProxy_;
+    bool nlpServiceReady_ = false;
+    std::mutex mutex_;
+    sptr<IRemoteObject> nlpServiceProxy_;
     std::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;

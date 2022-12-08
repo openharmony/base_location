@@ -38,16 +38,16 @@ DECLEAR_SYSTEM_ABILITY(GeoConvertService);
 public:
     DISALLOW_COPY_AND_MOVE(GeoConvertService);
     GeoConvertService();
-    ~GeoConvertService();
+    ~GeoConvertService() override;
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const
     {
         return state_;
     }
-    int IsGeoConvertAvailable(MessageParcel &rep) override;
-    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
-    int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
+    int IsGeoConvertAvailable(MessageParcel &reply) override;
+    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply) override;
+    int GetAddressByLocationName(MessageParcel &data, MessageParcel &reply) override;
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
     bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;

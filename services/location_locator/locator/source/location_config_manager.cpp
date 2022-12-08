@@ -42,7 +42,7 @@ LocationConfigManager::~LocationConfigManager()
 
 int LocationConfigManager::Init()
 {
-    LBSLOGI(LOCATION_NAPI, "LocationConfigManager::Init");
+    LBSLOGI(LOCATOR, "LocationConfigManager::Init");
     if (!IsExistFile(GetLocationSwitchConfigPath())) {
         CreateFile(GetLocationSwitchConfigPath(), "0");
     }
@@ -65,17 +65,17 @@ bool LocationConfigManager::IsExistFile(const std::string& filename)
     }
     ioFile.clear();
     ioFile.close();
-    LBSLOGD(LOCATION_NAPI, "IsExistFile = %{public}d", bExist ? 1 : 0);
+    LBSLOGD(LOCATOR, "IsExistFile = %{public}d", bExist ? 1 : 0);
     return bExist;
 }
 
 bool LocationConfigManager::CreateFile(const std::string& filename, const std::string& filedata)
 {
-    LBSLOGD(LOCATION_NAPI, "CreateFile");
+    LBSLOGD(LOCATOR, "CreateFile");
     std::ofstream outFile;
     outFile.open(filename.c_str());
     if (!outFile) {
-        LBSLOGE(LOCATION_NAPI, "file open failed");
+        LBSLOGE(LOCATOR, "file open failed");
         return false;
     }
     outFile.flush();
@@ -90,7 +90,7 @@ std::string LocationConfigManager::GetLocationSwitchConfigPath()
     int userId = 0;
     bool ret = CommonUtils::GetCurrentUserId(userId);
     if (!ret) {
-        LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
+        LBSLOGE(LOCATOR, "GetCurrentUserId failed");
     }
     std::string filePath = LOCATION_DIR + SWITCH_CONFIG_NAME + "_" + std::to_string(userId) + ".conf";
     return filePath;
@@ -101,7 +101,7 @@ std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
     int userId = 0;
     bool ret = CommonUtils::GetCurrentUserId(userId);
     if (!ret) {
-        LBSLOGE(LOCATION_NAPI, "GetCurrentUserId failed");
+        LBSLOGE(LOCATOR, "GetCurrentUserId failed");
     }
     std::string filePath;
     switch (type) {
@@ -133,7 +133,7 @@ int LocationConfigManager::GetLocationSwitchState()
     }
     std::ifstream fs(GetLocationSwitchConfigPath());
     if (!fs.is_open()) {
-        LBSLOGE(LOCATION_NAPI, "LocationConfigManager: fs.is_open false, return");
+        LBSLOGE(LOCATOR, "LocationConfigManager: fs.is_open false, return");
         return -1;
     }
     std::string line;
@@ -153,6 +153,28 @@ int LocationConfigManager::GetLocationSwitchState()
     return mLocationSwitchState;
 }
 
+bool LocationConfigManager::GetNlpServiceName(const std::string& path, std::string& name)
+{
+    if (!IsExistFile(path)) {
+        LBSLOGE(LOCATOR, "%{public}s is not exit!", path.c_str());
+        return false;
+    }
+    std::ifstream fs(path);
+    if (!fs.is_open()) {
+        LBSLOGE(LOCATOR, "fs.is_open false, return");
+        return false;
+    }
+    while (std::getline(fs, name)) {
+        if (name.empty()) {
+            break;
+        }
+        break;
+    }
+    fs.clear();
+    fs.close();
+    return true;
+}
+
 int LocationConfigManager::SetLocationSwitchState(int state)
 {
     std::unique_lock<std::mutex> lock(mMutex);
@@ -161,11 +183,11 @@ int LocationConfigManager::SetLocationSwitchState(int state)
     }
     std::fstream fs(GetLocationSwitchConfigPath());
     if (state != STATE_CLOSE && state != STATE_OPEN) {
-        LBSLOGE(LOCATION_NAPI, "LocationConfigManager:SetLocationSwitchState state = %{public}d, return", state);
+        LBSLOGE(LOCATOR, "LocationConfigManager:SetLocationSwitchState state = %{public}d, return", state);
         return -1;
     }
     if (!fs.is_open()) {
-        LBSLOGE(LOCATION_NAPI, "LocationConfigManager: fs.is_open false, return");
+        LBSLOGE(LOCATOR, "LocationConfigManager: fs.is_open false, return");
         return -1;
     }
     std::string content = "1";
@@ -182,7 +204,7 @@ int LocationConfigManager::SetLocationSwitchState(int state)
 bool LocationConfigManager::GetPrivacyTypeState(const int type)
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
-        LBSLOGI(LOCATION_NAPI, "GetPrivacyTypeState,invalid types");
+        LBSLOGI(LOCATOR, "GetPrivacyTypeState,invalid types");
         return false;
     }
     std::unique_lock<std::mutex> lock(mMutex);
@@ -191,7 +213,7 @@ bool LocationConfigManager::GetPrivacyTypeState(const int type)
     }
     std::ifstream fs(GetPrivacyTypeConfigPath(type));
     if (!fs.is_open()) {
-        LBSLOGE(LOCATION_NAPI, "LocationConfigManager: fs.is_open false, return");
+        LBSLOGE(LOCATOR, "LocationConfigManager: fs.is_open false, return");
         return -1;
     }
     std::string line;
@@ -214,7 +236,7 @@ bool LocationConfigManager::GetPrivacyTypeState(const int type)
 int LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
-        LBSLOGE(LOCATION_NAPI, "SetPrivacyTypeState,invalid types");
+        LBSLOGE(LOCATOR, "SetPrivacyTypeState,invalid types");
         return REPLY_CODE_EXCEPTION;
     }
     std::unique_lock<std::mutex> lock(mMutex);
@@ -223,7 +245,7 @@ int LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
     }
     std::fstream fs(GetPrivacyTypeConfigPath(type));
     if (!fs.is_open()) {
-        LBSLOGE(LOCATION_NAPI, "LocationConfigManager: fs.is_open false, return");
+        LBSLOGE(LOCATOR, "LocationConfigManager: fs.is_open false, return");
         return REPLY_CODE_EXCEPTION;
     }
     std::string content = "0";

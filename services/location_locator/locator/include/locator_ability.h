@@ -52,7 +52,7 @@ DECLEAR_SYSTEM_ABILITY(LocatorAbility);
 public:
     DISALLOW_COPY_AND_MOVE(LocatorAbility);
     LocatorAbility();
-    ~LocatorAbility();
+    ~LocatorAbility() override;
     void OnStart() override;
     void OnStop() override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;

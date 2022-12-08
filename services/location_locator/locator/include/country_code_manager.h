@@ -63,15 +63,15 @@ private:
     class NetworkSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
     public:
         explicit NetworkSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
-        virtual ~NetworkSubscriber() override = default;
+        ~NetworkSubscriber() override = default;
     private:
-        virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
+        void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
     };
 
     class SimSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
     public:
         explicit SimSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
-        virtual ~SimSubscriber() override = default;
+        ~SimSubscriber() override = default;
     private:
         virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
     };

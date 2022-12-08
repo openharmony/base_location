@@ -25,7 +25,7 @@ class RequestConfig : public Parcelable {
 public:
     RequestConfig();
     explicit RequestConfig(const int scenario);
-    virtual ~RequestConfig() = default;
+    ~RequestConfig() override = default;
 
     inline int GetScenario() const
     {

@@ -75,13 +75,13 @@ enum {
 };
 
 enum LocationRequestType {
-    PRIORITY_TYPE_HIGH_ACCURACY = 100,            // GNSS定位+NLP融合定位
-    PRIORITY_TYPE_BALANCED_POWER_ACCURACY = 102,  // NLP定位
-    PRIORITY_TYPE_LOW_POWER = 104,                // NLP定位
+    PRIORITY_TYPE_HIGH_ACCURACY = 100,            // GNSS + NLP
+    PRIORITY_TYPE_BALANCED_POWER_ACCURACY = 102,  // NLP
+    PRIORITY_TYPE_LOW_POWER = 104,                // NLP
     PRIORITY_TYPE_NO_POWER = 105,                 // passive
-    PRIORITY_TYPE_HD_ACCURACY = 200,              // HD高精度定位
-    PRIORITY_TYPE_INDOOR = 300,                   // 室内定位
-    PRIORITY_TYPE_HIGH_ACCURACY_AND_INDOOR = 400  // 室内定位+GNSS
+    PRIORITY_TYPE_HD_ACCURACY = 200,              // HD
+    PRIORITY_TYPE_INDOOR = 300,                   // indoor
+    PRIORITY_TYPE_HIGH_ACCURACY_AND_INDOOR = 400  // indoor + GNSS
 };
 
 enum LocationErrCode {

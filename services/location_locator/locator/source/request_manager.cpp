@@ -387,11 +387,10 @@ void RequestManager::HandleRequest(std::string abilityName)
 
 bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& request)
 {
-    std::shared_ptr<Request> newRequest = request;
-    if (newRequest == nullptr) {
+    if (request == nullptr) {
         return false;
     }
-    auto requestConfig = newRequest->GetRequestConfig();
+    auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {
         return false;
     }
@@ -406,19 +405,18 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
     return true;
 }
 
-bool RequestManager::AddRequestToWorkRecord(const std::shared_ptr<Request>& request,
-    std::shared_ptr<WorkRecord> workRecord)
+bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
+    std::shared_ptr<WorkRecord>& workRecord)
 {
-    std::shared_ptr<Request> newRequest = request;
-    if (newRequest == nullptr) {
+    if (request == nullptr) {
         return false;
     }
-    UpdateUsingPermission(newRequest);
-    if (!newRequest->GetIsRequesting()) {
+    UpdateUsingPermission(request);
+    if (!request->GetIsRequesting()) {
         return false;
     }
-    uint32_t tokenId = newRequest->GetTokenId();
-    uint32_t firstTokenId = newRequest->GetFirstTokenId();
+    uint32_t tokenId = request->GetTokenId();
+    uint32_t firstTokenId = request->GetFirstTokenId();
     // if location access permission granted, add request info to work record
     if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
         !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {

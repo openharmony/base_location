@@ -53,7 +53,7 @@ private:
     void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
     void UpdateUsingBackgroundPermission(std::shared_ptr<Request> request);
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
-    bool AddRequestToWorkRecord(const std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord> workRecord);
+    bool AddRequestToWorkRecord(std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord);
 
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex_;
