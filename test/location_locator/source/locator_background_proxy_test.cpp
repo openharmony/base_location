@@ -33,6 +33,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location.h"
+#include "location_log.h"
 #include "locator_background_proxy.h"
 #include "locator_callback_host.h"
 
@@ -83,6 +84,9 @@ HWTEST_F(LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Lev
 
 HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.Level1";
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest001 begin");
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
@@ -91,9 +95,19 @@ HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest001, TestSize.
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
     request1->SetPackageName("LocatorBackgroundProxyTest");
-    locatorBackgroundProxy->UpdateListOnRequestChange(nullptr);
-
     locatorBackgroundProxy->UpdateListOnRequestChange(request1);
+    LBSLOGI(GNSS, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, UpdateListOnRequestChangeTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest002 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    locatorBackgroundProxy->UpdateListOnRequestChange(nullptr);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UpdateListOnRequestChangeTest002 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
@@ -113,6 +127,9 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest001, TestSize.Level1)
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSuspendTest002 begin");
     int32_t userId = 0;
     CommonUtils::GetCurrentUserId(userId);
 
@@ -144,6 +161,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest002, TestSize.Level1)
     locatorBackgroundProxy->OnSuspend(request1, false); // add to requestsList
     locatorBackgroundProxy->OnSuspend(request1, false); // max num is 1, cant add request
     locatorBackgroundProxy->OnSuspend(request1, true); // remove from requestList
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSuspendTest002 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspendTest003, TestSize.Level1)

@@ -13,28 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef CALLBACK_TEST_H
-#define CALLBACK_TEST_H
+#ifndef PASSIVE_ABILITY_STUB_TEST_H
+#define PASSIVE_ABILITY_STUB_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "cached_locations_callback_proxy.h"
-#include "country_code_callback_proxy.h"
-#include "gnss_status_callback_proxy.h"
-#include "locator_callback_proxy.h"
-#include "mock_i_remote_object.h"
-#include "nmea_message_callback_proxy.h"
-#include "switch_callback_proxy.h"
+#include "mock_passive_ability_stub.h"
 
 namespace OHOS {
 namespace Location {
-class CallbackTest : public testing::Test {
+class PassiveAbilityStubTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-
-    sptr<MockIRemoteObject> iremoteObject_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // CALLBACK_TEST_H
+#endif // PASSIVE_ABILITY_STUB_TEST_H

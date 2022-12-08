@@ -15,13 +15,16 @@
 
 #include "location_common_test.h"
 
-#include "message_parcel.h"
 #include "string_ex.h"
+
+#include "message_parcel.h"
 #include "ipc_skeleton.h"
-#include "want.h"
 #include "common_event_subscriber.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "want.h"
+#include "want_agent.h"
+
 #include "app_identity.h"
 #include "common_hisysevent.h"
 #include "constant_definition.h"
@@ -29,9 +32,9 @@
 #include "geo_coding_mock_info.h"
 #include "geofence_state.h"
 #include "location.h"
+#include "location_log.h"
 #include "request_config.h"
 #include "satellite_status.h"
-#include "want_agent.h"
 #include "permission_status_change_cb.h"
 #include "common_utils.h"
 #include "locator_event_subscriber.h"
@@ -230,7 +233,8 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
  */
 HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
 {
-    std::unique_ptr<SatelliteStatus> status = std::make_unique<SatelliteStatus>();
+    SatelliteStatus oldStatus;
+    std::unique_ptr<SatelliteStatus> status = std::make_unique<SatelliteStatus>(oldStatus);
     MessageParcel parcel;
     int sateNum = 2;
     parcel.WriteInt64(2); // satellitesNumber
@@ -469,5 +473,14 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
     geoAddress->GetDescriptions(-1);
 }
 
+HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest001, TestSize.Level1";
+    LBSLOGI(COMMON_UTILS, "[LocationCommonTest] AppIdentityTest001 begin");
+    AppIdentity id(0, 0, 0, 0);
+    EXPECT_NE("", id.ToString());
+    LBSLOGI(COMMON_UTILS, "[LocationCommonTest] AppIdentityTest001 end");
+}
 } // namespace Location
 } // namespace OHOS
