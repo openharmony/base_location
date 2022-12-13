@@ -22,7 +22,6 @@
 #include "country_code_callback_proxy.h"
 #include "gnss_status_callback_proxy.h"
 #include "locator_callback_proxy.h"
-#include "mock_i_remote_object.h"
 #include "nmea_message_callback_proxy.h"
 #include "switch_callback_proxy.h"
 
@@ -32,8 +31,6 @@ class CallbackTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-
-    sptr<MockIRemoteObject> iremoteObject_;
 };
 } // namespace Location
 } // namespace OHOS

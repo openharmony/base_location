@@ -24,6 +24,7 @@
 #include "location.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_host.h"
+#include "mock_locator_callback_host.h"
 #include "nmea_message_callback_host.h"
 #include "satellite_status.h"
 
@@ -33,8 +34,6 @@ namespace OHOS {
 namespace Location {
 void CallbackTest::SetUp()
 {
-    iremoteObject_ = new (std::nothrow) MockIRemoteObject();
-    ASSERT_TRUE(iremoteObject_ != nullptr);
 }
 
 void CallbackTest::TearDown()
@@ -146,9 +145,11 @@ HWTEST_F(CallbackTest, LocationCallbackProxy004, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CallbackTest, LocationCallbackProxy004, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy004 begin");
-    EXPECT_CALL(*iremoteObject_, SendRequest(_, _, _, _)).WillOnce(DoAll(Return(NO_ERROR)));
+    auto mLocatorCallbackHost =
+        sptr<MockLocatorCallbackHost>(new (std::nothrow) MockLocatorCallbackHost());
+    EXPECT_CALL(*mLocatorCallbackHost, SendRequest(_, _, _, _)).WillOnce(DoAll(Return(NO_ERROR)));
     auto locatorCallbackProxy =
-        new (std::nothrow) LocatorCallbackProxy(iremoteObject_);
+        new (std::nothrow) LocatorCallbackProxy(mLocatorCallbackHost);
     EXPECT_NE(nullptr, locatorCallbackProxy);
     auto location = std::make_unique<Location>();
     MessageParcel parcel;

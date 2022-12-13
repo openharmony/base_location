@@ -38,14 +38,10 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "//base/location/interfaces/inner_api/include",
     "//base/location/test/location_locator/include",
+    "//base/location/test/location_locator/mock/include",
     "//base/location/test/mock/include",
   ]
 
-  cflags = []
-   if (target_cpu == "arm") {
-    cflags += [ "-DBINDER_IPC_32BIT" ]
-  }
-  
   deps = [
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//base/location/frameworks/location_common/common:lbsservice_common",
