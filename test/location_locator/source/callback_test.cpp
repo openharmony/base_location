@@ -141,6 +141,34 @@ HWTEST_F(CallbackTest, LocationCallbackProxy003, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy003 end");
 }
 
+HWTEST_F(CallbackTest, LocationCallbackProxy004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, LocationCallbackProxy004, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy004 begin");
+    EXPECT_CALL(*iremoteObject_, SendRequest(_, _, _, _)).WillOnce(DoAll(Return(NO_ERROR)));
+    auto locatorCallbackProxy =
+        new (std::nothrow) LocatorCallbackProxy(iremoteObject_);
+    EXPECT_NE(nullptr, locatorCallbackProxy);
+    auto location = std::make_unique<Location>();
+    MessageParcel parcel;
+    parcel.WriteDouble(1.0); // latitude
+    parcel.WriteDouble(2.0); // longitude
+    parcel.WriteDouble(3.0); // altitude
+    parcel.WriteFloat(4.0); // accuracy
+    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(6.0); // direction
+    parcel.WriteInt64(1000000000); // timeStamp
+    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteString("additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock
+    EXPECT_NE(nullptr, location);
+    location->ReadFromParcel(parcel);
+    locatorCallbackProxy->OnLocationReport(location);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy004 end");
+}
+
 HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
 {
     auto gnssStatusCallbackHost =
