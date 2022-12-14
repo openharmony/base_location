@@ -18,6 +18,7 @@
 #include <cstdlib>
 
 #include "accesstoken_kit.h"
+#include "cell_information.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
@@ -25,12 +26,14 @@
 #include "system_ability_definition.h"
 #include "token_setproc.h"
 
-#include "agnss_event_callback.h"
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "gnss_event_callback.h"
 #include "location_dumper.h"
 
+#include "mock_i_cellular_data_manager.h"
+
+using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
@@ -629,12 +632,140 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestSubscriberSetId001, TestSize.
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo001, TestSize.Level1)
 {
     sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_CALL(MockICellularDataManager::GetInstance(), GetDefaultCellularDataSlotId).WillRepeatedly(Return(-1));
     EXPECT_NE(nullptr, agnssCallback);
     EXPECT_EQ(ERR_OK, agnssCallback->RequestAgnssRefInfo());
 }
 
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo002, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo002 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::GsmCellInformation> gsmCellInformation = new Telephony::GsmCellInformation();
+    gsmCellInformation->Init(0, 0, 0);
+    agnssCallback->JudgmentDataGsm(refInfo, gsmCellInformation);
+    EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_GSM, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo002 end");
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo003, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo003 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::GsmCellInformation> gsmCellInformation = nullptr;
+    agnssCallback->JudgmentDataGsm(refInfo, gsmCellInformation);
+    EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_GSM, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo003 begin");
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo004, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo004 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::LteCellInformation> lteCellInformation = new Telephony::LteCellInformation();
+    lteCellInformation->Init(0, 0, 0);
+    agnssCallback->JudgmentDataLte(refInfo, lteCellInformation);
+    EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_LTE, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo004 begin");
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo005, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo005 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::LteCellInformation> lteCellInformation = nullptr;
+    agnssCallback->JudgmentDataLte(refInfo, lteCellInformation);
+    EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_LTE, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo005 begin");
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo006, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo006, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo006 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::WcdmaCellInformation> umtsCellInformation = new Telephony::WcdmaCellInformation();
+    umtsCellInformation->Init(0, 0, 0);
+    agnssCallback->JudgmentDataUmts(refInfo, umtsCellInformation);
+    EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_UMTS, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo006 begin");
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo007, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo007, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo007 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::WcdmaCellInformation> umtsCellInformation = nullptr;
+    agnssCallback->JudgmentDataUmts(refInfo, umtsCellInformation);
+    EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_UMTS, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo007 begin");
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo008, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo008, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo008 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::NrCellInformation> nrCellInformation = new Telephony::NrCellInformation();
+    nrCellInformation->Init(0, 0, 0);
+    agnssCallback->JudgmentDataNr(refInfo, nrCellInformation);
+    EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_NR, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo008 begin");
+}
+
+HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo009, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo009, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo009 begin");
+    sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
+    EXPECT_NE(nullptr, agnssCallback);
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    sptr<Telephony::NrCellInformation> nrCellInformation = nullptr;
+    agnssCallback->JudgmentDataNr(refInfo, nrCellInformation);
+    EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_NR, refInfo.cellId.type);
+    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo009 begin");
+}
+
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportLocation001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportLocation001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportLocation001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     LocationInfo locationInfo;
@@ -647,33 +778,49 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportLocation001, TestSize.Level1)
     locationInfo.timeStamp = 1000000000;
     locationInfo.timeSinceBoot = 1000000000;
     gnssCallback->ReportLocation(locationInfo);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportLocation001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssWorkingStatus001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     GnssWorkingStatus status = HDI::Location::Gnss::V1_0::GNSS_STATUS_NONE;
     gnssCallback->ReportGnssWorkingStatus(status);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssWorkingStatus001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportNmea001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportNmea001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportNmea001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     gnssCallback->ReportNmea(0, "nmea", 0);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportNmea001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssCapabilities001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportGnssCapabilities001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssCapabilities001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     GnssCapabilities capabilities = HDI::Location::Gnss::V1_0::GNSS_CAP_SUPPORT_MSB;
     gnssCallback->ReportGnssCapabilities(capabilities);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssCapabilities001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportSatelliteStatusInfo002 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     SatelliteStatusInfo statusInfo;
@@ -681,25 +828,37 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo002, TestSiz
     statusInfo.flags =
         HDI::Location::Gnss::V1_0::SATELLITES_STATUS_HAS_EPHEMERIS_DATA;
     gnssCallback->ReportSatelliteStatusInfo(statusInfo);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportSatelliteStatusInfo002 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackRequestGnssReferenceInfo001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackRequestGnssReferenceInfo001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackRequestGnssReferenceInfo001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     GnssRefInfoType type = HDI::Location::Gnss::V1_0::GNSS_REF_INFO_TIME;
     gnssCallback->RequestGnssReferenceInfo(type);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackRequestGnssReferenceInfo001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackRequestPredictGnssData001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackRequestPredictGnssData001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackRequestPredictGnssData001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     gnssCallback->RequestPredictGnssData();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackRequestPredictGnssData001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportCachedLocation001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     std::vector<LocationInfo> gnssLocations;
@@ -714,6 +873,7 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Lev
     locationInfo.timeSinceBoot = 1000000000;
     gnssLocations.push_back(locationInfo);
     gnssCallback->ReportCachedLocation(gnssLocations);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportCachedLocation001 end");
 }
 
 }  // namespace Location

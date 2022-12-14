@@ -13,22 +13,25 @@
 
 import("//build/test.gni")
 
+GNSS_UNIT_TEST_DIR = "//base/location/test/location_gnss"
 SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
 ohos_unittest("GnssAbilityTest") {
   module_out_path = module_output_path
   sources = [
-    "//base/location/test/location_gnss/source/gnss_ability_stub_test.cpp",
-    "//base/location/test/location_gnss/source/gnss_ability_test.cpp",
+    "$GNSS_UNIT_TEST_DIR/mock/src/mock_i_cellular_data_manager.cpp",
+    "$GNSS_UNIT_TEST_DIR/source/gnss_ability_stub_test.cpp",
+    "$GNSS_UNIT_TEST_DIR/source/gnss_ability_test.cpp",
   ]
 
   include_dirs = [
+    "$GNSS_UNIT_TEST_DIR/include",
+    "$GNSS_UNIT_TEST_DIR/mock/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "//base/location/interfaces/inner_api/include",
-    "//base/location/test/location_gnss/include",
-    "//base/location/test/location_gnss/mock/include",
+    "//base/location/test/mock/include",
   ]
 
   deps = [
