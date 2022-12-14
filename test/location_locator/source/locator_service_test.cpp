@@ -1406,6 +1406,26 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
 }
 
+HWTEST_F(LocatorServiceTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplNmeaMessageCallbackV9001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    ASSERT_TRUE(locatorImpl != nullptr);
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    locatorImpl->StartLocating(requestConfig, callbackStub_); // startLocating first
+    sleep(1);
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    EXPECT_EQ(NO_ERROR, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    sleep(1);
+    EXPECT_EQ(NO_ERROR, locatorImpl->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    locatorImpl->StopLocating(callbackStub_); // after reg, stop locating
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplNmeaMessageCallbackV9001 end");
+}
+
 HWTEST_F(LocatorServiceTest, locatorServiceStartAndStop001, TestSize.Level1)
 {
     auto locatorAbility =

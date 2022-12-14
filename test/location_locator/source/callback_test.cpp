@@ -24,7 +24,6 @@
 #include "location.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_host.h"
-#include "mock_locator_callback_host.h"
 #include "nmea_message_callback_host.h"
 #include "satellite_status.h"
 
@@ -138,36 +137,6 @@ HWTEST_F(CallbackTest, LocationCallbackProxy003, TestSize.Level1)
     int errorCode = 0;
     locatorCallbackProxy->OnErrorReport(errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy003 end");
-}
-
-HWTEST_F(CallbackTest, LocationCallbackProxy004, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CallbackTest, LocationCallbackProxy004, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy004 begin");
-    auto mLocatorCallbackHost =
-        sptr<MockLocatorCallbackHost>(new (std::nothrow) MockLocatorCallbackHost());
-    EXPECT_CALL(*mLocatorCallbackHost, SendRequest(_, _, _, _)).WillOnce(DoAll(Return(NO_ERROR)));
-    auto locatorCallbackProxy =
-        new (std::nothrow) LocatorCallbackProxy(mLocatorCallbackHost);
-    EXPECT_NE(nullptr, locatorCallbackProxy);
-    auto location = std::make_unique<Location>();
-    MessageParcel parcel;
-    parcel.WriteDouble(1.0); // latitude
-    parcel.WriteDouble(2.0); // longitude
-    parcel.WriteDouble(3.0); // altitude
-    parcel.WriteFloat(4.0); // accuracy
-    parcel.WriteFloat(5.0); // speed
-    parcel.WriteDouble(6.0); // direction
-    parcel.WriteInt64(1000000000); // timeStamp
-    parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
-    parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(true); // isFromMock
-    EXPECT_NE(nullptr, location);
-    location->ReadFromParcel(parcel);
-    locatorCallbackProxy->OnLocationReport(location);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy004 end");
 }
 
 HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
