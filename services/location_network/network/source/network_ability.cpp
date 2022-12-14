@@ -15,6 +15,7 @@
 
 #include "network_ability.h"
 #include <file_ex.h>
+#include <thread>
 #include "ability_connect_callback_interface.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
@@ -32,8 +33,9 @@
 
 namespace OHOS {
 namespace Location {
-const uint32_t EVENT_REPORT_LOCATION = 0x0001;
+const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
 const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
     DelayedSingleton<NetworkAbility>::GetInstance().get());
@@ -42,7 +44,6 @@ NetworkAbility::NetworkAbility() : SystemAbility(LOCATION_NETWORK_LOCATING_SA_ID
 {
     SetAbility(NETWORK_ABILITY);
     networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
-    retryCount = 0;
     LBSLOGI(NETWORK, "ability constructed.");
 }
 
@@ -88,7 +89,7 @@ public:
         const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
     {
         std::string uri = element.GetURI();
-        LBSLOGI(NETWORK, "Connected uri is %{public}s, result is %{public}d.", uri.c_str(), resultCode);
+        LBSLOGD(NETWORK, "Connected uri is %{public}s, result is %{public}d.", uri.c_str(), resultCode);
         if (resultCode != ERR_OK) {
             return;
         }
@@ -98,14 +99,14 @@ public:
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int) override
     {
         std::string uri = element.GetURI();
-        LBSLOGI(NETWORK, "Disconnected uri is %{public}s.", uri.c_str());
+        LBSLOGD(NETWORK, "Disconnected uri is %{public}s.", uri.c_str());
         DelayedSingleton<NetworkAbility>::GetInstance().get()->NotifyDisConnected();
     }
 };
 
 bool NetworkAbility::ConnectNlpService()
 {
-    LBSLOGI(NETWORK, "start ConnectNlpService");
+    LBSLOGD(NETWORK, "start ConnectNlpService");
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     if (!nlpServiceReady_) {
         AAFwk::Want connectionWant;
@@ -115,7 +116,6 @@ bool NetworkAbility::ConnectNlpService()
             LBSLOGE(NETWORK, "get service name failed!");
             return false;
         }
-        LBSLOGI(NETWORK, "name:%{public}s", name.c_str());
         connectionWant.SetElementName(name, ABILITY_NAME);
         sptr<AAFwk::IAbilityConnection> conn = new (std::nothrow) AbilityConnection();
         if (conn == nullptr) {
@@ -138,24 +138,29 @@ bool NetworkAbility::ConnectNlpService()
     return true;
 }
 
-void NetworkAbility::ReConnectNlpService()
+bool NetworkAbility::ReConnectNlpService()
 {
     int retryCount = 0;
     if (nlpServiceReady_) {
         LBSLOGI(NETWORK, "Connect success!");
-        return;
+        return true;
     }
     while (retryCount < MAX_RETRY_COUNT) {
         retryCount++;
-        ConnectNlpService();
+        bool ret = ConnectNlpService();
+        if (ret) {
+            LBSLOGI(NETWORK, "Connect success!");
+            return true;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
     }
+    return false;
 }
 
 void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
 {
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     nlpServiceReady_ = true;
-    retryCount = 0;
     nlpServiceProxy_ = remoteObject;
     connectCondition_.notify_all();
 }
@@ -186,13 +191,11 @@ void NetworkAbility::SelfRequest(bool state)
 
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGI(NETWORK, "enter RequestRecord.");
     if (!nlpServiceReady_ && !ReConnectNlpService()) {
         LBSLOGE(NETWORK, "nlp service is not ready.");
         return;
     }
     std::unique_lock<std::mutex> uniqueLock(mutex_);
-    LBSLOGI(NETWORK, "enter RequestRecord mutex_.");
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return;

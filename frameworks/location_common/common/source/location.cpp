@@ -123,7 +123,7 @@ std::string Location::ToString() const
         ", additions : " + additions_ +
         ", additionSize : " + std::to_string(additionSize_) +
         ", isFromMock : " + std::to_string(isFromMock_) +
-        ", soueceType : " + std::to_string(sourceType_) +
+        ", sourceType : " + std::to_string(sourceType_) +
         ", floorNo : " + std::to_string(floorNo_) +
         ", floorAccuracy : " + std::to_string(floorAccuracy_);
     return str;

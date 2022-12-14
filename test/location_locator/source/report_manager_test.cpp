@@ -69,6 +69,9 @@ void ReportManagerTest::MockNativePermission()
 
 HWTEST_F(ReportManagerTest, ReportRemoteCallbackTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ReportRemoteCallbackTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ReportRemoteCallbackTest001 begin");
     std::unique_ptr<Location> location = std::make_unique<Location>();
     auto locatorCallbackHostForTest =
         sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
@@ -80,10 +83,14 @@ HWTEST_F(ReportManagerTest, ReportRemoteCallbackTest001, TestSize.Level1)
         ReportRemoteCallback(locatorCallback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, 1));
     EXPECT_EQ(false, reportManager_->
         ReportRemoteCallback(locatorCallback, ILocatorCallback::RECEIVE_LOCATION_INFO_EVENT, 1));
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ReportRemoteCallbackTest001 end");
 }
 
 HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ResultCheckTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest001 begin");
     std::shared_ptr<Request> request = std::make_shared<Request>();
     request->SetUid(1000);
     request->SetPid(0);
@@ -119,10 +126,14 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     
     request->SetLastLocation(location);
     EXPECT_EQ(true, reportManager_->ResultCheck(location, request));
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest001 end");
 }
 
 HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, SetLastLocationTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] SetLastLocationTest001 begin");
     EXPECT_EQ(nullptr, reportManager_->GetLastLocation());
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
@@ -140,10 +151,14 @@ HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
     location->ReadFromParcel(parcel);
     reportManager_->SetLastLocation(location);
     EXPECT_NE(nullptr, reportManager_->GetLastLocation());
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] SetLastLocationTest001 end");
 }
 
 HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] GetPermittedLocationTest001 begin");
     EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(tokenId_, 0, nullptr));
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
@@ -164,15 +179,23 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     EXPECT_EQ(12.0, newLocation->GetLatitude());
     EXPECT_EQ(13.0, newLocation->GetLongitude());
     EXPECT_EQ(1000.0, newLocation->GetAccuracy());
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] GetPermittedLocationTest001 end");
 }
 
 HWTEST_F(ReportManagerTest, UpdateRandomTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, UpdateRandomTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest001 begin");
     reportManager_->UpdateRandom();
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest001 end");
 }
 
 HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, OnReportLocationTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest001 begin");
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
@@ -189,10 +212,14 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
     location->ReadFromParcel(parcel);
 
     EXPECT_EQ(false, reportManager_->OnReportLocation(location, UNKNOWN_ABILITY));
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest001 end");
 }
 
 HWTEST_F(ReportManagerTest, OnReportLocationTest002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, OnReportLocationTest002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest002 begin");
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
@@ -208,10 +235,14 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest002, TestSize.Level1)
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // is not requesting
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest002 end");
 }
 
 HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, OnReportLocationTest003, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest003 begin");
     MessageParcel parcel;
     parcel.WriteDouble(12.0);         // latitude
     parcel.WriteDouble(13.0);         // longitude
@@ -240,10 +271,14 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
     EXPECT_EQ(true,
         reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report the same location, result check is false
     locatorImpl->StopLocating(callbackStub);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest003 end");
 }
 
 HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, OnReportLocationTest004, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest004 begin");
     MessageParcel parcel;
     parcel.WriteDouble(12.0);         // latitude
     parcel.WriteDouble(13.0);         // longitude
@@ -270,6 +305,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
     sleep(1);
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // will resolve deadRequests
     locatorImpl->StopLocating(callbackStub);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest004 end");
 }
 }  // namespace Location
 }  // namespace OHOS

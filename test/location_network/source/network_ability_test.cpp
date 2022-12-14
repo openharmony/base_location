@@ -264,5 +264,17 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
     sleep(2);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 end");
 }
+
+/*
+ * @tc.name: NetworkConnectNlpService001
+ * @tc.desc: connect nlp service
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1)
+{
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkConnectNlpService001 begin");
+    EXPECT_EQ(false, ability_->ReConnectNlpService());
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkConnectNlpService001 end");
+}
 } // namespace Location
 } // namespace OHOS

@@ -65,7 +65,7 @@ public:
     void SendReportMockLocationEvent() override;
     void ProcessReportLocationMock();
     bool ConnectNlpService();
-    void ReConnectNlpService();
+    bool ReConnectNlpService();
     void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
     void NotifyDisConnected();
     bool IsMockEnabled();

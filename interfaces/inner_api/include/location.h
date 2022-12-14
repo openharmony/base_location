@@ -141,9 +141,9 @@ public:
         return sourceType_;
     }
 
-    inline void SetSourceType(int32_t soueceType)
+    inline void SetSourceType(int32_t sourceType)
     {
-        sourceType_ = soueceType;
+        sourceType_ = sourceType;
     }
 
     inline int32_t GetFloorNo() const

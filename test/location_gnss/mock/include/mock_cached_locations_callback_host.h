@@ -13,25 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef CALLBACK_TEST_H
-#define CALLBACK_TEST_H
+#ifndef MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H
+#define MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H
 
-#include <gtest/gtest.h>
+#include "gmock/gmock.h"
 
-#include "cached_locations_callback_proxy.h"
-#include "country_code_callback_proxy.h"
-#include "gnss_status_callback_proxy.h"
-#include "locator_callback_proxy.h"
-#include "nmea_message_callback_proxy.h"
-#include "switch_callback_proxy.h"
+#include "message_option.h"
+#include "message_parcel.h"
+
+#include "cached_locations_callback_host.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {
-class CallbackTest : public testing::Test {
+class MockCachedLocationsCallbackHost : public CachedLocationsCallbackHost {
 public:
-    void SetUp();
-    void TearDown();
+    MockCachedLocationsCallbackHost() {}
+    ~MockCachedLocationsCallbackHost() {}
+    
+    MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data,
+        MessageParcel& reply, MessageOption& option));
+    MOCK_METHOD(void, OnCacheLocationsReport, (const std::vector<std::unique_ptr<Location>>& locations));
 };
 } // namespace Location
 } // namespace OHOS
-#endif // CALLBACK_TEST_H
+#endif

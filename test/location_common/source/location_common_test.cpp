@@ -146,6 +146,9 @@ void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
  */
 HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeoAddressTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressTest001 begin");
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
     VerifyGeoAddressReadFromParcel(geoAddress);
@@ -153,6 +156,7 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
     MessageParcel newParcel;
     geoAddress->Marshalling(newParcel);
     VerifyGeoAddressMarshalling(newParcel);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressTest001 end");
 }
 
 /*
@@ -185,6 +189,9 @@ HWTEST_F(LocationCommonTest, GeoAddressTest002, TestSize.Level1)
  */
 HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest001 begin");
     auto location = std::make_shared<Location>();
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
@@ -224,6 +231,7 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     EXPECT_EQ("additions", newParcel.ReadString());
     EXPECT_EQ(1, newParcel.ReadInt64());
     EXPECT_EQ(true, newParcel.ReadBool());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest001 end");
 }
 
 /*
@@ -233,6 +241,9 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
  */
 HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SateLLiteStatusTest001 begin");
     SatelliteStatus oldStatus;
     std::unique_ptr<SatelliteStatus> status = std::make_unique<SatelliteStatus>(oldStatus);
     MessageParcel parcel;
@@ -265,6 +276,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
         EXPECT_EQ(i + 3.0, newParcel.ReadDouble());
         EXPECT_EQ(i + 4.0, newParcel.ReadDouble());
     }
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SateLLiteStatusTest001 end");
 }
 
 /*
@@ -274,6 +286,9 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
  */
 HWTEST_F(LocationCommonTest, RequestConfigTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, RequestConfigTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] RequestConfigTest001 begin");
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     MessageParcel parcel;
     parcel.WriteInt32(1); // scenario
@@ -298,10 +313,14 @@ HWTEST_F(LocationCommonTest, RequestConfigTest001, TestSize.Level1)
     EXPECT_EQ(10, newParcel.ReadInt32());
     EXPECT_EQ(1000.0, newParcel.ReadFloat());
     EXPECT_EQ(1, newParcel.ReadInt32());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] RequestConfigTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, RequestConfigTest002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, RequestConfigTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] RequestConfigTest002 begin");
     std::unique_ptr<RequestConfig> requestConfigForCompare =
         std::make_unique<RequestConfig>();
 
@@ -334,6 +353,7 @@ HWTEST_F(LocationCommonTest, RequestConfigTest002, TestSize.Level1)
     requestConfigForCompare->SetScenario(SCENE_UNSET);
     EXPECT_NE("", requestConfigForCompare->ToString());
     EXPECT_EQ(false, requestConfigForCompare->IsSame(requestConfigForSet4));
+    LBSLOGI(LOCATOR, "[LocationCommonTest] RequestConfigTest002 end");
 }
 
 /*
@@ -343,6 +363,9 @@ HWTEST_F(LocationCommonTest, RequestConfigTest002, TestSize.Level1)
  */
 HWTEST_F(LocationCommonTest, GeocodingMockInfoTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeocodingMockInfoTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest001 begin");
     MessageParcel parcel;
     parcel.WriteString16(Str8ToStr16("locale"));
     parcel.WriteDouble(12.0); // latitude
@@ -363,10 +386,14 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest001, TestSize.Level1)
     EXPECT_EQ(12.0, newParcel.ReadDouble());
     EXPECT_EQ(13.0, newParcel.ReadDouble());
     EXPECT_EQ(1, newParcel.ReadInt32());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest001 begin");
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
@@ -379,19 +406,27 @@ HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
     EXPECT_EQ(4, identity.GetFirstTokenId());
     EXPECT_EQ("bundleName", identity.GetBundleName());
     EXPECT_NE("", identity.ToString());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, CommonHisyseventTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, CommonHisyseventTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] CommonHisyseventTest001 begin");
     std::string state = "state";
     pid_t pid = 1;
     pid_t uid = 2;
     WriteGnssStateEvent(state, pid, uid);
     WriteLocationSwitchStateEvent(state);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] CommonHisyseventTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, GeoFenceStateTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeoFenceStateTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoFenceStateTest001 begin");
     GeoFence fence;
     fence.latitude = 1.0;
     fence.longitude = 2.0;
@@ -400,10 +435,14 @@ HWTEST_F(LocationCommonTest, GeoFenceStateTest001, TestSize.Level1)
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
     auto state = new (std::nothrow) GeoFenceState(fence, wantAgent);
     EXPECT_NE(nullptr, state);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoFenceStateTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest002 begin");
     std::unique_ptr<GeocodingMockInfo> mockInfo = std::make_unique<GeocodingMockInfo>();
     
     auto reverseGeocodeRequest = std::make_shared<ReverseGeocodeRequest>();
@@ -413,10 +452,14 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)
     std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
     mockInfo->SetGeoAddressInfo(geoAddress);
     EXPECT_NE(nullptr, mockInfo->GetGeoAddressInfo());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest002 end");
 }
 
 HWTEST_F(LocationCommonTest, PermStateChangeCallbackTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, PermStateChangeCallbackTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] PermStateChangeCallbackTest001 begin");
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     PermStateChangeScope scopeInfo;
     scopeInfo.permList = {"ohos.permission.LOCATION"};
@@ -424,10 +467,14 @@ HWTEST_F(LocationCommonTest, PermStateChangeCallbackTest001, TestSize.Level1)
     auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
     struct PermStateChangeInfo result{0, callingTokenId, ACCESS_LOCATION};
     callbackPtr->PermStateChangeCallback(result);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] PermStateChangeCallbackTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocatorEventSubscriberTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest001 begin");
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(MODE_CHANGED_EVENT);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
@@ -437,10 +484,14 @@ HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest001, TestSize.Level1)
     OHOS::EventFwk::CommonEventData data;
     data.SetWant(want);
     locatorEventSubscriber->OnReceiveEvent(data);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest002 begin");
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(MODE_CHANGED_EVENT);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
@@ -450,27 +501,40 @@ HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1)
     OHOS::EventFwk::CommonEventData data;
     data.SetWant(want);
     locatorEventSubscriber->OnReceiveEvent(data);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest002 end");
 }
 
 HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeoAddressDescriptionsTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest001 begin");
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
     geoAddress->GetDescriptions(0);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest001 end");
 }
 
 HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeoAddressDescriptionsTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest002 begin");
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
     geoAddress->GetDescriptions(1);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest002 end");
 }
 
 HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest003 begin");
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
     geoAddress->GetDescriptions(-1);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest003 end");
 }
 } // namespace Location
 } // namespace OHOS
