@@ -215,7 +215,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest001, TestSize.Level1)
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     locatorBackgroundProxy->OnSaStateChange(true);
-    
+
     locatorBackgroundProxy->OnSaStateChange(false);
 
     locatorBackgroundProxy->OnSaStateChange(true);
@@ -291,7 +291,7 @@ HWTEST_F(LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.L
     EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
     EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver()); // register again
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
-	 LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] RegisterAppStateObserverTest001 end");
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] RegisterAppStateObserverTest001 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnUserSwitchTest001, TestSize.Level1)

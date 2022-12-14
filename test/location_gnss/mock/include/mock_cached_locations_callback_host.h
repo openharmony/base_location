@@ -31,7 +31,8 @@ public:
     MockCachedLocationsCallbackHost() {}
     ~MockCachedLocationsCallbackHost() {}
     
-    MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option));
+    MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data,
+        MessageParcel& reply, MessageOption& option));
     MOCK_METHOD(void, OnCacheLocationsReport, (const std::vector<std::unique_ptr<Location>>& locations));
 };
 } // namespace Location

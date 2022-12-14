@@ -31,7 +31,8 @@ public:
     MockGnssStatusCallbackHost() {}
     ~MockGnssStatusCallbackHost() {}
     
-    MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option));
+    MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data,
+        MessageParcel& reply, MessageOption& option));
     MOCK_METHOD(void, OnStatusChange, (const std::unique_ptr<SatelliteStatus>& statusInfo));
 };
 } // namespace Location

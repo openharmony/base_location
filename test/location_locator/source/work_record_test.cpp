@@ -166,12 +166,12 @@ HWTEST_F(WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1)
     EXPECT_EQ(2, parcel.ReadInt32()); // names number
     EXPECT_EQ("name1", Str16ToStr8(parcel.ReadString16()));
     EXPECT_EQ("name2", Str16ToStr8(parcel.ReadString16()));
-	LBSLOGI(LOCATOR, "[WorkRecordTest] MarshallingWorkRecord001 end");
+    LBSLOGI(LOCATOR, "[WorkRecordTest] MarshallingWorkRecord001 end");
 }
 
 HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
 {
-	GTEST_LOG_(INFO)
+    GTEST_LOG_(INFO)
         << "WorkRecordTest, AddWorkRecord001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
@@ -179,7 +179,7 @@ HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name")); // diff uid, add to record
     EXPECT_EQ(false, workrecord->Add(SYSTEM_UID, 0, "name")); // the same name in record
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "DiffName")); // diff name, add to record
-	LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 end");
+    LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 end");
 }
 } // namespace Location
 } // namespace OHOS

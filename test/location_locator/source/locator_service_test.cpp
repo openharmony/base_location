@@ -1468,7 +1468,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(true, locatorImpl->SetMockedLocations(timeInterval, locations));
     EXPECT_EQ(true, locatorImpl->DisableLocationMock());
-	LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 end");
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
