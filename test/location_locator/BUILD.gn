@@ -38,6 +38,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "//base/location/interfaces/inner_api/include",
     "//base/location/test/location_locator/include",
+    "//base/location/test/location_locator/mock/include",
     "//base/location/test/mock/include",
   ]
 

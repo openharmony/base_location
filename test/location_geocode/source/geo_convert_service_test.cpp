@@ -101,6 +101,9 @@ bool GeoConvertServiceTest::Available()
  */
 HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 begin");
     if (!available_) {
         return;
     }
@@ -111,6 +114,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
      */
     bool result = Available();
     EXPECT_EQ(true, result);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
 }
 
 /*
@@ -120,6 +124,9 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
  */
 HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 begin");
     if (!available_) {
         return;
     }
@@ -149,6 +156,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
         ret = true;
     }
     EXPECT_TRUE(ret);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 end");
 }
 
 /*
@@ -158,6 +166,9 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
  */
 HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 begin");
     if (!available_) {
         return;
     }
@@ -190,20 +201,28 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
         ret = true;
     }
     EXPECT_TRUE(ret);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 end");
 }
 
 HWTEST_F(GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 begin");
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
     EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
 
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
     EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 end");
 }
 
 HWTEST_F(GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertServiceDump001 begin");
     int32_t fd = 0;
     std::vector<std::u16string> args;
     std::u16string arg1 = Str8ToStr16("arg1");
@@ -223,10 +242,14 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1)
     std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
     helpArgs.emplace_back(helpArg1);
     EXPECT_EQ(ERR_OK, service_->Dump(fd, helpArgs));
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertServiceDump001 end");
 }
 
 HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 begin");
     MessageParcel parcel1;
     MessageParcel reply1;
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
@@ -237,14 +260,19 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
     proxy_->GetAddressByCoordinate(parcel2, reply2);
     EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply2.ReadInt32());
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
 }
 
 HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByLocationName001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertProxyGetAddressByLocationName001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByLocationName001 begin");
     MessageParcel parcel;
     MessageParcel reply;
     proxy_->GetAddressByLocationName(parcel, reply);
     EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply.ReadInt32());
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByLocationName001 end");
 }
 }  // namespace Location
 } // namespace OHOS

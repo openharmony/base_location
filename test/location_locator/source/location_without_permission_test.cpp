@@ -28,6 +28,7 @@
 #include "i_locator_callback.h"
 #include "location_switch_callback_host.h"
 #include "locator.h"
+#include "location_log.h"
 #include "locator_callback_proxy.h"
 #include "locator_impl.h"
 #include "nmea_message_callback_host.h"
@@ -66,6 +67,9 @@ void LocationWithoutPermissionTest::MockNativePermission()
 
 HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermission001 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     auto switchCallbackHost =
@@ -74,10 +78,14 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, Tes
     EXPECT_EQ(true, locatorImpl->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
     locatorImpl->EnableAbility(true);
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermission001 end");
 }
 
 HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission001 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 
@@ -98,10 +106,14 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, Tes
     MessageParcel request002;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
     locatorImpl->GetAddressByLocationName(request002, geoAddressList002);
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission001 end");
 }
 
 HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     auto gnssCallbackHost =
@@ -127,10 +139,14 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
 
     EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
     EXPECT_EQ(true, locatorImpl->ResetAllProxy());
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 end");
 }
 
 HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission003 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
@@ -157,6 +173,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
     request->wakeUpCacheQueueFull = true;
     locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission003 end");
 }
 }  // namespace Location
 }  // namespace OHOS
