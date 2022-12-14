@@ -47,6 +47,9 @@ void WorkRecordTest::VerifyMarshalling(std::unique_ptr<WorkRecord>& workrecord)
 
 HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] AddAndRemoveWorkRecord001 begin");
     std::unique_ptr<WorkRecord> emptyWorkrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(false, emptyWorkrecord->Remove("emptyRecord"));
     EXPECT_EQ(false, emptyWorkrecord->Remove(SYSTEM_UID, 0, "emptyRecord"));
@@ -82,10 +85,14 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
 
     EXPECT_EQ(true, workrecord->Remove(SYSTEM_UID, 0, "name"));
     EXPECT_EQ(0, workrecord->Size()); // remove successfully
+    LBSLOGI(LOCATOR, "[WorkRecordTest] AddAndRemoveWorkRecord001 end");
 }
 
 HWTEST_F(WorkRecordTest, FindWorkRecord001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, FindWorkRecord001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] FindWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(false, workrecord->Find(SYSTEM_UID, "name"));
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name"));
@@ -102,34 +109,50 @@ HWTEST_F(WorkRecordTest, FindWorkRecord001, TestSize.Level1)
     EXPECT_EQ(false, workrecord->Find(999, "WrongName"));
     EXPECT_EQ(true, workrecord->Find(SYSTEM_UID, "name"));
     EXPECT_EQ(false, workrecord->Find(SYSTEM_UID, "WrongName"));
+    LBSLOGI(LOCATOR, "[WorkRecordTest] FindWorkRecord001 end");
 }
 
 HWTEST_F(WorkRecordTest, ClearWorkRecord001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, ClearWorkRecord001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] ClearWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name"));
     EXPECT_EQ(false, workrecord->IsEmpty());
     workrecord->Clear();
     EXPECT_EQ(true, workrecord->IsEmpty());
+    LBSLOGI(LOCATOR, "[WorkRecordTest] ClearWorkRecord001 end");
 }
 
 HWTEST_F(WorkRecordTest, SetDeviceId001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, SetDeviceId001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] SetDeviceId001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     workrecord->SetDeviceId("deviceId");
     EXPECT_EQ("deviceId", workrecord->GetDeviceId());
+    LBSLOGI(LOCATOR, "[WorkRecordTest] SetDeviceId001 end");
 }
 
 HWTEST_F(WorkRecordTest, WorkRecordToString001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, WorkRecordToString001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordToString001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ("[]", workrecord->ToString());
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name"));
     EXPECT_NE("", workrecord->ToString());
+    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordToString001 end");
 }
 
 HWTEST_F(WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] MarshallingWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     workrecord->Add(SYSTEM_UID, 0, "name1");
     workrecord->Add(WRONG_UID, 0, "name2");
@@ -143,15 +166,20 @@ HWTEST_F(WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1)
     EXPECT_EQ(2, parcel.ReadInt32()); // names number
     EXPECT_EQ("name1", Str16ToStr8(parcel.ReadString16()));
     EXPECT_EQ("name2", Str16ToStr8(parcel.ReadString16()));
+	LBSLOGI(LOCATOR, "[WorkRecordTest] MarshallingWorkRecord001 end");
 }
 
 HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
 {
+	GTEST_LOG_(INFO)
+        << "WorkRecordTest, AddWorkRecord001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID + 1, 0, "name"));
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name")); // diff uid, add to record
     EXPECT_EQ(false, workrecord->Add(SYSTEM_UID, 0, "name")); // the same name in record
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "DiffName")); // diff name, add to record
+	LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 end");
 }
 } // namespace Location
 } // namespace OHOS

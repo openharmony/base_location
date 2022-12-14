@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,34 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef GNSS_ABILITY_TEST_H
-#define GNSS_ABILITY_TEST_H
+#ifndef MOCK_NMEA_MESSAGE_CALLBACK_HOST_H
+#define MOCK_NMEA_MESSAGE_CALLBACK_HOST_H
 
-#include <gtest/gtest.h>
+#include "gmock/gmock.h"
 
-#define private public
-#include "agnss_event_callback.h"
-#undef private
+#include "message_option.h"
+#include "message_parcel.h"
 
-#include <v1_0/ia_gnss_interface.h>
-#include <v1_0/ignss_interface.h>
-
-#include "gnss_ability.h"
-#include "gnss_ability_proxy.h"
-#include "gnss_status_callback_host.h"
+#include "nmea_message_callback_host.h"
 
 namespace OHOS {
 namespace Location {
-class GnssAbilityTest : public testing::Test {
+class MockNmeaMessageCallbackHost : public NmeaMessageCallbackHost {
 public:
-    void SetUp();
-    void TearDown();
-    void MockNativePermission();
-
-    sptr<GnssAbilityProxy> proxy_;
-    sptr<GnssStatusCallbackHost> callbackStub_;
-    sptr<GnssAbility> ability_;
+    MockNmeaMessageCallbackHost() {}
+    ~MockNmeaMessageCallbackHost() {}
+    
+    MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option));
+    MOCK_METHOD(void, OnMessageChange, (const std::string msg));
 };
 } // namespace Location
 } // namespace OHOS
-#endif  // GNSS_ABILITY_TEST_H
+#endif

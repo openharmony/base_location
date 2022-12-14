@@ -13,27 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef LOCATOR_BACKGROUND_PROXY_TEST_H
-#define LOCATOR_BACKGROUND_PROXY_TEST_H
+#ifndef MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H
+#define MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H
 
-#include <gtest/gtest.h>
+#include "gmock/gmock.h"
 
-#define private public
-#define protected public
-#include "locator_background_proxy.h"
-#undef protected
-#undef private
+#include "message_option.h"
+#include "message_parcel.h"
+
+#include "cached_locations_callback_host.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {
-class LocatorBackgroundProxyTest : public testing::Test {
+class MockCachedLocationsCallbackHost : public CachedLocationsCallbackHost {
 public:
-    void SetUp();
-    void TearDown();
-    void MockNativePermission();
-
-    uint64_t tokenId_;
+    MockCachedLocationsCallbackHost() {}
+    ~MockCachedLocationsCallbackHost() {}
+    
+    MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option));
+    MOCK_METHOD(void, OnCacheLocationsReport, (const std::vector<std::unique_ptr<Location>>& locations));
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATOR_BACKGROUND_PROXY_TEST_H
+#endif
