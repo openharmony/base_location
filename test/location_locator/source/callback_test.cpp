@@ -33,8 +33,6 @@ namespace OHOS {
 namespace Location {
 void CallbackTest::SetUp()
 {
-    iremoteObject_ = new (std::nothrow) MockIRemoteObject();
-    ASSERT_TRUE(iremoteObject_ != nullptr);
 }
 
 void CallbackTest::TearDown()
