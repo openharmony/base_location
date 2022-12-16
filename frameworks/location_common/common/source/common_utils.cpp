@@ -333,5 +333,37 @@ bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
     }
     return bundleMgrProxy->GetBundleNameForUid(uid, bundleName);
 }
+
+bool CommonUtils::GetApplicationInfo(const std::string& bundleName)
+{
+    int userId = 0;
+    bool ret = GetCurrentUserId(userId);
+    if (!ret) {
+        LBSLOGE(COMMON_UTILS, "GetCurrentUserId failed");
+        return false;
+    }
+    AppExecFwk::ApplicationInfo info;
+    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemManager == nullptr) {
+        LBSLOGE(COMMON_UTILS, "fail to get system ability manager!");
+        return false;
+    }
+    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleMgrSa == nullptr) {
+        LBSLOGE(COMMON_UTILS, "fail to get system ability!");
+        return false;
+    }
+    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
+    if (bundleMgr == nullptr) {
+        LBSLOGE(COMMON_UTILS, "Bundle mgr is nullptr.");
+        return false;
+    }
+    bundleMgr->GetApplicationInfoV9(bundleName, 0, userId, info);
+    LBSLOGI(COMMON_UTILS, "GetApplicationInfo, name=%{public}s, bundleName=%{public}s", info.name.c_str(), info.bundleName.c_str());
+    if (info.name.empty() || info.bundleName.empty()) {
+        return false;
+    }
+    return true;
+}
 } // namespace Location
 } // namespace OHOS
