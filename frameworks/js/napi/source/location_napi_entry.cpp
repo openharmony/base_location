@@ -114,16 +114,18 @@ static napi_module g_locationManagerModule = {
     .nm_priv = ((void *)0),
     .reserved = { 0 }
 };
-
 #endif
 
-extern "C" __attribute__((constructor)) void RegisterModule(void)
-{
 #ifndef ENABLE_NAPI_MANAGER
+extern "C" __attribute__((constructor)) void RegisterGeolocationModule(void)
+{
     napi_module_register(&g_locationModule);
-#else
-    napi_module_register(&g_locationManagerModule);
-#endif
 }
+#else
+extern "C" __attribute__((constructor)) void RegisterGeolocationManagerModule(void)
+{
+    napi_module_register(&g_locationManagerModule);
+}
+#endif
 }  // namespace Location
 }  // namespace OHOS
