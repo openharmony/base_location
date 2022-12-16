@@ -32,7 +32,7 @@ class PassiveAbilityProxy : public IRemoteProxy<IPassiveAbility> {
 public:
     explicit PassiveAbilityProxy(const sptr<IRemoteObject> &impl);
     ~PassiveAbilityProxy() = default;
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
+    void SendLocationRequest(WorkRecord &workrecord) override;
     void SetEnable(bool state) override;
     bool EnableMock() override;
     bool DisableMock() override;

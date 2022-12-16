@@ -112,9 +112,9 @@ bool GnssAbility::Init()
     return true;
 }
 
-void GnssAbility::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+void GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 {
-    LocationRequest(interval, workrecord);
+    LocationRequest(workrecord);
 }
 
 void GnssAbility::SetEnable(bool state)
@@ -607,10 +607,9 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
     }
     switch (code) {
         case SEND_LOCATION_REQUEST: {
-            int64_t interval = data.ReadInt64();
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-                Get(code, workrecord, interval);
+                Get(code, workrecord);
             gnssHandler_->SendEvent(event);
             break;
         }
@@ -658,10 +657,9 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             break;
         }
         case ISubAbility::SEND_LOCATION_REQUEST: {
-            int64_t interval = event->GetParam();
             std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
             if (workrecord != nullptr) {
-                gnssAbility->LocationRequest((uint64_t)interval, *workrecord);
+                gnssAbility->LocationRequest(*workrecord);
             }
             break;
         }

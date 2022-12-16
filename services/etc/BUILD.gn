@@ -14,7 +14,10 @@
 import("//build/ohos.gni")
 
 group("etc") {
-  deps = [ ":location_sa_rc" ]
+  deps = [
+    ":location_sa_rc",
+    ":location_service_config",
+  ]
 }
 
 ohos_prebuilt_etc("location_sa_rc") {
@@ -22,4 +25,11 @@ ohos_prebuilt_etc("location_sa_rc") {
   subsystem_name = "location"
 
   relative_install_dir = "init"
+}
+
+ohos_prebuilt_etc("location_service_config") {
+  source = "./resource/location_service.conf"
+  part_name = "location"
+  subsystem_name = "location"
+  relative_install_dir = "location"
 }

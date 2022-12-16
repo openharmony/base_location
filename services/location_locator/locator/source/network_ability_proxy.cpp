@@ -28,7 +28,7 @@ NetworkAbilityProxy::NetworkAbilityProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-void NetworkAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+void NetworkAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -37,7 +37,6 @@ void NetworkAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &wor
         LBSLOGE(NETWORK, "write interfaceToken fail!");
         return;
     }
-    data.WriteInt64(interval);
     workrecord.Marshalling(data);
     int error = Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
     LBSLOGD(NETWORK, "RemoteRequest Transact ErrCode = %{public}d", error);

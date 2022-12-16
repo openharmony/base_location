@@ -818,7 +818,6 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         ret = (this->*memberFunc)(data, reply, identity);
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
-    LBSLOGI(LOCATOR, "OnRemoteRequest return = %{public}d", ret);
     return ret;
 }
 

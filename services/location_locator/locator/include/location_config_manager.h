@@ -56,6 +56,15 @@ public:
     bool GetPrivacyTypeState(const int type);
     int SetPrivacyTypeState(const int type, bool isConfirmed);
 
+    /*
+     * @Description get nlp service name
+     *
+     * @param path - config file path
+     * @param name - service name
+     * @return bool - true success
+     */
+    bool GetNlpServiceName(const std::string& path, std::string& name);
+
 private:
     LocationConfigManager();
     std::string GetLocationSwitchConfigPath();

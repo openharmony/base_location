@@ -48,7 +48,7 @@ public:
     MOCK_METHOD(void, SendCommand, (std::unique_ptr<LocationCommand>& commands));
     MOCK_METHOD(void, AddFence, (std::unique_ptr<GeofenceRequest>& request));
     MOCK_METHOD(void, RemoveFence, (std::unique_ptr<GeofenceRequest>& request));
-    MOCK_METHOD(void, SendLocationRequest, (uint64_t interval, WorkRecord &workrecord));
+    MOCK_METHOD(void, SendLocationRequest, (WorkRecord &workrecord));
     MOCK_METHOD(void, SetEnable, (bool state));
     MOCK_METHOD(bool, EnableMock, ());
     MOCK_METHOD(bool, DisableMock, ());

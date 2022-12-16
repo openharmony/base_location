@@ -274,6 +274,16 @@ double CommonUtils::DoubleRandom(double min, double max)
     return param;
 }
 
+int CommonUtils::IntRandom(int min, int max)
+{
+    int param = 0;
+    std::random_device rd;
+    static std::uniform_int_distribution<int> u(min, max);
+    static std::default_random_engine e(rd());
+    param = u(e);
+    return param;
+}
+
 bool CommonUtils::CheckSystemPermission(pid_t uid, uint32_t callerTokenId)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);

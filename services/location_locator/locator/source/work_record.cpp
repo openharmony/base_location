@@ -36,7 +36,9 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
         int uid = parcel.ReadInt32();
         int pid = parcel.ReadInt32();
         std::string name = parcel.ReadString();
-        Add(uid, pid, name);
+        int timeInterval = parcel.ReadInt32();
+        std::string uuid = parcel.ReadString();
+        Add(uid, pid, name, timeInterval, uuid);
     }
     deviceId_ = parcel.ReadString();
 }
@@ -55,6 +57,8 @@ bool WorkRecord::Marshalling(Parcel& parcel) const
         parcel.WriteInt32(uids_[i]);
         parcel.WriteInt32(pids_[i]);
         parcel.WriteString(names_[i]);
+        parcel.WriteInt32(timeInterval_[i]);
+        parcel.WriteString(uuid_[i]);
     }
     parcel.WriteString(deviceId_);
     return true;
@@ -87,6 +91,10 @@ std::string WorkRecord::ToString()
             result += std::to_string(pids_[i]);
             result += ",";
             result += names_[i];
+            result += ",";
+            result += std::to_string(timeInterval_[i]);
+            result += ",";
+            result += uuid_[i];
             result += "; ";
         }
     }
@@ -118,6 +126,22 @@ int WorkRecord::GetPid(int index)
     return -1;
 }
 
+int WorkRecord::GetTimeInterval(int index)
+{
+    if (index >= 0 && index < num_) {
+        return timeInterval_[index];
+    }
+    return -1;
+}
+
+std::string WorkRecord::GetUuid(int index)
+{
+    if (index >= 0 && index < num_) {
+        return uuid_[index];
+    }
+    return "";
+}
+
 void WorkRecord::SetDeviceId(std::string deviceId)
 {
     deviceId_ = deviceId;
@@ -141,34 +165,18 @@ bool WorkRecord::IsEmpty()
     return false;
 }
 
-bool WorkRecord::Add(int uid, int pid, std::string name)
+bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::string uuid)
 {
-    if (num_ <= 0) {
-        uids_.insert(uids_.begin(), uid);
-        pids_.insert(pids_.begin(), pid);
-        names_.insert(names_.begin(), name);
-        num_++;
-        return true;
-    }
-    int i = 0;
-    for (auto it = uids_.begin(); it != uids_.end(); it++, i++) {
-        if (*it == uid) {
-            int diff = name.compare(names_[i]);
-            if (diff == 0) {
-                return false;
-            } else {
-                break;
-            }
-        }
-    }
-    uids_.insert(uids_.begin() + i, uid);
-    pids_.insert(pids_.begin() + i, pid);
-    names_.insert(names_.begin() + i, name);
+    uids_.push_back(uid);
+    pids_.push_back(pid);
+    names_.push_back(name);
+    timeInterval_.push_back(timeInterval);
+    uuid_.push_back(uuid);
     num_++;
     return true;
 }
 
-bool WorkRecord::Remove(int uid, int pid, std::string name)
+bool WorkRecord::Remove(int uid, int pid, std::string name, std::string uuid)
 {
     if (uids_.size() <= 0) {
         return false;
@@ -176,8 +184,7 @@ bool WorkRecord::Remove(int uid, int pid, std::string name)
     unsigned int i = 0;
     for (auto iterUid = uids_.begin(); iterUid != uids_.end(); iterUid++, i++) {
         if (*iterUid == uid) {
-            int diff = name.compare(names_[i]);
-            if (diff == 0) {
+            if ((name.compare(names_[i]) == 0) && (uuid.compare(uuid_[i]) == 0)) {
                 break;
             }
         }
@@ -188,6 +195,8 @@ bool WorkRecord::Remove(int uid, int pid, std::string name)
     uids_.erase(uids_.begin() + i);
     pids_.erase(pids_.begin() + i);
     names_.erase(names_.begin() + i);
+    timeInterval_.erase(timeInterval_.begin() + i);
+    uuid_.erase(uuid_.begin() + i);
     num_--;
     return true;
 }
@@ -209,11 +218,13 @@ bool WorkRecord::Remove(std::string name)
     uids_.erase(uids_.begin() + i);
     pids_.erase(pids_.begin() + i);
     names_.erase(names_.begin() + i);
+    timeInterval_.erase(timeInterval_.begin() + i);
+    uuid_.erase(uuid_.begin() + i);
     num_--;
     return true;
 }
 
-bool WorkRecord::Find(int uid, std::string name)
+bool WorkRecord::Find(int uid, std::string name, std::string uuid)
 {
     if (uids_.size() <= 0) {
         return false;
@@ -221,8 +232,7 @@ bool WorkRecord::Find(int uid, std::string name)
     int i = 0;
     for (auto iterUid = uids_.begin(); iterUid != uids_.end(); iterUid++, i++) {
         if (*iterUid == uid) {
-            int diff = name.compare(names_[i]);
-            if (diff == 0) {
+            if ((name.compare(names_[i]) == 0) && (uuid.compare(uuid_[i]) == 0)) {
                 return true;
             }
         }
@@ -235,6 +245,8 @@ void WorkRecord::Clear()
     uids_.clear();
     pids_.clear();
     names_.clear();
+    timeInterval_.clear();
+    uuid_.clear();
     num_ = 0;
 }
 
@@ -246,7 +258,9 @@ void WorkRecord::Set(WorkRecord &workRecord)
         int uid = workRecord.GetUid(i);
         int pid = workRecord.GetPid(i);
         std::string name = workRecord.GetName(i);
-        Add(uid, pid, name);
+        int timeInterval = workRecord.GetTimeInterval(i);
+        std::string uuid = workRecord.GetUuid(i);
+        Add(uid, pid, name, timeInterval, uuid);
     }
 }
 } // namespace Location

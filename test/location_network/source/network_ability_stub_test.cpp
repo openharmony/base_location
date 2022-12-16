@@ -20,8 +20,9 @@
 #include "message_parcel.h"
 
 #include "common_utils.h"
-#include "network_ability_proxy.h"
 #include "location_log.h"
+#include "network_ability_proxy.h"
+#include "network_callback_host.h"
 #include "subability_common.h"
 
 using namespace testing;
@@ -30,6 +31,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int UNKNOWN_CODE = -1;
+const int ERR_CODE = 100;
+const int DEFAULT_STATUS = 0;
 void NetworkAbilityStubTest::SetUp()
 {
 }
@@ -44,7 +47,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest001, TestSize.Level1)
         << "NetworkAbilityStubTest, NetworkAbilityStubTest001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest001 begin");
     auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
-    EXPECT_CALL(*networkAbilityStub, SendLocationRequest(_, _)).WillOnce(DoAll(Return()));
+    EXPECT_CALL(*networkAbilityStub, SendMessage(_, _, _)).WillOnce(DoAll(Return()));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
@@ -162,6 +165,58 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest008, TestSize.Level1)
     EXPECT_EQ(REPLY_CODE_EXCEPTION,
         networkAbilityStub->OnRemoteRequest(UNKNOWN_CODE, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest008 end");
+}
+
+/*
+ * @tc.name: NetworkCallback001
+ * @tc.desc: network callback
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkAbilityStubTest, NetworkCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityStubTest, NetworkCallback001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkCallback001 begin");
+    auto networkCallbackHost =
+        sptr<NetworkCallbackHost>(new (std::nothrow) NetworkCallbackHost());
+    EXPECT_NE(nullptr, networkCallbackHost);
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    networkCallbackHost->OnLocationReport(location);
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkCallback001 end");
+}
+
+/*
+ * @tc.name: NetworkCallback002
+ * @tc.desc: network callback
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkAbilityStubTest, NetworkCallback002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityStubTest, NetworkCallback002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkCallback002 begin");
+    auto networkCallbackHost =
+        sptr<NetworkCallbackHost>(new (std::nothrow) NetworkCallbackHost());
+    EXPECT_NE(nullptr, networkCallbackHost);
+    networkCallbackHost->OnLocatingStatusChange(DEFAULT_STATUS); // nullptr error
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkCallback002 end");
+}
+
+/*
+ * @tc.name: NetworkCallback003
+ * @tc.desc: network callback
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkAbilityStubTest, NetworkCallback003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityStubTest, NetworkCallback003, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkCallback003 begin");
+    auto networkCallbackHost =
+        sptr<NetworkCallbackHost>(new (std::nothrow) NetworkCallbackHost());
+    EXPECT_NE(nullptr, networkCallbackHost);
+    networkCallbackHost->OnErrorReport(ERR_CODE); // nullptr error
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkCallback003 end");
 }
 }  // namespace Location
 }  // namespace OHOS

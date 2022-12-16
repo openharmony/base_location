@@ -103,16 +103,16 @@ HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
     for (int i = 0; i < num; i++) {
         int uid = i + 1;
         int pid = i + 2;
+        int timeInterval = i;
         std::string name = "nameForTest";
-        workRecord->Add(uid, pid, name);
+        std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
+        workRecord->Add(uid, pid, name, timeInterval, uuid);
     }
-    uint64_t interval = 1;
-
     /*
      * @tc.steps: step2. send location request
      * @tc.expected: step2. no exception happens.
      */
-    proxy_->SendLocationRequest(interval, *workRecord);
+    proxy_->SendLocationRequest(*workRecord);
 }
 
 /*

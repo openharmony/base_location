@@ -47,10 +47,9 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 
     int ret = 0;
     switch (code) {
-        case SEND_LOCATION_REQUEST: {
-            int64_t interval = data.ReadInt64();
-            std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
-            SendLocationRequest((uint64_t)interval, *workrecord);
+        case SEND_LOCATION_REQUEST: // fall through
+        case SET_MOCKED_LOCATIONS: {
+            SendMessage(code, data, reply);
             break;
         }
         case SET_ENABLE: {
@@ -69,10 +68,6 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         case DISABLE_LOCATION_MOCK: {
             bool result = DisableMock();
             reply.WriteBool(result);
-            break;
-        }
-        case SET_MOCKED_LOCATIONS: {
-            SendMessage(code, data, reply);
             break;
         }
         default:

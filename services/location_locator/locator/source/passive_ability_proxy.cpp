@@ -28,7 +28,7 @@ PassiveAbilityProxy::PassiveAbilityProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-void PassiveAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+void PassiveAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -37,7 +37,6 @@ void PassiveAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &wor
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
         return;
     }
-    data.WriteInt64(interval);
     workrecord.Marshalling(data);
     int error = Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
     LBSLOGD(PASSIVE, "RemoteRequest Transact ErrCode = %{public}d", error);

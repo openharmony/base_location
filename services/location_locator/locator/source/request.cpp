@@ -124,6 +124,16 @@ sptr<Location> Request::GetLastLocation()
     return lastLocation_;
 }
 
+std::string Request::GetUuid()
+{
+    return uuid_;
+}
+
+void Request::SetUuid(std::string uuid)
+{
+    this->uuid_ = uuid;
+}
+
 void Request::SetLastLocation(const std::unique_ptr<Location>& location)
 {
     if (this->lastLocation_ == nullptr) {
@@ -228,7 +238,8 @@ std::string Request::ToString() const
         "] from pid:" + std::to_string(pid_) +
         ", uid:" + std::to_string(uid_) +
         ", tokenId:" + std::to_string(tokenId_) +
-        ", firstTokenId:" + std::to_string(firstTokenId_) + ", " + packageName_;
+        ", firstTokenId:" + std::to_string(firstTokenId_) +
+        ", uuid:" + uuid_ + ", packageName:" + packageName_;
     return str;
 }
 } // namespace Location

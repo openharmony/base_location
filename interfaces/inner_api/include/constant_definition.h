@@ -74,6 +74,16 @@ enum {
     COUNTRY_CODE_FROM_NETWORK,
 };
 
+enum LocationRequestType {
+    PRIORITY_TYPE_HIGH_ACCURACY = 100,            // GNSS + NLP
+    PRIORITY_TYPE_BALANCED_POWER_ACCURACY = 102,  // NLP
+    PRIORITY_TYPE_LOW_POWER = 104,                // NLP
+    PRIORITY_TYPE_NO_POWER = 105,                 // passive
+    PRIORITY_TYPE_HD_ACCURACY = 200,              // HD
+    PRIORITY_TYPE_INDOOR = 300,                   // indoor
+    PRIORITY_TYPE_HIGH_ACCURACY_AND_INDOOR = 400  // indoor + GNSS
+};
+
 enum LocationErrCode {
     ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
     ERRCODE_INVALID_PARAM = 401,              /* invalid params */
