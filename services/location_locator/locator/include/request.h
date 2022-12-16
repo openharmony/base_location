@@ -34,12 +34,14 @@ public:
     std::string GetPackageName();
     sptr<RequestConfig> GetRequestConfig();
     sptr<ILocatorCallback> GetLocatorCallBack();
+    std::string GetUuid();
     void SetUid(pid_t uid);
     void SetPid(pid_t pid);
     void SetPackageName(std::string packageName);
     void SetRequestConfig(RequestConfig& requestConfig);
     void SetLocationMockConfig(const LocationMockConfig& locationMockConfig);
     void SetLocatorCallBack(const sptr<ILocatorCallback>& callback);
+    void SetUuid(std::string uuid);
     std::string ToString() const;
     void GetProxyName(std::shared_ptr<std::list<std::string>> proxys);
     bool GetIsRequesting();
@@ -65,6 +67,7 @@ private:
     uint32_t firstTokenId_;
     sptr<Location> lastLocation_;
     std::string packageName_;
+    std::string uuid_;
     sptr<RequestConfig> requestConfig_;
     sptr<ILocatorCallback> callBack_;
     bool isRequesting_;

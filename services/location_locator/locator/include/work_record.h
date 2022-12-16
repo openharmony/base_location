@@ -25,14 +25,12 @@ namespace Location {
 class WorkRecord : public Parcelable {
 public:
     WorkRecord();
-    virtual ~WorkRecord() = default;
-    bool Add(int uid, int pid, std::string name);
-    bool Remove(int uid, int pid, std::string name);
-    bool Find(int uid, std::string name);
+    ~WorkRecord() override = default;
+    bool Add(int uid, int pid, std::string name, int timeInterval, std::string uuid);
+    bool Remove(int uid, int pid, std::string name, std::string uuid);
+    bool Find(int uid, std::string name, std::string uuid);
     void Clear();
     void Set(WorkRecord &workRecord);
-    bool Add(int uid, std::string name);
-    bool Remove(int uid, std::string name);
     bool Remove(std::string name);
     std::string GetDeviceId();
     void SetDeviceId(std::string deviceId);
@@ -41,6 +39,8 @@ public:
     std::string GetName(int index);
     int GetUid(int index);
     int GetPid(int index);
+    int GetTimeInterval(int index);
+    std::string GetUuid(int index);
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     bool MarshallingWorkRecord(Parcel& parcel) const;
@@ -51,6 +51,8 @@ private:
     std::vector<int> uids_;
     std::vector<int> pids_;
     std::vector<std::string> names_;
+    std::vector<int> timeInterval_;
+    std::vector<std::string> uuid_;
     std::string deviceId_;
 };
 } // namespace Location

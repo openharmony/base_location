@@ -78,9 +78,9 @@ bool PassiveAbility::Init()
     return true;
 }
 
-void PassiveAbility::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+void PassiveAbility::SendLocationRequest(WorkRecord &workrecord)
 {
-    LocationRequest(interval, workrecord);
+    LocationRequest(workrecord);
 }
 
 void PassiveAbility::SetEnable(bool state)

@@ -58,7 +58,7 @@ public:
         ENABLE_REV_GEOCODE_MOCK = 25,
         DISABLE_REV_GEOCODE_MOCK = 26,
     };
-    virtual void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) = 0;
+    virtual void SendLocationRequest(WorkRecord &workrecord) = 0;
     virtual void SetEnable(bool state) = 0;
     virtual bool EnableMock(const LocationMockConfig& config) = 0;
     virtual bool DisableMock(const LocationMockConfig& config) = 0;
@@ -71,7 +71,7 @@ public:
     SubAbility();
     virtual ~SubAbility();
     void SetAbility(std::string name);
-    void LocationRequest(uint64_t interval, WorkRecord &workrecord);
+    void LocationRequest(WorkRecord &workrecord);
     void Enable(bool state, const sptr<IRemoteObject> ability);
     void HandleSelfRequest(pid_t pid, pid_t uid, bool state);
     void HandleRefrashRequirements();

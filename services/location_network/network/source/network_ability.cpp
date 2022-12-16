@@ -15,19 +15,28 @@
 
 #include "network_ability.h"
 #include <file_ex.h>
+#include <thread>
+#include "ability_connect_callback_interface.h"
+#include "ability_connect_callback_stub.h"
+#include "ability_manager_client.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "want_agent_helper.h"
 
 #include "common_utils.h"
-#include "location_log.h"
+#include "location_config_manager.h"
 #include "location_dumper.h"
+#include "location_log.h"
 #include "locator_ability.h"
+#include "network_callback_host.h"
 
 namespace OHOS {
 namespace Location {
-const uint32_t EVENT_REPORT_LOCATION = 0x0001;
+const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+constexpr uint32_t WAIT_MS = 100;
+const int MAX_RETRY_COUNT = 5;
 const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
     DelayedSingleton<NetworkAbility>::GetInstance().get());
 
@@ -74,9 +83,99 @@ bool NetworkAbility::Init()
     return true;
 }
 
-void NetworkAbility::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+class AbilityConnection : public AAFwk::AbilityConnectionStub {
+public:
+    void OnAbilityConnectDone(
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
+    {
+        std::string uri = element.GetURI();
+        LBSLOGD(NETWORK, "Connected uri is %{public}s, result is %{public}d.", uri.c_str(), resultCode);
+        if (resultCode != ERR_OK) {
+            return;
+        }
+        DelayedSingleton<NetworkAbility>::GetInstance().get()->NotifyConnected(remoteObject);
+    }
+
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int) override
+    {
+        std::string uri = element.GetURI();
+        LBSLOGD(NETWORK, "Disconnected uri is %{public}s.", uri.c_str());
+        DelayedSingleton<NetworkAbility>::GetInstance().get()->NotifyDisConnected();
+    }
+};
+
+bool NetworkAbility::ConnectNlpService()
 {
-    LocationRequest(interval, workrecord);
+    LBSLOGD(NETWORK, "start ConnectNlpService");
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    if (!nlpServiceReady_) {
+        AAFwk::Want connectionWant;
+        std::string name;
+        bool result = LocationConfigManager::GetInstance().GetNlpServiceName(SERVICE_CONFIG_FILE, name);
+        if (!result || name.empty()) {
+            LBSLOGE(NETWORK, "get service name failed!");
+            return false;
+        }
+        connectionWant.SetElementName(name, ABILITY_NAME);
+        sptr<AAFwk::IAbilityConnection> conn = new (std::nothrow) AbilityConnection();
+        if (conn == nullptr) {
+            LBSLOGE(NETWORK, "get connection failed!");
+            return false;
+        }
+        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn, -1);
+        if (ret != ERR_OK) {
+            LBSLOGE(NETWORK, "Connect cloud service failed!");
+            return false;
+        }
+
+        auto waitStatus = connectCondition_.wait_for(
+            uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return nlpServiceReady_; });
+        if (!waitStatus) {
+            LBSLOGE(NETWORK, "Connect cloudService timeout!");
+            return false;
+        }
+    }
+    return true;
+}
+
+bool NetworkAbility::ReConnectNlpService()
+{
+    int retryCount = 0;
+    if (nlpServiceReady_) {
+        LBSLOGI(NETWORK, "Connect success!");
+        return true;
+    }
+    while (retryCount < MAX_RETRY_COUNT) {
+        retryCount++;
+        bool ret = ConnectNlpService();
+        if (ret) {
+            LBSLOGI(NETWORK, "Connect success!");
+            return true;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
+    }
+    return false;
+}
+
+void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
+{
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    nlpServiceReady_ = true;
+    nlpServiceProxy_ = remoteObject;
+    connectCondition_.notify_all();
+}
+
+void NetworkAbility::NotifyDisConnected()
+{
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    nlpServiceReady_ = false;
+    nlpServiceProxy_ = nullptr;
+    connectCondition_.notify_all();
+}
+
+void NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
+{
+    LocationRequest(workrecord);
 }
 
 void NetworkAbility::SetEnable(bool state)
@@ -86,13 +185,48 @@ void NetworkAbility::SetEnable(bool state)
 
 void NetworkAbility::SelfRequest(bool state)
 {
-    LBSLOGE(NETWORK, "SelfRequest %{public}d", state);
+    LBSLOGI(NETWORK, "SelfRequest %{public}d", state);
     HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
 }
 
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGE(NETWORK, "enter RequestRecord");
+    if (!nlpServiceReady_ && !ReConnectNlpService()) {
+        LBSLOGE(NETWORK, "nlp service is not ready.");
+        return;
+    }
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    if (nlpServiceProxy_ == nullptr) {
+        LBSLOGE(NETWORK, "nlpProxy is nullptr.");
+        return;
+    }
+    MessageParcel data, reply;
+    MessageOption option;
+    if (isAdded) {
+        LBSLOGD(NETWORK, "start network location");
+        sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+        if (callback == nullptr) {
+            LBSLOGE(NETWORK, "can not get valid callback.");
+            return;
+        }
+        data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
+        data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
+        data.WriteInt32(LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
+        data.WriteRemoteObject(callback->AsObject());
+        int error = nlpServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
+        if (error != ERR_OK) {
+            LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
+            return;
+        }
+    } else {
+        LBSLOGD(NETWORK, "stop network location");
+        data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
+        int error = nlpServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
+        if (error != ERR_OK) {
+            LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
+            return;
+        }
+    }
 }
 
 bool NetworkAbility::EnableMock(const LocationMockConfig& config)
@@ -195,6 +329,12 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
         return;
     }
     switch (code) {
+        case SEND_LOCATION_REQUEST: {
+            std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, workrecord);
+            networkHandler_->SendEvent(event);
+            break;
+        }
         case SET_MOCKED_LOCATIONS: {
             if (!IsMockEnabled()) {
                 reply.WriteBool(false);
@@ -236,6 +376,13 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
             networkAbility->ProcessReportLocationMock();
+            break;
+        }
+        case ISubAbility::SEND_LOCATION_REQUEST: {
+            std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
+            if (workrecord != nullptr) {
+                networkAbility->LocationRequest(*workrecord);
+            }
             break;
         }
         case ISubAbility::SET_MOCKED_LOCATIONS: {

@@ -366,36 +366,34 @@ void RequestManager::HandleRequest(std::string abilityName)
     auto list = mapIter->second;
     // generate work record, and calculate interval
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
-    int timeInterval = 0;
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
         if (!AddRequestToWorkRecord(request, workRecord)) {
             continue;
         }
-        if (!ActiveLocatingStrategies(request, timeInterval)) {
+        if (!ActiveLocatingStrategies(request)) {
             continue;
         }
         LBSLOGD(REQUEST_MANAGER, "add pid:%{public}d uid:%{public}d %{public}s", request->GetPid(), request->GetUid(),
             request->GetPackageName().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}s) work record:%{public}s",
+        
         abilityName.c_str(), std::to_string(list.size()).c_str(), workRecord->ToString().c_str());
     lock.unlock();
 
-    ProxySendLocationRequest(abilityName, *workRecord, timeInterval);
+    ProxySendLocationRequest(abilityName, *workRecord);
 }
 
-bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& request, int& timeInterval)
+bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& request)
 {
-    std::shared_ptr<Request> newRequest = request;
-    if (newRequest == nullptr) {
+    if (request == nullptr) {
         return false;
     }
-    auto requestConfig = newRequest->GetRequestConfig();
+    auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {
         return false;
     }
-    timeInterval = requestConfig->GetTimeInterval();
     int requestType = requestConfig->GetScenario();
     if (requestType == SCENE_UNSET) {
         requestType = requestConfig->GetPriority();
@@ -407,33 +405,37 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
     return true;
 }
 
-bool RequestManager::AddRequestToWorkRecord(const std::shared_ptr<Request>& request,
+bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     std::shared_ptr<WorkRecord>& workRecord)
 {
-    std::shared_ptr<Request> newRequest = request;
-    if (newRequest == nullptr) {
+    if (request == nullptr) {
         return false;
     }
-    UpdateUsingPermission(newRequest);
-    if (!newRequest->GetIsRequesting()) {
+    UpdateUsingPermission(request);
+    if (!request->GetIsRequesting()) {
         return false;
     }
-    uint32_t tokenId = newRequest->GetTokenId();
-    uint32_t firstTokenId = newRequest->GetFirstTokenId();
+    uint32_t tokenId = request->GetTokenId();
+    uint32_t firstTokenId = request->GetFirstTokenId();
     // if location access permission granted, add request info to work record
     if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
         !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
+    auto requestConfig = request->GetRequestConfig();
+    if (requestConfig == nullptr) {
+        return false;
+    }
     // add request info to work record
     if (workRecord != nullptr) {
-        workRecord->Add(newRequest->GetUid(), newRequest->GetPid(), newRequest->GetPackageName());
+        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName(),
+            requestConfig->GetTimeInterval(), request->GetUuid());
     }
     return true;
 }
 
-void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval)
+void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
     sptr<IRemoteObject> remoteObject = GetRemoteObject(abilityName);
     if (remoteObject == nullptr) {
@@ -442,13 +444,13 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
         std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(remoteObject);
-        gnssProxy->SendLocationRequest(timeInterval, workRecord);
+        gnssProxy->SendLocationRequest(workRecord);
     } else if (abilityName == NETWORK_ABILITY) {
         std::unique_ptr<NetworkAbilityProxy> networkProxy = std::make_unique<NetworkAbilityProxy>(remoteObject);
-        networkProxy->SendLocationRequest(timeInterval, workRecord);
+        networkProxy->SendLocationRequest(workRecord);
     } else if (abilityName == PASSIVE_ABILITY) {
         std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
-        passiveProxy->SendLocationRequest(timeInterval, workRecord);
+        passiveProxy->SendLocationRequest(workRecord);
     }
     auto fusionController = DelayedSingleton<FusionController>::GetInstance();
     if (fusionController != nullptr) {

@@ -821,6 +821,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     request->SetPackageName(identity.GetBundleName());
     request->SetRequestConfig(*requestConfig);
     request->SetLocatorCallBack(callback);
+    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
