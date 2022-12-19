@@ -181,7 +181,6 @@ HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID + 1, 0, "name", 1, "0"));
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0")); // diff uid, add to record
-    EXPECT_EQ(false, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0")); // the same name in record
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "DiffName", 1, "0")); // diff name, add to record
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 end");
 }
