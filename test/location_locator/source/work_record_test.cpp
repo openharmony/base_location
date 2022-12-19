@@ -41,8 +41,10 @@ void WorkRecordTest::VerifyMarshalling(std::unique_ptr<WorkRecord>& workrecord)
     EXPECT_EQ(1, parcel.ReadInt32()); // num
     EXPECT_EQ(SYSTEM_UID, parcel.ReadInt32()); // uid
     EXPECT_EQ(0, parcel.ReadInt32()); // pid
-    EXPECT_EQ("name", parcel.ReadString()); // name
-    EXPECT_EQ("deviceId", parcel.ReadString()); // device id
+    EXPECT_EQ("name", parcel.ReadString());
+    EXPECT_EQ(0, parcel.ReadInt32()); // time interval
+    EXPECT_EQ("uuid", parcel.ReadString());
+    EXPECT_EQ("deviceId", parcel.ReadString());
 }
 
 HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
@@ -58,8 +60,10 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
     parcel.WriteInt32(1); // workrecord size
     parcel.WriteInt32(SYSTEM_UID); // uid
     parcel.WriteInt32(0); // pid
-    parcel.WriteString("name");
-    parcel.WriteString("deviceId");
+    parcel.WriteString("name"); // name
+    parcel.WriteInt32(0); // time interval
+    parcel.WriteString("uuid"); // uuid
+    parcel.WriteString("deviceId"); // uuid
     std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(parcel);
     VerifyMarshalling(workrecord);
     EXPECT_EQ(1, workrecord->Size());

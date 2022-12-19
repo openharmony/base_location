@@ -67,14 +67,17 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     parcel.WriteDouble(MAX_LATITUDE + 1.0);  // latitude is out of range
     parcel.WriteDouble(MAX_LONGITUDE + 1.0);  // longitude is out of range
     parcel.WriteDouble(14.0);         // altitude
-    parcel.WriteFloat(1000.0);        // accuracy
-    parcel.WriteFloat(10.0);          // speed
+    parcel.WriteDouble(1000.0);       // accuracy
+    parcel.WriteDouble(10.0);         // speed
     parcel.WriteDouble(90.0);         // direction
     parcel.WriteInt64(1000000000);    // timeStamp
     parcel.WriteInt64(1000000000);    // timeSinceBoot
-    parcel.WriteString("additions");  // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
     parcel.WriteBool(false);          // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(tokenId_, 0, location);
@@ -91,14 +94,17 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     parcel.WriteDouble(-MAX_LATITUDE - 1.0);  // latitude
     parcel.WriteDouble(-MAX_LONGITUDE - 1.0);  // longitude
     parcel.WriteDouble(14.0);         // altitude
-    parcel.WriteFloat(1000.0);        // accuracy
-    parcel.WriteFloat(10.0);          // speed
+    parcel.WriteDouble(1000.0);       // accuracy
+    parcel.WriteDouble(10.0);         // speed
     parcel.WriteDouble(90.0);         // direction
     parcel.WriteInt64(1000000000);    // timeStamp
     parcel.WriteInt64(1000000000);    // timeSinceBoot
-    parcel.WriteString("additions");  // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
     parcel.WriteBool(false);          // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(tokenId_, 0, location);
