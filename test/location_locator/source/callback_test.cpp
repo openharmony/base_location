@@ -57,14 +57,17 @@ HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
     parcel.WriteDouble(1.0); // latitude
     parcel.WriteDouble(2.0); // longitude
     parcel.WriteDouble(3.0); // altitude
-    parcel.WriteFloat(4.0); // accuracy
-    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(6.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
     parcel.WriteString("additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     EXPECT_NE(nullptr, location);
     location->ReadFromParcel(parcel);
     locations.emplace_back(std::move(location));
@@ -279,8 +282,7 @@ HWTEST_F(CallbackTest, LocationCallbackHost001, TestSize.Level1)
     auto callbackHost =
             sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
     
-    std::unique_ptr<Location> location =
-        std::make_unique<Location>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
     EXPECT_NE(true, callbackHost->IsSystemGeoLocationApi());
     EXPECT_NE(true, callbackHost->IsSingleLocationRequest());
     callbackHost->CountDown();
