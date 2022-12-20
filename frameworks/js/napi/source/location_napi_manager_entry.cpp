@@ -74,7 +74,7 @@ static napi_module g_locationManagerModule = {
     .reserved = { 0 }
 };
 
-extern "C" __attribute__((constructor)) void RegisterModule(void)
+extern "C" __attribute__((constructor)) void RegisterGeolocationManagerModule(void)
 {
     napi_module_register(&g_locationManagerModule);
 }
