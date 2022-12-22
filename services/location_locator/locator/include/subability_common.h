@@ -23,7 +23,6 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "hilog/log.h"
-#include "location_mock_config.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -58,11 +57,11 @@ public:
         ENABLE_REV_GEOCODE_MOCK = 25,
         DISABLE_REV_GEOCODE_MOCK = 26,
     };
-    virtual void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) = 0;
+    virtual void SendLocationRequest(WorkRecord &workrecord) = 0;
     virtual void SetEnable(bool state) = 0;
-    virtual bool EnableMock(const LocationMockConfig& config) = 0;
-    virtual bool DisableMock(const LocationMockConfig& config) = 0;
-    virtual bool SetMocked(const LocationMockConfig& config,
+    virtual bool EnableMock() = 0;
+    virtual bool DisableMock() = 0;
+    virtual bool SetMocked(const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location) = 0;
 };
 
@@ -71,14 +70,14 @@ public:
     SubAbility();
     virtual ~SubAbility();
     void SetAbility(std::string name);
-    void LocationRequest(uint64_t interval, WorkRecord &workrecord);
+    void LocationRequest(WorkRecord &workrecord);
     void Enable(bool state, const sptr<IRemoteObject> ability);
     void HandleSelfRequest(pid_t pid, pid_t uid, bool state);
     void HandleRefrashRequirements();
     int GetRequestNum();
-    bool EnableLocationMock(const LocationMockConfig& config);
-    bool DisableLocationMock(const LocationMockConfig& config);
-    bool SetMockedLocations(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location);
+    bool EnableLocationMock();
+    bool DisableLocationMock();
+    bool SetMockedLocations(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
 
     int GetTimeIntervalMock();
     bool IsLocationMocked();
@@ -86,8 +85,8 @@ public:
     void ClearLocationMock();
 private:
     void HandleLocalRequest(WorkRecord &record);
-    void HandleRemoveRecord(WorkRecord &record);
-    void HandleAddRecord(WorkRecord &record);
+    void HandleRemoveRecord(WorkRecord &newRecord);
+    void HandleAddRecord(WorkRecord &newRecord);
     void CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location);
     virtual void RequestRecord(WorkRecord &workRecord, bool isAdded) = 0;
     virtual void SendReportMockLocationEvent() = 0;

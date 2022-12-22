@@ -84,7 +84,7 @@ void GetAllCallback(const napi_env &env, const napi_value &argv, napi_ref &succe
 napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = 1;
-    napi_value argv[1] = {0}, thisVar = 0, result = nullptr;
+    napi_value argv[1] = {0}, thisVar = nullptr, result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
@@ -93,7 +93,6 @@ napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, g_locatorImpl != nullptr, "get locator SA failed");
     napi_value nVtimeout, nVcoordType;
     int32_t timeout = 0;
-    std::string coordType = "";
     napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
     bool hasProperty = false;
     NAPI_CALL(env, napi_has_named_property(env, argv[0], "timeout", &hasProperty));
@@ -108,7 +107,7 @@ napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
         char type[64] = {0};
         size_t typeLen = 0;
         NAPI_CALL(env, napi_get_value_string_utf8(env, nVcoordType, type, sizeof(type), &typeLen));
-        coordType = type;
+        std::string coordType = type;
         if (coordType != "wgs84") {
             NAPI_CALL(env, napi_get_undefined(env, &result));
             return result;
@@ -148,7 +147,7 @@ napi_value GetLocationType(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = 1;
     napi_value argv[1] = {0};
-    napi_value thisVar = 0;
+    napi_value thisVar = nullptr;
     napi_value result = nullptr;
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env,  napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
@@ -206,7 +205,7 @@ void SubscribeSystemLocationChange(napi_env env,
 napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = 1;
-    napi_value argv[1] = {0}, thisVar = 0, result = nullptr;
+    napi_value argv[1] = {0}, thisVar = nullptr, result = nullptr;
     napi_value nVcoordType;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype valueType = napi_undefined;
@@ -214,7 +213,6 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
     NAPI_ASSERT(env, g_locatorImpl != nullptr, "get locator SA failed");
-    std::string coordType = "";
     napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
     bool hasProperty = false;
     NAPI_CALL(env, napi_has_named_property(env, argv[0], "coordType", &hasProperty));
@@ -223,7 +221,7 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
         char type[64] = {0};
         size_t typeLen = 0;
         NAPI_CALL(env, napi_get_value_string_utf8(env, nVcoordType, type, sizeof(type), &typeLen));
-        coordType = type;
+        std::string coordType = type;
         if (coordType != "wgs84") {
             NAPI_CALL(env, napi_get_undefined(env, &result));
             return result;
@@ -252,7 +250,7 @@ napi_value GetSupportedCoordTypes(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = 1;
     napi_value argv[1] = {0};
-    napi_value thisVar = 0;
+    napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc == 0, "number of parameters is error");
     napi_value arrString = nullptr;

@@ -23,7 +23,6 @@
 #include "common_utils.h"
 #include "location.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -48,11 +47,8 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     int ret = 0;
     switch (code) {
         case SEND_LOCATION_REQUEST: {
-            int64_t interval = data.ReadInt64();
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
-            if (workrecord != nullptr) {
-                SendLocationRequest((uint64_t)interval, *workrecord);
-            }
+            SendLocationRequest(*workrecord);
             break;
         }
         case SET_ENABLE: {
@@ -60,34 +56,17 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case ENABLE_LOCATION_MOCK: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
-            bool result = EnableMock(config);
+            bool result = EnableMock();
             reply.WriteBool(result);
             break;
         }
         case DISABLE_LOCATION_MOCK: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
-            bool result = DisableMock(config);
+            bool result = DisableMock();
             reply.WriteBool(result);
             break;
         }
         case SET_MOCKED_LOCATIONS: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
-            int locationSize = data.ReadInt32();
-            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
-                locationSize;
-            std::vector<std::shared_ptr<Location>> vcLoc;
-            for (int i = 0; i < locationSize; i++) {
-                vcLoc.push_back(Location::UnmarshallingShared(data));
-            }
-            bool result = SetMocked(config, vcLoc);
-            reply.WriteBool(result);
+            SendMessage(code, data, reply);
             break;
         }
         default:

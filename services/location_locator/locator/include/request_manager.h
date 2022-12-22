@@ -46,13 +46,15 @@ private:
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
     void DeleteRequestRecord(std::shared_ptr<std::list<std::shared_ptr<Request>>> requests);
     void HandleRequest(std::string abilityName);
-    void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord, int timeInterval);
+    void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
     void UpdateUsingLocationPermission(std::shared_ptr<Request> request);
     void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
     void UpdateUsingBackgroundPermission(std::shared_ptr<Request> request);
-    
+    bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
+    bool AddRequestToWorkRecord(std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord);
+
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex_;
 };

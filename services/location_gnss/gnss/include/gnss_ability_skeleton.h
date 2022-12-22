@@ -22,7 +22,6 @@
 #include "iremote_stub.h"
 
 #include "constant_definition.h"
-#include "location_mock_config.h"
 #include "subability_common.h"
 
 namespace OHOS {
@@ -50,7 +49,7 @@ class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-    virtual void SendMessage(uint32_t code, MessageParcel &data) = 0;
+    virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
 };
 } // namespace Location
 } // namespace OHOS

@@ -36,6 +36,7 @@ ohos_shared_library("lbsservice_passive") {
 
   external_deps = [
     "c_utils:utils",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
   ]
 

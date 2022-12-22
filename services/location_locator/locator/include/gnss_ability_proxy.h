@@ -29,7 +29,7 @@ class GnssAbilityProxy : public IRemoteProxy<IGnssAbility> {
 public:
     explicit GnssAbilityProxy(const sptr<IRemoteObject> &impl);
     ~GnssAbilityProxy() = default;
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
+    void SendLocationRequest(WorkRecord &workrecord) override;
     void SetEnable(bool state) override;
     void RefrashRequirements() override;
     void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
@@ -44,9 +44,9 @@ public:
     void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    bool EnableMock(const LocationMockConfig& config) override;
-    bool DisableMock(const LocationMockConfig& config) override;
-    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock() override;
+    bool DisableMock() override;
+    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };

@@ -34,7 +34,7 @@ namespace Location {
 class AppStateChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
 public:
     AppStateChangeCallback();
-    ~AppStateChangeCallback();
+    ~AppStateChangeCallback() override;
 
     void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
 };
@@ -78,18 +78,18 @@ private:
     class UserSwitchSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
     public:
         explicit UserSwitchSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
-        virtual ~UserSwitchSubscriber() override = default;
+        ~UserSwitchSubscriber() override = default;
         static bool Subscribe();
     private:
-        virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
+        void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
     };
 
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
         explicit SystemAbilityStatusChangeListener(std::shared_ptr<UserSwitchSubscriber> &subscriber);
         ~SystemAbilityStatusChangeListener() = default;
-        virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-        virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+        void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+        void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 
     private:
         std::shared_ptr<UserSwitchSubscriber> subscriber_ = nullptr;

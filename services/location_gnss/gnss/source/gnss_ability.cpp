@@ -68,12 +68,8 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 
 GnssAbility::~GnssAbility()
 {
-    if (gnssCallback_ != nullptr) {
-        gnssCallback_ = nullptr;
-    }
-    if (agnssCallback_ != nullptr) {
-        agnssCallback_ = nullptr;
-    }
+    gnssCallback_ = nullptr;
+    agnssCallback_ = nullptr;
     if (isHdiConnected_) {
         DisableGnss();
         RemoveHdi();
@@ -116,9 +112,9 @@ bool GnssAbility::Init()
     return true;
 }
 
-void GnssAbility::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+void GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 {
-    LocationRequest(interval, workrecord);
+    LocationRequest(workrecord);
 }
 
 void GnssAbility::SetEnable(bool state)
@@ -532,20 +528,20 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
     return ERR_OK;
 }
 
-bool GnssAbility::EnableMock(const LocationMockConfig& config)
+bool GnssAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool GnssAbility::DisableMock(const LocationMockConfig& config)
+bool GnssAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
-bool GnssAbility::SetMocked(const LocationMockConfig& config,
+bool GnssAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 bool GnssAbility::IsMockEnabled()
@@ -558,7 +554,10 @@ void GnssAbility::ProcessReportLocationMock()
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
-        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        if (gnssHandler_ != nullptr) {
+            gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+                0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
+        }
     } else {
         ClearLocationMock();
         mockLocationIndex_ = 0;
@@ -567,7 +566,9 @@ void GnssAbility::ProcessReportLocationMock()
 
 void GnssAbility::SendReportMockLocationEvent()
 {
-    gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
+    if (gnssHandler_ != nullptr) {
+        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
+    }
 }
 
 int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> location)
@@ -589,20 +590,47 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(GNSS, "ReportMockedLocation: locator ability is nullptr");
+        return ERR_OK;
+    }
+    locatorAbility.get()->ReportLocation(locationNew, GNSS_ABILITY);
+    locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
     return ERR_OK;
 }
 
-void GnssAbility::SendMessage(uint32_t code, MessageParcel &data)
+void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
+    if (gnssHandler_ == nullptr) {
+        return;
+    }
     switch (code) {
         case SEND_LOCATION_REQUEST: {
-            int64_t interval = data.ReadInt64();
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-                Get(code, workrecord, interval);
+                Get(code, workrecord);
             gnssHandler_->SendEvent(event);
+            break;
+        }
+        case SET_MOCKED_LOCATIONS: {
+            if (!IsMockEnabled()) {
+                reply.WriteBool(false);
+                break;
+            }
+            int timeInterval = data.ReadInt32();
+            int locationSize = data.ReadInt32();
+            locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
+                locationSize;
+            std::shared_ptr<std::vector<std::shared_ptr<Location>>> vcLoc =
+                std::make_shared<std::vector<std::shared_ptr<Location>>>();
+            for (int i = 0; i < locationSize; i++) {
+                vcLoc->push_back(Location::UnmarshallingShared(data));
+            }
+            AppExecFwk::InnerEvent::Pointer event =
+                AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
+            bool result = gnssHandler_->SendEvent(event);
+            reply.WriteBool(result);
             break;
         }
         default:
@@ -616,19 +644,34 @@ GnssHandler::~GnssHandler() {}
 
 void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
-            DelayedSingleton<GnssAbility>::GetInstance()->ProcessReportLocationMock();
+            gnssAbility->ProcessReportLocationMock();
             break;
         }
         case ISubAbility::SEND_LOCATION_REQUEST: {
-            int64_t interval = event->GetParam();
             std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
             if (workrecord != nullptr) {
-                DelayedSingleton<GnssAbility>::GetInstance()->
-                    LocationRequest((uint64_t)interval, *workrecord);
+                gnssAbility->LocationRequest(*workrecord);
+            }
+            break;
+        }
+        case ISubAbility::SET_MOCKED_LOCATIONS: {
+            int timeInterval = event->GetParam();
+            auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
+            if (vcLoc != nullptr) {
+                std::vector<std::shared_ptr<Location>> mockLocations;
+                for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
+                    mockLocations.push_back(*it);
+                }
+                gnssAbility->SetMocked(timeInterval, mockLocations);
             }
             break;
         }

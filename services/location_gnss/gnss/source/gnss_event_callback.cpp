@@ -27,6 +27,12 @@ using namespace OHOS::HiviewDFX;
 
 int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 {
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (gnssAbility == nullptr ||locatorAbility == nullptr) {
+        LBSLOGE(GNSS, "ReportLocation: gnss ability or locator ability is nullptr.");
+        return ERR_OK;
+    }
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     std::unique_ptr<Location> locationNew = std::make_unique<Location>();
     locationNew->SetLatitude(location.latitude);
@@ -38,27 +44,37 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     locationNew->SetTimeStamp(location.timeStamp);
     locationNew->SetTimeSinceBoot(location.timeSinceBoot);
     locationNew->SetIsFromMock(false);
-    if (DelayedSingleton<GnssAbility>::GetInstance()->IsMockEnabled()) {
+    if (gnssAbility->IsMockEnabled()) {
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         IPCSkeleton::SetCallingIdentity(identity);
         return ERR_OK;
     }
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, GNSS_ABILITY);
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    locatorAbility.get()->ReportLocation(locationNew, GNSS_ABILITY);
+    locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
     IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;
 }
 
 int32_t GnssEventCallback::ReportGnssWorkingStatus(GnssWorkingStatus status)
 {
-    DelayedSingleton<GnssAbility>::GetInstance().get()->ReportGnssSessionStatus(static_cast<int>(status));
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ReportGnssWorkingStatus: gnss ability is nullptr.");
+        return ERR_OK;
+    }
+    gnssAbility.get()->ReportGnssSessionStatus(static_cast<int>(status));
     return ERR_OK;
 }
 
 int32_t GnssEventCallback::ReportNmea(int64_t timestamp, const std::string& nmea, int32_t length)
 {
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ReportNmea: gnss ability is nullptr.");
+        return ERR_OK;
+    }
     std::string nmeaStr = nmea;
-    DelayedSingleton<GnssAbility>::GetInstance().get()->ReportNmea(nmeaStr);
+    gnssAbility.get()->ReportNmea(nmeaStr);
     return ERR_OK;
 }
 
@@ -69,6 +85,11 @@ int32_t GnssEventCallback::ReportGnssCapabilities(GnssCapabilities capabilities)
 
 int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& info)
 {
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ReportSatelliteStatusInfo: gnss ability is nullptr.");
+        return ERR_OK;
+    }
     std::unique_ptr<SatelliteStatus> svStatus = std::make_unique<SatelliteStatus>();
     if (info.satellitesNumber <= 0) {
         LBSLOGD(GNSS, "SvStatusCallback, satellites_num <= 0!");
@@ -83,7 +104,7 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         svStatus->SetCarrierToNoiseDensity(info.carrierToNoiseDensitys[i]);
         svStatus->SetSatelliteId(info.satelliteIds[i]);
     }
-    DelayedSingleton<GnssAbility>::GetInstance().get()->ReportSv(svStatus);
+    gnssAbility.get()->ReportSv(svStatus);
     return ERR_OK;
 }
 

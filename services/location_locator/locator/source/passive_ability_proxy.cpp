@@ -28,7 +28,7 @@ PassiveAbilityProxy::PassiveAbilityProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-void PassiveAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &workrecord)
+void PassiveAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -37,7 +37,6 @@ void PassiveAbilityProxy::SendLocationRequest(uint64_t interval, WorkRecord &wor
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
         return;
     }
-    data.WriteInt64(interval);
     workrecord.Marshalling(data);
     int error = Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
     LBSLOGD(PASSIVE, "RemoteRequest Transact ErrCode = %{public}d", error);
@@ -58,7 +57,7 @@ void PassiveAbilityProxy::SetEnable(bool state)
     LBSLOGD(PASSIVE, "Enable Transact ErrCode = %{public}d", error);
 }
 
-bool PassiveAbilityProxy::EnableMock(const LocationMockConfig& config)
+bool PassiveAbilityProxy::EnableMock()
 {
     MessageParcel data;
     MessageParcel reply;
@@ -72,7 +71,6 @@ bool PassiveAbilityProxy::EnableMock(const LocationMockConfig& config)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    config.Marshalling(data);
     int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
     LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", error);
     bool result = false;
@@ -82,7 +80,7 @@ bool PassiveAbilityProxy::EnableMock(const LocationMockConfig& config)
     return result;
 }
 
-bool PassiveAbilityProxy::DisableMock(const LocationMockConfig& config)
+bool PassiveAbilityProxy::DisableMock()
 {
     MessageParcel data;
     MessageParcel reply;
@@ -96,7 +94,6 @@ bool PassiveAbilityProxy::DisableMock(const LocationMockConfig& config)
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    config.Marshalling(data);
     int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
     LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", error);
     bool result = false;
@@ -107,7 +104,7 @@ bool PassiveAbilityProxy::DisableMock(const LocationMockConfig& config)
 }
 
 bool PassiveAbilityProxy::SetMocked(
-    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+    const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -121,7 +118,7 @@ bool PassiveAbilityProxy::SetMocked(
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    config.Marshalling(data);
+    data.WriteInt32(timeInterval);
     int locationSize = static_cast<int>(location.size());
     data.WriteInt32(locationSize);
     for (int i = 0; i < locationSize; i++) {

@@ -44,18 +44,6 @@ void Request::SetRequestConfig(RequestConfig& requestConfig)
     this->requestConfig_->Set(requestConfig);
 }
 
-void Request::SetLocationMockConfig(const LocationMockConfig& locationMockConfig)
-{
-    RequestConfig config;
-    config.SetScenario(locationMockConfig.GetScenario());
-    config.SetTimeInterval(locationMockConfig.GetTimeInterval());
-    // assign default value for priority when scenario is SCENE_UNSET.
-    if (locationMockConfig.GetScenario() == SCENE_UNSET) {
-        config.SetPriority(PRIORITY_FAST_FIRST_FIX);
-    }
-    SetRequestConfig(config);
-}
-
 void Request::SetLocatorCallBack(const sptr<ILocatorCallback>& callback)
 {
     this->callBack_ = callback;
@@ -134,6 +122,16 @@ void Request::SetRequesting(bool state)
 sptr<Location> Request::GetLastLocation()
 {
     return lastLocation_;
+}
+
+std::string Request::GetUuid()
+{
+    return uuid_;
+}
+
+void Request::SetUuid(std::string uuid)
+{
+    this->uuid_ = uuid;
 }
 
 void Request::SetLastLocation(const std::unique_ptr<Location>& location)
@@ -240,7 +238,8 @@ std::string Request::ToString() const
         "] from pid:" + std::to_string(pid_) +
         ", uid:" + std::to_string(uid_) +
         ", tokenId:" + std::to_string(tokenId_) +
-        ", firstTokenId:" + std::to_string(firstTokenId_) + ", " + packageName_;
+        ", firstTokenId:" + std::to_string(firstTokenId_) +
+        ", uuid:" + uuid_ + ", packageName:" + packageName_;
     return str;
 }
 } // namespace Location

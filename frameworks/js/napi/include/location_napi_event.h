@@ -26,6 +26,15 @@
 
 namespace OHOS {
 namespace Location {
+void InitOnFuncMap();
+bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+
 void InitOffFuncMap();
 bool OffAllLocationServiceStateCallback(const napi_env& env);
 bool OffAllLocationChangeCallback(const napi_env& env);
@@ -45,6 +54,8 @@ void SubscribeGnssStatus(const napi_env& env, const napi_ref& handlerRef,
     sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
 void SubscribeNmeaMessage(const napi_env& env, const napi_ref& handlerRef,
     sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
+int SubscribeNmeaMessageV9(const napi_env& env, const napi_ref& handlerRef,
+    sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
 void SubscribeLocationChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<LocatorCallbackHost>& locatorCallbackHost);
 void SubscribeCacheLocationChange(const napi_env& env, const napi_value& object,
@@ -56,6 +67,7 @@ void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback);
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost);
 void UnSubscribeGnssStatus(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
 void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
+int UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
 bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback);
 void GenRequestConfig(const napi_env& env, const napi_value* argv,
     const size_t& objectArgsNum, std::unique_ptr<RequestConfig>& requestConfig);

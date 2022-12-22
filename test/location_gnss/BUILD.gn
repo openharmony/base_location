@@ -1,0 +1,77 @@
+# Copyright (C) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+
+GNSS_UNIT_TEST_DIR = "//base/location/test/location_gnss"
+SUBSYSTEM_DIR = "//base/location/services"
+module_output_path = "location/service"
+
+ohos_unittest("GnssAbilityTest") {
+  module_out_path = module_output_path
+  sources = [
+    "$GNSS_UNIT_TEST_DIR/mock/src/mock_i_cellular_data_manager.cpp",
+    "$GNSS_UNIT_TEST_DIR/source/gnss_ability_stub_test.cpp",
+    "$GNSS_UNIT_TEST_DIR/source/gnss_ability_test.cpp",
+  ]
+
+  include_dirs = [
+    "$GNSS_UNIT_TEST_DIR/include",
+    "$GNSS_UNIT_TEST_DIR/mock/include",
+    "$SUBSYSTEM_DIR/location_gnss/gnss/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
+    "//base/location/interfaces/inner_api/include",
+    "//base/location/test/mock/include",
+  ]
+
+  deps = [
+    "$SUBSYSTEM_DIR/location_gnss/gnss:lbsservice_gnss",
+    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//base/location/frameworks/native:locator_sdk",
+    "//base/location/test/location_locator:LocatorServiceAbilityTest",
+    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+    "//base/startup/init/interfaces/innerkits:libbegetutil",
+    "//foundation/arkui/napi:ace_napi",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
+    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
+    "cellular_data:tel_cellular_data_api",
+    "common_event_service:cesfwk_innerkits",
+    "core_service:tel_core_service_api",
+    "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
+    "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "hdf_core:libhdi",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+
+  module_out_path = module_output_path
+}
+
+group("unittest") {
+  testonly = true
+  deps = []
+
+  deps += [ ":GnssAbilityTest" ]
+}

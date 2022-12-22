@@ -26,7 +26,7 @@ namespace Location {
 class GeocodingMockInfo : public Parcelable {
 public:
     GeocodingMockInfo();
-    virtual ~GeocodingMockInfo() = default;
+    ~GeocodingMockInfo() override = default;
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;

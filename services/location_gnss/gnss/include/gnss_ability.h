@@ -64,14 +64,14 @@ DECLEAR_SYSTEM_ABILITY(GnssAbility);
 public:
     DISALLOW_COPY_AND_MOVE(GnssAbility);
     GnssAbility();
-    ~GnssAbility();
+    ~GnssAbility() override;
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const
     {
         return state_;
     }
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
+    void SendLocationRequest(WorkRecord &workrecord) override;
     void SetEnable(bool state) override;
     void RefrashRequirements() override;
     void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
@@ -90,12 +90,12 @@ public:
     void ReportGnssSessionStatus(int status);
     void ReportNmea(const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
-    bool EnableMock(const LocationMockConfig& config) override;
-    bool DisableMock(const LocationMockConfig& config) override;
-    bool SetMocked(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location) override;
+    bool EnableMock() override;
+    bool DisableMock() override;
+    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
-    void SendMessage(uint32_t code, MessageParcel &data) override;
+    void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
     void StartGnss();
     void StopGnss();
     bool EnableGnss();

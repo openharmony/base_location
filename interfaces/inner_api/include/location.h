@@ -25,7 +25,7 @@ class Location : public Parcelable {
 public:
     Location();
     explicit Location(Location &location);
-    virtual ~Location() = default;
+    ~Location() override = default;
 
     inline double GetLatitude() const
     {
@@ -136,6 +136,36 @@ public:
         isFromMock_ = fromMock;
     }
 
+    inline int32_t GetSourceType() const
+    {
+        return sourceType_;
+    }
+
+    inline void SetSourceType(int32_t sourceType)
+    {
+        sourceType_ = sourceType;
+    }
+
+    inline int32_t GetFloorNo() const
+    {
+        return floorNo_;
+    }
+
+    inline void SetFloorNo(int32_t floorNo)
+    {
+        floorNo_ = floorNo;
+    }
+
+    inline double GetFloorAccuracy() const
+    {
+        return floorAccuracy_;
+    }
+
+    inline void SetFloorAccuracy(double floorAccuracy)
+    {
+        floorAccuracy_ = floorAccuracy;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -145,14 +175,17 @@ private:
     double latitude_;
     double longitude_;
     double altitude_;
-    float accuracy_;
-    float speed_;
+    double accuracy_;
+    double speed_;
     double direction_;
     int64_t timeStamp_;
     int64_t timeSinceBoot_;
     std::string additions_;
     int64_t additionSize_;
     bool isFromMock_;
+    int32_t sourceType_;
+    int32_t floorNo_;
+    double floorAccuracy_;
 };
 } // namespace Location
 } // namespace OHOS

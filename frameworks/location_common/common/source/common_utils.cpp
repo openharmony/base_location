@@ -23,6 +23,7 @@
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 
 #include "common_utils.h"
 
@@ -204,16 +205,16 @@ void CountDownLatch::CountDown()
 {
     LBSLOGD(LOCATOR_STANDARD, "enter CountDown");
     std::unique_lock<std::mutex> lock(mutex_);
-    int old_c = count_.load();
-    while (old_c > 0) {
-        if (count_.compare_exchange_strong(old_c, old_c - 1)) {
-            if (old_c == 1) {
+    int oldC = count_.load();
+    while (oldC > 0) {
+        if (count_.compare_exchange_strong(oldC, oldC - 1)) {
+            if (oldC == 1) {
                 LBSLOGD(LOCATOR_STANDARD, "notify_all");
                 condition_.notify_all();
             }
             break;
         }
-        old_c = count_.load();
+        oldC = count_.load();
     }
 }
 
@@ -274,6 +275,16 @@ double CommonUtils::DoubleRandom(double min, double max)
     return param;
 }
 
+int CommonUtils::IntRandom(int min, int max)
+{
+    int param = 0;
+    std::random_device rd;
+    static std::uniform_int_distribution<int> u(min, max);
+    static std::default_random_engine e(rd());
+    param = u(e);
+    return param;
+}
+
 bool CommonUtils::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
@@ -284,8 +295,8 @@ bool CommonUtils::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerT
         tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
         return false;
     }
-    bool isSysApp = Security::AccessToken::AccessTokenKit::isSystemAppByTokenIDEx(callerTokenIdEx);
-    LBSLOGD(COMMON_UTILS, "Is system App callerTokenId[%{public}d]: %{public}d", callerTokenId, isSysApp);
+    bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
+    LBSLOGD(COMMON_UTILS, "Is system App callerTokenIdEx[%{public}llu]: %{public}d", callerTokenIdEx, isSysApp ? 1 : 0);
     return isSysApp;
 }
 

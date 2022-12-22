@@ -25,9 +25,9 @@ namespace Location {
 const std::string MODE_CHANGED_EVENT = "usual.event.location.MODE_STATE_CHANGED";
 class LocatorEventSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
 public:
-    LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
-    ~LocatorEventSubscriber();
-    virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
+    explicit LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
+    ~LocatorEventSubscriber() override;
+    void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
 };
 } // namespace Location
 } // namespace OHOS

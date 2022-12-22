@@ -17,16 +17,23 @@
 #define GEO_CONVERT_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
-#include "geo_convert_skeleton.h"
-#include "geo_convert_proxy.h"
 
+#include "geo_convert_proxy.h"
+#include "geo_convert_service.h"
+
+namespace OHOS {
+namespace Location {
 class GeoConvertServiceTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
     bool Available();
-    OHOS::sptr<OHOS::Location::GeoConvertProxy> proxy_;
+    void MockNativePermission();
+    
+    sptr<GeoConvertProxy> proxy_;
+    sptr<GeoConvertService> service_;
     bool available_;
 };
-
+} // namespace Location
+} // namespace OHOS
 #endif // GEO_CONVERT_SERVICE_TEST_H

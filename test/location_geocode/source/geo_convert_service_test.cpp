@@ -14,33 +14,41 @@
  */
 
 #include "geo_convert_service_test.h"
+
+#include "parameters.h"
 #include <string>
-#include "common_utils.h"
-#include "geo_convert_service.h"
-#include "geo_convert_skeleton.h"
+#include "string_ex.h"
+
+#include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "location_log.h"
-#include "parameters.h"
-#include "string_ex.h"
+#include "nativetoken_kit.h"
 #include "system_ability_definition.h"
+#include "token_setproc.h"
+
+#include "common_utils.h"
+#include "geo_coding_mock_info.h"
+#include "geo_convert_service.h"
+#include "geo_convert_skeleton.h"
+#include "location_dumper.h"
+#include "location_log.h"
 
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::Location;
 
+namespace OHOS {
+namespace Location {
+const int32_t LOCATION_PERM_NUM = 4;
+const std::string ARGS_HELP = "-h";
 void GeoConvertServiceTest::SetUp()
 {
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
-    sptr<ISystemAbilityManager> systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, systemAbilityManager);
-    sptr<IRemoteObject> object = systemAbilityManager->GetSystemAbility(LOCATION_GEO_CONVERT_SA_ID);
-    EXPECT_NE(nullptr, object);
-    proxy_ = new (std::nothrow) GeoConvertProxy(object);
+    MockNativePermission();
+    service_ = new (std::nothrow) GeoConvertService();
+    EXPECT_NE(nullptr, service_);
+    proxy_ = new (std::nothrow) GeoConvertProxy(service_);
     EXPECT_NE(nullptr, proxy_);
     available_ = Available();
 }
@@ -51,6 +59,27 @@ void GeoConvertServiceTest::TearDown()
      * @tc.teardown: release memory.
      */
     proxy_ = nullptr;
+}
+
+void GeoConvertServiceTest::MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "GeoCodeServiceTest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 bool GeoConvertServiceTest::Available()
@@ -72,6 +101,9 @@ bool GeoConvertServiceTest::Available()
  */
 HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 begin");
     if (!available_) {
         return;
     }
@@ -82,6 +114,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
      */
     bool result = Available();
     EXPECT_EQ(true, result);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
 }
 
 /*
@@ -91,6 +124,9 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
  */
 HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 begin");
     if (!available_) {
         return;
     }
@@ -120,6 +156,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
         ret = true;
     }
     EXPECT_TRUE(ret);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 end");
 }
 
 /*
@@ -129,6 +166,9 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
  */
 HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 begin");
     if (!available_) {
         return;
     }
@@ -161,4 +201,78 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
         ret = true;
     }
     EXPECT_TRUE(ret);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 end");
 }
+
+HWTEST_F(GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 begin");
+    EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+
+    EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
+    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertServiceDump001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertServiceDump001 begin");
+    int32_t fd = 0;
+    std::vector<std::u16string> args;
+    std::u16string arg1 = Str8ToStr16("arg1");
+    args.emplace_back(arg1);
+    std::u16string arg2 = Str8ToStr16("arg2");
+    args.emplace_back(arg2);
+    std::u16string arg3 = Str8ToStr16("arg3");
+    args.emplace_back(arg3);
+    std::u16string arg4 = Str8ToStr16("arg4");
+    args.emplace_back(arg4);
+    EXPECT_EQ(ERR_OK, service_->Dump(fd, args));
+
+    std::vector<std::u16string> emptyArgs;
+    EXPECT_EQ(ERR_OK, service_->Dump(fd, emptyArgs));
+
+    std::vector<std::u16string> helpArgs;
+    std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
+    helpArgs.emplace_back(helpArg1);
+    EXPECT_EQ(ERR_OK, service_->Dump(fd, helpArgs));
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertServiceDump001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 begin");
+    MessageParcel parcel1;
+    MessageParcel reply1;
+    EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
+    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, proxy_->GetAddressByCoordinate(parcel1, reply1));
+
+    MessageParcel parcel2;
+    MessageParcel reply2;
+    EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
+    proxy_->GetAddressByCoordinate(parcel2, reply2);
+    EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply2.ReadInt32());
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByLocationName001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertProxyGetAddressByLocationName001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByLocationName001 begin");
+    MessageParcel parcel;
+    MessageParcel reply;
+    proxy_->GetAddressByLocationName(parcel, reply);
+    EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply.ReadInt32());
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByLocationName001 end");
+}
+}  // namespace Location
+} // namespace OHOS

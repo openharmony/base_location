@@ -17,23 +17,33 @@
 #define LOCATOR_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
+
+#include "geo_coding_mock_info.h"
+#include "i_locator_callback.h"
 #include "locator_background_proxy.h"
-#include "locator_callback_proxy.h"
-#include "locator_skeleton.h"
 #include "locator_proxy.h"
+#include "request.h"
 #include "request_manager.h"
 
+namespace OHOS {
+namespace Location {
 class LocatorServiceTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool StartAndStopForLocating(OHOS::MessageParcel& data);
+    bool StartAndStopForLocating(MessageParcel& data);
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
-    OHOS::sptr<OHOS::Location::LocatorProxy> proxy_;
-    OHOS::sptr<OHOS::Location::ILocatorCallback> callbackStub_;
-    std::shared_ptr<OHOS::Location::LocatorBackgroundProxy> backgroundProxy_;
-    std::shared_ptr<OHOS::Location::Request> request_;
-    std::shared_ptr<OHOS::Location::RequestManager> requestManager_;
+    void MockNativePermission();
+    std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
+
+    sptr<LocatorProxy> proxy_;
+    sptr<ILocatorCallback> callbackStub_;
+    std::shared_ptr<LocatorBackgroundProxy> backgroundProxy_;
+    std::shared_ptr<Request> request_;
+    std::shared_ptr<RequestManager> requestManager_;
+    uint64_t tokenId_;
 };
+} // namespace Location
+} // namespace OHOS
 #endif // LOCATOR_SERVICE_TEST_H

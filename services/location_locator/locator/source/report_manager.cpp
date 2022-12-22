@@ -41,7 +41,11 @@ ReportManager::~ReportManager() {}
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     LBSLOGI(REPORT_MANAGER, "receive location : %{public}s", abilityName.c_str());
-    DelayedSingleton<FusionController>::GetInstance()->FuseResult(abilityName, location);
+    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    if (fusionController == nullptr) {
+        return false;
+    }
+    fusionController->FuseResult(abilityName, location);
     SetLastLocation(location);
     LBSLOGI(REPORT_MANAGER, "after SetLastLocation");
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -59,44 +63,53 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
 
     auto requestList = requestListIter->second;
     auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
-    if (deadRequests == nullptr) {
-        return false;
-    }
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
-        if (request == nullptr || request->GetRequestConfig() == nullptr ||
-            !request->GetIsRequesting()) {
-            continue;
-        }
-        uint32_t tokenId = request->GetTokenId();
-        uint32_t firstTokenId = request->GetFirstTokenId();
-        std::unique_ptr<Location> finalLocation = GetPermittedLocation(tokenId, firstTokenId, location);
-
-        if (!ResultCheck(finalLocation, request)) {
-            continue;
-        }
-        request->SetLastLocation(finalLocation);
-        auto locatorCallback = request->GetLocatorCallBack();
-        if (locatorCallback != nullptr) {
-            locatorCallback->OnLocationReport(finalLocation);
-        }
-
-        int fixTime = request->GetRequestConfig()->GetFixNumber();
-        if (fixTime > 0) {
-            deadRequests->push_back(request);
+        if (!ProcessRequestForReport(request, deadRequests, location)) {
             continue;
         }
     }
-
+    
     for (auto iter = deadRequests->begin(); iter != deadRequests->end(); ++iter) {
         auto request = *iter;
         if (request == nullptr) {
             continue;
         }
-        DelayedSingleton<RequestManager>::GetInstance()->UpdateRequestRecord(request, false);
+        auto requestManger = DelayedSingleton<RequestManager>::GetInstance();
+        if (requestManger != nullptr) {
+            requestManger->UpdateRequestRecord(request, false);
+        }
     }
     locatorAbility->ApplyRequests();
     deadRequests->clear();
+    return true;
+}
+
+bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
+    std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location)
+{
+    if (request == nullptr || request->GetRequestConfig() == nullptr ||
+        !request->GetIsRequesting()) {
+        return false;
+    }
+    uint32_t tokenId = request->GetTokenId();
+    uint32_t firstTokenId = request->GetFirstTokenId();
+    std::unique_ptr<Location> finalLocation = GetPermittedLocation(tokenId, firstTokenId, location);
+
+    if (!ResultCheck(finalLocation, request)) {
+        return false;
+    }
+    request->SetLastLocation(finalLocation);
+    auto locatorCallback = request->GetLocatorCallBack();
+    if (locatorCallback != nullptr) {
+        locatorCallback->OnLocationReport(finalLocation);
+    }
+
+    int fixTime = request->GetRequestConfig()->GetFixNumber();
+    if (fixTime > 0) {
+        deadRequests->push_back(request);
+        return false;
+    }
     return true;
 }
 

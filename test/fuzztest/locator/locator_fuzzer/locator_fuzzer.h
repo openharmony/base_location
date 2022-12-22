@@ -15,6 +15,47 @@
 #ifndef LOCATOR_FUZZER_H
 #define LOCATOR_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "locator_fuzzer"
+#include "iremote_object.h"
+#include "iremote_proxy.h"
 
+#include "cached_locations_callback_host.h"
+#include "country_code_callback_host.h"
+#include "gnss_status_callback_host.h"
+#include "i_locator.h"
+#include "locator_proxy.h"
+#include "location_switch_callback_host.h"
+#include "locator_callback_host.h"
+#include "nmea_message_callback_host.h"
+
+namespace OHOS {
+namespace Location {
+#define FUZZ_PROJECT_NAME "locator_fuzzer"
+class LocatorProxyTestFuzzer : public LocatorProxy {
+public:
+    explicit LocatorProxyTestFuzzer(const sptr<IRemoteObject> &impl)
+        : LocatorProxy(impl)
+    {}
+    sptr<IRemoteObject> GetRemote()
+    {
+        return Remote();
+    }
+};
+
+void AddPermission();
+bool LocatorProxySendRequestTest(const uint8_t* data, size_t size);
+bool LocatorImplFuzzerTest(const uint8_t* data, size_t size);
+bool TestMockFunc(const uint8_t* data, size_t size);
+bool TestCallbackRegister(const uint8_t* data, size_t size);
+bool CachedLocationsCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool CountryCodeCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool GnssStatusCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool LocationSwitchCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool LocationCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool NmeaMessageCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+
+bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size);
+bool LocatorAbility002FuzzerTest(const uint8_t* data, size_t size);
+bool LocatorAbility003FuzzerTest(const uint8_t* data, size_t size);
+} // namespace Location
+} // namespace OHOS
 #endif // LOCATOR_FUZZER_H

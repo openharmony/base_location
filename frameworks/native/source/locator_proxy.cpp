@@ -160,6 +160,48 @@ void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& call
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
 }
 
+int LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
+{
+    int result = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(LOCATOR_STANDARD, "WriteInterfaceToken failed");
+        return REPLY_CODE_EXCEPTION;
+    }
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
+        return REPLY_CODE_EXCEPTION;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+    int error = SendMsgWithDataReply(REG_NMEA_CALLBACK_v9, data, reply);
+    if (error == NO_ERROR) {
+        result = reply.ReadInt32();
+    }
+    return result;
+}
+
+int LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
+{
+    int result = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(LOCATOR_STANDARD, "WriteInterfaceToken failed");
+        return REPLY_CODE_EXCEPTION;
+    }
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
+        return REPLY_CODE_EXCEPTION;
+    }
+    data.WriteObject<IRemoteObject>(callback);
+    int error = SendMsgWithDataReply(UNREG_NMEA_CALLBACK_v9, data, reply);
+    if (error == NO_ERROR) {
+        result = reply.ReadInt32();
+    }
+    return result;
+}
+
 void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid)
 {
     int error = SendRegisterMsgToRemote(REG_COUNTRY_CODE_CALLBACK, callback, uid);
@@ -328,7 +370,6 @@ void LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
     data.WriteDouble(request->geofence.longitude);
@@ -345,7 +386,6 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
-    data.WriteInt32(request->priority);
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
     data.WriteDouble(request->geofence.longitude);
@@ -363,8 +403,6 @@ std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
     if (error == NO_ERROR) {
         std::string country = reply.ReadString();
         int countryType = reply.ReadInt32();
-        int result = 0;
-        result = reply.ReadInt32();
         auto countryCode = std::make_shared<CountryCode>();
         countryCode->SetCountryCodeStr(country);
         countryCode->SetCountryCodeType(countryType);
@@ -374,14 +412,13 @@ std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
     }
 }
 
-bool LocatorProxy::EnableLocationMock(const LocationMockConfig& config)
+bool LocatorProxy::EnableLocationMock()
 {
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    config.Marshalling(data);
     int error = SendMsgWithDataReply(ENABLE_LOCATION_MOCK, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableLocationMock Transact ErrCodes = %{public}d", error);
     bool state = false;
@@ -391,14 +428,13 @@ bool LocatorProxy::EnableLocationMock(const LocationMockConfig& config)
     return state;
 }
 
-bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
+bool LocatorProxy::DisableLocationMock()
 {
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    config.Marshalling(data);
     int error = SendMsgWithDataReply(DISABLE_LOCATION_MOCK, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableLocationMock Transact ErrCodes = %{public}d", error);
     bool state = false;
@@ -409,14 +445,14 @@ bool LocatorProxy::DisableLocationMock(const LocationMockConfig& config)
 }
 
 bool LocatorProxy::SetMockedLocations(
-    const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location)
+    const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    config.Marshalling(data);
+    data.WriteInt32(timeInterval);
     int locationSize = static_cast<int>(location.size());
     data.WriteInt32(locationSize);
     for (int i = 0; i < locationSize; i++) {

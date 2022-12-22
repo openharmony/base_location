@@ -26,7 +26,7 @@ class SatelliteStatus : public Parcelable {
 public:
     SatelliteStatus();
     explicit SatelliteStatus(SatelliteStatus &satelliteStatus);
-    virtual ~SatelliteStatus() = default;
+    ~SatelliteStatus() override = default;
 
     inline int GetSatellitesNumber() const
     {
