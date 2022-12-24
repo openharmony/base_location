@@ -28,8 +28,6 @@
 #include "location.h"
 #include "work_record.h"
 
-#include "location_mock_config.h"
-
 namespace OHOS {
 namespace Location {
 class MockNetworkAbilityStub : public NetworkAbilityStub {
@@ -40,9 +38,9 @@ public:
     MOCK_METHOD(void, SelfRequest, (bool state));
     MOCK_METHOD(void, SendLocationRequest, (WorkRecord &workrecord));
     MOCK_METHOD(void, SetEnable, (bool state));
-    MOCK_METHOD(bool, EnableMock, (const LocationMockConfig& config));
-    MOCK_METHOD(bool, DisableMock, (const LocationMockConfig& config));
-    MOCK_METHOD(bool, SetMocked, (const LocationMockConfig& config,
+    MOCK_METHOD(bool, EnableMock, ());
+    MOCK_METHOD(bool, DisableMock, ());
+    MOCK_METHOD(bool, SetMocked, (const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location));
 };
 } // namespace Location

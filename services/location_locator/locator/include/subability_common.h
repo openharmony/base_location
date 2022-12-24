@@ -23,7 +23,6 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "hilog/log.h"
-#include "location_mock_config.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -60,9 +59,9 @@ public:
     };
     virtual void SendLocationRequest(WorkRecord &workrecord) = 0;
     virtual void SetEnable(bool state) = 0;
-    virtual bool EnableMock(const LocationMockConfig& config) = 0;
-    virtual bool DisableMock(const LocationMockConfig& config) = 0;
-    virtual bool SetMocked(const LocationMockConfig& config,
+    virtual bool EnableMock() = 0;
+    virtual bool DisableMock() = 0;
+    virtual bool SetMocked(const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location) = 0;
 };
 
@@ -76,9 +75,9 @@ public:
     void HandleSelfRequest(pid_t pid, pid_t uid, bool state);
     void HandleRefrashRequirements();
     int GetRequestNum();
-    bool EnableLocationMock(const LocationMockConfig& config);
-    bool DisableLocationMock(const LocationMockConfig& config);
-    bool SetMockedLocations(const LocationMockConfig& config, const std::vector<std::shared_ptr<Location>> &location);
+    bool EnableLocationMock();
+    bool DisableLocationMock();
+    bool SetMockedLocations(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
 
     int GetTimeIntervalMock();
     bool IsLocationMocked();
@@ -86,8 +85,8 @@ public:
     void ClearLocationMock();
 private:
     void HandleLocalRequest(WorkRecord &record);
-    void HandleRemoveRecord(WorkRecord &record);
-    void HandleAddRecord(WorkRecord &record);
+    void HandleRemoveRecord(WorkRecord &newRecord);
+    void HandleAddRecord(WorkRecord &newRecord);
     void CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location);
     virtual void RequestRecord(WorkRecord &workRecord, bool isAdded) = 0;
     virtual void SendReportMockLocationEvent() = 0;

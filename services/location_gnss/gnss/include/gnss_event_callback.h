@@ -29,7 +29,7 @@ using HDI::Location::Gnss::V1_0::GnssRefInfoType;
 
 class GnssEventCallback : public IGnssCallback {
 public:
-    virtual ~GnssEventCallback() {}
+    ~GnssEventCallback() override {}
     int32_t ReportLocation(const LocationInfo& location) override;
     int32_t ReportGnssWorkingStatus(GnssWorkingStatus status) override;
     int32_t ReportNmea(int64_t timestamp, const std::string& nmea, int32_t length) override;

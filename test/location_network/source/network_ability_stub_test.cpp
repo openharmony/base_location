@@ -95,7 +95,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest004, TestSize.Level1)
         << "NetworkAbilityStubTest, NetworkAbilityStubTest004, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest004 begin");
     auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
-    EXPECT_CALL(*networkAbilityStub, EnableMock(_)).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*networkAbilityStub, EnableMock()).WillOnce(DoAll(Return(true)));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
@@ -111,7 +111,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest005, TestSize.Level1)
         << "NetworkAbilityStubTest, NetworkAbilityStubTest005, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest005 begin");
     auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
-    EXPECT_CALL(*networkAbilityStub, DisableMock(_)).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*networkAbilityStub, DisableMock()).WillOnce(DoAll(Return(true)));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;

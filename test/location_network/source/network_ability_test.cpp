@@ -31,7 +31,6 @@
 #include "location.h"
 #include "location_dumper.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "network_ability_skeleton.h"
 
 using namespace testing::ext;
@@ -165,13 +164,13 @@ HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
 
 HWTEST_F(NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1)
 {
-    LocationMockConfig config;
+    int timeInterval = 1;
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, proxy_->EnableMock(config));
-    EXPECT_EQ(true, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
     
-    EXPECT_EQ(true, proxy_->DisableMock(config));
-    EXPECT_EQ(false, proxy_->SetMocked(config, locations));
+    EXPECT_EQ(true, proxy_->DisableMock());
+    EXPECT_EQ(false, proxy_->SetMocked(timeInterval, locations));
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)
@@ -217,25 +216,26 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent001, TestSize.Lev
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent001 begin");
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(0);
+    int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
     parcel.WriteDouble(10.5); // longitude
     parcel.WriteDouble(10.4); // altitude
-    parcel.WriteFloat(1.0); // accuracy
-    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
     parcel.WriteDouble(10); // direction
     parcel.WriteInt64(1611000000); // timestamp
     parcel.WriteInt64(1611000000); // time since boot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock is true
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, ability_->EnableMock(mockInfo));
-    EXPECT_EQ(true, ability_->SetMocked(mockInfo, locations));
+    EXPECT_EQ(true, ability_->EnableMock());
+    EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
     sleep(2);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent001 end");
 }
@@ -247,25 +247,26 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 begin");
     ability_->SendReportMockLocationEvent(); // clear location mock
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(0);
+    int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
     parcel.WriteDouble(10.5); // longitude
     parcel.WriteDouble(10.4); // altitude
-    parcel.WriteFloat(1.0); // accuracy
-    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
     parcel.WriteDouble(10); // direction
     parcel.WriteInt64(1611000000); // timestamp
     parcel.WriteInt64(1611000000); // time since boot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(false); // isFromMock is false
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, ability_->EnableMock(mockInfo));
-    EXPECT_EQ(true, ability_->SetMocked(mockInfo, locations));
+    EXPECT_EQ(true, ability_->EnableMock());
+    EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
     sleep(2);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 end");
 }

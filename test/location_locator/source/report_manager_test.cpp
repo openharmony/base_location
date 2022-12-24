@@ -102,14 +102,17 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
     parcel.WriteDouble(14.0); // altitude
-    parcel.WriteFloat(1000.0); // accuracy
-    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(90.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     location->ReadFromParcel(parcel);
     EXPECT_EQ(true, reportManager_->ResultCheck(location, request));
     EXPECT_EQ(false, reportManager_->ResultCheck(nullptr, request)); // no location
@@ -139,14 +142,17 @@ HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
     parcel.WriteDouble(14.0); // altitude
-    parcel.WriteFloat(1000.0); // accuracy
-    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(90.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     reportManager_->SetLastLocation(location);
@@ -164,14 +170,17 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
     parcel.WriteDouble(14.0); // altitude
-    parcel.WriteFloat(1000.0); // accuracy
-    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(90.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(tokenId_, 0, location);
@@ -200,14 +209,17 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
     parcel.WriteDouble(14.0); // altitude
-    parcel.WriteFloat(1000.0); // accuracy
-    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(90.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(false); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
 
@@ -224,14 +236,17 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest002, TestSize.Level1)
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
     parcel.WriteDouble(14.0); // altitude
-    parcel.WriteFloat(1000.0); // accuracy
-    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(90.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(false); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // is not requesting
@@ -247,14 +262,17 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
     parcel.WriteDouble(12.0);         // latitude
     parcel.WriteDouble(13.0);         // longitude
     parcel.WriteDouble(14.0);         // altitude
-    parcel.WriteFloat(1000.0);        // accuracy
-    parcel.WriteFloat(10.0);          // speed
+    parcel.WriteDouble(1000.0);       // accuracy
+    parcel.WriteDouble(10.0);         // speed
     parcel.WriteDouble(90.0);         // direction
     parcel.WriteInt64(1000000000);    // timeStamp
     parcel.WriteInt64(1000000000);    // timeSinceBoot
-    parcel.WriteString("additions");  // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
     parcel.WriteBool(false);          // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
 
@@ -283,14 +301,17 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
     parcel.WriteDouble(12.0);         // latitude
     parcel.WriteDouble(13.0);         // longitude
     parcel.WriteDouble(14.0);         // altitude
-    parcel.WriteFloat(1000.0);        // accuracy
-    parcel.WriteFloat(10.0);          // speed
+    parcel.WriteDouble(1000.0);       // accuracy
+    parcel.WriteDouble(10.0);         // speed
     parcel.WriteDouble(90.0);         // direction
     parcel.WriteInt64(1000000000);    // timeStamp
     parcel.WriteInt64(1000000000);    // timeSinceBoot
-    parcel.WriteString("additions");  // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
     parcel.WriteBool(false);          // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
 

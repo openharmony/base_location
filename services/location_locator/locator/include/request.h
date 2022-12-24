@@ -21,7 +21,6 @@
 
 #include "i_locator_callback.h"
 #include "request_config.h"
-#include "location_mock_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -39,7 +38,6 @@ public:
     void SetPid(pid_t pid);
     void SetPackageName(std::string packageName);
     void SetRequestConfig(RequestConfig& requestConfig);
-    void SetLocationMockConfig(const LocationMockConfig& locationMockConfig);
     void SetLocatorCallBack(const sptr<ILocatorCallback>& callback);
     void SetUuid(std::string uuid);
     std::string ToString() const;

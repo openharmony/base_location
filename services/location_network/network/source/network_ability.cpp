@@ -229,14 +229,14 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     }
 }
 
-bool NetworkAbility::EnableMock(const LocationMockConfig& config)
+bool NetworkAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool NetworkAbility::DisableMock(const LocationMockConfig& config)
+bool NetworkAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
 bool NetworkAbility::IsMockEnabled()
@@ -244,10 +244,10 @@ bool NetworkAbility::IsMockEnabled()
     return IsLocationMocked();
 }
 
-bool NetworkAbility::SetMocked(const LocationMockConfig& config,
+bool NetworkAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 void NetworkAbility::ProcessReportLocationMock()
@@ -340,7 +340,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
                 reply.WriteBool(false);
                 break;
             }
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            int timeInterval = data.ReadInt32();
             int locationSize = data.ReadInt32();
             locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
                 locationSize;
@@ -350,7 +350,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
                 vcLoc->push_back(Location::UnmarshallingShared(data));
             }
             AppExecFwk::InnerEvent::Pointer event =
-                AppExecFwk::InnerEvent::Get(code, vcLoc, mockConfig->GetTimeInterval());
+                AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
             bool result = networkHandler_->SendEvent(event);
             reply.WriteBool(result);
             break;
@@ -387,15 +387,13 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case ISubAbility::SET_MOCKED_LOCATIONS: {
             int timeInterval = event->GetParam();
-            LocationMockConfig mockConfig;
-            mockConfig.SetTimeInterval(timeInterval);
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
             if (vcLoc != nullptr) {
                 std::vector<std::shared_ptr<Location>> mockLocations;
                 for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
                     mockLocations.push_back(*it);
                 }
-                networkAbility->SetMocked(mockConfig, mockLocations);
+                networkAbility->SetMocked(timeInterval, mockLocations);
             }
             break;
         }

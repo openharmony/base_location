@@ -476,14 +476,17 @@ HWTEST_F(LocatorBackgroundProxyTest, MLocatorCallbackTest001, TestSize.Level1)
     parcel.WriteDouble(1.0); // latitude
     parcel.WriteDouble(2.0); // longitude
     parcel.WriteDouble(3.0); // altitude
-    parcel.WriteFloat(4.0); // accuracy
-    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(4.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
     parcel.WriteDouble(6.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     EXPECT_NE(nullptr, location);
     location->ReadFromParcel(parcel);
     callback->OnLocationReport(location);
