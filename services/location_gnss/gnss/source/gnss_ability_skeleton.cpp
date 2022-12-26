@@ -94,7 +94,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case FLUSH_CACHED: {
-            ret = FlushCachedGnssLocations();
+            reply.WriteInt32(FlushCachedGnssLocations());
             break;
         }
         case SEND_COMMANDS: {

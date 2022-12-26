@@ -278,7 +278,7 @@ int GnssAbility::GetCachedGnssLocationsSize()
 int GnssAbility::FlushCachedGnssLocations()
 {
     LBSLOGE(GNSS, "CachedGnssLocations fuction not support");
-    return REPLY_CODE_UNSUPPORT;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 void GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)

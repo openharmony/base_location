@@ -84,8 +84,9 @@ int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &re
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    reply.WriteInt32(ERRCODE_SUCCESS);
-    reply.WriteInt32(locatorAbility->GetSwitchState());
+    int state = STATE_CLOSE;
+    reply.WriteInt32(locatorAbility->GetSwitchState(state));
+    reply.WriteInt32(state);
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -98,8 +99,7 @@ int LocatorAbilityStub::PreRegisterSwitchCallback(MessageParcel &data, MessagePa
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->RegisterSwitchCallback(client, identity.GetUid());
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->RegisterSwitchCallback(client, identity.GetUid()));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -115,7 +115,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    if (locatorAbility.get()->GetSwitchState() == DISABLED) {
+    if (locatorAbility->GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
@@ -137,8 +137,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
     remoteObject->AddDeathRecipient(death.GetRefPtr());
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
-    locatorAbility->StartLocating(requestConfig, callback, identity);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->StartLocating(requestConfig, callback, identity));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -160,8 +159,7 @@ int LocatorAbilityStub::PreStopLocating(MessageParcel &data, MessageParcel &repl
         return REPLY_CODE_EXCEPTION;
     }
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
-    locatorAbility->StopLocating(callback);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->StopLocating(callback));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -176,13 +174,13 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    if (locatorAbility.get()->GetSwitchState() == DISABLED) {
+    if (locatorAbility->GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
     }
-    int ret = locatorAbility->GetCacheLocation(reply, identity);
-    return ret;
+    reply.WriteInt32(locatorAbility->GetCacheLocation(reply, identity));
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -202,8 +200,7 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
         return REPLY_CODE_EXCEPTION;
     }
     bool isEnabled = data.ReadBool();
-    locatorAbility->EnableAbility(isEnabled);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->EnableAbility(isEnabled));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -220,8 +217,7 @@ int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &r
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    locatorAbility->UpdateSaAbility();
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->UpdateSaAbility());
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -233,8 +229,10 @@ int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessagePar
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    int ret = locatorAbility->IsGeoConvertAvailable(reply);
-    return ret;
+    bool isAvailable = false;
+    reply.WriteInt32(locatorAbility->IsGeoConvertAvailable(isAvailable));
+    reply.WriteBool(isAvailable);
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -245,8 +243,8 @@ int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessagePa
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    int ret = locatorAbility->GetAddressByCoordinate(data, reply);
-    return ret;
+    reply.WriteInt32(locatorAbility->GetAddressByCoordinate(data, reply));
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -257,8 +255,8 @@ int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, Message
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    int ret = locatorAbility->GetAddressByLocationName(data, reply);
-    return ret;
+    reply.WriteInt32(locatorAbility->GetAddressByLocationName(data, reply));
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -270,8 +268,7 @@ int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, Message
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->UnregisterSwitchCallback(client);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->UnregisterSwitchCallback(client));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -287,8 +284,7 @@ int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, Messa
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->RegisterGnssStatusCallback(client, identity.GetUid());
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->RegisterGnssStatusCallback(client, identity.GetUid()));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -305,8 +301,7 @@ int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->UnregisterGnssStatusCallback(client);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->UnregisterGnssStatusCallback(client));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -323,8 +318,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid());
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -341,8 +335,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->UnregisterNmeaMessageCallback(client);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->UnregisterNmeaMessageCallback(client));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -359,8 +352,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid());
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -377,8 +369,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    locatorAbility->UnregisterNmeaMessageCallback(client);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->UnregisterNmeaMessageCallback(client));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -395,7 +386,7 @@ int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, Messa
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->IsLocationPrivacyConfirmed(data.ReadInt32()), reply);
+    reply.WriteInt32(locatorAbility->IsLocationPrivacyConfirmed(data.ReadInt32()));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -417,8 +408,8 @@ int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->SetLocationPrivacyConfirmStatus(data.ReadInt32(),
-        data.ReadBool()), reply);
+    reply.WriteInt32(locatorAbility->SetLocationPrivacyConfirmStatus(data.ReadInt32(),
+        data.ReadBool()));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -455,8 +446,7 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
     }
 
     sptr<ICachedLocationsCallback> callback = iface_cast<ICachedLocationsCallback>(remoteObject);
-    locatorAbility->RegisterCachedLocationCallback(requestConfig, callback, bundleName);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->RegisterCachedLocationCallback(requestConfig, callback, bundleName));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -478,8 +468,7 @@ int LocatorAbilityStub::PreStopCacheLocating(MessageParcel &data, MessageParcel 
         return REPLY_CODE_EXCEPTION;
     }
     sptr<ICachedLocationsCallback> callback = iface_cast<ICachedLocationsCallback>(remoteObject);
-    locatorAbility->UnregisterCachedLocationCallback(callback);
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    reply.WriteInt32(locatorAbility->UnregisterCachedLocationCallback(callback));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -494,12 +483,12 @@ int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, Messa
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    if (locatorAbility.get()->GetSwitchState() == DISABLED) {
+    if (locatorAbility->GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
     }
-    locatorAbility->GetCachedGnssLocationsSize(reply);
+    reply.WriteInt32(locatorAbility->GetCachedGnssLocationsSize(reply));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -519,8 +508,8 @@ int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, Message
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
     }
-    int ret = locatorAbility->FlushCachedGnssLocations();
-    return ret;
+    reply.WriteInt32(locatorAbility->FlushCachedGnssLocations(reply));
+    return REPLY_CODE_NO_EXCEPTION;
 }
 
 int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -534,7 +523,7 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
     std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
     locationCommand->scenario =  data.ReadInt32();
     locationCommand->command = data.ReadBool();
-    locatorAbility.get()->SendCommand(locationCommand);
+    reply.WriteInt32(locatorAbility->SendCommand(locationCommand));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -549,7 +538,7 @@ int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, A
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    if (locatorAbility.get()->GetSwitchState() == DISABLED) {
+    if (locatorAbility->GetSwitchState() == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
@@ -560,7 +549,7 @@ int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, A
     request->geofence.longitude = data.ReadDouble();
     request->geofence.radius = data.ReadDouble();
     request->geofence.expiration = data.ReadDouble();
-    locatorAbility.get()->AddFence(request);
+    reply.WriteInt32(locatorAbility->AddFence(request));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -586,7 +575,7 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
     request->geofence.longitude = data.ReadDouble();
     request->geofence.radius = data.ReadDouble();
     request->geofence.expiration = data.ReadDouble();
-    locatorAbility->RemoveFence(request);
+    reply.WriteInt32(locatorAbility->RemoveFence(request));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -598,8 +587,8 @@ int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel 
         reply.WriteInt32(ERRCODE_COUNTRYCODE_FAIL);
         return REPLY_CODE_EXCEPTION;
     }
-    auto country = locatorAbility.get()->GetIsoCountryCode();
-    reply.WriteInt32(ERRCODE_SUCCESS);
+    std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
+    reply.WriteInt32(locatorAbility->GetIsoCountryCode(country));
     if (country) {
         reply.WriteString(country->GetCountryCodeStr());
         reply.WriteInt32(country->GetCountryCodeType());
@@ -623,7 +612,7 @@ int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->DisableLocationMock(), reply);
+    reply.WriteInt32(locatorAbility->DisableLocationMock());
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -640,7 +629,7 @@ int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParce
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->DisableLocationMock(), reply);
+    reply.WriteInt32(locatorAbility->DisableLocationMock());
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -664,7 +653,7 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
     for (int i = 0; i < locationSize; i++) {
         vcLoc.push_back(Location::UnmarshallingShared(data));
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->SetMockedLocations(timeInterval, vcLoc), reply);
+    reply.WriteInt32(locatorAbility->SetMockedLocations(timeInterval, vcLoc));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -681,7 +670,7 @@ int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, Messa
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->EnableReverseGeocodingMock(), reply);
+    reply.WriteInt32(locatorAbility->EnableReverseGeocodingMock());
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -699,7 +688,7 @@ int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->DisableReverseGeocodingMock(), reply);
+    reply.WriteInt32(locatorAbility->DisableReverseGeocodingMock());
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -725,7 +714,7 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
         info->ReadFromParcel(data);
         mockInfo.push_back(info);
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->SetReverseGeocodingMockInfo(mockInfo), reply);
+    reply.WriteInt32(locatorAbility->SetReverseGeocodingMockInfo(mockInfo));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -739,7 +728,7 @@ int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid());
+    reply.WriteInt32(locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid()));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -753,7 +742,7 @@ int LocatorAbilityStub::PreUnregisterCountryCodeCallback(MessageParcel &data,
         return REPLY_CODE_EXCEPTION;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    locatorAbility->UnregisterCountryCodeCallback(client);
+    reply.WriteInt32(locatorAbility->UnregisterCountryCodeCallback(client));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -776,7 +765,7 @@ int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel 
     }
     int32_t uid = data.ReadInt32();
     bool isProxy = data.ReadBool();
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->ProxyUidForFreeze(uid, isProxy), reply);
+    reply.WriteInt32(locatorAbility->ProxyUidForFreeze(uid, isProxy));
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -795,7 +784,7 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
     }
-    CHK_IF_HANDLE_SUCCESS(locatorAbility->ResetAllProxy(), reply);
+    reply.WriteInt32(locatorAbility->ResetAllProxy());
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -889,7 +878,7 @@ void LocatorAbilityStub::SaDumpInfo(std::string& result)
         LBSLOGE(LOCATOR, "SaDumpInfo: LocatorAbility is nullptr.");
         return;
     }
-    int state = locatorAbility.get()->GetSwitchState();
+    int state = locatorAbility->GetSwitchState();
     result += "Location switch state: ";
     std::string status = state ? "on" : "off";
     result += status + "\n";
@@ -923,7 +912,7 @@ LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
 void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
-    sptr<LocatorAbility> locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance().get();
+    sptr<LocatorAbility> locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->StopLocating(callback);
         LBSLOGI(LOCATOR, "locator callback OnRemoteDied");
@@ -940,7 +929,7 @@ SwitchCallbackDeathRecipient::~SwitchCallbackDeathRecipient()
 
 void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    sptr<LocatorAbility> locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance().get();
+    sptr<LocatorAbility> locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->UnregisterSwitchCallback(remote.promote());
         LBSLOGI(LOCATOR, "switch callback OnRemoteDied");

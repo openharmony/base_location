@@ -99,6 +99,15 @@ enum LocationErrCode {
     ERRCODE_COUNTRYCODE_FAIL  = 3301500,      /* Failed to query the area information */
     ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
+    ERRCODE_GNSS_FAIL,
+};
+
+enum GnssErrCode {
+    GNSS_ERRCODE_SUCCESS = 0,
+};
+
+enum GeoCodeErrCode {
+    GEOCODE_ERRCODE_SUCCESS = 0,
 };
 
 typedef struct {
