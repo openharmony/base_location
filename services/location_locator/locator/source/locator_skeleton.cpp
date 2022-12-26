@@ -179,7 +179,12 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return REPLY_CODE_SWITCH_OFF_EXCEPTION;
     }
-    reply.WriteInt32(locatorAbility->GetCacheLocation(reply, identity));
+    std::unique_ptr<Location> loc = std::make_unique<Location>();
+    reply.WriteInt32(locatorAbility->GetCacheLocation(loc, identity));
+    auto singleLocation = std::move(loc);
+    if (singleLocation != nullptr) {
+        singleLocation->Marshalling(reply);
+    }
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -243,7 +248,7 @@ int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessagePa
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    reply.WriteInt32(locatorAbility->GetAddressByCoordinate(data, reply));
+    locatorAbility->GetAddressByCoordinate(data, reply);
     return REPLY_CODE_NO_EXCEPTION;
 }
 
@@ -255,7 +260,7 @@ int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, Message
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return REPLY_CODE_EXCEPTION;
     }
-    reply.WriteInt32(locatorAbility->GetAddressByLocationName(data, reply));
+    locatorAbility->GetAddressByLocationName(data, reply);
     return REPLY_CODE_NO_EXCEPTION;
 }
 

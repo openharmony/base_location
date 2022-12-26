@@ -66,7 +66,7 @@ public:
 
     LocationErrCode UpdateSaAbility();
     LocationErrCode GetSwitchState(int& state);
-    void EnableAbility(bool isEnabled);
+    LocationErrCode EnableAbility(bool isEnabled);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid);
