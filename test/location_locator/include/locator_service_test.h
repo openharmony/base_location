@@ -37,11 +37,11 @@ public:
     void MockNativePermission();
     std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
 
-    sptr<LocatorProxy> proxy_;
     sptr<ILocatorCallback> callbackStub_;
     std::shared_ptr<LocatorBackgroundProxy> backgroundProxy_;
     std::shared_ptr<Request> request_;
     std::shared_ptr<RequestManager> requestManager_;
+    std::unique_ptr<Locator> locatorImpl_;
     uint64_t tokenId_;
 };
 } // namespace Location
