@@ -18,6 +18,7 @@
 #include "ipc_skeleton.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "gnss_ability.h"
 
 namespace OHOS {
@@ -88,6 +89,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case GET_CACHED_SIZE: {
+            reply.WriteInt32(ERRCODE_SUCCESS);
             reply.WriteInt32(GetCachedGnssLocationsSize());
             break;
         }

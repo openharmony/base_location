@@ -88,6 +88,8 @@ enum LocationErrCode {
     ERRCODE_SUCCESS = 0,
     ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
     ERRCODE_INVALID_PARAM = 401,              /* invalid params */
+    ERRCODE_SYSTEM_PERMISSION_DENIED,
+    ERRCODE_INVALID_TOKEN,
     ERRCODE_NOT_SUPPORTED = 801,              /* capability not supported */
     ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* location service is unavailable */
     ERRCODE_SWITCH_OFF = 3301100,             /* location switch is off */

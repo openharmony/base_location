@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "functional": "cpp",
+        "array": "cpp",
+        "*.tcc": "cpp",
+        "memory": "cpp",
+        "istream": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp"
+    }
+}

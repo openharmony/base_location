@@ -71,11 +71,11 @@ bool GeoConvertService::Init()
 int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
 {
     if (!mockEnabled_) {
-        reply.WriteInt32(REPLY_CODE_UNSUPPORT);
+        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
         reply.WriteInt32(0);
         return REPLY_CODE_EXCEPTION;
     }
-    reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
+    reply.WriteInt32(ERRCODE_SUCCESS);
     reply.WriteInt32(1);
     return REPLY_CODE_NO_EXCEPTION;
 }
@@ -84,7 +84,7 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
 {
     LBSLOGD(GEO_CONVERT, "GetAddressByCoordinate");
     if (!mockEnabled_) {
-        reply.WriteInt32(REPLY_CODE_UNSUPPORT);
+        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
         reply.WriteInt32(0);
         return REPLY_CODE_EXCEPTION;
     }
@@ -111,7 +111,7 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
         arraySize++;
         array.push_back(info->GetGeoAddressInfo());
     }
-    reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
+    reply.WriteInt32(ERRCODE_SUCCESS);
     if (arraySize > 0) {
         reply.WriteInt32(arraySize);
         for (size_t i = 0; i < array.size(); i++) {
@@ -125,7 +125,7 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
 int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
     LBSLOGD(GEO_CONVERT, "GetAddressByLocationName");
-    reply.WriteInt32(REPLY_CODE_UNSUPPORT);
+    reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
     reply.WriteInt32(0);
     return REPLY_CODE_EXCEPTION;
 }

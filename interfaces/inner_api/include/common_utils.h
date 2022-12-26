@@ -100,6 +100,15 @@ static constexpr int LOCATOR_UID = 1021;
     } \
 }
 
+#define CHK_IF_HANDLE_SUCCESS(ret, reply) \
+{ \
+    if ((ret) == true) { \
+        (reply).WriteInt32(ERRCODE_SUCCESS); \
+    } else { \
+        (reply).WriteInt32(ERRCODE_SERVICE_UNAVAILABLE); \
+    } \
+}
+
 enum class ServiceRunningState {
     STATE_NOT_START,
     STATE_RUNNING

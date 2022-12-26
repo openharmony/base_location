@@ -29,11 +29,13 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         code, option.GetFlags(), callingPid, callingUid);
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(PASSIVE, "invalid token.");
+        LBSLOGE(GEO_CONVERT, "invalid token.");
+        reply.WriteInt32(ERRCODE_INVALID_TOKEN);
         return REPLY_CODE_EXCEPTION;
     }
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(PASSIVE, "uid pid not match locationhub process.");
+        LBSLOGE(GEO_CONVERT, "uid pid not match locationhub process.");
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return REPLY_CODE_EXCEPTION;
     }
 

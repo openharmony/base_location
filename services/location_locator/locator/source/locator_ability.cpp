@@ -599,15 +599,23 @@ int LocatorAbility::GetCachedGnssLocationsSize()
         MessageParcel replyToStub;
         MessageOption option;
         if (obj == nullptr) {
-            return REPLY_CODE_EXCEPTION;
+            reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+            return size;
         }
         if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+            reply.WriteInt32(ERRCODE_INVALID_TOKEN);
             return REPLY_CODE_EXCEPTION;
         }
 
         int error = obj->SendRequest(GET_CACHED_SIZE, dataToStub, replyToStub, option);
-        if (error == NO_ERROR) {
+        if (error != NO_ERROR) {
+            LBSLOGE(LOCATOR, "msg id = %{public}d, send request failed, error : %{public}d", GET_CACHED_SIZE, error);
+            reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        }
+        if (replyToStub.ReadInt32() == ERRCODE_SUCCESS) {
             size = replyToStub.ReadInt32();
+        } else {
+
         }
     }
     return size;
@@ -847,18 +855,18 @@ int LocatorAbility::GetCacheLocation(MessageParcel& reply, AppIdentity &identity
     auto finalLocation = reportManager_->GetPermittedLocation(identity.GetTokenId(),
         identity.GetFirstTokenId(), lastLocation);
     if (finalLocation == nullptr) {
-        reply.WriteInt32(REPLY_CODE_EXCEPTION);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         reply.WriteString("get no cached result");
         LBSLOGI(LOCATOR, "GetCacheLocation location is null");
         return REPLY_CODE_EXCEPTION;
     }
     if (fabs(finalLocation->GetLatitude() - 0.0) > PRECISION
         && fabs(finalLocation->GetLongitude() - 0.0) > PRECISION) {
-        reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
+        reply.WriteInt32(ERRCODE_SUCCESS);
         finalLocation->Marshalling(reply);
         return REPLY_CODE_NO_EXCEPTION;
     }
-    reply.WriteInt32(REPLY_CODE_EXCEPTION);
+    reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
     reply.WriteString("get no cached result");
     LBSLOGI(LOCATOR, "GetCacheLocation location is null");
     return REPLY_CODE_EXCEPTION;
@@ -929,6 +937,7 @@ int LocatorAbility::IsGeoConvertAvailable(MessageParcel &replay)
 {
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        reply.WriteInt32(ERRCODE_INVALID_TOKEN);
         return REPLY_CODE_EXCEPTION;
     }
     return SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replay);
@@ -939,6 +948,7 @@ int LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &r
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        reply.WriteInt32(ERRCODE_INVALID_TOKEN);
         return REPLY_CODE_EXCEPTION;
     }
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
@@ -956,6 +966,7 @@ int LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel 
 {
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        reply.WriteInt32(ERRCODE_INVALID_TOKEN);
         return REPLY_CODE_EXCEPTION;
     }
     dataParcel.WriteString16(data.ReadString16()); // description
@@ -977,6 +988,7 @@ int LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel 
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
         CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {
+        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return REPLY_CODE_EXCEPTION;
     }
     MessageOption option;
