@@ -126,8 +126,8 @@ bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
 {
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     std::unique_ptr<RequestConfig> requestConfig = RequestConfig::Unmarshalling(data);
-    locatorImpl->StartLocating(requestConfig, callbackStub_);
-    locatorImpl->StopLocating(callbackStub_);
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->StartLocating(requestConfig, callbackStub_));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->StopLocating(callbackStub_));
     return true;
 }
 
@@ -230,7 +230,7 @@ HWTEST_F(LocatorServiceTest, CheckStopLocating001, TestSize.Level1)
         << "LocatorServiceTest, CheckStopLocating001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckStopLocating001 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
-    locatorImpl->StopLocating(callbackStub_);
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->StopLocating(callbackStub_));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckStopLocating001 end");
 }
 
