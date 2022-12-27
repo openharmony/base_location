@@ -80,8 +80,8 @@ public:
     LocationErrCode StopLocating(sptr<ILocatorCallback>& callback);
     LocationErrCode GetCacheLocation(MessageParcel& reply, AppIdentity &identity);
     LocationErrCode IsGeoConvertAvailable(bool &isAvailable);
-    LocationErrCode GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply);
-    LocationErrCode GetAddressByLocationName(MessageParcel &data, MessageParcel &reply);
+    void GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply);
+    void GetAddressByLocationName(MessageParcel &data, MessageParcel &reply);
 
     LocationErrCode IsLocationPrivacyConfirmed(const int type, bool& isConfirmed);
     LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
@@ -108,7 +108,7 @@ public:
     int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
     int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
-    bool ProcessLocationMockMsg(
+    LocationErrCode ProcessLocationMockMsg(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
     bool SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
@@ -123,8 +123,8 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests();
     void RegisterAction();
-    bool ProxyUidForFreeze(int32_t uid, bool isProxy);
-    bool ResetAllProxy();
+    LocationErrCode ProxyUidForFreeze(int32_t uid, bool isProxy);
+    LocationErrCode ResetAllProxy();
     bool IsProxyUid(int32_t uid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
@@ -135,6 +135,7 @@ private:
     bool CheckSaValid();
     static int QuerySwitchState();
     LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
+    LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

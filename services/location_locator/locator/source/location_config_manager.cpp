@@ -201,11 +201,12 @@ int LocationConfigManager::SetLocationSwitchState(int state)
     return 0;
 }
 
-bool LocationConfigManager::GetPrivacyTypeState(const int type)
+LocationErrCode LocationConfigManager::GetPrivacyTypeState(const int type, bool& isConfirmed)
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
         LBSLOGI(LOCATOR, "GetPrivacyTypeState,invalid types");
-        return false;
+        isStateOpen = false;
+        return ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(mMutex);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
@@ -214,7 +215,8 @@ bool LocationConfigManager::GetPrivacyTypeState(const int type)
     std::ifstream fs(GetPrivacyTypeConfigPath(type));
     if (!fs.is_open()) {
         LBSLOGE(LOCATOR, "LocationConfigManager: fs.is_open false, return");
-        return -1;
+        isStateOpen = false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::string line;
     while (std::getline(fs, line)) {
@@ -230,14 +232,15 @@ bool LocationConfigManager::GetPrivacyTypeState(const int type)
     }
     fs.clear();
     fs.close();
-    return (mPrivacyTypeState[type] == STATE_OPEN) ? true : false;
+    isConfirmed = (mPrivacyTypeState[type] == STATE_OPEN) ? true : false;
+    return ERRCODE_SUCCESS;
 }
 
-int LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
+LocationErrCode LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
         LBSLOGE(LOCATOR, "SetPrivacyTypeState,invalid types");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(mMutex);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
@@ -246,7 +249,7 @@ int LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
     std::fstream fs(GetPrivacyTypeConfigPath(type));
     if (!fs.is_open()) {
         LBSLOGE(LOCATOR, "LocationConfigManager: fs.is_open false, return");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::string content = "0";
     if (isConfirmed) {
@@ -256,7 +259,7 @@ int LocationConfigManager::SetPrivacyTypeState(const int type, bool isConfirmed)
     fs.clear();
     fs.close();
     mPrivacyTypeState[type] = isConfirmed ? 1 : 0;
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 }  // namespace Location
 }  // namespace OHOS

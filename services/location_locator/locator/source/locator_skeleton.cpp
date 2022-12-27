@@ -801,7 +801,6 @@ bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdenti
         !CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         LBSLOGE(LOCATOR, "CheckLocationPermission return false.");
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        reply.WriteString("should grant location permission");
         return false;
     } else {
         return true;
@@ -816,7 +815,6 @@ bool LocatorAbilityStub::CheckPreciseLocationPermissions(MessageParcel &reply, A
         !CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         LBSLOGE(LOCATOR, "CheckPreciseLocationPermissions return false.");
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        reply.WriteString("should grant location permission");
         return false;
     } else {
         return true;
@@ -830,7 +828,6 @@ bool LocatorAbilityStub::CheckSettingsPermission(MessageParcel &reply, AppIdenti
     if (!CommonUtils::CheckSecureSettings(callingTokenId, callingFirstTokenid)) {
         LBSLOGE(LOCATOR, "has no access permission, CheckSecureSettings return false");
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        reply.WriteString("should grant location permission");
         return false;
     } else {
         return true;

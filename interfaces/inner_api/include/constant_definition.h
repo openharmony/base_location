@@ -103,11 +103,13 @@ enum LocationErrCode {
 };
 
 enum GnssErrCode {
-    GNSS_ERRCODE_SUCCESS = 0,
+    GNSS_OPT_SUCCESS = 0,
+    GNSS_OPT_FAIL,
 };
 
 enum GeoCodeErrCode {
-    GEOCODE_ERRCODE_SUCCESS = 0,
+    GEOCODE_OPT_SUCCESS = 0,
+    GEOCODE_OPT_FAIL,
 };
 
 typedef struct {

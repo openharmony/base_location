@@ -89,7 +89,6 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case GET_CACHED_SIZE: {
-            reply.WriteInt32(ERRCODE_SUCCESS);
             reply.WriteInt32(GetCachedGnssLocationsSize());
             break;
         }
