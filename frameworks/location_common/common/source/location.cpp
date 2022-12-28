@@ -17,6 +17,7 @@
 
 #include <parcel.h>
 #include <string>
+#include "string_ex.h"
 
 namespace OHOS {
 namespace Location {
@@ -36,6 +37,9 @@ Location::Location()
     additions_ = "";
     additionSize_ = 0;
     isFromMock_ = false;
+    sourceType_ = 0;
+    floorNo_ = 0;
+    floorAccuracy_ = 0.0;
 }
 
 Location::Location(Location& location)
@@ -51,6 +55,9 @@ Location::Location(Location& location)
     additions_ = location.GetAdditions();
     additionSize_ = location.GetAdditionSize();
     isFromMock_ = location.GetIsFromMock();
+    sourceType_ = location.GetSourceType();
+    floorNo_ = location.GetFloorNo();
+    floorAccuracy_ = location.GetFloorAccuracy();
 }
 
 void Location::ReadFromParcel(Parcel& parcel)
@@ -58,14 +65,17 @@ void Location::ReadFromParcel(Parcel& parcel)
     latitude_ = parcel.ReadDouble();
     longitude_ = parcel.ReadDouble();
     altitude_ = parcel.ReadDouble();
-    accuracy_ = parcel.ReadFloat();
-    speed_ = parcel.ReadFloat();
+    accuracy_ = parcel.ReadDouble();
+    speed_ = parcel.ReadDouble();
     direction_ = parcel.ReadDouble();
     timeStamp_ = parcel.ReadInt64();
     timeSinceBoot_ = parcel.ReadInt64();
-    additions_ = parcel.ReadString();
+    additions_ = Str16ToStr8(parcel.ReadString16());
     additionSize_ = parcel.ReadInt64();
     isFromMock_ = parcel.ReadBool();
+    sourceType_ = parcel.ReadInt32();
+    floorNo_ = parcel.ReadInt32();
+    floorAccuracy_ = parcel.ReadDouble();
 }
 
 std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
@@ -87,14 +97,17 @@ bool Location::Marshalling(Parcel& parcel) const
     return parcel.WriteDouble(latitude_) &&
            parcel.WriteDouble(longitude_) &&
            parcel.WriteDouble(altitude_) &&
-           parcel.WriteFloat(accuracy_) &&
-           parcel.WriteFloat(speed_) &&
+           parcel.WriteDouble(accuracy_) &&
+           parcel.WriteDouble(speed_) &&
            parcel.WriteDouble(direction_) &&
            parcel.WriteInt64(timeStamp_) &&
            parcel.WriteInt64(timeSinceBoot_) &&
-           parcel.WriteString(additions_) &&
+           parcel.WriteString16(Str8ToStr16(additions_)) &&
            parcel.WriteInt64(additionSize_) &&
-           parcel.WriteBool(isFromMock_);
+           parcel.WriteBool(isFromMock_) &&
+           parcel.WriteInt32(sourceType_) &&
+           parcel.WriteInt32(floorNo_) &&
+           parcel.WriteDouble(floorAccuracy_);
 }
 
 std::string Location::ToString() const
@@ -106,7 +119,13 @@ std::string Location::ToString() const
         ", speed : " + std::to_string(speed_) +
         ", direction : " + std::to_string(direction_) +
         ", timeStamp : " + std::to_string(timeStamp_) +
-        ", timeSinceBoot : " + std::to_string(timeSinceBoot_);
+        ", timeSinceBoot : " + std::to_string(timeSinceBoot_) +
+        ", additions : " + additions_ +
+        ", additionSize : " + std::to_string(additionSize_) +
+        ", isFromMock : " + std::to_string(isFromMock_) +
+        ", sourceType : " + std::to_string(sourceType_) +
+        ", floorNo : " + std::to_string(floorNo_) +
+        ", floorAccuracy : " + std::to_string(floorAccuracy_);
     return str;
 }
 } // namespace Location

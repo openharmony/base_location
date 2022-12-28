@@ -37,7 +37,7 @@ public:
     MockPassiveAbilityStub() {}
     ~MockPassiveAbilityStub() {}
     MOCK_METHOD(void, SendMessage, (uint32_t code, MessageParcel &data, MessageParcel &reply));
-    MOCK_METHOD(void, SendLocationRequest, (uint64_t interval, WorkRecord &workrecord));
+    MOCK_METHOD(void, SendLocationRequest, (WorkRecord &workrecord));
     MOCK_METHOD(void, SetEnable, (bool state));
     MOCK_METHOD(bool, EnableMock, (const LocationMockConfig& config));
     MOCK_METHOD(bool, DisableMock, (const LocationMockConfig& config));

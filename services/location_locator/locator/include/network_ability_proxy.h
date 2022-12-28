@@ -33,7 +33,7 @@ class NetworkAbilityProxy : public IRemoteProxy<INetworkAbility> {
 public:
     explicit NetworkAbilityProxy(const sptr<IRemoteObject> &impl);
     ~NetworkAbilityProxy() = default;
-    void SendLocationRequest(uint64_t interval, WorkRecord &workrecord) override;
+    void SendLocationRequest(WorkRecord &workrecord) override;
     void SetEnable(bool state) override;
     void SelfRequest(bool state) override;
     bool EnableMock(const LocationMockConfig& config) override;

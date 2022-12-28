@@ -95,16 +95,16 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
     for (int i = 0; i < num; i++) {
         int uid = i + 1;
         int pid = i + 2;
+        int timeInterval = i;
         std::string name = "nameForTest";
-        workRecord->Add(uid, pid, name);
+        std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
+        workRecord->Add(uid, pid, name, timeInterval, uuid);
     }
-    uint64_t interval = 1;
-    
     /*
      * @tc.steps: step2. send location request
      * @tc.expected: step2. no exception happens.
      */
-    proxy_->SendLocationRequest(interval, *workRecord);
+    proxy_->SendLocationRequest(*workRecord);
 }
 
 /*
@@ -268,6 +268,18 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
     EXPECT_EQ(true, ability_->SetMocked(mockInfo, locations));
     sleep(2);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 end");
+}
+
+/*
+ * @tc.name: NetworkConnectNlpService001
+ * @tc.desc: connect nlp service
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1)
+{
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkConnectNlpService001 begin");
+    EXPECT_EQ(false, ability_->ReConnectNlpService());
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkConnectNlpService001 end");
 }
 } // namespace Location
 } // namespace OHOS

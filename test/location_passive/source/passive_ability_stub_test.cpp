@@ -44,7 +44,7 @@ HWTEST_F(PassiveAbilityStubTest, PassiveAbilityStubTest001, TestSize.Level1)
         << "PassiveAbilityStubTest, PassiveAbilityStubTest001, TestSize.Level1";
     LBSLOGI(PASSIVE, "[PassiveAbilityStubTest] PassiveAbilityStubTest001 begin");
     auto passiveAbilityStub = sptr<MockPassiveAbilityStub>(new (std::nothrow) MockPassiveAbilityStub());
-    EXPECT_CALL(*passiveAbilityStub, SendLocationRequest(_, _)).WillOnce(DoAll(Return()));
+    EXPECT_CALL(*passiveAbilityStub, SendLocationRequest(_)).WillOnce(DoAll(Return()));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
     MessageParcel reply;
