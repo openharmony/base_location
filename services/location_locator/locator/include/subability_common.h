@@ -93,7 +93,7 @@ private:
     virtual void SendReportMockLocationEvent() = 0;
 
     OHOS::HiviewDFX::HiLogLabel label_;
-    uint64_t interval_ = 0;
+    int interval_ = 0;
     std::string name_ = "";
     std::u16string capability_ = u"";
     std::unique_ptr<WorkRecord> lastRecord_;
