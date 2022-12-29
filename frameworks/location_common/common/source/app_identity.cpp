@@ -22,12 +22,13 @@ AppIdentity::AppIdentity()
     uid_ = 0;
     pid_ = 0;
     tokenId_ = 0;
+    tokenIdEx_ = 0;
     firstTokenId_ = 0;
     bundleName_ = "";
 }
 
-AppIdentity::AppIdentity(pid_t uid, pid_t pid, uint32_t tokenId, uint32_t firstTokenId)
-    : uid_(uid), pid_(pid), tokenId_(tokenId), firstTokenId_(firstTokenId)
+AppIdentity::AppIdentity(pid_t uid, pid_t pid, uint32_t tokenId, uint64_t tokenIdEx, uint32_t firstTokenId)
+    : uid_(uid), pid_(pid), tokenId_(tokenId), tokenIdEx_(tokenIdEx), firstTokenId_(firstTokenId)
 {
 }
 
@@ -36,6 +37,7 @@ std::string AppIdentity::ToString() const
     std::string str = "uid : " + std::to_string(uid_) +
         ", pid : " + std::to_string(pid_) +
         ", tokenId : " + std::to_string(tokenId_) +
+        ", tokenIdEx : " + std::to_string(tokenIdEx_) +
         ", firstTokenId : " + std::to_string(firstTokenId_) +
         ", bundleName : " + bundleName_;
     return str;
