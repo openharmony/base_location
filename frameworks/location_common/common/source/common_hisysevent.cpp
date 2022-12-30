@@ -40,7 +40,7 @@ void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t 
 
 void WriteLocationSwitchStateEvent(const std::string& state)
 {
-    WriteEvent("LOCATION_SWITCH_STATE", "STATE", state);
+    WriteEvent("SWITCH_STATE", "STATE", state);
 }
 }  // namespace Location
 }  // namespace OHOS
