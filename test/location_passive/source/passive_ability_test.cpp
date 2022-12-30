@@ -189,14 +189,17 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent001, TestSize.Lev
     parcel.WriteDouble(10.6); // latitude
     parcel.WriteDouble(10.5); // longitude
     parcel.WriteDouble(10.4); // altitude
-    parcel.WriteFloat(1.0); // accuracy
-    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
     parcel.WriteDouble(10); // direction
     parcel.WriteInt64(1611000000); // timestamp
     parcel.WriteInt64(1611000000); // time since boot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock is true
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
     EXPECT_EQ(true, ability_->EnableMock());
     EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
@@ -217,14 +220,17 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent002, TestSize.Lev
     parcel.WriteDouble(10.6); // latitude
     parcel.WriteDouble(10.5); // longitude
     parcel.WriteDouble(10.4); // altitude
-    parcel.WriteFloat(1.0); // accuracy
-    parcel.WriteFloat(5.0); // speed
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
     parcel.WriteDouble(10); // direction
     parcel.WriteInt64(1611000000); // timestamp
     parcel.WriteInt64(1611000000); // time since boot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(false); // isFromMock is true
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
     EXPECT_EQ(true, ability_->EnableMock());
     EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));

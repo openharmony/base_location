@@ -173,7 +173,7 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
 
 int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -193,7 +193,7 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -339,7 +339,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
 
 int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -357,7 +357,7 @@ int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, Messa
 int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -554,7 +554,7 @@ int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel 
 
 int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -571,7 +571,7 @@ int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel
 
 int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -588,7 +588,7 @@ int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParce
 
 int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -612,7 +612,7 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
 
 int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -630,7 +630,7 @@ int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, Messa
 int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -648,7 +648,7 @@ int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
 int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         return REPLY_CODE_SECURITY_EXCEPTION;
@@ -790,12 +790,14 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t callingTokenIdEx = IPCSkeleton::GetCallingFullTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
 
     AppIdentity identity;
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
     identity.SetTokenId(callingTokenId);
+    identity.SetTokenIdEx(callingTokenIdEx);
     identity.SetFirstTokenId(callingFirstTokenid);
     std::string bundleName = "";
     if (!CommonUtils::GetBundleNameByUid(callingUid, bundleName)) {

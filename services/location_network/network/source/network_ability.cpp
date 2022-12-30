@@ -198,7 +198,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             LBSLOGE(NETWORK, "get service name failed!");
             return;
         }
-        if (!CommonUtils::GetApplicationInfo(name)) {
+        if (!CommonUtils::CheckAppInstalled(name)) { // app is not installed
             LBSLOGE(NETWORK, "nlp service is not available.");
             return;
         } else if (!ReConnectNlpService()) {
