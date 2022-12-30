@@ -296,7 +296,6 @@ bool CommonUtils::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerT
         return false;
     }
     bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
-    LBSLOGD(COMMON_UTILS, "Is system App callerTokenIdEx[%{public}llu]: %{public}d", callerTokenIdEx, isSysApp ? 1 : 0);
     return isSysApp;
 }
 
