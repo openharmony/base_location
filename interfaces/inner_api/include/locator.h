@@ -20,6 +20,7 @@
 
 #include "iremote_object.h"
 
+#include "constant_definition.h"
 #include "country_code.h"
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
@@ -36,7 +37,7 @@ public:
 
     virtual ~Locator();
 
-    virtual LocationErrCode IsLocationEnabled(int& state) = 0;
+    virtual LocationErrCode IsLocationEnabled(int &state) = 0;
 
     virtual LocationErrCode RequestEnableLocation() = 0;
 
@@ -47,7 +48,7 @@ public:
 
     virtual LocationErrCode StopLocating(sptr<ILocatorCallback>& callback) = 0;
 
-    virtual LocationErrCode GetCachedLocation(std::unique_ptr<Location>& loc) = 0;
+    virtual LocationErrCode GetCachedLocation(std::unique_ptr<Location> &loc) = 0;
 
     virtual LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
 
@@ -57,13 +58,13 @@ public:
 
     virtual LocationErrCode RequestPermission() = 0;
 
-    virtual LocationErrCode IsGeoServiceAvailable(bool& isAvailable) = 0;
+    virtual LocationErrCode IsGeoServiceAvailable(bool &isAvailable) = 0;
 
     virtual LocationErrCode GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
 
     virtual LocationErrCode GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
 
-    virtual LocationErrCode IsLocationPrivacyConfirmed(const int type) = 0;
+    virtual LocationErrCode IsLocationPrivacyConfirmed(const int type, bool &isConfirmed) = 0;
 
     virtual LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
 
@@ -83,12 +84,12 @@ public:
 
     virtual LocationErrCode UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) = 0;
 
-    virtual void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
+    virtual LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) = 0;
 
-    virtual void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
+    virtual LocationErrCode UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
 
-    virtual LocationErrCode GetCachedGnssLocationsSize(int& size) = 0;
+    virtual LocationErrCode GetCachedGnssLocationsSize(int &size) = 0;
 
     virtual LocationErrCode FlushCachedGnssLocations() = 0;
 

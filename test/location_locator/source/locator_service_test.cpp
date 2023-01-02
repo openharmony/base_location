@@ -131,43 +131,7 @@ bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
     return true;
 }
 
-std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocodingMockInfo()
-{
-    std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfos;
-    std::shared_ptr<GeocodingMockInfo> geocodingMockInfo =
-        std::make_shared<GeocodingMockInfo>();
-    MessageParcel parcel;
-    parcel.WriteString16(Str8ToStr16("locale"));
-    parcel.WriteDouble(MOCK_LATITUDE); // latitude
-    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
-    parcel.WriteInt32(1);
-    parcel.WriteString("localeLanguage");
-    parcel.WriteString("localeCountry");
-    parcel.WriteInt32(1); // size
-    parcel.WriteInt32(0); // line
-    parcel.WriteString("line");
-    parcel.WriteString("placeName");
-    parcel.WriteString("administrativeArea");
-    parcel.WriteString("subAdministrativeArea");
-    parcel.WriteString("locality");
-    parcel.WriteString("subLocality");
-    parcel.WriteString("roadName");
-    parcel.WriteString("subRoadName");
-    parcel.WriteString("premises");
-    parcel.WriteString("postalCode");
-    parcel.WriteString("countryCode");
-    parcel.WriteString("countryName");
-    parcel.WriteInt32(1); // hasLatitude
-    parcel.WriteDouble(MOCK_LATITUDE); // latitude
-    parcel.WriteInt32(1); // hasLongitude
-    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
-    parcel.WriteString("phoneNumber");
-    parcel.WriteString("addressUrl");
-    parcel.WriteBool(true);
-    geocodingMockInfo->ReadFromParcel(parcel);
-    geoMockInfos.emplace_back(std::move(geocodingMockInfo));
-    return geoMockInfos;
-}
+
 
 /*
  * @tc.name: CheckLocatingForScenario001

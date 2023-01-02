@@ -78,7 +78,7 @@ public:
     LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
     LocationErrCode StopLocating(sptr<ILocatorCallback>& callback);
-    LocationErrCode GetCacheLocation(MessageParcel& reply, AppIdentity &identity);
+    LocationErrCode GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity);
     LocationErrCode IsGeoConvertAvailable(bool &isAvailable);
     void GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply);
     void GetAddressByLocationName(MessageParcel &data, MessageParcel &reply);
@@ -105,9 +105,9 @@ public:
     LocationErrCode DisableReverseGeocodingMock();
     LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
 
-    int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
-    int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
-    int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
+    LocationErrCode ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
+    LocationErrCode ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
+    LocationErrCode ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
     LocationErrCode ProcessLocationMockMsg(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
     bool SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,

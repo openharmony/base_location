@@ -34,284 +34,241 @@ bool LocatorImpl::Init()
         LBSLOGE(LOCATOR_STANDARD, "locator init failed.");
         return false;
     }
-
     return true;
 }
 
-bool LocatorImpl::IsLocationEnabled()
+LocationErrCode LocatorImpl::IsLocationEnabled(int &state)
 {
-    return client_->GetSwitchState() == 1;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabled()");
+    return client_->GetSwitchState(state);
 }
 
-void LocatorImpl::ShowNotification()
+LocationErrCode LocatorImpl::ShowNotification()
 {
     LBSLOGI(LOCATION_NAPI, "ShowNotification");
+    return ERRCODE_SUCCESS;
 }
 
-void LocatorImpl::RequestPermission()
+LocationErrCode LocatorImpl::RequestPermission()
 {
     LBSLOGI(LOCATION_NAPI, "permission need to be granted");
+    return ERRCODE_SUCCESS;
 }
 
-void LocatorImpl::RequestEnableLocation()
+LocationErrCode LocatorImpl::RequestEnableLocation()
 {
     LBSLOGI(LOCATION_NAPI, "RequestEnableLocation");
+    return ERRCODE_SUCCESS;
 }
 
-void LocatorImpl::EnableAbility(bool enable)
+LocationErrCode LocatorImpl::EnableAbility(bool enable)
 {
-    client_->EnableAbility(enable);
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableAbility()");
+    return client_->EnableAbility(enable);
 }
 
-void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
+LocationErrCode LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback)
 {
-    client_->StartLocating(requestConfig, callback, "location.ILocator", 0, 0);
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StartLocating()");
+    return client_->StartLocating(requestConfig, callback, "location.ILocator", 0, 0);
 }
 
-void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
+LocationErrCode LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
 {
-    client_->StopLocating(callback);
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopLocating()");
+    return client_->StopLocating(callback);
 }
 
-std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
+LocationErrCode LocatorImpl::GetCachedLocation(std::unique_ptr<Location> &loc)
 {
-    std::unique_ptr<Location> location = nullptr;
-    MessageParcel reply;
-    client_->GetCacheLocation(reply);
-    int exception = reply.ReadInt32();
-    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        location = Location::Unmarshalling(reply);
-    }
-
-    return location;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedLocation()");
+    return client_->GetCacheLocation(loc);
 }
 
-bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterSwitchCallback(callback, DEFAULT_UID);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterSwitchCallback()");
+    return client_->RegisterSwitchCallback(callback, DEFAULT_UID);
 }
 
-bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 {
-    client_->UnregisterSwitchCallback(callback);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterSwitchCallback()");
+    return client_->UnregisterSwitchCallback(callback);
 }
 
-bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterGnssStatusCallback(callback, DEFAULT_UID);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterGnssStatusCallback()");
+    return client_->RegisterGnssStatusCallback(callback, DEFAULT_UID);
 }
 
-bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
-    client_->UnregisterGnssStatusCallback(callback);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterGnssStatusCallback()");
+    return client_->UnregisterGnssStatusCallback(callback);
 }
 
-bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterNmeaMessageCallback(callback, DEFAULT_UID);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterNmeaMessageCallback()");
+    return client_->RegisterNmeaMessageCallback(callback, DEFAULT_UID);
 }
 
-bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
-    client_->UnregisterNmeaMessageCallback(callback);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterNmeaMessageCallback()");
+    return client_->UnregisterNmeaMessageCallback(callback);
 }
 
-int LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterNmeaMessageCallbackV9()");
     return client_->RegisterNmeaMessageCallbackV9(callback);
 }
 
-int LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterNmeaMessageCallbackV9()");
     return client_->UnregisterNmeaMessageCallbackV9(callback);
 }
 
-bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    client_->RegisterCountryCodeCallback(callback, uid);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCountryCodeCallback()");
+    return client_->RegisterCountryCodeCallback(callback, uid);
 }
 
-bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
 {
-    client_->UnregisterCountryCodeCallback(callback);
-    return true;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCountryCodeCallback()");
+    return client_->UnregisterCountryCodeCallback(callback);
 }
 
-void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
+LocationErrCode LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
-    client_->RegisterCachedLocationCallback(request, callback, "location.ILocator");
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCachedLocationCallback()");
+    return client_->RegisterCachedLocationCallback(request, callback, "location.ILocator");
 }
 
-void LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
+LocationErrCode LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
 {
-    client_->UnregisterCachedLocationCallback(callback);
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCachedLocationCallback()");
+    return client_->UnregisterCachedLocationCallback(callback);
 }
 
-bool LocatorImpl::IsGeoServiceAvailable()
+LocationErrCode LocatorImpl::IsGeoServiceAvailable(bool &isAvailable)
 {
-    bool result = false;
-    MessageParcel reply;
-    client_->IsGeoConvertAvailable(reply);
-    int exception = reply.ReadInt32();
-    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        result = (reply.ReadInt32() == 1);
-    }
-    return result;
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsGeoServiceAvailable()");
+    return client_->IsGeoConvertAvailable(isAvailable);
 }
 
-void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
+LocationErrCode LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
-    MessageParcel reply;
-    client_->GetAddressByCoordinate(data, reply);
-    int exception = reply.ReadInt32();
-    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        int resultSize = reply.ReadInt32();
-        if (resultSize > GeoAddress::MAX_RESULT) {
-            resultSize = GeoAddress::MAX_RESULT;
-        }
-        for (int i = 0; i < resultSize; i++) {
-            replyList.push_back(GeoAddress::Unmarshalling(reply));
-        }
-    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByCoordinate()");
+    return client_->GetAddressByCoordinate(data, replyList);
 }
 
-void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
+LocationErrCode LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
-    MessageParcel reply;
-    client_->GetAddressByLocationName(data, reply);
-    int exception = reply.ReadInt32();
-    if (exception == REPLY_CODE_SECURITY_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != REPLY_CODE_NO_EXCEPTION) {
-        LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        int resultSize = reply.ReadInt32();
-        if (resultSize > GeoAddress::MAX_RESULT) {
-            resultSize = GeoAddress::MAX_RESULT;
-        }
-        for (int i = 0; i < resultSize; i++) {
-            replyList.push_back(GeoAddress::Unmarshalling(reply));
-        }
-    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByLocationName()");
+    return client_->GetAddressByLocationName(data, replyList);
 }
 
-bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
+LocationErrCode LocatorImpl::IsLocationPrivacyConfirmed(const int type, bool &isConfirmed)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationPrivacyConfirmed()");
-    return client_->IsLocationPrivacyConfirmed(type);
+    return client_->IsLocationPrivacyConfirmed(type, isConfirmed);
 }
 
-int LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
+LocationErrCode LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationPrivacyConfirmStatus()");
     return client_->SetLocationPrivacyConfirmStatus(type, isConfirmed);
 }
 
-int LocatorImpl::GetCachedGnssLocationsSize()
+LocationErrCode LocatorImpl::GetCachedGnssLocationsSize(int &size)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedGnssLocationsSize()");
-    return client_->GetCachedGnssLocationsSize();
+    return client_->GetCachedGnssLocationsSize(size);
 }
 
-int LocatorImpl::FlushCachedGnssLocations()
+LocationErrCode LocatorImpl::FlushCachedGnssLocations()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocations()");
     return client_->FlushCachedGnssLocations();
 }
 
-bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
+LocationErrCode LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SendCommand()");
-    client_->SendCommand(commands);
-    return true;
+    return client_->SendCommand(commands);
 }
 
-bool LocatorImpl::AddFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorImpl::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddFence()");
-    client_->AddFence(request);
-    return true;
+    return client_->AddFence(request);
 }
 
-bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveFence()");
-    client_->RemoveFence(request);
-    return true;
+    return client_->RemoveFence(request);
 }
 
-std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
-
+LocationErrCode LocatorImpl::GetIsoCountryCode(std::shared_ptr<CountryCode>& countryCode)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
-    return client_->GetIsoCountryCode();
+    return client_->GetIsoCountryCode(countryCode);
 }
 
-bool LocatorImpl::EnableLocationMock()
+LocationErrCode LocatorImpl::EnableLocationMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMock()");
     return client_->EnableLocationMock();
 }
 
-bool LocatorImpl::DisableLocationMock()
+LocationErrCode LocatorImpl::DisableLocationMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMock()");
     return client_->DisableLocationMock();
 }
 
-bool LocatorImpl::SetMockedLocations(
+LocationErrCode LocatorImpl::SetMockedLocations(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocations()");
     return client_->SetMockedLocations(timeInterval, location);
 }
 
-bool LocatorImpl::EnableReverseGeocodingMock()
+LocationErrCode LocatorImpl::EnableReverseGeocodingMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMock()");
     return client_->EnableReverseGeocodingMock();
 }
 
-bool LocatorImpl::DisableReverseGeocodingMock()
+LocationErrCode LocatorImpl::DisableReverseGeocodingMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMock()");
     return client_->DisableReverseGeocodingMock();
 }
 
-bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+LocationErrCode LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfo()");
     return client_->SetReverseGeocodingMockInfo(mockInfo);
 }
 
-bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
+LocationErrCode LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyUid()");
     return client_->ProxyUidForFreeze(uid, isProxy);
 }
 
-bool LocatorImpl::ResetAllProxy()
+LocationErrCode LocatorImpl::ResetAllProxy()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ResetAllProxy()");
     return client_->ResetAllProxy();

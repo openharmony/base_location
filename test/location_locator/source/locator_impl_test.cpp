@@ -20,6 +20,7 @@
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
+#include "cached_locations_callback_host.h"
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
@@ -30,6 +31,7 @@
 #include "location.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_proxy.h"
+#include "locator_proxy.h"
 #include "nmea_message_callback_host.h"
 #include "request_config.h"
 
@@ -40,6 +42,8 @@ namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const int INVALID_PRIVACY_TYPE = -1;
 const int INVALID_CACHED_SIZE = -1;
+const double MOCK_LATITUDE = 99.0;
+const double MOCK_LONGITUDE = 100.0;
 void LocatorImplTest::SetUp()
 {
     MockNativePermission();
@@ -72,6 +76,44 @@ void LocatorImplTest::MockNativePermission()
     tokenId_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
+
+std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorImplTest::SetGeocodingMockInfo()
+{
+    std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfos;
+    std::shared_ptr<GeocodingMockInfo> geocodingMockInfo =
+        std::make_shared<GeocodingMockInfo>();
+    MessageParcel parcel;
+    parcel.WriteString16(Str8ToStr16("locale"));
+    parcel.WriteDouble(MOCK_LATITUDE); // latitude
+    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
+    parcel.WriteInt32(1);
+    parcel.WriteString("localeLanguage");
+    parcel.WriteString("localeCountry");
+    parcel.WriteInt32(1); // size
+    parcel.WriteInt32(0); // line
+    parcel.WriteString("line");
+    parcel.WriteString("placeName");
+    parcel.WriteString("administrativeArea");
+    parcel.WriteString("subAdministrativeArea");
+    parcel.WriteString("locality");
+    parcel.WriteString("subLocality");
+    parcel.WriteString("roadName");
+    parcel.WriteString("subRoadName");
+    parcel.WriteString("premises");
+    parcel.WriteString("postalCode");
+    parcel.WriteString("countryCode");
+    parcel.WriteString("countryName");
+    parcel.WriteInt32(1); // hasLatitude
+    parcel.WriteDouble(MOCK_LATITUDE); // latitude
+    parcel.WriteInt32(1); // hasLongitude
+    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
+    parcel.WriteString("phoneNumber");
+    parcel.WriteString("addressUrl");
+    parcel.WriteBool(true);
+    geocodingMockInfo->ReadFromParcel(parcel);
+    geoMockInfos.emplace_back(std::move(geocodingMockInfo));
+    return geoMockInfos;
 }
 
 HWTEST_F(LocatorImplTest, locatorImplShowNotification, TestSize.Level1)
@@ -167,7 +209,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocation, TestSize.Level1)
     parcel.WriteInt64(1611000000); // time since boot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(false); // isFromMock is false
+    parcel.WriteBool(true); // isFromMock is false
     parcel.WriteInt32(1); // source type
     parcel.WriteInt32(0); // floor no.
     parcel.WriteDouble(1000.0); // floor acc
@@ -177,7 +219,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocation, TestSize.Level1)
 
     std::unique_ptr<Location> loc = std::make_unique<Location>();
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetCachedLocation(loc)); // get last location
-    EXPECT_NE(nullptr, loc);
+    ASSERT_TRUE(loc != nullptr);
     EXPECT_EQ(10.6, loc->GetLatitude());
     EXPECT_EQ(10.5, loc->GetLongitude());
 
@@ -210,7 +252,8 @@ HWTEST_F(LocatorImplTest, locatorImplPrivacyState002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState002 begin");
     bool isConfirmed = false;
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->SetLocationPrivacyConfirmStatus(INVALID_PRIVACY_TYPE, true));
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->IsLocationPrivacyConfirmed(INVALID_PRIVACY_TYPE));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->IsLocationPrivacyConfirmed(INVALID_PRIVACY_TYPE, isConfirmed));
+    EXPECT_EQ(false, isConfirmed);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState002 end");
 }
 
@@ -278,12 +321,8 @@ HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCode, TestSize.Level1)
 
     std::shared_ptr<CountryCode> countryCode = std::make_shared<CountryCode>();
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetIsoCountryCode(countryCode));
-    EXPECT_NE(nullptr, countryCode);
-    if (countryCode != nullptr) {
-        LBSLOGI(LOCATOR, "countrycode : %{public}s", countryCode->ToString().c_str());
-    } else {
-        LBSLOGI(LOCATOR, "countrycode : NULL");
-    }
+    ASSERT_TRUE(countryCode != nullptr);
+    LBSLOGI(LOCATOR, "countrycode : %{public}s", countryCode->ToString().c_str());
     sleep(1);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterCountryCodeCallback(countryCodeCallbackHost->AsObject()));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetIsoCountryCode end");
@@ -314,7 +353,7 @@ HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1)
 
     isAvailable = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMock());
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsGeoServiceAvailable(isAvailable));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->IsGeoServiceAvailable(isAvailable));
     EXPECT_EQ(false, isAvailable);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailable001 end");
 }
@@ -364,7 +403,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinate002, TestSize.Level1)
     request002.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request002.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request002.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetAddressByCoordinate(request002, geoAddressList002));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->GetAddressByCoordinate(request002, geoAddressList002));
     EXPECT_EQ(true, geoAddressList002.empty());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinate002 end");
 }
@@ -388,7 +427,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationName001, TestSize.Level
     request003.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request003.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request003.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetAddressByLocationName(request003, geoAddressList003));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->GetAddressByLocationName(request003, geoAddressList003));
     EXPECT_EQ(true, geoAddressList003.empty());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationName001 end");
 }
@@ -412,11 +451,11 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallback001, TestSize.
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallback001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallback, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGnssStatusCallback, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplNmeaMessageCallback, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallback begin");
+        << "LocatorImplTest, locatorImplGnssStatusCallback, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGnssStatusCallback begin");
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_ACCURACY);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocating(requestConfig, callbackStub_)); // startLocating first
@@ -427,7 +466,7 @@ HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallback, TestSize.Level1)
     sleep(1);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterGnssStatusCallback(gnssCallbackHost->AsObject()));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocating(callbackStub_)); // after reg, stop locating
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallback end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGnssStatusCallback end");
 }
 
 HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallback, TestSize.Level1)

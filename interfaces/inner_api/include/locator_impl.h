@@ -34,7 +34,7 @@ public:
     explicit LocatorImpl();
     ~LocatorImpl() override;
     bool Init();
-    LocationErrCode IsLocationEnabled(int& state) override;
+    LocationErrCode IsLocationEnabled(int &state) override;
     LocationErrCode ShowNotification() override;
     LocationErrCode RequestPermission() override;
     LocationErrCode RequestEnableLocation() override;
@@ -42,7 +42,7 @@ public:
     LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback) override;
     LocationErrCode StopLocating(sptr<ILocatorCallback>& callback) override;
-    LocationErrCode GetCachedLocation(std::unique_ptr<Location>& loc) override;
+    LocationErrCode GetCachedLocation(std::unique_ptr<Location> &loc) override;
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback) override;
     LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
@@ -56,12 +56,12 @@ public:
     LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) override;
     LocationErrCode UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
-    LocationErrCode IsGeoServiceAvailable(bool& isAvailable) override;
+    LocationErrCode IsGeoServiceAvailable(bool &isAvailable) override;
     LocationErrCode GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
     LocationErrCode GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
-    LocationErrCode IsLocationPrivacyConfirmed(const int type) override;
+    LocationErrCode IsLocationPrivacyConfirmed(const int type, bool &isConfirmed) override;
     LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
-    LocationErrCode GetCachedGnssLocationsSize(int& size) override;
+    LocationErrCode GetCachedGnssLocationsSize(int &size) override;
     LocationErrCode FlushCachedGnssLocations() override;
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) override;

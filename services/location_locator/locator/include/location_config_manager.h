@@ -20,6 +20,8 @@
 #include <mutex>
 #include <string>
 
+#include "constant_definition.h"
+
 namespace OHOS {
 namespace Location {
 class LocationConfigManager {

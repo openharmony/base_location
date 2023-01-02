@@ -31,48 +31,45 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GEO_CONVERT, "invalid token.");
         reply.WriteInt32(ERRCODE_INVALID_TOKEN);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_INVALID_TOKEN;
     }
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
         LBSLOGE(GEO_CONVERT, "uid pid not match locationhub process.");
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
 
-    int ret = REPLY_CODE_NO_EXCEPTION;
+    int ret = ERRCODE_SUCCESS;
     switch (code) {
         case IS_AVAILABLE: {
-            ret = IsGeoConvertAvailable(reply);
+            IsGeoConvertAvailable(reply);
             break;
         }
         case GET_FROM_COORDINATE: {
-            ret = GetAddressByCoordinate(data, reply);
+            GetAddressByCoordinate(data, reply);
             break;
         }
         case GET_FROM_LOCATION_NAME_BY_BOUNDARY: {
-            ret = GetAddressByLocationName(data, reply);
+            GetAddressByLocationName(data, reply);
             break;
         }
         case ENABLE_REVERSE_GEOCODE_MOCK: {
-            bool result = EnableReverseGeocodingMock();
-            reply.WriteBool(result);
+            EnableReverseGeocodingMock();
             break;
         }
         case DISABLE_REVERSE_GEOCODE_MOCK: {
-            bool result = DisableReverseGeocodingMock();
-            reply.WriteBool(result);
+            DisableReverseGeocodingMock();
             break;
         }
         case SET_REVERSE_GEOCODE_MOCKINFO: {
             std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo =  ParseGeocodingMockInfos(data);
-            bool result = SetReverseGeocodingMockInfo(mockInfo);
-            reply.WriteBool(result);
+            SetReverseGeocodingMockInfo(mockInfo);
             break;
         }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    return ret;
+    return ERRCODE_SUCCESS;
 }
 
 std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeocodingMockInfos(MessageParcel &data)

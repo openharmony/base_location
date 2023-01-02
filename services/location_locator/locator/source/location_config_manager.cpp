@@ -205,7 +205,7 @@ LocationErrCode LocationConfigManager::GetPrivacyTypeState(const int type, bool&
 {
     if (type < PRIVACY_TYPE_OTHERS || type > PRIVACY_TYPE_CORE_LOCATION) {
         LBSLOGI(LOCATOR, "GetPrivacyTypeState,invalid types");
-        isStateOpen = false;
+        isConfirmed = false;
         return ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(mMutex);
@@ -215,7 +215,7 @@ LocationErrCode LocationConfigManager::GetPrivacyTypeState(const int type, bool&
     std::ifstream fs(GetPrivacyTypeConfigPath(type));
     if (!fs.is_open()) {
         LBSLOGE(LOCATOR, "LocationConfigManager: fs.is_open false, return");
-        isStateOpen = false;
+        isConfirmed = false;
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::string line;

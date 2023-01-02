@@ -314,12 +314,13 @@ bool LocatorAbility::CheckSaValid()
     return true;
 }
 
-void LocatorAbility::UpdateSaAbility()
+LocationErrCode LocatorAbility::UpdateSaAbility()
 {
     auto event = AppExecFwk::InnerEvent::Get(EVENT_UPDATE_SA, 0);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(event);
     }
+    return ERRCODE_SUCCESS;
 }
 
 void LocatorAbility::UpdateSaAbilityHandler()
@@ -392,9 +393,9 @@ int LocatorAbility::QuerySwitchState()
     return LocationConfigManager::GetInstance().GetLocationSwitchState();
 }
 
-LocationErrCode LocatorAbility::IsLocationPrivacyConfirmed(const int type)
+LocationErrCode LocatorAbility::IsLocationPrivacyConfirmed(const int type, bool& isConfirmed)
 {
-    return LocationConfigManager::GetInstance().GetPrivacyTypeState(type);
+    return LocationConfigManager::GetInstance().GetPrivacyTypeState(type, isConfirmed);
 }
 
 LocationErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
@@ -459,17 +460,8 @@ LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, M
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     MessageOption option;
-    int error = obj->SendRequest(REG_GNSS_STATUS, dataToStub, replyToStub, option);
-    if (error != NO_ERROR) {
-        LBSLOGE(LOCATOR, "msg id = %{public}d, send request failed, error : %{public}d", REG_GNSS_STATUS, error);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    GnssErrCode errorCode = replyToStub.ReadInt32();
-    if (errorCode != GNSS_OPT_SUCCESS) {
-        LBSLOGE(LOCATOR, "gnss failed! error : %{public}d", errorCode);
-        return ERRCODE_GNSS_FAIL;
-    }
-    return ERRCODE_SUCCESS;
+    obj->SendRequest(type, data, reply, option);
+    return LocationErrCode(reply.ReadInt32());
 }
 
 LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
@@ -577,7 +569,7 @@ LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
     return errorCode;
 }
 
-LocationErrCode LocatorAbility::FlushCachedGnssLocations(MessageParcel &reply)
+LocationErrCode LocatorAbility::FlushCachedGnssLocations()
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
@@ -788,44 +780,59 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
+LocationErrCode LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (requests_ == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    LocationErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     LBSLOGI(LOCATOR, "start report location");
     if (reportManager_->OnReportLocation(location, abilityName)) {
-        return REPLY_CODE_NO_EXCEPTION;
+        return ERRCODE_SUCCESS;
     }
-    return REPLY_CODE_EXCEPTION;
+    return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-int LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
+LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
 {
-    if (GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    LocationErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
-        return REPLY_CODE_NO_EXCEPTION;
+        return ERRCODE_SUCCESS;
     }
-    return REPLY_CODE_EXCEPTION;
+    return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-int LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
+LocationErrCode LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
 {
-    if (GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    LocationErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {
-        return REPLY_CODE_NO_EXCEPTION;
+        return ERRCODE_SUCCESS;
     }
-    return REPLY_CODE_EXCEPTION;
+    return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
 void LocatorAbility::RegisterAction()
@@ -931,59 +938,42 @@ LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, Me
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     MessageOption option;
-    int error = remoteObject->SendRequest(type, data, reply, option);
-    if (error != NO_ERROR) {
-        LBSLOGE(LOCATOR, "LocatorAbility::SendGeoRequest type = %{public}d, send request failed, error : %{public}d", type, error);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    GeoCodeErrCode errorCode = reply.ReadInt32();
-    if (errorCode != GEOCODE_ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "LocatorAbility::SendGeoRequest type = %{public}d, ErrCode = %{public}d", type, errorCode);
-        return ERRCODE_GEOCODING_FAIL;
-    }
-    return ERRCODE_SUCCESS;
+    remoteObject->SendRequest(type, data, reply, option);
+    return LocationErrCode(reply.ReadInt32());
 }
 
 LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
 {
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return ERRCODE_INVALID_TOKEN;
     }
-    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
-    if (!geoProxy->EnableReverseGeocodingMock()) {
-        return ERRCODE_GEOCODING_FAIL;
-    }
-    return ERRCODE_SUCCESS;
+    return SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
 }
 
 LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
 {
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return ERRCODE_INVALID_TOKEN;
     }
-    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
-    if (!geoProxy->DisableReverseGeocodingMock()) {
-        return ERRCODE_GEOCODING_FAIL;
-    }
-    return ERRCODE_SUCCESS;
+    return SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
 }
 
 LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return ERRCODE_INVALID_TOKEN;
     }
-    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
-    if (!geoProxy->SetReverseGeocodingMockInfo(mockInfo)) {
-        return ERRCODE_GEOCODING_FAIL;
+    dataParcel.WriteInt32(mockInfo.size());
+    for (size_t i = 0; i < mockInfo.size(); i++) {
+        mockInfo[i]->Marshalling(dataParcel);
     }
-    return ERRCODE_SUCCESS;
+    return SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
 }
 
 LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)

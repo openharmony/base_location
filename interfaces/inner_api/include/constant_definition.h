@@ -85,11 +85,11 @@ enum LocationRequestType {
 };
 
 enum LocationErrCode {
-    ERRCODE_SUCCESS = 0,
+    ERRCODE_SUCCESS = 0,                      /* SUCCESS */
+    ERRCODE_INVALID_TOKEN = 101,              /* invalid token */
     ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
+    ERRCODE_SYSTEM_PERMISSION_DENIED = 202,   /* system permission denied */
     ERRCODE_INVALID_PARAM = 401,              /* invalid params */
-    ERRCODE_SYSTEM_PERMISSION_DENIED,
-    ERRCODE_INVALID_TOKEN,
     ERRCODE_NOT_SUPPORTED = 801,              /* capability not supported */
     ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* location service is unavailable */
     ERRCODE_SWITCH_OFF = 3301100,             /* location switch is off */
@@ -99,17 +99,6 @@ enum LocationErrCode {
     ERRCODE_COUNTRYCODE_FAIL  = 3301500,      /* Failed to query the area information */
     ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
-    ERRCODE_GNSS_FAIL,
-};
-
-enum GnssErrCode {
-    GNSS_OPT_SUCCESS = 0,
-    GNSS_OPT_FAIL,
-};
-
-enum GeoCodeErrCode {
-    GEOCODE_OPT_SUCCESS = 0,
-    GEOCODE_OPT_FAIL,
 };
 
 typedef struct {

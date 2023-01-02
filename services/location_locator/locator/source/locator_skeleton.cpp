@@ -82,12 +82,12 @@ int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &re
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetSwitchState: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int state = STATE_CLOSE;
     reply.WriteInt32(locatorAbility->GetSwitchState(state));
     reply.WriteInt32(state);
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreRegisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -96,29 +96,31 @@ int LocatorAbilityStub::PreRegisterSwitchCallback(MessageParcel &data, MessagePa
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterSwitchCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->RegisterSwitchCallback(client, identity.GetUid()));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 
 int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (locatorAbility->GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<RequestConfig> requestConfig = RequestConfig::Unmarshalling(data);
     sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
@@ -126,58 +128,60 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     if (remoteObject == nullptr) {
         LBSLOGE(LOCATOR, "StartLocating remote object nullptr");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (bundleName.empty()) {
         LBSLOGE(LOCATOR, "StartLocating get empty bundle name");
         reply.WriteInt32(ERRCODE_INVALID_PARAM);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_INVALID_PARAM;
     }
 
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
     remoteObject->AddDeathRecipient(death.GetRefPtr());
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->StartLocating(requestConfig, callback, identity));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreStopLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStopLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
     if (remoteObject == nullptr) {
         LBSLOGE(LOCATOR, "LocatorAbility::StartLocating remote object nullptr");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->StopLocating(callback));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetCacheLocation: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (locatorAbility->GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<Location> loc = std::make_unique<Location>();
     reply.WriteInt32(locatorAbility->GetCacheLocation(loc, identity));
@@ -185,7 +189,7 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
     if (singleLocation != nullptr) {
         singleLocation->Marshalling(reply);
     }
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -193,20 +197,20 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     if (!CheckSettingsPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableAbility: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     bool isEnabled = data.ReadBool();
     reply.WriteInt32(locatorAbility->EnableAbility(isEnabled));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -214,16 +218,16 @@ int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &r
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUpdateSaAbility: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reply.WriteInt32(locatorAbility->UpdateSaAbility());
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -232,12 +236,12 @@ int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessagePar
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreIsGeoConvertAvailable: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     bool isAvailable = false;
     reply.WriteInt32(locatorAbility->IsGeoConvertAvailable(isAvailable));
     reply.WriteBool(isAvailable);
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -246,10 +250,10 @@ int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessagePa
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetAddressByCoordinate: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     locatorAbility->GetAddressByCoordinate(data, reply);
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -258,10 +262,10 @@ int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, Message
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetAddressByLocationName: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     locatorAbility->GetAddressByLocationName(data, reply);
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -270,112 +274,112 @@ int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, Message
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterSwitchCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->UnregisterSwitchCallback(client));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterGnssStatusCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->RegisterGnssStatusCallback(client, identity.GetUid()));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterGnssStatusCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->UnregisterGnssStatusCallback(client));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterNmeaMessageCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterNmeaMessageCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->UnregisterNmeaMessageCallback(client));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckPreciseLocationPermissions(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterNmeaMessageCallbackV9: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckPreciseLocationPermissions(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterNmeaMessageCallbackV9: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reply.WriteInt32(locatorAbility->UnregisterNmeaMessageCallback(client));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -383,16 +387,18 @@ int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, Messa
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreIsLocationPrivacyConfirmed: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    reply.WriteInt32(locatorAbility->IsLocationPrivacyConfirmed(data.ReadInt32()));
-    return REPLY_CODE_NO_EXCEPTION;
+    bool isConfirmed = false;
+    reply.WriteInt32(locatorAbility->IsLocationPrivacyConfirmed(data.ReadInt32(), isConfirmed));
+    reply.WriteBool(isConfirmed);
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
@@ -401,38 +407,40 @@ int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     if (!CheckSettingsPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
 
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSetLocationPrivacyConfirmStatus: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reply.WriteInt32(locatorAbility->SetLocationPrivacyConfirmStatus(data.ReadInt32(),
         data.ReadBool()));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartCacheLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (locatorAbility->GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
     requestConfig->reportingPeriodSec = data.ReadInt32();
@@ -442,79 +450,85 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
     if (remoteObject == nullptr) {
         LBSLOGE(LOCATOR, "ParseDataAndStartCacheLocating remote object nullptr");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (bundleName.empty()) {
         LBSLOGE(LOCATOR, "ParseDataAndStartCacheLocating get empty bundle name");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
     sptr<ICachedLocationsCallback> callback = iface_cast<ICachedLocationsCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->RegisterCachedLocationCallback(requestConfig, callback, bundleName));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreStopCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStopCacheLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
     if (remoteObject == nullptr) {
         LBSLOGE(LOCATOR, "LocatorAbility::ParseDataAndStopCacheLocating remote object nullptr");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<ICachedLocationsCallback> callback = iface_cast<ICachedLocationsCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->UnregisterCachedLocationCallback(callback));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetCachedGnssLocationsSize: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (locatorAbility->GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
-    reply.WriteInt32(locatorAbility->GetCachedGnssLocationsSize(reply));
-    return REPLY_CODE_NO_EXCEPTION;
+    int size = -1;
+    reply.WriteInt32(locatorAbility->GetCachedGnssLocationsSize(size));
+    reply.WriteInt32(size);
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreFlushCachedGnssLocations: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (locatorAbility->GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
-    reply.WriteInt32(locatorAbility->FlushCachedGnssLocations(reply));
-    return REPLY_CODE_NO_EXCEPTION;
+    reply.WriteInt32(locatorAbility->FlushCachedGnssLocations());
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -523,30 +537,32 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSendCommand: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
     locationCommand->scenario =  data.ReadInt32();
     locationCommand->command = data.ReadBool();
     reply.WriteInt32(locatorAbility->SendCommand(locationCommand));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreAddFence: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (locatorAbility->GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
     request->scenario = data.ReadInt32();
@@ -555,24 +571,26 @@ int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, A
     request->geofence.radius = data.ReadDouble();
     request->geofence.expiration = data.ReadDouble();
     reply.WriteInt32(locatorAbility->AddFence(request));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRemoveFence: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (locatorAbility->GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return REPLY_CODE_SWITCH_OFF_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
     request->scenario = data.ReadInt32();
@@ -581,7 +599,7 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
     request->geofence.radius = data.ReadDouble();
     request->geofence.expiration = data.ReadDouble();
     reply.WriteInt32(locatorAbility->RemoveFence(request));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -589,8 +607,8 @@ int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel 
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetIsoCountryCode: LocatorAbility is nullptr.");
-        reply.WriteInt32(ERRCODE_COUNTRYCODE_FAIL);
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
     reply.WriteInt32(locatorAbility->GetIsoCountryCode(country));
@@ -599,9 +617,9 @@ int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel 
         reply.WriteInt32(country->GetCountryCodeType());
     } else {
         reply.WriteString("");
-        reply.WriteString(COUNTRY_CODE_FROM_LOCALE);
+        reply.WriteInt32(COUNTRY_CODE_FROM_LOCALE);
     }
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -609,16 +627,16 @@ int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableLocationMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    reply.WriteInt32(locatorAbility->DisableLocationMock());
-    return REPLY_CODE_NO_EXCEPTION;
+    reply.WriteInt32(locatorAbility->EnableLocationMock());
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -626,16 +644,16 @@ int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParce
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreDisableLocationMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reply.WriteInt32(locatorAbility->DisableLocationMock());
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -643,13 +661,13 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSetMockedLocations: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int timeInterval = data.ReadInt32();
     int locationSize = data.ReadInt32();
@@ -659,7 +677,7 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
         vcLoc.push_back(Location::UnmarshallingShared(data));
     }
     reply.WriteInt32(locatorAbility->SetMockedLocations(timeInterval, vcLoc));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -667,16 +685,16 @@ int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, Messa
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableReverseGeocodingMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reply.WriteInt32(locatorAbility->EnableReverseGeocodingMock());
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
@@ -685,16 +703,16 @@ int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreDisableReverseGeocodingMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reply.WriteInt32(locatorAbility->DisableReverseGeocodingMock());
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
@@ -703,13 +721,13 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
     if (!CommonUtils::CheckSystemPermission(identity.GetUid(), identity.GetTokenId())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSetReverseGeocodingMockInfo: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
     int arraySize = data.ReadInt32();
@@ -720,7 +738,7 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
         mockInfo.push_back(info);
     }
     reply.WriteInt32(locatorAbility->SetReverseGeocodingMockInfo(mockInfo));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
@@ -730,11 +748,11 @@ int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterCountryCodeCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid()));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreUnregisterCountryCodeCallback(MessageParcel &data,
@@ -744,53 +762,55 @@ int LocatorAbilityStub::PreUnregisterCountryCodeCallback(MessageParcel &data,
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterCountryCodeCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->UnregisterCountryCodeCallback(client));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreProxyUidForFreeze: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (identity.GetUid() != ROOT_UID) {
         LBSLOGE(LOCATOR, "check root permission failed, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     int32_t uid = data.ReadInt32();
     bool isProxy = data.ReadBool();
     reply.WriteInt32(locatorAbility->ProxyUidForFreeze(uid, isProxy));
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreResetAllProxy: LocatorAbility is nullptr.");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (identity.GetUid() != ROOT_UID) {
         LBSLOGE(LOCATOR, "check root permission failed, [%{public}s]",
             identity.ToString().c_str());
-        return REPLY_CODE_SECURITY_EXCEPTION;
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(locatorAbility->ResetAllProxy());
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
 bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdentity &identity)
@@ -837,7 +857,7 @@ bool LocatorAbilityStub::CheckSettingsPermission(MessageParcel &reply, AppIdenti
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    int ret = REPLY_CODE_NO_EXCEPTION;
+    int ret = ERRCODE_SUCCESS;
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
@@ -861,7 +881,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGE(LOCATOR, "invalid token.");
         IPCSkeleton::SetCallingIdentity(callingIdentity);
         reply.WriteInt32(ERRCODE_INVALID_TOKEN);
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_INVALID_TOKEN;
     }
 
     auto handleFunc = locatorHandleMap_.find(code);
@@ -880,7 +900,8 @@ void LocatorAbilityStub::SaDumpInfo(std::string& result)
         LBSLOGE(LOCATOR, "SaDumpInfo: LocatorAbility is nullptr.");
         return;
     }
-    int state = locatorAbility->GetSwitchState();
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
     result += "Location switch state: ";
     std::string status = state ? "on" : "off";
     result += status + "\n";
@@ -914,7 +935,7 @@ LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
 void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
-    sptr<LocatorAbility> locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->StopLocating(callback);
         LBSLOGI(LOCATOR, "locator callback OnRemoteDied");
@@ -931,7 +952,7 @@ SwitchCallbackDeathRecipient::~SwitchCallbackDeathRecipient()
 
 void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    sptr<LocatorAbility> locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->UnregisterSwitchCallback(remote.promote());
         LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
