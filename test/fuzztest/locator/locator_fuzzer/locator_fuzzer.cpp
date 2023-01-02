@@ -141,26 +141,31 @@ namespace OHOS {
     bool LocatorImplFuzzerTest(const uint8_t* data, size_t size)
     {
         int index = 0;
-        g_locatorImpl->IsLocationEnabled();
+        int state = 1;
+        g_locatorImpl->IsLocationEnabled(state);
         g_locatorImpl->ShowNotification();
         g_locatorImpl->RequestPermission();
         g_locatorImpl->RequestEnableLocation();
 
         g_locatorImpl->EnableAbility(false);
         g_locatorImpl->EnableAbility(true);
-
-        g_locatorImpl->GetCachedLocation();
-        g_locatorImpl->IsGeoServiceAvailable();
+        std::unique_ptr<OHOS::Location::Location> loc =
+            std::make_unique<OHOS::Location::Location>();
+        g_locatorImpl->GetCachedLocation(loc);
+        bool isAvailable = false;
+        g_locatorImpl->IsGeoServiceAvailable(isAvailable);
         MessageParcel parcel;
         std::list<std::shared_ptr<GeoAddress>> geoAddressList;
         g_locatorImpl->GetAddressByCoordinate(parcel, geoAddressList);
         g_locatorImpl->GetAddressByLocationName(parcel, geoAddressList);
 
-        g_locatorImpl->IsLocationPrivacyConfirmed(data[index++]);
+        bool isConfirmed = false;
+        g_locatorImpl->IsLocationPrivacyConfirmed(data[index++], isConfirmed);
         g_locatorImpl->SetLocationPrivacyConfirmStatus(data[index++], true);
         g_locatorImpl->SetLocationPrivacyConfirmStatus(data[index++], false);
 
-        g_locatorImpl->GetCachedGnssLocationsSize();
+        int LocSize = -1;
+        g_locatorImpl->GetCachedGnssLocationsSize(LocSize);
         g_locatorImpl->FlushCachedGnssLocations();
 
         std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
@@ -169,7 +174,8 @@ namespace OHOS {
         std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
         g_locatorImpl->AddFence(fence);
         g_locatorImpl->RemoveFence(fence);
-        g_locatorImpl->GetIsoCountryCode();
+        std::shared_ptr<CountryCode> countryCode = std::make_shared<CountryCode>();
+        g_locatorImpl->GetIsoCountryCode(countryCode);
         g_locatorImpl->ProxyUidForFreeze(data[index++], true);
         g_locatorImpl->ProxyUidForFreeze(data[index++], false);
         g_locatorImpl->ResetAllProxy();
@@ -354,7 +360,8 @@ namespace OHOS {
         locatorAbility->InitSaAbility();
         locatorAbility->InitRequestManagerMap();
         locatorAbility->UpdateSaAbility();
-        locatorAbility->GetSwitchState();
+        int state = 0;
+        locatorAbility->GetSwitchState(state);
         locatorAbility->EnableAbility(true);
         locatorAbility->EnableAbility(false);
         auto switchCallbackHost =
@@ -378,11 +385,14 @@ namespace OHOS {
         sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHostForTest_);
         AppIdentity identity;
         locatorAbility->StopLocating(locatorCallback);
-        MessageParcel reply;
-        locatorAbility->GetCacheLocation(reply, identity);
-        locatorAbility->IsGeoConvertAvailable(reply);
+        std::unique_ptr<OHOS::Location::Location> loc =
+            std::make_unique<OHOS::Location::Location>();
+        locatorAbility->GetCacheLocation(loc, identity);
+        bool isAvailable = false;
+        locatorAbility->IsGeoConvertAvailable(isAvailable);
 
         MessageParcel request;
+        MessageParcel reply;
         locatorAbility->GetAddressByCoordinate(request, reply);
         locatorAbility->GetAddressByLocationName(request, reply);
         return true;
@@ -393,7 +403,8 @@ namespace OHOS {
         auto locatorAbility =
             sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
         int index = 0;
-        locatorAbility->IsLocationPrivacyConfirmed(data[index++]);
+        bool isConfirmed = false;
+        locatorAbility->IsLocationPrivacyConfirmed(data[index++], isConfirmed);
         locatorAbility->SetLocationPrivacyConfirmStatus(data[index++], true);
         locatorAbility->SetLocationPrivacyConfirmStatus(data[index++], false);
         auto cachedLocationsCallbackHost =
@@ -402,7 +413,8 @@ namespace OHOS {
         auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
         locatorAbility->RegisterCachedLocationCallback(cachedRequest, cachedCallback, "fuzz.test");
         locatorAbility->UnregisterCachedLocationCallback(cachedCallback);
-        locatorAbility->GetCachedGnssLocationsSize();
+        int locSize;
+        locatorAbility->GetCachedGnssLocationsSize(locSize);
         locatorAbility->FlushCachedGnssLocations();
 
         std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
@@ -411,7 +423,8 @@ namespace OHOS {
         std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
         locatorAbility->AddFence(fence);
         locatorAbility->RemoveFence(fence);
-        locatorAbility->GetIsoCountryCode();
+        std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
+        locatorAbility->GetIsoCountryCode(country);
         return true;
     }
 

@@ -167,9 +167,11 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
     geofence.expiration = 4.0;
     fenceRequest->geofence = geofence;
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->AddFence(fenceRequest));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED,  locatorImpl->RemoveFence(fenceRequest));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RemoveFence(fenceRequest));
 
-    locatorImpl->GetCachedGnssLocationsSize();
+    int size = -1;
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedGnssLocationsSize(size));
+    EXPECT_EQ(-1, size);
 
     auto cachedLocationsCallbackHost =
         sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());

@@ -51,8 +51,6 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
-const double MOCK_LATITUDE = 99.0;
-const double MOCK_LONGITUDE = 100.0;
 const int REQUEST_MAX_NUM = 3;
 const int UNKNOWN_SERVICE_ID = -1;
 const std::string ARGS_HELP = "-h";
@@ -503,13 +501,18 @@ HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    int state = DISABLED;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->EnableAbility(true));
-    EXPECT_EQ(ENABLED, locatorAbility->GetSwitchState());
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
+    EXPECT_EQ(ENABLED, state);
+
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->EnableAbility(false));
-    EXPECT_EQ(DISABLED, locatorAbility->GetSwitchState());
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
+    EXPECT_EQ(DISABLED, state);
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->EnableAbility(true));
-    EXPECT_EQ(ENABLED, locatorAbility->GetSwitchState());
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
+    EXPECT_EQ(ENABLED, state);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable001 end");
 }
 

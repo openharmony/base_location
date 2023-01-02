@@ -20,6 +20,7 @@
 
 #include "geo_coding_mock_info.h"
 #include "i_locator_callback.h"
+#include "locator.h"
 #include "locator_background_proxy.h"
 #include "locator_proxy.h"
 #include "request.h"

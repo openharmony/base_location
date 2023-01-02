@@ -20,6 +20,7 @@
 #include "message_parcel.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "gnss_ability_proxy.h"
 #include "location_log.h"
 #include "subability_common.h"
@@ -49,7 +50,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest001, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::SEND_LOCATION_REQUEST, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest001 end");
 }
@@ -65,7 +66,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::SET_ENABLE, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest002 end");
 }
@@ -81,7 +82,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest003, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::REFRESH_REQUESTS, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest003 end");
 }
@@ -97,7 +98,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest004, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::REG_GNSS_STATUS, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest004 end");
 }
@@ -113,7 +114,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest005, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::UNREG_GNSS_STATUS, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest005 end");
 }
@@ -129,7 +130,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest006, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::REG_NMEA, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest006 end");
 }
@@ -145,7 +146,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest007, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::REG_CACHED, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest007 end");
 }
@@ -161,7 +162,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest008, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::UNREG_CACHED, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest008 end");
 }
@@ -177,7 +178,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest009, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::SEND_COMMANDS, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest009 end");
 }
@@ -193,7 +194,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest010, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::ENABLE_LOCATION_MOCK, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest010 end");
 }
@@ -209,7 +210,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest011, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::DISABLE_LOCATION_MOCK, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest011 end");
 }
@@ -225,7 +226,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest012, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::SET_MOCKED_LOCATIONS, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest012 end");
 }
@@ -241,7 +242,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest013, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::FLUSH_CACHED, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest013 end");
 }
@@ -257,7 +258,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest014, TestSize.Level1)
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::GET_CACHED_SIZE, parcel, reply, option));
     EXPECT_EQ(-1, reply.ReadInt32());
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest014 end");
@@ -288,7 +289,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest016, TestSize.Level1)
     parcel.WriteInterfaceToken(u"UNKNOWN_DESCRIPTOR");
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_EXCEPTION,
+    EXPECT_EQ(ERRCODE_INVALID_TOKEN,
         gnssAbilityStub->OnRemoteRequest(UNKNOWN_CODE, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest016 end");
 }

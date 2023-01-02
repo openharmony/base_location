@@ -42,7 +42,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         return ERRCODE_PERMISSION_DENIED;
     }
 
-    int ret = REPLY_CODE_NO_EXCEPTION;
+    int ret = ERRCODE_SUCCESS;
     switch (code) {
         case SEND_LOCATION_REQUEST: // fall through
         case SET_MOCKED_LOCATIONS: {
@@ -108,12 +108,10 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         }
         case ENABLE_LOCATION_MOCK: {
             EnableMock();
-            reply.WriteInt32(ERRCODE_SUCCESS);
             break;
         }
         case DISABLE_LOCATION_MOCK: {
             DisableMock();
-            reply.WriteInt32(ERRCODE_SUCCESS);
             break;
         }
         default:

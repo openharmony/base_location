@@ -69,7 +69,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    return ERRCODE_SUCCESS;
+    return ret;
 }
 
 std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeocodingMockInfos(MessageParcel &data)

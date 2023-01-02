@@ -27,8 +27,6 @@ public:
     explicit GnssAbilityTestFuzzer() : GnssAbility()
     {}
     ~GnssAbilityTestFuzzer() = default;
-    int OnRemoteRequest(uint32_t code,
-        MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 } // namespace Location
 } // namespace OHOS
