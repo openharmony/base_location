@@ -60,9 +60,11 @@ public:
 
     virtual LocationErrCode IsGeoServiceAvailable(bool &isAvailable) = 0;
 
-    virtual LocationErrCode GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
+    virtual LocationErrCode GetAddressByCoordinate(MessageParcel &data,
+        std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
 
-    virtual LocationErrCode GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
+    virtual LocationErrCode GetAddressByLocationName(MessageParcel &data,
+        std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
 
     virtual LocationErrCode IsLocationPrivacyConfirmed(const int type, bool &isConfirmed) = 0;
 

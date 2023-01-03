@@ -288,7 +288,7 @@ bool GnssAbilityProxy::EnableMock()
     LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", errorCode);
     bool result = false;
     if (errorCode == ERRCODE_SUCCESS) {
-        result = reply.ReadBool();
+        result = true;
     }
     return result;
 }
@@ -312,7 +312,7 @@ bool GnssAbilityProxy::DisableMock()
     LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", errorCode);
     bool result = false;
     if (errorCode == ERRCODE_SUCCESS) {
-        result = reply.ReadBool();
+        result = true;
     }
     return result;
 }
@@ -343,7 +343,7 @@ bool GnssAbilityProxy::SetMocked(
     LBSLOGD(GNSS, "Proxy::SetMockedLocations Transact ErrCode = %{public}d", errorCode);
     bool result = false;
     if (errorCode == ERRCODE_SUCCESS) {
-        result = reply.ReadBool();
+        result = true;
     }
     return result;
 }

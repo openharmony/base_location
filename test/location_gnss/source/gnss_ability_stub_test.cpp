@@ -260,6 +260,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest014, TestSize.Level1)
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
         gnssAbilityStub->OnRemoteRequest(ISubAbility::GET_CACHED_SIZE, parcel, reply, option));
+    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
     EXPECT_EQ(-1, reply.ReadInt32());
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest014 end");
 }

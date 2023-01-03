@@ -140,6 +140,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
      */
     MessageParcel dataParcel;
     MessageParcel replyParcel;
+    dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
     dataParcel.WriteDouble(39.92879); // latitude
     dataParcel.WriteDouble(116.3709); // longitude
     dataParcel.WriteInt32(5); // maxItem
@@ -174,6 +175,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
      */
     MessageParcel dataParcel;
     MessageParcel replyParcel;
+    dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
     dataParcel.WriteString16(Str8ToStr16("北京")); // input description of a location
     dataParcel.WriteDouble(0.0); // minLatitude
     dataParcel.WriteDouble(0.0); // minLongitude
@@ -249,8 +251,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     MessageParcel parcel2;
     MessageParcel reply2;
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
-    proxy_->GetAddressByCoordinate(parcel2, reply2);
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply2.ReadInt32());
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->GetAddressByCoordinate(parcel2, reply2));
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
 }
 }  // namespace Location

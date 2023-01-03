@@ -164,8 +164,8 @@ namespace OHOS {
         g_locatorImpl->SetLocationPrivacyConfirmStatus(data[index++], true);
         g_locatorImpl->SetLocationPrivacyConfirmStatus(data[index++], false);
 
-        int LocSize = -1;
-        g_locatorImpl->GetCachedGnssLocationsSize(LocSize);
+        int locSize = -1;
+        g_locatorImpl->GetCachedGnssLocationsSize(locSize);
         g_locatorImpl->FlushCachedGnssLocations();
 
         std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();

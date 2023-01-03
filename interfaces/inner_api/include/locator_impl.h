@@ -57,8 +57,10 @@ public:
         sptr<ICachedLocationsCallback>& callback) override;
     LocationErrCode UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
     LocationErrCode IsGeoServiceAvailable(bool &isAvailable) override;
-    LocationErrCode GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
-    LocationErrCode GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
+    LocationErrCode GetAddressByCoordinate(MessageParcel &data,
+        std::list<std::shared_ptr<GeoAddress>>& replyList) override;
+    LocationErrCode GetAddressByLocationName(MessageParcel &data,
+        std::list<std::shared_ptr<GeoAddress>>& replyList) override;
     LocationErrCode IsLocationPrivacyConfirmed(const int type, bool &isConfirmed) override;
     LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
     LocationErrCode GetCachedGnssLocationsSize(int &size) override;

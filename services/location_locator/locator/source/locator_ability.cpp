@@ -608,7 +608,6 @@ LocationErrCode LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& reque
 
 LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
-
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {

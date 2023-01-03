@@ -14,7 +14,7 @@
 domain: LOCATION
 
 # Start or stop Location switch
-LOCATION_SWITCH_STATE:
+SWITCH_STATE:
   __BASE: {type: STATISTIC, level: MINOR, tag: PowerStats, desc: start or stop Location switch}
   STATE: {type: STRING, desc: enable or disable}
 

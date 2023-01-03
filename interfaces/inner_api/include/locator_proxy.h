@@ -56,8 +56,10 @@ public:
     LocationErrCode StopLocating(sptr<ILocatorCallback>& callback);
     LocationErrCode GetCacheLocation(std::unique_ptr<Location> &loc);
     LocationErrCode IsGeoConvertAvailable(bool &isAvailable);
-    LocationErrCode GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList);
-    LocationErrCode GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList);
+    LocationErrCode GetAddressByCoordinate(MessageParcel &data,
+        std::list<std::shared_ptr<GeoAddress>>& replyList);
+    LocationErrCode GetAddressByLocationName(MessageParcel &data,
+        std::list<std::shared_ptr<GeoAddress>>& replyList);
     LocationErrCode IsLocationPrivacyConfirmed(const int type, bool &isConfirmed);
     LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
     LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,

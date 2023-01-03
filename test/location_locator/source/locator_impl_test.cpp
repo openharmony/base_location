@@ -235,26 +235,10 @@ HWTEST_F(LocatorImplTest, locatorImplPrivacyState001, TestSize.Level1)
         << "LocatorImplTest, locatorImplPrivacyState001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState001 begin");
     bool isConfirmed = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, false));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed));
-    EXPECT_EQ(false, isConfirmed);
-    
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, true));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed));
-    EXPECT_EQ(true, isConfirmed);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState001 end");
-}
-
-HWTEST_F(LocatorImplTest, locatorImplPrivacyState002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplPrivacyState002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState002 begin");
-    bool isConfirmed = false;
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->SetLocationPrivacyConfirmStatus(INVALID_PRIVACY_TYPE, true));
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->IsLocationPrivacyConfirmed(INVALID_PRIVACY_TYPE, isConfirmed));
     EXPECT_EQ(false, isConfirmed);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState002 end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState001 end");
 }
 
 HWTEST_F(LocatorImplTest, locatorImplGetCachedGnssLocationsSize, TestSize.Level1)

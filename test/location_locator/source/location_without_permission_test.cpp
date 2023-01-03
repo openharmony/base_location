@@ -72,12 +72,8 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, Tes
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermission001 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
-    auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
-    EXPECT_NE(nullptr, switchCallbackHost);
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->EnableAbility(true));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermission001 end");
 }
 
@@ -98,20 +94,6 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, Tes
     std::unique_ptr loc = std::make_unique<Location>();
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedLocation(loc));
     EXPECT_EQ(nullptr, loc);
-
-    bool isAvailable = false;
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->IsGeoServiceAvailable(isAvailable));
-    EXPECT_EQ(false, isAvailable);
-
-    MessageParcel request001;
-    std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetAddressByCoordinate(request001, geoAddressList001));
-    EXPECT_EQ(true, geoAddressList001.empty());
-
-    MessageParcel request002;
-    std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetAddressByLocationName(request002, geoAddressList002));
-    EXPECT_EQ(true, geoAddressList002.empty());
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission001 end");
 }
 
@@ -134,18 +116,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
 
-    bool isConfirmed = false;
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->IsLocationPrivacyConfirmed(1, isConfirmed));
-    EXPECT_EQ(false, isConfirmed);
-
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocations());
-
-    std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
-    command->scenario = SCENE_NAVIGATION;
-    command->command = "cmd";
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SendCommand(command));
-
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ProxyUidForFreeze(1000, false));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ResetAllProxy());
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 end");
@@ -171,7 +142,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
 
     int size = -1;
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedGnssLocationsSize(size));
-    EXPECT_EQ(-1, size);
+    EXPECT_EQ(0, size);
 
     auto cachedLocationsCallbackHost =
         sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());

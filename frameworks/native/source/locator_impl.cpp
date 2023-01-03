@@ -165,13 +165,15 @@ LocationErrCode LocatorImpl::IsGeoServiceAvailable(bool &isAvailable)
     return client_->IsGeoConvertAvailable(isAvailable);
 }
 
-LocationErrCode LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
+LocationErrCode LocatorImpl::GetAddressByCoordinate(MessageParcel &data,
+    std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByCoordinate()");
     return client_->GetAddressByCoordinate(data, replyList);
 }
 
-LocationErrCode LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
+LocationErrCode LocatorImpl::GetAddressByLocationName(MessageParcel &data,
+    std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByLocationName()");
     return client_->GetAddressByLocationName(data, replyList);

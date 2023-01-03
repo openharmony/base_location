@@ -22,6 +22,7 @@
 #include "common_utils.h"
 #include "geo_address.h"
 #include "location_log.h"
+#include "locator.h"
 #include "locator_proxy.h"
 #include "request_config.h"
 
@@ -961,6 +962,30 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
             delete context;
             delete work;
     });
+}
+
+bool CheckIfParamIsFunctionType(napi_env env, napi_value param)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_BASE(env, napi_typeof(env, param, &valueType), false);
+    if (valueType != napi_function) {
+        return false;
+    }
+    return true;
+}
+
+LocationErrCode CheckLocationSwitchState()
+{
+    int state = DISABLED;
+    auto locatorImpl = Locator::GetInstance();
+    LocationErrCode errorCode = locatorImpl->IsLocationEnabled(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    return ERRCODE_SUCCESS;
 }
 }  // namespace Location
 }  // namespace OHOS

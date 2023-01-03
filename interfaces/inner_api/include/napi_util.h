@@ -78,6 +78,8 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
 void DeleteQueueWork(AsyncContext* context);
 void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work);
 napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string& errMsg);
+bool CheckIfParamIsFunctionType(napi_env env, napi_value param);
+LocationErrCode CheckLocationSwitchState();
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 { \

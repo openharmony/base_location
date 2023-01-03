@@ -258,25 +258,15 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
         }
         auto context = static_cast<SingleLocationAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
-        int state = DISABLED;
-        LocationErrCode errorCode = g_locatorProxy->IsLocationEnabled(state);
+        LocationErrCode errorCode = CheckLocationSwitchState();
         if (errorCode != ERRCODE_SUCCESS) {
             context->errCode = errorCode;
-            return;
-        }
-        if (state == DISABLED) {
-            context->errCode = ERRCODE_SWITCH_OFF;
             return;
         }
         if (callbackHost != nullptr) {
             callbackHost->Wait(context->timeout_);
             auto callbackPtr = sptr<ILocatorCallback>(callbackHost);
-            errorCode = g_locatorProxy->StopLocating(callbackPtr);
-            if (errorCode != ERRCODE_SUCCESS) {
-                context->errCode = errorCode;
-                callbackHost->SetCount(1);
-                return;
-            }
+            g_locatorProxy->StopLocating(callbackPtr);
             if (callbackHost->GetCount() != 0) {
                 context->errCode = ERRCODE_LOCATING_FAIL;
             }
@@ -419,18 +409,17 @@ bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi
 
 bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
-    napi_valuetype valueType;
 #ifdef ENABLE_NAPI_MANAGER
     if (argc < PARAM2) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
-    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
-    if (valueType != napi_function) {
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
 #else
+    napi_valuetype valueType;
     NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
     NAPI_ASSERT_BASE(env, valueType == napi_function,
@@ -461,18 +450,17 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
 
 bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
-    napi_valuetype valueType;
 #ifdef ENABLE_NAPI_MANAGER
     if (argc < PARAM3) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
-    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
-    if (valueType != napi_function) {
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM2])) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        return false;
+        return UndefinedNapiValue(env);
     }
 #else
+    napi_valuetype valueType;
     NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
     NAPI_ASSERT_BASE(env, valueType == napi_function,
@@ -504,18 +492,17 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
 
 bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
-    napi_valuetype valueType;
 #ifdef ENABLE_NAPI_MANAGER
     if (argc < PARAM2) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
-    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
-    if (valueType != napi_function) {
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        return false;
+        return UndefinedNapiValue(env);
     }
 #else
+    napi_valuetype valueType;
     NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
     NAPI_ASSERT_BASE(env, valueType == napi_function,
@@ -546,18 +533,17 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
 
 bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
-    napi_valuetype valueType;
 #ifdef ENABLE_NAPI_MANAGER
     if (argc < PARAM3) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
-    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
-    if (valueType != napi_function) {
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM2])) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
 #else
+    napi_valuetype valueType;
     NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM2], &valueType), false);
     NAPI_ASSERT_BASE(env, valueType == napi_function,
@@ -590,18 +576,17 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
 
 bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
-    napi_valuetype valueType;
 #ifdef ENABLE_NAPI_MANAGER
     if (argc < PARAM2) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
-    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
-    if (valueType != napi_function) {
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
 #else
+    napi_valuetype valueType;
     NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
     NAPI_ASSERT_BASE(env, valueType == napi_function,
@@ -635,18 +620,17 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
 
 bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
-    napi_valuetype valueType;
 #ifdef ENABLE_NAPI_MANAGER
     if (argc < PARAM2) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
-    NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
-    if (valueType != napi_function) {
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
 #else
+    napi_valuetype valueType;
     NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
     NAPI_CALL_BASE(env, napi_typeof(env, argv[PARAM1], &valueType), false);
     NAPI_ASSERT_BASE(env, valueType == napi_function,
@@ -1187,23 +1171,6 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 #endif
     }
     return RequestLocationOnce(env, argc, argv);
-}
-
-LocationErrCode CheckLocationSwitchState()
-{
-    LBSLOGE(LOCATION_NAPI, "CheckLocationSwitchState enter");
-    int state = DISABLED;
-    LocationErrCode errorCode = g_locatorProxy->IsLocationEnabled(state);
-    if (errorCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATION_NAPI, "CheckLocationSwitchState errorCode");
-        return errorCode;
-    }
-    if (state == DISABLED) {
-        LBSLOGE(LOCATION_NAPI, "CheckLocationSwitchState ERRCODE_SWITCH_OFF");
-        return ERRCODE_SWITCH_OFF;
-    }
-    LBSLOGE(LOCATION_NAPI, "CheckLocationSwitchState ERRCODE_SUCCESS");
-    return ERRCODE_SUCCESS;
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -68,7 +68,6 @@ LocationErrCode UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>
 LocationErrCode UnSubscribeGnssStatus(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
 LocationErrCode UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
 LocationErrCode UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
-LocationErrCode CheckLocationSwitchState();
 bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback);
 void GenRequestConfig(const napi_env& env, const napi_value* argv,
     const size_t& objectArgsNum, std::unique_ptr<RequestConfig>& requestConfig);

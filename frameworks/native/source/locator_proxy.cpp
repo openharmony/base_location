@@ -285,7 +285,8 @@ LocationErrCode LocatorProxy::IsGeoConvertAvailable(bool &isAvailable)
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
+LocationErrCode LocatorProxy::GetAddressByCoordinate(MessageParcel &data,
+    std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithDataReply(GET_FROM_COORDINATE, data, reply);
@@ -302,7 +303,8 @@ LocationErrCode LocatorProxy::GetAddressByCoordinate(MessageParcel &data, std::l
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
+LocationErrCode LocatorProxy::GetAddressByLocationName(MessageParcel &data,
+    std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithDataReply(GET_FROM_LOCATION_NAME, data, reply);
