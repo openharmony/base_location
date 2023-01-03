@@ -127,6 +127,16 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     return true;
 }
 
+int LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
+{
+    return client_->RegisterNmeaMessageCallbackV9(callback);
+}
+
+int LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
+{
+    return client_->UnregisterNmeaMessageCallbackV9(callback);
+}
+
 bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     client_->RegisterCountryCodeCallback(callback, uid);
@@ -258,23 +268,23 @@ std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
     return client_->GetIsoCountryCode();
 }
 
-bool LocatorImpl::EnableLocationMock(const LocationMockConfig& config)
+bool LocatorImpl::EnableLocationMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMock()");
-    return client_->EnableLocationMock(config);
+    return client_->EnableLocationMock();
 }
 
-bool LocatorImpl::DisableLocationMock(const LocationMockConfig& config)
+bool LocatorImpl::DisableLocationMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMock()");
-    return client_->DisableLocationMock(config);
+    return client_->DisableLocationMock();
 }
 
 bool LocatorImpl::SetMockedLocations(
-    const LocationMockConfig& config,  const std::vector<std::shared_ptr<Location>> &location)
+    const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocations()");
-    return client_->SetMockedLocations(config, location);
+    return client_->SetMockedLocations(timeInterval, location);
 }
 
 bool LocatorImpl::EnableReverseGeocodingMock()

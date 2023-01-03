@@ -29,9 +29,9 @@ class GeoConvertProxy : public IRemoteProxy<IGeoConvert> {
 public:
     explicit GeoConvertProxy(const sptr<IRemoteObject> &impl);
     ~GeoConvertProxy() = default;
-    int IsGeoConvertAvailable(MessageParcel &rep) override;
-    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) override;
-    int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) override;
+    int IsGeoConvertAvailable(MessageParcel &reply) override;
+    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply) override;
+    int GetAddressByLocationName(MessageParcel &data, MessageParcel &reply) override;
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
     bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;

@@ -103,18 +103,12 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case ENABLE_LOCATION_MOCK: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
-            bool result = EnableMock(config);
+            bool result = EnableMock();
             reply.WriteBool(result);
             break;
         }
         case DISABLE_LOCATION_MOCK: {
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
-            LocationMockConfig config;
-            config.Set(*mockConfig);
-            bool result = DisableMock(config);
+            bool result = DisableMock();
             reply.WriteBool(result);
             break;
         }

@@ -26,7 +26,6 @@
 #include "location.h"
 #include "location_dumper.h"
 #include "location_log.h"
-#include "location_mock_config.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -93,14 +92,14 @@ void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGE(PASSIVE, "enter RequestRecord");
 }
 
-bool PassiveAbility::EnableMock(const LocationMockConfig& config)
+bool PassiveAbility::EnableMock()
 {
-    return EnableLocationMock(config);
+    return EnableLocationMock();
 }
 
-bool PassiveAbility::DisableMock(const LocationMockConfig& config)
+bool PassiveAbility::DisableMock()
 {
-    return DisableLocationMock(config);
+    return DisableLocationMock();
 }
 
 bool PassiveAbility::IsMockEnabled()
@@ -108,10 +107,10 @@ bool PassiveAbility::IsMockEnabled()
     return IsLocationMocked();
 }
 
-bool PassiveAbility::SetMocked(const LocationMockConfig& config,
+bool PassiveAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(config, location);
+    return SetMockedLocations(timeInterval, location);
 }
 
 void PassiveAbility::SendReportMockLocationEvent()
@@ -152,7 +151,7 @@ void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
                 reply.WriteBool(false);
                 break;
             }
-            std::unique_ptr<LocationMockConfig> mockConfig = LocationMockConfig::Unmarshalling(data);
+            int timeInterval = data.ReadInt32();
             int locationSize = data.ReadInt32();
             locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
                 locationSize;
@@ -162,7 +161,7 @@ void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
                 vcLoc->push_back(Location::UnmarshallingShared(data));
             }
             AppExecFwk::InnerEvent::Pointer event =
-                AppExecFwk::InnerEvent::Get(code, vcLoc, mockConfig->GetTimeInterval());
+                AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
             bool result = passiveHandler_->SendEvent(event);
             reply.WriteBool(result);
             break;
@@ -183,8 +182,6 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     switch (eventId) {
         case ISubAbility::SET_MOCKED_LOCATIONS: {
             int timeInterval = event->GetParam();
-            LocationMockConfig mockConfig;
-            mockConfig.SetTimeInterval(timeInterval);
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
             if (vcLoc == nullptr) {
                 break;
@@ -195,7 +192,7 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             }
             auto passiveAbility = DelayedSingleton<PassiveAbility>::GetInstance();
             if (passiveAbility != nullptr) {
-                passiveAbility->SetMocked(mockConfig, mockLocations);
+                passiveAbility->SetMocked(timeInterval, mockLocations);
             }
             break;
         }

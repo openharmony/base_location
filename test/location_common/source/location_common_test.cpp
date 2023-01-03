@@ -139,6 +139,24 @@ void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
     EXPECT_EQ(true, newParcel.ReadBool());
 }
 
+void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
+{
+    EXPECT_EQ(12.0, newParcel.ReadDouble()); // latitude
+    EXPECT_EQ(13.0, newParcel.ReadDouble()); // longitude
+    EXPECT_EQ(14.0, newParcel.ReadDouble()); // altitude
+    EXPECT_EQ(1000.0, newParcel.ReadDouble()); // accuracy
+    EXPECT_EQ(10.0, newParcel.ReadDouble()); // speed
+    EXPECT_EQ(90.0, newParcel.ReadDouble()); // direction
+    EXPECT_EQ(1000000000, newParcel.ReadInt64()); // timeStamp
+    EXPECT_EQ(1000000000, newParcel.ReadInt64()); // timeSinceBoot
+    EXPECT_EQ(u"additions", newParcel.ReadString16()); // additions
+    EXPECT_EQ(1, newParcel.ReadInt64()); // additionSize
+    EXPECT_EQ(true, newParcel.ReadBool()); // isFromMock
+    EXPECT_EQ(1, newParcel.ReadInt32()); // sourceType
+    EXPECT_EQ(0, newParcel.ReadInt32()); // floorNo
+    EXPECT_EQ(1000.0, newParcel.ReadDouble()); // floorAccuracy
+}
+
 /*
  * @tc.name: GeoAddressTest001
  * @tc.desc: read from parcel.
@@ -197,14 +215,17 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
     parcel.WriteDouble(14.0); // altitude
-    parcel.WriteFloat(1000.0); // accuracy
-    parcel.WriteFloat(10.0); // speed
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(90.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
     parcel.WriteInt64(1000000000); // timeSinceBoot
-    parcel.WriteString("additions"); // additions
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
     location->ReadFromParcel(parcel);
     EXPECT_EQ(12.0, location->GetLatitude());
     EXPECT_EQ(13.0, location->GetLongitude());
@@ -217,20 +238,13 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     EXPECT_EQ("additions", location->GetAdditions());
     EXPECT_EQ(1, location->GetAdditionSize());
     EXPECT_EQ(true, location->GetIsFromMock());
+    EXPECT_EQ(1, location->GetSourceType());
+    EXPECT_EQ(0, location->GetFloorNo());
+    EXPECT_EQ(1000.0, location->GetFloorAccuracy());
 
     MessageParcel newParcel;
     location->Marshalling(newParcel);
-    EXPECT_EQ(12.0, newParcel.ReadDouble());
-    EXPECT_EQ(13.0, newParcel.ReadDouble());
-    EXPECT_EQ(14.0, newParcel.ReadDouble());
-    EXPECT_EQ(1000.0, newParcel.ReadFloat());
-    EXPECT_EQ(10.0, newParcel.ReadFloat());
-    EXPECT_EQ(90.0, newParcel.ReadDouble());
-    EXPECT_EQ(1000000000, newParcel.ReadInt64());
-    EXPECT_EQ(1000000000, newParcel.ReadInt64());
-    EXPECT_EQ("additions", newParcel.ReadString());
-    EXPECT_EQ(1, newParcel.ReadInt64());
-    EXPECT_EQ(true, newParcel.ReadBool());
+    VerifyLocationMarshalling(newParcel);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest001 end");
 }
 

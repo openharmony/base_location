@@ -13,25 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef CALLBACK_TEST_H
-#define CALLBACK_TEST_H
+#ifndef LOCATION_NAPI_ERRCODE_H
+#define LOCATION_NAPI_ERRCODE_H
 
-#include <gtest/gtest.h>
-
-#include "cached_locations_callback_proxy.h"
-#include "country_code_callback_proxy.h"
-#include "gnss_status_callback_proxy.h"
-#include "locator_callback_proxy.h"
-#include "nmea_message_callback_proxy.h"
-#include "switch_callback_proxy.h"
+#include <string>
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
-class CallbackTest : public testing::Test {
-public:
-    void SetUp();
-    void TearDown();
-};
-} // namespace Location
-} // namespace OHOS
-#endif // CALLBACK_TEST_H
+void HandleSyncErrCode(const napi_env &env, int32_t errCode);
+}  // namespace Location
+}  // namespace OHOS
+
+#endif // LOCATION_NAPI_ERRCODE_H

@@ -58,6 +58,8 @@ private:
     int PreUnregisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterNmeaMessageCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterNmeaMessageCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreRegisterNmeaMessageCallbackV9(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreUnregisterNmeaMessageCallbackV9(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreSetLocationPrivacyConfirmStatus(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreStartCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
@@ -83,21 +85,22 @@ private:
     LocatorMsgHandleMap locatorHandleMap_;
     bool CheckLocationPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckSettingsPermission(MessageParcel &reply, AppIdentity &identity);
+    bool CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity);
     static void SaDumpInfo(std::string& result);
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    virtual void OnRemoteDied(const wptr<IRemoteObject> &object);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     LocatorCallbackDeathRecipient();
-    virtual ~LocatorCallbackDeathRecipient();
+    ~LocatorCallbackDeathRecipient() override;
 };
 
 class SwitchCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    virtual void OnRemoteDied(const wptr<IRemoteObject> &object);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     SwitchCallbackDeathRecipient();
-    virtual ~SwitchCallbackDeathRecipient();
+    ~SwitchCallbackDeathRecipient() override;
 };
 } // namespace Location
 } // namespace OHOS

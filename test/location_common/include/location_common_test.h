@@ -32,6 +32,7 @@ public:
     void SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress);
     void VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddress>& geoAddress);
     void VerifyGeoAddressMarshalling(MessageParcel& newParcel);
+    void VerifyLocationMarshalling(MessageParcel& newParcel);
 };
 } // namespace Location
 } // namespace OHOS

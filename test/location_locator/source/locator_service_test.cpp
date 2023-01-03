@@ -1073,7 +1073,6 @@ HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
         << "LocatorServiceTest, RemoveFence001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 begin");
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->priority = 1; // priority
     request->scenario = 2; // scenario
     request->geofence.latitude = 35.1; // latitude
     request->geofence.longitude = 40.2; // longitude
@@ -1117,80 +1116,14 @@ HWTEST_F(LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1)
 HWTEST_F(LocatorServiceTest, EnableLocationMock001, TestSize.Level1)
 {
     /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_CAR_HAILING); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
      * @tc.steps: step1. test enable location mock
      * @tc.expected: no exception happens
      */
-    proxy_->EnableLocationMock(mockInfo);
-}
-
-/*
- * @tc.name: EnableLocationMock002
- * @tc.desc: Test enable location mock in SCENE_DAILY_LIFE_SERVICE scenario
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, EnableLocationMock002, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_DAILY_LIFE_SERVICE); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
-     * @tc.steps: step1. test enable location mock
-     * @tc.expected: no exception happens
-     */
-    proxy_->EnableLocationMock(mockInfo);
-}
-
-/*
- * @tc.name: EnableLocationMock003
- * @tc.desc: Test enable location mock in SCENE_NO_POWER scenario
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, EnableLocationMock003, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NO_POWER); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
-     * @tc.steps: step1. test enable location mock
-     * @tc.expected: no exception happens
-     */
-    proxy_->EnableLocationMock(mockInfo);
-}
-
-/*
- * @tc.name: EnableLocationMock004
- * @tc.desc: Test enable location mock in SCENE_UNSET scenario
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, EnableLocationMock004, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_UNSET); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
-     * @tc.steps: step1. test enable location mock
-     * @tc.expected: no exception happens
-     */
-    proxy_->EnableLocationMock(mockInfo);
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, EnableLocationMock001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableLocationMock001 begin");
+    proxy_->EnableLocationMock();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableLocationMock001 end");
 }
 
 /*
@@ -1201,80 +1134,14 @@ HWTEST_F(LocatorServiceTest, EnableLocationMock004, TestSize.Level1)
 HWTEST_F(LocatorServiceTest, DisableLocationMock001, TestSize.Level1)
 {
     /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_CAR_HAILING); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
      * @tc.steps: step1. test disable location mock
      * @tc.expected: no exception happens
      */
-    proxy_->DisableLocationMock(mockInfo);
-}
-
-/*
- * @tc.name: DisableLocationMock002
- * @tc.desc: Test disable location mock in SCENE_DAILY_LIFE_SERVICE scenario
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, DisableLocationMock002, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_DAILY_LIFE_SERVICE); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
-     * @tc.steps: step1. test disable location mock
-     * @tc.expected: no exception happens
-     */
-    proxy_->DisableLocationMock(mockInfo);
-}
-
-/*
- * @tc.name: DisableLocationMock003
- * @tc.desc: Test disable location mock in SCENE_NO_POWER scenario
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, DisableLocationMock003, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NO_POWER); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
-     * @tc.steps: step1. test disable location mock
-     * @tc.expected: no exception happens
-     */
-    proxy_->DisableLocationMock(mockInfo);
-}
-
-/*
- * @tc.name: DisableLocationMock004
- * @tc.desc: Test disable location mock in SCENE_UNSET scenario
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, DisableLocationMock004, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. prepare mock info
-     */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_UNSET); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
-    /*
-     * @tc.steps: step1. test disable location mock
-     * @tc.expected: no exception happens
-     */
-    proxy_->DisableLocationMock(mockInfo);
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, DisableLocationMock001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableLocationMock001 begin");
+    proxy_->DisableLocationMock();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableLocationMock001 end");
 }
 
 /*
@@ -1287,24 +1154,27 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
     /*
      * @tc.steps: step1. prepare mock info
      */
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_CAR_HAILING); // scenario
-    mockInfo.SetTimeInterval(2); // time interval
-
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, SetMockedLocations001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetMockedLocations001 begin");
+    int timeInterval = 2;
     std::vector<std::shared_ptr<Location>> mockLocationArray;
     Parcel parcel;
     for (int i = 0; i < 2; i++) {
         parcel.WriteDouble(10.6); // latitude
         parcel.WriteDouble(10.5); // longitude
         parcel.WriteDouble(10.4); // altitude
-        parcel.WriteFloat(1.0); // accuracy
-        parcel.WriteFloat(5.0); // speed
+        parcel.WriteDouble(1.0); // accuracy
+        parcel.WriteDouble(5.0); // speed
         parcel.WriteDouble(10); // direction
         parcel.WriteInt64(1611000000); // timestamp
         parcel.WriteInt64(1611000000); // time since boot
-        parcel.WriteString("additions"); // additions
+        parcel.WriteString16(u"additions"); // additions
         parcel.WriteInt64(1); // additionSize
         parcel.WriteBool(true); // isFromMock
+        parcel.WriteInt32(1); // source type
+        parcel.WriteInt32(0); // floor no.
+        parcel.WriteDouble(1000.0); // floor acc
         mockLocationArray.push_back(Location::UnmarshallingShared(parcel));
     }
 
@@ -1312,13 +1182,8 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
      * @tc.steps: step2. test set mocked locations for different scenarioes
      * @tc.expected: no exception happens
      */
-    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
-    mockInfo.SetScenario(SCENE_DAILY_LIFE_SERVICE);
-    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
-    mockInfo.SetScenario(SCENE_NO_POWER);
-    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
-    mockInfo.SetScenario(SCENE_UNSET);
-    proxy_->SetMockedLocations(mockInfo, mockLocationArray);
+    proxy_->SetMockedLocations(timeInterval, mockLocationArray);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetMockedLocations001 end");
 }
 
 /*
@@ -1601,13 +1466,12 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
     EXPECT_EQ(true, locatorImpl->ResetAllProxy());
 
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(2);
-    EXPECT_EQ(true, locatorImpl->EnableLocationMock(mockInfo));
+    int timeInterval = 2;
+    EXPECT_EQ(true, locatorImpl->EnableLocationMock());
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, locatorImpl->SetMockedLocations(mockInfo, locations));
-    EXPECT_EQ(true, locatorImpl->DisableLocationMock(mockInfo));
+    EXPECT_EQ(true, locatorImpl->SetMockedLocations(timeInterval, locations));
+    EXPECT_EQ(true, locatorImpl->DisableLocationMock());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
@@ -1759,6 +1623,26 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplRegisterAndUnregisterCallback001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplNmeaMessageCallbackV9001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    ASSERT_TRUE(locatorImpl != nullptr);
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    locatorImpl->StartLocating(requestConfig, callbackStub_); // startLocating first
+    sleep(1);
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    EXPECT_EQ(NO_ERROR, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    sleep(1);
+    EXPECT_EQ(NO_ERROR, locatorImpl->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    locatorImpl->StopLocating(callbackStub_); // after reg, stop locating
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplNmeaMessageCallbackV9001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceStartAndStop001, TestSize.Level1)
@@ -1990,15 +1874,13 @@ HWTEST_F(LocatorServiceTest, locatorServiceLocationMock001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceLocationMock001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    LocationMockConfig mockInfo;
-    mockInfo.SetScenario(SCENE_NAVIGATION);
-    mockInfo.SetTimeInterval(2);
-    EXPECT_EQ(true, locatorAbility->EnableLocationMock(mockInfo));
+    int timeInterval = 2;
+    EXPECT_EQ(true, locatorAbility->EnableLocationMock());
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, locatorAbility->SetMockedLocations(mockInfo, locations));
+    EXPECT_EQ(true, locatorAbility->SetMockedLocations(timeInterval, locations));
 
-    EXPECT_EQ(true, locatorAbility->DisableLocationMock(mockInfo));
-    EXPECT_EQ(true, locatorAbility->SetMockedLocations(mockInfo, locations));
+    EXPECT_EQ(true, locatorAbility->DisableLocationMock());
+    EXPECT_EQ(true, locatorAbility->SetMockedLocations(timeInterval, locations));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceLocationMock001 end");
 }
 
