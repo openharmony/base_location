@@ -36,8 +36,9 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
 {
     LBSLOGI(GNSS, "AGnssEventCallback::RequestSubscriberSetId. type:%{public}d", static_cast<int>(type));
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
-    std::string imsi =
-        CommonUtils::Str16ToStr8(DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIMSI(slotId));
+    std::u16string tempImsi;
+    DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIMSI(slotId, tempImsi);
+    std::string imsi = CommonUtils::Str16ToStr8(tempImsi);
     SubscriberSetId setId;
     setId.type = HDI::Location::Agnss::V1_0::SETID_TYPE_IMSI;
     setId.id = imsi;
