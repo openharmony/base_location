@@ -34,7 +34,7 @@ public:
     explicit LocatorImpl();
     ~LocatorImpl() override;
     bool Init();
-    LocationErrCode IsLocationEnabled(int &state) override;
+    LocationErrCode IsLocationEnabled(bool &isEnabled) override;
     LocationErrCode ShowNotification() override;
     LocationErrCode RequestPermission() override;
     LocationErrCode RequestEnableLocation() override;

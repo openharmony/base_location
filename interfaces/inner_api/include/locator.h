@@ -37,7 +37,7 @@ public:
 
     virtual ~Locator();
 
-    virtual LocationErrCode IsLocationEnabled(int &state) = 0;
+    virtual LocationErrCode IsLocationEnabled(bool &isEnabled) = 0;
 
     virtual LocationErrCode RequestEnableLocation() = 0;
 

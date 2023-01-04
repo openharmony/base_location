@@ -41,17 +41,17 @@ LocatorProxy::LocatorProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-LocationErrCode LocatorProxy::GetSwitchState(int &state)
+LocationErrCode LocatorProxy::GetSwitchState(bool &isEnabled)
 {
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithReply(GET_SWITCH_STATE, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState Transact ErrCode = %{public}d", errorCode);
+    int state = DISABLED;
     if (errorCode == ERRCODE_SUCCESS) {
         state = reply.ReadInt32();
-    } else {
-        state = 0;
     }
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState return %{public}d", state);
+    isEnabled = (state == ENABLED);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState return %{public}d", isEnabled);
     return errorCode;
 }
 
@@ -60,7 +60,7 @@ LocationErrCode LocatorProxy::EnableAbility(bool isEnabled)
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteBool(isEnabled);
     LocationErrCode errorCode = SendMsgWithDataReply(ENABLE_ABILITY, data, reply);
@@ -84,7 +84,7 @@ LocationErrCode LocatorProxy::SendMsgWithDataReply(const int msgId, MessageParce
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = remote->SendRequest(msgId, data, reply, option);
-    if (error != ERR_OK) {
+    if (error != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "msgid = %{public}d, send request error: %{public}d", msgId, error);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -97,7 +97,7 @@ LocationErrCode LocatorProxy::SendMsgWithReply(const int msgId, MessageParcel& r
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(LOCATOR_STANDARD, "SendMsgWithReply WriteInterfaceToken failed");
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     return SendMsgWithDataReply(msgId, data, reply);
 }
@@ -113,11 +113,11 @@ LocationErrCode LocatorProxy::SendRegisterMsgToRemote(const int msgId, const spt
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote WriteInterfaceToken failed");
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
-        return ERRCODE_INVALID_PARAM;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteObject<IRemoteObject>(callback);
     MessageParcel reply;
@@ -183,11 +183,11 @@ LocationErrCode LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteOb
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(LOCATOR_STANDARD, "WriteInterfaceToken failed");
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
-        return ERRCODE_INVALID_PARAM;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteObject<IRemoteObject>(callback);
     LocationErrCode errorCode = SendMsgWithDataReply(REG_NMEA_CALLBACK_v9, data, reply);
@@ -201,11 +201,11 @@ LocationErrCode LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemote
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(LOCATOR_STANDARD, "WriteInterfaceToken failed");
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
-        return ERRCODE_INVALID_PARAM;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteObject<IRemoteObject>(callback);
     LocationErrCode errorCode = SendMsgWithDataReply(UNREG_NMEA_CALLBACK_v9, data, reply);
@@ -233,7 +233,7 @@ LocationErrCode LocatorProxy::StartLocating(std::unique_ptr<RequestConfig>& requ
     LBSLOGD(LOCATOR_STANDARD, "uid is: %{public}d, pid is: %{public}d", uid, pid);
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (requestConfig != nullptr) {
         requestConfig->Marshalling(data);
@@ -252,7 +252,7 @@ LocationErrCode LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "StopLocating callback is nullptr");
-        return ERRCODE_INVALID_PARAM;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errorCode = SendRegisterMsgToRemote(STOP_LOCATING, callback->AsObject(), 0);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCountryCodeCallback Transact ErrCodes = %{public}d", errorCode);
@@ -277,7 +277,7 @@ LocationErrCode LocatorProxy::IsGeoConvertAvailable(bool &isAvailable)
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithReply(GEO_IS_AVAILABLE, reply);
     if (errorCode == ERRCODE_SUCCESS) {
-        isAvailable = (reply.ReadInt32() == 1);
+        isAvailable = (reply.ReadInt32() == GEO_CONVERT_AVAILABLE);
     } else {
         isAvailable = false;
     }
@@ -326,7 +326,7 @@ LocationErrCode LocatorProxy::IsLocationPrivacyConfirmed(const int type, bool &i
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_PARAM;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(type);
     LocationErrCode errorCode = SendMsgWithDataReply(IS_PRIVACY_COMFIRMED, data, reply);
@@ -346,7 +346,7 @@ LocationErrCode LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bo
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus, WriteInterfaceToken failed.");
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(type);
     data.WriteBool(isConfirmed);
@@ -360,7 +360,7 @@ LocationErrCode LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<Cac
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (request != nullptr) {
         data.WriteInt32(request->reportingPeriodSec);
@@ -406,10 +406,13 @@ LocationErrCode LocatorProxy::FlushCachedGnssLocations()
 
 LocationErrCode LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
+    if (commands == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(commands->scenario);
     data.WriteString16(Str8ToStr16(commands->command));
@@ -420,10 +423,13 @@ LocationErrCode LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& comm
 
 LocationErrCode LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
+    if (request == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
@@ -437,10 +443,13 @@ LocationErrCode LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request
 
 LocationErrCode LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
+    if (request == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(request->scenario);
     data.WriteDouble(request->geofence.latitude);
@@ -454,6 +463,9 @@ LocationErrCode LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& requ
 
 LocationErrCode LocatorProxy::GetIsoCountryCode(std::shared_ptr<CountryCode>& countryCode)
 {
+    if (countryCode == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithReply(GET_ISO_COUNTRY_CODE, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", errorCode);
@@ -462,8 +474,6 @@ LocationErrCode LocatorProxy::GetIsoCountryCode(std::shared_ptr<CountryCode>& co
         int countryType = reply.ReadInt32();
         countryCode->SetCountryCodeStr(country);
         countryCode->SetCountryCodeType(countryType);
-    } else {
-        countryCode = nullptr;
     }
     return errorCode;
 }
@@ -473,7 +483,7 @@ LocationErrCode LocatorProxy::EnableLocationMock()
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errorCode = SendMsgWithDataReply(ENABLE_LOCATION_MOCK, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableLocationMock Transact ErrCodes = %{public}d", errorCode);
@@ -485,7 +495,7 @@ LocationErrCode LocatorProxy::DisableLocationMock()
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errorCode = SendMsgWithDataReply(DISABLE_LOCATION_MOCK, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableLocationMock Transact ErrCodes = %{public}d", errorCode);
@@ -498,7 +508,7 @@ LocationErrCode LocatorProxy::SetMockedLocations(
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(timeInterval);
     int locationSize = static_cast<int>(location.size());
@@ -532,7 +542,7 @@ LocationErrCode LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::share
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(mockInfo.size());
     for (size_t i = 0; i < mockInfo.size(); i++) {
@@ -548,7 +558,7 @@ LocationErrCode LocatorProxy::ProxyUidForFreeze(int32_t uid, bool isProxy)
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
     if (!data.WriteInt32(uid) || !data.WriteBool(isProxy)) {

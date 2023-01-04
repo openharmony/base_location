@@ -33,8 +33,8 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");
-        reply.WriteInt32(ERRCODE_INVALID_TOKEN);
-        return ERRCODE_INVALID_TOKEN;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
         LBSLOGE(GNSS, "uid pid not match locationhub process.");
@@ -107,11 +107,13 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case ENABLE_LOCATION_MOCK: {
-            EnableMock();
+            EnableMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
             break;
         }
         case DISABLE_LOCATION_MOCK: {
-            DisableMock();
+            DisableMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
             break;
         }
         default:

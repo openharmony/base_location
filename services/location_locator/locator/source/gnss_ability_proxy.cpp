@@ -165,11 +165,13 @@ int GnssAbilityProxy::GetCachedGnssLocationsSize()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "GetCachedGnssLocationsSize remote is null");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return ERRCODE_INVALID_TOKEN;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
     remote->SendRequest(ISubAbility::GET_CACHED_SIZE, data, reply, option);
@@ -191,11 +193,13 @@ int GnssAbilityProxy::FlushCachedGnssLocations()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "FlushCachedGnssLocations remote is null");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return ERRCODE_INVALID_TOKEN;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     remote->SendRequest(ISubAbility::FLUSH_CACHED, data, reply, option);
     int errorCode = reply.ReadInt32();

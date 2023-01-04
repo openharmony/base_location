@@ -141,8 +141,8 @@ namespace OHOS {
     bool LocatorImplFuzzerTest(const uint8_t* data, size_t size)
     {
         int index = 0;
-        int state = 1;
-        g_locatorImpl->IsLocationEnabled(state);
+        bool isEnabled = false;
+        g_locatorImpl->IsLocationEnabled(isEnabled);
         g_locatorImpl->ShowNotification();
         g_locatorImpl->RequestPermission();
         g_locatorImpl->RequestEnableLocation();

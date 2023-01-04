@@ -36,25 +36,15 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "getLastLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 #ifdef ENABLE_NAPI_MANAGER
-    napi_value res;
-    NAPI_CALL(env, napi_create_object(env, &res));
-    std::unique_ptr<Location> location = std::make_unique<Location>();
-    LocationErrCode errorCode = g_locatorClient->GetCachedLocation(location);
-    if (location != nullptr) {
-        LocationToJs(env, location, res);
-        return res;
-    } else {
-        HandleSyncErrCode(env, errorCode);
-    }
-    return UndefinedNapiValue(env);
+    return HandleGetCachedLocation(env);
 #else
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<LocationAsyncContext*>(data);
-        int state = DISABLED;
-        g_locatorClient->IsLocationEnabled(state);
-        std::unique_ptr<Location> location = std::make_unique<Location>();
-        g_locatorClient->GetCachedLocation(location);
-        context->loc = (state == ENABLED) ? std::move(location) : nullptr;
+        bool isEnabled = false;
+        g_locatorClient->IsLocationEnabled(isEnabled);
+        if (isEnabled) {
+            g_locatorClient->GetCachedLocation(context->loc);
+        }
         if (context->loc != nullptr) {
             context->errCode = SUCCESS;
         } else {
@@ -78,6 +68,28 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
 #endif
 }
 
+#ifdef ENABLE_NAPI_MANAGER
+napi_value HandleGetCachedLocation(napi_env env)
+{
+    napi_value res;
+    NAPI_CALL(env, napi_create_object(env, &res));
+    LocationErrCode errorCode = CheckLocationSwitchState();
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+    std::unique_ptr<Location> loc;
+    errorCode = g_locatorClient->GetCachedLocation(loc);
+    if (loc != nullptr) {
+        LocationToJs(env, loc, res);
+        return res;
+    } else {
+        HandleSyncErrCode(env, errorCode);
+    }
+    return UndefinedNapiValue(env);
+}
+#endif
+
 napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM1;
@@ -92,20 +104,20 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
     napi_create_string_latin1(env, "isLocationEnabled", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
 #ifdef ENABLE_NAPI_MANAGER
     napi_value res;
-    int state = DISABLED;
-    LocationErrCode errorCode = g_locatorClient->IsLocationEnabled(state);
+    bool isEnabled = false;
+    LocationErrCode errorCode = g_locatorClient->IsLocationEnabled(isEnabled);
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
     }
-    NAPI_CALL(env, napi_get_boolean(env, state == ENABLED, &res));
+    NAPI_CALL(env, napi_get_boolean(env, isEnabled, &res));
     return res;
 #else
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
-        int state = DISABLED;
-        g_locatorClient->IsLocationEnabled(state);
-        context->enable = (state == ENABLED);
+        bool isEnabled = false;
+        g_locatorClient->IsLocationEnabled(isEnabled);
+        context->enable = isEnabled;
         context->errCode = SUCCESS;
     };
 
@@ -211,9 +223,9 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
-        int state = DISABLED;
-        g_locatorClient->IsLocationEnabled(state);
-        if (state == DISABLED) {
+        bool isEnabled = false;
+        g_locatorClient->IsLocationEnabled(isEnabled);
+        if (!isEnabled) {
             g_locatorClient->ShowNotification();
         }
         context->errCode = g_locatorClient->EnableAbility(true);
@@ -256,11 +268,13 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 #else
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
-        int state = DISABLED;
-        g_locatorClient->IsLocationEnabled(state);
         bool isAvailable = false;
         g_locatorClient->IsGeoServiceAvailable(isAvailable);
-        context->enable = (state == ENABLED) && isAvailable;
+        context->enable = isAvailable;
+        if (!isAvailable) {
+            context->errCode = GEOCODE_ERROR;
+            return;
+        }
         context->errCode = SUCCESS;
     };
 
@@ -287,21 +301,18 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
             return;
         }
         LocationErrCode errorCode;
-#ifdef ENABLE_NAPI_MANAGER
         bool isAvailable = false;
+#ifdef ENABLE_NAPI_MANAGER
         errorCode = g_locatorClient->IsGeoServiceAvailable(isAvailable);
         if (errorCode != ERRCODE_SUCCESS) {
             context->errCode = errorCode;
             return;
         }
-#else
-        int state = DISABLED;
-        g_locatorClient->IsLocationEnabled(state);
-        if (state == DISABLED) {
-            context->errCode = REVERSE_GEOCODE_ERROR;
+        if (!isAvailable) {
+            context->errCode = ERRCODE_REVERSE_GEOCODING_FAIL;
             return;
         }
-        bool isAvailable = false;
+#else
         g_locatorClient->IsGeoServiceAvailable(isAvailable);
         if (!isAvailable) {
             context->errCode = REVERSE_GEOCODE_ERROR;
@@ -309,7 +320,7 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
         }
 #endif
         errorCode = g_locatorClient->GetAddressByCoordinate(context->reverseGeoCodeRequest, context->replyList);
-        if (context->replyList.empty()) {
+        if (context->replyList.empty() || errorCode != SUCCESS) {
 #ifdef ENABLE_NAPI_MANAGER
             context->errCode = errorCode;
 #else
@@ -333,21 +344,18 @@ void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
             return;
         }
         LocationErrCode errorCode;
-#ifdef ENABLE_NAPI_MANAGER
         bool isAvailable = false;
+#ifdef ENABLE_NAPI_MANAGER
         errorCode = g_locatorClient->IsGeoServiceAvailable(isAvailable);
         if (errorCode != ERRCODE_SUCCESS) {
             context->errCode = errorCode;
             return;
         }
-#else
-        int state = DISABLED;
-        g_locatorClient->IsLocationEnabled(state);
-        if (state == DISABLED) {
-            context->errCode = GEOCODE_ERROR;
+        if (!isAvailable) {
+            context->errCode = ERRCODE_GEOCODING_FAIL;
             return;
         }
-        bool isAvailable = false;
+#else
         g_locatorClient->IsGeoServiceAvailable(isAvailable);
         if (!isAvailable) {
             context->errCode = GEOCODE_ERROR;
@@ -410,7 +418,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
     asyncContext->errCode = ret ? SUCCESS : INPUT_PARAMS_ERROR;
 #endif
 #ifdef ENABLE_NAPI_MANAGER
-    if (asyncContext->errCode == ERRCODE_INVALID_PARAM) {
+    if (asyncContext->errCode != SUCCESS) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -503,36 +511,28 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
 
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info)
 {
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 1");
     size_t argc = 2;
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 2");
     napi_value argv[argc];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 3");
     if (g_locatorClient == nullptr) {
         HandleSyncErrCode(env, ERRCODE_SERVICE_UNAVAILABLE);
         return UndefinedNapiValue(env);
     }
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 4");
     // 2 arguement is necessary
     if (argc < 2) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 5");
     int type;
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &type));
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 6");
     bool isConfirmed;
     NAPI_CALL(env, napi_get_value_bool(env, argv[1], &isConfirmed));
     LocationErrCode errorCode = g_locatorClient->SetLocationPrivacyConfirmStatus(type, isConfirmed);
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 7");
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
     }
-    LBSLOGE(LOCATOR_STANDARD, "SetLocationPrivacyConfirmStatus 8");
     return UndefinedNapiValue(env);
 }
 #endif
@@ -616,9 +616,9 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
         }
         context->errCode = g_locatorClient->FlushCachedGnssLocations();
 #else
-        int state = DISABLED;
-        errorCode = g_locatorClient->IsLocationEnabled(state);
-        if (state == ENABLED) {
+        bool isEnabled = false;
+        errorCode = g_locatorClient->IsLocationEnabled(isEnabled);
+        if (isEnabled) {
             errorCode = g_locatorClient->FlushCachedGnssLocations();
         }
         context->errCode = NOT_SUPPORTED;
@@ -644,17 +644,12 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
 {
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CommandAsyncContext*>(data);
-#ifdef ENABLE_NAPI_MANAGER
         if (context->command != nullptr) {
             g_locatorClient->SendCommand(context->command);
         }
+#ifdef ENABLE_NAPI_MANAGER
         context->errCode = ERRCODE_NOT_SUPPORTED;
 #else
-        int state = DISABLED;
-        g_locatorClient->IsLocationEnabled(state);
-        if (state == ENABLED && context->command != nullptr) {
-            g_locatorClient->SendCommand(context->command);
-        }
         context->errCode = NOT_SUPPORTED;
 #endif
     };
@@ -911,5 +906,18 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
     return UndefinedNapiValue(env);
 }
 #endif
+
+LocationErrCode CheckLocationSwitchState()
+{
+    bool isEnabled = false;
+    LocationErrCode errorCode = g_locatorClient->IsLocationEnabled(isEnabled);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (!isEnabled) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    return ERRCODE_SUCCESS;
+}
 } // namespace Location
 } // namespace OHOS

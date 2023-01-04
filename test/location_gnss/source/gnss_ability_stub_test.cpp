@@ -290,7 +290,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest016, TestSize.Level1)
     parcel.WriteInterfaceToken(u"UNKNOWN_DESCRIPTOR");
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(ERRCODE_INVALID_TOKEN,
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE,
         gnssAbilityStub->OnRemoteRequest(UNKNOWN_CODE, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest016 end");
 }

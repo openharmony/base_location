@@ -75,6 +75,7 @@ napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const nap
 napi_value On(napi_env env, napi_callback_info cbinfo);
 napi_value Off(napi_env env, napi_callback_info cbinfo);
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo);
+LocationErrCode CheckLocationSwitchEnable();
 }  // namespace Location
 }  // namespace OHOS
 #endif // LOCATION_NAPI_EVENT_H

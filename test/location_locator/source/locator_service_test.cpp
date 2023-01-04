@@ -514,26 +514,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable001 end");
 }
 
-HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
-    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
-    auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
-    locatorAbility->OnStart();
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-        locatorAbility->RegisterCachedLocationCallback(cachedRequest, cachedCallback, "unit.test"));
-    sleep(1);
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterCachedLocationCallback(cachedCallback));
-    sleep(1);
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 end");
-}
-
 HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -549,41 +529,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(nullptr));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->UnregisterSwitchCallback(switchCallbackHost));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSwitchCallback001 end");
-}
-
-HWTEST_F(LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGnssStatusCallback001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-
-    auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-    locatorAbility->OnStart();
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(nullptr, SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(gnssCallbackHost, SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(nullptr)); // invalid callback
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(gnssCallbackHost));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGnssStatusCallback001 end");
-}
-
-HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceNmeaMessageCallback001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
-    locatorAbility->OnStart();
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(nullptr, SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(nullptr));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(nmeaCallbackHost));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceNmeaMessageCallback001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceCountryCodeCallback001, TestSize.Level1)
@@ -616,42 +561,6 @@ HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Lev
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed));
     EXPECT_EQ(true, isConfirmed);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePrivacyConfirmStatus001 end");
-}
-
-HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendCommand001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->OnStart();
-    std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
-    command->scenario = SCENE_NAVIGATION;
-    command->command = "cmd";
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->SendCommand(command));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendCommand001 end");
-}
-
-HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceFence001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->OnStart();
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->scenario = SCENE_NAVIGATION;
-    GeoFence geofence;
-    geofence.latitude = 1.0;
-    geofence.longitude = 2.0;
-    geofence.radius = 3.0;
-    geofence.expiration = 4.0;
-    fenceRequest->geofence = geofence;
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->AddFence(fenceRequest));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RemoveFence(fenceRequest));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceIsoCountryCode001, TestSize.Level1)

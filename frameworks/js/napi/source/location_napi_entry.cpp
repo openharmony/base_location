@@ -83,7 +83,6 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isLocationEnabled", IsLocationEnabled),
         DECLARE_NAPI_FUNCTION("enableLocation", EnableLocation),
         DECLARE_NAPI_FUNCTION("disableLocation", DisableLocation),
-        DECLARE_NAPI_FUNCTION("requestEnableLocation", RequestEnableLocation),
         DECLARE_NAPI_FUNCTION("isGeocoderAvailable", IsGeoServiceAvailable),
         DECLARE_NAPI_FUNCTION("getAddressesFromLocation", GetAddressesFromLocation),
         DECLARE_NAPI_FUNCTION("getAddressesFromLocationName", GetAddressesFromLocationName),

@@ -86,7 +86,6 @@ enum LocationRequestType {
 
 enum LocationErrCode {
     ERRCODE_SUCCESS = 0,                      /* SUCCESS */
-    ERRCODE_INVALID_TOKEN = 101,              /* invalid token */
     ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
     ERRCODE_SYSTEM_PERMISSION_DENIED = 202,   /* system permission denied */
     ERRCODE_INVALID_PARAM = 401,              /* invalid params */

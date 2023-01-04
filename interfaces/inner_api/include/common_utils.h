@@ -111,6 +111,11 @@ enum {
 };
 
 enum {
+    GEO_CONVERT_AVAILABLE = 1,
+    IS_NOT_AVAILABLE = 0
+};
+
+enum {
     SUCCESS = 0,
     COMMON_ERROR = 98,
     PARAM_IS_EMPTY = 99,

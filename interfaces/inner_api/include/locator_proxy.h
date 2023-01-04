@@ -39,7 +39,7 @@ public:
     explicit LocatorProxy(const sptr<IRemoteObject> &impl);
     ~LocatorProxy() = default;
     LocationErrCode UpdateSaAbility();
-    LocationErrCode GetSwitchState(int &state);
+    LocationErrCode GetSwitchState(bool &isEnabled);
     LocationErrCode EnableAbility(bool isEnabled);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject> &callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject> &callback);

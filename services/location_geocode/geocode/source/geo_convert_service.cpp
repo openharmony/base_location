@@ -72,11 +72,10 @@ int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
 {
     if (!mockEnabled_) {
         reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-        reply.WriteInt32(0);
         return ERRCODE_NOT_SUPPORTED;
     }
     reply.WriteInt32(ERRCODE_SUCCESS);
-    reply.WriteInt32(1);
+    reply.WriteInt32(GEO_CONVERT_AVAILABLE);
     return ERRCODE_SUCCESS;
 }
 
@@ -85,7 +84,6 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
     LBSLOGD(GEO_CONVERT, "GetAddressByCoordinate");
     if (!mockEnabled_) {
         reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-        reply.WriteInt32(0);
         return ERRCODE_NOT_SUPPORTED;
     }
     ReportAddressMock(data, reply);
@@ -126,7 +124,6 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
 {
     LBSLOGD(GEO_CONVERT, "GetAddressByLocationName");
     reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-    reply.WriteInt32(0);
     return ERRCODE_NOT_SUPPORTED;
 }
 

@@ -470,7 +470,7 @@ LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObj
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(REG_GNSS_STATUS, dataToStub, replyToStub);
@@ -481,7 +481,7 @@ LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteO
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(UNREG_GNSS_STATUS, dataToStub, replyToStub);
@@ -492,7 +492,7 @@ LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteOb
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(REG_NMEA, dataToStub, replyToStub);
@@ -503,7 +503,7 @@ LocationErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemote
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(UNREG_NMEA, dataToStub, replyToStub);
@@ -535,7 +535,7 @@ LocationErrCode LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<C
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteInt32(request->reportingPeriodSec);
     dataToStub.WriteBool(request->wakeUpCacheQueueFull);
@@ -549,7 +549,7 @@ LocationErrCode LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLoc
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback->AsObject());
     return SendGnssRequest(UNREG_CACHED, dataToStub, replyToStub);
@@ -560,7 +560,7 @@ LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errorCode = SendGnssRequest(GET_CACHED_SIZE, dataToStub, replyToStub);
     if (errorCode == ERRCODE_SUCCESS) {
@@ -574,7 +574,7 @@ LocationErrCode LocatorAbility::FlushCachedGnssLocations()
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     return SendGnssRequest(FLUSH_CACHED, dataToStub, replyToStub);
 }
@@ -584,7 +584,7 @@ LocationErrCode LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& co
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteInt32(commands->scenario);
     dataToStub.WriteString16(Str8ToStr16(commands->command));
@@ -596,7 +596,7 @@ LocationErrCode LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& reque
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteInt32(request->scenario);
     dataToStub.WriteDouble(request->geofence.latitude);
@@ -611,7 +611,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& re
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteInt32(request->scenario);
     dataToStub.WriteDouble(request->geofence.latitude);
@@ -861,9 +861,10 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
         isAvailable = false;
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errorCode = SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replyParcel);
+    SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replyParcel);
+    LocationErrCode errorCode = LocationErrCode(replyParcel.ReadInt32());
     if (errorCode == ERRCODE_SUCCESS) {
         isAvailable = replyParcel.ReadBool();
     } else {
@@ -876,9 +877,8 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
-    MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        reply.WriteInt32(ERRCODE_INVALID_TOKEN);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
@@ -889,28 +889,15 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
     dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
     dataParcel.WriteString16(data.ReadString16()); // ""
-    LocationErrCode errorCode = SendGeoRequest(GET_FROM_COORDINATE, dataParcel, replyParcel);
-    reply.WriteInt32(errorCode);
-    if (errorCode == ERRCODE_SUCCESS) {
-        int resultSize = replyParcel.ReadInt32();
-        if (resultSize > GeoAddress::MAX_RESULT) {
-            resultSize = GeoAddress::MAX_RESULT;
-        }
-        reply.WriteInt32(resultSize);
-        for (int i = 0; i < resultSize; i++) {
-            auto geoAddress = GeoAddress::Unmarshalling(replyParcel);
-            geoAddress->Marshalling(reply);
-        }
-    }
+    SendGeoRequest(GET_FROM_COORDINATE, dataParcel, reply);
 }
 
 void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByLocationName");
     MessageParcel dataParcel;
-    MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        reply.WriteInt32(ERRCODE_INVALID_TOKEN);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
     dataParcel.WriteString16(data.ReadString16()); // description
@@ -924,9 +911,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
     dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
     dataParcel.WriteString16(data.ReadString16()); // ""
-    SendGeoRequest(GET_FROM_LOCATION_NAME, dataParcel, replyParcel);
-    reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-    reply.WriteInt32(replyParcel.ReadInt32());
+    SendGeoRequest(GET_FROM_LOCATION_NAME, dataParcel, reply);
 }
 
 LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply)
@@ -934,11 +919,12 @@ LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, Me
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
         CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     MessageOption option;
     remoteObject->SendRequest(type, data, reply, option);
-    return LocationErrCode(reply.ReadInt32());
+    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
@@ -946,9 +932,10 @@ LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    return LocationErrCode(replyParcel.ReadInt32());
 }
 
 LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
@@ -956,9 +943,10 @@ LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    return LocationErrCode(replyParcel.ReadInt32());
 }
 
 LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
@@ -966,13 +954,14 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return ERRCODE_INVALID_TOKEN;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataParcel.WriteInt32(mockInfo.size());
     for (size_t i = 0; i < mockInfo.size(); i++) {
         mockInfo[i]->Marshalling(dataParcel);
     }
-    return SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
+    SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
+    return LocationErrCode(replyParcel.ReadInt32());
 }
 
 LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)

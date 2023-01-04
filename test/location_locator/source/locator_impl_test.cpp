@@ -155,9 +155,8 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbility001, TestSize.Level1)
     sleep(1);
     
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbility(false));
-    int state = STATE_CLOSE;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabled(state));
-    EXPECT_EQ(STATE_CLOSE, state);
+    bool isEnabled = false;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabled(isEnabled));
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbility001 end");
@@ -175,9 +174,8 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbility002, TestSize.Level1)
     sleep(1);
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbility(true));
-    int state = STATE_CLOSE;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabled(state));
-    EXPECT_EQ(STATE_OPEN, state);
+    bool isEnabled = false;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabled(isEnabled));
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbility002 end");

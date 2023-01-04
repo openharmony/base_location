@@ -754,9 +754,8 @@ std::string GetErrorMsgByCode(int code)
         {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"},
         {QUERY_COUNTRY_CODE_ERROR, "QUERY_COUNTRY_CODE_ERROR"},
         {LocationErrCode::ERRCODE_SUCCESS, "SUCCESS."},
-        {LocationErrCode::ERRCODE_INVALID_TOKEN, "Invalid token."},
         {LocationErrCode::ERRCODE_PERMISSION_DENIED, "Permission denied."},
-        {LocationErrCode::ERRCODE_SYSTEM_PERMISSION_DENIED, "System permission denied."},
+        {LocationErrCode::ERRCODE_SYSTEM_PERMISSION_DENIED, "System API is not allowed called by third HAP."},
         {LocationErrCode::ERRCODE_INVALID_PARAM, "Parameter error."},
         {LocationErrCode::ERRCODE_NOT_SUPPORTED, "Capability not supported."},
         {LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE, "Location service is unavailable."},
@@ -972,20 +971,6 @@ bool CheckIfParamIsFunctionType(napi_env env, napi_value param)
         return false;
     }
     return true;
-}
-
-LocationErrCode CheckLocationSwitchState()
-{
-    int state = DISABLED;
-    auto locatorImpl = Locator::GetInstance();
-    LocationErrCode errorCode = locatorImpl->IsLocationEnabled(state);
-    if (errorCode != ERRCODE_SUCCESS) {
-        return errorCode;
-    }
-    if (state == DISABLED) {
-        return ERRCODE_SWITCH_OFF;
-    }
-    return ERRCODE_SUCCESS;
 }
 }  // namespace Location
 }  // namespace OHOS

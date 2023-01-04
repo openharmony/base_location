@@ -30,37 +30,53 @@ int GeoConvertProxy::IsGeoConvertAvailable(MessageParcel &reply)
 
 int GeoConvertProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
+    int error = ERRCODE_SERVICE_UNAVAILABLE;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
-        return ERRCODE_INVALID_TOKEN;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int errorCode = SendMsgWithDataReply(GET_FROM_COORDINATE, data, reply);
+    error = SendMsgWithDataReply(GET_FROM_COORDINATE, data, reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByCoordinate result from server.");
-    return errorCode;
+    if (error != ERRCODE_SUCCESS) {
+        reply.WriteInt32(error);
+    }
+    return error;
 }
 
 int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
+    int error = ERRCODE_SERVICE_UNAVAILABLE;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
-        return ERRCODE_INVALID_TOKEN;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int errorCode = SendMsgWithDataReply(GET_FROM_LOCATION_NAME_BY_BOUNDARY, data, reply);
+    error = SendMsgWithDataReply(GET_FROM_LOCATION_NAME_BY_BOUNDARY, data, reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
-    return errorCode;
+    if (error != ERRCODE_SUCCESS) {
+        reply.WriteInt32(error);
+    }
+    return error;
 }
 
 int GeoConvertProxy::SendSimpleMsg(const int msgId, MessageParcel& reply)
 {
+    int error = ERRCODE_SERVICE_UNAVAILABLE;
     MessageParcel data;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
-        return ERRCODE_INVALID_TOKEN;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return SendMsgWithDataReply(msgId, data, reply);
+    error = SendMsgWithDataReply(msgId, data, reply);
+    if (error != ERRCODE_SUCCESS) {
+        reply.WriteInt32(error);
+    }
+    return error;
 }
 
 int GeoConvertProxy::SendMsgWithDataReply(const int msgId, MessageParcel& data, MessageParcel& reply)
@@ -69,6 +85,7 @@ int GeoConvertProxy::SendMsgWithDataReply(const int msgId, MessageParcel& data, 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GEO_CONVERT, "SendMsgWithDataReply remote is null");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     remote->SendRequest(msgId, data, reply, option);
@@ -78,8 +95,13 @@ int GeoConvertProxy::SendMsgWithDataReply(const int msgId, MessageParcel& data, 
 
 bool GeoConvertProxy::SendSimpleMsgAndParseResult(const int msgId)
 {
+    bool result = false;
     MessageParcel reply;
-    return SendSimpleMsg(msgId, reply) == ERRCODE_SUCCESS;
+    int error = SendSimpleMsg(msgId, reply);
+    if (error == ERRCODE_SUCCESS) {
+        result = true;
+    }
+    return result;
 }
 
 bool GeoConvertProxy::EnableReverseGeocodingMock()
@@ -105,8 +127,12 @@ bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Ge
     for (size_t i = 0; i < mockInfo.size(); i++) {
         mockInfo[i]->Marshalling(data);
     }
-    int errorCode = SendMsgWithDataReply(SET_REVERSE_GEOCODE_MOCKINFO, data, reply);
-    return errorCode == ERRCODE_SUCCESS;
+    int error = SendMsgWithDataReply(SET_REVERSE_GEOCODE_MOCKINFO, data, reply);
+    bool result = false;
+    if (error == ERRCODE_SUCCESS) {
+        result = true;
+    }
+    return result;
 }
 } // namespace Location
 } // namespace OHOS

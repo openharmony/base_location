@@ -37,10 +37,10 @@ bool LocatorImpl::Init()
     return true;
 }
 
-LocationErrCode LocatorImpl::IsLocationEnabled(int &state)
+LocationErrCode LocatorImpl::IsLocationEnabled(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabled()");
-    return client_->GetSwitchState(state);
+    return client_->GetSwitchState(isEnabled);
 }
 
 LocationErrCode LocatorImpl::ShowNotification()
