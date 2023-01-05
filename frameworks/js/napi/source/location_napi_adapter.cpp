@@ -145,10 +145,10 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_create_string_latin1(env, "enableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
     asyncContext->executeFunc = [&](void* data) -> void {
-#ifdef ENABLE_NAPI_MANAGER
-        g_locatorClient->EnableAbilityV9(true);
-#else
         auto context = static_cast<SwitchAsyncContext*>(data);
+#ifdef ENABLE_NAPI_MANAGER
+        context->errCode = g_locatorClient->EnableAbilityV9(true);
+#else
         g_locatorClient->EnableAbility(true);
         context->errCode = SUCCESS;
 #endif
@@ -297,8 +297,8 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
 #endif
             return;
         }
-        bool isAvailable = false;
 #ifdef ENABLE_NAPI_MANAGER
+        bool isAvailable = false;
         LocationErrCode errorCode = g_locatorClient->IsGeoServiceAvailableV9(isAvailable);
         if (errorCode != ERRCODE_SUCCESS) {
             context->errCode = errorCode;
@@ -337,7 +337,7 @@ void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
         auto context = static_cast<GeoCodeAsyncContext*>(data);
         if (context->errCode != SUCCESS) {
             return;
-        } 
+        }
 #ifdef ENABLE_NAPI_MANAGER
         bool isAvailable = false;
         LocationErrCode errorCode = g_locatorClient->IsGeoServiceAvailableV9(isAvailable);
@@ -447,7 +447,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
 #ifdef ENABLE_NAPI_MANAGER
     if (valueType != napi_object) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);  
+        return UndefinedNapiValue(env);
     }
 #else
     NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
@@ -551,9 +551,8 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
-        LocationErrCode errorCode;
 #ifdef ENABLE_NAPI_MANAGER
-        errorCode = CheckLocationSwitchState();
+        LocationErrCode errorCode = CheckLocationSwitchState();
         if (errorCode != ERRCODE_SUCCESS) {
             context->errCode = errorCode;
             return;
@@ -601,9 +600,8 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
 
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
-        LocationErrCode errorCode;
 #ifdef ENABLE_NAPI_MANAGER
-        errorCode = CheckLocationSwitchState();
+        LocationErrCode errorCode = CheckLocationSwitchState();
         if (errorCode != ERRCODE_SUCCESS) {
             context->errCode = errorCode;
             return;

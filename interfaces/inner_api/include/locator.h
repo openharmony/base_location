@@ -110,7 +110,8 @@ public:
     virtual LocationErrCode RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual LocationErrCode EnableReverseGeocodingMockV9() = 0;
     virtual LocationErrCode DisableReverseGeocodingMockV9() = 0;
-    virtual LocationErrCode SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
+    virtual LocationErrCode SetReverseGeocodingMockInfoV9(
+        std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
     virtual LocationErrCode GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode) = 0;
     virtual LocationErrCode EnableLocationMockV9() = 0;
     virtual LocationErrCode DisableLocationMockV9() = 0;

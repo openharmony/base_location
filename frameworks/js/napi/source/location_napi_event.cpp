@@ -345,16 +345,7 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
         }
         auto context = static_cast<SingleLocationAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
-#ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = CheckLocationSwitchEnable();
-        if (errorCode != ERRCODE_SUCCESS) {
-            context->errCode = errorCode;
-            return;
-        }
-        if (callbackHost != nullptr) {
-#else
         if (g_locatorProxy->IsLocationEnabled() && callbackHost != nullptr) {
-#endif
             callbackHost->Wait(context->timeout_);
             auto callbackPtr = sptr<ILocatorCallback>(callbackHost);
             g_locatorProxy->StopLocating(callbackPtr);
@@ -440,7 +431,7 @@ napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const nap
     auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();
     NAPI_ASSERT(env, singleLocatorCallbackHost != nullptr, "callbackHost is null.");
 
-    if(g_locatorProxy->IsLocationEnabled()) {
+    if (g_locatorProxy->IsLocationEnabled()) {
         auto callbackPtr = sptr<ILocatorCallback>(singleLocatorCallbackHost);
         g_locatorProxy->StartLocating(requestConfig, callbackPtr);
     }
@@ -450,6 +441,7 @@ napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const nap
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
+#ifdef ENABLE_NAPI_MANAGER
 napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const napi_value* argv)
 {
     size_t objectArgsNum = 0;
@@ -483,6 +475,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
     }
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
+#endif
 
 void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback)
 {
@@ -708,7 +701,7 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeNmeaMessageV9(env, handlerRef, nmeaCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
-            HandleSyncErrCode(env, ret);
+            HandleSyncErrCode(env, errorCode);
             return false;
         }
 #else

@@ -20,7 +20,6 @@
 
 #include "geo_coding_mock_info.h"
 #include "i_locator_callback.h"
-#include "locator.h"
 #include "locator_background_proxy.h"
 #include "locator_proxy.h"
 #include "request.h"
@@ -38,11 +37,11 @@ public:
     void MockNativePermission();
     std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
 
+    sptr<LocatorProxy> proxy_;
     sptr<ILocatorCallback> callbackStub_;
     std::shared_ptr<LocatorBackgroundProxy> backgroundProxy_;
     std::shared_ptr<Request> request_;
     std::shared_ptr<RequestManager> requestManager_;
-    std::unique_ptr<Locator> locatorImpl_;
     uint64_t tokenId_;
 };
 } // namespace Location

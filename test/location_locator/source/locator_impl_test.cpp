@@ -116,82 +116,82 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorImplTest::SetGeocodingMoc
     return geoMockInfos;
 }
 
-HWTEST_F(LocatorImplTest, locatorImplShowNotification, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplShowNotificationV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplShowNotification, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplShowNotification begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ShowNotification());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplShowNotification end");
+        << "LocatorImplTest, locatorImplShowNotificationV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplShowNotificationV9 begin");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ShowNotificationV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplShowNotificationV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplRequestPermission, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplRequestPermissionV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplRequestPermission, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestPermission begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RequestPermission());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestPermission end");
+        << "LocatorImplTest, locatorImplRequestPermissionV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestPermissionV9 begin");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RequestPermissionV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestPermissionV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplRequestEnableLocation, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplRequestEnableLocationV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplRequestEnableLocation, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestEnableLocation begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RequestEnableLocation());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestEnableLocation end");
+        << "LocatorImplTest, locatorImplRequestEnableLocationV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestEnableLocationV9 begin");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RequestEnableLocationV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestEnableLocationV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplEnableAbility001, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplEnableAbility001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbility001 begin");
+        << "LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9001 begin");
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
     EXPECT_NE(nullptr, switchCallbackHost);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject(), 1000));
     sleep(1);
     
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbility(false));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(false));
     bool isEnabled = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabled(isEnabled));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbility001 end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject()));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplEnableAbility002, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplEnableAbility002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbility002 begin");
+        << "LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 begin");
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
     EXPECT_NE(nullptr, switchCallbackHost);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject(), 1000));
     sleep(1);
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbility(true));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(true));
     bool isEnabled = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabled(isEnabled));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbility002 end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject()));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetCachedLocation, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetCachedLocation, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocation begin");
+        << "LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 begin");
     
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableLocationMock()); // mock switch on
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableLocationMockV9()); // mock switch on
 
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_ACCURACY);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocating(requestConfig, callbackStub_)); // startLocating first
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocatingV9(requestConfig, callbackStub_)); // startLocating first
     sleep(1);
 
     int timeInterval = 0;
@@ -212,70 +212,70 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocation, TestSize.Level1)
     parcel.WriteInt32(0); // floor no.
     parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetMockedLocations(timeInterval, locations)); // set fake locations
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetMockedLocationsV9(timeInterval, locations)); // set fake locations
     sleep(1);
 
     std::unique_ptr<Location> loc = std::make_unique<Location>();
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetCachedLocation(loc)); // get last location
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetCachedLocationV9(loc)); // get last location
     ASSERT_TRUE(loc != nullptr);
     EXPECT_EQ(10.6, loc->GetLatitude());
     EXPECT_EQ(10.5, loc->GetLongitude());
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocating(callbackStub_));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableLocationMock());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocation end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableLocationMockV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplPrivacyState001, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplPrivacyState001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState001 begin");
+        << "LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyStateV9001 begin");
     bool isConfirmed = false;
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->SetLocationPrivacyConfirmStatus(INVALID_PRIVACY_TYPE, true));
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->IsLocationPrivacyConfirmed(INVALID_PRIVACY_TYPE, isConfirmed));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->SetLocationPrivacyConfirmStatusV9(INVALID_PRIVACY_TYPE, true));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->IsLocationPrivacyConfirmedV9(INVALID_PRIVACY_TYPE, isConfirmed));
     EXPECT_EQ(false, isConfirmed);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyState001 end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyStateV9001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetCachedGnssLocationsSize, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGetCachedGnssLocationsSizeV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetCachedGnssLocationsSize, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedGnssLocationsSize begin");
+        << "LocatorImplTest, locatorImplGetCachedGnssLocationsSizeV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedGnssLocationsSizeV9 begin");
     int size = INVALID_CACHED_SIZE;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetCachedGnssLocationsSize(size));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetCachedGnssLocationsSizeV9(size));
     EXPECT_EQ(INVALID_CACHED_SIZE, size);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedGnssLocationsSize end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedGnssLocationsSizeV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplFlushCachedGnssLocations, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplFlushCachedGnssLocationsV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplFlushCachedGnssLocations, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplFlushCachedGnssLocations begin");
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->FlushCachedGnssLocations());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplFlushCachedGnssLocations end");
+        << "LocatorImplTest, locatorImplFlushCachedGnssLocationsV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplFlushCachedGnssLocationsV9 begin");
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->FlushCachedGnssLocationsV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplFlushCachedGnssLocationsV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplSendCommand, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplSendCommandV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplSendCommand, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSendCommand begin");
+        << "LocatorImplTest, locatorImplSendCommandV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSendCommandV9 begin");
     std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
     command->scenario = SCENE_NAVIGATION;
     command->command = "cmd";
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SendCommand(command));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSendCommand end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SendCommandV9(command));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSendCommandV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplRequestFence, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplRequestFence, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFence begin");
+        << "LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 begin");
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;
@@ -284,73 +284,73 @@ HWTEST_F(LocatorImplTest, locatorImplRequestFence, TestSize.Level1)
     geofence.radius = 3.0;
     geofence.expiration = 4.0;
     fenceRequest->geofence = geofence;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->AddFence(fenceRequest));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RemoveFence(fenceRequest));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFence end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->AddFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RemoveFenceV9(fenceRequest));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCode, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCodeV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetIsoCountryCode, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetIsoCountryCode begin");
+        << "LocatorImplTest, locatorImplGetIsoCountryCodeV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetIsoCountryCodeV9 begin");
 
     auto countryCodeCallbackHost =
         sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCountryCodeCallback(countryCodeCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject(), 1000));
     sleep(1);
 
     std::shared_ptr<CountryCode> countryCode = std::make_shared<CountryCode>();
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetIsoCountryCode(countryCode));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetIsoCountryCodeV9(countryCode));
     ASSERT_TRUE(countryCode != nullptr);
     LBSLOGI(LOCATOR, "countrycode : %{public}s", countryCode->ToString().c_str());
     sleep(1);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterCountryCodeCallback(countryCodeCallbackHost->AsObject()));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetIsoCountryCode end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject()));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetIsoCountryCodeV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplProxyUidForFreeze, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplProxyUidForFreezeV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplProxyUidForFreeze, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreeze begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ProxyUidForFreeze(SYSTEM_UID, true));
+        << "LocatorImplTest, locatorImplProxyUidForFreezeV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreezeV9 begin");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ProxyUidForFreezeV9(SYSTEM_UID, true));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ProxyUidForFreeze(SYSTEM_UID, false));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ProxyUidForFreezeV9(SYSTEM_UID, false));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ResetAllProxy());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreeze end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ResetAllProxyV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreezeV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailable001 begin");
+        << "LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailableV9001 begin");
     bool isAvailable = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableReverseGeocodingMock());
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsGeoServiceAvailable(isAvailable));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableReverseGeocodingMockV9());
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsGeoServiceAvailableV9(isAvailable));
     EXPECT_EQ(true, isAvailable);
 
     isAvailable = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMock());
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->IsGeoServiceAvailable(isAvailable));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->IsGeoServiceAvailableV9(isAvailable));
     EXPECT_EQ(false, isAvailable);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailable001 end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailableV9001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinate001, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetAddressByCoordinate001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinate001 begin");
+        << "LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9001 begin");
     MessageParcel request001;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableReverseGeocodingMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableReverseGeocodingMockV9());
 
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetReverseGeocodingMockInfo(mockInfos));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetReverseGeocodingMockInfoV9(mockInfos));
     request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     request001.WriteDouble(MOCK_LATITUDE); // latitude
     request001.WriteDouble(MOCK_LONGITUDE); // longitude
@@ -360,21 +360,21 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinate001, TestSize.Level1)
     request001.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request001.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request001.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetAddressByCoordinate(request001, geoAddressList001));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetAddressByCoordinateV9(request001, geoAddressList001));
     EXPECT_EQ(false, geoAddressList001.empty());
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMock());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinate001 end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinate002, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetAddressByCoordinate002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinate002 begin");
+        << "LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9002 begin");
     MessageParcel request002;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
 
     request002.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     request002.WriteDouble(1.0); // latitude
@@ -385,16 +385,16 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinate002, TestSize.Level1)
     request002.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request002.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request002.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->GetAddressByCoordinate(request002, geoAddressList002));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->GetAddressByCoordinateV9(request002, geoAddressList002));
     EXPECT_EQ(true, geoAddressList002.empty());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinate002 end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9002 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationName001, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationNameV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetAddressByLocationName001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationName001 begin");
+        << "LocatorImplTest, locatorImplGetAddressByLocationNameV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationNameV9001 begin");
     MessageParcel request003;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList003;
     request003.WriteInterfaceToken(LocatorProxy::GetDescriptor());
@@ -409,16 +409,16 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationName001, TestSize.Level
     request003.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request003.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request003.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->GetAddressByLocationName(request003, geoAddressList003));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->GetAddressByLocationNameV9(request003, geoAddressList003));
     EXPECT_EQ(true, geoAddressList003.empty());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationName001 end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationNameV9001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallback001, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallbackV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplRegisterAndUnregisterCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallback001 begin");
+        << "LocatorImplTest, locatorImplRegisterAndUnregisterCallbackV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallbackV9001 begin");
     auto cachedLocationsCallbackHost =
         sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
     EXPECT_NE(nullptr, cachedLocationsCallbackHost);
@@ -428,45 +428,27 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallback001, TestSize.
     EXPECT_NE(nullptr, request);
     request->reportingPeriodSec = 10;
     request->wakeUpCacheQueueFull = true;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCachedLocationCallback(request, cachedCallback));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterCachedLocationCallback(cachedCallback));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallback001 end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCachedLocationCallbackV9(request, cachedCallback));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterCachedLocationCallbackV9(cachedCallback));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallbackV9001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGnssStatusCallback, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGnssStatusCallbackV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGnssStatusCallback, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGnssStatusCallback begin");
+        << "LocatorImplTest, locatorImplGnssStatusCallbackV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGnssStatusCallbackV9 begin");
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_ACCURACY);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocating(requestConfig, callbackStub_)); // startLocating first
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocatingV9(requestConfig, callbackStub_)); // startLocating first
     sleep(1);
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterGnssStatusCallback(gnssCallbackHost->AsObject(), SYSTEM_UID));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject(), SYSTEM_UID));
     sleep(1);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterGnssStatusCallback(gnssCallbackHost->AsObject()));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocating(callbackStub_)); // after reg, stop locating
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGnssStatusCallback end");
-}
-
-HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallback, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplNmeaMessageCallback, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallback begin");
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_ACCURACY);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocating(requestConfig, callbackStub_)); // startLocating first
-    sleep(1);
-    auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), SYSTEM_UID));
-    sleep(1);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocating(callbackStub_)); // after reg, stop locating
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallback end");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_)); // after reg, stop locating
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGnssStatusCallbackV9 end");
 }
 
 HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
@@ -476,15 +458,17 @@ HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallbackV9001 begin");
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_ACCURACY);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocating(requestConfig, callbackStub_)); // startLocating first
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocatingV9(requestConfig, callbackStub_)); // startLocating first
     sleep(1);
     auto nmeaCallbackHost =
         sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
     sleep(1);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocating(callbackStub_)); // after reg, stop locating
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_)); // after reg, stop locating
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallbackV9001 end");
 }
+
+
 }  // namespace Location
 }  // namespace OHOS

@@ -51,6 +51,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
+const double MOCK_LATITUDE = 99.0;
+const double MOCK_LONGITUDE = 100.0;
 const int REQUEST_MAX_NUM = 3;
 const int UNKNOWN_SERVICE_ID = -1;
 const std::string ARGS_HELP = "-h";
@@ -60,8 +62,13 @@ void LocatorServiceTest::SetUp()
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
     MockNativePermission();
-    locatorImpl_ = Locator::GetInstance();
-    EXPECT_NE(nullptr, locatorImpl_);
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(nullptr, systemAbilityManager);
+    sptr<IRemoteObject> object = systemAbilityManager->GetSystemAbility(LOCATION_LOCATOR_SA_ID);
+    EXPECT_NE(nullptr, object);
+    proxy_ = new (std::nothrow) LocatorProxy(object);
+    EXPECT_NE(nullptr, proxy_);
     callbackStub_ = new (std::nothrow) LocatorCallbackStub();
     EXPECT_NE(nullptr, callbackStub_);
     backgroundProxy_ = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
@@ -82,6 +89,7 @@ void LocatorServiceTest::TearDown()
     /*
      * @tc.teardown: release memory.
      */
+    proxy_ = nullptr;
     callbackStub_ = nullptr;
 }
 
@@ -124,9 +132,66 @@ bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
 {
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     std::unique_ptr<RequestConfig> requestConfig = RequestConfig::Unmarshalling(data);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->StartLocating(requestConfig, callbackStub_));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->StopLocating(callbackStub_));
+    locatorImpl->StartLocating(requestConfig, callbackStub_);
+    locatorImpl->StopLocating(callbackStub_);
     return true;
+}
+
+std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocodingMockInfo()
+{
+    std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfos;
+    std::shared_ptr<GeocodingMockInfo> geocodingMockInfo =
+        std::make_shared<GeocodingMockInfo>();
+    MessageParcel parcel;
+    parcel.WriteString16(Str8ToStr16("locale"));
+    parcel.WriteDouble(MOCK_LATITUDE); // latitude
+    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
+    parcel.WriteInt32(1);
+    parcel.WriteString("localeLanguage");
+    parcel.WriteString("localeCountry");
+    parcel.WriteInt32(1); // size
+    parcel.WriteInt32(0); // line
+    parcel.WriteString("line");
+    parcel.WriteString("placeName");
+    parcel.WriteString("administrativeArea");
+    parcel.WriteString("subAdministrativeArea");
+    parcel.WriteString("locality");
+    parcel.WriteString("subLocality");
+    parcel.WriteString("roadName");
+    parcel.WriteString("subRoadName");
+    parcel.WriteString("premises");
+    parcel.WriteString("postalCode");
+    parcel.WriteString("countryCode");
+    parcel.WriteString("countryName");
+    parcel.WriteInt32(1); // hasLatitude
+    parcel.WriteDouble(MOCK_LATITUDE); // latitude
+    parcel.WriteInt32(1); // hasLongitude
+    parcel.WriteDouble(MOCK_LONGITUDE); // longitude
+    parcel.WriteString("phoneNumber");
+    parcel.WriteString("addressUrl");
+    parcel.WriteBool(true);
+    geocodingMockInfo->ReadFromParcel(parcel);
+    geoMockInfos.emplace_back(std::move(geocodingMockInfo));
+    return geoMockInfos;
+}
+
+/*
+ * @tc.name: CheckSwitchState001
+ * @tc.desc: Check location switch state expect success
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, CheckSwitchState001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. Call system ability and check switch state whether available.
+     * @tc.expected: step1. get switch state is available.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, CheckSwitchState001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckSwitchState001 begin");
+    int result = proxy_->GetSwitchState();
+    EXPECT_EQ(true, (result == ENABLED || result == DISABLED));
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckSwitchState001 end");
 }
 
 /*
@@ -190,8 +255,37 @@ HWTEST_F(LocatorServiceTest, CheckStopLocating001, TestSize.Level1)
         << "LocatorServiceTest, CheckStopLocating001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckStopLocating001 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->StopLocating(callbackStub_));
+    locatorImpl->StopLocating(callbackStub_);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckStopLocating001 end");
+}
+
+/*
+ * @tc.name: CheckGetCacheLocation001
+ * @tc.desc: Check get cache location and expect success
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. Call system ability and get cache location.
+     * @tc.expected: step1. get reply state is true.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, CheckGetCacheLocation001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckGetCacheLocation001 begin");
+    MessageParcel data;
+    MessageParcel reply;
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->GetCacheLocation(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        EXPECT_EQ(false, ret);
+    } else {
+        proxy_->GetCacheLocation(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SECURITY_EXCEPTION;
+        EXPECT_EQ(false, ret);
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckGetCacheLocation001 end");
 }
 
 /*
@@ -296,6 +390,850 @@ HWTEST_F(LocatorServiceTest, OnSaStateChange001, TestSize.Level1)
     EXPECT_EQ(false, result);
     backgroundProxy_->OnDeleteRequestRecord(request_);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] OnSaStateChange001 end");
+}
+
+/*
+ * @tc.name: UpdateSaAbility001
+ * @tc.desc: Test update sa ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UpdateSaAbility001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test update sa ability
+     * @tc.expected: step1. no exception happens
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, UpdateSaAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UpdateSaAbility001 begin");
+    proxy_->UpdateSaAbility();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UpdateSaAbility001 end");
+}
+
+/*
+ * @tc.name: SetEnableAndDisable001
+ * @tc.desc: Test disable and enable system ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetEnableAndDisable001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.test the switch enable and disable function
+     * @tc.expected: step1. switch set should be true, or setting will return error.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, SetEnableAndDisable001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetEnableAndDisable001 begin");
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->EnableAbility(false); // if the state is false
+        ret = proxy_ -> GetSwitchState() == 0 ? true : false;
+        EXPECT_EQ(true, ret);
+        // reset the state
+        proxy_->EnableAbility(true);
+    } else {
+        proxy_->EnableAbility(true); // if the state is false
+        ret = proxy_ -> GetSwitchState() == 1 ? true : false;
+        EXPECT_EQ(true, ret);
+        // reset the state
+        proxy_->EnableAbility(false);
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetEnableAndDisable001 end");
+}
+
+/*
+ * @tc.name: RegisterSwitchCallback001
+ * @tc.desc: Test register switch callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterSwitchCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterSwitchCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterSwitchCallback001 begin");
+    pid_t callinguid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register switch callback
+     * @tc.expected: log exception: "register an invalid switch callback"
+     */
+    proxy_->RegisterSwitchCallback(client, callinguid);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterSwitchCallback001 end");
+}
+
+/*
+ * @tc.name: RegisterSwitchCallback002
+ * @tc.desc: Test register and unregister switch callback if client is not null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterSwitchCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the calling uid
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterAndUnregisterSwitchCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterSwitchCallback001 begin");
+    pid_t callinguid = 1;
+
+    /*
+     * @tc.steps: step2. test register switch callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterSwitchCallback(callbackStub_->AsObject(), callinguid);
+
+    /*
+     * @tc.steps: step3. test unregister switch callback
+     * @tc.steps: step4. continue to test unregister switch callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->UnregisterSwitchCallback(callbackStub_->AsObject());
+
+    proxy_->UnregisterSwitchCallback(callbackStub_->AsObject());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterSwitchCallback001 end");
+}
+
+/*
+ * @tc.name: UnregisterSwitchCallback001
+ * @tc.desc: Test unregister switch callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterSwitchCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, UnregisterSwitchCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterSwitchCallback001 begin");
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister switch callback
+     * @tc.expected: log exception: LOCATOR: unregister an invalid switch callback
+     */
+    proxy_->UnregisterSwitchCallback(client);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterSwitchCallback001 end");
+}
+
+/*
+ * @tc.name: RegisterNmeaMessageCallback001
+ * @tc.desc: Test register nmea message callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterNmeaMessageCallback001 begin");
+    pid_t uid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register nmea message callback
+     * @tc.expected: log info : "register an invalid nmea callback".
+     */
+    proxy_->RegisterNmeaMessageCallback(client, uid);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterNmeaMessageCallback001 end");
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterNmeaMessageCallback001
+ * @tc.desc: Test register nmea message callback and then unregister twice , the first will unreg success,
+ * and the second will not return error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is not null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterNmeaMessageCallback001 begin");
+    pid_t uid = 1;
+
+    /*
+     * @tc.steps: step2. test register nmea message callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->RegisterNmeaMessageCallback(callbackStub_->AsObject(), uid);
+
+    /*
+     * @tc.steps: step3. test unregister nmea message callback
+     * @tc.steps: step4. continue to test unregister nmea message callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
+    proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterNmeaMessageCallback001 end");
+}
+
+/*
+ * @tc.name: UnregisterNmeaMessageCallback001
+ * @tc.desc: Test unregister nmea message callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterNmeaMessageCallback001 begin");
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister nmea message callback
+     * @tc.expected: log info : "unregister an invalid nmea callback".
+     */
+    proxy_->UnregisterNmeaMessageCallback(client);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterNmeaMessageCallback001 end");
+}
+
+/*
+ * @tc.name: GetAddressByLocationName001
+ * @tc.desc: Test get address by location name
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetAddressByLocationName001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetAddressByLocationName001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByLocationName001 begin");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    data.WriteString16(Str8ToStr16("")); // description
+    data.WriteDouble(10.0); // minLatitude
+    data.WriteDouble(1.0); // minLongitude
+    data.WriteDouble(10.0); // maxLatitude
+    data.WriteDouble(10.0); // maxLongitude
+    data.WriteInt32(10); // maxItems
+    data.WriteInt32(1); // locale object size = 1
+    data.WriteString16(Str8ToStr16("ZH")); // locale.getLanguage()
+    data.WriteString16(Str8ToStr16("cn")); // locale.getCountry()
+    data.WriteString16(Str8ToStr16("")); // locale.getVariant()
+    data.WriteString16(Str8ToStr16("")); // ""
+
+    /*
+     * @tc.steps: step2. test get address by location name
+     * @tc.expected: return REPLY_CODE_NO_EXCEPTION.
+     */
+    proxy_->GetAddressByLocationName(data, reply);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply.ReadInt32());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByLocationName001 end");
+}
+
+/*
+ * @tc.name: RegisterGnssStatusCallback001
+ * @tc.desc: Test register gnss status callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterGnssStatusCallback001 begin");
+    pid_t lastCallingUid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register gnss status callback
+     * @tc.expected: log info : "SendRegisterMsgToRemote callback is nullptr".
+     */
+    proxy_->RegisterGnssStatusCallback(client, lastCallingUid);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterGnssStatusCallback001 end");
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterGnssStatusCallback001
+ * @tc.desc: Test register and unregister gnss status callback if client is not null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the last calling uid
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterGnssStatusCallback001 begin");
+    pid_t lastCallingUid = 1;
+
+    /*
+     * @tc.steps: step2. test register gnss status callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterGnssStatusCallback(callbackStub_->AsObject(), lastCallingUid);
+
+    /*
+     * @tc.steps: step3. test unregister gnss status callback
+     * @tc.steps: step4. continue to test unregister gnss status callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
+    proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterGnssStatusCallback001 end");
+}
+
+/*
+ * @tc.name: UnregisterGnssStatusCallback001
+ * @tc.desc: Test unregister gnss status callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterGnssStatusCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, UnregisterGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterGnssStatusCallback001 begin");
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister gnss status callback
+     * @tc.expected: log info : "unregister an invalid gnssStatus callback".
+     */
+    proxy_->UnregisterGnssStatusCallback(client);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterGnssStatusCallback001 end");
+}
+
+/*
+ * @tc.name: IsGeoConvertAvailable001
+ * @tc.desc: Test geo convert available
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, IsGeoConvertAvailable001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test geo convert available .
+     * @tc.expected: step1. get reply state is true.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsGeoConvertAvailable001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsGeoConvertAvailable001 begin");
+    MessageParcel reply;
+    bool ret = false;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->IsGeoConvertAvailable(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_NO_EXCEPTION ? true : false; // exception info
+        // no location permission
+        EXPECT_EQ(false, ret);
+    } else {
+        proxy_->IsGeoConvertAvailable(reply);
+        ret = reply.ReadInt32() == REPLY_CODE_SWITCH_OFF_EXCEPTION ? true : false;
+        // no location permission
+        EXPECT_EQ(false, ret);
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsGeoConvertAvailable001 end");
+}
+
+/*
+ * @tc.name: GetAddressByCoordinate001
+ * @tc.desc: Test get address by coordinate
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build the data.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByCoordinate001 begin");
+    MessageParcel reply;
+    MessageParcel data;
+    data.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    data.WriteDouble(10.5); // latitude
+    data.WriteDouble(30.2); // longitude
+    data.WriteInt32(10); // maxItems
+    data.WriteInt32(1); // locale object size = 1
+    data.WriteString16(Str8ToStr16("ZH")); // locale.getLanguage()
+    data.WriteString16(Str8ToStr16("cn")); // locale.getCountry()
+    data.WriteString16(Str8ToStr16("")); // locale.getVariant()
+    data.WriteString16(Str8ToStr16("")); // ""
+    
+    /*
+     * @tc.steps: step2. test get address by coordinate.
+     * @tc.expected: step2. get reply state is true.
+     */
+    proxy_->GetAddressByCoordinate(data, reply);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply.ReadInt32());
+
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByCoordinate001 end");
+}
+
+/*
+ * @tc.name: SetAndCheckLocationPrivacyConfirmStatus001
+ * @tc.desc: Test set and check the status
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. set PRIVACY_TYPE_OTHERS type status true.
+     * @tc.steps: step2. set PRIVACY_TYPE_STARTUP type status false.
+     * @tc.steps: step3. set PRIVACY_TYPE_CORE_LOCATION type default.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetAndCheckLocationPrivacyConfirmStatus001 begin");
+    proxy_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_OTHERS, true);
+    proxy_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, false);
+
+    /*
+     * @tc.steps: step4. location privacy confirm should be true when the type is PRIVACY_TYPE_OTHERS.
+     * @tc.steps: step5. location privacy confirm should be false when the type is PRIVACY_TYPE_STARTUP.
+     * @tc.steps: step6. location privacy confirm should be false when the type is PRIVACY_TYPE_CORE_LOCATION.
+     * @tc.steps: step7. location privacy confirm should be false when the type is invalid.
+     * @tc.expected: no exception happens
+     */
+    proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_OTHERS);
+    proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP);
+    proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_CORE_LOCATION);
+    proxy_->IsLocationPrivacyConfirmed(-1);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetAndCheckLocationPrivacyConfirmStatus001 end");
+}
+
+/*
+ * @tc.name: RegisterCountryCodeCallback001
+ * @tc.desc: Test register country code callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterCountryCodeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1.the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterCountryCodeCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterCountryCodeCallback001 begin");
+    pid_t callinguid = 1;
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test register country code callback
+     * @tc.expected: log info : "RegisterCountryCodeCallback countryCodeManager_ is nullptr".
+     */
+    proxy_->RegisterCountryCodeCallback(client, callinguid);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterCountryCodeCallback001 end");
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterCountryCodeCallback001
+ * @tc.desc: Test register and unregister country code callback if client is not null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCountryCodeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the last calling uid
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterAndUnregisterCountryCodeCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCountryCodeCallback001 begin");
+    pid_t callinguid = 1;
+
+    /*
+     * @tc.steps: step2. test register country code callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterCountryCodeCallback(callbackStub_->AsObject(), callinguid);
+
+    /*
+     * @tc.steps: step3. test unregister country code callback
+     * @tc.steps: step4. continue to test unregister country code callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
+    proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCountryCodeCallback001 end");
+}
+
+/*
+ * @tc.name: UnregisterCountryCodeCallback001
+ * @tc.desc: Test unregister country code callback if client is null
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, UnregisterCountryCodeCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. the client is null.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, UnregisterCountryCodeCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterCountryCodeCallback001 begin");
+    sptr<IRemoteObject> client = nullptr;
+
+    /*
+     * @tc.steps: step2. test unregister country code callback
+     * @tc.expected: log exception : "UnregisterCountryCodeCallback countryCodeManager_ is nullptr".
+     */
+    proxy_->UnregisterCountryCodeCallback(client);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterCountryCodeCallback001 end");
+}
+
+/*
+ * @tc.name: RegisterAndUnregisterCachedLocationCallback001
+ * @tc.desc: Test register and unregister cached location callback if the params are not null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the calling uid, cached call back, request config
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCachedLocationCallback001 begin");
+    std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
+    auto cachedCallbackHost = sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
+    std::string bundleName = "test";
+
+    /*
+     * @tc.steps: step2. test register cached location callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterCachedLocationCallback(requestConfig, cachedCallback, bundleName);
+
+    /*
+     * @tc.steps: step3. test unregister cached location callback
+     * @tc.steps: step4. continue to test unregister cached location callback
+     * @tc.expected: no exception happens
+     */
+    proxy_->UnregisterCachedLocationCallback(cachedCallback);
+    proxy_->UnregisterCachedLocationCallback(cachedCallback);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCachedLocationCallback001 end");
+}
+
+/*
+ * @tc.name: RegisterCachedLocationCallback001
+ * @tc.desc: Test register cached location callback if params are null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RegisterCachedLocationCallback001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. give the calling uid, cached call back, request config
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterCachedLocationCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterCachedLocationCallback001 begin");
+    std::unique_ptr<CachedGnssLocationsRequest> requestConfig = nullptr;
+    sptr<ICachedLocationsCallback> cachedCallback = nullptr;
+    std::string bundleName = "test";
+
+    /*
+     * @tc.steps: step2. test register cached location callback
+     * @tc.expected: no exception happens.
+     */
+    proxy_->RegisterCachedLocationCallback(requestConfig, cachedCallback, bundleName);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterCachedLocationCallback001 end");
+}
+
+/*
+ * @tc.name: GetCachedGnssLocationsSize001
+ * @tc.desc: Test get cached gnss location size
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test get cached gnss location size.
+     * @tc.expected: step1. get the true size.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetCachedGnssLocationsSize001 begin");
+    MessageParcel reply;
+    if (proxy_->GetSwitchState() == 1) {
+        proxy_->GetCachedGnssLocationsSize();
+    } else {
+        proxy_->GetCachedGnssLocationsSize();
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetCachedGnssLocationsSize001 end");
+}
+
+/*
+ * @tc.name: FlushCachedGnssLocations001
+ * @tc.desc: Test flush cached gnss location
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test flush cached gnss location
+     * @tc.expected: step1. get the true size.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] FlushCachedGnssLocations001 begin");
+    proxy_->FlushCachedGnssLocations();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] FlushCachedGnssLocations001 end");
+}
+
+/*
+ * @tc.name: SendCommand001
+ * @tc.desc: Test send command
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SendCommand001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build location command
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, SendCommand001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SendCommand001 begin");
+    MessageParcel data;
+    std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
+    locationCommand->scenario = data.ReadInt32();
+    locationCommand->command = data.ReadBool();
+
+    /*
+     * @tc.steps: step2. test send command.
+     * @tc.expected: current function is empty, nothing happens
+     */
+    proxy_->SendCommand(locationCommand);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SendCommand001 end");
+}
+
+/*
+ * @tc.name: AddFence001
+ * @tc.desc: Test add fence
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build geo fence request
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, AddFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddFence001 begin");
+    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+    request->scenario = 2; // scenario
+    request->geofence.latitude = 35.1; // latitude
+    request->geofence.longitude = 40.2; // longitude
+    request->geofence.radius = 2.2; // radius
+    request->geofence.expiration = 12.2; // expiration
+
+    /*
+     * @tc.steps: step2. test add fence
+     * @tc.expected: no exception happens
+     */
+    proxy_->AddFence(request);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddFence001 end");
+}
+
+/*
+ * @tc.name: RemoveFence001
+ * @tc.desc: Test add fence
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build geo fence request
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RemoveFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 begin");
+    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+    request->scenario = 2; // scenario
+    request->geofence.latitude = 35.1; // latitude
+    request->geofence.longitude = 40.2; // longitude
+    request->geofence.radius = 2.2; // radius
+    request->geofence.expiration = 12.2; // expiration
+
+    /*
+     * @tc.steps: step2. test remove fence
+     * @tc.expected: no exception happens
+     */
+    proxy_->RemoveFence(request);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 end");
+}
+
+/*
+ * @tc.name: GetIsoCountryCode001
+ * @tc.desc: Test get iso country code
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test get iso country code
+     * @tc.expected: no exception happens
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetIsoCountryCode001 begin");
+    MessageParcel reply;
+    auto country = proxy_->GetIsoCountryCode();
+    EXPECT_EQ("CN", country->GetCountryCodeStr());
+    EXPECT_EQ(COUNTRY_CODE_FROM_LOCALE, country->GetCountryCodeType());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetIsoCountryCode001 end");
+}
+
+/*
+ * @tc.name: EnableLocationMock001
+ * @tc.desc: Test enable location mock in SCENE_CAR_HAILING scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, EnableLocationMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test enable location mock
+     * @tc.expected: no exception happens
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, EnableLocationMock001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableLocationMock001 begin");
+    proxy_->EnableLocationMock();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableLocationMock001 end");
+}
+
+/*
+ * @tc.name: DisableLocationMock001
+ * @tc.desc: Test disable location mock in SCENE_CAR_HAILING scenario
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, DisableLocationMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test disable location mock
+     * @tc.expected: no exception happens
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, DisableLocationMock001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableLocationMock001 begin");
+    proxy_->DisableLocationMock();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableLocationMock001 end");
+}
+
+/*
+ * @tc.name: SetMockedLocations001
+ * @tc.desc: Test set location mock in different scenarioes
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, SetMockedLocations001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetMockedLocations001 begin");
+    int timeInterval = 2;
+    std::vector<std::shared_ptr<Location>> mockLocationArray;
+    Parcel parcel;
+    for (int i = 0; i < 2; i++) {
+        parcel.WriteDouble(10.6); // latitude
+        parcel.WriteDouble(10.5); // longitude
+        parcel.WriteDouble(10.4); // altitude
+        parcel.WriteDouble(1.0); // accuracy
+        parcel.WriteDouble(5.0); // speed
+        parcel.WriteDouble(10); // direction
+        parcel.WriteInt64(1611000000); // timestamp
+        parcel.WriteInt64(1611000000); // time since boot
+        parcel.WriteString16(u"additions"); // additions
+        parcel.WriteInt64(1); // additionSize
+        parcel.WriteBool(true); // isFromMock
+        parcel.WriteInt32(1); // source type
+        parcel.WriteInt32(0); // floor no.
+        parcel.WriteDouble(1000.0); // floor acc
+        mockLocationArray.push_back(Location::UnmarshallingShared(parcel));
+    }
+
+    /*
+     * @tc.steps: step2. test set mocked locations for different scenarioes
+     * @tc.expected: no exception happens
+     */
+    proxy_->SetMockedLocations(timeInterval, mockLocationArray);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetMockedLocations001 end");
+}
+
+/*
+ * @tc.name: EnableReverseGeocodingMock001
+ * @tc.desc: Test enable reverse geocoding mock
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test enable reverse geocoding mock
+     * @tc.expected: no exception happens
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableReverseGeocodingMock001 begin");
+    proxy_->EnableReverseGeocodingMock();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableReverseGeocodingMock001 end");
+}
+
+/*
+ * @tc.name: DisableReverseGeocodingMock001
+ * @tc.desc: Test disable reverse geocoding mock
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. test disable reverse geocoding mock
+     * @tc.expected: no exception happens
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableReverseGeocodingMock001 begin");
+    proxy_->DisableReverseGeocodingMock();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableReverseGeocodingMock001 end");
+}
+
+/*
+ * @tc.name: SetReverseGeocodingMockInfo001
+ * @tc.desc: Test set reverse geocoding mock info
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocatorServiceTest, SetReverseGeocodingMockInfo001, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. prepare mock info
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, SetReverseGeocodingMockInfo001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetReverseGeocodingMockInfo001 begin");
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
+    Parcel data;
+    data.WriteString16(Str8ToStr16("locale")); // locale
+    data.WriteDouble(10.5); // latitude
+    data.WriteDouble(10.6); // longitude
+    data.WriteInt32(2); // maxItems
+    info->ReadFromParcel(data);
+    mockInfo.push_back(info);
+    /*
+     * @tc.steps: step2. test set reverse geocoding mock info
+     * @tc.expected: no exception happens
+     */
+    proxy_->SetReverseGeocodingMockInfo(mockInfo);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] SetReverseGeocodingMockInfo001 end");
 }
 
 /*
@@ -428,6 +1366,214 @@ HWTEST_F(LocatorServiceTest, UpdateListOnRequestChange002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] UpdateListOnRequestChange002 end");
 }
 
+HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImpl001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    locatorImpl->ShowNotification();
+    locatorImpl->RequestPermission();
+    locatorImpl->RequestEnableLocation();
+
+    locatorImpl->EnableAbility(false);
+    EXPECT_EQ(false, locatorImpl->IsLocationEnabled());
+    locatorImpl->EnableAbility(true);
+    EXPECT_EQ(true, locatorImpl->IsLocationEnabled());
+
+    EXPECT_NE(nullptr, locatorImpl->GetCachedLocation());
+
+    locatorImpl->SetLocationPrivacyConfirmStatus(1, true);
+    EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl->SetLocationPrivacyConfirmStatus(-1, true));
+    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
+
+    EXPECT_EQ(-1, locatorImpl->GetCachedGnssLocationsSize());
+
+    EXPECT_EQ(REPLY_CODE_UNSUPPORT, locatorImpl->FlushCachedGnssLocations());
+
+    std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
+    command->scenario = SCENE_NAVIGATION;
+    command->command = "cmd";
+    EXPECT_EQ(true, locatorImpl->SendCommand(command));
+
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    fenceRequest->scenario = SCENE_NAVIGATION;
+    GeoFence geofence;
+    geofence.latitude = 1.0;
+    geofence.longitude = 2.0;
+    geofence.radius = 3.0;
+    geofence.expiration = 4.0;
+    fenceRequest->geofence = geofence;
+    EXPECT_EQ(true, locatorImpl->AddFence(fenceRequest));
+    EXPECT_EQ(true, locatorImpl->RemoveFence(fenceRequest));
+
+    EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
+
+    EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, true));
+    EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
+    EXPECT_EQ(true, locatorImpl->ResetAllProxy());
+
+    int timeInterval = 2;
+    EXPECT_EQ(true, locatorImpl->EnableLocationMock());
+    std::vector<std::shared_ptr<Location>> locations;
+    EXPECT_EQ(true, locatorImpl->SetMockedLocations(timeInterval, locations));
+    EXPECT_EQ(true, locatorImpl->DisableLocationMock());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGeocodingMock001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
+    EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
+    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGeocodingMock001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplIsGeoServiceAvailable001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+    EXPECT_EQ(true, locatorImpl->IsGeoServiceAvailable());
+
+    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+    EXPECT_EQ(false, locatorImpl->IsGeoServiceAvailable());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplIsGeoServiceAvailable001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    MessageParcel request001;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
+    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
+    EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
+    request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request001.WriteDouble(MOCK_LATITUDE); // latitude
+    request001.WriteDouble(MOCK_LONGITUDE); // longitude
+    request001.WriteInt32(3); // maxItems
+    request001.WriteInt32(1); // locale object size = 1
+    request001.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request001.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request001.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request001.WriteString16(Str8ToStr16("")); // ""
+    locatorImpl->GetAddressByCoordinate(request001, geoAddressList001);
+    EXPECT_EQ(false, geoAddressList001.empty());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate002 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    MessageParcel request002;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
+    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+    request002.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request002.WriteDouble(1.0); // latitude
+    request002.WriteDouble(2.0); // longitude
+    request002.WriteInt32(3); // maxItems
+    request002.WriteInt32(1); // locale object size = 1
+    request002.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request002.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request002.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request002.WriteString16(Str8ToStr16("")); // ""
+    locatorImpl->GetAddressByCoordinate(request002, geoAddressList002);
+    EXPECT_EQ(true, geoAddressList002.empty());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate002 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplGetAddressByLocationName001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplGetAddressByLocationName001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByLocationName001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    MessageParcel request003;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList003;
+    request003.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request003.WriteString16(Str8ToStr16("description")); // description
+    request003.WriteDouble(1.0); // minLatitude
+    request003.WriteDouble(2.0); // minLongitude
+    request003.WriteDouble(3.0); // maxLatitude
+    request003.WriteDouble(4.0); // maxLongitude
+    request003.WriteInt32(3); // maxItems
+    request003.WriteInt32(1); // locale object size = 1
+    request003.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request003.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request003.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request003.WriteString16(Str8ToStr16("")); // ""
+    locatorImpl->GetAddressByLocationName(request003, geoAddressList003);
+    EXPECT_EQ(true, geoAddressList003.empty());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByLocationName001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplRegisterAndUnregisterCallback001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    auto switchCallbackHost =
+        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+    EXPECT_NE(nullptr, switchCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
+
+    auto gnssCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    EXPECT_NE(nullptr, gnssCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterGnssStatusCallback(gnssCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterGnssStatusCallback(gnssCallbackHost->AsObject()));
+
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    EXPECT_NE(nullptr, nmeaCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
+
+    auto countryCodeCallbackHost =
+        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    EXPECT_NE(nullptr, countryCodeCallbackHost);
+    EXPECT_EQ(true, locatorImpl->RegisterCountryCodeCallback(countryCodeCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(true, locatorImpl->UnregisterCountryCodeCallback(countryCodeCallbackHost->AsObject()));
+
+    auto cachedLocationsCallbackHost =
+        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    EXPECT_NE(nullptr, cachedLocationsCallbackHost);
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
+    EXPECT_NE(nullptr, cachedCallback);
+    auto request = std::make_unique<CachedGnssLocationsRequest>();
+    EXPECT_NE(nullptr, request);
+    request->reportingPeriodSec = 10;
+    request->wakeUpCacheQueueFull = true;
+    locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
+    locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplRegisterAndUnregisterCallback001 end");
+}
+
 HWTEST_F(LocatorServiceTest, locatorServiceStartAndStop001, TestSize.Level1)
 {
     auto locatorAbility =
@@ -514,6 +1660,24 @@ HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable001 end");
 }
 
+HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    auto cachedLocationsCallbackHost =
+        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
+    auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
+    locatorAbility->RegisterCachedLocationCallback(cachedRequest, cachedCallback, "unit.test");
+    sleep(1);
+    locatorAbility->UnregisterCachedLocationCallback(cachedCallback);
+    sleep(1);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 end");
+}
+
 HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -529,6 +1693,39 @@ HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(nullptr));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->UnregisterSwitchCallback(switchCallbackHost));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSwitchCallback001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGnssStatusCallback001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+
+    auto gnssCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    locatorAbility->RegisterGnssStatusCallback(nullptr, SYSTEM_UID); // invalid callback
+    locatorAbility->RegisterGnssStatusCallback(gnssCallbackHost, SYSTEM_UID);
+    locatorAbility->UnregisterGnssStatusCallback(nullptr); // invalid callback
+    locatorAbility->UnregisterGnssStatusCallback(gnssCallbackHost);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGnssStatusCallback001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceNmeaMessageCallback001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    locatorAbility->RegisterNmeaMessageCallback(nullptr, SYSTEM_UID); // invalid callback
+    locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, SYSTEM_UID);
+    locatorAbility->UnregisterNmeaMessageCallback(nullptr); // invalid callback
+    locatorAbility->UnregisterNmeaMessageCallback(nmeaCallbackHost);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceNmeaMessageCallback001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceCountryCodeCallback001, TestSize.Level1)
@@ -561,6 +1758,40 @@ HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Lev
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed));
     EXPECT_EQ(true, isConfirmed);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePrivacyConfirmStatus001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendCommand001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
+    command->scenario = SCENE_NAVIGATION;
+    command->command = "cmd";
+    locatorAbility->SendCommand(command);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendCommand001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    fenceRequest->scenario = SCENE_NAVIGATION;
+    GeoFence geofence;
+    geofence.latitude = 1.0;
+    geofence.longitude = 2.0;
+    geofence.radius = 3.0;
+    geofence.expiration = 4.0;
+    fenceRequest->geofence = geofence;
+    locatorAbility->AddFence(fenceRequest);
+    locatorAbility->RemoveFence(fenceRequest);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceIsoCountryCode001, TestSize.Level1)
