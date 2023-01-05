@@ -154,7 +154,7 @@ public:
     static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
-    static bool GetBundleInfo(const std::string& bundleName);
+    static bool CheckAppInstalled(const std::string& bundleName);
 };
 
 class CountDownLatch {

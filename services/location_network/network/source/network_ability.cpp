@@ -191,9 +191,20 @@ void NetworkAbility::SelfRequest(bool state)
 
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    if (!nlpServiceReady_ && !ReConnectNlpService()) {
-        LBSLOGE(NETWORK, "nlp service is not ready.");
-        return;
+    if (!nlpServiceReady_) {
+        std::string name;
+        bool result = LocationConfigManager::GetInstance().GetNlpServiceName(SERVICE_CONFIG_FILE, name);
+        if (!result || name.empty()) {
+            LBSLOGE(NETWORK, "get service name failed!");
+            return;
+        }
+        if (!CommonUtils::CheckAppInstalled(name)) { // app is not installed
+            LBSLOGE(NETWORK, "nlp service is not available.");
+            return;
+        } else if (!ReConnectNlpService()) {
+            LBSLOGE(NETWORK, "nlp service is not ready.");
+            return;
+        }
     }
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     if (nlpServiceProxy_ == nullptr) {
