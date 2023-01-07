@@ -181,10 +181,6 @@ namespace OHOS {
         int index = 0;
         bool isEnabled = false;
         g_locatorImpl->IsLocationEnabledV9(isEnabled);
-        g_locatorImpl->ShowNotificationV9();
-        g_locatorImpl->RequestPermissionV9();
-        g_locatorImpl->RequestEnableLocationV9();
-
         g_locatorImpl->EnableAbilityV9(false);
         g_locatorImpl->EnableAbilityV9(true);
         std::unique_ptr<OHOS::Location::Location> loc =
@@ -255,15 +251,14 @@ namespace OHOS {
 
     bool TestCallbackRegisterV9(const uint8_t* data, size_t size)
     {
-        int index = 0;
         auto switchCallbackHost =
             sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
-        g_locatorImpl->RegisterSwitchCallbackV9(switchCallbackHost->AsObject(), data[index++]);
+        g_locatorImpl->RegisterSwitchCallbackV9(switchCallbackHost->AsObject());
         g_locatorImpl->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject());
 
         auto gnssCallbackHost =
             sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-        g_locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject(), data[index++]);
+        g_locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject());
         g_locatorImpl->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject());
 
         auto nmeaCallbackHost =
@@ -273,8 +268,7 @@ namespace OHOS {
 
         auto countryCodeCallbackHost =
             sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
-        g_locatorImpl->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject(),
-            data[index++]);
+        g_locatorImpl->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject());
         g_locatorImpl->UnregisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject());
 
         auto cachedLocationsCallbackHost =

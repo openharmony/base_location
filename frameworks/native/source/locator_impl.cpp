@@ -312,24 +312,6 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     return client_->GetSwitchStateV9(isEnabled);
 }
 
-LocationErrCode LocatorImpl::ShowNotificationV9()
-{
-    LBSLOGI(LOCATION_NAPI, "ShowNotification");
-    return ERRCODE_SUCCESS;
-}
-
-LocationErrCode LocatorImpl::RequestPermissionV9()
-{
-    LBSLOGI(LOCATION_NAPI, "permission need to be granted");
-    return ERRCODE_SUCCESS;
-}
-
-LocationErrCode LocatorImpl::RequestEnableLocationV9()
-{
-    LBSLOGI(LOCATION_NAPI, "RequestEnableLocation");
-    return ERRCODE_SUCCESS;
-}
-
 LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableAbilityV9()");
@@ -340,7 +322,7 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
     sptr<ILocatorCallback>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StartLocatingV9()");
-    return client_->StartLocatingV9(requestConfig, callback, "location.ILocator", 0, 0);
+    return client_->StartLocatingV9(requestConfig, callback);
 }
 
 LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
@@ -355,10 +337,10 @@ LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
     return client_->GetCacheLocationV9(loc);
 }
 
-LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterSwitchCallbackV9()");
-    return client_->RegisterSwitchCallbackV9(callback, DEFAULT_UID);
+    return client_->RegisterSwitchCallbackV9(callback);
 }
 
 LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
@@ -367,10 +349,10 @@ LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject
     return client_->UnregisterSwitchCallbackV9(callback);
 }
 
-LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterGnssStatusCallbackV9()");
-    return client_->RegisterGnssStatusCallbackV9(callback, DEFAULT_UID);
+    return client_->RegisterGnssStatusCallbackV9(callback);
 }
 
 LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
@@ -391,10 +373,10 @@ LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteO
     return client_->UnregisterNmeaMessageCallbackV9(callback);
 }
 
-LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCountryCodeCallbackV9()");
-    return client_->RegisterCountryCodeCallbackV9(callback, uid);
+    return client_->RegisterCountryCodeCallbackV9(callback);
 }
 
 LocationErrCode LocatorImpl::UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)

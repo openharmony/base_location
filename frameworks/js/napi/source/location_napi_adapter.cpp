@@ -24,6 +24,7 @@ std::unique_ptr<Locator> g_locatorClient = Locator::GetInstance();
 
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -88,6 +89,7 @@ napi_value HandleGetCachedLocation(napi_env env)
 
 napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -128,6 +130,7 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 
 napi_value EnableLocation(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -171,6 +174,7 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
 
 napi_value DisableLocation(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -209,6 +213,7 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
 
 napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = PARAM1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -242,6 +247,7 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 
 napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -375,6 +381,7 @@ void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
 
 napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -427,6 +434,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
 
 napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -475,6 +483,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
 #ifdef ENABLE_NAPI_MANAGER
 napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -504,6 +513,7 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
 
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -532,6 +542,7 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
 
 napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -581,6 +592,7 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -660,6 +672,7 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
 
 napi_value SendCommand(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -714,6 +727,7 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
 #ifdef ENABLE_NAPI_MANAGER
 napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 1;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -783,6 +797,7 @@ int ParseLocationMockParams(napi_env env, LocationMockAsyncContext *asyncContext
 
 napi_value EnableLocationMock(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
     LocationErrCode errorCode = CheckLocationSwitchState();
     if (errorCode != ERRCODE_SUCCESS) {
@@ -798,6 +813,7 @@ napi_value EnableLocationMock(napi_env env, napi_callback_info info)
 
 napi_value DisableLocationMock(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
     LocationErrCode errorCode = CheckLocationSwitchState();
     if (errorCode != ERRCODE_SUCCESS) {
@@ -813,6 +829,7 @@ napi_value DisableLocationMock(napi_env env, napi_callback_info info)
 
 napi_value SetMockedLocations(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -853,6 +870,7 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
 
 napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
     LocationErrCode errorCode = g_locatorClient->EnableReverseGeocodingMockV9();
     if (errorCode != ERRCODE_SUCCESS) {
@@ -863,6 +881,7 @@ napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
 
 napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
     LocationErrCode errorCode = g_locatorClient->DisableReverseGeocodingMockV9();
     if (errorCode != ERRCODE_SUCCESS) {
@@ -873,6 +892,7 @@ napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
 
 napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
 {
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = 2;
     napi_value argv[argc];
     napi_value thisVar = nullptr;
@@ -900,6 +920,7 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
 }
 #endif
 
+#ifdef ENABLE_NAPI_MANAGER
 LocationErrCode CheckLocationSwitchState()
 {
     bool isEnabled = false;
@@ -912,5 +933,6 @@ LocationErrCode CheckLocationSwitchState()
     }
     return ERRCODE_SUCCESS;
 }
+#endif
 } // namespace Location
 } // namespace OHOS

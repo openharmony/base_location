@@ -76,21 +76,18 @@ public:
     bool ResetAllProxy() override;
 
     LocationErrCode IsLocationEnabledV9(bool &isEnabled) override;
-    LocationErrCode ShowNotificationV9() override;
-    LocationErrCode RequestPermissionV9() override;
-    LocationErrCode RequestEnableLocationV9() override;
     LocationErrCode EnableAbilityV9(bool enable) override;
     LocationErrCode StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback) override;
     LocationErrCode StopLocatingV9(sptr<ILocatorCallback>& callback) override;
     LocationErrCode GetCachedLocationV9(std::unique_ptr<Location> &loc) override;
-    LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) override;
     LocationErrCode UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) override;
     LocationErrCode UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) override;
     LocationErrCode RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) override;
     LocationErrCode UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) override;
     LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) override;
     LocationErrCode RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) override;

@@ -116,33 +116,6 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorImplTest::SetGeocodingMoc
     return geoMockInfos;
 }
 
-HWTEST_F(LocatorImplTest, locatorImplShowNotificationV9, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplShowNotificationV9, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplShowNotificationV9 begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ShowNotificationV9());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplShowNotificationV9 end");
-}
-
-HWTEST_F(LocatorImplTest, locatorImplRequestPermissionV9, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplRequestPermissionV9, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestPermissionV9 begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RequestPermissionV9());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestPermissionV9 end");
-}
-
-HWTEST_F(LocatorImplTest, locatorImplRequestEnableLocationV9, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplRequestEnableLocationV9, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestEnableLocationV9 begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RequestEnableLocationV9());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestEnableLocationV9 end");
-}
-
 HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -151,7 +124,7 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
     EXPECT_NE(nullptr, switchCallbackHost);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     sleep(1);
     
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(false));
@@ -170,7 +143,7 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1)
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
     EXPECT_NE(nullptr, switchCallbackHost);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     sleep(1);
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(true));
@@ -298,7 +271,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCodeV9, TestSize.Level1)
     auto countryCodeCallbackHost =
         sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject(), 1000));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject()));
     sleep(1);
 
     std::shared_ptr<CountryCode> countryCode = std::make_shared<CountryCode>();
@@ -444,7 +417,7 @@ HWTEST_F(LocatorImplTest, locatorImplGnssStatusCallbackV9, TestSize.Level1)
     sleep(1);
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject(), SYSTEM_UID));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
     sleep(1);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_)); // after reg, stop locating

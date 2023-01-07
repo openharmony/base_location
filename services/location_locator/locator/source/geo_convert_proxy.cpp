@@ -39,9 +39,6 @@ int GeoConvertProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     }
     error = SendMsgWithDataReply(GET_FROM_COORDINATE, data, reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByCoordinate result from server.");
-    if (error != ERRCODE_SUCCESS) {
-        reply.WriteInt32(error);
-    }
     return error;
 }
 
@@ -56,9 +53,6 @@ int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel
     }
     error = SendMsgWithDataReply(GET_FROM_LOCATION_NAME_BY_BOUNDARY, data, reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
-    if (error != ERRCODE_SUCCESS) {
-        reply.WriteInt32(error);
-    }
     return error;
 }
 
@@ -73,14 +67,12 @@ int GeoConvertProxy::SendSimpleMsg(const int msgId, MessageParcel& reply)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     error = SendMsgWithDataReply(msgId, data, reply);
-    if (error != ERRCODE_SUCCESS) {
-        reply.WriteInt32(error);
-    }
     return error;
 }
 
 int GeoConvertProxy::SendMsgWithDataReply(const int msgId, MessageParcel& data, MessageParcel& reply)
 {
+    int error = ERRCODE_SERVICE_UNAVAILABLE;
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -88,9 +80,9 @@ int GeoConvertProxy::SendMsgWithDataReply(const int msgId, MessageParcel& data, 
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    remote->SendRequest(msgId, data, reply, option);
+    error = remote->SendRequest(msgId, data, reply, option);
     LBSLOGD(GEO_CONVERT, "Proxy::SendMsgWithDataReply result from server.");
-    return reply.ReadInt32();
+    return error;
 }
 
 bool GeoConvertProxy::SendSimpleMsgAndParseResult(const int msgId)
@@ -98,8 +90,8 @@ bool GeoConvertProxy::SendSimpleMsgAndParseResult(const int msgId)
     bool result = false;
     MessageParcel reply;
     int error = SendSimpleMsg(msgId, reply);
-    if (error == ERRCODE_SUCCESS) {
-        result = true;
+    if (error == NO_ERROR) {
+        result = (reply.ReadInt32() == ERRCODE_SUCCESS);
     }
     return result;
 }

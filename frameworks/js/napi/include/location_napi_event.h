@@ -66,7 +66,15 @@ void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback);
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost);
 void UnSubscribeGnssStatus(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
 void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
+bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback);
+void GenRequestConfig(const napi_env& env, const napi_value* argv,
+    const size_t& objectArgsNum, std::unique_ptr<RequestConfig>& requestConfig);
+napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const napi_value* argv);
+napi_value On(napi_env env, napi_callback_info cbinfo);
+napi_value Off(napi_env env, napi_callback_info cbinfo);
+napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo);
 
+#ifdef ENABLE_NAPI_MANAGER
 LocationErrCode SubscribeLocationServiceStateV9(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost);
 LocationErrCode SubscribeGnssStatusV9(const napi_env& env, const napi_ref& handlerRef,
@@ -85,18 +93,8 @@ LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>&
 LocationErrCode UnSubscribeLocationServiceStateV9(sptr<LocationSwitchCallbackHost>& switchCallbackHost);
 LocationErrCode UnSubscribeGnssStatusV9(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
 LocationErrCode UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
-
-bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback);
-void GenRequestConfig(const napi_env& env, const napi_value* argv,
-    const size_t& objectArgsNum, std::unique_ptr<RequestConfig>& requestConfig);
-napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const napi_value* argv);
-napi_value On(napi_env env, napi_callback_info cbinfo);
-napi_value Off(napi_env env, napi_callback_info cbinfo);
-napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo);
-LocationErrCode CheckLocationSwitchEnable();
-
-#ifdef ENABLE_NAPI_MANAGER
 napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const napi_value* argv);
+LocationErrCode CheckLocationSwitchEnable();
 #endif
 }  // namespace Location
 }  // namespace OHOS

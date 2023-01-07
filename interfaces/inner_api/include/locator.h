@@ -77,16 +77,13 @@ public:
     virtual bool ResetAllProxy() = 0;
 
     virtual LocationErrCode IsLocationEnabledV9(bool &isEnabled) = 0;
-    virtual LocationErrCode RequestEnableLocationV9() = 0;
     virtual LocationErrCode EnableAbilityV9(bool enable) = 0;
     virtual LocationErrCode StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback) = 0;
     virtual LocationErrCode StopLocatingV9(sptr<ILocatorCallback>& callback) = 0;
     virtual LocationErrCode GetCachedLocationV9(std::unique_ptr<Location> &loc) = 0;
-    virtual LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) = 0;
-    virtual LocationErrCode ShowNotificationV9() = 0;
-    virtual LocationErrCode RequestPermissionV9() = 0;
     virtual LocationErrCode IsGeoServiceAvailableV9(bool &isAvailable) = 0;
     virtual LocationErrCode GetAddressByCoordinateV9(MessageParcel &data,
         std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
@@ -94,11 +91,11 @@ public:
         std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
     virtual LocationErrCode IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed) = 0;
     virtual LocationErrCode SetLocationPrivacyConfirmStatusV9(const int type, bool isConfirmed) = 0;
-    virtual LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) = 0;
-    virtual LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) = 0;

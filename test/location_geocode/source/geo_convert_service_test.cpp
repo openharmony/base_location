@@ -85,8 +85,8 @@ void GeoConvertServiceTest::MockNativePermission()
 bool GeoConvertServiceTest::Available()
 {
     MessageParcel replyParcel;
-    int errorCode = proxy_->IsGeoConvertAvailable(replyParcel);
-    return errorCode == ERRCODE_SUCCESS;
+    proxy_->IsGeoConvertAvailable(replyParcel);
+    return replyParcel.ReadInt32() == ERRCODE_SUCCESS;
 }
 
 /*
@@ -154,8 +154,8 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
      * @tc.steps: step2. test get address by coordinate.
      * @tc.expected: step2. no exception head info.
      */
-    int errorCode = proxy_->GetAddressByCoordinate(dataParcel, replyParcel);
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
+    proxy_->GetAddressByCoordinate(dataParcel, replyParcel);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, replyParcel.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 end");
 }
 
@@ -192,8 +192,8 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
      * @tc.steps: step2. test get address by location's name.
      * @tc.expected: step2. no exception head info.
      */
-    int errorCode = proxy_->GetAddressByLocationName(dataParcel, replyParcel);
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
+    proxy_->GetAddressByLocationName(dataParcel, replyParcel);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, replyParcel.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 end");
 }
 
@@ -246,12 +246,14 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     MessageParcel parcel1;
     MessageParcel reply1;
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->GetAddressByCoordinate(parcel1, reply1));
+    proxy_->GetAddressByCoordinate(parcel1, reply1);
+    EXPECT_EQ(ERRCODE_SUCCESS, reply1.ReadInt32());
 
     MessageParcel parcel2;
     MessageParcel reply2;
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->GetAddressByCoordinate(parcel2, reply2));
+    proxy_->GetAddressByCoordinate(parcel2, reply2);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply2.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
 }
 }  // namespace Location

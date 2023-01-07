@@ -84,16 +84,16 @@ public:
     LocationErrCode UpdateSaAbilityV9();
     LocationErrCode GetSwitchStateV9(bool &isEnabled);
     LocationErrCode EnableAbilityV9(bool isEnabled);
-    LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject> &callback, pid_t uid);
+    LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode UnregisterSwitchCallbackV9(const sptr<IRemoteObject> &callback);
-    LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject> &callback, pid_t uid);
+    LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
-    LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback, pid_t uid);
+    LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid);
+        sptr<ILocatorCallback>& callback);
     LocationErrCode StopLocatingV9(sptr<ILocatorCallback>& callback);
     LocationErrCode GetCacheLocationV9(std::unique_ptr<Location> &loc);
     LocationErrCode IsGeoConvertAvailableV9(bool &isAvailable);
@@ -122,7 +122,7 @@ public:
     LocationErrCode SendMsgWithDataReplyV9(const int msgId, MessageParcel& data, MessageParcel& reply);
     LocationErrCode SendMsgWithReplyV9(const int msgId, MessageParcel& reply);
     LocationErrCode SendSimpleMsgV9(const int msgId);
-    LocationErrCode SendRegisterMsgToRemoteV9(const int msgId, const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode SendRegisterMsgToRemoteV9(const int msgId, const sptr<IRemoteObject>& callback);
     LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy);
     LocationErrCode ResetAllProxyV9();
 private:

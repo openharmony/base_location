@@ -86,11 +86,9 @@ int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &re
     }
     int state = DISABLED;
     LocationErrCode errorCode = locatorAbility->GetSwitchState(state);
+    reply.WriteInt32(errorCode);
     if (errorCode == ERRCODE_SUCCESS) {
-        reply.WriteInt32(errorCode);
         reply.WriteInt32(state);
-    } else {
-        reply.WriteInt32(errorCode);
     }
     return errorCode;
 }
@@ -111,6 +109,9 @@ int LocatorAbilityStub::PreRegisterSwitchCallback(MessageParcel &data, MessagePa
 
 int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -120,21 +121,14 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return ERRCODE_SWITCH_OFF;
-    }
     std::unique_ptr<RequestConfig> requestConfig = RequestConfig::Unmarshalling(data);
     sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
-    std::string bundleName = Str16ToStr8(data.ReadString16());
     if (remoteObject == nullptr) {
         LBSLOGE(LOCATOR, "StartLocating remote object nullptr");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    std::string bundleName = identity.GetBundleName();
     if (bundleName.empty()) {
         LBSLOGE(LOCATOR, "StartLocating get empty bundle name");
         reply.WriteInt32(ERRCODE_INVALID_PARAM);
@@ -161,7 +155,7 @@ int LocatorAbilityStub::PreStopLocating(MessageParcel &data, MessageParcel &repl
     }
     sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
     if (remoteObject == nullptr) {
-        LBSLOGE(LOCATOR, "LocatorAbility::StartLocating remote object nullptr");
+        LBSLOGE(LOCATOR, "LocatorAbility::StopLocating remote object nullptr");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -172,6 +166,9 @@ int LocatorAbilityStub::PreStopLocating(MessageParcel &data, MessageParcel &repl
 
 int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -181,18 +178,10 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return ERRCODE_SWITCH_OFF;
-    }
     std::unique_ptr<Location> loc = std::make_unique<Location>();
     reply.WriteInt32(locatorAbility->GetCacheLocation(loc, identity));
-    auto singleLocation = std::move(loc);
-    if (singleLocation != nullptr) {
-        singleLocation->Marshalling(reply);
+    if (loc != nullptr) {
+        loc->Marshalling(reply);
     }
     return ERRCODE_SUCCESS;
 }
@@ -444,11 +433,7 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        reply.WriteInt32(ERRCODE_SWITCH_OFF);
+    if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
@@ -496,6 +481,9 @@ int LocatorAbilityStub::PreStopCacheLocating(MessageParcel &data, MessageParcel 
 
 int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -505,13 +493,6 @@ int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, Messa
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return ERRCODE_SWITCH_OFF;
-    }
     int size = -1;
     reply.WriteInt32(locatorAbility->GetCachedGnssLocationsSize(size));
     reply.WriteInt32(size);
@@ -520,6 +501,9 @@ int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, Messa
 
 int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -528,13 +512,6 @@ int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, Message
         LBSLOGE(LOCATOR, "PreFlushCachedGnssLocations: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return ERRCODE_SWITCH_OFF;
     }
     reply.WriteInt32(locatorAbility->FlushCachedGnssLocations());
     return ERRCODE_SUCCESS;
@@ -557,6 +534,9 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
 
 int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -565,13 +545,6 @@ int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, A
         LBSLOGE(LOCATOR, "PreAddFence: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
     request->scenario = data.ReadInt32();
@@ -585,6 +558,9 @@ int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, A
 
 int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -593,13 +569,6 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
         LBSLOGE(LOCATOR, "PreRemoveFence: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "switch state is off.");
-        reply.WriteInt32(ERRCODE_SWITCH_OFF);
-        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
     request->scenario = data.ReadInt32();
@@ -867,6 +836,23 @@ bool LocatorAbilityStub::CheckSettingsPermission(MessageParcel &reply, AppIdenti
     } else {
         return true;
     }
+}
+
+bool LocatorAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "CheckLocationSwitchState: LocatorAbility is nullptr.");
+        return false;
+    }
+    int state = DISABLED;
+    locatorAbility->GetSwitchState(state);
+    if (state == DISABLED) {
+        LBSLOGE(LOCATOR, "switch state is off.");
+        reply.WriteInt32(ERRCODE_SWITCH_OFF);
+        return false;
+    }
+    return true;
 }
 
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
