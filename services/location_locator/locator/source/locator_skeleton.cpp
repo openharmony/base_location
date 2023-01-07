@@ -128,12 +128,6 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::string bundleName = identity.GetBundleName();
-    if (bundleName.empty()) {
-        LBSLOGE(LOCATOR, "StartLocating get empty bundle name");
-        reply.WriteInt32(ERRCODE_INVALID_PARAM);
-        return ERRCODE_INVALID_PARAM;
-    }
 
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
     remoteObject->AddDeathRecipient(death.GetRefPtr());
