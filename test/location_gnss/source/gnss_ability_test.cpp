@@ -406,7 +406,7 @@ HWTEST_F(GnssAbilityTest, FlushCachedGnssLocations001, TestSize.Level1)
      * @tc.expected: reply code unsupport
      */
     int ret = proxy_->FlushCachedGnssLocations();
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, ret);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, ret);
 }
 
 /*

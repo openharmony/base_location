@@ -129,16 +129,11 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
     EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
 
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
-    EXPECT_EQ(REPLY_CODE_SECURITY_EXCEPTION, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
-    EXPECT_EQ(false, locatorImpl->FlushCachedGnssLocations());
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
+    EXPECT_EQ(REPLY_CODE_UNSUPPORT, locatorImpl->FlushCachedGnssLocations());
 
-    std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
-    command->scenario = SCENE_NAVIGATION;
-    command->command = "cmd";
-    EXPECT_EQ(true, locatorImpl->SendCommand(command));
-
-    EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
-    EXPECT_EQ(true, locatorImpl->ResetAllProxy());
+    EXPECT_EQ(false, locatorImpl->ProxyUidForFreeze(1000, false));
+    EXPECT_EQ(false, locatorImpl->ResetAllProxy());
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 end");
 }
 
@@ -174,6 +169,99 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
     locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission003 end");
+}
+
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermissionV9001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutSettingsPermissionV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermissionV9001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->EnableAbilityV9(true));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatusV9(1, true));
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermissionV9001 end");
+}
+
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9001 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->StartLocatingV9(requestConfig, callbackStub));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->StopLocatingV9(callbackStub));
+
+    std::unique_ptr loc = std::make_unique<Location>();
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedLocationV9(loc));
+    EXPECT_EQ(nullptr, loc);
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9001 end");
+}
+
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9002 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    auto gnssCallbackHost =
+        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+    EXPECT_NE(nullptr, gnssCallbackHost);
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
+
+    auto nmeaCallbackHost =
+        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    EXPECT_NE(nullptr, nmeaCallbackHost);
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocationsV9());
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ProxyUidForFreezeV9(1000, false));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ResetAllProxyV9());
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9002 end");
+}
+
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 begin");
+    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    fenceRequest->scenario = SCENE_NAVIGATION;
+    GeoFence geofence;
+    geofence.latitude = 1.0;
+    geofence.longitude = 2.0;
+    geofence.radius = 3.0;
+    geofence.expiration = 4.0;
+    fenceRequest->geofence = geofence;
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->AddFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RemoveFenceV9(fenceRequest));
+
+    int size = -1;
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedGnssLocationsSizeV9(size));
+    EXPECT_EQ(0, size);
+
+    auto cachedLocationsCallbackHost =
+        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    EXPECT_NE(nullptr, cachedLocationsCallbackHost);
+    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
+    EXPECT_NE(nullptr, cachedCallback);
+    auto request = std::make_unique<CachedGnssLocationsRequest>();
+    EXPECT_NE(nullptr, request);
+    request->reportingPeriodSec = 10;
+    request->wakeUpCacheQueueFull = true;
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterCachedLocationCallbackV9(cachedCallback));
+    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 end");
 }
 }  // namespace Location
 }  // namespace OHOS

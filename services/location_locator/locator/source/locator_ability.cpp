@@ -314,12 +314,13 @@ bool LocatorAbility::CheckSaValid()
     return true;
 }
 
-void LocatorAbility::UpdateSaAbility()
+LocationErrCode LocatorAbility::UpdateSaAbility()
 {
     auto event = AppExecFwk::InnerEvent::Get(EVENT_UPDATE_SA, 0);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(event);
     }
+    return ERRCODE_SUCCESS;
 }
 
 void LocatorAbility::UpdateSaAbilityHandler()
@@ -365,11 +366,11 @@ void LocatorAbility::UpdateSaAbilityHandler()
     }
 }
 
-void LocatorAbility::EnableAbility(bool isEnabled)
+LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     if (isEnabled_ == isEnabled) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", isEnabled_);
-        return;
+        return ERRCODE_SUCCESS;
     }
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
@@ -377,13 +378,14 @@ void LocatorAbility::EnableAbility(bool isEnabled)
     UpdateSaAbility();
     std::string state = isEnabled ? "enable" : "disable";
     WriteLocationSwitchStateEvent(state);
+    return ERRCODE_SUCCESS;
 }
 
-int LocatorAbility::GetSwitchState()
+LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    int state = QuerySwitchState();
-    isEnabled_ = (state == ENABLED);
-    return isEnabled_ ? ENABLED : DISABLED;
+    isEnabled_ = (QuerySwitchState() == ENABLED);
+    state = isEnabled_ ? ENABLED : DISABLED;
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbility::QuerySwitchState()
@@ -391,45 +393,46 @@ int LocatorAbility::QuerySwitchState()
     return LocationConfigManager::GetInstance().GetLocationSwitchState();
 }
 
-bool LocatorAbility::IsLocationPrivacyConfirmed(const int type)
+LocationErrCode LocatorAbility::IsLocationPrivacyConfirmed(const int type, bool& isConfirmed)
 {
-    return LocationConfigManager::GetInstance().GetPrivacyTypeState(type);
+    return LocationConfigManager::GetInstance().GetPrivacyTypeState(type, isConfirmed);
 }
 
-int LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
+LocationErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
     return LocationConfigManager::GetInstance().SetPrivacyTypeState(type, isConfirmed);
 }
 
-void LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR, "register an invalid switch callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) SwitchCallbackDeathRecipient());
     callback->AddDeathRecipient(death.GetRefPtr());
     sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
     if (switchCallback == nullptr) {
         LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     switchCallbacks_->erase(uid);
     switchCallbacks_->insert(std::make_pair(uid, switchCallback));
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_->size()).c_str());
+    return ERRCODE_SUCCESS;
 }
 
-void LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR, "unregister an invalid switch callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
     if (switchCallback == nullptr) {
         LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
 
     pid_t uid = -1;
@@ -443,269 +446,189 @@ void LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObject>& callbac
     switchCallbacks_->erase(uid);
     LBSLOGD(LOCATOR, "after uid:%{public}d unregister, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_->size()).c_str());
+    return ERRCODE_SUCCESS;
 }
 
-void LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply)
+{
+    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
+    if (remoteObject == proxyMap_->end()) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto obj = remoteObject->second;
+    if (obj == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    MessageOption option;
+    obj->SendRequest(type, data, reply, option);
+    return LocationErrCode(reply.ReadInt32());
+}
+
+LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     LBSLOGD(LOCATOR, "uid is: %{public}d", uid);
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
-        }
-        dataToStub.WriteRemoteObject(callback);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return;
-        }
-        obj->SendRequest(REG_GNSS_STATUS, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    dataToStub.WriteRemoteObject(callback);
+    return SendGnssRequest(REG_GNSS_STATUS, dataToStub, replyToStub);
 }
 
-void LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
-        }
-
-        dataToStub.WriteRemoteObject(callback);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return;
-        }
-        obj->SendRequest(UNREG_GNSS_STATUS, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    dataToStub.WriteRemoteObject(callback);
+    return SendGnssRequest(UNREG_GNSS_STATUS, dataToStub, replyToStub);
 }
 
-void LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
-        }
-
-        dataToStub.WriteRemoteObject(callback);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return;
-        }
-        obj->SendRequest(REG_NMEA, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    dataToStub.WriteRemoteObject(callback);
+    return SendGnssRequest(REG_NMEA, dataToStub, replyToStub);
 }
 
-void LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
-        }
-
-        dataToStub.WriteRemoteObject(callback);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return;
-        }
-        obj->SendRequest(UNREG_NMEA, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    dataToStub.WriteRemoteObject(callback);
+    return SendGnssRequest(UNREG_NMEA, dataToStub, replyToStub);
 }
 
-void LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     if (countryCodeManager_ == nullptr) {
         LBSLOGE(LOCATOR, "RegisterCountryCodeCallback countryCodeManager_ is nullptr");
-        return;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
+    countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
+    return ERRCODE_SUCCESS;
 }
 
-void LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
 {
     if (countryCodeManager_ == nullptr) {
         LBSLOGE(LOCATOR, "UnregisterCountryCodeCallback countryCodeManager_ is nullptr");
-        return;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return countryCodeManager_->UnregisterCountryCodeCallback(callback);
+    countryCodeManager_->UnregisterCountryCodeCallback(callback);
+    return ERRCODE_SUCCESS;
 }
 
-int LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
+LocationErrCode LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return REPLY_CODE_EXCEPTION;
-        }
-
-        dataToStub.WriteInt32(request->reportingPeriodSec);
-        dataToStub.WriteBool(request->wakeUpCacheQueueFull);
-        dataToStub.WriteRemoteObject(callback->AsObject());
-        dataToStub.WriteString16(Str8ToStr16(bundleName));
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return REPLY_CODE_EXCEPTION;
-        }
-        obj->SendRequest(REG_CACHED, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return REPLY_CODE_NO_EXCEPTION;
+    dataToStub.WriteInt32(request->reportingPeriodSec);
+    dataToStub.WriteBool(request->wakeUpCacheQueueFull);
+    dataToStub.WriteRemoteObject(callback->AsObject());
+    dataToStub.WriteString16(Str8ToStr16(bundleName));
+    return SendGnssRequest(REG_CACHED, dataToStub, replyToStub);
 }
 
-int LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
+LocationErrCode LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return REPLY_CODE_EXCEPTION;
-        }
-
-        dataToStub.WriteRemoteObject(callback->AsObject());
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return REPLY_CODE_EXCEPTION;
-        }
-        obj->SendRequest(UNREG_CACHED, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return REPLY_CODE_NO_EXCEPTION;
+    dataToStub.WriteRemoteObject(callback->AsObject());
+    return SendGnssRequest(UNREG_CACHED, dataToStub, replyToStub);
 }
 
-int LocatorAbility::GetCachedGnssLocationsSize()
+LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
 {
-    int size = 0;
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return REPLY_CODE_EXCEPTION;
-        }
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return REPLY_CODE_EXCEPTION;
-        }
-
-        int error = obj->SendRequest(GET_CACHED_SIZE, dataToStub, replyToStub, option);
-        if (error == NO_ERROR) {
-            size = replyToStub.ReadInt32();
-        }
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return size;
+    LocationErrCode errorCode = SendGnssRequest(GET_CACHED_SIZE, dataToStub, replyToStub);
+    if (errorCode == ERRCODE_SUCCESS) {
+        size = replyToStub.ReadInt32();
+    }
+    return errorCode;
 }
 
-int LocatorAbility::FlushCachedGnssLocations()
+LocationErrCode LocatorAbility::FlushCachedGnssLocations()
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return REPLY_CODE_EXCEPTION;
-        }
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return REPLY_CODE_EXCEPTION;
-        }
-
-        return obj->SendRequest(FLUSH_CACHED, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return REPLY_CODE_EXCEPTION;
+    return SendGnssRequest(FLUSH_CACHED, dataToStub, replyToStub);
 }
 
-void LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
+LocationErrCode LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
-        }
-        dataToStub.WriteInt32(commands->scenario);
-        dataToStub.WriteString16(Str8ToStr16(commands->command));
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return;
-        }
-        obj->SendRequest(SEND_COMMANDS, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    dataToStub.WriteInt32(commands->scenario);
+    dataToStub.WriteString16(Str8ToStr16(commands->command));
+    return SendGnssRequest(SEND_COMMANDS, dataToStub, replyToStub);
 }
 
-void LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
-        }
-        dataToStub.WriteInt32(request->scenario);
-        dataToStub.WriteDouble(request->geofence.latitude);
-        dataToStub.WriteDouble(request->geofence.longitude);
-        dataToStub.WriteDouble(request->geofence.radius);
-        dataToStub.WriteDouble(request->geofence.expiration);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return;
-        }
-        obj->SendRequest(ADD_FENCE_INFO, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    dataToStub.WriteInt32(request->scenario);
+    dataToStub.WriteDouble(request->geofence.latitude);
+    dataToStub.WriteDouble(request->geofence.longitude);
+    dataToStub.WriteDouble(request->geofence.radius);
+    dataToStub.WriteDouble(request->geofence.expiration);
+    return SendGnssRequest(ADD_FENCE_INFO, dataToStub, replyToStub);
 }
 
-void LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject != proxyMap_->end()) {
-        auto obj = remoteObject->second;
-        MessageParcel dataToStub;
-        if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
-            return;
-        }
-        dataToStub.WriteInt32(request->scenario);
-        dataToStub.WriteDouble(request->geofence.latitude);
-        dataToStub.WriteDouble(request->geofence.longitude);
-        dataToStub.WriteDouble(request->geofence.radius);
-        dataToStub.WriteDouble(request->geofence.expiration);
-        MessageParcel replyToStub;
-        MessageOption option;
-        if (obj == nullptr) {
-            return;
-        }
-        obj->SendRequest(REMOVE_FENCE_INFO, dataToStub, replyToStub, option);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    dataToStub.WriteInt32(request->scenario);
+    dataToStub.WriteDouble(request->geofence.latitude);
+    dataToStub.WriteDouble(request->geofence.longitude);
+    dataToStub.WriteDouble(request->geofence.radius);
+    dataToStub.WriteDouble(request->geofence.expiration);
+    return SendGnssRequest(REMOVE_FENCE_INFO, dataToStub, replyToStub);
 }
 
-std::shared_ptr<CountryCode> LocatorAbility::GetIsoCountryCode()
+LocationErrCode LocatorAbility::GetIsoCountryCode(std::shared_ptr<CountryCode>& countryCode)
 {
     if (countryCodeManager_ == nullptr) {
         LBSLOGE(LOCATOR, "GetIsoCountryCode countryCodeManager_ is nullptr");
-        return nullptr;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return countryCodeManager_->GetIsoCountryCode();
+    countryCode = countryCodeManager_->GetIsoCountryCode();
+    return ERRCODE_SUCCESS;
 }
 
 bool LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
@@ -764,7 +687,7 @@ bool LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> ob
     return false;
 }
 
-bool LocatorAbility::ProcessLocationMockMsg(
+LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
@@ -777,30 +700,30 @@ bool LocatorAbility::ProcessLocationMockMsg(
             SendLocationMockMsgToPassiveSa(obj, timeInterval, location, msgId);
         }
     }
-    return true;
+    return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::EnableLocationMock()
+LocationErrCode LocatorAbility::EnableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location, ENABLE_LOCATION_MOCK);
 }
 
-bool LocatorAbility::DisableLocationMock()
+LocationErrCode LocatorAbility::DisableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location, DISABLE_LOCATION_MOCK);
 }
 
-bool LocatorAbility::SetMockedLocations(
+LocationErrCode LocatorAbility::SetMockedLocations(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     return ProcessLocationMockMsg(timeInterval, location, SET_MOCKED_LOCATIONS);
 }
 
-int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
+LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     if (isEnabled_ == DISABLED) {
@@ -811,7 +734,7 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     }
     // update offset before add request
     if (reportManager_ == nullptr || requestManager_ == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reportManager_->UpdateRandom();
     // generate request object according to input params
@@ -827,81 +750,88 @@ int LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
-int LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
+LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
     LBSLOGI(LOCATOR, "stop locating");
     if (requestManager_ == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     requestManager_->HandleStopLocating(callback);
     ReportLocationStatus(callback, SESSION_STOP);
-    return REPLY_CODE_NO_EXCEPTION;
+    return ERRCODE_SUCCESS;
 }
 
-int LocatorAbility::GetCacheLocation(MessageParcel& reply, AppIdentity &identity)
+LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity)
 {
     auto lastLocation = reportManager_->GetLastLocation();
-    auto finalLocation = reportManager_->GetPermittedLocation(identity.GetTokenId(),
+    loc = reportManager_->GetPermittedLocation(identity.GetTokenId(),
         identity.GetFirstTokenId(), lastLocation);
-    if (finalLocation == nullptr) {
-        reply.WriteInt32(REPLY_CODE_EXCEPTION);
-        reply.WriteString("get no cached result");
-        LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-        return REPLY_CODE_EXCEPTION;
+    if (loc == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (fabs(finalLocation->GetLatitude() - 0.0) > PRECISION
-        && fabs(finalLocation->GetLongitude() - 0.0) > PRECISION) {
-        reply.WriteInt32(REPLY_CODE_NO_EXCEPTION);
-        finalLocation->Marshalling(reply);
-        return REPLY_CODE_NO_EXCEPTION;
+    if (fabs(loc->GetLatitude() - 0.0) > PRECISION
+        && fabs(loc->GetLongitude() - 0.0) > PRECISION) {
+        return ERRCODE_SUCCESS;
     }
-    reply.WriteInt32(REPLY_CODE_EXCEPTION);
-    reply.WriteString("get no cached result");
-    LBSLOGI(LOCATOR, "GetCacheLocation location is null");
-    return REPLY_CODE_EXCEPTION;
+    return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-int LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
+LocationErrCode LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (requests_ == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    LocationErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     LBSLOGI(LOCATOR, "start report location");
     if (reportManager_->OnReportLocation(location, abilityName)) {
-        return REPLY_CODE_NO_EXCEPTION;
+        return ERRCODE_SUCCESS;
     }
-    return REPLY_CODE_EXCEPTION;
+    return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-int LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
+LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
 {
-    if (GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    LocationErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
-        return REPLY_CODE_NO_EXCEPTION;
+        return ERRCODE_SUCCESS;
     }
-    return REPLY_CODE_EXCEPTION;
+    return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-int LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
+LocationErrCode LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
 {
-    if (GetSwitchState() == DISABLED) {
+    int state = DISABLED;
+    LocationErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
         LBSLOGE(LOCATOR, "location switch is off");
-        return REPLY_CODE_EXCEPTION;
+        return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {
-        return REPLY_CODE_NO_EXCEPTION;
+        return ERRCODE_SUCCESS;
     }
-    return REPLY_CODE_EXCEPTION;
+    return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
 void LocatorAbility::RegisterAction()
@@ -925,21 +855,31 @@ void LocatorAbility::RegisterAction()
     }
 }
 
-int LocatorAbility::IsGeoConvertAvailable(MessageParcel &replay)
+LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
 {
     MessageParcel dataParcel;
+    MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return REPLY_CODE_EXCEPTION;
+        isAvailable = false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replay);
+    SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replyParcel);
+    LocationErrCode errorCode = LocationErrCode(replyParcel.ReadInt32());
+    if (errorCode == ERRCODE_SUCCESS) {
+        isAvailable = replyParcel.ReadBool();
+    } else {
+        isAvailable = false;
+    }
+    return errorCode;
 }
 
-int LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay)
+void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return;
     }
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
@@ -949,74 +889,82 @@ int LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &r
     dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
     dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
     dataParcel.WriteString16(data.ReadString16()); // ""
-    return SendGeoRequest(GET_FROM_COORDINATE, dataParcel, replay);
+    SendGeoRequest(GET_FROM_COORDINATE, dataParcel, reply);
 }
 
-int LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &replay)
+void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
+    LBSLOGI(LOCATOR, "locator_ability GetAddressByLocationName");
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return;
     }
     dataParcel.WriteString16(data.ReadString16()); // description
     dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // minLongitude
     dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
-    dataParcel.WriteInt32(data.ReadInt32()); // maxItems
+    dataParcel.WriteInt32(data.ReadInt32()); // maxreplyItems
     dataParcel.WriteInt32(data.ReadInt32()); // locale object size = 1
     dataParcel.WriteString16(data.ReadString16()); // locale.getLanguage()
     dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
     dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
     dataParcel.WriteString16(data.ReadString16()); // ""
-    return SendGeoRequest(GET_FROM_LOCATION_NAME, dataParcel, replay);
+    SendGeoRequest(GET_FROM_LOCATION_NAME, dataParcel, reply);
 }
 
-int LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &replay)
+LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
         CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     MessageOption option;
-    return remoteObject->SendRequest(type, data, replay, option);
+    remoteObject->SendRequest(type, data, reply, option);
+    return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::EnableReverseGeocodingMock()
+LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
 {
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
-    return geoProxy->EnableReverseGeocodingMock();
+    SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    return LocationErrCode(replyParcel.ReadInt32());
 }
 
-bool LocatorAbility::DisableReverseGeocodingMock()
+LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
 {
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
-    return geoProxy->DisableReverseGeocodingMock();
+    SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    return LocationErrCode(replyParcel.ReadInt32());
 }
 
-bool LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
-        return REPLY_CODE_EXCEPTION;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::unique_ptr<GeoConvertProxy> geoProxy = std::make_unique<GeoConvertProxy>(remoteObject);
-    return geoProxy->SetReverseGeocodingMockInfo(mockInfo);
+    dataParcel.WriteInt32(mockInfo.size());
+    for (size_t i = 0; i < mockInfo.size(); i++) {
+        mockInfo[i]->Marshalling(dataParcel);
+    }
+    SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
+    return LocationErrCode(replyParcel.ReadInt32());
 }
 
-bool LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
+LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
     LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d", uid, isProxy);
     std::lock_guard<std::mutex> lock(proxyMutex_);
@@ -1025,15 +973,15 @@ bool LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
     } else {
         proxyUids_.erase(uid);
     }
-    return true;
+    return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::ResetAllProxy()
+LocationErrCode LocatorAbility::ResetAllProxy()
 {
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
     std::lock_guard<std::mutex> lock(proxyMutex_);
     proxyUids_.clear();
-    return true;
+    return ERRCODE_SUCCESS;
 }
 
 bool LocatorAbility::IsProxyUid(int32_t uid)

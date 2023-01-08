@@ -176,6 +176,46 @@ namespace OHOS {
         return true;
     }
 
+    bool LocatorImplV9FuzzerTest(const uint8_t* data, size_t size)
+    {
+        int index = 0;
+        bool isEnabled = false;
+        g_locatorImpl->IsLocationEnabledV9(isEnabled);
+        g_locatorImpl->EnableAbilityV9(false);
+        g_locatorImpl->EnableAbilityV9(true);
+        std::unique_ptr<OHOS::Location::Location> loc =
+            std::make_unique<OHOS::Location::Location>();
+        g_locatorImpl->GetCachedLocationV9(loc);
+        bool isAvailable = false;
+        g_locatorImpl->IsGeoServiceAvailableV9(isAvailable);
+        MessageParcel parcel;
+        std::list<std::shared_ptr<GeoAddress>> geoAddressList;
+        g_locatorImpl->GetAddressByCoordinateV9(parcel, geoAddressList);
+        g_locatorImpl->GetAddressByLocationNameV9(parcel, geoAddressList);
+
+        bool isConfirmed = false;
+        g_locatorImpl->IsLocationPrivacyConfirmedV9(data[index++], isConfirmed);
+        g_locatorImpl->SetLocationPrivacyConfirmStatusV9(data[index++], true);
+        g_locatorImpl->SetLocationPrivacyConfirmStatusV9(data[index++], false);
+
+        int locSize = -1;
+        g_locatorImpl->GetCachedGnssLocationsSizeV9(locSize);
+        g_locatorImpl->FlushCachedGnssLocationsV9();
+
+        std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
+        g_locatorImpl->SendCommandV9(command);
+
+        std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
+        g_locatorImpl->AddFenceV9(fence);
+        g_locatorImpl->RemoveFenceV9(fence);
+        std::shared_ptr<CountryCode> countryCode = std::make_shared<CountryCode>();
+        g_locatorImpl->GetIsoCountryCodeV9(countryCode);
+        g_locatorImpl->ProxyUidForFreezeV9(data[index++], true);
+        g_locatorImpl->ProxyUidForFreezeV9(data[index++], false);
+        g_locatorImpl->ResetAllProxyV9();
+        return true;
+    }
+
     bool TestCallbackRegister(const uint8_t* data, size_t size)
     {
         int index = 0;
@@ -209,6 +249,37 @@ namespace OHOS {
         return true;
     }
 
+    bool TestCallbackRegisterV9(const uint8_t* data, size_t size)
+    {
+        auto switchCallbackHost =
+            sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        g_locatorImpl->RegisterSwitchCallbackV9(switchCallbackHost->AsObject());
+        g_locatorImpl->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject());
+
+        auto gnssCallbackHost =
+            sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        g_locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject());
+        g_locatorImpl->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject());
+
+        auto nmeaCallbackHost =
+            sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        g_locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject());
+        g_locatorImpl->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject());
+
+        auto countryCodeCallbackHost =
+            sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        g_locatorImpl->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject());
+        g_locatorImpl->UnregisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject());
+
+        auto cachedLocationsCallbackHost =
+            sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
+        auto request = std::make_unique<CachedGnssLocationsRequest>();
+        g_locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback);
+        g_locatorImpl->UnregisterCachedLocationCallbackV9(cachedCallback);
+        return true;
+    }
+
     bool TestMockFunc(const uint8_t* data, size_t size)
     {
         int index = 0;
@@ -221,6 +292,21 @@ namespace OHOS {
         std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfo;
         g_locatorImpl->SetReverseGeocodingMockInfo(geoMockInfo);
         g_locatorImpl->DisableReverseGeocodingMock();
+        return true;
+    }
+
+    bool TestMockFuncV9(const uint8_t* data, size_t size)
+    {
+        int index = 0;
+        g_locatorImpl->EnableLocationMockV9();
+        std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+        g_locatorImpl->SetMockedLocationsV9(data[index++], locations);
+        g_locatorImpl->DisableLocationMockV9();
+
+        g_locatorImpl->EnableReverseGeocodingMockV9();
+        std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfo;
+        g_locatorImpl->SetReverseGeocodingMockInfoV9(geoMockInfo);
+        g_locatorImpl->DisableReverseGeocodingMockV9();
         return true;
     }
 
@@ -354,7 +440,8 @@ namespace OHOS {
         locatorAbility->InitSaAbility();
         locatorAbility->InitRequestManagerMap();
         locatorAbility->UpdateSaAbility();
-        locatorAbility->GetSwitchState();
+        int state = 0;
+        locatorAbility->GetSwitchState(state);
         locatorAbility->EnableAbility(true);
         locatorAbility->EnableAbility(false);
         auto switchCallbackHost =
@@ -378,11 +465,14 @@ namespace OHOS {
         sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHostForTest_);
         AppIdentity identity;
         locatorAbility->StopLocating(locatorCallback);
-        MessageParcel reply;
-        locatorAbility->GetCacheLocation(reply, identity);
-        locatorAbility->IsGeoConvertAvailable(reply);
+        std::unique_ptr<OHOS::Location::Location> loc =
+            std::make_unique<OHOS::Location::Location>();
+        locatorAbility->GetCacheLocation(loc, identity);
+        bool isAvailable = false;
+        locatorAbility->IsGeoConvertAvailable(isAvailable);
 
         MessageParcel request;
+        MessageParcel reply;
         locatorAbility->GetAddressByCoordinate(request, reply);
         locatorAbility->GetAddressByLocationName(request, reply);
         return true;
@@ -393,7 +483,8 @@ namespace OHOS {
         auto locatorAbility =
             sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
         int index = 0;
-        locatorAbility->IsLocationPrivacyConfirmed(data[index++]);
+        bool isConfirmed = false;
+        locatorAbility->IsLocationPrivacyConfirmed(data[index++], isConfirmed);
         locatorAbility->SetLocationPrivacyConfirmStatus(data[index++], true);
         locatorAbility->SetLocationPrivacyConfirmStatus(data[index++], false);
         auto cachedLocationsCallbackHost =
@@ -402,7 +493,8 @@ namespace OHOS {
         auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
         locatorAbility->RegisterCachedLocationCallback(cachedRequest, cachedCallback, "fuzz.test");
         locatorAbility->UnregisterCachedLocationCallback(cachedCallback);
-        locatorAbility->GetCachedGnssLocationsSize();
+        int locSize;
+        locatorAbility->GetCachedGnssLocationsSize(locSize);
         locatorAbility->FlushCachedGnssLocations();
 
         std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
@@ -411,7 +503,8 @@ namespace OHOS {
         std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
         locatorAbility->AddFence(fence);
         locatorAbility->RemoveFence(fence);
-        locatorAbility->GetIsoCountryCode();
+        std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
+        locatorAbility->GetIsoCountryCode(country);
         return true;
     }
 
@@ -466,6 +559,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::LocatorImplFuzzerTest(data, size);
     OHOS::TestMockFunc(data, size);
     OHOS::TestCallbackRegister(data, size);
+
+    OHOS::LocatorImplV9FuzzerTest(data, size);
+    OHOS::TestMockFuncV9(data, size);
+    OHOS::TestCallbackRegisterV9(data, size);
 
     OHOS::LocatorAbility001FuzzerTest(data, size);
     OHOS::LocatorAbility002FuzzerTest(data, size);

@@ -278,7 +278,7 @@ int GnssAbility::GetCachedGnssLocationsSize()
 int GnssAbility::FlushCachedGnssLocations()
 {
     LBSLOGE(GNSS, "CachedGnssLocations fuction not support");
-    return REPLY_CODE_UNSUPPORT;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 void GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -615,7 +615,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
         }
         case SET_MOCKED_LOCATIONS: {
             if (!IsMockEnabled()) {
-                reply.WriteBool(false);
+                reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
                 break;
             }
             int timeInterval = data.ReadInt32();
@@ -629,8 +629,11 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             }
             AppExecFwk::InnerEvent::Pointer event =
                 AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
-            bool result = gnssHandler_->SendEvent(event);
-            reply.WriteBool(result);
+            if (gnssHandler_->SendEvent(event)) {
+                reply.WriteInt32(ERRCODE_SUCCESS);
+            } else {
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+            }
             break;
         }
         default:

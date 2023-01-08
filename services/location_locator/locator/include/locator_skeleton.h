@@ -86,6 +86,7 @@ private:
     bool CheckLocationPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckSettingsPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity);
+    bool CheckLocationSwitchState(MessageParcel &reply);
     static void SaDumpInfo(std::string& result);
 };
 

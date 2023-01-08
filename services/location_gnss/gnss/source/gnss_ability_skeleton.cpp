@@ -18,6 +18,7 @@
 #include "ipc_skeleton.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "gnss_ability.h"
 
 namespace OHOS {
@@ -32,14 +33,16 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
         LBSLOGE(GNSS, "uid pid not match locationhub process.");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
 
-    int ret = REPLY_CODE_NO_EXCEPTION;
+    int ret = ERRCODE_SUCCESS;
     switch (code) {
         case SEND_LOCATION_REQUEST: // fall through
         case SET_MOCKED_LOCATIONS: {
@@ -88,11 +91,12 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case GET_CACHED_SIZE: {
+            reply.WriteInt32(ERRCODE_SUCCESS);
             reply.WriteInt32(GetCachedGnssLocationsSize());
             break;
         }
         case FLUSH_CACHED: {
-            ret = FlushCachedGnssLocations();
+            reply.WriteInt32(FlushCachedGnssLocations());
             break;
         }
         case SEND_COMMANDS: {
@@ -103,13 +107,13 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case ENABLE_LOCATION_MOCK: {
-            bool result = EnableMock();
-            reply.WriteBool(result);
+            EnableMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
             break;
         }
         case DISABLE_LOCATION_MOCK: {
-            bool result = DisableMock();
-            reply.WriteBool(result);
+            DisableMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
             break;
         }
         default:

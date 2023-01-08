@@ -12,22 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GNSS_ABILITY_FUZZER_H
-#define GNSS_ABILITY_FUZZER_H
 
-#include "message_option.h"
-#include "message_parcel.h"
+#ifndef LOCATOR_IMPL_TEST_H
+#define LOCATOR_IMPL_TEST_H
 
-#include "gnss_ability.h"
+#include <gtest/gtest.h>
 
+#include "i_locator_callback.h"
+#include "locator.h"
+#include "geo_coding_mock_info.h"
 namespace OHOS {
 namespace Location {
-class GnssAbilityTestFuzzer : public GnssAbility {
+class LocatorImplTest : public testing::Test {
 public:
-    explicit GnssAbilityTestFuzzer() : GnssAbility()
-    {}
-    ~GnssAbilityTestFuzzer() = default;
+    void SetUp();
+    void TearDown();
+    void MockNativePermission();
+    std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
+
+    sptr<ILocatorCallback> callbackStub_;
+    std::unique_ptr<Locator> locatorImpl_;
+    uint64_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_ABILITY_FUZZER_H
+#endif // LOCATOR_IMPL_TEST_H

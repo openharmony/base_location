@@ -69,25 +69,28 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001
     GTEST_LOG_(INFO)
         << "LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 begin");
-    EXPECT_EQ(REPLY_CODE_EXCEPTION,
+    bool isConfirmed = false;
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true));
-    EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
+        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, isConfirmed));
     
-    EXPECT_EQ(REPLY_CODE_EXCEPTION,
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true));
-    EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
+        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, isConfirmed));
     
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true));
-    EXPECT_EQ(true,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_STARTUP));
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, isConfirmed));
+    EXPECT_EQ(true, isConfirmed);
     
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, false));
-    EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION));
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, isConfirmed));
+    EXPECT_EQ(false, isConfirmed);
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 end");
 }
 

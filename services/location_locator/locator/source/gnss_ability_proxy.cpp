@@ -37,8 +37,8 @@ void GnssAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
         return;
     }
     workrecord.Marshalling(data);
-    int error = Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
-    LBSLOGD(GNSS, "RemoteRequest Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
+    LBSLOGD(GNSS, "RemoteRequest Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::SetEnable(bool state)
@@ -52,8 +52,8 @@ void GnssAbilityProxy::SetEnable(bool state)
 
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(ISubAbility::SET_ENABLE, data, reply, option);
-    LBSLOGD(GNSS, "Enable Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::SET_ENABLE, data, reply, option);
+    LBSLOGD(GNSS, "Enable Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::RefrashRequirements()
@@ -65,8 +65,8 @@ void GnssAbilityProxy::RefrashRequirements()
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return;
     }
-    int error = Remote()->SendRequest(ISubAbility::REFRESH_REQUESTS, data, reply, option);
-    LBSLOGD(GNSS, "RefrashRequirements Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::REFRESH_REQUESTS, data, reply, option);
+    LBSLOGD(GNSS, "RefrashRequirements Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
@@ -79,8 +79,8 @@ void GnssAbilityProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& cal
         return;
     }
     data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::REG_GNSS_STATUS, data, reply, option);
-    LBSLOGD(GNSS, "RegisterGnssStatusCallback Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::REG_GNSS_STATUS, data, reply, option);
+    LBSLOGD(GNSS, "RegisterGnssStatusCallback Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
@@ -93,8 +93,8 @@ void GnssAbilityProxy::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& c
         return;
     }
     data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::UNREG_GNSS_STATUS, data, reply, option);
-    LBSLOGD(GNSS, "UnregisterGnssStatusCallback Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::UNREG_GNSS_STATUS, data, reply, option);
+    LBSLOGD(GNSS, "UnregisterGnssStatusCallback Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
@@ -107,8 +107,8 @@ void GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& ca
         return;
     }
     data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::REG_NMEA, data, reply, option);
-    LBSLOGD(GNSS, "RegisterNmeaMessageCallback Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::REG_NMEA, data, reply, option);
+    LBSLOGD(GNSS, "RegisterNmeaMessageCallback Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
@@ -121,8 +121,8 @@ void GnssAbilityProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& 
         return;
     }
     data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::UNREG_NMEA, data, reply, option);
-    LBSLOGD(GNSS, "UnregisterNmeaMessageCallback Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::UNREG_NMEA, data, reply, option);
+    LBSLOGD(GNSS, "UnregisterNmeaMessageCallback Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
@@ -138,8 +138,8 @@ void GnssAbilityProxy::RegisterCachedCallback(const std::unique_ptr<CachedGnssLo
     data.WriteInt32(request->reportingPeriodSec);
     data.WriteBool(request->wakeUpCacheQueueFull);
     data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::REG_CACHED, data, reply, option);
-    LBSLOGD(GNSS, "RegisterCachedCallback Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::REG_CACHED, data, reply, option);
+    LBSLOGD(GNSS, "RegisterCachedCallback Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
@@ -152,8 +152,8 @@ void GnssAbilityProxy::UnregisterCachedCallback(const sptr<IRemoteObject>& callb
         return;
     }
     data.WriteRemoteObject(callback);
-    int error = Remote()->SendRequest(ISubAbility::UNREG_CACHED, data, reply, option);
-    LBSLOGD(GNSS, "UnregisterCachedCallback Transact ErrCode = %{public}d", error);
+    Remote()->SendRequest(ISubAbility::UNREG_CACHED, data, reply, option);
+    LBSLOGD(GNSS, "UnregisterCachedCallback Transact ErrCode = %{public}d", reply.ReadInt32());
 }
 
 int GnssAbilityProxy::GetCachedGnssLocationsSize()
@@ -165,17 +165,20 @@ int GnssAbilityProxy::GetCachedGnssLocationsSize()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "GetCachedGnssLocationsSize remote is null");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
-    int error = remote->SendRequest(ISubAbility::GET_CACHED_SIZE, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::GetCachedGnssLocationsSize Transact ErrCode = %{public}d", error);
+    remote->SendRequest(ISubAbility::GET_CACHED_SIZE, data, reply, option);
+    int errorCode = reply.ReadInt32();
+    LBSLOGD(GNSS, "Proxy::GetCachedGnssLocationsSize Transact ErrCode = %{public}d", errorCode);
     int size = 0;
-    if (error == NO_ERROR) {
+    if (errorCode == ERRCODE_SUCCESS) {
         size = reply.ReadInt32();
     }
     LBSLOGD(GNSS, "Proxy::GetCachedGnssLocationsSize return  %{public}d", size);
@@ -190,15 +193,18 @@ int GnssAbilityProxy::FlushCachedGnssLocations()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "FlushCachedGnssLocations remote is null");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int error = remote->SendRequest(ISubAbility::FLUSH_CACHED, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", error);
-    return error;
+    remote->SendRequest(ISubAbility::FLUSH_CACHED, data, reply, option);
+    int errorCode = reply.ReadInt32();
+    LBSLOGD(GNSS, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
 }
 
 void GnssAbilityProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -217,8 +223,8 @@ void GnssAbilityProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
         LBSLOGE(GNSS, "SendCommand remote is null");
         return;
     }
-    int error = remote->SendRequest(ISubAbility::SEND_COMMANDS, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::SendCommand Transact ErrCodes = %{public}d", error);
+    remote->SendRequest(ISubAbility::SEND_COMMANDS, data, reply, option);
+    LBSLOGD(GNSS, "Proxy::SendCommand Transact ErrCodes = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
@@ -240,8 +246,8 @@ void GnssAbilityProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
         LBSLOGE(GNSS, "AddFence remote is null");
         return;
     }
-    int error = remote->SendRequest(ISubAbility::ADD_FENCE_INFO, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::AddFence Transact ErrCodes = %{public}d", error);
+    remote->SendRequest(ISubAbility::ADD_FENCE_INFO, data, reply, option);
+    LBSLOGD(GNSS, "Proxy::AddFence Transact ErrCodes = %{public}d", reply.ReadInt32());
 }
 
 void GnssAbilityProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
@@ -263,8 +269,8 @@ void GnssAbilityProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
         LBSLOGE(GNSS, "RemoveFence remote is null");
         return;
     }
-    int error = remote->SendRequest(ISubAbility::REMOVE_FENCE_INFO, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
+    remote->SendRequest(ISubAbility::REMOVE_FENCE_INFO, data, reply, option);
+    LBSLOGD(GNSS, "Proxy::RemoveFence Transact ErrCodes = %{public}d", reply.ReadInt32());
 }
 
 bool GnssAbilityProxy::EnableMock()
@@ -281,11 +287,12 @@ bool GnssAbilityProxy::EnableMock()
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", error);
+    remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
+    int errorCode = reply.ReadInt32();
+    LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", errorCode);
     bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
+    if (errorCode == ERRCODE_SUCCESS) {
+        result = true;
     }
     return result;
 }
@@ -304,11 +311,12 @@ bool GnssAbilityProxy::DisableMock()
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return false;
     }
-    int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", error);
+    remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
+    int errorCode = reply.ReadInt32();
+    LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", errorCode);
     bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
+    if (errorCode == ERRCODE_SUCCESS) {
+        result = true;
     }
     return result;
 }
@@ -334,11 +342,12 @@ bool GnssAbilityProxy::SetMocked(
     for (int i = 0; i < locationSize; i++) {
         location.at(i)->Marshalling(data);
     }
-    int error = remote->SendRequest(ISubAbility::SET_MOCKED_LOCATIONS, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::SetMockedLocations Transact ErrCode = %{public}d", error);
+    remote->SendRequest(ISubAbility::SET_MOCKED_LOCATIONS, data, reply, option);
+    int errorCode = reply.ReadInt32();
+    LBSLOGD(GNSS, "Proxy::SetMockedLocations Transact ErrCode = %{public}d", errorCode);
     bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
+    if (errorCode == ERRCODE_SUCCESS) {
+        result = true;
     }
     return result;
 }
