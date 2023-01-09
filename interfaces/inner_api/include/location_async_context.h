@@ -39,8 +39,8 @@ class LocationAsyncContext : public AsyncContext {
 public:
     std::unique_ptr<Location> loc;
 
-    explicit LocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), loc(nullptr) {}
+    explicit LocationAsyncContext(napi_env env, napi_async_work work = nullptr,
+        napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), loc(nullptr) {}
 
     LocationAsyncContext() = delete;
 
