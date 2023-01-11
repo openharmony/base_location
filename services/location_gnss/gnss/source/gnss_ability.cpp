@@ -297,11 +297,11 @@ void GnssAbility::ReportGnssSessionStatus(int status)
 {
 }
 
-void GnssAbility::ReportNmea(const std::string &nmea)
+void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 {
     for (auto iter = nmeaCallback_->begin(); iter != nmeaCallback_->end(); iter++) {
         sptr<INmeaMessageCallback> nmeaCallback = (iter->second);
-        nmeaCallback->OnMessageChange(nmea);
+        nmeaCallback->OnMessageChange(timestamp, nmea);
     }
 }
 

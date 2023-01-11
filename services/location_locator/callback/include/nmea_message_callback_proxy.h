@@ -30,7 +30,7 @@ class NmeaMessageCallbackProxy : public IRemoteProxy<INmeaMessageCallback> {
 public:
     explicit NmeaMessageCallbackProxy(const sptr<IRemoteObject> &impl);
     ~NmeaMessageCallbackProxy() = default;
-    void OnMessageChange(const std::string msg) override;
+    void OnMessageChange(int64_t timestamp, const std::string msg) override;
 private:
     static inline BrokerDelegator<NmeaMessageCallbackProxy> delegator_;
 };

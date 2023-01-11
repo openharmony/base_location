@@ -32,7 +32,7 @@ public:
     
     MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data,
         MessageParcel& reply, MessageOption& option));
-    MOCK_METHOD(void, OnMessageChange, (const std::string msg));
+    MOCK_METHOD(void, OnMessageChange, (int64_t timestamp, const std::string msg));
 };
 } // namespace Location
 } // namespace OHOS

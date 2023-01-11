@@ -25,7 +25,7 @@ namespace Location {
 class IGnssStatusCallback : public IRemoteBroker {
 public:
     enum {
-        RECEIVE_STATUS_INFO_EVENT = 1,
+        RECEIVE_STATUS_INFO_EVENT = 4,
     };
 
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssStatusCallback");
