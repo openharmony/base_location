@@ -23,6 +23,7 @@
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 
 #include "common_utils.h"
 
@@ -284,7 +285,7 @@ int CommonUtils::IntRandom(int min, int max)
     return param;
 }
 
-bool CommonUtils::CheckSystemPermission(pid_t uid, uint32_t callerTokenId)
+bool CommonUtils::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
@@ -294,23 +295,7 @@ bool CommonUtils::CheckSystemPermission(pid_t uid, uint32_t callerTokenId)
         tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
         return false;
     }
-    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemManager == nullptr) {
-        LBSLOGE(COMMON_UTILS, "Get system ability manager failed!");
-        return false;
-    }
-    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleMgrSa == nullptr) {
-        LBSLOGE(COMMON_UTILS, "GetSystemAbility return nullptr!");
-        return false;
-    }
-    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
-    if (bundleMgr == nullptr) {
-        LBSLOGE(COMMON_UTILS, "iface_cast return nullptr!");
-        return false;
-    }
-    bool isSysApp = bundleMgr->CheckIsSystemAppByUid(uid);
-    LBSLOGD(COMMON_UTILS, "Is system App uid[%{public}d]: %{public}d", uid, isSysApp);
+    bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
     return isSysApp;
 }
 
@@ -332,6 +317,43 @@ bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
         return false;
     }
     return bundleMgrProxy->GetBundleNameForUid(uid, bundleName);
+}
+
+/*
+ * Check whether the application is installed by bundleName
+ * @param bundleName
+ * @return true if app is installed
+ * @return false if app is not installed
+ */
+bool CommonUtils::CheckAppInstalled(const std::string& bundleName)
+{
+    int userId = 0;
+    bool ret = GetCurrentUserId(userId);
+    if (!ret) {
+        LBSLOGE(COMMON_UTILS, "GetCurrentUserId failed");
+        return false;
+    }
+    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemManager == nullptr) {
+        LBSLOGE(COMMON_UTILS, "fail to get system ability manager!");
+        return false;
+    }
+    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleMgrSa == nullptr) {
+        LBSLOGE(COMMON_UTILS, "fail to get bundle manager system ability!");
+        return false;
+    }
+    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
+    if (bundleMgr == nullptr) {
+        LBSLOGE(COMMON_UTILS, "Bundle mgr is nullptr.");
+        return false;
+    }
+    AppExecFwk::ApplicationInfo info;
+    bundleMgr->GetApplicationInfoV9(bundleName, 0, userId, info);
+    if (info.name.empty() || info.bundleName.empty()) {
+        return false;
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

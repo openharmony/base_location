@@ -20,6 +20,8 @@
 #include <mutex>
 #include <string>
 
+#include "constant_definition.h"
+
 namespace OHOS {
 namespace Location {
 class LocationConfigManager {
@@ -53,8 +55,8 @@ public:
     bool CreateFile(const std::string& filename, const std::string& filedata);
 
     std::string GetPrivacyTypeConfigPath(const int type);
-    bool GetPrivacyTypeState(const int type);
-    int SetPrivacyTypeState(const int type, bool isConfirmed);
+    LocationErrCode GetPrivacyTypeState(const int type, bool& isConfirmed);
+    LocationErrCode SetPrivacyTypeState(const int type, bool isConfirmed);
 
     /*
      * @Description get nlp service name

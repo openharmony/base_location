@@ -18,6 +18,7 @@
 #include "ipc_skeleton.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "gnss_ability.h"
 
 namespace OHOS {
@@ -32,14 +33,16 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
         LBSLOGE(GNSS, "uid pid not match locationhub process.");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
 
-    int ret = REPLY_CODE_NO_EXCEPTION;
+    int ret = ERRCODE_SUCCESS;
     switch (code) {
         case SEND_LOCATION_REQUEST: // fall through
         case SET_MOCKED_LOCATIONS: {
@@ -47,31 +50,31 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case SET_ENABLE: {
-            SetEnable(data.ReadBool());
+            reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
         case REFRESH_REQUESTS: {
-            RefrashRequirements();
+            reply.WriteInt32(RefrashRequirements());
             break;
         }
         case REG_GNSS_STATUS: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterGnssStatusCallback(client, callingUid);
+            reply.WriteInt32(RegisterGnssStatusCallback(client, callingUid));
             break;
         }
         case UNREG_GNSS_STATUS: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            UnregisterGnssStatusCallback(client);
+            reply.WriteInt32(UnregisterGnssStatusCallback(client));
             break;
         }
         case REG_NMEA: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            RegisterNmeaMessageCallback(client, callingUid);
+            reply.WriteInt32(RegisterNmeaMessageCallback(client, callingUid));
             break;
         }
         case UNREG_NMEA: {
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-            UnregisterNmeaMessageCallback(client);
+            reply.WriteInt32(UnregisterNmeaMessageCallback(client));
             break;
         }
         case REG_CACHED: {
@@ -79,37 +82,37 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             requestConfig->reportingPeriodSec = data.ReadInt32();
             requestConfig->wakeUpCacheQueueFull = data.ReadBool();
             sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
-            RegisterCachedCallback(requestConfig, callback);
+            reply.WriteInt32(RegisterCachedCallback(requestConfig, callback));
             break;
         }
         case UNREG_CACHED: {
             sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
-            UnregisterCachedCallback(callback);
+            reply.WriteInt32(UnregisterCachedCallback(callback));
             break;
         }
         case GET_CACHED_SIZE: {
-            reply.WriteInt32(GetCachedGnssLocationsSize());
+            int size = -1;
+            reply.WriteInt32(GetCachedGnssLocationsSize(size));
+            reply.WriteInt32(size);
             break;
         }
         case FLUSH_CACHED: {
-            ret = FlushCachedGnssLocations();
+            reply.WriteInt32(FlushCachedGnssLocations());
             break;
         }
         case SEND_COMMANDS: {
             std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
             locationCommand->scenario =  data.ReadInt32();
             locationCommand->command = data.ReadBool();
-            SendCommand(locationCommand);
+            reply.WriteInt32(SendCommand(locationCommand));
             break;
         }
         case ENABLE_LOCATION_MOCK: {
-            bool result = EnableMock();
-            reply.WriteBool(result);
+            reply.WriteInt32(EnableMock());
             break;
         }
         case DISABLE_LOCATION_MOCK: {
-            bool result = DisableMock();
-            reply.WriteBool(result);
+            reply.WriteInt32(DisableMock());
             break;
         }
         default:

@@ -45,6 +45,36 @@ ohos_shared_library("geolocation") {
   subsystem_name = "location"
 }
 
+ohos_static_library("geolocation_static") {
+  include_dirs = [
+    "//base/location/frameworks/js/napi/include",
+    "//base/location/interfaces/inner_api/include",
+  ]
+
+  sources = [
+    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
+    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
+    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
+    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
+  ]
+
+  deps = [
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//base/location/frameworks/native:locator_sdk",
+    "//foundation/arkui/napi:ace_napi",
+  ]
+
+  external_deps = [
+    "ability_runtime:wantagent_innerkits",
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
+
+  part_name = "location"
+  subsystem_name = "location"
+}
+
 ohos_shared_library("geolocationmanager") {
   install_enable = true
   include_dirs = [

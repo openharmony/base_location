@@ -28,96 +28,91 @@ NetworkAbilityProxy::NetworkAbilityProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-void NetworkAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
+LocationErrCode NetworkAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(NETWORK, "write interfaceToken fail!");
-        return;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     workrecord.Marshalling(data);
     int error = Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
-    LBSLOGD(NETWORK, "RemoteRequest Transact ErrCode = %{public}d", error);
+    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-void NetworkAbilityProxy::SetEnable(bool state)
+LocationErrCode NetworkAbilityProxy::SetEnable(bool state)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(NETWORK, "write interfaceToken fail!");
-        return;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteBool(state);
 
     MessageParcel reply;
     MessageOption option;
     int error = Remote()->SendRequest(ISubAbility::SET_ENABLE, data, reply, option);
-    LBSLOGD(NETWORK, "Enable Transact ErrCode = %{public}d", error);
+    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-void NetworkAbilityProxy::SelfRequest(bool state)
+LocationErrCode NetworkAbilityProxy::SelfRequest(bool state)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(NETWORK, "write interfaceToken fail!");
-        return;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteBool(state);
     int error = Remote()->SendRequest(SELF_REQUEST, data, reply, option);
-    LBSLOGD(NETWORK, "Proxy::SelfRequest Transact ErrCodes = %{public}d", error);
+    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-bool NetworkAbilityProxy::EnableMock()
+LocationErrCode NetworkAbilityProxy::EnableMock()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        LBSLOGE(GNSS, "EnableLocationMock remote is null");
-        return false;
+        LBSLOGE(NETWORK, "EnableLocationMock remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return false;
+        LBSLOGE(NETWORK, "write interfaceToken fail!");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", error);
-    bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
-    }
-    return result;
+    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-bool NetworkAbilityProxy::DisableMock()
+LocationErrCode NetworkAbilityProxy::DisableMock()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        LBSLOGE(GNSS, "DisableLocationMock remote is null");
-        return false;
+        LBSLOGE(NETWORK, "DisableLocationMock remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return false;
+        LBSLOGE(NETWORK, "write interfaceToken fail!");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", error);
-    bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
-    }
-    return result;
+    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-bool NetworkAbilityProxy::SetMocked(
+LocationErrCode NetworkAbilityProxy::SetMocked(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
@@ -125,12 +120,12 @@ bool NetworkAbilityProxy::SetMocked(
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        LBSLOGE(GNSS, "SetMockedLocations remote is null");
-        return false;
+        LBSLOGE(NETWORK, "SetMockedLocations remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return false;
+        LBSLOGE(NETWORK, "write interfaceToken fail!");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(timeInterval);
     int locationSize = static_cast<int>(location.size());
@@ -139,12 +134,8 @@ bool NetworkAbilityProxy::SetMocked(
         location.at(i)->Marshalling(data);
     }
     int error = remote->SendRequest(ISubAbility::SET_MOCKED_LOCATIONS, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::SetMockedLocations Transact ErrCode = %{public}d", error);
-    bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
-    }
-    return result;
+    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 } // namespace Location
 } // namespace OHOS

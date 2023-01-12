@@ -86,6 +86,9 @@ void NetworkAbilityTest::MockNativePermission()
  */
 HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, SendLocationRequest001, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SendLocationRequest001 begin");
     /*
      * @tc.steps: step1. build location request data.
      */
@@ -103,7 +106,8 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
      * @tc.steps: step2. send location request
      * @tc.expected: step2. no exception happens.
      */
-    proxy_->SendLocationRequest(*workRecord);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SendLocationRequest(*workRecord));
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SendLocationRequest001 end");
 }
 
 /*
@@ -113,11 +117,14 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
  */
 HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 begin");
     /*
      * @tc.steps: step1.remove SA
      * @tc.expected: step1. object1 is null.
      */
-    proxy_->SetEnable(false); // if the state is false
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false)); // if the state is false
     sptr<ISystemAbilityManager> systemAbilityManager1 =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     sptr<IRemoteObject> object1 = systemAbilityManager1->GetSystemAbility(LOCATION_NETWORK_LOCATING_SA_ID);
@@ -127,11 +134,12 @@ HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
      * @tc.steps: step2. test enable SA
      * @tc.expected: step2. object2 is not null.
      */
-    proxy_->SetEnable(true); // if the state is true
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(true)); // if the state is true
     sptr<ISystemAbilityManager> systemAbilityManager2 =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     sptr<IRemoteObject> object2 = systemAbilityManager2->GetSystemAbility(LOCATION_NETWORK_LOCATING_SA_ID);
     EXPECT_NE(nullptr, object2); // SA can be given
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 end");
 }
 
 /*
@@ -141,11 +149,15 @@ HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
  */
 HWTEST_F(NetworkAbilityTest, SelfRequest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, SelfRequest001, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest001 begin");
     /*
      * @tc.steps: step1. send location request
      * @tc.expected: step1. no exception happens.
      */
-    proxy_->SelfRequest(true);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SelfRequest(true));
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest001 end");
 }
 
 /*
@@ -155,26 +167,37 @@ HWTEST_F(NetworkAbilityTest, SelfRequest001, TestSize.Level1)
  */
 HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, SelfRequest002, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest002 begin");
     /*
      * @tc.steps: step1. send location request
      * @tc.expected: step1. no exception happens.
      */
-    proxy_->SelfRequest(false);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SelfRequest(false));
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest002 end");
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkLocationMock001 begin");
     int timeInterval = 1;
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, proxy_->EnableMock());
-    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->EnableMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetMocked(timeInterval, locations));
     
-    EXPECT_EQ(true, proxy_->DisableMock());
-    EXPECT_EQ(false, proxy_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkLocationMock001 end");
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop001 begin");
     ability_->OnStart(); // start ability
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
     ability_->OnStart(); // start ability again
@@ -184,10 +207,14 @@ HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
     ability_->OnStart(); // restart ability
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop001 end");
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkDump001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkDump001, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkDump001 begin");
     int32_t fd = 0;
     std::vector<std::u16string> args;
     std::u16string arg1 = Str8ToStr16("arg1");
@@ -207,13 +234,14 @@ HWTEST_F(NetworkAbilityTest, NetworkDump001, TestSize.Level1)
     std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
     helpArgs.emplace_back(helpArg1);
     EXPECT_EQ(ERR_OK, ability_->Dump(fd, helpArgs));
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkDump001 end");
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, NetworkSendReportMockLocationEvent001, TestSize.Level1";
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent001 begin");
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent001 begin");
     ability_->SendReportMockLocationEvent(); // clear location mock
 
     int timeInterval = 0;
@@ -234,17 +262,17 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent001, TestSize.Lev
     parcel.WriteInt32(0); // floor no.
     parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, ability_->EnableMock());
-    EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->EnableMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->SetMocked(timeInterval, locations));
     sleep(2);
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent001 end");
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent001 end");
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Level1";
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 begin");
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 begin");
     ability_->SendReportMockLocationEvent(); // clear location mock
 
     int timeInterval = 0;
@@ -265,10 +293,10 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
     parcel.WriteInt32(0); // floor no.
     parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, ability_->EnableMock());
-    EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->EnableMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->SetMocked(timeInterval, locations));
     sleep(2);
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 end");
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkSendReportMockLocationEvent002 end");
 }
 
 /*
@@ -278,9 +306,9 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
  */
 HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1)
 {
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkConnectNlpService001 begin");
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 begin");
     EXPECT_EQ(false, ability_->ReConnectNlpService());
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkConnectNlpService001 end");
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 end");
 }
 } // namespace Location
 } // namespace OHOS

@@ -304,9 +304,9 @@ HWTEST_F(CommonUtilsTest, CheckSystemPermissionTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CommonUtilsTest, CheckSystemPermissionTest001, TestSize.Level1";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckSystemPermissionTest001 begin");
-    EXPECT_EQ(false, CommonUtils::CheckSystemPermission(SYSTEM_UID, 0));
+    EXPECT_EQ(false, CommonUtils::CheckSystemPermission(0, 1));
     MockNativePermission();
-    EXPECT_EQ(true, CommonUtils::CheckSystemPermission(SYSTEM_UID, tokenId_));
+    EXPECT_EQ(true, CommonUtils::CheckSystemPermission(tokenId_, 1));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckSystemPermissionTest001 end");
 }
 

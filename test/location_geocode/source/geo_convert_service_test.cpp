@@ -28,6 +28,7 @@
 #include "token_setproc.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "geo_coding_mock_info.h"
 #include "geo_convert_service.h"
 #include "geo_convert_skeleton.h"
@@ -50,7 +51,6 @@ void GeoConvertServiceTest::SetUp()
     EXPECT_NE(nullptr, service_);
     proxy_ = new (std::nothrow) GeoConvertProxy(service_);
     EXPECT_NE(nullptr, proxy_);
-    available_ = Available();
 }
 
 void GeoConvertServiceTest::TearDown()
@@ -85,13 +85,8 @@ void GeoConvertServiceTest::MockNativePermission()
 bool GeoConvertServiceTest::Available()
 {
     MessageParcel replyParcel;
-    if (proxy_ != nullptr) {
-        proxy_->IsGeoConvertAvailable(replyParcel);
-    }
-    replyParcel.ReadInt32();
-    int temp = replyParcel.ReadInt32();
-    bool result = (temp != 0);
-    return result;
+    proxy_->IsGeoConvertAvailable(replyParcel);
+    return replyParcel.ReadInt32() == ERRCODE_SUCCESS;
 }
 
 /*
@@ -104,9 +99,22 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 begin");
-    if (!available_) {
-        return;
-    }
+
+    /*
+     * @tc.steps: step1. Call system ability and check whether available.
+     * @tc.expected: step1. system ability is available.
+     */
+    bool result = Available();
+    EXPECT_EQ(false, result);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertAvailable002, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable002 begin");
+    EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
 
     /*
      * @tc.steps: step1. Call system ability and check whether available.
@@ -114,7 +122,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
      */
     bool result = Available();
     EXPECT_EQ(true, result);
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable002 end");
 }
 
 /*
@@ -127,15 +135,12 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 begin");
-    if (!available_) {
-        return;
-    }
-
     /*
      * @tc.steps: step1.read test data.
      */
     MessageParcel dataParcel;
     MessageParcel replyParcel;
+    dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
     dataParcel.WriteDouble(39.92879); // latitude
     dataParcel.WriteDouble(116.3709); // longitude
     dataParcel.WriteInt32(5); // maxItem
@@ -150,12 +155,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
      * @tc.expected: step2. no exception head info.
      */
     proxy_->GetAddressByCoordinate(dataParcel, replyParcel);
-    bool ret = false;
-    int exceptionHeader = replyParcel.ReadInt32();
-    if (exceptionHeader == REPLY_CODE_NO_EXCEPTION) {
-        ret = true;
-    }
-    EXPECT_TRUE(ret);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, replyParcel.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 end");
 }
 
@@ -169,15 +169,13 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 begin");
-    if (!available_) {
-        return;
-    }
 
     /*
      * @tc.steps: step1.read test data.
      */
     MessageParcel dataParcel;
     MessageParcel replyParcel;
+    dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
     dataParcel.WriteString16(Str8ToStr16("北京")); // input description of a location
     dataParcel.WriteDouble(0.0); // minLatitude
     dataParcel.WriteDouble(0.0); // minLongitude
@@ -195,12 +193,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
      * @tc.expected: step2. no exception head info.
      */
     proxy_->GetAddressByLocationName(dataParcel, replyParcel);
-    bool ret = false;
-    int exceptionHeader = replyParcel.ReadInt32();
-    if (exceptionHeader == REPLY_CODE_NO_EXCEPTION) {
-        ret = true;
-    }
-    EXPECT_TRUE(ret);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, replyParcel.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 end");
 }
 
@@ -211,10 +204,10 @@ HWTEST_F(GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 begin");
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
-    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetReverseGeocodingMockInfo(mockInfo));
 
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
-    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetReverseGeocodingMockInfo(mockInfo));
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 end");
 }
 
@@ -253,26 +246,15 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     MessageParcel parcel1;
     MessageParcel reply1;
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, proxy_->GetAddressByCoordinate(parcel1, reply1));
+    proxy_->GetAddressByCoordinate(parcel1, reply1);
+    EXPECT_EQ(ERRCODE_SUCCESS, reply1.ReadInt32());
 
     MessageParcel parcel2;
     MessageParcel reply2;
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
     proxy_->GetAddressByCoordinate(parcel2, reply2);
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply2.ReadInt32());
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply2.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
-}
-
-HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByLocationName001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertProxyGetAddressByLocationName001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByLocationName001 begin");
-    MessageParcel parcel;
-    MessageParcel reply;
-    proxy_->GetAddressByLocationName(parcel, reply);
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, reply.ReadInt32());
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByLocationName001 end");
 }
 }  // namespace Location
 } // namespace OHOS

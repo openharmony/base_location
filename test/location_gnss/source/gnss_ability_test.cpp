@@ -95,6 +95,9 @@ void GnssAbilityTest::MockNativePermission()
  */
 HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendLocationRequest001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendLocationRequest001 begin");
     /*
      * @tc.steps: step1. build location request data.
      */
@@ -112,7 +115,8 @@ HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
      * @tc.steps: step2. send location request
      * @tc.expected: step2. no exception happens.
      */
-    proxy_->SendLocationRequest(*workRecord);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SendLocationRequest(*workRecord));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendLocationRequest001 end");
 }
 
 /*
@@ -122,13 +126,16 @@ HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SetEnableAndDisable001 begin");
     /*
      * @tc.steps: step1.remove SA
      * @tc.expected: step1. object1 is null.
      */
     MessageParcel data1;
     data1.WriteBool(false); // if the state is false
-    proxy_->SetEnable(data1.ReadBool());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(data1.ReadBool()));
     sptr<ISystemAbilityManager> systemAbilityManager1 =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     sptr<IRemoteObject> object1 = systemAbilityManager1->GetSystemAbility(LOCATION_GNSS_SA_ID);
@@ -140,11 +147,12 @@ HWTEST_F(GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1)
      */
     MessageParcel data2;
     data2.WriteBool(true); // if the state is true
-    proxy_->SetEnable(data2.ReadBool());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(data2.ReadBool()));
     sptr<ISystemAbilityManager> systemAbilityManager2 =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     sptr<IRemoteObject> object2 = systemAbilityManager2->GetSystemAbility(LOCATION_GNSS_SA_ID);
     EXPECT_NE(nullptr, object2); // SA can be given
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SetEnableAndDisable001 end");
 }
 
 /*
@@ -154,11 +162,15 @@ HWTEST_F(GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RefrashRequirements001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RefrashRequirements001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RefrashRequirements001 begin");
     /*
      * @tc.steps: step1. test refrash requirements
      * @tc.expected: no exception happens.
      */
-    proxy_->RefrashRequirements();
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RefrashRequirements());
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RefrashRequirements001 end");
 }
 
 /*
@@ -168,6 +180,9 @@ HWTEST_F(GnssAbilityTest, RefrashRequirements001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RegisterGnssStatusCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterGnssStatusCallback001 begin");
     /*
      * @tc.steps: step1.the client is null.
      */
@@ -178,7 +193,8 @@ HWTEST_F(GnssAbilityTest, RegisterGnssStatusCallback001, TestSize.Level1)
      * @tc.steps: step2. test register gnss status callback
      * @tc.expected: log info : "SendRegisterMsgToRemote callback is nullptr".
      */
-    proxy_->RegisterGnssStatusCallback(client, lastCallingUid);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->RegisterGnssStatusCallback(client, lastCallingUid));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterGnssStatusCallback001 end");
 }
 
 /*
@@ -188,6 +204,9 @@ HWTEST_F(GnssAbilityTest, RegisterGnssStatusCallback001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterGnssStatusCallback001 begin");
     /*
      * @tc.steps: step1. give the last calling uid
      */
@@ -197,13 +216,14 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.L
      * @tc.steps: step2. test register gnss status callback
      * @tc.expected: no exception happens.
      */
-    proxy_->RegisterGnssStatusCallback(callbackStub_->AsObject(), lastCallingUid);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterGnssStatusCallback(callbackStub_->AsObject(), lastCallingUid));
 
     /*
      * @tc.steps: step3. test unregister gnss status callback
      * @tc.expected: no exception happens
      */
-    proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject()));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterGnssStatusCallback001 end");
 }
 
 /*
@@ -213,6 +233,9 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.L
  */
 HWTEST_F(GnssAbilityTest, UnregisterGnssStatusCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, UnregisterGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterGnssStatusCallback001 begin");
     /*
      * @tc.steps: step1.the client is null.
      */
@@ -222,7 +245,8 @@ HWTEST_F(GnssAbilityTest, UnregisterGnssStatusCallback001, TestSize.Level1)
      * @tc.steps: step2. test unregister gnss status callback
      * @tc.expected: log info : "unregister an invalid gnssStatus callback".
      */
-    proxy_->UnregisterGnssStatusCallback(client);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->UnregisterGnssStatusCallback(client));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterGnssStatusCallback001 end");
 }
 
 /*
@@ -232,6 +256,9 @@ HWTEST_F(GnssAbilityTest, UnregisterGnssStatusCallback001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RegisterNmeaMessageCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterNmeaMessageCallback001 begin");
     /*
      * @tc.steps: step1.the client is null.
      */
@@ -242,7 +269,8 @@ HWTEST_F(GnssAbilityTest, RegisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.steps: step2. test register nmea message callback
      * @tc.expected: log info : "register an invalid nmea callback".
      */
-    proxy_->RegisterNmeaMessageCallback(client, uid);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->RegisterNmeaMessageCallback(client, uid));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterNmeaMessageCallback001 end");
 }
 
 /*
@@ -252,6 +280,9 @@ HWTEST_F(GnssAbilityTest, RegisterNmeaMessageCallback001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterNmeaMessageCallback001 begin");
     /*
      * @tc.steps: step1.the client is not null.
      */
@@ -261,13 +292,14 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.
      * @tc.steps: step2. test register nmea message callback
      * @tc.expected: no exception happens
      */
-    proxy_->RegisterNmeaMessageCallback(callbackStub_->AsObject(), uid);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterNmeaMessageCallback(callbackStub_->AsObject(), uid));
 
     /*
      * @tc.steps: step3. test unregister nmea message callback
      * @tc.expected: no exception happens.
      */
-    proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject()));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterNmeaMessageCallback001 end");
 }
 
 /*
@@ -277,6 +309,9 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.
  */
 HWTEST_F(GnssAbilityTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, UnregisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterNmeaMessageCallback001 begin");
     /*
      * @tc.steps: step1.the client is null.
      */
@@ -286,7 +321,8 @@ HWTEST_F(GnssAbilityTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.steps: step2. test unregister nmea message callback
      * @tc.expected: log info : "unregister an invalid nmea callback".
      */
-    proxy_->UnregisterNmeaMessageCallback(client);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->UnregisterNmeaMessageCallback(client));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterNmeaMessageCallback001 end");
 }
 
 /*
@@ -296,6 +332,9 @@ HWTEST_F(GnssAbilityTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RegisterCachedCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterCachedCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback001 begin");
     /*
      * @tc.steps: step1.prepare request config and the call back is null.
      */
@@ -309,7 +348,8 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback001, TestSize.Level1)
      * @tc.steps: step2. test register cached call back if call back is null.
      * @tc.expected: log info : "register an invalid cached location callback"
      */
-    proxy_->RegisterCachedCallback(requestConfig, callback);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->RegisterCachedCallback(requestConfig, callback));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback001 end");
 }
 
 /*
@@ -319,6 +359,9 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback003 begin");
     /*
      * @tc.steps: step1.prepare request config and the call back is not null.
      */
@@ -330,7 +373,8 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1)
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback003 end");
 }
 
 /*
@@ -340,6 +384,9 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterCachedCallback002 begin");
     /*
      * @tc.steps: step1.prepare request config and the call back is not null.
      */
@@ -351,13 +398,14 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
 
     /*
      * @tc.steps: step3. test unregister cached call back if call back is not null.
      * @tc.expected: no exception happens.
      */
-    proxy_->UnregisterCachedCallback(callbackStub_->AsObject());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->UnregisterCachedCallback(callbackStub_->AsObject()));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterCachedCallback002 end");
 }
 
 /*
@@ -367,6 +415,9 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level
  */
 HWTEST_F(GnssAbilityTest, UnregisterCachedCallback001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, UnregisterCachedCallback001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterCachedCallback001 begin");
     /*
      * @tc.steps: step1. the call back is null.
      */
@@ -376,7 +427,8 @@ HWTEST_F(GnssAbilityTest, UnregisterCachedCallback001, TestSize.Level1)
      * @tc.steps: step2. test unregister cached call back if call back is null.
      * @tc.expected: log info : "register an invalid cached location callback"
      */
-    proxy_->UnregisterCachedCallback(callback);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->UnregisterCachedCallback(callback));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterCachedCallback001 end");
 }
 
 /*
@@ -386,12 +438,17 @@ HWTEST_F(GnssAbilityTest, UnregisterCachedCallback001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, GetCachedGnssLocationsSize001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCachedGnssLocationsSize001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetCachedGnssLocationsSize001 begin");
     /*
      * @tc.steps: step1. test get cached gnss locations size.
      * @tc.expected: size equals -1.
      */
-    int size = proxy_->GetCachedGnssLocationsSize();
+    int size = 0;
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->GetCachedGnssLocationsSize(size));
     EXPECT_EQ(-1, size);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetCachedGnssLocationsSize001 end");
 }
 
 /*
@@ -401,12 +458,15 @@ HWTEST_F(GnssAbilityTest, GetCachedGnssLocationsSize001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, FlushCachedGnssLocations001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, FlushCachedGnssLocations001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] FlushCachedGnssLocations001 begin");
     /*
      * @tc.steps: step1. test flush cached gnss locations.
      * @tc.expected: reply code unsupport
      */
-    int ret = proxy_->FlushCachedGnssLocations();
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, ret);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->FlushCachedGnssLocations());
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] FlushCachedGnssLocations001 end");
 }
 
 /*
@@ -416,6 +476,9 @@ HWTEST_F(GnssAbilityTest, FlushCachedGnssLocations001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, SendCommand001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendCommand001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand001 begin");
     /*
      * @tc.steps: step1. build location command
      */
@@ -427,7 +490,8 @@ HWTEST_F(GnssAbilityTest, SendCommand001, TestSize.Level1)
      * @tc.steps: step2. test send command.
      * @tc.expected: current function is empty, nothing happens
      */
-    proxy_->SendCommand(locationCommand);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SendCommand(locationCommand));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand001 end");
 }
 
 /*
@@ -437,6 +501,9 @@ HWTEST_F(GnssAbilityTest, SendCommand001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddFence001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFence001 begin");
     /*
      * @tc.steps: step1. build geo fence request
      */
@@ -451,7 +518,8 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
      * @tc.steps: step2. test add fence
      * @tc.expected: no exception happens
      */
-    proxy_->AddFence(request);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->AddFence(request));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFence001 end");
 }
 
 /*
@@ -461,6 +529,9 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
  */
 HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveFence001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RemoveFence001 begin");
     /*
      * @tc.steps: step1. build geo fence request
      */
@@ -475,24 +546,32 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
      * @tc.steps: step2. test remove fence
      * @tc.expected: no exception happens
      */
-    proxy_->RemoveFence(request);
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RemoveFence(request));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RemoveFence001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssLocationMock001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssLocationMock001 begin");
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, proxy_->EnableMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->EnableMock());
     EXPECT_EQ(true, ability_->IsMockEnabled());
-    EXPECT_EQ(true, proxy_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetMocked(timeInterval, locations));
     
-    EXPECT_EQ(true, proxy_->DisableMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
     EXPECT_EQ(false, ability_->IsMockEnabled());
-    EXPECT_EQ(false, proxy_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssLocationMock001 begin");
 }
 
 HWTEST_F(GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStartAndOnStop001 begin");
     ability_->OnStart(); // start ability
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
     ability_->OnStart(); // start ability again
@@ -502,10 +581,14 @@ HWTEST_F(GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1)
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
     ability_->OnStart(); // restart ability
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStartAndOnStop001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssDump001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssDump001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssDump001 begin");
     int32_t fd = 0;
     std::vector<std::u16string> args;
     std::u16string arg1 = Str8ToStr16("arg1");
@@ -525,13 +608,14 @@ HWTEST_F(GnssAbilityTest, GnssDump001, TestSize.Level1)
     std::u16string helpArg1 = Str8ToStr16(ARGS_HELP);
     helpArgs.emplace_back(helpArg1);
     EXPECT_EQ(ERR_OK, ability_->Dump(fd, helpArgs));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssDump001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] GnssSendReportMockLocationEvent001 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendReportMockLocationEvent001 begin");
     ability_->SendReportMockLocationEvent(); // clear location mock
 
     int timeInterval = 0;
@@ -552,17 +636,17 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent001, TestSize.Level1)
     parcel.WriteInt32(0); // floor no.
     parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, ability_->EnableMock());
-    EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->EnableMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->SetMocked(timeInterval, locations));
     sleep(2);
-    LBSLOGI(GNSS, "[GnssAbilityTest] GnssSendReportMockLocationEvent001 end");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendReportMockLocationEvent001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] GnssSendReportMockLocationEvent002 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendReportMockLocationEvent002 begin");
     ability_->SendReportMockLocationEvent(); // clear location mock
 
     int timeInterval = 0;
@@ -583,21 +667,28 @@ HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent002, TestSize.Level1)
     parcel.WriteInt32(0); // floor no.
     parcel.WriteDouble(1000.0); // floor acc
     locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(true, ability_->EnableMock());
-    EXPECT_EQ(true, ability_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->EnableMock());
+    EXPECT_EQ(ERRCODE_SUCCESS, ability_->SetMocked(timeInterval, locations));
     sleep(2);
-    LBSLOGI(GNSS, "[GnssAbilityTest] GnssSendReportMockLocationEvent002 end");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendReportMockLocationEvent002 end");
 }
 
 HWTEST_F(GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFenceAndRemoveFenceTest001 begin");
     std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
     ability_->AddFence(fence);
     ability_->RemoveFence(fence);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFenceAndRemoveFenceTest001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssAbilityReportSv001 begin");
     std::unique_ptr<SatelliteStatus> status = std::make_unique<SatelliteStatus>();
     MessageParcel parcel;
     int sateNum = 2;
@@ -611,39 +702,52 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
     }
     status->ReadFromParcel(parcel);
     ability_->ReportSv(status);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssAbilityReportSv001 end");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestSetUpAgnssDataLink001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestSetUpAgnssDataLink001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestSetUpAgnssDataLink001 begin");
     sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssDataLinkRequest request;
     request.agnssType = HDI::Location::Agnss::V1_0::AGNSS_TYPE_SUPL;
     request.setUpType = HDI::Location::Agnss::V1_0::ESTABLISH_DATA_CONNECTION;
     EXPECT_EQ(ERR_OK, agnssCallback->RequestSetUpAgnssDataLink(request));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestSetUpAgnssDataLink001 end");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestSubscriberSetId001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestSubscriberSetId001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestSubscriberSetId001 begin");
     sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     SubscriberSetIdType type = HDI::Location::Agnss::V1_0::SETID_TYPE_IMSI;
     EXPECT_EQ(ERR_OK, agnssCallback->RequestSubscriberSetId(type));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestSubscriberSetId001 end");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo001 begin");
     sptr<IAGnssCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_CALL(MockICellularDataManager::GetInstance(), GetDefaultCellularDataSlotId).WillRepeatedly(Return(-1));
     EXPECT_NE(nullptr, agnssCallback);
     EXPECT_EQ(ERR_OK, agnssCallback->RequestAgnssRefInfo());
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo001 end");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo002, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo002 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo002 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -652,14 +756,14 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo002, TestSize.Lev
     gsmCellInformation->Init(0, 0, 0);
     agnssCallback->JudgmentDataGsm(refInfo, gsmCellInformation);
     EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_GSM, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo002 end");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo002 end");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo003, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo003, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo003 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo003 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -667,14 +771,14 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo003, TestSize.Lev
     sptr<Telephony::GsmCellInformation> gsmCellInformation = nullptr;
     agnssCallback->JudgmentDataGsm(refInfo, gsmCellInformation);
     EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_GSM, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo003 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo003 begin");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo004, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo004, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo004 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo004 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -683,14 +787,14 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo004, TestSize.Lev
     lteCellInformation->Init(0, 0, 0);
     agnssCallback->JudgmentDataLte(refInfo, lteCellInformation);
     EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_LTE, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo004 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo004 begin");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo005, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo005, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo005 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo005 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -698,14 +802,14 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo005, TestSize.Lev
     sptr<Telephony::LteCellInformation> lteCellInformation = nullptr;
     agnssCallback->JudgmentDataLte(refInfo, lteCellInformation);
     EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_LTE, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo005 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo005 begin");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo006, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo006, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo006 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo006 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -714,14 +818,14 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo006, TestSize.Lev
     umtsCellInformation->Init(0, 0, 0);
     agnssCallback->JudgmentDataUmts(refInfo, umtsCellInformation);
     EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_UMTS, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo006 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo006 begin");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo007, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo007, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo007 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo007 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -729,14 +833,14 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo007, TestSize.Lev
     sptr<Telephony::WcdmaCellInformation> umtsCellInformation = nullptr;
     agnssCallback->JudgmentDataUmts(refInfo, umtsCellInformation);
     EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_UMTS, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo007 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo007 begin");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo008, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo008, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo008 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo008 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -745,14 +849,14 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo008, TestSize.Lev
     nrCellInformation->Init(0, 0, 0);
     agnssCallback->JudgmentDataNr(refInfo, nrCellInformation);
     EXPECT_EQ(HDI::Location::Agnss::V1_0::CELLID_TYPE_NR, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo008 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo008 begin");
 }
 
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo009, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo009, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo009 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo009 begin");
     sptr<AGnssEventCallback> agnssCallback = new (std::nothrow) AGnssEventCallback();
     EXPECT_NE(nullptr, agnssCallback);
     AGnssRefInfo refInfo;
@@ -760,7 +864,7 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo009, TestSize.Lev
     sptr<Telephony::NrCellInformation> nrCellInformation = nullptr;
     agnssCallback->JudgmentDataNr(refInfo, nrCellInformation);
     EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_NR, refInfo.cellId.type);
-    LBSLOGI(GNSS, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo009 begin");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo009 begin");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportLocation001, TestSize.Level1)

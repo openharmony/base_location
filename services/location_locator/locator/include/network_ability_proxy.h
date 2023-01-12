@@ -22,6 +22,7 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 
+#include "constant_definition.h"
 #include "location.h"
 #include "network_ability_skeleton.h"
 #include "work_record.h"
@@ -32,12 +33,12 @@ class NetworkAbilityProxy : public IRemoteProxy<INetworkAbility> {
 public:
     explicit NetworkAbilityProxy(const sptr<IRemoteObject> &impl);
     ~NetworkAbilityProxy() = default;
-    void SendLocationRequest(WorkRecord &workrecord) override;
-    void SetEnable(bool state) override;
-    void SelfRequest(bool state) override;
-    bool EnableMock() override;
-    bool DisableMock() override;
-    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
+    LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
+    LocationErrCode SetEnable(bool state) override;
+    LocationErrCode SelfRequest(bool state) override;
+    LocationErrCode EnableMock() override;
+    LocationErrCode DisableMock() override;
+    LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
 private:
     static inline BrokerDelegator<NetworkAbilityProxy> delegator_;
 };

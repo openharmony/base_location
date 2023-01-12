@@ -77,14 +77,16 @@ bool PassiveAbility::Init()
     return true;
 }
 
-void PassiveAbility::SendLocationRequest(WorkRecord &workrecord)
+LocationErrCode PassiveAbility::SendLocationRequest(WorkRecord &workrecord)
 {
     LocationRequest(workrecord);
+    return ERRCODE_SUCCESS;
 }
 
-void PassiveAbility::SetEnable(bool state)
+LocationErrCode PassiveAbility::SetEnable(bool state)
 {
     Enable(state, AsObject());
+    return ERRCODE_SUCCESS;
 }
 
 void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
@@ -92,14 +94,20 @@ void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGE(PASSIVE, "enter RequestRecord");
 }
 
-bool PassiveAbility::EnableMock()
+LocationErrCode PassiveAbility::EnableMock()
 {
-    return EnableLocationMock();
+    if (!EnableLocationMock()) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
-bool PassiveAbility::DisableMock()
+LocationErrCode PassiveAbility::DisableMock()
 {
-    return DisableLocationMock();
+    if (!DisableLocationMock()) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
 bool PassiveAbility::IsMockEnabled()
@@ -107,10 +115,13 @@ bool PassiveAbility::IsMockEnabled()
     return IsLocationMocked();
 }
 
-bool PassiveAbility::SetMocked(const int timeInterval,
+LocationErrCode PassiveAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(timeInterval, location);
+    if (!SetMockedLocations(timeInterval, location)) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
 void PassiveAbility::SendReportMockLocationEvent()
@@ -143,12 +154,13 @@ int32_t PassiveAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
 void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     if (passiveHandler_ == nullptr) {
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
     switch (code) {
         case SET_MOCKED_LOCATIONS: {
             if (!IsMockEnabled()) {
-                reply.WriteBool(false);
+                reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
                 break;
             }
             int timeInterval = data.ReadInt32();
@@ -162,8 +174,11 @@ void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
             }
             AppExecFwk::InnerEvent::Pointer event =
                 AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
-            bool result = passiveHandler_->SendEvent(event);
-            reply.WriteBool(result);
+            if (passiveHandler_->SendEvent(event)) {
+                reply.WriteInt32(ERRCODE_SUCCESS);
+            } else {
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+            }
             break;
         }
         default:

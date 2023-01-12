@@ -173,27 +173,41 @@ void NetworkAbility::NotifyDisConnected()
     connectCondition_.notify_all();
 }
 
-void NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
+LocationErrCode NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
 {
     LocationRequest(workrecord);
+    return ERRCODE_SUCCESS;
 }
 
-void NetworkAbility::SetEnable(bool state)
+LocationErrCode NetworkAbility::SetEnable(bool state)
 {
     Enable(state, AsObject());
+    return ERRCODE_SUCCESS;
 }
 
-void NetworkAbility::SelfRequest(bool state)
+LocationErrCode NetworkAbility::SelfRequest(bool state)
 {
     LBSLOGI(NETWORK, "SelfRequest %{public}d", state);
     HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
+    return ERRCODE_SUCCESS;
 }
 
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    if (!nlpServiceReady_ && !ReConnectNlpService()) {
-        LBSLOGE(NETWORK, "nlp service is not ready.");
-        return;
+    if (!nlpServiceReady_) {
+        std::string name;
+        bool result = LocationConfigManager::GetInstance().GetNlpServiceName(SERVICE_CONFIG_FILE, name);
+        if (!result || name.empty()) {
+            LBSLOGE(NETWORK, "get service name failed!");
+            return;
+        }
+        if (!CommonUtils::CheckAppInstalled(name)) { // app is not installed
+            LBSLOGE(NETWORK, "nlp service is not available.");
+            return;
+        } else if (!ReConnectNlpService()) {
+            LBSLOGE(NETWORK, "nlp service is not ready.");
+            return;
+        }
     }
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     if (nlpServiceProxy_ == nullptr) {
@@ -229,14 +243,20 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     }
 }
 
-bool NetworkAbility::EnableMock()
+LocationErrCode NetworkAbility::EnableMock()
 {
-    return EnableLocationMock();
+    if (!EnableLocationMock()) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
-bool NetworkAbility::DisableMock()
+LocationErrCode NetworkAbility::DisableMock()
 {
-    return DisableLocationMock();
+    if (!DisableLocationMock()) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
 bool NetworkAbility::IsMockEnabled()
@@ -244,10 +264,13 @@ bool NetworkAbility::IsMockEnabled()
     return IsLocationMocked();
 }
 
-bool NetworkAbility::SetMocked(const int timeInterval,
+LocationErrCode NetworkAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(timeInterval, location);
+    if (!SetMockedLocations(timeInterval, location)) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
 void NetworkAbility::ProcessReportLocationMock()
@@ -326,18 +349,23 @@ int32_t NetworkAbility::Dump(int32_t fd, const std::vector<std::u16string>& args
 void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     if (networkHandler_ == nullptr) {
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
     switch (code) {
         case SEND_LOCATION_REQUEST: {
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, workrecord);
-            networkHandler_->SendEvent(event);
+            if (networkHandler_->SendEvent(event)) {
+                reply.WriteInt32(ERRCODE_SUCCESS);
+            } else {
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+            }
             break;
         }
         case SET_MOCKED_LOCATIONS: {
             if (!IsMockEnabled()) {
-                reply.WriteBool(false);
+                reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
                 break;
             }
             int timeInterval = data.ReadInt32();
@@ -351,8 +379,17 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
             }
             AppExecFwk::InnerEvent::Pointer event =
                 AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
-            bool result = networkHandler_->SendEvent(event);
-            reply.WriteBool(result);
+            if (networkHandler_->SendEvent(event)) {
+                reply.WriteInt32(ERRCODE_SUCCESS);
+            } else {
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+            }
+            break;
+        }
+        case SELF_REQUEST: {
+            int64_t param = data.ReadBool() ? 1 : 0;
+            networkHandler_->SendEvent(code, param, 0) ? reply.WriteInt32(ERRCODE_SUCCESS) :
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
             break;
         }
         default:
@@ -395,6 +432,11 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
                 }
                 networkAbility->SetMocked(timeInterval, mockLocations);
             }
+            break;
+        }
+        case ISubAbility::SELF_REQUEST: {
+            bool state = event->GetParam();
+            networkAbility->SelfRequest(state);
             break;
         }
         default:
