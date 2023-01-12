@@ -25,6 +25,7 @@
 #include "system_ability.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "passive_ability_skeleton.h"
 #include "subability_common.h"
 
@@ -51,13 +52,13 @@ public:
     {
         return state_;
     }
-    void SendLocationRequest(WorkRecord &workrecord) override;
-    void SetEnable(bool state) override;
+    LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
+    LocationErrCode SetEnable(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
-    bool EnableMock() override;
-    bool DisableMock() override;
-    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
+    LocationErrCode EnableMock() override;
+    LocationErrCode DisableMock() override;
+    LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
     bool IsMockEnabled();
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;

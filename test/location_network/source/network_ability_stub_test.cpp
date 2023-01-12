@@ -20,6 +20,7 @@
 #include "message_parcel.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "location_log.h"
 #include "network_ability_proxy.h"
 #include "network_callback_host.h"
@@ -52,7 +53,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest001, TestSize.Level1)
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         networkAbilityStub->OnRemoteRequest(ISubAbility::SEND_LOCATION_REQUEST, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest001 end");
 }
@@ -63,12 +64,12 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest002, TestSize.Level1)
         << "NetworkAbilityStubTest, NetworkAbilityStubTest002, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest002 begin");
     auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
-    EXPECT_CALL(*networkAbilityStub, SetEnable(_)).WillOnce(DoAll(Return()));
+    EXPECT_CALL(*networkAbilityStub, SetEnable(_)).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         networkAbilityStub->OnRemoteRequest(ISubAbility::SET_ENABLE, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest002 end");
 }
@@ -84,7 +85,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest003, TestSize.Level1)
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         networkAbilityStub->OnRemoteRequest(ISubAbility::SELF_REQUEST, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest003 end");
 }
@@ -95,12 +96,12 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest004, TestSize.Level1)
         << "NetworkAbilityStubTest, NetworkAbilityStubTest004, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest004 begin");
     auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
-    EXPECT_CALL(*networkAbilityStub, EnableMock()).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*networkAbilityStub, EnableMock()).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         networkAbilityStub->OnRemoteRequest(ISubAbility::ENABLE_LOCATION_MOCK, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest004 end");
 }
@@ -111,12 +112,12 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest005, TestSize.Level1)
         << "NetworkAbilityStubTest, NetworkAbilityStubTest005, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest005 begin");
     auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
-    EXPECT_CALL(*networkAbilityStub, DisableMock()).WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*networkAbilityStub, DisableMock()).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         networkAbilityStub->OnRemoteRequest(ISubAbility::DISABLE_LOCATION_MOCK, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest005 end");
 }
@@ -132,7 +133,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest006, TestSize.Level1)
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_NO_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SUCCESS,
         networkAbilityStub->OnRemoteRequest(ISubAbility::SET_MOCKED_LOCATIONS, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest006 end");
 }
@@ -162,7 +163,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest008, TestSize.Level1)
     parcel.WriteInterfaceToken(u"UNKNOWN_DESCRIPTOR");
     MessageParcel reply;
     MessageOption option;
-    EXPECT_EQ(REPLY_CODE_EXCEPTION,
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE,
         networkAbilityStub->OnRemoteRequest(UNKNOWN_CODE, parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest008 end");
 }

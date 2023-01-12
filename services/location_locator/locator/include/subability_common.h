@@ -20,6 +20,7 @@
 
 #include "iremote_broker.h"
 
+#include "constant_definition.h"
 #include "i_locator_callback.h"
 #include "location.h"
 #include "hilog/log.h"
@@ -57,11 +58,11 @@ public:
         ENABLE_REV_GEOCODE_MOCK = 25,
         DISABLE_REV_GEOCODE_MOCK = 26,
     };
-    virtual void SendLocationRequest(WorkRecord &workrecord) = 0;
-    virtual void SetEnable(bool state) = 0;
-    virtual bool EnableMock() = 0;
-    virtual bool DisableMock() = 0;
-    virtual bool SetMocked(const int timeInterval,
+    virtual LocationErrCode SendLocationRequest(WorkRecord &workrecord) = 0;
+    virtual LocationErrCode SetEnable(bool state) = 0;
+    virtual LocationErrCode EnableMock() = 0;
+    virtual LocationErrCode DisableMock() = 0;
+    virtual LocationErrCode SetMocked(const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location) = 0;
 };
 

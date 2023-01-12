@@ -38,14 +38,16 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(NETWORK, "invalid token.");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
         LBSLOGE(NETWORK, "uid pid not match locationhub process.");
-        return REPLY_CODE_EXCEPTION;
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
 
-    int ret = 0;
+    int ret = ERRCODE_SUCCESS;
     switch (code) {
         case SEND_LOCATION_REQUEST: // fall through
         case SET_MOCKED_LOCATIONS: // fall through
@@ -54,17 +56,15 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case SET_ENABLE: {
-            SetEnable(data.ReadBool());
+            reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
         case ENABLE_LOCATION_MOCK: {
-            bool result = EnableMock();
-            reply.WriteBool(result);
+            reply.WriteInt32(EnableMock());
             break;
         }
         case DISABLE_LOCATION_MOCK: {
-            bool result = DisableMock();
-            reply.WriteBool(result);
+            reply.WriteInt32(DisableMock());
             break;
         }
         default:

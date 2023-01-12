@@ -27,6 +27,7 @@
 #include "system_ability.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "geo_coding_mock_info.h"
 #include "geo_convert_skeleton.h"
 
@@ -50,7 +51,7 @@ public:
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &reply) override;
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
+    LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:
     bool Init();

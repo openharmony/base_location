@@ -27,7 +27,7 @@ namespace Location {
 class INetworkAbility : public ISubAbility {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"location.INetworkAbility");
-    virtual void SelfRequest(bool state) = 0;
+    virtual LocationErrCode SelfRequest(bool state) = 0;
 };
 
 class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {

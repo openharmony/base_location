@@ -624,6 +624,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& re
 LocationErrCode LocatorAbility::GetIsoCountryCode(std::shared_ptr<CountryCode>& countryCode)
 {
     if (countryCodeManager_ == nullptr) {
+        countryCode = nullptr;
         LBSLOGE(LOCATOR, "GetIsoCountryCode countryCodeManager_ is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -631,12 +632,12 @@ LocationErrCode LocatorAbility::GetIsoCountryCode(std::shared_ptr<CountryCode>& 
     return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
+LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
     if (obj == nullptr) {
         LBSLOGE(LOCATOR, "SendLocationMockMsgToGnssSa obj is nullptr");
-        return false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
     if (msgId == ENABLE_LOCATION_MOCK) {
@@ -646,15 +647,15 @@ bool LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
     } else if (msgId == SET_MOCKED_LOCATIONS) {
         return gnssProxy->SetMocked(timeInterval, location);
     }
-    return false;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
-bool LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
+LocationErrCode LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
     if (obj == nullptr) {
         LBSLOGE(LOCATOR, "SendLocationMockMsgToNetworkSa obj is nullptr");
-        return false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<NetworkAbilityProxy> networkProxy =
         std::make_unique<NetworkAbilityProxy>(obj);
@@ -665,15 +666,15 @@ bool LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> ob
     } else if (msgId == SET_MOCKED_LOCATIONS) {
         return networkProxy->SetMocked(timeInterval, location);
     }
-    return false;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
-bool LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
+LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
     if (obj == nullptr) {
         LBSLOGE(LOCATOR, "SendLocationMockMsgToNetworkSa obj is nullptr");
-        return false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<PassiveAbilityProxy> passiveProxy =
         std::make_unique<PassiveAbilityProxy>(obj);
@@ -684,7 +685,7 @@ bool LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> ob
     } else if (msgId == SET_MOCKED_LOCATIONS) {
         return passiveProxy->SetMocked(timeInterval, location);
     }
-    return false;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode LocatorAbility::ProcessLocationMockMsg(
@@ -770,13 +771,13 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     loc = reportManager_->GetPermittedLocation(identity.GetTokenId(),
         identity.GetFirstTokenId(), lastLocation);
     if (loc == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_LOCATING_FAIL;
     }
     if (fabs(loc->GetLatitude() - 0.0) > PRECISION
         && fabs(loc->GetLongitude() - 0.0) > PRECISION) {
         return ERRCODE_SUCCESS;
     }
-    return ERRCODE_SERVICE_UNAVAILABLE;
+    return ERRCODE_LOCATING_FAIL;
 }
 
 LocationErrCode LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)

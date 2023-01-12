@@ -64,9 +64,8 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case SET_REVERSE_GEOCODE_MOCKINFO: {
-            std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo =  ParseGeocodingMockInfos(data);
-            SetReverseGeocodingMockInfo(mockInfo) ? reply.WriteInt32(ERRCODE_SUCCESS) :
-                reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
+            std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo = ParseGeocodingMockInfos(data);
+            reply.WriteInt32(SetReverseGeocodingMockInfo(mockInfo));
             break;
         }
         default:

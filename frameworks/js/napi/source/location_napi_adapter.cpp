@@ -138,7 +138,7 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 #ifdef ENABLE_NAPI_MANAGER
-    if (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0])) {
+    if (argc > PARAM1 || (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0]))) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -274,10 +274,6 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
         auto context = static_cast<SwitchAsyncContext*>(data);
         bool isAvailable = g_locatorClient->IsGeoServiceAvailable();
         context->enable = isAvailable;
-        if (!isAvailable) {
-            context->errCode = GEOCODE_ERROR;
-            return;
-        }
         context->errCode = SUCCESS;
     };
 
@@ -389,7 +385,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
 #ifdef ENABLE_NAPI_MANAGER
-    if (argc < 1) {
+    if (argc < PARAM1 || argc > PARAM2 || (argc == PARAM2 && !CheckIfParamIsFunctionType(env, argv[1]))) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -419,7 +415,7 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
 #endif
 #ifdef ENABLE_NAPI_MANAGER
     if (asyncContext->errCode != SUCCESS) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        HandleSyncErrCode(env, asyncContext->errCode);
         return UndefinedNapiValue(env);
     }
 #else
@@ -442,7 +438,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
 #ifdef ENABLE_NAPI_MANAGER
-    if (argc < 1) {
+    if (argc < PARAM1 || argc > PARAM2 || (argc == PARAM2 && !CheckIfParamIsFunctionType(env, argv[1]))) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -494,7 +490,13 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     // 1 arguement is necessary
-    if (argc < 1) {
+    if (argc != PARAM1) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    napi_valuetype valueType;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    if (valueType != napi_number) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -524,7 +526,15 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
         return UndefinedNapiValue(env);
     }
     // 2 arguement is necessary
-    if (argc < 2) {
+    if (argc != PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    napi_valuetype valueType1;
+    napi_valuetype valueType2;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType1));
+    NAPI_CALL(env, napi_typeof(env, argv[1], &valueType2));
+    if (valueType1 != napi_number || valueType2 != napi_boolean) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -550,7 +560,7 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 #ifdef ENABLE_NAPI_MANAGER
-    if (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0])) {
+    if (argc > PARAM1 || (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0]))) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -600,7 +610,7 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 #ifdef ENABLE_NAPI_MANAGER
-    if (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0])) {
+    if (argc > PARAM1 || (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0]))) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -680,7 +690,7 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 #ifdef ENABLE_NAPI_MANAGER
-    if (argc < 1) {
+    if (argc < PARAM1 || argc > PARAM2 || (argc == PARAM2 && !CheckIfParamIsFunctionType(env, argv[1]))) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -734,7 +744,7 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    if (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0])) {
+    if (argc > PARAM1 || (argc == PARAM1 && !CheckIfParamIsFunctionType(env, argv[PARAM0]))) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -750,11 +760,9 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
         CountryCodeContext *context = static_cast<CountryCodeContext*>(data);
         std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
         LocationErrCode errorCode = g_locatorClient->GetIsoCountryCodeV9(country);
-        if (country) {
-            context->errCode = ERRCODE_SUCCESS;
+        context->errCode = errorCode;
+        if (errorCode == ERRCODE_SUCCESS) {
             context->country = country;
-        } else {
-            context->errCode = errorCode;
         }
     };
     asyncContext->completeFunc = [&](void *data) -> void {
@@ -836,7 +844,7 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    if (argc < 1) {
+    if (argc != PARAM1) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -899,7 +907,7 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-    if (argc < 1) {
+    if (argc != PARAM1) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }

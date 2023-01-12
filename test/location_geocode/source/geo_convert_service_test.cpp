@@ -204,10 +204,10 @@ HWTEST_F(GeoConvertServiceTest, ReverseGeocodingMock001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 begin");
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
-    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetReverseGeocodingMockInfo(mockInfo));
 
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
-    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetReverseGeocodingMockInfo(mockInfo));
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReverseGeocodingMock001 end");
 }
 

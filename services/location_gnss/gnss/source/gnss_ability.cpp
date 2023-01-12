@@ -112,49 +112,53 @@ bool GnssAbility::Init()
     return true;
 }
 
-void GnssAbility::SendLocationRequest(WorkRecord &workrecord)
+LocationErrCode GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 {
     LocationRequest(workrecord);
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::SetEnable(bool state)
+LocationErrCode GnssAbility::SetEnable(bool state)
 {
     Enable(state, AsObject());
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::RefrashRequirements()
+LocationErrCode GnssAbility::RefrashRequirements()
 {
     HandleRefrashRequirements();
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid gnssStatus callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
 
     sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
     if (gnssStatusCallback == nullptr) {
         LBSLOGE(GNSS, "cast switch callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     gnssStatusCallback_->erase(uid);
     gnssStatusCallback_->insert(std::make_pair(uid, gnssStatusCallback));
     LBSLOGD(GNSS, "after uid:%{public}d register, gnssStatusCallback size:%{public}s",
         uid, std::to_string(gnssStatusCallback_->size()).c_str());
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "unregister an invalid gnssStatus callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
     if (gnssStatusCallback == nullptr) {
         LBSLOGE(GNSS, "cast gnssStatus callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
 
     pid_t uid = -1;
@@ -168,36 +172,38 @@ void GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callba
     gnssStatusCallback_->erase(uid);
     LBSLOGD(GNSS, "after uid:%{public}d unregister, gnssStatus callback size:%{public}s",
         uid, std::to_string(gnssStatusCallback_->size()).c_str());
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid nmea callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
 
     sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
     if (nmeaCallback == nullptr) {
         LBSLOGE(GNSS, "cast nmea callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     nmeaCallback_->erase(uid);
     nmeaCallback_->insert(std::make_pair(uid, nmeaCallback));
     LBSLOGD(GNSS, "after uid:%{public}d register, nmeaCallback size:%{public}s",
         uid, std::to_string(nmeaCallback_->size()).c_str());
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "unregister an invalid nmea callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
     if (nmeaCallback == nullptr) {
         LBSLOGE(GNSS, "cast nmea callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
 
     pid_t uid = -1;
@@ -211,37 +217,40 @@ void GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     nmeaCallback_->erase(uid);
     LBSLOGD(GNSS, "after uid:%{public}d unregister, nmea callback size:%{public}s",
         uid, std::to_string(nmeaCallback_->size()).c_str());
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
+LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
     const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid cached location callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
 
     sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
     if (cachedCallback == nullptr) {
         LBSLOGE(GNSS, "cast cached location callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     LBSLOGD(GNSS, "request:%{public}d %{public}d",
         request->reportingPeriodSec, request->wakeUpCacheQueueFull ? 1 : 0);
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
+LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid cached location callback");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
 
     sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
     if (cachedCallback == nullptr) {
         LBSLOGE(GNSS, "cast cached location callback fail!");
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
+    return ERRCODE_SUCCESS;
 }
 
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
@@ -269,28 +278,31 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
-int GnssAbility::GetCachedGnssLocationsSize()
+LocationErrCode GnssAbility::GetCachedGnssLocationsSize(int& size)
 {
-    int size = -1;
-    return size;
+    size = -1;
+    return ERRCODE_SUCCESS;
 }
 
-int GnssAbility::FlushCachedGnssLocations()
+LocationErrCode GnssAbility::FlushCachedGnssLocations()
 {
-    LBSLOGE(GNSS, "CachedGnssLocations fuction not support");
+    LBSLOGE(GNSS, "%{public}s not support", __func__);
     return ERRCODE_NOT_SUPPORTED;
 }
 
-void GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
+LocationErrCode GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode GnssAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
+    return ERRCODE_SUCCESS;
 }
 
-void GnssAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode GnssAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
+    return ERRCODE_SUCCESS;
 }
 
 void GnssAbility::ReportGnssSessionStatus(int status)
@@ -528,20 +540,29 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
     return ERR_OK;
 }
 
-bool GnssAbility::EnableMock()
+LocationErrCode GnssAbility::EnableMock()
 {
-    return EnableLocationMock();
+    if (!EnableLocationMock()) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
-bool GnssAbility::DisableMock()
+LocationErrCode GnssAbility::DisableMock()
 {
-    return DisableLocationMock();
+    if (!DisableLocationMock()) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
-bool GnssAbility::SetMocked(const int timeInterval,
+LocationErrCode GnssAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
-    return SetMockedLocations(timeInterval, location);
+    if (!SetMockedLocations(timeInterval, location)) {
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    return ERRCODE_SUCCESS;
 }
 
 bool GnssAbility::IsMockEnabled()
@@ -603,6 +624,7 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
 void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     if (gnssHandler_ == nullptr) {
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
     switch (code) {
@@ -610,7 +632,11 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
                 Get(code, workrecord);
-            gnssHandler_->SendEvent(event);
+            if (gnssHandler_->SendEvent(event)) {
+                reply.WriteInt32(ERRCODE_SUCCESS);
+            } else {
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+            }
             break;
         }
         case SET_MOCKED_LOCATIONS: {

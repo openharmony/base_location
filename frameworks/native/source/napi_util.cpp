@@ -22,7 +22,6 @@
 #include "common_utils.h"
 #include "geo_address.h"
 #include "location_log.h"
-#include "locator.h"
 #include "locator_proxy.h"
 #include "request_config.h"
 
