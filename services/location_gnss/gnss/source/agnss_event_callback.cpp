@@ -55,7 +55,6 @@ int32_t AGnssEventCallback::RequestAgnssRefInfo()
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
     std::vector<sptr<CellInformation>> cellInformations =
         DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetCellInfoList(slotId);
-
     LBSLOGI(GNSS, "RequestAgnssRefInfo,cellInformations.");
     for (sptr<CellInformation> infoItem : cellInformations) {
         if (!infoItem->GetIsCamped()) {

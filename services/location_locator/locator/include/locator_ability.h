@@ -64,57 +64,57 @@ public:
     void InitSaAbility();
     void InitRequestManagerMap();
 
-    void UpdateSaAbility();
-    int GetSwitchState();
-    void EnableAbility(bool isEnabled);
-    void RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
-    void UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
-    void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid);
-    void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback);
-    void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid);
-    void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback);
-    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
-    void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
-    int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
+    LocationErrCode UpdateSaAbility();
+    LocationErrCode GetSwitchState(int& state);
+    LocationErrCode EnableAbility(bool isEnabled);
+    LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    int StopLocating(sptr<ILocatorCallback>& callback);
-    int GetCacheLocation(MessageParcel& reply, AppIdentity &identity);
-    int IsGeoConvertAvailable(MessageParcel &replay);
-    int GetAddressByCoordinate(MessageParcel &data, MessageParcel &replay);
-    int GetAddressByLocationName(MessageParcel &data, MessageParcel &replay);
+    LocationErrCode StopLocating(sptr<ILocatorCallback>& callback);
+    LocationErrCode GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity);
+    LocationErrCode IsGeoConvertAvailable(bool &isAvailable);
+    void GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply);
+    void GetAddressByLocationName(MessageParcel &data, MessageParcel &reply);
 
-    bool IsLocationPrivacyConfirmed(const int type);
-    int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
+    LocationErrCode IsLocationPrivacyConfirmed(const int type, bool& isConfirmed);
+    LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
 
-    int RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
+    LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName);
-    int UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback);
+    LocationErrCode UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback);
 
-    int GetCachedGnssLocationsSize();
-    int FlushCachedGnssLocations();
-    void SendCommand(std::unique_ptr<LocationCommand>& commands);
-    void AddFence(std::unique_ptr<GeofenceRequest>& request);
-    void RemoveFence(std::unique_ptr<GeofenceRequest>& request);
-    std::shared_ptr<CountryCode> GetIsoCountryCode();
-    bool EnableLocationMock();
-    bool DisableLocationMock();
-    bool SetMockedLocations(
+    LocationErrCode GetCachedGnssLocationsSize(int& size);
+    LocationErrCode FlushCachedGnssLocations();
+    LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands);
+    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request);
+    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request);
+    LocationErrCode GetIsoCountryCode(std::shared_ptr<CountryCode>& country);
+    LocationErrCode EnableLocationMock();
+    LocationErrCode DisableLocationMock();
+    LocationErrCode SetMockedLocations(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
 
-    bool EnableReverseGeocodingMock();
-    bool DisableReverseGeocodingMock();
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
+    LocationErrCode EnableReverseGeocodingMock();
+    LocationErrCode DisableReverseGeocodingMock();
+    LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
 
-    int ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
-    int ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
-    int ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
-    bool ProcessLocationMockMsg(
+    LocationErrCode ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
+    LocationErrCode ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
+    LocationErrCode ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
+    LocationErrCode ProcessLocationMockMsg(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-    bool SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
+    LocationErrCode SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-    bool SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
+    LocationErrCode SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-    bool SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
+    LocationErrCode SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
@@ -123,8 +123,8 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests();
     void RegisterAction();
-    bool ProxyUidForFreeze(int32_t uid, bool isProxy);
-    bool ResetAllProxy();
+    LocationErrCode ProxyUidForFreeze(int32_t uid, bool isProxy);
+    LocationErrCode ResetAllProxy();
     bool IsProxyUid(int32_t uid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
@@ -134,7 +134,8 @@ private:
     bool Init();
     bool CheckSaValid();
     static int QuerySwitchState();
-    int SendGeoRequest(int type, MessageParcel &data, MessageParcel &replay);
+    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
+    LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

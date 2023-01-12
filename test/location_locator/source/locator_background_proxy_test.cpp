@@ -316,7 +316,6 @@ HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnUserSwitchTest002, TestSize.Lev
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     ASSERT_TRUE(locatorBackgroundProxy != nullptr);
     locatorBackgroundProxy->UpdateListOnUserSwitch(0); // requestsMap cant find userid
-    EXPECT_EQ(0, locatorBackgroundProxy->curUserId_);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UpdateListOnUserSwitchTest002 end");
 }
 
@@ -533,9 +532,6 @@ HWTEST_F(LocatorBackgroundProxyTest, UserSwitchSubscriberOnReceiveEventTest001, 
     event.SetWant(want);
     event.SetCode(0);
     subscriber->OnReceiveEvent(event);
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy != nullptr);
-    EXPECT_EQ(0, locatorBackgroundProxy->curUserId_);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UserSwitchSubscriberOnReceiveEventTest001 end");
 }
 

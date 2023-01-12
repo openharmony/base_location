@@ -28,82 +28,76 @@ PassiveAbilityProxy::PassiveAbilityProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-void PassiveAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
+LocationErrCode PassiveAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
-        return;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     workrecord.Marshalling(data);
     int error = Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
-    LBSLOGD(PASSIVE, "RemoteRequest Transact ErrCode = %{public}d", error);
+    LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-void PassiveAbilityProxy::SetEnable(bool state)
+LocationErrCode PassiveAbilityProxy::SetEnable(bool state)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
-        return;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteBool(state);
 
     MessageParcel reply;
     MessageOption option;
     int error = Remote()->SendRequest(ISubAbility::SET_ENABLE, data, reply, option);
-    LBSLOGD(PASSIVE, "Enable Transact ErrCode = %{public}d", error);
+    LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-bool PassiveAbilityProxy::EnableMock()
+LocationErrCode PassiveAbilityProxy::EnableMock()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        LBSLOGE(GNSS, "EnableLocationMock remote is null");
-        return false;
+        LBSLOGE(PASSIVE, "EnableLocationMock remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return false;
+        LBSLOGE(PASSIVE, "write interfaceToken fail!");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::EnableLocationMock Transact ErrCode = %{public}d", error);
-    bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
-    }
-    return result;
+    LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-bool PassiveAbilityProxy::DisableMock()
+LocationErrCode PassiveAbilityProxy::DisableMock()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        LBSLOGE(GNSS, "DisableLocationMock remote is null");
-        return false;
+        LBSLOGE(PASSIVE, "DisableLocationMock remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return false;
+        LBSLOGE(PASSIVE, "write interfaceToken fail!");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::DisableLocationMock Transact ErrCode = %{public}d", error);
-    bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
-    }
-    return result;
+    LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 
-bool PassiveAbilityProxy::SetMocked(
+LocationErrCode PassiveAbilityProxy::SetMocked(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
     MessageParcel data;
@@ -111,12 +105,12 @@ bool PassiveAbilityProxy::SetMocked(
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        LBSLOGE(GNSS, "SetMockedLocations remote is null");
-        return false;
+        LBSLOGE(PASSIVE, "SetMockedLocations remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GNSS, "write interfaceToken fail!");
-        return false;
+        LBSLOGE(PASSIVE, "write interfaceToken fail!");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(timeInterval);
     int locationSize = static_cast<int>(location.size());
@@ -125,12 +119,8 @@ bool PassiveAbilityProxy::SetMocked(
         location.at(i)->Marshalling(data);
     }
     int error = remote->SendRequest(ISubAbility::SET_MOCKED_LOCATIONS, data, reply, option);
-    LBSLOGD(GNSS, "Proxy::SetMockedLocations Transact ErrCode = %{public}d", error);
-    bool result = false;
-    if (error == NO_ERROR) {
-        result = reply.ReadBool();
-    }
-    return result;
+    LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(reply.ReadInt32());
 }
 } // namespace Location
 } // namespace OHOS

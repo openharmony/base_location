@@ -35,24 +35,24 @@ public:
     MockGnssAbilityStub() {}
     ~MockGnssAbilityStub() {}
     MOCK_METHOD(void, SendMessage, (uint32_t code, MessageParcel &data, MessageParcel &reply));
-    MOCK_METHOD(void, RefrashRequirements, ());
-    MOCK_METHOD(void, RegisterGnssStatusCallback, (const sptr<IRemoteObject>& callback, pid_t uid));
-    MOCK_METHOD(void, UnregisterGnssStatusCallback, (const sptr<IRemoteObject>& callback));
-    MOCK_METHOD(void, RegisterNmeaMessageCallback, (const sptr<IRemoteObject>& callback, pid_t uid));
-    MOCK_METHOD(void, UnregisterNmeaMessageCallback, (const sptr<IRemoteObject>& callback));
-    MOCK_METHOD(void, RegisterCachedCallback, (const std::unique_ptr<CachedGnssLocationsRequest>& request,
+    MOCK_METHOD(LocationErrCode, RefrashRequirements, ());
+    MOCK_METHOD(LocationErrCode, RegisterGnssStatusCallback, (const sptr<IRemoteObject>& callback, pid_t uid));
+    MOCK_METHOD(LocationErrCode, UnregisterGnssStatusCallback, (const sptr<IRemoteObject>& callback));
+    MOCK_METHOD(LocationErrCode, RegisterNmeaMessageCallback, (const sptr<IRemoteObject>& callback, pid_t uid));
+    MOCK_METHOD(LocationErrCode, UnregisterNmeaMessageCallback, (const sptr<IRemoteObject>& callback));
+    MOCK_METHOD(LocationErrCode, RegisterCachedCallback, (const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback));
-    MOCK_METHOD(void, UnregisterCachedCallback, (const sptr<IRemoteObject>& callback));
-    MOCK_METHOD(int, GetCachedGnssLocationsSize, ());
-    MOCK_METHOD(int, FlushCachedGnssLocations, ());
-    MOCK_METHOD(void, SendCommand, (std::unique_ptr<LocationCommand>& commands));
-    MOCK_METHOD(void, AddFence, (std::unique_ptr<GeofenceRequest>& request));
-    MOCK_METHOD(void, RemoveFence, (std::unique_ptr<GeofenceRequest>& request));
-    MOCK_METHOD(void, SendLocationRequest, (WorkRecord &workrecord));
-    MOCK_METHOD(void, SetEnable, (bool state));
-    MOCK_METHOD(bool, EnableMock, ());
-    MOCK_METHOD(bool, DisableMock, ());
-    MOCK_METHOD(bool, SetMocked, (const int timeInterval,
+    MOCK_METHOD(LocationErrCode, UnregisterCachedCallback, (const sptr<IRemoteObject>& callback));
+    MOCK_METHOD(LocationErrCode, GetCachedGnssLocationsSize, (int &size));
+    MOCK_METHOD(LocationErrCode, FlushCachedGnssLocations, ());
+    MOCK_METHOD(LocationErrCode, SendCommand, (std::unique_ptr<LocationCommand>& commands));
+    MOCK_METHOD(LocationErrCode, AddFence, (std::unique_ptr<GeofenceRequest>& request));
+    MOCK_METHOD(LocationErrCode, RemoveFence, (std::unique_ptr<GeofenceRequest>& request));
+    MOCK_METHOD(LocationErrCode, SendLocationRequest, (WorkRecord &workrecord));
+    MOCK_METHOD(LocationErrCode, SetEnable, (bool state));
+    MOCK_METHOD(LocationErrCode, EnableMock, ());
+    MOCK_METHOD(LocationErrCode, DisableMock, ());
+    MOCK_METHOD(LocationErrCode, SetMocked, (const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location));
 };
 } // namespace Location

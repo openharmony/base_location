@@ -25,6 +25,7 @@
 
 #include "agnss_event_callback.h"
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "gnss_ability_skeleton.h"
 #include "i_gnss_status_callback.h"
 #include "i_nmea_message_callback.h"
@@ -71,28 +72,28 @@ public:
     {
         return state_;
     }
-    void SendLocationRequest(WorkRecord &workrecord) override;
-    void SetEnable(bool state) override;
-    void RefrashRequirements() override;
-    void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
+    LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
+    LocationErrCode SetEnable(bool state) override;
+    LocationErrCode RefrashRequirements() override;
+    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
+    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
+    LocationErrCode RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) override;
-    void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
+    LocationErrCode UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-    int GetCachedGnssLocationsSize() override;
-    int FlushCachedGnssLocations() override;
-    void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
-    void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
-    void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    LocationErrCode GetCachedGnssLocationsSize(int &size) override;
+    LocationErrCode FlushCachedGnssLocations() override;
+    LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) override;
+    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) override;
+    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
     void ReportGnssSessionStatus(int status);
     void ReportNmea(const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
-    bool EnableMock() override;
-    bool DisableMock() override;
-    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
+    LocationErrCode EnableMock() override;
+    LocationErrCode DisableMock() override;
+    LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;

@@ -22,6 +22,7 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 
+#include "constant_definition.h"
 #include "location.h"
 #include "passive_ability_skeleton.h"
 #include "work_record.h"
@@ -32,11 +33,11 @@ class PassiveAbilityProxy : public IRemoteProxy<IPassiveAbility> {
 public:
     explicit PassiveAbilityProxy(const sptr<IRemoteObject> &impl);
     ~PassiveAbilityProxy() = default;
-    void SendLocationRequest(WorkRecord &workrecord) override;
-    void SetEnable(bool state) override;
-    bool EnableMock() override;
-    bool DisableMock() override;
-    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
+    LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
+    LocationErrCode SetEnable(bool state) override;
+    LocationErrCode EnableMock() override;
+    LocationErrCode DisableMock() override;
+    LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
 private:
     static inline BrokerDelegator<PassiveAbilityProxy> delegator_;
 };

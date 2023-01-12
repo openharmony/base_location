@@ -20,6 +20,7 @@
 #include "iremote_proxy.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 #include "geo_coding_mock_info.h"
 #include "geo_convert_skeleton.h"
 
@@ -34,7 +35,7 @@ public:
     int GetAddressByLocationName(MessageParcel &data, MessageParcel &reply) override;
     bool EnableReverseGeocodingMock() override;
     bool DisableReverseGeocodingMock() override;
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
+    LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     bool SendSimpleMsgAndParseResult(const int msgId);
     int SendSimpleMsg(const int msgId, MessageParcel& reply);
     int SendMsgWithDataReply(const int msgId, MessageParcel& data, MessageParcel& reply);

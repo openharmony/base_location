@@ -33,7 +33,7 @@ ohos_fuzztest("ReportManagerFuzzTest") {
   sources = [ "reportmanager_fuzzer.cpp" ]
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//base/location/frameworks/js/napi:geolocation",
+    "//base/location/frameworks/js/napi:geolocation_static",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
     "//base/location/services/location_locator/locator:lbsservice_locator",

@@ -752,7 +752,9 @@ std::string GetErrorMsgByCode(int code)
         {LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR"},
         {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"},
         {QUERY_COUNTRY_CODE_ERROR, "QUERY_COUNTRY_CODE_ERROR"},
+        {LocationErrCode::ERRCODE_SUCCESS, "SUCCESS."},
         {LocationErrCode::ERRCODE_PERMISSION_DENIED, "Permission denied."},
+        {LocationErrCode::ERRCODE_SYSTEM_PERMISSION_DENIED, "System API is not allowed called by third HAP."},
         {LocationErrCode::ERRCODE_INVALID_PARAM, "Parameter error."},
         {LocationErrCode::ERRCODE_NOT_SUPPORTED, "Capability not supported."},
         {LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE, "Location service is unavailable."},
@@ -958,6 +960,16 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
             delete context;
             delete work;
     });
+}
+
+bool CheckIfParamIsFunctionType(napi_env env, napi_value param)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_BASE(env, napi_typeof(env, param, &valueType), false);
+    if (valueType != napi_function) {
+        return false;
+    }
+    return true;
 }
 }  // namespace Location
 }  // namespace OHOS

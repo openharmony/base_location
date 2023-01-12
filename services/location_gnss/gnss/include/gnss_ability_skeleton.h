@@ -29,20 +29,20 @@ namespace Location {
 class IGnssAbility : public ISubAbility {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssAbility");
-    virtual void RefrashRequirements() = 0;
-    virtual void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
-    virtual void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;
-    virtual void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
-    virtual void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
-    virtual void RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
+    virtual LocationErrCode RefrashRequirements() = 0;
+    virtual LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;
+    virtual LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
+    virtual LocationErrCode RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) = 0;
-    virtual void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) = 0;
+    virtual LocationErrCode UnregisterCachedCallback(const sptr<IRemoteObject>& callback) = 0;
 
-    virtual int GetCachedGnssLocationsSize() = 0;
-    virtual int FlushCachedGnssLocations() = 0;
-    virtual void SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
-    virtual void AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual void RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode GetCachedGnssLocationsSize(int &size) = 0;
+    virtual LocationErrCode FlushCachedGnssLocations() = 0;
+    virtual LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
+    virtual LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {

@@ -21,6 +21,7 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 
+#include "constant_definition.h"
 #include "gnss_ability_skeleton.h"
 
 namespace OHOS {
@@ -29,24 +30,24 @@ class GnssAbilityProxy : public IRemoteProxy<IGnssAbility> {
 public:
     explicit GnssAbilityProxy(const sptr<IRemoteObject> &impl);
     ~GnssAbilityProxy() = default;
-    void SendLocationRequest(WorkRecord &workrecord) override;
-    void SetEnable(bool state) override;
-    void RefrashRequirements() override;
-    void RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    void UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    void UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
+    LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
+    LocationErrCode SetEnable(bool state) override;
+    LocationErrCode RefrashRequirements() override;
+    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
+    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
+    LocationErrCode RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) override;
-    void UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
-    int GetCachedGnssLocationsSize() override;
-    int FlushCachedGnssLocations() override;
-    void SendCommand(std::unique_ptr<LocationCommand>& commands) override;
-    void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
-    void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    bool EnableMock() override;
-    bool DisableMock() override;
-    bool SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
+    LocationErrCode UnregisterCachedCallback(const sptr<IRemoteObject>& callback) override;
+    LocationErrCode GetCachedGnssLocationsSize(int &size) override;
+    LocationErrCode FlushCachedGnssLocations() override;
+    LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) override;
+    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) override;
+    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    LocationErrCode EnableMock() override;
+    LocationErrCode DisableMock() override;
+    LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };
