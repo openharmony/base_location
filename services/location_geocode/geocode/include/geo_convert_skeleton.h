@@ -43,7 +43,7 @@ public:
     virtual int GetAddressByLocationName(MessageParcel &data, MessageParcel &rep) = 0;
     virtual bool EnableReverseGeocodingMock() = 0;
     virtual bool DisableReverseGeocodingMock() = 0;
-    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
+    virtual LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
 };
 
 class GeoConvertServiceStub : public IRemoteStub<IGeoConvert> {

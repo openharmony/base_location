@@ -172,7 +172,7 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::unique_ptr<Location> loc = std::make_unique<Location>();
+    std::unique_ptr<Location> loc;
     reply.WriteInt32(locatorAbility->GetCacheLocation(loc, identity));
     if (loc != nullptr) {
         loc->Marshalling(reply);
@@ -582,7 +582,7 @@ int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel 
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
+    std::shared_ptr<CountryCode> country;
     reply.WriteInt32(locatorAbility->GetIsoCountryCode(country));
     if (country) {
         reply.WriteString(country->GetCountryCodeStr());

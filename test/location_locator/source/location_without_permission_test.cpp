@@ -130,7 +130,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
 
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, locatorImpl->FlushCachedGnssLocations());
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocations());
 
     EXPECT_EQ(false, locatorImpl->ProxyUidForFreeze(1000, false));
     EXPECT_EQ(false, locatorImpl->ResetAllProxy());

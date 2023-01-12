@@ -62,8 +62,8 @@ namespace OHOS {
             sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
         proxy->RegisterCachedCallback(cachedRequest, cachedLocationsCallbackHost);
         proxy->UnregisterCachedCallback(cachedLocationsCallbackHost);
-
-        proxy->GetCachedGnssLocationsSize();
+        int locSize;
+        proxy->GetCachedGnssLocationsSize(locSize);
         proxy->FlushCachedGnssLocations();
         std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
         proxy->SendCommand(command);

@@ -85,13 +85,13 @@ enum LocationRequestType {
 };
 
 enum LocationErrCode {
-    ERRCODE_SUCCESS = 0,                      /* SUCCESS */
-    ERRCODE_PERMISSION_DENIED = 201,          /* permission denied */
-    ERRCODE_SYSTEM_PERMISSION_DENIED = 202,   /* system permission denied */
-    ERRCODE_INVALID_PARAM = 401,              /* invalid params */
-    ERRCODE_NOT_SUPPORTED = 801,              /* capability not supported */
-    ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* location service is unavailable */
-    ERRCODE_SWITCH_OFF = 3301100,             /* location switch is off */
+    ERRCODE_SUCCESS = 0,                      /* SUCCESS. */
+    ERRCODE_PERMISSION_DENIED = 201,          /* Permission denied. */
+    ERRCODE_SYSTEM_PERMISSION_DENIED = 202,   /* System API is not allowed called by third HAP. */
+    ERRCODE_INVALID_PARAM = 401,              /* Parameter error. */
+    ERRCODE_NOT_SUPPORTED = 801,              /* Capability not supported. */
+    ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* Location service is unavailable. */
+    ERRCODE_SWITCH_OFF = 3301100,             /* The location switch is off. */
     ERRCODE_LOCATING_FAIL = 3301200,          /* Failed to obtain the geographical location. */
     ERRCODE_REVERSE_GEOCODING_FAIL = 3301300, /* Reverse geocoding query failed */
     ERRCODE_GEOCODING_FAIL = 3301400,         /* Geocoding query failed */

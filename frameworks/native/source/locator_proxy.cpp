@@ -308,10 +308,10 @@ int LocatorProxy::FlushCachedGnssLocations()
     MessageParcel reply;
     int error = SendMsgWithReply(FLUSH_CACHED_LOCATIONS, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", error);
-    if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
-        return REPLY_CODE_NO_EXCEPTION;
+    if (error == NO_ERROR) {
+        return reply.ReadInt32();
     }
-    return REPLY_CODE_UNSUPPORT;
+    return REPLY_CODE_EXCEPTION;
 }
 
 void LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -584,7 +584,7 @@ LocationErrCode LocatorProxy::SendRegisterMsgToRemoteV9(const int msgId, const s
     }
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     data.WriteObject<IRemoteObject>(callback);
     MessageParcel reply;
@@ -640,7 +640,7 @@ LocationErrCode LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteOb
     }
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     data.WriteObject<IRemoteObject>(callback);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(REG_NMEA_CALLBACK_v9, data, reply);
@@ -658,7 +658,7 @@ LocationErrCode LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemote
     }
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "callback is nullptr");
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     data.WriteObject<IRemoteObject>(callback);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(UNREG_NMEA_CALLBACK_v9, data, reply);
@@ -728,7 +728,7 @@ LocationErrCode LocatorProxy::IsGeoConvertAvailableV9(bool &isAvailable)
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithReplyV9(GEO_IS_AVAILABLE, reply);
     if (errorCode == ERRCODE_SUCCESS) {
-        isAvailable = (reply.ReadInt32() == GEO_CONVERT_AVAILABLE);
+        isAvailable = reply.ReadBool();
     } else {
         isAvailable = false;
     }
@@ -858,7 +858,7 @@ LocationErrCode LocatorProxy::FlushCachedGnssLocationsV9()
 LocationErrCode LocatorProxy::SendCommandV9(std::unique_ptr<LocationCommand>& commands)
 {
     if (commands == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -875,7 +875,7 @@ LocationErrCode LocatorProxy::SendCommandV9(std::unique_ptr<LocationCommand>& co
 LocationErrCode LocatorProxy::AddFenceV9(std::unique_ptr<GeofenceRequest>& request)
 {
     if (request == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -895,7 +895,7 @@ LocationErrCode LocatorProxy::AddFenceV9(std::unique_ptr<GeofenceRequest>& reque
 LocationErrCode LocatorProxy::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request)
 {
     if (request == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -915,7 +915,7 @@ LocationErrCode LocatorProxy::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& re
 LocationErrCode LocatorProxy::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
 {
     if (countryCode == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithReplyV9(GET_ISO_COUNTRY_CODE, reply);
@@ -1014,7 +1014,7 @@ LocationErrCode LocatorProxy::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 
     if (!data.WriteInt32(uid) || !data.WriteBool(isProxy)) {
         LBSLOGE(LOCATOR_STANDARD, "[ProxyUid] fail: write data failed");
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     LocationErrCode errorCode = SendMsgWithDataReplyV9(PROXY_UID_FOR_FREEZE, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyUid Transact ErrCodes = %{public}d", errorCode);

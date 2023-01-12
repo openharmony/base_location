@@ -1391,7 +1391,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
 
     EXPECT_EQ(-1, locatorImpl->GetCachedGnssLocationsSize());
 
-    EXPECT_EQ(REPLY_CODE_UNSUPPORT, locatorImpl->FlushCachedGnssLocations());
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl->FlushCachedGnssLocations());
 
     std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
     command->scenario = SCENE_NAVIGATION;

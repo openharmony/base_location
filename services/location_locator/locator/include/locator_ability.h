@@ -110,11 +110,11 @@ public:
     LocationErrCode ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
     LocationErrCode ProcessLocationMockMsg(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-    bool SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
+    LocationErrCode SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-    bool SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
+    LocationErrCode SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-    bool SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
+    LocationErrCode SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();

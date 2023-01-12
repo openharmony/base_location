@@ -75,7 +75,7 @@ int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
         return ERRCODE_NOT_SUPPORTED;
     }
     reply.WriteInt32(ERRCODE_SUCCESS);
-    reply.WriteInt32(GEO_CONVERT_AVAILABLE);
+    reply.WriteBool(true);
     return ERRCODE_SUCCESS;
 }
 
@@ -141,11 +141,12 @@ bool GeoConvertService::DisableReverseGeocodingMock()
     return true;
 }
 
-bool GeoConvertService::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
+    std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(GEO_CONVERT, "SetReverseGeocodingMockInfo");
     mockInfo_.assign(mockInfo.begin(), mockInfo.end());
-    return true;
+    return ERRCODE_SUCCESS;
 }
 
 void GeoConvertService::SaDumpInfo(std::string& result)

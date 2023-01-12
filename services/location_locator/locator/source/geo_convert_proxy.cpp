@@ -106,25 +106,22 @@ bool GeoConvertProxy::DisableReverseGeocodingMock()
     return SendSimpleMsgAndParseResult(DISABLE_REVERSE_GEOCODE_MOCK);
 }
 
-bool GeoConvertProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+LocationErrCode GeoConvertProxy::SetReverseGeocodingMockInfo(
+    std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GEO_CONVERT, "write interfaceToken fail!");
-        return false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteInt32(mockInfo.size());
     for (size_t i = 0; i < mockInfo.size(); i++) {
         mockInfo[i]->Marshalling(data);
     }
-    int error = SendMsgWithDataReply(SET_REVERSE_GEOCODE_MOCKINFO, data, reply);
-    bool result = false;
-    if (error == ERRCODE_SUCCESS) {
-        result = true;
-    }
-    return result;
+    SendMsgWithDataReply(SET_REVERSE_GEOCODE_MOCKINFO, data, reply);
+    return LocationErrCode(reply.ReadInt32());
 }
 } // namespace Location
 } // namespace OHOS
