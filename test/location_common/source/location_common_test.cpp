@@ -46,6 +46,15 @@ namespace Location {
 using Want = OHOS::AAFwk::Want;
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
+const double VERIFY_LOCATION_LATITUDE = 12.0;
+const double VERIFY_LOCATION_LONGITUDE = 13.0;
+const double VERIFY_LOCATION_ALTITUDE = 14.0;
+const double VERIFY_LOCATION_ACCURACY = 1000.0;
+const double VERIFY_LOCATION_SPEED = 10.0;
+const double VERIFY_LOCATION_DIRECTION = 90.0;
+const double VERIFY_LOCATION_TIME = 1000000000;
+const double VERIFY_LOCATION_TIMESINCEBOOT = 1000000000;
+const double VERIFY_LOCATION_FLOOR_ACC = 1000.0;
 void LocationCommonTest::SetUp()
 {
 }
@@ -141,20 +150,20 @@ void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
 
 void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
 {
-    EXPECT_EQ(12.0, newParcel.ReadDouble()); // latitude
-    EXPECT_EQ(13.0, newParcel.ReadDouble()); // longitude
-    EXPECT_EQ(14.0, newParcel.ReadDouble()); // altitude
-    EXPECT_EQ(1000.0, newParcel.ReadDouble()); // accuracy
-    EXPECT_EQ(10.0, newParcel.ReadDouble()); // speed
-    EXPECT_EQ(90.0, newParcel.ReadDouble()); // direction
-    EXPECT_EQ(1000000000, newParcel.ReadInt64()); // timeStamp
-    EXPECT_EQ(1000000000, newParcel.ReadInt64()); // timeSinceBoot
+    EXPECT_EQ(VERIFY_LOCATION_LATITUDE, newParcel.ReadDouble()); // latitude
+    EXPECT_EQ(VERIFY_LOCATION_LONGITUDE, newParcel.ReadDouble()); // longitude
+    EXPECT_EQ(VERIFY_LOCATION_ALTITUDE, newParcel.ReadDouble()); // altitude
+    EXPECT_EQ(VERIFY_LOCATION_ACCURACY, newParcel.ReadDouble()); // accuracy
+    EXPECT_EQ(VERIFY_LOCATION_SPEED, newParcel.ReadDouble()); // speed
+    EXPECT_EQ(VERIFY_LOCATION_DIRECTION, newParcel.ReadDouble()); // direction
+    EXPECT_EQ(VERIFY_LOCATION_TIME, newParcel.ReadInt64()); // timeStamp
+    EXPECT_EQ(VERIFY_LOCATION_TIMESINCEBOOT, newParcel.ReadInt64()); // timeSinceBoot
     EXPECT_EQ(u"additions", newParcel.ReadString16()); // additions
     EXPECT_EQ(1, newParcel.ReadInt64()); // additionSize
     EXPECT_EQ(true, newParcel.ReadBool()); // isFromMock
     EXPECT_EQ(1, newParcel.ReadInt32()); // sourceType
     EXPECT_EQ(0, newParcel.ReadInt32()); // floorNo
-    EXPECT_EQ(1000.0, newParcel.ReadDouble()); // floorAccuracy
+    EXPECT_EQ(VERIFY_LOCATION_FLOOR_ACC, newParcel.ReadDouble()); // floorAccuracy
 }
 
 /*
@@ -212,35 +221,35 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest001 begin");
     auto location = std::make_shared<Location>();
     MessageParcel parcel;
-    parcel.WriteDouble(12.0); // latitude
-    parcel.WriteDouble(13.0); // longitude
-    parcel.WriteDouble(14.0); // altitude
-    parcel.WriteDouble(1000.0); // accuracy
-    parcel.WriteDouble(10.0); // speed
-    parcel.WriteDouble(90.0); // direction
-    parcel.WriteInt64(1000000000); // timeStamp
-    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteDouble(VERIFY_LOCATION_LATITUDE); // latitude
+    parcel.WriteDouble(VERIFY_LOCATION_LONGITUDE); // longitude
+    parcel.WriteDouble(VERIFY_LOCATION_ALTITUDE); // altitude
+    parcel.WriteDouble(VERIFY_LOCATION_ACCURACY); // accuracy
+    parcel.WriteDouble(VERIFY_LOCATION_SPEED); // speed
+    parcel.WriteDouble(VERIFY_LOCATION_DIRECTION); // direction
+    parcel.WriteInt64(VERIFY_LOCATION_TIME); // timeStamp
+    parcel.WriteInt64(VERIFY_LOCATION_TIMESINCEBOOT); // timeSinceBoot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
     parcel.WriteInt32(1); // source type
     parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteDouble(VERIFY_LOCATION_FLOOR_ACC); // floor acc
     location->ReadFromParcel(parcel);
-    EXPECT_EQ(12.0, location->GetLatitude());
-    EXPECT_EQ(13.0, location->GetLongitude());
-    EXPECT_EQ(14.0, location->GetAltitude());
-    EXPECT_EQ(1000.0, location->GetAccuracy());
-    EXPECT_EQ(10.0, location->GetSpeed());
-    EXPECT_EQ(90.0, location->GetDirection());
-    EXPECT_EQ(1000000000, location->GetTimeStamp());
-    EXPECT_EQ(1000000000, location->GetTimeSinceBoot());
+    EXPECT_EQ(VERIFY_LOCATION_LATITUDE, location->GetLatitude());
+    EXPECT_EQ(VERIFY_LOCATION_LONGITUDE, location->GetLongitude());
+    EXPECT_EQ(VERIFY_LOCATION_ALTITUDE, location->GetAltitude());
+    EXPECT_EQ(VERIFY_LOCATION_ACCURACY, location->GetAccuracy());
+    EXPECT_EQ(VERIFY_LOCATION_SPEED, location->GetSpeed());
+    EXPECT_EQ(VERIFY_LOCATION_DIRECTION, location->GetDirection());
+    EXPECT_EQ(VERIFY_LOCATION_TIME, location->GetTimeStamp());
+    EXPECT_EQ(VERIFY_LOCATION_TIMESINCEBOOT, location->GetTimeSinceBoot());
     EXPECT_EQ("additions", location->GetAdditions());
     EXPECT_EQ(1, location->GetAdditionSize());
     EXPECT_EQ(true, location->GetIsFromMock());
     EXPECT_EQ(1, location->GetSourceType());
     EXPECT_EQ(0, location->GetFloorNo());
-    EXPECT_EQ(1000.0, location->GetFloorAccuracy());
+    EXPECT_EQ(VERIFY_LOCATION_FLOOR_ACC, location->GetFloorAccuracy());
 
     MessageParcel newParcel;
     location->Marshalling(newParcel);
