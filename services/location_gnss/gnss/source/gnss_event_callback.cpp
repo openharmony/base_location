@@ -74,7 +74,7 @@ int32_t GnssEventCallback::ReportNmea(int64_t timestamp, const std::string& nmea
         return ERR_OK;
     }
     std::string nmeaStr = nmea;
-    gnssAbility.get()->ReportNmea(nmeaStr);
+    gnssAbility.get()->ReportNmea(timestamp, nmeaStr);
     return ERR_OK;
 }
 

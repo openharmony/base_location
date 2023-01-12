@@ -89,7 +89,7 @@ public:
     LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
     void ReportGnssSessionStatus(int status);
-    void ReportNmea(const std::string &nmea);
+    void ReportNmea(int64_t timestamp, const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
     LocationErrCode EnableMock() override;
     LocationErrCode DisableMock() override;

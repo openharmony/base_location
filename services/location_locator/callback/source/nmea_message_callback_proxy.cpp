@@ -29,13 +29,14 @@ NmeaMessageCallbackProxy::NmeaMessageCallbackProxy(const sptr<IRemoteObject> &im
 {
 }
 
-void NmeaMessageCallbackProxy::OnMessageChange(const std::string msg)
+void NmeaMessageCallbackProxy::OnMessageChange(int64_t timestamp, const std::string msg)
 {
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
+    data.WriteInt64(timestamp);
     data.WriteString16(Str8ToStr16(msg));
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_NMEA_MESSAGE_EVENT, data, reply, option);

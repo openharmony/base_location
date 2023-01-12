@@ -103,7 +103,8 @@ HWTEST_F(CallbackTest, OnMessageChange001, TestSize.Level1)
         new (std::nothrow) NmeaMessageCallbackProxy(nmeaCallbackHost);
     EXPECT_NE(nullptr, nmeaCallbackProxy);
     std::string msg = "msg";
-    nmeaCallbackProxy->OnMessageChange(msg);
+    int64_t timestamp = 0;
+    nmeaCallbackProxy->OnMessageChange(timestamp, msg);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnMessageChange001 end");
 }
 
