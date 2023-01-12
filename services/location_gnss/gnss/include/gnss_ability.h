@@ -88,7 +88,7 @@ public:
     void AddFence(std::unique_ptr<GeofenceRequest>& request) override;
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
     void ReportGnssSessionStatus(int status);
-    void ReportNmea(const std::string &nmea);
+    void ReportNmea(int64_t timestamp, const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
     bool EnableMock() override;
     bool DisableMock() override;
