@@ -23,7 +23,7 @@ namespace Location {
 class AppIdentity {
 public:
     AppIdentity();
-    explicit AppIdentity(pid_t uid, pid_t pid, uint32_t tokenId, uint64_t tokenIdEx, uint32_t firstTokenId);
+    explicit AppIdentity(pid_t uid, pid_t pid, uint32_t tokenId, uint32_t firstTokenId);
     virtual ~AppIdentity() = default;
 
     inline pid_t GetPid() const
@@ -56,16 +56,6 @@ public:
         tokenId_ = tokenId;
     }
 
-    inline uint64_t GetTokenIdEx() const
-    {
-        return tokenIdEx_;
-    }
-
-    inline void SetTokenIdEx(uint64_t tokenIdEx)
-    {
-        tokenIdEx_ = tokenIdEx;
-    }
-
     inline uint32_t GetFirstTokenId() const
     {
         return firstTokenId_;
@@ -91,7 +81,6 @@ private:
     pid_t uid_;
     pid_t pid_;
     uint32_t tokenId_;
-    uint64_t tokenIdEx_;
     uint32_t firstTokenId_;
     std::string bundleName_;
 };

@@ -23,7 +23,6 @@
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
-#include "tokenid_kit.h"
 
 #include "common_utils.h"
 
@@ -285,7 +284,7 @@ int CommonUtils::IntRandom(int min, int max)
     return param;
 }
 
-bool CommonUtils::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx)
+bool CommonUtils::CheckSystemPermission(pid_t uid, uint32_t callerTokenId)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
@@ -295,7 +294,23 @@ bool CommonUtils::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerT
         tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
         return false;
     }
-    bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
+    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemManager == nullptr) {
+        LBSLOGE(COMMON_UTILS, "Get system ability manager failed!");
+        return false;
+    }
+    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleMgrSa == nullptr) {
+        LBSLOGE(COMMON_UTILS, "GetSystemAbility return nullptr!");
+        return false;
+    }
+    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
+    if (bundleMgr == nullptr) {
+        LBSLOGE(COMMON_UTILS, "iface_cast return nullptr!");
+        return false;
+    }
+    bool isSysApp = bundleMgr->CheckIsSystemAppByUid(uid);
+    LBSLOGD(COMMON_UTILS, "Is system App uid[%{public}d]: %{public}d", uid, isSysApp);
     return isSysApp;
 }
 
