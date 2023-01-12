@@ -79,7 +79,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest003, TestSize.Level1)
         << "NetworkAbilityStubTest, NetworkAbilityStubTest003, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest003 begin");
     auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
-    EXPECT_CALL(*networkAbilityStub, SelfRequest(_)).WillOnce(DoAll(Return()));
+    EXPECT_CALL(*networkAbilityStub, SendMessage(_, _, _)).WillOnce(DoAll(Return()));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
     MessageParcel reply;

@@ -366,6 +366,11 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
             reply.WriteBool(result);
             break;
         }
+        case SELF_REQUEST: {
+            int64_t param = data.ReadBool() ? 1 : 0;
+            networkHandler_->SendEvent(code, param, 0);
+            break;
+        }
         default:
             break;
     }
@@ -406,6 +411,11 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
                 }
                 networkAbility->SetMocked(timeInterval, mockLocations);
             }
+            break;
+        }
+        case ISubAbility::SELF_REQUEST: {
+            bool state = event->GetParam();
+            networkAbility->SelfRequest(state);
             break;
         }
         default:

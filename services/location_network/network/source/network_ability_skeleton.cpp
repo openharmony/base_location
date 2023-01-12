@@ -48,16 +48,13 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     int ret = 0;
     switch (code) {
         case SEND_LOCATION_REQUEST: // fall through
-        case SET_MOCKED_LOCATIONS: {
+        case SET_MOCKED_LOCATIONS: // fall through
+        case SELF_REQUEST: {
             SendMessage(code, data, reply);
             break;
         }
         case SET_ENABLE: {
             SetEnable(data.ReadBool());
-            break;
-        }
-        case SELF_REQUEST: {
-            SelfRequest(data.ReadBool());
             break;
         }
         case ENABLE_LOCATION_MOCK: {
