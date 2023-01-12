@@ -219,10 +219,8 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
     }
 
     if (countryCodeStr8.empty()) {
-        std::u16string countryCodeForSim;
-        DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetISOCountryCodeForSim(
-            slotId, countryCodeForSim);
-        countryCodeStr8 = Str16ToStr8(countryCodeForSim);
+        countryCodeStr8 = Str16ToStr8(
+            DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetISOCountryCodeForSim(slotId));
         type = COUNTRY_CODE_FROM_SIM;
     }
 
