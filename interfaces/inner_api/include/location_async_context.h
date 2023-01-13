@@ -52,8 +52,8 @@ public:
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
     bool enable;
 
-    explicit ReverseGeocodeMockAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), enable(false) {}
+    explicit ReverseGeocodeMockAsyncContext(napi_env env, napi_async_work work = nullptr,
+        napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), enable(false) {}
 
     ReverseGeocodeMockAsyncContext() = delete;
 
