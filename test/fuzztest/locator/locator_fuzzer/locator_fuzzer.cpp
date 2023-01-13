@@ -422,8 +422,8 @@ namespace OHOS {
         std::string msg((const char*) data, size);
         nmeaCallbackHost->PackResult(msg);
         nmeaCallbackHost->Send(msg);
-
-        nmeaCallbackHost->OnMessageChange(msg);
+        int64_t timestamp = 0;
+        nmeaCallbackHost->OnMessageChange(timestamp, msg);
         nmeaCallbackHost->DeleteHandler();
         return true;
     }

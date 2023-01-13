@@ -49,8 +49,9 @@ int NmeaMessageCallbackHost::OnRemoteRequest(
 
     switch (code) {
         case RECEIVE_NMEA_MESSAGE_EVENT: {
+            int64_t timestamp = data.ReadInt64();
             std::string msg = Str16ToStr8(data.ReadString16());
-            OnMessageChange(msg);
+            OnMessageChange(timestamp, msg);
             break;
         }
         default: {
@@ -148,7 +149,7 @@ void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
     });
 }
 
-void NmeaMessageCallbackHost::OnMessageChange(const std::string msg)
+void NmeaMessageCallbackHost::OnMessageChange(int64_t timestamp, const std::string msg)
 {
     LBSLOGD(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackHost::OnMessageChange");
     Send(msg);

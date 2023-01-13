@@ -21,6 +21,7 @@
 
 #include "constant_definition.h"
 #include "country_code.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace Location {
@@ -73,13 +74,13 @@ public:
 
     void ReadFromParcel(Parcel& parcel)
     {
-        countryCodeStr_ = parcel.ReadString();
+        countryCodeStr_ = Str16ToStr8(parcel.ReadString16());
         countryCodeType_ = parcel.ReadInt64();
     }
 
     bool Marshalling(Parcel& parcel) const override
     {
-        return parcel.WriteString(countryCodeStr_) &&
+        return parcel.WriteString16(Str8ToStr16(countryCodeStr_)) &&
                parcel.WriteInt64(countryCodeType_);
     }
 

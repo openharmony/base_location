@@ -32,7 +32,7 @@ public:
     /*
      * message changed report to kits
      */
-    virtual void OnMessageChange(const std::string msg) = 0;
+    virtual void OnMessageChange(int64_t timestamp, const std::string msg) = 0;
 };
 } // namespace Location
 } // namespace OHOS
