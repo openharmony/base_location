@@ -100,6 +100,8 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
     request.maxItems = data.ReadInt32();
     data.ReadInt32(); // locale size
     request.locale = Str16ToStr8(data.ReadString16());
+    std::unique_lock<std::mutex> lock(mockInfoMutex_, std::defer_lock);
+    lock.lock();
     for (size_t i = 0; i < mockInfo_.size(); i++) {
         std::shared_ptr<GeocodingMockInfo> info = mockInfo_[i];
         if (!CommonUtils::DoubleEqual(request.latitude, info->GetLocation()->latitude) ||
@@ -109,6 +111,7 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
         arraySize++;
         array.push_back(info->GetGeoAddressInfo());
     }
+    lock.unlock();
     reply.WriteInt32(ERRCODE_SUCCESS);
     if (arraySize > 0) {
         reply.WriteInt32(arraySize);
@@ -145,7 +148,10 @@ LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(GEO_CONVERT, "SetReverseGeocodingMockInfo");
+    std::unique_lock<std::mutex> lock(mockInfoMutex_, std::defer_lock);
+    lock.lock();
     mockInfo_.assign(mockInfo.begin(), mockInfo.end());
+    lock.unlock();
     return ERRCODE_SUCCESS;
 }
 

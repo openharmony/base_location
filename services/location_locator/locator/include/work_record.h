@@ -16,6 +16,7 @@
 #ifndef WORK_RECORD_H
 #define WORK_RECORD_H
 
+#include <mutex>
 #include <parcel.h>
 #include <string>
 #include <vector>
@@ -54,6 +55,7 @@ private:
     std::vector<int> timeInterval_;
     std::vector<std::string> uuid_;
     std::string deviceId_;
+    std::mutex workRecordMutex_;
 };
 } // namespace Location
 } // namespace OHOS

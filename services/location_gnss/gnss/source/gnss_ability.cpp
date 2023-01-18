@@ -422,14 +422,18 @@ bool GnssAbility::ConnectHdi()
     }
     int32_t retry = 0;
     while (retry < GET_HDI_SERVICE_COUNT) {
+        std::unique_lock<std::mutex> lock(gnssMutex_, std::defer_lock);
+        lock.lock();
         gnssInterface_ = IGnssInterface::Get();
         agnssInterface_ = IAGnssInterface::Get();
         if (gnssInterface_ != nullptr && agnssInterface_ != nullptr) {
             LBSLOGI(GNSS, "connect v1_0 hdi success.");
             gnssCallback_ = new (std::nothrow) GnssEventCallback();
             agnssCallback_ = new (std::nothrow) AGnssEventCallback();
+            lock.unlock();
             return true;
         }
+        lock.unlock();
         retry++;
         LBSLOGE(GNSS, "connect hdi service failed, retry : %{public}d", retry);
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));

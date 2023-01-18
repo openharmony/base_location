@@ -249,10 +249,13 @@ bool CountryCodeManager::SubscribeSimEvent()
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(SIM_STATE_CHANGE_ACTION);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    std::unique_lock<std::mutex> lock(subscriberMutex_, std::defer_lock);
+    lock.lock();
     if (simSubscriber_ == nullptr) {
         simSubscriber_ = std::make_shared<SimSubscriber>(subscriberInfo);
     }
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
+    lock.unlock();
     if (!result) {
         LBSLOGE(COUNTRY_CODE, "SubscribeSimEvent failed.");
     }

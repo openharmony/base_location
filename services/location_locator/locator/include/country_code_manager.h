@@ -17,6 +17,7 @@
 #define COUNTRY_CODE_MANAGER_H
 
 #include <map>
+#include <mutex>
 #include <singleton.h>
 #include <string>
 
@@ -82,6 +83,7 @@ private:
     std::unique_ptr<std::map<pid_t, sptr<ICountryCodeCallback>>> countryCodeCallback_;
     std::shared_ptr<SimSubscriber> simSubscriber_;
     std::shared_ptr<NetworkSubscriber> networkSubscriber_;
+    std::mutex subscriberMutex_;
 };
 } // namespace Location
 } // namespace OHOS
