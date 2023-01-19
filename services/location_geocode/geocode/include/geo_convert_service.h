@@ -16,6 +16,7 @@
 #ifndef GEO_CONVERT_SERVICE_H
 #define GEO_CONVERT_SERVICE_H
 
+#include <mutex>
 #include <singleton.h>
 #include <string>
 #include <vector>
@@ -64,6 +65,7 @@ private:
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     sptr<IRemoteObject> locationService_;
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo_;
+    std::mutex mockInfoMutex_;
 };
 } // namespace OHOS
 } // namespace Location
