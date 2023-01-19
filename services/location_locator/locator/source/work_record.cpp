@@ -52,7 +52,7 @@ std::unique_ptr<WorkRecord> WorkRecord::Unmarshalling(Parcel& parcel)
 
 bool WorkRecord::Marshalling(Parcel& parcel) const
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     parcel.WriteInt32(num_);
     for (int i = 0; i < num_; i++) {
         parcel.WriteInt32(uids_[i]);
@@ -67,7 +67,7 @@ bool WorkRecord::Marshalling(Parcel& parcel) const
 
 bool WorkRecord::MarshallingWorkRecord(Parcel& parcel) const
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     // write numbers
     parcel.WriteInt32(num_);
     // write uids
@@ -85,7 +85,7 @@ bool WorkRecord::MarshallingWorkRecord(Parcel& parcel) const
 
 std::string WorkRecord::ToString()
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     std::string result = "[";
     if (!IsEmpty()) {
         for (int i = 0; i < num_; i++) {
@@ -107,7 +107,7 @@ std::string WorkRecord::ToString()
 
 std::string WorkRecord::GetName(int index)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (index >= 0 && index < num_) {
         return names_[index];
     }
@@ -116,7 +116,7 @@ std::string WorkRecord::GetName(int index)
 
 int WorkRecord::GetUid(int index)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (index >= 0 && index < num_) {
         return uids_[index];
     }
@@ -125,7 +125,7 @@ int WorkRecord::GetUid(int index)
 
 int WorkRecord::GetPid(int index)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (index >= 0 && index < num_) {
         return pids_[index];
     }
@@ -134,7 +134,7 @@ int WorkRecord::GetPid(int index)
 
 int WorkRecord::GetTimeInterval(int index)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (index >= 0 && index < num_) {
         return timeInterval_[index];
     }
@@ -143,7 +143,7 @@ int WorkRecord::GetTimeInterval(int index)
 
 std::string WorkRecord::GetUuid(int index)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (index >= 0 && index < num_) {
         return uuid_[index];
     }
@@ -162,7 +162,6 @@ std::string WorkRecord::GetDeviceId()
 
 int WorkRecord::Size()
 {
-    std::lock_guard lock(workRecordMutex_);
     return num_;
 }
 
@@ -176,7 +175,7 @@ bool WorkRecord::IsEmpty()
 
 bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::string uuid)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     uids_.push_back(uid);
     pids_.push_back(pid);
     names_.push_back(name);
@@ -188,7 +187,7 @@ bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::
 
 bool WorkRecord::Remove(int uid, int pid, std::string name, std::string uuid)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (uids_.size() <= 0) {
         return false;
     }
@@ -214,7 +213,7 @@ bool WorkRecord::Remove(int uid, int pid, std::string name, std::string uuid)
 
 bool WorkRecord::Remove(std::string name)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (uids_.size() <= 0) {
         return false;
     }
@@ -238,7 +237,7 @@ bool WorkRecord::Remove(std::string name)
 
 bool WorkRecord::Find(int uid, std::string name, std::string uuid)
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     if (uids_.size() <= 0) {
         return false;
     }
@@ -255,7 +254,7 @@ bool WorkRecord::Find(int uid, std::string name, std::string uuid)
 
 void WorkRecord::Clear()
 {
-    std::lock_guard lock(workRecordMutex_);
+    std::lock_guard<std::mutex> lock(workRecordMutex_);
     uids_.clear();
     pids_.clear();
     names_.clear();

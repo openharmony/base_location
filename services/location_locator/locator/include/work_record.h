@@ -55,7 +55,7 @@ private:
     std::vector<int> timeInterval_;
     std::vector<std::string> uuid_;
     std::string deviceId_;
-    std::mutex workRecordMutex_;
+    mutable std::mutex workRecordMutex_;
 };
 } // namespace Location
 } // namespace OHOS

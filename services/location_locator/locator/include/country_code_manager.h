@@ -77,13 +77,14 @@ private:
         virtual void OnReceiveEvent(const OHOS::EventFwk::CommonEventData &event) override;
     };
 
-    sptr<ILocatorCallback> callback_;
     std::shared_ptr<CountryCode> lastCountryByLocation_;
     std::shared_ptr<CountryCode> lastCountry_;
     std::unique_ptr<std::map<pid_t, sptr<ICountryCodeCallback>>> countryCodeCallback_;
     std::shared_ptr<SimSubscriber> simSubscriber_;
     std::shared_ptr<NetworkSubscriber> networkSubscriber_;
-    std::mutex subscriberMutex_;
+    std::mutex simSubscriberMutex_;
+    std::mutex networkSubscriberMutex_;
+    std::mutex countryCodeCallbackMutex_;
 };
 } // namespace Location
 } // namespace OHOS

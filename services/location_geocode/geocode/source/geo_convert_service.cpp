@@ -148,10 +148,8 @@ LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(GEO_CONVERT, "SetReverseGeocodingMockInfo");
-    std::unique_lock<std::mutex> lock(mockInfoMutex_, std::defer_lock);
-    lock.lock();
+    std::lock_guard lock(mockInfoMutex_);
     mockInfo_.assign(mockInfo.begin(), mockInfo.end());
-    lock.unlock();
     return ERRCODE_SUCCESS;
 }
 
