@@ -16,6 +16,7 @@
 #ifndef GNSS_ABILITY_H
 #define GNSS_ABILITY_H
 
+#include <mutex>
 #include <singleton.h>
 #include <v1_0/ignss_interface.h>
 #include <v1_0/ia_gnss_interface.h>
@@ -127,6 +128,7 @@ private:
     sptr<IGnssCallback> gnssCallback_;
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
+    std::mutex gnssMutex_;
 };
 } // namespace Location
 } // namespace OHOS
