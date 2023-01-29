@@ -908,7 +908,7 @@ bool OffAllLocationChangeCallback(const napi_env& env)
         }
         auto locatorCallback = sptr<ILocatorCallback>(callbackHost);
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = UnSubscribeLocationChangeV9(locatorCallback);
+        errorCode = UnSubscribeLocationChangeV9(locatorCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -944,7 +944,7 @@ bool OffAllGnssStatusChangeCallback(const napi_env& env)
             continue;
         }
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = UnSubscribeGnssStatusV9(callbackHost);
+        errorCode = UnSubscribeGnssStatusV9(callbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -980,7 +980,7 @@ bool OffAllNmeaMessageChangeCallback(const napi_env& env)
             continue;
         }
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = UnSubscribeNmeaMessageV9(callbackHost);
+        errorCode = UnSubscribeNmeaMessageV9(callbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1017,7 +1017,7 @@ bool OffAllCachedGnssLocationsReportingCallback(const napi_env& env)
         }
         auto cachedCallback = sptr<ICachedLocationsCallback>(callbackHost);
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = UnSubscribeCacheLocationChangeV9(cachedCallback);
+        errorCode = UnSubscribeCacheLocationChangeV9(cachedCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1095,7 +1095,7 @@ bool OffLocationChangeCallback(const napi_env& env, const napi_value& handler)
     if (locatorCallbackHost) {
         auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = UnSubscribeLocationChangeV9(locatorCallback);
+        errorCode = UnSubscribeLocationChangeV9(locatorCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1123,7 +1123,7 @@ bool OffGnssStatusChangeCallback(const napi_env& env, const napi_value& handler)
     auto gnssCallbackHost = g_gnssStatusInfoCallbacks.GetCallbackPtr(env, handler);
     if (gnssCallbackHost) {
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = UnSubscribeGnssStatusV9(gnssCallbackHost);
+        errorCode = UnSubscribeGnssStatusV9(gnssCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1180,7 +1180,7 @@ bool OffCachedGnssLocationsReportingCallback(const napi_env& env, const napi_val
     if (cachedCallbackHost) {
         auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode errorCode = UnSubscribeCacheLocationChangeV9(cachedCallback);
+        errorCode = UnSubscribeCacheLocationChangeV9(cachedCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
