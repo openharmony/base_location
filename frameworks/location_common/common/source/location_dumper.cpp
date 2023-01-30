@@ -29,7 +29,7 @@ const std::string ARGS_HELP = "-h";
 void LocationDumper::PrintArgs(const std::vector<std::string>& vecArgs)
 {
     std::string strArgs = std::accumulate(vecArgs.begin(), vecArgs.end(), std::string(""),
-    [vecArgs](const std::string strArgs, const std::string &each) {
+    [vecArgs](const std::string &strArgs, const std::string &each) {
         return strArgs + each + "|";
     });
     LBSLOGI(COMMON_UTILS, "Dumper[%{public}zu] args: %{public}s", vecArgs.size(), strArgs.c_str());

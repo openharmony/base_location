@@ -406,7 +406,7 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
 }
 
 bool GetStringArrayValueByKey(
-    napi_env env, napi_value jsObject, const std::string key, std::vector<std::string>& outArray)
+    napi_env env, napi_value jsObject, const std::string& key, std::vector<std::string>& outArray)
 {
     napi_value array = GetNapiValueByKey(env, key, jsObject);
     if (array == nullptr) {
@@ -733,7 +733,7 @@ static bool InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext,
     return true;
 }
 
-void CreateFailCallBackParams(AsyncContext& context, const std::string msg, int32_t errorCode)
+void CreateFailCallBackParams(AsyncContext& context, const std::string& msg, int32_t errorCode)
 {
     SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
     SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
