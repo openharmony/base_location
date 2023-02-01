@@ -61,7 +61,9 @@ void GetAllCallback(const napi_env &env, const napi_value &argv, napi_ref &succe
     napi_ref &failHandlerRef, napi_ref &completeHandlerRef)
 {
     bool hasProperty = false;
-    napi_value nVsuccessCallback = nullptr, nVfailCallback = nullptr, nVcompleteCallback = nullptr;
+    napi_value nVsuccessCallback = nullptr;
+    napi_value nVfailCallback = nullptr;
+    napi_value nVcompleteCallback = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_has_named_property(env, argv, "success", &hasProperty));
     if (hasProperty) {
         NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, argv, "success", &nVsuccessCallback));
@@ -84,16 +86,21 @@ void GetAllCallback(const napi_env &env, const napi_value &argv, napi_ref &succe
 napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = 1;
-    napi_value argv[1] = {0}, thisVar = nullptr, result = nullptr;
+    napi_value argv[1] = {0};
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
     NAPI_ASSERT(env, g_locatorImpl != nullptr, "get locator SA failed");
-    napi_value nVtimeout, nVcoordType;
+    napi_value nVtimeout;
+    napi_value nVcoordType;
     int32_t timeout = 0;
-    napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
+    napi_ref successHandlerRef = nullptr;
+    napi_ref failHandlerRef = nullptr;
+    napi_ref completeHandlerRef = nullptr;
     bool hasProperty = false;
     NAPI_CALL(env, napi_has_named_property(env, argv[0], "timeout", &hasProperty));
     if (hasProperty) {
@@ -205,7 +212,9 @@ void SubscribeSystemLocationChange(napi_env env,
 napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = 1;
-    napi_value argv[1] = {0}, thisVar = nullptr, result = nullptr;
+    napi_value argv[1] = {0};
+    napi_value thisVar = nullptr;
+    napi_value result = nullptr;
     napi_value nVcoordType;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype valueType = napi_undefined;
@@ -213,7 +222,9 @@ napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
     NAPI_ASSERT(env, g_locatorImpl != nullptr, "get locator SA failed");
-    napi_ref successHandlerRef = nullptr, failHandlerRef = nullptr, completeHandlerRef = nullptr;
+    napi_ref successHandlerRef = nullptr;
+    napi_ref failHandlerRef = nullptr;
+    napi_ref completeHandlerRef = nullptr;
     bool hasProperty = false;
     NAPI_CALL(env, napi_has_named_property(env, argv[0], "coordType", &hasProperty));
     if (hasProperty) {

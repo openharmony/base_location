@@ -121,7 +121,8 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
                 LocationToJs(context->env, context->loc, jsEvent);
             }
             if (context->callback[0] != nullptr) {
-                napi_value undefine = nullptr, handler = nullptr;
+                napi_value undefine = nullptr;
+                napi_value handler = nullptr;
                 NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
                 NAPI_CALL_RETURN_VOID(context->env,
                     napi_get_reference_value(context->env, context->callback[0], &handler));

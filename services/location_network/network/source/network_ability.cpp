@@ -214,7 +214,8 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return;
     }
-    MessageParcel data, reply;
+    MessageParcel data;
+    MessageParcel reply;
     MessageOption option;
     if (isAdded) {
         LBSLOGD(NETWORK, "start network location");
