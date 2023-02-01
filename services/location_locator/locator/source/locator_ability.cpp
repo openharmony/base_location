@@ -30,6 +30,7 @@
 #include "locator_background_proxy.h"
 #include "location_config_manager.h"
 #include "location_log.h"
+#include "location_sa_load_manager.h"
 #include "network_ability_proxy.h"
 #include "passive_ability_proxy.h"
 #include "permission_status_change_cb.h"
@@ -384,6 +385,9 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
     isEnabled_ = (QuerySwitchState() == ENABLED);
+    if (isEnabled_) {
+        LocationSaLoadManager::GetInstance().LoadLocationNetworkSa();
+    }
     state = isEnabled_ ? ENABLED : DISABLED;
     return ERRCODE_SUCCESS;
 }
