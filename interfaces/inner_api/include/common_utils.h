@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <string>
 
+#include "constant_definition.h"
 #include "iremote_object.h"
 #include "string_ex.h"
 
@@ -98,6 +99,13 @@ static constexpr int LOCATOR_UID = 1021;
     if ((ret) != true) { \
         return false; \
     } \
+}
+
+#define CHK_ERRORCODE_RETURN_VALUE(ret) \
+{                                       \
+    if ((ret) != ERRCODE_SUCCESS) {     \
+        return (ret);                   \
+    }                                   \
 }
 
 enum class ServiceRunningState {

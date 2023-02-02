@@ -386,7 +386,12 @@ LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
     isEnabled_ = (QuerySwitchState() == ENABLED);
     if (isEnabled_) {
-        LocationSaLoadManager::GetInstance().LoadLocationNetworkSa();
+        CHK_ERRORCODE_RETURN_VALUE(
+            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID));
+        CHK_ERRORCODE_RETURN_VALUE(
+            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID));
+        CHK_ERRORCODE_RETURN_VALUE(
+            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID));
     }
     state = isEnabled_ ? ENABLED : DISABLED;
     return ERRCODE_SUCCESS;

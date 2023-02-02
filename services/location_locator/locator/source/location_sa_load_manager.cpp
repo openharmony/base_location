@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@ namespace OHOS {
 namespace Location {
 DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationSaLoadManager);
 
-LocationErrCode LocationSaLoadManager::LoadLocationNetworkSa()
+LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t saId)
 {
     LBSLOGI(LOCATOR, "%{public}s enter", __func__);
     sptr<ISystemAbilityManager> samgr =
@@ -35,10 +35,10 @@ LocationErrCode LocationSaLoadManager::LoadLocationNetworkSa()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
-    int32_t ret = samgr->LoadSystemAbility(LOCATION_NETWORK_LOCATING_SA_ID, locationSaLoadCallback);
+    int32_t ret = samgr->LoadSystemAbility(saId, locationSaLoadCallback);
     if (ret != ERR_OK) {
         LBSLOGE(LOCATOR, "%{public}s: Failed to load system ability, said = [%{public}d], ret = [%{public}d].",
-            __func__, LOCATION_NETWORK_LOCATING_SA_ID, ret);
+            __func__, saId, ret);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     return ERRCODE_SUCCESS;
