@@ -386,13 +386,19 @@ LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
     isEnabled_ = (QuerySwitchState() == ENABLED);
     if (isEnabled_) {
+#ifdef FEATURE_GNSS_SUPPORT
         CHK_ERRORCODE_RETURN_VALUE(
-            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID));
+            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID));
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
         CHK_ERRORCODE_RETURN_VALUE(
             LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID));
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
         CHK_ERRORCODE_RETURN_VALUE(
             LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID));
     }
+#endif
     state = isEnabled_ ? ENABLED : DISABLED;
     return ERRCODE_SUCCESS;
 }

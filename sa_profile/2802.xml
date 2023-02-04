@@ -18,7 +18,7 @@
     <systemability>
         <name>2802</name> <!--Locator SA id-->
         <libpath>liblbsservice_locator.z.so</libpath>
-        <run-on-create>true</run-on-create>
+        <run-on-create>false</run-on-create>
         <distributed>false</distributed>
         <dump-level>1</dump-level>
     </systemability>
