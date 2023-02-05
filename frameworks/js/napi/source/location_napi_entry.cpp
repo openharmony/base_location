@@ -35,15 +35,19 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("requestEnableLocation", RequestEnableLocation),
         DECLARE_NAPI_FUNCTION("enableLocation", EnableLocation),
         DECLARE_NAPI_FUNCTION("disableLocation", DisableLocation),
-        DECLARE_NAPI_FUNCTION("getAddressesFromLocation", GetAddressesFromLocation),
-        DECLARE_NAPI_FUNCTION("getAddressesFromLocationName", GetAddressesFromLocationName),
-        DECLARE_NAPI_FUNCTION("isGeoServiceAvailable", IsGeoServiceAvailable),
-        DECLARE_NAPI_FUNCTION("getCachedGnssLocationsSize", GetCachedGnssLocationsSize),
-        DECLARE_NAPI_FUNCTION("flushCachedGnssLocations", FlushCachedGnssLocations),
-        DECLARE_NAPI_FUNCTION("sendCommand", SendCommand),
         DECLARE_NAPI_FUNCTION("on", On),
         DECLARE_NAPI_FUNCTION("off", Off),
         DECLARE_NAPI_FUNCTION("getCurrentLocation", GetCurrentLocation),
+#ifdef FEATURE_GEOCODE_SUPPORT
+        DECLARE_NAPI_FUNCTION("getAddressesFromLocation", GetAddressesFromLocation),
+        DECLARE_NAPI_FUNCTION("getAddressesFromLocationName", GetAddressesFromLocationName),
+        DECLARE_NAPI_FUNCTION("isGeoServiceAvailable", IsGeoServiceAvailable),
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
+        DECLARE_NAPI_FUNCTION("getCachedGnssLocationsSize", GetCachedGnssLocationsSize),
+        DECLARE_NAPI_FUNCTION("flushCachedGnssLocations", FlushCachedGnssLocations),
+        DECLARE_NAPI_FUNCTION("sendCommand", SendCommand),
+#endif
 
         DECLARE_NAPI_FUNCTION("getLocation", GetLocation),
         DECLARE_NAPI_FUNCTION("getLocationType", GetLocationType),
@@ -84,21 +88,25 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("enableLocation", EnableLocation),
         DECLARE_NAPI_FUNCTION("disableLocation", DisableLocation),
         DECLARE_NAPI_FUNCTION("requestEnableLocation", RequestEnableLocation),
-        DECLARE_NAPI_FUNCTION("isGeocoderAvailable", IsGeoServiceAvailable),
-        DECLARE_NAPI_FUNCTION("getAddressesFromLocation", GetAddressesFromLocation),
-        DECLARE_NAPI_FUNCTION("getAddressesFromLocationName", GetAddressesFromLocationName),
-        DECLARE_NAPI_FUNCTION("isLocationPrivacyConfirmed", IsLocationPrivacyConfirmed),
-        DECLARE_NAPI_FUNCTION("setLocationPrivacyConfirmStatus", SetLocationPrivacyConfirmStatus),
-        DECLARE_NAPI_FUNCTION("getCachedGnssLocationsSize", GetCachedGnssLocationsSize),
-        DECLARE_NAPI_FUNCTION("flushCachedGnssLocations", FlushCachedGnssLocations),
-        DECLARE_NAPI_FUNCTION("sendCommand", SendCommand),
         DECLARE_NAPI_FUNCTION("getCountryCode", GetIsoCountryCode),
         DECLARE_NAPI_FUNCTION("enableLocationMock", EnableLocationMock),
         DECLARE_NAPI_FUNCTION("disableLocationMock", DisableLocationMock),
         DECLARE_NAPI_FUNCTION("setMockedLocations", SetMockedLocations),
+        DECLARE_NAPI_FUNCTION("isLocationPrivacyConfirmed", IsLocationPrivacyConfirmed),
+        DECLARE_NAPI_FUNCTION("setLocationPrivacyConfirmStatus", SetLocationPrivacyConfirmStatus),
+#ifdef FEATURE_GEOCODE_SUPPORT
+        DECLARE_NAPI_FUNCTION("isGeocoderAvailable", IsGeoServiceAvailable),
+        DECLARE_NAPI_FUNCTION("getAddressesFromLocation", GetAddressesFromLocation),
+        DECLARE_NAPI_FUNCTION("getAddressesFromLocationName", GetAddressesFromLocationName),
         DECLARE_NAPI_FUNCTION("enableReverseGeocodingMock", EnableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("disableReverseGeocodingMock", DisableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("setReverseGeocodingMockInfo", SetReverseGeocodingMockInfo),
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
+        DECLARE_NAPI_FUNCTION("getCachedGnssLocationsSize", GetCachedGnssLocationsSize),
+        DECLARE_NAPI_FUNCTION("flushCachedGnssLocations", FlushCachedGnssLocations),
+        DECLARE_NAPI_FUNCTION("sendCommand", SendCommand),
+#endif
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

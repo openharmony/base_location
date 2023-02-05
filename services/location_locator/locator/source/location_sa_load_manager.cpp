@@ -27,7 +27,7 @@ DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationSaLoadManager);
 
 LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t saId)
 {
-    LBSLOGI(LOCATOR, "%{public}s enter", __func__);
+    LBSLOGI(LOCATOR, "%{public}s enter, said = [%{public}d] loading", __func__, saId);
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {

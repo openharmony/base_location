@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_host.h"
 
 #include "napi/native_common.h"
@@ -167,3 +169,4 @@ void GnssStatusCallbackHost::DeleteHandler()
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

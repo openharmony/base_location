@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability.h"
 #include <file_ex.h>
 #include <thread>
@@ -319,7 +320,9 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility.get()->ReportLocation(locationNew, NETWORK_ABILITY);
+#ifdef FEATURE_PASSIVE_SUPPORT
         locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+#endif
     }
     return ERR_OK;
 }
@@ -446,3 +449,4 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_NETWORK_SUPPORT

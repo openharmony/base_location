@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/test.gni")
 
 SUBSYSTEM_DIR = "//base/location/services"
@@ -57,6 +58,11 @@ ohos_unittest("PassiveAbilityTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]
+
+  defines = []
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
 
   module_out_path = module_output_path
 }

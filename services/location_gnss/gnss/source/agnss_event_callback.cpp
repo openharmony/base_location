@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "agnss_event_callback.h"
 
 #include <singleton.h>
@@ -150,3 +151,4 @@ void AGnssEventCallback::JudgmentDataUmts(AGnssRefInfo& refInfo, sptr<CellInform
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #ifndef NMEA_MESSAGE_CALLBACK_HOST_H
 #define NMEA_MESSAGE_CALLBACK_HOST_H
 
@@ -82,3 +83,4 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // NMEA_MESSAGE_CALLBACK_HOST_H
+#endif // FEATURE_GNSS_SUPPORT

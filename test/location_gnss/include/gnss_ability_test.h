@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #ifndef GNSS_ABILITY_TEST_H
 #define GNSS_ABILITY_TEST_H
 
@@ -43,4 +44,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif  // GNSS_ABILITY_TEST_H
+#endif // GNSS_ABILITY_TEST_H
+#endif // FEATURE_GNSS_SUPPORT

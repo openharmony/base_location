@@ -28,13 +28,19 @@
 #include "token_setproc.h"
 
 #include "app_identity.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "cached_locations_callback_host.h"
+#endif
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
 #include "country_code_callback_host.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_host.h"
+#endif
 #include "i_locator.h"
 #include "location.h"
 #include "location_log.h"
@@ -44,15 +50,19 @@
 #include "locator_callback_host.h"
 #include "locator_callback_proxy.h"
 #include "locator_skeleton.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
+#endif
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
+#ifdef FEATURE_GEOCODE_SUPPORT
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
+#endif
 const int REQUEST_MAX_NUM = 3;
 const int UNKNOWN_SERVICE_ID = -1;
 const std::string ARGS_HELP = "-h";
@@ -137,6 +147,7 @@ bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
     return true;
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocodingMockInfo()
 {
     std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfos;
@@ -174,6 +185,7 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocoding
     geoMockInfos.emplace_back(std::move(geocodingMockInfo));
     return geoMockInfos;
 }
+#endif
 
 /*
  * @tc.name: CheckSwitchState001
@@ -525,6 +537,7 @@ HWTEST_F(LocatorServiceTest, UnregisterSwitchCallback001, TestSize.Level1)
  * @tc.desc: Test register nmea message callback if client is null
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1)
 {
     /*
@@ -543,6 +556,7 @@ HWTEST_F(LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1)
     proxy_->RegisterNmeaMessageCallback(client, uid);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterNmeaMessageCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: RegisterAndUnregisterNmeaMessageCallback001
@@ -550,6 +564,7 @@ HWTEST_F(LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1)
  * and the second will not return error.
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.Level1)
 {
     /*
@@ -575,12 +590,14 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterNmeaMessageCallback001, TestSi
     proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterNmeaMessageCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: UnregisterNmeaMessageCallback001
  * @tc.desc: Test unregister nmea message callback if client is null
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
 {
     /*
@@ -598,12 +615,14 @@ HWTEST_F(LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
     proxy_->UnregisterNmeaMessageCallback(client);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterNmeaMessageCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: GetAddressByLocationName001
  * @tc.desc: Test get address by location name
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, GetAddressByLocationName001, TestSize.Level1)
 {
     /*
@@ -635,12 +654,14 @@ HWTEST_F(LocatorServiceTest, GetAddressByLocationName001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply.ReadInt32());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByLocationName001 end");
 }
+#endif
 
 /*
  * @tc.name: RegisterGnssStatusCallback001
  * @tc.desc: Test register gnss status callback if client is null
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1)
 {
     /*
@@ -659,12 +680,14 @@ HWTEST_F(LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1)
     proxy_->RegisterGnssStatusCallback(client, lastCallingUid);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterGnssStatusCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: RegisterAndUnregisterGnssStatusCallback001
  * @tc.desc: Test register and unregister gnss status callback if client is not null
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.Level1)
 {
     /*
@@ -690,12 +713,14 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterGnssStatusCallback001, TestSiz
     proxy_->UnregisterGnssStatusCallback(callbackStub_->AsObject());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterGnssStatusCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: UnregisterGnssStatusCallback001
  * @tc.desc: Test unregister gnss status callback if client is null
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, UnregisterGnssStatusCallback001, TestSize.Level1)
 {
     /*
@@ -713,12 +738,14 @@ HWTEST_F(LocatorServiceTest, UnregisterGnssStatusCallback001, TestSize.Level1)
     proxy_->UnregisterGnssStatusCallback(client);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterGnssStatusCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: IsGeoConvertAvailable001
  * @tc.desc: Test geo convert available
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, IsGeoConvertAvailable001, TestSize.Level1)
 {
     /*
@@ -743,12 +770,14 @@ HWTEST_F(LocatorServiceTest, IsGeoConvertAvailable001, TestSize.Level1)
     }
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsGeoConvertAvailable001 end");
 }
+#endif
 
 /*
  * @tc.name: GetAddressByCoordinate001
  * @tc.desc: Test get address by coordinate
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1)
 {
     /*
@@ -778,6 +807,7 @@ HWTEST_F(LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1)
 
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByCoordinate001 end");
 }
+#endif
 
 /*
  * @tc.name: SetAndCheckLocationPrivacyConfirmStatus001
@@ -894,6 +924,7 @@ HWTEST_F(LocatorServiceTest, UnregisterCountryCodeCallback001, TestSize.Level1)
  * @tc.desc: Test register and unregister cached location callback if the params are not null.
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, TestSize.Level1)
 {
     /*
@@ -922,12 +953,14 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, Tes
     proxy_->UnregisterCachedLocationCallback(cachedCallback);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCachedLocationCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: RegisterCachedLocationCallback001
  * @tc.desc: Test register cached location callback if params are null.
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, RegisterCachedLocationCallback001, TestSize.Level1)
 {
     /*
@@ -947,12 +980,14 @@ HWTEST_F(LocatorServiceTest, RegisterCachedLocationCallback001, TestSize.Level1)
     proxy_->RegisterCachedLocationCallback(requestConfig, cachedCallback, bundleName);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterCachedLocationCallback001 end");
 }
+#endif
 
 /*
  * @tc.name: GetCachedGnssLocationsSize001
  * @tc.desc: Test get cached gnss location size
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1)
 {
     /*
@@ -970,12 +1005,14 @@ HWTEST_F(LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1)
     }
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetCachedGnssLocationsSize001 end");
 }
+#endif
 
 /*
  * @tc.name: FlushCachedGnssLocations001
  * @tc.desc: Test flush cached gnss location
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1)
 {
     /*
@@ -988,12 +1025,14 @@ HWTEST_F(LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1)
     proxy_->FlushCachedGnssLocations();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] FlushCachedGnssLocations001 end");
 }
+#endif
 
 /*
  * @tc.name: SendCommand001
  * @tc.desc: Test send command
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, SendCommand001, TestSize.Level1)
 {
     /*
@@ -1014,12 +1053,14 @@ HWTEST_F(LocatorServiceTest, SendCommand001, TestSize.Level1)
     proxy_->SendCommand(locationCommand);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] SendCommand001 end");
 }
+#endif
 
 /*
  * @tc.name: AddFence001
  * @tc.desc: Test add fence
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
 {
     /*
@@ -1042,12 +1083,14 @@ HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
     proxy_->AddFence(request);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] AddFence001 end");
 }
+#endif
 
 /*
  * @tc.name: RemoveFence001
  * @tc.desc: Test add fence
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
 {
     /*
@@ -1070,6 +1113,7 @@ HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
     proxy_->RemoveFence(request);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 end");
 }
+#endif
 
 /*
  * @tc.name: GetIsoCountryCode001
@@ -1175,6 +1219,7 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
  * @tc.desc: Test enable reverse geocoding mock
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1)
 {
     /*
@@ -1187,12 +1232,14 @@ HWTEST_F(LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1)
     proxy_->EnableReverseGeocodingMock();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableReverseGeocodingMock001 end");
 }
+#endif
 
 /*
  * @tc.name: DisableReverseGeocodingMock001
  * @tc.desc: Test disable reverse geocoding mock
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1)
 {
     /*
@@ -1205,12 +1252,14 @@ HWTEST_F(LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1)
     proxy_->DisableReverseGeocodingMock();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableReverseGeocodingMock001 end");
 }
+#endif
 
 /*
  * @tc.name: SetReverseGeocodingMockInfo001
  * @tc.desc: Test set reverse geocoding mock info
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, SetReverseGeocodingMockInfo001, TestSize.Level1)
 {
     /*
@@ -1235,6 +1284,7 @@ HWTEST_F(LocatorServiceTest, SetReverseGeocodingMockInfo001, TestSize.Level1)
     proxy_->SetReverseGeocodingMockInfo(mockInfo);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] SetReverseGeocodingMockInfo001 end");
 }
+#endif
 
 /*
  * @tc.name: CheckPermission001
@@ -1388,16 +1438,13 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl->SetLocationPrivacyConfirmStatus(-1, true));
     EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
-
+#ifdef FEATURE_GNSS_SUPPORT
     EXPECT_EQ(-1, locatorImpl->GetCachedGnssLocationsSize());
-
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl->FlushCachedGnssLocations());
-
     std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
     command->scenario = SCENE_NAVIGATION;
     command->command = "cmd";
     EXPECT_EQ(true, locatorImpl->SendCommand(command));
-
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;
@@ -1408,7 +1455,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     fenceRequest->geofence = geofence;
     EXPECT_EQ(true, locatorImpl->AddFence(fenceRequest));
     EXPECT_EQ(true, locatorImpl->RemoveFence(fenceRequest));
-
+#endif
     EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
 
     EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, true));
@@ -1423,6 +1470,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 end");
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1436,7 +1484,9 @@ HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGeocodingMock001 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1451,7 +1501,9 @@ HWTEST_F(LocatorServiceTest, locatorImplIsGeoServiceAvailable001, TestSize.Level
     EXPECT_EQ(false, locatorImpl->IsGeoServiceAvailable());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplIsGeoServiceAvailable001 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1478,7 +1530,9 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Leve
     EXPECT_EQ(false, geoAddressList001.empty());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate001 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1502,7 +1556,9 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Leve
     EXPECT_EQ(true, geoAddressList002.empty());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate002 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorImplGetAddressByLocationName001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1528,6 +1584,7 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByLocationName001, TestSize.Le
     EXPECT_EQ(true, geoAddressList003.empty());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByLocationName001 end");
 }
+#endif
 
 HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSize.Level1)
 {
@@ -1541,25 +1598,24 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     EXPECT_NE(nullptr, switchCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
-
+#ifdef FEATURE_GNSS_SUPPORT
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
     EXPECT_NE(nullptr, gnssCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterGnssStatusCallback(gnssCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterGnssStatusCallback(gnssCallbackHost->AsObject()));
-
     auto nmeaCallbackHost =
         sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
     EXPECT_NE(nullptr, nmeaCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
-
+#endif
     auto countryCodeCallbackHost =
         sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterCountryCodeCallback(countryCodeCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterCountryCodeCallback(countryCodeCallbackHost->AsObject()));
-
+#ifdef FEATURE_GNSS_SUPPORT
     auto cachedLocationsCallbackHost =
         sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
     EXPECT_NE(nullptr, cachedLocationsCallbackHost);
@@ -1571,6 +1627,7 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     request->wakeUpCacheQueueFull = true;
     locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
+#endif
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplRegisterAndUnregisterCallback001 end");
 }
 
@@ -1660,6 +1717,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1677,6 +1735,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     sleep(1);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 end");
 }
+#endif
 
 HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
 {
@@ -1695,6 +1754,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSwitchCallback001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1711,7 +1771,9 @@ HWTEST_F(LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level
     locatorAbility->UnregisterGnssStatusCallback(gnssCallbackHost);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGnssStatusCallback001 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1727,6 +1789,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
     locatorAbility->UnregisterNmeaMessageCallback(nmeaCallbackHost);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceNmeaMessageCallback001 end");
 }
+#endif
 
 HWTEST_F(LocatorServiceTest, locatorServiceCountryCodeCallback001, TestSize.Level1)
 {
@@ -1760,6 +1823,7 @@ HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Lev
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePrivacyConfirmStatus001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1773,7 +1837,9 @@ HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
     locatorAbility->SendCommand(command);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendCommand001 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1793,6 +1859,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
     locatorAbility->RemoveFence(fenceRequest);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 end");
 }
+#endif
 
 HWTEST_F(LocatorServiceTest, locatorServiceIsoCountryCode001, TestSize.Level1)
 {

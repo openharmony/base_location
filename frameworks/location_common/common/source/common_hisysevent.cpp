@@ -33,10 +33,12 @@ static void WriteEvent(const std::string& eventType, Types... args)
     }
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t uid)
 {
     WriteEvent("GNSS_STATE", "STATE", state, "PID", pid, "UID", uid);
 }
+#endif
 
 void WriteLocationSwitchStateEvent(const std::string& state)
 {

@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/test.gni")
 
 GNSS_UNIT_TEST_DIR = "//base/location/test/location_gnss"
@@ -65,6 +66,11 @@ ohos_unittest("GnssAbilityTest") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
   ]
+
+  defines = []
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
 
   module_out_path = module_output_path
 }

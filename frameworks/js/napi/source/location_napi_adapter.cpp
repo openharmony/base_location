@@ -245,6 +245,7 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -287,18 +288,22 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 #endif
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
 {
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<ReverseGeoCodeAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
         if (context->errCode != ERRCODE_SUCCESS) {
-#else
-        if (context->errCode != SUCCESS) {
-#endif
             return;
         }
+#else
+        if (context->errCode != SUCCESS) {
+            return;
+        }
+#endif
 #ifdef ENABLE_NAPI_MANAGER
         bool isAvailable = false;
         LocationErrCode errorCode = g_locatorClient->IsGeoServiceAvailableV9(isAvailable);
@@ -332,7 +337,9 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
         GeoAddressesToJsObj(context->env, context->replyList, context->result[PARAM1]);
     };
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
 {
     asyncContext->executeFunc = [&](void* data) -> void {
@@ -374,7 +381,9 @@ void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
         LBSLOGI(LOCATOR_STANDARD, "Push GetAddressesFromLocationName result to client");
     };
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -427,7 +436,9 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -475,6 +486,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
+#endif
 
 #ifdef ENABLE_NAPI_MANAGER
 napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
@@ -550,6 +562,7 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
 }
 #endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -599,7 +612,9 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
     size_t objectArgsNum = 0;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -651,7 +666,9 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
     size_t objectArgsNum = 0;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
 {
     asyncContext->executeFunc = [&](void* data) -> void {
@@ -679,7 +696,9 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
         LBSLOGI(LOCATOR_STANDARD, "Push SendCommand result to client");
     };
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 napi_value SendCommand(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -733,6 +752,7 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
+#endif
 
 #ifdef ENABLE_NAPI_MANAGER
 napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
@@ -876,6 +896,7 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     return UndefinedNapiValue(env);
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -886,7 +907,9 @@ napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info)
     }
     return UndefinedNapiValue(env);
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -897,7 +920,9 @@ napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
     }
     return UndefinedNapiValue(env);
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
@@ -926,7 +951,8 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
     }
     return UndefinedNapiValue(env);
 }
-#endif
+#endif // FEATURE_GEOCODE_SUPPORT
+#endif // ENABLE_NAPI_MANAGER
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode CheckLocationSwitchState()

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #ifndef SATELLITE_STATUS_H
 #define SATELLITE_STATUS_H
 
@@ -137,3 +138,4 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // SATELLITE_STATUS_H
+#endif // FEATURE_GNSS_SUPPORT

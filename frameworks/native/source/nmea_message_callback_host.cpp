@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
 
 #include "common_utils.h"
@@ -174,3 +176,4 @@ void NmeaMessageCallbackHost::DeleteHandler()
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

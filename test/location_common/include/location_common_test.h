@@ -19,8 +19,9 @@
 #include <gtest/gtest.h>
 
 #include "message_parcel.h"
-
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -28,10 +29,11 @@ class LocationCommonTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-
+#ifdef FEATURE_GEOCODE_SUPPORT
     void SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress);
     void VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddress>& geoAddress);
     void VerifyGeoAddressMarshalling(MessageParcel& newParcel);
+#endif
     void VerifyLocationMarshalling(MessageParcel& newParcel);
 };
 } // namespace Location

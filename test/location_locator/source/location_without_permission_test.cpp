@@ -20,18 +20,26 @@
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "cached_locations_callback_host.h"
+#endif
 #include "constant_definition.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_host.h"
 #include "i_cached_locations_callback.h"
+#endif
 #include "i_locator_callback.h"
 #include "location_switch_callback_host.h"
 #include "locator.h"
 #include "location_log.h"
 #include "locator_callback_proxy.h"
 #include "locator_impl.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
+#endif
 #include "request_config.h"
 
 using namespace testing::ext;
@@ -96,16 +104,15 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, Tes
     locatorImpl->StopLocating(callbackStub);
 
     EXPECT_EQ(nullptr, locatorImpl->GetCachedLocation());
-
+#ifdef FEATURE_GEOCODE_SUPPORT
     EXPECT_EQ(false, locatorImpl->IsGeoServiceAvailable());
-
     MessageParcel request001;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
     locatorImpl->GetAddressByCoordinate(request001, geoAddressList001);
-
     MessageParcel request002;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
     locatorImpl->GetAddressByLocationName(request002, geoAddressList002);
+#endif
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission001 end");
 }
 
@@ -116,6 +123,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
+#ifdef FEATURE_GNSS_SUPPORT
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
     EXPECT_NE(nullptr, gnssCallbackHost);
@@ -127,10 +135,12 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
     EXPECT_NE(nullptr, nmeaCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
-
+#endif
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
+#ifdef FEATURE_GNSS_SUPPORT
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocations());
+#endif
 
     EXPECT_EQ(false, locatorImpl->ProxyUidForFreeze(1000, false));
     EXPECT_EQ(false, locatorImpl->ResetAllProxy());
@@ -144,6 +154,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission003 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
+#ifdef FEATURE_GNSS_SUPPORT
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;
@@ -168,6 +179,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
     request->wakeUpCacheQueueFull = true;
     locatorImpl->RegisterCachedLocationCallback(request, cachedCallback);
     locatorImpl->UnregisterCachedLocationCallback(cachedCallback);
+#endif
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission003 end");
 }
 
@@ -210,6 +222,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9002 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
+#ifdef FEATURE_GNSS_SUPPORT
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
     EXPECT_NE(nullptr, gnssCallbackHost);
@@ -223,6 +236,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
 
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocationsV9());
+#endif
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ProxyUidForFreezeV9(1000, false));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ResetAllProxyV9());
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9002 end");
@@ -235,6 +249,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 begin");
     std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
+#ifdef FEATURE_GNSS_SUPPORT
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     fenceRequest->scenario = SCENE_NAVIGATION;
     GeoFence geofence;
@@ -261,6 +276,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     request->wakeUpCacheQueueFull = true;
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterCachedLocationCallbackV9(cachedCallback));
+#endif
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 end");
 }
 }  // namespace Location

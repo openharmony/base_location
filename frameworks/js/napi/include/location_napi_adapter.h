@@ -27,12 +27,16 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info);
 napi_value EnableLocation(napi_env env, napi_callback_info info);
 napi_value DisableLocation(napi_env env, napi_callback_info info);
 napi_value RequestEnableLocation(napi_env env, napi_callback_info info);
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info);
 napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info);
 napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info);
+#endif // FEATURE_GEOCODE_SUPPORT
+#ifdef FEATURE_GNSS_SUPPORT
 napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info);
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info);
 napi_value SendCommand(napi_env env, napi_callback_info info);
+#endif // FEATURE_GNSS_SUPPORT
 #ifdef ENABLE_NAPI_MANAGER
 napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info);
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info);
@@ -40,12 +44,14 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info);
 napi_value EnableLocationMock(napi_env env, napi_callback_info info);
 napi_value DisableLocationMock(napi_env env, napi_callback_info info);
 napi_value SetMockedLocations(napi_env env, napi_callback_info info);
+#ifdef FEATURE_GEOCODE_SUPPORT
 napi_value EnableReverseGeocodingMock(napi_env env, napi_callback_info info);
 napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info);
 napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info);
+#endif // FEATURE_GEOCODE_SUPPORT
 napi_value HandleGetCachedLocation(napi_env env);
 LocationErrCode CheckLocationSwitchState();
-#endif
+#endif // ENABLE_NAPI_MANAGER
 }  // namespace Location
 }  // namespace OHOS
 #endif // LOCATION_NAPI_ADAPTER_H

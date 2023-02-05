@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_NETWORK_ABILITY_STUB_H
-#define MOCK_NETWORK_ABILITY_STUB_H
+#ifdef FEATURE_GNSS_SUPPORT
+#ifndef MOCK_GNSS_ABILITY_STUB_H
+#define MOCK_GNSS_ABILITY_STUB_H
 
 #include "gmock/gmock.h"
 
@@ -57,4 +58,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif
+#endif // MOCK_GNSS_ABILITY_STUB_H
+#endif // FEATURE_GNSS_SUPPORT

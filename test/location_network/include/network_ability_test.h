@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #ifndef NETWORK_ABILITY_TEST_H
 #define NETWORK_ABILITY_TEST_H
 
@@ -35,3 +36,4 @@ public:
 } // namespace Location
 } // namespace OHOS
 #endif // NETWORK_ABILITY_TEST_H
+#endif // FEATURE_NETWORK_SUPPORT

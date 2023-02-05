@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_stub_test.h"
 
 #include "ipc_types.h"
@@ -221,3 +222,4 @@ HWTEST_F(NetworkAbilityStubTest, NetworkCallback003, TestSize.Level1)
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif // FEATURE_NETWORK_SUPPORT

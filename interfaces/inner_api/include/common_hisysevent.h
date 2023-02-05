@@ -20,7 +20,9 @@
 
 namespace OHOS {
 namespace Location {
+#ifdef FEATURE_GNSS_SUPPORT
 void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t uid);
+#endif
 
 void WriteLocationSwitchStateEvent(const std::string& state);
 }  // namespace Location

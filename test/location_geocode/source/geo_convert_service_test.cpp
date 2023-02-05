@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_service_test.h"
 
 #include "parameters.h"
@@ -258,3 +259,4 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
 }
 }  // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GEOCODE_SUPPORT

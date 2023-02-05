@@ -27,34 +27,27 @@
 #include "location_async_context.h"
 #include "async_context.h"
 #include "constant_definition.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
 #include "geo_address.h"
+#endif
 #include "location.h"
 #include "location_log.h"
 #include "request_config.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "satellite_status.h"
+#endif
 
 namespace OHOS {
 namespace Location {
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result);
-void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result);
 void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
-bool GeoAddressesToJsObj(const napi_env& env,
-    std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult);
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig);
 void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig);
-void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
-    std::unique_ptr<CachedGnssLocationsRequest>& request);
-int JsObjToCommand(const napi_env& env, const napi_value& object,
-    std::unique_ptr<LocationCommand>& commandConfig);
-void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
-    const std::unique_ptr<GeofenceRequest>& request);
-int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
-bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 int JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef);
 int JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
@@ -69,8 +62,6 @@ napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const doub
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result);
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum);
-bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
-    std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
 std::string GetErrorMsgByCode(int code);
 void CreateFailCallBackParams(AsyncContext& context, const std::string& msg, int32_t errorCode);
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
@@ -79,6 +70,23 @@ void DeleteQueueWork(AsyncContext* context);
 void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work);
 napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string& errMsg);
 bool CheckIfParamIsFunctionType(napi_env env, napi_value param);
+#ifdef FEATURE_GNSS_SUPPORT
+void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result);
+void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
+    std::unique_ptr<CachedGnssLocationsRequest>& request);
+int JsObjToCommand(const napi_env& env, const napi_value& object,
+    std::unique_ptr<LocationCommand>& commandConfig);
+void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
+    const std::unique_ptr<GeofenceRequest>& request);
+#endif
+#ifdef FEATURE_GEOCODE_SUPPORT
+bool GeoAddressesToJsObj(const napi_env& env,
+    std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult);
+int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
+bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
+bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
+    std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
+#endif
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 { \

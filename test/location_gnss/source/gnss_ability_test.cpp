@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_test.h"
 
 #include <cstdlib>
@@ -984,3 +985,4 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Lev
 
 }  // namespace Location
 }  // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

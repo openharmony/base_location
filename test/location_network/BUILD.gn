@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/test.gni")
 
 SUBSYSTEM_DIR = "//base/location/services"
@@ -56,6 +57,11 @@ ohos_unittest("NetworkAbilityTest") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
   ]
+
+  defines = []
+  if (location_feature_with_network) {
+    defines += [ "FEATURE_NETWORK_SUPPORT" ]
+  }
 
   module_out_path = module_output_path
 }

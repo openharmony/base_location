@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geoconvertproxy_fuzzer.h"
 
 #include "geo_convert_proxy.h"
@@ -56,3 +57,4 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::GeoConvertProxyFuzzerTest(data, size);
     return 0;
 }
+#endif // FEATURE_GEOCODE_SUPPORT

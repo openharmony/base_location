@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
 
 #include <parcel.h>
@@ -76,3 +77,4 @@ bool GeocodingMockInfo::Marshalling(Parcel& parcel) const
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GEOCODE_SUPPORT

@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifdef FEATURE_GNSS_SUPPORT
 #include "cached_locations_callback_host.h"
 
 #include "ipc_skeleton.h"
@@ -168,3 +170,4 @@ void CachedLocationsCallbackHost::DeleteHandler()
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

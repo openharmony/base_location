@@ -23,9 +23,9 @@
             "SystemCapability.Location.Location.Lite"
         ],
         "features": [
+            "location_feature_with_geocode",
             "location_feature_with_gnss",
             "location_feature_with_network",
-            "location_feature_with_geocode",
             "location_feature_with_passive"
         ],
         "adapted_system_type": [

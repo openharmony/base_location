@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/test.gni")
 
 module_output_path = "location/common"
@@ -49,6 +50,15 @@ ohos_unittest("LocationCommonTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (location_feature_with_geocode) {
+    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+  }
+
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
 
   module_out_path = module_output_path
 }

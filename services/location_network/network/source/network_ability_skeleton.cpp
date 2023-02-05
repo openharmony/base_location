@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_skeleton.h"
 
 #include <vector>
@@ -74,3 +75,4 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_NETWORK_SUPPORT

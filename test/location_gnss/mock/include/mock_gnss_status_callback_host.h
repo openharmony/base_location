@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #ifndef MOCK_GNSS_STATUS_CALLBACK_HOST_H
 #define MOCK_GNSS_STATUS_CALLBACK_HOST_H
 
@@ -37,4 +38,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif
+#endif // MOCK_GNSS_STATUS_CALLBACK_HOST_H
+#endif // FEATURE_GNSS_SUPPORT

@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 SUBSYSTEM_DIR = "//base/location/services"
@@ -50,6 +51,15 @@ ohos_shared_library("lbsservice_gnss") {
     "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
   ]
+
+  defines = []
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
+
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
 
   part_name = "location"
   subsystem_name = "location"

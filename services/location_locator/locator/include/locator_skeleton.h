@@ -45,23 +45,27 @@ public:
 private:
     int PreGetSwitchState(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreUnregisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreStartLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreStopLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreGetCacheLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreEnableAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+#ifdef FEATURE_GEOCODE_SUPPORT
     int PreIsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreGetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreGetAddressByLocationName(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreUnregisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreEnableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreDisableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreSetReverseGeocodingMockInfo(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
     int PreRegisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterNmeaMessageCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterNmeaMessageCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterNmeaMessageCallbackV9(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterNmeaMessageCallbackV9(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreSetLocationPrivacyConfirmStatus(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreStartCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreStopCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreGetCachedGnssLocationsSize(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
@@ -69,13 +73,13 @@ private:
     int PreSendCommand(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreAddFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRemoveFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+#endif
+    int PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreSetLocationPrivacyConfirmStatus(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreGetIsoCountryCode(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreEnableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreDisableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreSetMockedLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreEnableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreDisableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreSetReverseGeocodingMockInfo(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterCountryCodeCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterCountryCodeCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

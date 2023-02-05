@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #ifndef PASSIVE_ABILITY_STUB_TEST_H
 #define PASSIVE_ABILITY_STUB_TEST_H
 
@@ -30,3 +31,4 @@ public:
 } // namespace Location
 } // namespace OHOS
 #endif // PASSIVE_ABILITY_STUB_TEST_H
+#endif // FEATURE_PASSIVE_SUPPORT

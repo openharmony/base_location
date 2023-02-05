@@ -25,13 +25,17 @@
 #include "async_context.h"
 #include "constant_definition.h"
 #include "country_code.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
+#endif
 #include "location.h"
 #include "location_log.h"
 #include "locator_callback_host.h"
 #include "request_config.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "satellite_status.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -47,6 +51,7 @@ public:
     ~LocationAsyncContext() override {}
 };
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 class ReverseGeocodeMockAsyncContext : public AsyncContext {
 public:
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
@@ -59,6 +64,7 @@ public:
 
     ~ReverseGeocodeMockAsyncContext() override {}
 };
+#endif
 
 class LocationMockAsyncContext : public AsyncContext {
 public:
@@ -111,6 +117,7 @@ public:
     ~SwitchAsyncContext() override {}
 };
 
+#ifdef FEATURE_GNSS_SUPPORT
 class NmeaAsyncContext : public AsyncContext {
 public:
     std::string msg;
@@ -122,7 +129,9 @@ public:
 
     ~NmeaAsyncContext() override {}
 };
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 class GnssStatusAsyncContext : public AsyncContext {
 public:
     std::shared_ptr<SatelliteStatus> statusInfo;
@@ -134,7 +143,9 @@ public:
 
     ~GnssStatusAsyncContext() override {}
 };
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 class CachedLocationAsyncContext : public AsyncContext {
 public:
     std::vector<std::shared_ptr<Location>> locationList;
@@ -146,6 +157,7 @@ public:
 
     ~CachedLocationAsyncContext() override {}
 };
+#endif
 
 class PrivacyAsyncContext : public AsyncContext {
 public:
@@ -160,6 +172,7 @@ public:
     ~PrivacyAsyncContext() override {}
 };
 
+#ifdef FEATURE_GNSS_SUPPORT
 class CachedAsyncContext : public AsyncContext {
 public:
     bool enable;
@@ -172,7 +185,9 @@ public:
 
     ~CachedAsyncContext() override {}
 };
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 class CommandAsyncContext : public AsyncContext {
 public:
     bool enable;
@@ -185,7 +200,9 @@ public:
 
     ~CommandAsyncContext() override {}
 };
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 class ReverseGeoCodeAsyncContext : public AsyncContext {
 public:
     MessageParcel reverseGeoCodeRequest;
@@ -198,7 +215,9 @@ public:
 
     ~ReverseGeoCodeAsyncContext() override {}
 };
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 class GeoCodeAsyncContext : public AsyncContext {
 public:
     MessageParcel geoCodeRequest;
@@ -211,6 +230,7 @@ public:
 
     ~GeoCodeAsyncContext() override {}
 };
+#endif
 
 class SingleLocationAsyncContext : public AsyncContext {
 public:

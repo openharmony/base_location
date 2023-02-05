@@ -38,7 +38,9 @@ CountryCodeManager::CountryCodeManager()
     countryCodeCallback_ = std::make_unique<std::map<pid_t, sptr<ICountryCodeCallback>>>();
     simSubscriber_ = nullptr;
     networkSubscriber_ = nullptr;
+#ifdef FEATURE_PASSIVE_SUPPORT
     StartPassiveLocationListen();
+#endif
     SubscribeLocaleConfigEvent();
 }
 
@@ -188,6 +190,7 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
     return "";
 }
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 void CountryCodeManager::StartPassiveLocationListen()
 {
     auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
@@ -218,6 +221,7 @@ void CountryCodeManager::StartPassiveLocationListen()
     requestManager.get()->HandleStartLocating(request);
     locatorAbility.get()->ReportLocationStatus(callback, SESSION_START);
 }
+#endif
 
 std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 {

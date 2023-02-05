@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #ifndef GEO_ADDRESS_H
 #define GEO_ADDRESS_H
 
@@ -62,3 +63,4 @@ public:
 } // namespace Location
 } // namespace OHOS
 #endif // GEO_ADDRESS_H
+#endif // FEATURE_GEOCODE_SUPPORT

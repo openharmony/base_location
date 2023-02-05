@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
 import("//base/location/config.gni")
+import("//build/ohos.gni")
 
 SUBSYSTEM_DIR = "//base/location/services"
 
@@ -78,20 +78,21 @@ ohos_shared_library("lbsservice_locator") {
     "os_account:os_account_innerkits",
   ]
 
-  if (location_feature_with_gnss) {
-    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  defines = []
+  if (location_feature_with_geocode) {
+    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
   }
 
-  if (location_feature_with_passive) {
-    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
   }
 
   if (location_feature_with_network) {
     defines += [ "FEATURE_NETWORK_SUPPORT" ]
   }
 
-  if (location_feature_with_geocode) {
-    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
   }
 
   part_name = "location"

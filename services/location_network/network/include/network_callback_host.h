@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #ifndef NETWORK_CALLBACK_HOST_H
 #define NETWORK_CALLBACK_HOST_H
 
@@ -36,3 +37,4 @@ public:
 } // namespace Location
 } // namespace OHOS
 #endif // NETWORK_CALLBACK_HOST_H
+#endif // FEATURE_NETWORK_SUPPORT

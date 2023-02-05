@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_test.h"
 
 #include <cstdlib>
@@ -312,3 +313,4 @@ HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1)
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_NETWORK_SUPPORT

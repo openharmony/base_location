@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #ifndef GEO_CONVERT_PROXY_H
 #define GEO_CONVERT_PROXY_H
 
@@ -45,3 +46,4 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // GEO_CONVERT_PROXY_H
+#endif // FEATURE_GEOCODE_SUPPORT

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability.h"
 
 #include <file_ex.h>
@@ -217,3 +218,4 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_PASSIVE_SUPPORT

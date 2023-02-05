@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability.h"
 
 #include <file_ex.h>
@@ -621,7 +622,9 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
         return ERR_OK;
     }
     locatorAbility.get()->ReportLocation(locationNew, GNSS_ABILITY);
+#ifdef FEATURE_PASSIVE_SUPPORT
     locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+#endif
     return ERR_OK;
 }
 
@@ -714,3 +717,4 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 }
 } // namespace Location
 } // namespace OHOS
+#endif

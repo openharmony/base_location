@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #ifndef PASSIVE_ABILITY_PROXY_H
 #define PASSIVE_ABILITY_PROXY_H
 
@@ -44,3 +45,4 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // PASSIVE_ABILITY_PROXY_H
+#endif // FEATURE_PASSIVE_SUPPORT

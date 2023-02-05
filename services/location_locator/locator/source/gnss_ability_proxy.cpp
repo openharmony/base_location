@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_proxy.h"
 
 #include "string_ex.h"
@@ -344,3 +345,4 @@ LocationErrCode GnssAbilityProxy::SetMocked(
 }
 } // namespace Location
 } // namespace OHOS
+#endif

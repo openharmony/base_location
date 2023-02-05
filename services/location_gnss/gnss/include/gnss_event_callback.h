@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #ifndef GNSS_EVENT_CALLBACK_H
 #define GNSS_EVENT_CALLBACK_H
 
@@ -42,3 +43,4 @@ public:
 }  // namespace Location
 }  // namespace OHOS
 #endif // GNSS_EVENT_CALLBACK_H
+#endif // FEATURE_GNSS_SUPPORT

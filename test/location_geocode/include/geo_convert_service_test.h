@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #ifndef GEO_CONVERT_SERVICE_TEST_H
 #define GEO_CONVERT_SERVICE_TEST_H
 
@@ -37,3 +38,4 @@ public:
 } // namespace Location
 } // namespace OHOS
 #endif // GEO_CONVERT_SERVICE_TEST_H
+#endif // FEATURE_GEOCODE_SUPPORT

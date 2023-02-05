@@ -17,15 +17,21 @@
 
 #include "message_parcel.h"
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "cached_locations_callback_host.h"
+#endif
 #include "country_code.h"
 #include "country_code_callback_host.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_host.h"
+#endif
 #include "location.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_host.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
 #include "satellite_status.h"
+#endif
 
 using namespace testing;
 using namespace testing::ext;
@@ -39,6 +45,7 @@ void CallbackTest::TearDown()
 {
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -74,6 +81,7 @@ HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
     cachedLocationsCallbackProxy->OnCacheLocationsReport(locations);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnCacheLocationsReport001 end");
 }
+#endif
 
 HWTEST_F(CallbackTest, OnSwitchChange001, TestSize.Level1)
 {
@@ -91,6 +99,7 @@ HWTEST_F(CallbackTest, OnSwitchChange001, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnSwitchChange001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(CallbackTest, OnMessageChange001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -107,6 +116,7 @@ HWTEST_F(CallbackTest, OnMessageChange001, TestSize.Level1)
     nmeaCallbackProxy->OnMessageChange(timestamp, msg);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnMessageChange001 end");
 }
+#endif
 
 HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level1)
 {
@@ -155,6 +165,7 @@ HWTEST_F(CallbackTest, LocationCallbackProxy003, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy003 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -181,7 +192,9 @@ HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
     gnssStatusCallbackProxy->OnStatusChange(statusInfo);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackProxy001 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(CallbackTest, GnssStatusCallbackProxy002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -196,6 +209,7 @@ HWTEST_F(CallbackTest, GnssStatusCallbackProxy002, TestSize.Level1)
     gnssStatusCallbackProxy->OnStatusChange(nullptr);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackProxy002 end");
 }
+#endif
 
 HWTEST_F(CallbackTest, CountryCodeCallbackProxy001, TestSize.Level1)
 {
@@ -218,6 +232,7 @@ HWTEST_F(CallbackTest, CountryCodeCallbackProxy001, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CountryCodeCallbackProxy001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(CallbackTest, CachedLocationsCallbackHost001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -234,6 +249,7 @@ HWTEST_F(CallbackTest, CachedLocationsCallbackHost001, TestSize.Level1)
     cachedCallbackHost->DeleteHandler();
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CachedLocationsCallbackHost001 end");
 }
+#endif
 
 HWTEST_F(CallbackTest, CountryCodeCallbackHost001, TestSize.Level1)
 {
@@ -249,6 +265,7 @@ HWTEST_F(CallbackTest, CountryCodeCallbackHost001, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CountryCodeCallbackHost001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(CallbackTest, GnssStatusCallbackHost001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -261,6 +278,7 @@ HWTEST_F(CallbackTest, GnssStatusCallbackHost001, TestSize.Level1)
     gnssCallbackHost->DeleteHandler();
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackHost001 end");
 }
+#endif
 
 HWTEST_F(CallbackTest, LocationSwitchCallbackHost001, TestSize.Level1)
 {
@@ -294,6 +312,7 @@ HWTEST_F(CallbackTest, LocationCallbackHost001, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackHost001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(CallbackTest, NmeaMessageCallbackHost001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -306,5 +325,6 @@ HWTEST_F(CallbackTest, NmeaMessageCallbackHost001, TestSize.Level1)
     nmeaCallbackHost->DeleteHandler();
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] NmeaMessageCallbackHost001 end");
 }
+#endif
 }  // namespace Location
 }  // namespace OHOS

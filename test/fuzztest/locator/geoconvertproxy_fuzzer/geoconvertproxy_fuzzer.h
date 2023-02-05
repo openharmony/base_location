@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifdef FEATURE_GEOCODE_SUPPORT
 #ifndef GEO_CONVERT_PROXY_FUZZER_H
 #define GEO_CONVERT_PROXY_FUZZER_H
 
@@ -23,3 +25,4 @@ bool GeoConvertProxyFuzzerTest(const uint8_t* data, size_t size);
 } // namespace Location
 } // namespace OHOS
 #endif // GEO_CONVERT_PROXY_FUZZER_H
+#endif // FEATURE_GEOCODE_SUPPORT

@@ -22,9 +22,13 @@
 
 #include "constant_definition.h"
 #include "country_code.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
 #include "i_cached_locations_callback.h"
+#endif
 #include "i_locator_callback.h"
 #include "location.h"
 #include "request_config.h"
@@ -46,17 +50,30 @@ public:
     virtual bool UnregisterSwitchCallback(const sptr<IRemoteObject>& callback) = 0;
     virtual void ShowNotification() = 0;
     virtual void RequestPermission() = 0;
+    virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
+    virtual int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
+    virtual bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) = 0;
+    virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
+    virtual bool EnableLocationMock() = 0;
+    virtual bool DisableLocationMock() = 0;
+    virtual bool SetMockedLocations(
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
+    virtual bool ProxyUidForFreeze(int32_t uid, bool isProxy) = 0;
+    virtual bool ResetAllProxy() = 0;
+#ifdef FEATURE_GEOCODE_SUPPORT
     virtual bool IsGeoServiceAvailable() = 0;
     virtual void GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
     virtual void GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
-    virtual bool IsLocationPrivacyConfirmed(const int type) = 0;
-    virtual int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) = 0;
+    virtual bool EnableReverseGeocodingMock() = 0;
+    virtual bool DisableReverseGeocodingMock() = 0;
+    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
     virtual bool RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
     virtual bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;
     virtual bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
     virtual bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
-    virtual bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
-    virtual bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) = 0;
     virtual void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) = 0;
     virtual void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) = 0;
@@ -65,16 +82,7 @@ public:
     virtual bool SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual bool AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual bool EnableReverseGeocodingMock() = 0;
-    virtual bool DisableReverseGeocodingMock() = 0;
-    virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
-    virtual std::shared_ptr<CountryCode> GetIsoCountryCode() = 0;
-    virtual bool EnableLocationMock() = 0;
-    virtual bool DisableLocationMock() = 0;
-    virtual bool SetMockedLocations(
-        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
-    virtual bool ProxyUidForFreeze(int32_t uid, bool isProxy) = 0;
-    virtual bool ResetAllProxy() = 0;
+#endif
 
     virtual LocationErrCode IsLocationEnabledV9(bool &isEnabled) = 0;
     virtual LocationErrCode EnableAbilityV9(bool enable) = 0;
@@ -84,19 +92,33 @@ public:
     virtual LocationErrCode GetCachedLocationV9(std::unique_ptr<Location> &loc) = 0;
     virtual LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) = 0;
+    virtual LocationErrCode IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed) = 0;
+    virtual LocationErrCode SetLocationPrivacyConfirmStatusV9(const int type, bool isConfirmed) = 0;
+    virtual LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) = 0;
+    virtual LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) = 0;
+    virtual LocationErrCode GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode) = 0;
+    virtual LocationErrCode EnableLocationMockV9() = 0;
+    virtual LocationErrCode DisableLocationMockV9() = 0;
+    virtual LocationErrCode SetMockedLocationsV9(
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
+    virtual LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) = 0;
+    virtual LocationErrCode ResetAllProxyV9() = 0;
+#ifdef FEATURE_GEOCODE_SUPPORT
     virtual LocationErrCode IsGeoServiceAvailableV9(bool &isAvailable) = 0;
     virtual LocationErrCode GetAddressByCoordinateV9(MessageParcel &data,
         std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
     virtual LocationErrCode GetAddressByLocationNameV9(MessageParcel &data,
         std::list<std::shared_ptr<GeoAddress>>& replyList) = 0;
-    virtual LocationErrCode IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed) = 0;
-    virtual LocationErrCode SetLocationPrivacyConfirmStatusV9(const int type, bool isConfirmed) = 0;
+    virtual LocationErrCode EnableReverseGeocodingMockV9() = 0;
+    virtual LocationErrCode DisableReverseGeocodingMockV9() = 0;
+    virtual LocationErrCode SetReverseGeocodingMockInfoV9(
+        std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
     virtual LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) = 0;
-    virtual LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) = 0;
-    virtual LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback) = 0;
     virtual LocationErrCode UnregisterCachedLocationCallbackV9(sptr<ICachedLocationsCallback>& callback) = 0;
@@ -105,17 +127,7 @@ public:
     virtual LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual LocationErrCode AddFenceV9(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual LocationErrCode RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual LocationErrCode EnableReverseGeocodingMockV9() = 0;
-    virtual LocationErrCode DisableReverseGeocodingMockV9() = 0;
-    virtual LocationErrCode SetReverseGeocodingMockInfoV9(
-        std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
-    virtual LocationErrCode GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode) = 0;
-    virtual LocationErrCode EnableLocationMockV9() = 0;
-    virtual LocationErrCode DisableLocationMockV9() = 0;
-    virtual LocationErrCode SetMockedLocationsV9(
-        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
-    virtual LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) = 0;
-    virtual LocationErrCode ResetAllProxyV9() = 0;
+#endif
 };
 } // namespace Location
 } // namespace OHOS

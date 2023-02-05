@@ -16,6 +16,7 @@
 #ifndef CALLBACK_MANAGER_H
 #define CALLBACK_MANAGER_H
 
+#include <map>
 #include <mutex>
 
 namespace OHOS {

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "satellite_status.h"
 
 #include <parcel.h>
@@ -69,3 +70,4 @@ std::unique_ptr<SatelliteStatus> SatelliteStatus::Unmarshalling(Parcel& parcel)
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

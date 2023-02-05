@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #ifndef MOCK_PASSIVE_ABILITY_STUB_H
 #define MOCK_PASSIVE_ABILITY_STUB_H
 
@@ -44,4 +45,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif
+#endif // MOCK_PASSIVE_ABILITY_STUB_H
+#endif // FEATURE_PASSIVE_SUPPORT
