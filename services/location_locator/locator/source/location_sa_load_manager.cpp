@@ -25,9 +25,9 @@ namespace OHOS {
 namespace Location {
 DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationSaLoadManager);
 
-LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t saId)
+LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
 {
-    LBSLOGI(LOCATOR, "%{public}s enter, said = [%{public}d] loading", __func__, saId);
+    LBSLOGI(LOCATOR, "%{public}s enter, systemAbilityId = [%{public}d] loading", __func__, systemAbilityId);
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
@@ -35,10 +35,28 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t saId)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
-    int32_t ret = samgr->LoadSystemAbility(saId, locationSaLoadCallback);
+    int32_t ret = samgr->LoadSystemAbility(systemAbilityId, locationSaLoadCallback);
     if (ret != ERR_OK) {
-        LBSLOGE(LOCATOR, "%{public}s: Failed to load system ability, said = [%{public}d], ret = [%{public}d].",
-            __func__, saId, ret);
+        LBSLOGE(LOCATOR, "%{public}s: Failed to load system ability, systemAbilityId = [%{public}d], ret = [%{public}d].",
+            __func__, systemAbilityId, ret);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocationSaLoadManager::UnloadLocationSa(int32_t systemAbilityId)
+{
+    LBSLOGI(LOCATOR, "%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, systemAbilityId);
+    sptr<ISystemAbilityManager> samgr =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    int32_t ret = samgr->UnloadSystemAbility(systemAbilityId);
+    if (ret != ERR_OK) {
+        LBSLOGE(LOCATOR, "%{public}s: Failed to unload system ability, systemAbilityId = [%{public}d], ret = [%{public}d].",
+            __func__, systemAbilityId, ret);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     return ERRCODE_SUCCESS;
@@ -47,12 +65,12 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t saId)
 void LocationSaLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
-    LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA success, said = [%{public}d]", systemAbilityId);
+    LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
 }
 
 void LocationSaLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
-    LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA failed, said = [%{public}d]", systemAbilityId);
+    LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
 }
 }; // namespace Location
 }; // namespace OHOS

@@ -26,14 +26,15 @@ namespace OHOS {
 namespace Location {
 class LocationSaLoadCallback : public SystemAbilityLoadCallbackStub {
 public:
-    void OnLoadSystemAbilitySuccess(int32_t saId, const sptr<IRemoteObject>& remoteObject) override;
-    void OnLoadSystemAbilityFail(int32_t saId) override;
+    void OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject>& remoteObject) override;
+    void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
 };
 
 class LocationSaLoadManager {
     DECLARE_SINGLE_INSTANCE(LocationSaLoadManager);
 public:
-    LocationErrCode LoadLocationSa(int32_t saId);
+    LocationErrCode LoadLocationSa(int32_t systemAbilityId);
+    LocationErrCode UnloadLocationSa(int32_t systemAbilityId);
 };
 }  // namespace Location
 }  // namespace OHOS
