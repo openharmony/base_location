@@ -102,37 +102,29 @@ bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
     return true;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     client_->RegisterGnssStatusCallback(callback, DEFAULT_UID);
     return true;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
     client_->UnregisterGnssStatusCallback(callback);
     return true;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     client_->RegisterNmeaMessageCallback(callback, DEFAULT_UID);
     return true;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
     client_->UnregisterNmeaMessageCallback(callback);
     return true;
 }
-#endif
 
 bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
@@ -146,22 +138,17 @@ bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callb
     return true;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
     client_->RegisterCachedLocationCallback(request, callback, "location.ILocator");
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
 {
     client_->UnregisterCachedLocationCallback(callback);
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool LocatorImpl::IsGeoServiceAvailable()
 {
     bool result = false;
@@ -177,9 +164,7 @@ bool LocatorImpl::IsGeoServiceAvailable()
     }
     return result;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     MessageParcel reply;
@@ -199,9 +184,7 @@ void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::sha
         }
     }
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     MessageParcel reply;
@@ -221,7 +204,6 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
         }
     }
 }
-#endif
 
 bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
 {
@@ -235,48 +217,38 @@ int LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirme
     return client_->SetLocationPrivacyConfirmStatus(type, isConfirmed);
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 int LocatorImpl::GetCachedGnssLocationsSize()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedGnssLocationsSize()");
     return client_->GetCachedGnssLocationsSize();
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 int LocatorImpl::FlushCachedGnssLocations()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocations()");
     return client_->FlushCachedGnssLocations();
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SendCommand()");
     client_->SendCommand(commands);
     return true;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool LocatorImpl::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddFence()");
     client_->AddFence(request);
     return true;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveFence()");
     client_->RemoveFence(request);
     return true;
 }
-#endif
 
 std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 
@@ -304,29 +276,23 @@ bool LocatorImpl::SetMockedLocations(
     return client_->SetMockedLocations(timeInterval, location);
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool LocatorImpl::EnableReverseGeocodingMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMock()");
     return client_->EnableReverseGeocodingMock();
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool LocatorImpl::DisableReverseGeocodingMock()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMock()");
     return client_->DisableReverseGeocodingMock();
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfo()");
     return client_->SetReverseGeocodingMockInfo(mockInfo);
 }
-#endif
 
 bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
@@ -383,37 +349,29 @@ LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject
     return client_->UnregisterSwitchCallbackV9(callback);
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterGnssStatusCallbackV9()");
     return client_->RegisterGnssStatusCallbackV9(callback);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterGnssStatusCallbackV9()");
     return client_->UnregisterGnssStatusCallbackV9(callback);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterNmeaMessageCallbackV9()");
     return client_->RegisterNmeaMessageCallbackV9(callback);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterNmeaMessageCallbackV9()");
     return client_->UnregisterNmeaMessageCallbackV9(callback);
 }
-#endif
 
 LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
@@ -427,48 +385,38 @@ LocationErrCode LocatorImpl::UnregisterCountryCodeCallbackV9(const sptr<IRemoteO
     return client_->UnregisterCountryCodeCallbackV9(callback);
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCachedLocationCallbackV9()");
     return client_->RegisterCachedLocationCallbackV9(request, callback, "location.ILocator");
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::UnregisterCachedLocationCallbackV9(sptr<ICachedLocationsCallback>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCachedLocationCallbackV9()");
     return client_->UnregisterCachedLocationCallbackV9(callback);
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorImpl::IsGeoServiceAvailableV9(bool &isAvailable)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsGeoServiceAvailableV9()");
     return client_->IsGeoConvertAvailableV9(isAvailable);
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
     std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByCoordinateV9()");
     return client_->GetAddressByCoordinateV9(data, replyList);
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
     std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByLocationNameV9()");
     return client_->GetAddressByLocationNameV9(data, replyList);
 }
-#endif
 
 LocationErrCode LocatorImpl::IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed)
 {
@@ -482,45 +430,35 @@ LocationErrCode LocatorImpl::SetLocationPrivacyConfirmStatusV9(const int type, b
     return client_->SetLocationPrivacyConfirmStatusV9(type, isConfirmed);
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::GetCachedGnssLocationsSizeV9(int &size)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedGnssLocationsSizeV9()");
     return client_->GetCachedGnssLocationsSizeV9(size);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::FlushCachedGnssLocationsV9()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocationsV9()");
     return client_->FlushCachedGnssLocationsV9();
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::SendCommandV9(std::unique_ptr<LocationCommand>& commands)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SendCommandV9()");
     return client_->SendCommandV9(commands);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::AddFenceV9(std::unique_ptr<GeofenceRequest>& request)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddFenceV9()");
     return client_->AddFenceV9(request);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorImpl::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveFenceV9()");
     return client_->RemoveFenceV9(request);
 }
-#endif
 
 LocationErrCode LocatorImpl::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
 {
@@ -547,29 +485,23 @@ LocationErrCode LocatorImpl::SetMockedLocationsV9(
     return client_->SetMockedLocationsV9(timeInterval, location);
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorImpl::EnableReverseGeocodingMockV9()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMockV9()");
     return client_->EnableReverseGeocodingMockV9();
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorImpl::DisableReverseGeocodingMockV9()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMockV9()");
     return client_->DisableReverseGeocodingMockV9();
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfoV9()");
     return client_->SetReverseGeocodingMockInfoV9(mockInfo);
 }
-#endif
 
 LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 {

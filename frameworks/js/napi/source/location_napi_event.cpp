@@ -26,13 +26,11 @@ namespace OHOS {
 namespace Location {
 CallbackManager<LocationSwitchCallbackHost> g_switchCallbacks;
 CallbackManager<LocatorCallbackHost> g_locationCallbacks;
-CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
-#ifdef FEATURE_GNSS_SUPPORT
 CallbackManager<GnssStatusCallbackHost> g_gnssStatusInfoCallbacks;
 CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
+CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 std::vector<GeoFenceState*> mFences;
-#endif
 auto g_locatorProxy = Locator::GetInstance();
 
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
@@ -46,21 +44,17 @@ void InitOnFuncMap()
     }
 #ifdef ENABLE_NAPI_MANAGER
     g_onFuncMap.insert(std::make_pair("locationEnabledChange", &OnLocationServiceStateCallback));
-#ifdef FEATURE_GNSS_SUPPORT
     g_onFuncMap.insert(std::make_pair("cachedGnssLocationsChange", &OnCachedGnssLocationsReportingCallback));
     g_onFuncMap.insert(std::make_pair("satelliteStatusChange", &OnGnssStatusChangeCallback));
     g_onFuncMap.insert(std::make_pair("gnssFenceStatusChange", &OnFenceStatusChangeCallback));
     g_onFuncMap.insert(std::make_pair("nmeaMessage", &OnNmeaMessageChangeCallback));
-#endif // FEATURE_GNSS_SUPPORT
 #else
     g_onFuncMap.insert(std::make_pair("locationServiceState", &OnLocationServiceStateCallback));
-#ifdef FEATURE_GNSS_SUPPORT
     g_onFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OnCachedGnssLocationsReportingCallback));
     g_onFuncMap.insert(std::make_pair("gnssStatusChange", &OnGnssStatusChangeCallback));
     g_onFuncMap.insert(std::make_pair("fenceStatusChange", &OnFenceStatusChangeCallback));
     g_onFuncMap.insert(std::make_pair("nmeaMessageChange", &OnNmeaMessageChangeCallback));
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
     g_onFuncMap.insert(std::make_pair("locationChange", &OnLocationChangeCallback));
     g_onFuncMap.insert(std::make_pair("countryCodeChange", &OnCountryCodeChangeCallback));
 }
@@ -72,37 +66,29 @@ void InitOffFuncMap()
     }
 #ifdef ENABLE_NAPI_MANAGER
     g_offAllFuncMap.insert(std::make_pair("locationEnabledChange", &OffAllLocationServiceStateCallback));
-#ifdef FEATURE_GNSS_SUPPORT
     g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsChange", &OffAllCachedGnssLocationsReportingCallback));
     g_offAllFuncMap.insert(std::make_pair("satelliteStatusChange", &OffAllGnssStatusChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("nmeaMessage", &OffAllNmeaMessageChangeCallback));
-#endif // FEATURE_GNSS_SUPPORT
 #else
     g_offAllFuncMap.insert(std::make_pair("locationServiceState", &OffAllLocationServiceStateCallback));
-#ifdef FEATURE_GNSS_SUPPORT
     g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffAllCachedGnssLocationsReportingCallback));
     g_offAllFuncMap.insert(std::make_pair("gnssStatusChange", &OffAllGnssStatusChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("nmeaMessageChange", &OffAllNmeaMessageChangeCallback));
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
     g_offAllFuncMap.insert(std::make_pair("locationChange", &OffAllLocationChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("countryCodeChange", &OffAllCountryCodeChangeCallback));
 
 #ifdef ENABLE_NAPI_MANAGER
     g_offFuncMap.insert(std::make_pair("locationEnabledChange", &OffLocationServiceStateCallback));
-#ifdef FEATURE_GNSS_SUPPORT
     g_offFuncMap.insert(std::make_pair("cachedGnssLocationsChange", &OffCachedGnssLocationsReportingCallback));
     g_offFuncMap.insert(std::make_pair("satelliteStatusChange", &OffGnssStatusChangeCallback));
     g_offFuncMap.insert(std::make_pair("nmeaMessage", &OffNmeaMessageChangeCallback));
-#endif // FEATURE_GNSS_SUPPORT
 #else
     g_offFuncMap.insert(std::make_pair("locationServiceState", &OffLocationServiceStateCallback));
-#ifdef FEATURE_GNSS_SUPPORT
     g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
     g_offFuncMap.insert(std::make_pair("gnssStatusChange", &OffGnssStatusChangeCallback));
     g_offFuncMap.insert(std::make_pair("nmeaMessageChange", &OffNmeaMessageChangeCallback));
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
     g_offFuncMap.insert(std::make_pair("locationChange", &OffLocationChangeCallback));
     g_offFuncMap.insert(std::make_pair("countryCodeChange", &OffCountryCodeChangeCallback));
 }
@@ -125,7 +111,6 @@ LocationErrCode SubscribeLocationServiceStateV9(const napi_env& env,
 }
 #endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void SubscribeGnssStatus(const napi_env& env, const napi_ref& handlerRef,
     sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
@@ -133,10 +118,8 @@ void SubscribeGnssStatus(const napi_env& env, const napi_ref& handlerRef,
     gnssStatusCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterGnssStatusCallback(gnssStatusCallbackHost->AsObject(), DEFAULT_UID);
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode SubscribeGnssStatusV9(const napi_env& env, const napi_ref& handlerRef,
     sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
@@ -148,10 +131,8 @@ LocationErrCode SubscribeGnssStatusV9(const napi_env& env, const napi_ref& handl
     gnssStatusCallbackHost->SetHandleCb(handlerRef);
     return g_locatorProxy->RegisterGnssStatusCallbackV9(gnssStatusCallbackHost->AsObject());
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void SubscribeNmeaMessage(const napi_env& env, const napi_ref& handlerRef,
     sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
@@ -159,10 +140,8 @@ void SubscribeNmeaMessage(const napi_env& env, const napi_ref& handlerRef,
     nmeaMessageCallbackHost->SetHandleCb(handlerRef);
     g_locatorProxy->RegisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject(), DEFAULT_UID);
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode SubscribeNmeaMessageV9(const napi_env& env, const napi_ref& handlerRef,
     sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
@@ -174,8 +153,7 @@ LocationErrCode SubscribeNmeaMessageV9(const napi_env& env, const napi_ref& hand
     nmeaMessageCallbackHost->SetHandleCb(handlerRef);
     return g_locatorProxy->RegisterNmeaMessageCallbackV9(nmeaMessageCallbackHost->AsObject());
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
@@ -191,41 +169,33 @@ LocationErrCode UnSubscribeLocationServiceStateV9(sptr<LocationSwitchCallbackHos
 }
 #endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void UnSubscribeGnssStatus(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeGnssStatus");
     g_locatorProxy->UnregisterGnssStatusCallback(gnssStatusCallbackHost->AsObject());
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode UnSubscribeGnssStatusV9(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeGnssStatusV9");
     return g_locatorProxy->UnregisterGnssStatusCallbackV9(gnssStatusCallbackHost->AsObject());
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeNmeaMessage");
     g_locatorProxy->UnregisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject());
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeNmeaMessageV9");
     return g_locatorProxy->UnregisterNmeaMessageCallbackV9(nmeaMessageCallbackHost->AsObject());
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
 void SubscribeLocationChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<LocatorCallbackHost>& locatorCallbackHost)
@@ -291,7 +261,6 @@ LocationErrCode UnsubscribeCountryCodeChangeV9(sptr<CountryCodeCallbackHost>& ca
 }
 #endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void SubscribeCacheLocationChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<CachedLocationsCallbackHost>& cachedCallbackHost)
 {
@@ -302,10 +271,8 @@ void SubscribeCacheLocationChange(const napi_env& env, const napi_value& object,
     JsObjToCachedLocationRequest(env, object, request);
     g_locatorProxy->RegisterCachedLocationCallback(request, cachedCallback);
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<CachedLocationsCallbackHost>& cachedCallbackHost)
 {
@@ -320,10 +287,8 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
     JsObjToCachedLocationRequest(env, object, request);
     return g_locatorProxy->RegisterCachedLocationCallbackV9(request, cachedCallback);
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
@@ -336,10 +301,8 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
         g_locatorProxy->AddFence(request);
     }
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
     LocationErrCode errorCode = CheckLocationSwitchEnable();
@@ -357,10 +320,8 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
     }
     return ERRCODE_GEOFENCE_FAIL;
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
@@ -372,10 +333,8 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
         g_locatorProxy->RemoveFence(request);
     }
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
     LocationErrCode errorCode = CheckLocationSwitchEnable();
@@ -392,8 +351,7 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
     }
     return ERRCODE_GEOFENCE_FAIL;
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
 SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env,
     std::unique_ptr<RequestConfig>& config, sptr<LocatorCallbackHost> callback)
@@ -561,23 +519,19 @@ LocationErrCode UnSubscribeLocationChangeV9(sptr<ILocatorCallback>& callback)
 }
 #endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeCacheLocationChange");
     g_locatorProxy->UnregisterCachedLocationCallback(callback);
 }
-#endif
 
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>& callback)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeCacheLocationChangeV9");
     return g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
 }
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
 
 bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback)
 {
@@ -630,7 +584,6 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
     return true;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -678,9 +631,7 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
     }
     return true;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -719,7 +670,6 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
     }
     return true;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
 bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
@@ -768,7 +718,6 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
     return true;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -807,7 +756,6 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
     }
     return true;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
 bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
@@ -848,7 +796,6 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
     return true;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -875,7 +822,6 @@ bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const n
 #endif
     return true;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
 napi_value On(napi_env env, napi_callback_info cbinfo)
 {
@@ -977,7 +923,6 @@ bool OffAllLocationChangeCallback(const napi_env& env)
     return true;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OffAllGnssStatusChangeCallback(const napi_env& env)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -1013,9 +958,7 @@ bool OffAllGnssStatusChangeCallback(const napi_env& env)
     g_gnssStatusInfoCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OffAllNmeaMessageChangeCallback(const napi_env& env)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -1051,9 +994,7 @@ bool OffAllNmeaMessageChangeCallback(const napi_env& env)
     g_nmeaCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OffAllCachedGnssLocationsReportingCallback(const napi_env& env)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -1090,7 +1031,6 @@ bool OffAllCachedGnssLocationsReportingCallback(const napi_env& env)
     g_cachedLocationCallbacks.DeleteCallbackByEnv(env);
     return true;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
 bool OffAllCountryCodeChangeCallback(const napi_env& env)
 {
@@ -1171,7 +1111,6 @@ bool OffLocationChangeCallback(const napi_env& env, const napi_value& handler)
     return false;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OffGnssStatusChangeCallback(const napi_env& env, const napi_value& handler)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -1199,9 +1138,7 @@ bool OffGnssStatusChangeCallback(const napi_env& env, const napi_value& handler)
     }
     return false;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OffNmeaMessageChangeCallback(const napi_env& env, const napi_value& handler)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -1229,9 +1166,7 @@ bool OffNmeaMessageChangeCallback(const napi_env& env, const napi_value& handler
     }
     return false;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
-#ifdef FEATURE_GNSS_SUPPORT
 bool OffCachedGnssLocationsReportingCallback(const napi_env& env, const napi_value& handler)
 {
 #ifdef ENABLE_NAPI_MANAGER
@@ -1260,7 +1195,6 @@ bool OffCachedGnssLocationsReportingCallback(const napi_env& env, const napi_val
     }
     return false;
 }
-#endif // FEATURE_GNSS_SUPPORT
 
 bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler)
 {
@@ -1336,21 +1270,17 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
             (*singleMemberFunc)(env, argv[PARAM1]);
         }
 #ifdef ENABLE_NAPI_MANAGER
-#ifdef FEATURE_GNSS_SUPPORT
     } else if (argc == PARAM3 && event == "gnssFenceStatusChange") {
         LocationErrCode errorCode = UnSubscribeFenceStatusChangeV9(env, argv[PARAM1], argv[PARAM2]);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
         }
-#endif // FEATURE_GNSS_SUPPORT
     } else {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
 #else
-#ifdef FEATURE_GNSS_SUPPORT
     } else if (argc == PARAM3 && event == "fenceStatusChange") {
         UnSubscribeFenceStatusChange(env, argv[PARAM1], argv[PARAM2]);
-#endif // FEATURE_GNSS_SUPPORT
-#endif // ENABLE_NAPI_MANAGER
+#endif
     }
     return UndefinedNapiValue(env);
 }

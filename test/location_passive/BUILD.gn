@@ -14,57 +14,63 @@
 import("//base/location/config.gni")
 import("//build/test.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
-ohos_unittest("PassiveAbilityTest") {
-  module_out_path = module_output_path
-  sources = [
-    "//base/location/test/location_passive/source/passive_ability_stub_test.cpp",
-    "//base/location/test/location_passive/source/passive_ability_test.cpp",
-  ]
+if (location_feature_with_passive) {
+  SUBSYSTEM_DIR = "//base/location/services"
+  ohos_unittest("PassiveAbilityTest") {
+    module_out_path = module_output_path
+    sources = [
+      "//base/location/test/location_passive/source/passive_ability_stub_test.cpp",
+      "//base/location/test/location_passive/source/passive_ability_test.cpp",
+    ]
 
-  include_dirs = [
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/test/location_passive/include",
-    "//base/location/test/location_passive/mock/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
-    "$SUBSYSTEM_DIR/location_passive/passive/include",
-  ]
+    include_dirs = [
+      "//base/location/interfaces/inner_api/include",
+      "//base/location/test/location_passive/include",
+      "//base/location/test/location_passive/mock/include",
+      "$SUBSYSTEM_DIR/location_locator/locator/include",
+      "$SUBSYSTEM_DIR/location_passive/passive/include",
+    ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "$SUBSYSTEM_DIR/location_passive/passive:lbsservice_passive",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
-    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
-    "//base/startup/init/interfaces/innerkits:libbegetutil",
-    "//foundation/arkui/napi:ace_napi",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-  ]
+    deps = [
+      "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+      "$SUBSYSTEM_DIR/location_passive/passive:lbsservice_passive",
+      "//base/location/frameworks/location_common/common:lbsservice_common",
+      "//base/location/frameworks/native:locator_sdk",
+      "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+      "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+      "//base/startup/init/interfaces/innerkits:libbegetutil",
+      "//foundation/arkui/napi:ace_napi",
+      "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
+      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+      "//third_party/googletest:gmock_main",
+      "//third_party/googletest:gtest_main",
+    ]
 
-  external_deps = [
-    "access_token:libaccesstoken_sdk",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-  ]
+    external_deps = [
+      "access_token:libaccesstoken_sdk",
+      "c_utils:utils",
+      "common_event_service:cesfwk_innerkits",
+      "eventhandler:libeventhandler",
+      "hisysevent_native:libhisysevent",
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+    ]
 
-  defines = []
-  if (location_feature_with_passive) {
-    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    defines = []
+    if (location_feature_with_passive) {
+      defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    }
+
+    module_out_path = module_output_path
   }
-
-  module_out_path = module_output_path
+} else {
+  ohos_unittest("PassiveAbilityTest") {
+    module_out_path = module_output_path
+  }
 }
 
 group("unittest") {

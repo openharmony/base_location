@@ -14,53 +14,57 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
-LOCATION_GNSS_ROOT = "$SUBSYSTEM_DIR/location_gnss/gnss"
+if (location_feature_with_gnss) {
+  SUBSYSTEM_DIR = "//base/location/services"
+  LOCATION_GNSS_ROOT = "$SUBSYSTEM_DIR/location_gnss/gnss"
 
-ohos_shared_library("lbsservice_gnss") {
-  sources = [
-    "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
-    "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
-    "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
-    "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
-  ]
+  ohos_shared_library("lbsservice_gnss") {
+    sources = [
+      "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
+      "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
+      "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
+      "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
+    ]
 
-  include_dirs = [
-    "//base/location/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/location_gnss/gnss/include",
-    "$SUBSYSTEM_DIR/location_locator/callback/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
-  ]
+    include_dirs = [
+      "//base/location/interfaces/inner_api/include",
+      "$SUBSYSTEM_DIR/location_gnss/gnss/include",
+      "$SUBSYSTEM_DIR/location_locator/callback/include",
+      "$SUBSYSTEM_DIR/location_locator/locator/include",
+    ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-  ]
+    deps = [
+      "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+      "//base/location/frameworks/location_common/common:lbsservice_common",
+      "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
+      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    ]
 
-  external_deps = [
-    "access_token:libaccesstoken_sdk",
-    "c_utils:utils",
-    "cellular_data:tel_cellular_data_api",
-    "common_event_service:cesfwk_innerkits",
-    "core_service:tel_core_service_api",
-    "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
-    "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
-    "eventhandler:libeventhandler",
-    "hdf_core:libhdi",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+    external_deps = [
+      "access_token:libaccesstoken_sdk",
+      "c_utils:utils",
+      "cellular_data:tel_cellular_data_api",
+      "common_event_service:cesfwk_innerkits",
+      "core_service:tel_core_service_api",
+      "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
+      "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
+      "eventhandler:libeventhandler",
+      "hdf_core:libhdi",
+      "hiviewdfx_hilog_native:libhilog",
+    ]
 
-  defines = []
-  if (location_feature_with_gnss) {
-    defines += [ "FEATURE_GNSS_SUPPORT" ]
+    defines = []
+    if (location_feature_with_gnss) {
+      defines += [ "FEATURE_GNSS_SUPPORT" ]
+    }
+
+    if (location_feature_with_passive) {
+      defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    }
+
+    part_name = "location"
+    subsystem_name = "location"
   }
-
-  if (location_feature_with_passive) {
-    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
-  }
-
-  part_name = "location"
-  subsystem_name = "location"
+} else {
+  ohos_shared_library("lbsservice_gnss") {}
 }

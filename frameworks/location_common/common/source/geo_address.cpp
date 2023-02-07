@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 
 namespace OHOS {
@@ -144,4 +143,3 @@ bool GeoAddress::Marshalling(Parcel& parcel) const
 }
 } // namespace Location
 } // namespace OHOS
-#endif // FEATURE_GEOCODE_SUPPORT

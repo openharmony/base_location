@@ -117,7 +117,7 @@ public:
     LocationErrCode SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 #endif
-#ifdef FEATURE_GEOCODE_SUPPORT
+#ifdef FEATURE_PASSIVE_SUPPORT
     LocationErrCode SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 #endif

@@ -14,37 +14,41 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
-LOCATION_GEOCONVERT_ROOT = "$SUBSYSTEM_DIR/location_geocode/geocode"
+if (location_feature_with_geocode) {
+  SUBSYSTEM_DIR = "//base/location/services"
+  LOCATION_GEOCONVERT_ROOT = "$SUBSYSTEM_DIR/location_geocode/geocode"
 
-ohos_shared_library("lbsservice_geocode") {
-  sources = [
-    "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
-    "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_skeleton.cpp",
-  ]
+  ohos_shared_library("lbsservice_geocode") {
+    sources = [
+      "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
+      "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_skeleton.cpp",
+    ]
 
-  include_dirs = [
-    "//base/location/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
-  ]
+    include_dirs = [
+      "//base/location/interfaces/inner_api/include",
+      "$SUBSYSTEM_DIR/location_geocode/geocode/include",
+      "$SUBSYSTEM_DIR/location_locator/locator/include",
+    ]
 
-  deps = [
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-  ]
+    deps = [
+      "//base/location/frameworks/location_common/common:lbsservice_common",
+      "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
+      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    ]
 
-  defines = []
-  if (location_feature_with_geocode) {
-    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+    defines = []
+    if (location_feature_with_geocode) {
+      defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+    }
+
+    external_deps = [
+      "c_utils:utils",
+      "hiviewdfx_hilog_native:libhilog",
+    ]
+
+    part_name = "location"
+    subsystem_name = "location"
   }
-
-  external_deps = [
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
-
-  part_name = "location"
-  subsystem_name = "location"
+} else {
+  ohos_shared_library("lbsservice_geocode") {}
 }

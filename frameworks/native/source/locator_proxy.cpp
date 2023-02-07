@@ -26,12 +26,8 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
-#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
-#endif
-#ifdef FEATURE_GNSS_SUPPORT
 #include "i_cached_locations_callback.h"
-#endif
 #include "i_locator.h"
 #include "i_locator_callback.h"
 #include "location.h"
@@ -142,37 +138,29 @@ void LocatorProxy::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterSwitchCallback Transact ErrCodes = %{public}d", error);
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     int error = SendRegisterMsgToRemote(REG_GNSS_STATUS_CALLBACK, callback, uid);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterGnssStatusCallback Transact ErrCodes = %{public}d", error);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorProxy::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
     int error = SendRegisterMsgToRemote(UNREG_GNSS_STATUS_CALLBACK, callback, 0);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterGnssStatusCallback Transact ErrCodes = %{public}d", error);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     int error = SendRegisterMsgToRemote(REG_NMEA_CALLBACK, callback, uid);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
     int error = SendRegisterMsgToRemote(UNREG_NMEA_CALLBACK, callback, 0);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
 }
-#endif
 
 void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid)
 {
@@ -225,26 +213,20 @@ int LocatorProxy::GetCacheLocation(MessageParcel &reply)
     return error;
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorProxy::IsGeoConvertAvailable(MessageParcel &reply)
 {
     return SendMsgWithReply(GEO_IS_AVAILABLE, reply);
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
     return SendMsgWithDataReply(GET_FROM_COORDINATE, data, reply);
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
     return SendMsgWithDataReply(GET_FROM_LOCATION_NAME, data, reply);
 }
-#endif
 
 bool LocatorProxy::IsLocationPrivacyConfirmed(const int type)
 {
@@ -280,7 +262,6 @@ int LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bool isConfirm
     return error;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
@@ -301,18 +282,14 @@ int LocatorProxy::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocat
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterCachedLocationCallback Transact ErrCodes = %{public}d", error);
     return error;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 int LocatorProxy::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
 {
     int error = SendRegisterMsgToRemote(UNREG_CACHED_CALLBACK, callback->AsObject(), 0);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCachedLocationCallback Transact ErrCodes = %{public}d", error);
     return error;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 int LocatorProxy::GetCachedGnssLocationsSize()
 {
     MessageParcel reply;
@@ -325,9 +302,7 @@ int LocatorProxy::GetCachedGnssLocationsSize()
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetCachedGnssLocationsSize return  %{public}d", size);
     return size;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 int LocatorProxy::FlushCachedGnssLocations()
 {
     MessageParcel reply;
@@ -338,9 +313,7 @@ int LocatorProxy::FlushCachedGnssLocations()
     }
     return REPLY_CODE_EXCEPTION;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
     MessageParcel data;
@@ -353,9 +326,7 @@ void LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
     int error = SendMsgWithDataReply(SEND_COMMAND, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SendCommand Transact ErrCodes = %{public}d", error);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
     MessageParcel data;
@@ -371,9 +342,7 @@ void LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
     int error = SendMsgWithDataReply(ADD_FENCE, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::AddFence Transact ErrCodes = %{public}d", error);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
     MessageParcel data;
@@ -389,7 +358,6 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     int error = SendMsgWithDataReply(REMOVE_FENCE, data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
 }
-#endif
 
 std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
 {
@@ -463,7 +431,6 @@ bool LocatorProxy::SetMockedLocations(
     return state;
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool LocatorProxy::EnableReverseGeocodingMock()
 {
     bool state = false;
@@ -475,9 +442,7 @@ bool LocatorProxy::EnableReverseGeocodingMock()
     }
     return state;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool LocatorProxy::DisableReverseGeocodingMock()
 {
     bool state = false;
@@ -489,9 +454,7 @@ bool LocatorProxy::DisableReverseGeocodingMock()
     }
     return state;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     bool state = false;
@@ -511,7 +474,6 @@ bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geoco
     }
     return state;
 }
-#endif
 
 bool LocatorProxy::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
@@ -654,25 +616,20 @@ LocationErrCode LocatorProxy::UnregisterSwitchCallbackV9(const sptr<IRemoteObjec
     return errorCode;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LocationErrCode errorCode = SendRegisterMsgToRemoteV9(REG_GNSS_STATUS_CALLBACK, callback);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterGnssStatusCallback Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LocationErrCode errorCode = SendRegisterMsgToRemoteV9(UNREG_GNSS_STATUS_CALLBACK, callback);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterGnssStatusCallback Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
     MessageParcel data;
@@ -690,9 +647,7 @@ LocationErrCode LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteOb
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterNmeaMessageCallbackV9 Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
     MessageParcel data;
@@ -710,7 +665,6 @@ LocationErrCode LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemote
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterNmeaMessageCallbackV9 Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
 LocationErrCode LocatorProxy::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback)
 {
@@ -769,7 +723,6 @@ LocationErrCode LocatorProxy::GetCacheLocationV9(std::unique_ptr<Location> &loc)
     return errorCode;
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorProxy::IsGeoConvertAvailableV9(bool &isAvailable)
 {
     MessageParcel reply;
@@ -782,9 +735,7 @@ LocationErrCode LocatorProxy::IsGeoConvertAvailableV9(bool &isAvailable)
     LBSLOGD(LOCATOR_STANDARD, "Proxy::IsGeoConvertAvailable Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorProxy::GetAddressByCoordinateV9(MessageParcel &data,
     std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
@@ -802,9 +753,7 @@ LocationErrCode LocatorProxy::GetAddressByCoordinateV9(MessageParcel &data,
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetAddressByCoordinate Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorProxy::GetAddressByLocationNameV9(MessageParcel &data,
     std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
@@ -822,7 +771,6 @@ LocationErrCode LocatorProxy::GetAddressByLocationNameV9(MessageParcel &data,
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetAddressByLocationName Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
 LocationErrCode LocatorProxy::IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed)
 {
@@ -858,7 +806,6 @@ LocationErrCode LocatorProxy::SetLocationPrivacyConfirmStatusV9(const int type, 
     return errorCode;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
@@ -879,18 +826,14 @@ LocationErrCode LocatorProxy::RegisterCachedLocationCallbackV9(std::unique_ptr<C
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterCachedLocationCallback Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::UnregisterCachedLocationCallbackV9(sptr<ICachedLocationsCallback>& callback)
 {
     LocationErrCode errorCode = SendRegisterMsgToRemoteV9(UNREG_CACHED_CALLBACK, callback->AsObject());
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCachedLocationCallback Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::GetCachedGnssLocationsSizeV9(int &size)
 {
     MessageParcel reply;
@@ -904,18 +847,14 @@ LocationErrCode LocatorProxy::GetCachedGnssLocationsSizeV9(int &size)
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetCachedGnssLocationsSize return  %{public}d", size);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::FlushCachedGnssLocationsV9()
 {
     LocationErrCode errorCode = SendSimpleMsgV9(FLUSH_CACHED_LOCATIONS);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::FlushCachedGnssLocations Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::SendCommandV9(std::unique_ptr<LocationCommand>& commands)
 {
     if (commands == nullptr) {
@@ -932,9 +871,7 @@ LocationErrCode LocatorProxy::SendCommandV9(std::unique_ptr<LocationCommand>& co
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SendCommand Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::AddFenceV9(std::unique_ptr<GeofenceRequest>& request)
 {
     if (request == nullptr) {
@@ -954,9 +891,7 @@ LocationErrCode LocatorProxy::AddFenceV9(std::unique_ptr<GeofenceRequest>& reque
     LBSLOGD(LOCATOR_STANDARD, "Proxy::AddFence Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorProxy::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request)
 {
     if (request == nullptr) {
@@ -976,7 +911,6 @@ LocationErrCode LocatorProxy::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& re
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
 LocationErrCode LocatorProxy::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
 {
@@ -1038,7 +972,6 @@ LocationErrCode LocatorProxy::SetMockedLocationsV9(
     return errorCode;
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorProxy::EnableReverseGeocodingMockV9()
 {
     MessageParcel reply;
@@ -1046,9 +979,7 @@ LocationErrCode LocatorProxy::EnableReverseGeocodingMockV9()
     LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableReverseGeocodingMock Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorProxy::DisableReverseGeocodingMockV9()
 {
     MessageParcel reply;
@@ -1056,9 +987,7 @@ LocationErrCode LocatorProxy::DisableReverseGeocodingMockV9()
     LBSLOGD(LOCATOR_STANDARD, "Proxy::DisableReverseGeocodingMock Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorProxy::SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     MessageParcel data;
@@ -1074,7 +1003,6 @@ LocationErrCode LocatorProxy::SetReverseGeocodingMockInfoV9(std::vector<std::sha
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SetReverseGeocodingMockInfo Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
-#endif
 
 LocationErrCode LocatorProxy::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 {

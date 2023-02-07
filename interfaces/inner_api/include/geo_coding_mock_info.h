@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 #ifndef LOCATION_GEO_CODEING_MOCK_INFO_H
 #define LOCATION_GEO_CODEING_MOCK_INFO_H
 
@@ -45,4 +44,3 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_GEO_CODEING_MOCK_INFO_H
-#endif // FEATURE_GEOCODE_SUPPORT

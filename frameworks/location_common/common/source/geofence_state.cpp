@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #include "geofence_state.h"
 
 namespace OHOS {
@@ -26,4 +25,3 @@ GeoFenceState::GeoFenceState(const GeoFence fence, const AbilityRuntime::WantAge
 }
 } // namespace Location
 } // namespace OHOS
-#endif // FEATURE_GNSS_SUPPORT

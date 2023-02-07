@@ -429,8 +429,8 @@ LocationErrCode LocatorAbility::GetSwitchState(int& state)
 #ifdef FEATURE_NETWORK_SUPPORT
         CHK_ERRORCODE_RETURN_VALUE(
             LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID));
-    }
 #endif
+    }
     state = isEnabled_ ? ENABLED : DISABLED;
     return ERRCODE_SUCCESS;
 }
@@ -768,6 +768,10 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemot
 LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
+#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: mock service unavailable", __func__);
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         auto obj = iter->second;
         if (iter->first == GNSS_ABILITY) {
@@ -810,6 +814,10 @@ LocationErrCode LocatorAbility::SetMockedLocations(
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
+#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
     if (isEnabled_ == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
@@ -839,6 +847,10 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 
 LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
+#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
     LBSLOGI(LOCATOR, "stop locating");
     if (requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;

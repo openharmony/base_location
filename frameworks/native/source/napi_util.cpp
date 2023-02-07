@@ -20,9 +20,7 @@
 
 #include "country_code.h"
 #include "common_utils.h"
-#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
-#endif
 #include "location_log.h"
 #include "locator_proxy.h"
 #include "request_config.h"
@@ -40,7 +38,6 @@ napi_value UndefinedNapiValue(const napi_env& env)
     return result;
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 void SatelliteStatusToJs(const napi_env& env,
     const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result)
 {
@@ -84,7 +81,6 @@ void SatelliteStatusToJs(const napi_env& env,
         SetValueStringArray(env, "carrierFrequencies", carrierFrequenciesArray, result);
     }
 }
-#endif
 
 void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result)
 {
@@ -135,7 +131,6 @@ void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& lo
     SetValueInt64(env, "time", locationInfo->GetTimeStamp(), result);
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool GeoAddressesToJsObj(const napi_env& env,
     std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult)
 {
@@ -178,18 +173,14 @@ bool GeoAddressesToJsObj(const napi_env& env,
     }
     return true;
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<CachedGnssLocationsRequest>& request)
 {
     JsObjectToInt(env, object, "reportingPeriodSec", request->reportingPeriodSec);
     JsObjectToBool(env, object, "wakeUpCacheQueueFull", request->wakeUpCacheQueueFull);
 }
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
     const std::unique_ptr<GeofenceRequest>& request)
 {
@@ -211,7 +202,6 @@ void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
         request->geofence.expiration = doubleValue;
     }
 }
-#endif
 
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig)
@@ -254,7 +244,6 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     }
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 int JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig)
 {
@@ -265,9 +254,7 @@ int JsObjToCommand(const napi_env& env, const napi_value& object,
     CHK_ERROR_CODE("command", JsObjectToString(env, object, "command", MAX_BUF_LEN, commandConfig->command), true);
     return SUCCESS;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
     std::string description = "";
@@ -319,9 +306,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     dataParcel.WriteString16(Str8ToStr16(str)); // ""
     return SUCCESS;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
     double latitude = 0;
@@ -354,9 +339,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     dataParcel.WriteString16(Str8ToStr16(str)); // ""
     return true;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool GetLocationInfo(const napi_env& env, const napi_value& object,
     const char* fieldStr, std::shared_ptr<ReverseGeocodeRequest>& request)
 {
@@ -379,7 +362,6 @@ bool GetLocationInfo(const napi_env& env, const napi_value& object,
     }
     return false;
 }
-#endif
 
 napi_value GetNapiValueByKey(napi_env env, const std::string& keyChar, napi_value object)
 {
@@ -439,7 +421,6 @@ bool GetStringArrayValueByKey(
     return GetStringArrayFromJsObj(env, array, outArray);
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
     const std::string& fieldStr, std::shared_ptr<GeoAddress> address)
 {
@@ -490,9 +471,7 @@ bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
     }
     return true;
 }
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
@@ -522,7 +501,6 @@ bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
     }
     return true;
 }
-#endif
 
 void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContext, const napi_value& object)
 {
@@ -767,15 +745,13 @@ std::string GetErrorMsgByCode(int code)
         {SUCCESS, "SUCCESS"},
         {NOT_SUPPORTED, "NOT_SUPPORTED"},
         {INPUT_PARAMS_ERROR, "INPUT_PARAMS_ERROR"},
+        {REVERSE_GEOCODE_ERROR, "REVERSE_GEOCODE_ERROR"},
+        {GEOCODE_ERROR, "GEOCODE_ERROR"},
         {LOCATOR_ERROR, "LOCATOR_ERROR"},
         {LOCATION_SWITCH_ERROR, "LOCATION_SWITCH_ERROR"},
         {LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR"},
         {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"},
         {QUERY_COUNTRY_CODE_ERROR, "QUERY_COUNTRY_CODE_ERROR"},
-#ifdef FEATURE_GEOCODE_SUPPORT
-        {REVERSE_GEOCODE_ERROR, "REVERSE_GEOCODE_ERROR"},
-        {GEOCODE_ERROR, "GEOCODE_ERROR"},
-#endif
         {LocationErrCode::ERRCODE_SUCCESS, "SUCCESS."},
         {LocationErrCode::ERRCODE_PERMISSION_DENIED, "Permission denied."},
         {LocationErrCode::ERRCODE_SYSTEM_PERMISSION_DENIED, "System API is not allowed called by third HAP."},
@@ -784,15 +760,11 @@ std::string GetErrorMsgByCode(int code)
         {LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE, "Location service is unavailable."},
         {LocationErrCode::ERRCODE_SWITCH_OFF, "The location switch is off."},
         {LocationErrCode::ERRCODE_LOCATING_FAIL, "Failed to obtain the geographical location."},
-        {LocationErrCode::ERRCODE_COUNTRYCODE_FAIL, "Failed to query the area information."},
-        {LocationErrCode::ERRCODE_NO_RESPONSE, "No response to the request."},
-#ifdef FEATURE_GEOCODE_SUPPORT
         {LocationErrCode::ERRCODE_REVERSE_GEOCODING_FAIL, "Reverse geocoding query failed."},
         {LocationErrCode::ERRCODE_GEOCODING_FAIL, "Geocoding query failed."},
-#endif
-#ifdef FEATURE_GNSS_SUPPORT
+        {LocationErrCode::ERRCODE_COUNTRYCODE_FAIL, "Failed to query the area information."},
         {LocationErrCode::ERRCODE_GEOFENCE_FAIL, "Failed to operate the geofence."},
-#endif
+        {LocationErrCode::ERRCODE_NO_RESPONSE, "No response to the request."},
     };
 
     auto iter = errorCodeMap.find(code);

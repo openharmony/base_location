@@ -100,44 +100,34 @@ enum LocationErrCode {
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
 };
 
-#ifdef FEATURE_GNSS_SUPPORT
 typedef struct {
     int reportingPeriodSec;
     bool wakeUpCacheQueueFull;
 } CachedGnssLocationsRequest;
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 typedef struct {
     int scenario;
     std::string command;
 } LocationCommand;
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 typedef struct {
     double latitude;
     double longitude;
     double radius;
     double expiration;
 } GeoFence;
-#endif
 
-#ifdef FEATURE_GNSS_SUPPORT
 typedef struct {
     int scenario;
     GeoFence geofence;
 } GeofenceRequest;
-#endif
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 typedef struct {
     std::string locale;
     double latitude;
     double longitude;
     int maxItems;
 } ReverseGeocodeRequest;
-#endif
 } // namespace Location
 } // namespace OHOS
 #endif // CONSTANT_DEFINITION_H

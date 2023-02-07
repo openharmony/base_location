@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #ifndef CACHED_LOCATIONS_CALLBACK_HOST_H
 #define CACHED_LOCATIONS_CALLBACK_HOST_H
 
@@ -83,4 +82,3 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // CACHED_LOCATIONS_CALLBACK_HOST_H
-#endif // FEATURE_GNSS_SUPPORT

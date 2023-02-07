@@ -17,46 +17,52 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("GeoConvertProxyFuzzTest") {
-  module_out_path = "location/services"
-  fuzz_config_file =
-      "//base/location/test/fuzztest/locator/geoconvertproxy_fuzzer"
-  include_dirs = [
-    "//base/location/services/location_geocode/geocode/include",
-    "//base/location/services/location_locator/locator/include",
-    "//base/location/interfaces/inner_api/include",
-  ]
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
-  ]
-  sources = [ "geoconvertproxy_fuzzer.cpp" ]
-  deps = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//base/location/frameworks/js/napi:geolocation_static",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
-    "//base/location/services/location_geocode/geocode:lbsservice_geocode",
-    "//base/location/services/location_locator/locator:lbsservice_locator",
-    "//foundation/arkui/napi:ace_napi",
-    "//third_party/libuv:uv",
-  ]
-  external_deps = [
-    "access_token:libaccesstoken_sdk",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
-  ]
+if (location_feature_with_geocode) {
+  ohos_fuzztest("GeoConvertProxyFuzzTest") {
+    module_out_path = "location/services"
+    fuzz_config_file =
+        "//base/location/test/fuzztest/locator/geoconvertproxy_fuzzer"
+    include_dirs = [
+      "//base/location/services/location_geocode/geocode/include",
+      "//base/location/services/location_locator/locator/include",
+      "//base/location/interfaces/inner_api/include",
+    ]
+    cflags = [
+      "-g",
+      "-O0",
+      "-Wno-unused-variable",
+      "-fno-omit-frame-pointer",
+    ]
+    sources = [ "geoconvertproxy_fuzzer.cpp" ]
+    deps = [
+      "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+      "//base/location/frameworks/js/napi:geolocation_static",
+      "//base/location/frameworks/location_common/common:lbsservice_common",
+      "//base/location/frameworks/native:locator_sdk",
+      "//base/location/services/location_geocode/geocode:lbsservice_geocode",
+      "//base/location/services/location_locator/locator:lbsservice_locator",
+      "//foundation/arkui/napi:ace_napi",
+      "//third_party/libuv:uv",
+    ]
+    external_deps = [
+      "access_token:libaccesstoken_sdk",
+      "c_utils:utils",
+      "common_event_service:cesfwk_innerkits",
+      "eventhandler:libeventhandler",
+      "hisysevent_native:libhisysevent",
+      "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "samgr:samgr_proxy",
+    ]
 
-  defines = []
-  if (location_feature_with_geocode) {
-    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+    defines = []
+    if (location_feature_with_geocode) {
+      defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+    }
+  }
+} else {
+  ohos_fuzztest("GeoConvertProxyFuzzTest") {
+    module_out_path = "location/services"
   }
 }
 

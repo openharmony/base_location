@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 ################################################################################
@@ -51,15 +50,6 @@ ohos_shared_library("locator_sdk") {
     "c_utils:utils",
     "ipc:ipc_core",
   ]
-
-  defines = []
-  if (location_feature_with_geocode) {
-    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
-  }
-
-  if (location_feature_with_gnss) {
-    defines += [ "FEATURE_GNSS_SUPPORT" ]
-  }
 
   cflags_cc = [
     "-std=c++17",

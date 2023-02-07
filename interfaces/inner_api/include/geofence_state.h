@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #ifndef GEOFENCE_STATE_H
 #define GEOFENCE_STATE_H
 
@@ -35,4 +34,3 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // GEOFENCE_STATE_H
-#endif // FEATURE_GNSS_SUPPORT
