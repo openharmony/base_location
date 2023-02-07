@@ -11,6 +11,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+LOCATION_ROOT_DIR = "//base/location"
+SUBSYSTEM_DIR = "$LOCATION_ROOT_DIR/services"
+ARKUI_ROOT_DIR = "//foundation/arkui"
+IPC_ROOT_DIR = "//foundation/communication/ipc"
+LOCATION_GNSS_ROOT = "$SUBSYSTEM_DIR/location_gnss/gnss"
+LOCATION_LOCATOR_ROOT = "$SUBSYSTEM_DIR/location_locator/locator"
+LOCATION_LOCATOR_CALLBACK_ROOT =
+    "$SUBSYSTEM_DIR/location_locator/LOCATION_LOCATOR_CALLBACK_ROOT"
+LOCATION_GEOCONVERT_ROOT = "$SUBSYSTEM_DIR/location_geocode/geocode"
+LOCATION_NETWORK_ROOT = "$SUBSYSTEM_DIR/location_network/network"
+LOCATION_PASSIVE_ROOT = "$SUBSYSTEM_DIR/location_passive/passive"
+SAMGR_ROOT_DIR = "//foundation/systemabilitymgr"
+SECURITY_ROOT_DIR = "//base/security"
+START_UP_ROOT_DIR = "//base/startup"
+GOOGLE_TEST_DIR = "//third_party/googletest"
+LIB_UV_DIR = "//third_party/libuv"
+DFX_HILOG_DIR = "//base/hiviewdfx/hilog"
+
 declare_args() {
   location_feature_with_geocode = true
   location_feature_with_gnss = true

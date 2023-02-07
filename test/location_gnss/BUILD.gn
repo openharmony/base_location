@@ -17,8 +17,7 @@ import("//build/test.gni")
 module_output_path = "location/service"
 
 if (location_feature_with_gnss) {
-  GNSS_UNIT_TEST_DIR = "//base/location/test/location_gnss"
-  SUBSYSTEM_DIR = "//base/location/services"
+  GNSS_UNIT_TEST_DIR = "$LOCATION_ROOT_DIR/test/location_gnss"
   ohos_unittest("GnssAbilityTest") {
     module_out_path = module_output_path
     sources = [
@@ -30,27 +29,27 @@ if (location_feature_with_gnss) {
     include_dirs = [
       "$GNSS_UNIT_TEST_DIR/include",
       "$GNSS_UNIT_TEST_DIR/mock/include",
-      "$SUBSYSTEM_DIR/location_gnss/gnss/include",
-      "$SUBSYSTEM_DIR/location_locator/locator/include",
-      "//base/location/interfaces/inner_api/include",
-      "//base/location/test/mock/include",
+      "$LOCATION_GNSS_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_ROOT_DIR/test/mock/include",
     ]
 
     deps = [
-      "$SUBSYSTEM_DIR/location_gnss/gnss:lbsservice_gnss",
-      "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-      "//base/location/frameworks/location_common/common:lbsservice_common",
-      "//base/location/frameworks/native:locator_sdk",
-      "//base/location/test/location_locator:LocatorServiceAbilityTest",
-      "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-      "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
-      "//base/startup/init/interfaces/innerkits:libbegetutil",
-      "//foundation/arkui/napi:ace_napi",
-      "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-      "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-      "//third_party/googletest:gmock_main",
-      "//third_party/googletest:gtest_main",
+      "$ARKUI_ROOT_DIR/napi:ace_napi",
+      "$GOOGLE_TEST_DIR:gmock_main",
+      "$GOOGLE_TEST_DIR:gtest_main",
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_GNSS_ROOT:lbsservice_gnss",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+      "$LOCATION_ROOT_DIR/test/location_locator:LocatorServiceAbilityTest",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+      "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
     ]
 
     external_deps = [

@@ -15,9 +15,6 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 if (location_feature_with_geocode) {
-  SUBSYSTEM_DIR = "//base/location/services"
-  LOCATION_GEOCONVERT_ROOT = "$SUBSYSTEM_DIR/location_geocode/geocode"
-
   ohos_shared_library("lbsservice_geocode") {
     sources = [
       "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
@@ -25,15 +22,15 @@ if (location_feature_with_geocode) {
     ]
 
     include_dirs = [
-      "//base/location/interfaces/inner_api/include",
-      "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-      "$SUBSYSTEM_DIR/location_locator/locator/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_GEOCONVERT_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
     ]
 
     deps = [
-      "//base/location/frameworks/location_common/common:lbsservice_common",
-      "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
 
     defines = []
@@ -50,5 +47,8 @@ if (location_feature_with_geocode) {
     subsystem_name = "location"
   }
 } else {
-  ohos_shared_library("lbsservice_geocode") {}
+  ohos_shared_library("lbsservice_geocode") {
+    part_name = "location"
+    subsystem_name = "location"
+  }
 }

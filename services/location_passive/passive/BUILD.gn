@@ -15,8 +15,6 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 if (location_feature_with_passive) {
-  LOCATION_PASSIVE_ROOT = "//base/location/services/location_passive/passive"
-
   ohos_shared_library("lbsservice_passive") {
     sources = [
       "$LOCATION_PASSIVE_ROOT/source/passive_ability.cpp",
@@ -24,16 +22,16 @@ if (location_feature_with_passive) {
     ]
 
     include_dirs = [
-      "//base/location/interfaces/inner_api/include",
-      "//base/location/services/location_locator/locator/include",
-      "//base/location/services/location_passive/passive/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_PASSIVE_ROOT/include",
     ]
 
     deps = [
-      "//base/location/frameworks/location_common/common:lbsservice_common",
-      "//base/location/services/location_locator/locator:lbsservice_locator",
-      "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
 
     external_deps = [
@@ -51,5 +49,8 @@ if (location_feature_with_passive) {
     subsystem_name = "location"
   }
 } else {
-  ohos_shared_library("lbsservice_passive") {}
+  ohos_shared_library("lbsservice_passive") {
+    part_name = "location"
+    subsystem_name = "location"
+  }
 }

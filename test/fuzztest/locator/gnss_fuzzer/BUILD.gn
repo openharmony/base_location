@@ -20,11 +20,11 @@ import("//build/test.gni")
 if (location_feature_with_gnss) {
   ohos_fuzztest("GnssFuzzTest") {
     module_out_path = "location/services"
-    fuzz_config_file = "//base/location/test/fuzztest/locator/gnss_fuzzer"
+    fuzz_config_file = "$LOCATION_ROOT_DIR/test/fuzztest/locator/gnss_fuzzer"
     include_dirs = [
-      "//base/location/services/location_gnss/gnss/include",
-      "//base/location/services/location_locator/locator/include",
-      "//base/location/interfaces/inner_api/include",
+      "$LOCATION_GNSS_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     ]
     cflags = [
       "-g",
@@ -34,12 +34,12 @@ if (location_feature_with_gnss) {
     ]
     sources = [ "gnss_fuzzer.cpp" ]
     deps = [
-      "//base/location/frameworks/location_common/common:lbsservice_common",
-      "//base/location/frameworks/native:locator_sdk",
-      "//base/location/services/location_gnss/gnss:lbsservice_gnss",
-      "//base/location/services/location_locator/locator:lbsservice_locator",
-      "//foundation/arkui/napi:ace_napi",
-      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$ARKUI_ROOT_DIR/napi:ace_napi",
+      "$LOCATION_GNSS_ROOT:lbsservice_gnss",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
     external_deps = [
       "access_token:libaccesstoken_sdk",

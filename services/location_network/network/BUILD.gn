@@ -15,9 +15,6 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 if (location_feature_with_network) {
-  SUBSYSTEM_DIR = "//base/location/services"
-  LOCATION_NETWORK_ROOT = "$SUBSYSTEM_DIR/location_network/network"
-
   ohos_shared_library("lbsservice_network") {
     sources = [
       "$LOCATION_NETWORK_ROOT/source/network_ability.cpp",
@@ -26,16 +23,16 @@ if (location_feature_with_network) {
     ]
 
     include_dirs = [
-      "//base/location/interfaces/inner_api/include",
-      "$SUBSYSTEM_DIR/location_network/network/include",
-      "$SUBSYSTEM_DIR/location_locator/locator/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_NETWORK_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
     ]
 
     deps = [
-      "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-      "//base/location/frameworks/location_common/common:lbsservice_common",
-      "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-      "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
 
     external_deps = [
@@ -62,5 +59,8 @@ if (location_feature_with_network) {
     subsystem_name = "location"
   }
 } else {
-  ohos_shared_library("lbsservice_network") {}
+  ohos_shared_library("lbsservice_network") {
+    part_name = "location"
+    subsystem_name = "location"
+  }
 }

@@ -21,11 +21,11 @@ if (location_feature_with_geocode) {
   ohos_fuzztest("GeoConvertProxyFuzzTest") {
     module_out_path = "location/services"
     fuzz_config_file =
-        "//base/location/test/fuzztest/locator/geoconvertproxy_fuzzer"
+        "$LOCATION_ROOT_DIR/test/fuzztest/locator/geoconvertproxy_fuzzer"
     include_dirs = [
-      "//base/location/services/location_geocode/geocode/include",
-      "//base/location/services/location_locator/locator/include",
-      "//base/location/interfaces/inner_api/include",
+      "$LOCATION_GEOCONVERT_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     ]
     cflags = [
       "-g",
@@ -35,14 +35,14 @@ if (location_feature_with_geocode) {
     ]
     sources = [ "geoconvertproxy_fuzzer.cpp" ]
     deps = [
-      "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-      "//base/location/frameworks/js/napi:geolocation_static",
-      "//base/location/frameworks/location_common/common:lbsservice_common",
-      "//base/location/frameworks/native:locator_sdk",
-      "//base/location/services/location_geocode/geocode:lbsservice_geocode",
-      "//base/location/services/location_locator/locator:lbsservice_locator",
-      "//foundation/arkui/napi:ace_napi",
-      "//third_party/libuv:uv",
+      "$ARKUI_ROOT_DIR/napi:ace_napi",
+      "$DFX_HILOG_DIR/interfaces/native/innerkits:libhilog",
+      "$LIB_UV_DIR:uv",
+      "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
     ]
     external_deps = [
       "access_token:libaccesstoken_sdk",
