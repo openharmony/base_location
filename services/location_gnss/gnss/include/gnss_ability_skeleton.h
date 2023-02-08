@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #ifndef GNSS_ABILITY_SKELETON_H
 #define GNSS_ABILITY_SKELETON_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include "message_option.h"
 #include "message_parcel.h"
@@ -54,5 +54,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_ABILITY_SKELETON_H
 #endif // FEATURE_GNSS_SUPPORT
+#endif // GNSS_ABILITY_SKELETON_H

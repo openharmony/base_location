@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_PASSIVE_SUPPORT
 #ifndef PASSIVE_ABILITY_H
 #define PASSIVE_ABILITY_H
+#ifdef FEATURE_PASSIVE_SUPPORT
 
 #include <mutex>
 #include <singleton.h>
@@ -73,5 +73,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // PASSIVE_ABILITY_H
 #endif // FEATURE_PASSIVE_SUPPORT
+#endif // PASSIVE_ABILITY_H

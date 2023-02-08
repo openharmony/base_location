@@ -929,8 +929,8 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         ret = (this->*memberFunc)(data, reply, identity);
     } else {
         LBSLOGE(LOCATOR, "OnReceived cmd = %{public}u, unsupport service.", code);
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        ret = ERRCODE_SERVICE_UNAVAILABLE;
+        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
+        ret = ERRCODE_NOT_SUPPORTED;
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
     return ret;

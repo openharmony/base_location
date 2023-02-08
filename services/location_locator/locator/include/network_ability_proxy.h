@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_NETWORK_SUPPORT
 #ifndef NETWORK_ABILITY_PROXY_H
 #define NETWORK_ABILITY_PROXY_H
+#ifdef FEATURE_NETWORK_SUPPORT
 
 #include <vector>
 
@@ -45,5 +45,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // NETWORK_ABILITY_PROXY_H
 #endif // FEATURE_NETWORK_SUPPORT
+#endif // NETWORK_ABILITY_PROXY_H

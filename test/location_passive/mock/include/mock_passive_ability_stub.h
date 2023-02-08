@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_PASSIVE_SUPPORT
 #ifndef MOCK_PASSIVE_ABILITY_STUB_H
 #define MOCK_PASSIVE_ABILITY_STUB_H
+#ifdef FEATURE_PASSIVE_SUPPORT
 
 #include "gmock/gmock.h"
 
@@ -45,5 +45,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // MOCK_PASSIVE_ABILITY_STUB_H
 #endif // FEATURE_PASSIVE_SUPPORT
+#endif // MOCK_PASSIVE_ABILITY_STUB_H

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #ifndef GNSS_EVENT_CALLBACK_H
 #define GNSS_EVENT_CALLBACK_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include <v1_0/ignss_callback.h>
 
@@ -42,5 +42,5 @@ public:
 };
 }  // namespace Location
 }  // namespace OHOS
-#endif // GNSS_EVENT_CALLBACK_H
 #endif // FEATURE_GNSS_SUPPORT
+#endif // GNSS_EVENT_CALLBACK_H

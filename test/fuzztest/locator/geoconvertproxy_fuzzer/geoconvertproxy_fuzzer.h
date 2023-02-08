@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 #ifndef GEO_CONVERT_PROXY_FUZZER_H
 #define GEO_CONVERT_PROXY_FUZZER_H
+#ifdef FEATURE_GEOCODE_SUPPORT
 
 #include "geo_convert_proxy.h"
 
@@ -24,5 +24,5 @@ namespace Location {
 bool GeoConvertProxyFuzzerTest(const uint8_t* data, size_t size);
 } // namespace Location
 } // namespace OHOS
-#endif // GEO_CONVERT_PROXY_FUZZER_H
 #endif // FEATURE_GEOCODE_SUPPORT
+#endif // GEO_CONVERT_PROXY_FUZZER_H

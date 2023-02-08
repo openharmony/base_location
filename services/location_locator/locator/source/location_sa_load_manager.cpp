@@ -37,7 +37,7 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
     auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
     int32_t ret = samgr->LoadSystemAbility(systemAbilityId, locationSaLoadCallback);
     if (ret != ERR_OK) {
-        LBSLOGE(LOCATOR, "%{public}s: Failed to load system ability, systemAbilityId = [%{public}d], ret = [%{public}d].",
+        LBSLOGE(LOCATOR, "%{public}s: Failed to load system ability, SA Id = [%{public}d], ret = [%{public}d].",
             __func__, systemAbilityId, ret);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -55,7 +55,7 @@ LocationErrCode LocationSaLoadManager::UnloadLocationSa(int32_t systemAbilityId)
     }
     int32_t ret = samgr->UnloadSystemAbility(systemAbilityId);
     if (ret != ERR_OK) {
-        LBSLOGE(LOCATOR, "%{public}s: Failed to unload system ability, systemAbilityId = [%{public}d], ret = [%{public}d].",
+        LBSLOGE(LOCATOR, "%{public}s: Failed to unload system ability, SA Id = [%{public}d], ret = [%{public}d].",
             __func__, systemAbilityId, ret);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }

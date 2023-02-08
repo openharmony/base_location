@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #ifndef BASE_LOCATION_MOCK_I_CELLULAR_DATA_MANAGER_H
 #define BASE_LOCATION_MOCK_I_CELLULAR_DATA_MANAGER_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include "gmock/gmock.h"
 
@@ -32,5 +32,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // BASE_LOCATION_MOCK_I_CELLULAR_DATA_MANAGER_H
 #endif // FEATURE_GNSS_SUPPORT
+#endif // BASE_LOCATION_MOCK_I_CELLULAR_DATA_MANAGER_H

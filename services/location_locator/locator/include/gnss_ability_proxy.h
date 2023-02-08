@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #ifndef GNSS_ABILITY_PROXY_H
 #define GNSS_ABILITY_PROXY_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include <vector>
 
@@ -54,5 +54,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_ABILITY_PROXY_H
 #endif // FEATURE_GNSS_SUPPORT
+#endif // GNSS_ABILITY_PROXY_H

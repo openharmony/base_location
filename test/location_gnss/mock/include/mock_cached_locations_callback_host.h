@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #ifndef MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H
 #define MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include "gmock/gmock.h"
 
@@ -38,5 +38,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H
 #endif // FEATURE_GNSS_SUPPORT
+#endif // MOCK_CACHED_LOCATIONS_CALLBACK_HOST_H

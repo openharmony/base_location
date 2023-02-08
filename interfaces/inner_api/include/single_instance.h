@@ -25,19 +25,19 @@ private:                                              \
     className(className&&) = delete;                  \
     className(const className&) = delete;             \
     className& operator= (className&&) = delete;      \
-    className& operator= (const className&) = delete; \
+    className& operator= (const className&) = delete;
 
-#define DECLARE_SINGLE_INSTANCE(className) \
-    DECLARE_SINGLE_INSTANCE_BASE(className)\
-private:                                   \
-    className() = default;                 \
-    ~className() = default;                \
+#define DECLARE_SINGLE_INSTANCE(className)  \
+    DECLARE_SINGLE_INSTANCE_BASE(className) \
+private:                                    \
+    className() = default;                  \
+    ~className() = default;
 
-#define DECLARE_SINGLE_INSTANCE_IMPLEMENT(className)\
-className& className::GetInstance()                 \
-{                                                   \
-    static auto instance = new className();         \
-    return *instance;                               \
+#define DECLARE_SINGLE_INSTANCE_IMPLEMENT(className) \
+className& className::GetInstance()                  \
+{                                                    \
+    static auto instance = new className();          \
+    return *instance;                                \
 }
 }; // namespace Location
 }; // namespace OHOS
