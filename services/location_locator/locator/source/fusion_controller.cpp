@@ -18,7 +18,9 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location_log.h"
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -26,7 +28,9 @@ const uint32_t FUSION_DEFAULT_FLAG = 0;
 const uint32_t FUSION_BASE_FLAG = 1;
 const uint32_t REPORT_FUSED_LOCATION_FLAG = FUSION_BASE_FLAG;
 const uint32_t QUICK_FIX_FLAG = FUSION_BASE_FLAG << 1;
+#ifdef FEATURE_NETWORK_SUPPORT
 const uint32_t NETWORK_SELF_REQUEST = 4;
+#endif
 
 void FusionController::ActiveFusionStrategies(int type)
 {
@@ -56,16 +60,21 @@ void FusionController::Process(std::string abilityName)
         return;
     }
     LBSLOGI(FUSION_CONTROLLER, "fused flag:%{public}u", fusedFlag_);
+#ifdef FEATURE_NETWORK_SUPPORT
     RequestQuickFix(fusedFlag_ & QUICK_FIX_FLAG);
+#endif
 }
 
 void FusionController::FuseResult(std::string abilityName, const std::unique_ptr<Location>& location)
 {
     if (GNSS_ABILITY.compare(abilityName) == 0) {
+#ifdef FEATURE_NETWORK_SUPPORT
         RequestQuickFix(false);
+#endif
     }
 }
 
+#ifdef FEATURE_NETWORK_SUPPORT
 void FusionController::RequestQuickFix(bool state)
 {
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID);
@@ -82,5 +91,6 @@ void FusionController::RequestQuickFix(bool state)
     data.WriteBool(state);
     remoteObject->SendRequest(NETWORK_SELF_REQUEST, data, reply, option);
 }
+#endif
 } // namespace Location
 } // namespace OHOS

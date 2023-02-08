@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability_stub_test.h"
 
 #include "ipc_types.h"
@@ -150,3 +151,4 @@ HWTEST_F(PassiveAbilityStubTest, PassiveAbilityStubTest007, TestSize.Level1)
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif // FEATURE_PASSIVE_SUPPORT

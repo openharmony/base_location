@@ -15,6 +15,7 @@
 
 #ifndef MOCK_NETWORK_ABILITY_STUB_H
 #define MOCK_NETWORK_ABILITY_STUB_H
+#ifdef FEATURE_NETWORK_SUPPORT
 
 #include "gmock/gmock.h"
 
@@ -45,4 +46,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif
+#endif // FEATURE_NETWORK_SUPPORT
+#endif // MOCK_NETWORK_ABILITY_STUB_H

@@ -15,6 +15,7 @@
 
 #ifndef GNSS_ABILITY_TEST_H
 #define GNSS_ABILITY_TEST_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include <gtest/gtest.h>
 
@@ -43,4 +44,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif  // GNSS_ABILITY_TEST_H
+#endif // FEATURE_GNSS_SUPPORT
+#endif // GNSS_ABILITY_TEST_H

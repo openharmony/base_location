@@ -15,6 +15,7 @@
 
 #ifndef PASSIVE_ABILITY_PROXY_H
 #define PASSIVE_ABILITY_PROXY_H
+#ifdef FEATURE_PASSIVE_SUPPORT
 
 #include <vector>
 
@@ -43,4 +44,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_PASSIVE_SUPPORT
 #endif // PASSIVE_ABILITY_PROXY_H

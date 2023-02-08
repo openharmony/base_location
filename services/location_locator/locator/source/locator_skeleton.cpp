@@ -33,21 +33,35 @@ void LocatorAbilityStub::InitLocatorHandleMap()
     }
     locatorHandleMap_[GET_SWITCH_STATE] = &LocatorAbilityStub::PreGetSwitchState;
     locatorHandleMap_[REG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreRegisterSwitchCallback;
+    locatorHandleMap_[UNREG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreUnregisterSwitchCallback;
     locatorHandleMap_[START_LOCATING] = &LocatorAbilityStub::PreStartLocating;
     locatorHandleMap_[STOP_LOCATING] = &LocatorAbilityStub::PreStopLocating;
     locatorHandleMap_[GET_CACHE_LOCATION] = &LocatorAbilityStub::PreGetCacheLocation;
     locatorHandleMap_[ENABLE_ABILITY] = &LocatorAbilityStub::PreEnableAbility;
     locatorHandleMap_[UPDATE_SA_ABILITY] = &LocatorAbilityStub::PreUpdateSaAbility;
+    locatorHandleMap_[IS_PRIVACY_COMFIRMED] = &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
+    locatorHandleMap_[SET_PRIVACY_COMFIRM_STATUS] = &LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus;
+    locatorHandleMap_[GET_ISO_COUNTRY_CODE] = &LocatorAbilityStub::PreGetIsoCountryCode;
+    locatorHandleMap_[ENABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreEnableLocationMock;
+    locatorHandleMap_[DISABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreDisableLocationMock;
+    locatorHandleMap_[SET_MOCKED_LOCATIONS] = &LocatorAbilityStub::PreSetMockedLocations;
+    locatorHandleMap_[REG_COUNTRY_CODE_CALLBACK] = &LocatorAbilityStub::PreRegisterCountryCodeCallback;
+    locatorHandleMap_[UNREG_COUNTRY_CODE_CALLBACK] = &LocatorAbilityStub::PreUnregisterCountryCodeCallback;
+    locatorHandleMap_[PROXY_UID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyUidForFreeze;
+    locatorHandleMap_[RESET_ALL_PROXY] = &LocatorAbilityStub::PreResetAllProxy;
+#ifdef FEATURE_GEOCODE_SUPPORT
     locatorHandleMap_[GEO_IS_AVAILABLE] = &LocatorAbilityStub::PreIsGeoConvertAvailable;
     locatorHandleMap_[GET_FROM_COORDINATE] = &LocatorAbilityStub::PreGetAddressByCoordinate;
     locatorHandleMap_[GET_FROM_LOCATION_NAME] = &LocatorAbilityStub::PreGetAddressByLocationName;
-    locatorHandleMap_[UNREG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreUnregisterSwitchCallback;
+    locatorHandleMap_[ENABLE_REVERSE_GEOCODE_MOCK] = &LocatorAbilityStub::PreEnableReverseGeocodingMock;
+    locatorHandleMap_[DISABLE_REVERSE_GEOCODE_MOCK] = &LocatorAbilityStub::PreDisableReverseGeocodingMock;
+    locatorHandleMap_[SET_REVERSE_GEOCODE_MOCKINFO] = &LocatorAbilityStub::PreSetReverseGeocodingMockInfo;
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
     locatorHandleMap_[REG_GNSS_STATUS_CALLBACK] = &LocatorAbilityStub::PreRegisterGnssStatusCallback;
     locatorHandleMap_[UNREG_GNSS_STATUS_CALLBACK] = &LocatorAbilityStub::PreUnregisterGnssStatusCallback;
     locatorHandleMap_[REG_NMEA_CALLBACK] = &LocatorAbilityStub::PreRegisterNmeaMessageCallback;
     locatorHandleMap_[UNREG_NMEA_CALLBACK] = &LocatorAbilityStub::PreUnregisterNmeaMessageCallback;
-    locatorHandleMap_[IS_PRIVACY_COMFIRMED] = &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
-    locatorHandleMap_[SET_PRIVACY_COMFIRM_STATUS] = &LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus;
     locatorHandleMap_[REG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStartCacheLocating;
     locatorHandleMap_[UNREG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStopCacheLocating;
     locatorHandleMap_[GET_CACHED_LOCATION_SIZE] = &LocatorAbilityStub::PreGetCachedGnssLocationsSize;
@@ -55,19 +69,9 @@ void LocatorAbilityStub::InitLocatorHandleMap()
     locatorHandleMap_[SEND_COMMAND] = &LocatorAbilityStub::PreSendCommand;
     locatorHandleMap_[ADD_FENCE] = &LocatorAbilityStub::PreAddFence;
     locatorHandleMap_[REMOVE_FENCE] = &LocatorAbilityStub::PreRemoveFence;
-    locatorHandleMap_[GET_ISO_COUNTRY_CODE] = &LocatorAbilityStub::PreGetIsoCountryCode;
-    locatorHandleMap_[ENABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreEnableLocationMock;
-    locatorHandleMap_[DISABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreDisableLocationMock;
-    locatorHandleMap_[SET_MOCKED_LOCATIONS] = &LocatorAbilityStub::PreSetMockedLocations;
-    locatorHandleMap_[ENABLE_REVERSE_GEOCODE_MOCK] = &LocatorAbilityStub::PreEnableReverseGeocodingMock;
-    locatorHandleMap_[DISABLE_REVERSE_GEOCODE_MOCK] = &LocatorAbilityStub::PreDisableReverseGeocodingMock;
-    locatorHandleMap_[SET_REVERSE_GEOCODE_MOCKINFO] = &LocatorAbilityStub::PreSetReverseGeocodingMockInfo;
-    locatorHandleMap_[REG_COUNTRY_CODE_CALLBACK] = &LocatorAbilityStub::PreRegisterCountryCodeCallback;
-    locatorHandleMap_[UNREG_COUNTRY_CODE_CALLBACK] = &LocatorAbilityStub::PreUnregisterCountryCodeCallback;
-    locatorHandleMap_[PROXY_UID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyUidForFreeze;
-    locatorHandleMap_[RESET_ALL_PROXY] = &LocatorAbilityStub::PreResetAllProxy;
     locatorHandleMap_[REG_NMEA_CALLBACK_v9] = &LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9;
     locatorHandleMap_[UNREG_NMEA_CALLBACK_v9] = &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
+#endif
 }
 
 
@@ -220,6 +224,7 @@ int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &r
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -233,7 +238,9 @@ int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessagePar
     reply.WriteBool(isAvailable);
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -245,7 +252,9 @@ int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessagePa
     locatorAbility->GetAddressByCoordinate(data, reply);
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -257,6 +266,7 @@ int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, Message
     locatorAbility->GetAddressByLocationName(data, reply);
     return ERRCODE_SUCCESS;
 }
+#endif
 
 int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
@@ -271,6 +281,7 @@ int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, Message
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
@@ -286,7 +297,9 @@ int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, Messa
     reply.WriteInt32(locatorAbility->RegisterGnssStatusCallback(client, identity.GetUid()));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
@@ -303,7 +316,9 @@ int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
     reply.WriteInt32(locatorAbility->UnregisterGnssStatusCallback(client));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
@@ -320,7 +335,9 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
     reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
@@ -337,7 +354,9 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
     reply.WriteInt32(locatorAbility->UnregisterNmeaMessageCallback(client));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
@@ -354,7 +373,9 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
@@ -371,6 +392,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
     reply.WriteInt32(locatorAbility->UnregisterNmeaMessageCallback(client));
     return ERRCODE_SUCCESS;
 }
+#endif
 
 int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
@@ -416,6 +438,7 @@ int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
@@ -450,7 +473,9 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
     reply.WriteInt32(locatorAbility->RegisterCachedLocationCallback(requestConfig, callback, bundleName));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreStopCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationPermission(reply, identity)) {
@@ -472,7 +497,9 @@ int LocatorAbilityStub::PreStopCacheLocating(MessageParcel &data, MessageParcel 
     reply.WriteInt32(locatorAbility->UnregisterCachedLocationCallback(callback));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationSwitchState(reply)) {
@@ -492,7 +519,9 @@ int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, Messa
     reply.WriteInt32(size);
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationSwitchState(reply)) {
@@ -510,7 +539,9 @@ int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, Message
     reply.WriteInt32(locatorAbility->FlushCachedGnssLocations());
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -525,7 +556,9 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
     reply.WriteInt32(locatorAbility->SendCommand(locationCommand));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationSwitchState(reply)) {
@@ -549,7 +582,9 @@ int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, A
     reply.WriteInt32(locatorAbility->AddFence(request));
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationSwitchState(reply)) {
@@ -573,6 +608,7 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
     reply.WriteInt32(locatorAbility->RemoveFence(request));
     return ERRCODE_SUCCESS;
 }
+#endif
 
 int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
@@ -655,6 +691,7 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
@@ -672,7 +709,9 @@ int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, Messa
     reply.WriteInt32(locatorAbility->EnableReverseGeocodingMock());
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
@@ -691,7 +730,9 @@ int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
     reply.WriteInt32(locatorAbility->DisableReverseGeocodingMock());
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
@@ -718,6 +759,7 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
     reply.WriteInt32(locatorAbility->SetReverseGeocodingMockInfo(mockInfo));
     return ERRCODE_SUCCESS;
 }
+#endif
 
 int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
@@ -885,6 +927,10 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
         ret = (this->*memberFunc)(data, reply, identity);
+    } else {
+        LBSLOGE(LOCATOR, "OnReceived cmd = %{public}u, unsupport service.", code);
+        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
+        ret = ERRCODE_NOT_SUPPORTED;
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
     return ret;

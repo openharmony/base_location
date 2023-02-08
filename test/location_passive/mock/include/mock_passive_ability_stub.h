@@ -15,6 +15,7 @@
 
 #ifndef MOCK_PASSIVE_ABILITY_STUB_H
 #define MOCK_PASSIVE_ABILITY_STUB_H
+#ifdef FEATURE_PASSIVE_SUPPORT
 
 #include "gmock/gmock.h"
 
@@ -44,4 +45,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
-#endif
+#endif // FEATURE_PASSIVE_SUPPORT
+#endif // MOCK_PASSIVE_ABILITY_STUB_H

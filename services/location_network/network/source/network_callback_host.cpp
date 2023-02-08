@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_callback_host.h"
 #include "location_log.h"
 #include "locator_ability.h"
@@ -58,3 +59,4 @@ void NetworkCallbackHost::OnErrorReport(const int errorCode)
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_NETWORK_SUPPORT

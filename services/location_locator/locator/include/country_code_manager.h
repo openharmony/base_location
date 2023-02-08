@@ -42,7 +42,9 @@ public:
     void ReUnsubscribeEvent();
 
 private:
+#ifdef FEATURE_PASSIVE_SUPPORT
     void StartPassiveLocationListen();
+#endif
     std::string GetCountryCodeByLocation(const std::unique_ptr<Location>& location);
     bool UpdateCountryCodeByLocation(std::string countryCode, int type);
     void UpdateCountryCode(std::string countryCode, int type);

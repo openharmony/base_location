@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability_test.h"
 
 #include "accesstoken_kit.h"
@@ -259,3 +260,4 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent002, TestSize.Lev
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_PASSIVE_SUPPORT

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_event_callback.h"
 #include <singleton.h>
 #include "ipc_skeleton.h"
@@ -50,7 +51,9 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
         return ERR_OK;
     }
     locatorAbility.get()->ReportLocation(locationNew, GNSS_ABILITY);
+#ifdef FEATURE_PASSIVE_SUPPORT
     locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+#endif
     IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;
 }
@@ -124,3 +127,4 @@ int32_t GnssEventCallback::ReportCachedLocation(const std::vector<LocationInfo>&
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif

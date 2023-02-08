@@ -15,6 +15,7 @@
 
 #ifndef NETWORK_ABILITY_H
 #define NETWORK_ABILITY_H
+#ifdef FEATURE_NETWORK_SUPPORT
 
 #include <string>
 #include <singleton.h>
@@ -87,4 +88,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_NETWORK_SUPPORT
 #endif // NETWORK_ABILITY_H

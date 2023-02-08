@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_service.h"
 #include <file_ex.h>
 #include "geo_address.h"
@@ -177,3 +178,4 @@ int32_t GeoConvertService::Dump(int32_t fd, const std::vector<std::u16string>& a
 }
 } // namespace Location
 } // namespace OHOS
+#endif

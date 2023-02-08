@@ -18,14 +18,20 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "cached_locations_callback_host.h"
+#endif
 #include "country_code_callback_host.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_host.h"
+#endif
 #include "i_locator.h"
 #include "locator_proxy.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_host.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -46,12 +52,18 @@ bool LocatorProxySendRequestTest(const uint8_t* data, size_t size);
 bool LocatorImplFuzzerTest(const uint8_t* data, size_t size);
 bool TestMockFunc(const uint8_t* data, size_t size);
 bool TestCallbackRegister(const uint8_t* data, size_t size);
+#ifdef FEATURE_GNSS_SUPPORT
 bool CachedLocationsCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+#endif
 bool CountryCodeCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+#ifdef FEATURE_GNSS_SUPPORT
 bool GnssStatusCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+#endif
 bool LocationSwitchCallbackHostFuzzerTest(const uint8_t* data, size_t size);
 bool LocationCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+#ifdef FEATURE_GNSS_SUPPORT
 bool NmeaMessageCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+#endif
 
 bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size);
 bool LocatorAbility002FuzzerTest(const uint8_t* data, size_t size);

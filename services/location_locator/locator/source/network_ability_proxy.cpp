@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
 
 #include "message_parcel.h"
@@ -139,3 +140,4 @@ LocationErrCode NetworkAbilityProxy::SetMocked(
 }
 } // namespace Location
 } // namespace OHOS
+#endif

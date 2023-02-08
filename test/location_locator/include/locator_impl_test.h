@@ -20,7 +20,9 @@
 
 #include "i_locator_callback.h"
 #include "locator.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
+#endif
 namespace OHOS {
 namespace Location {
 class LocatorImplTest : public testing::Test {
@@ -28,7 +30,9 @@ public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
+#ifdef FEATURE_GEOCODE_SUPPORT
     std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
+#endif
 
     sptr<ILocatorCallback> callbackStub_;
     std::unique_ptr<Locator> locatorImpl_;

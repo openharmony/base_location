@@ -19,14 +19,20 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_proxy.h"
+#endif
 #include "fusion_controller.h"
 #include "location_log.h"
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability_proxy.h"
+#endif
 #include "request_config.h"
 
 namespace OHOS {
@@ -443,14 +449,20 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
     }
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
+#ifdef FEATURE_GNSS_SUPPORT
         std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(remoteObject);
         gnssProxy->SendLocationRequest(workRecord);
+#endif
     } else if (abilityName == NETWORK_ABILITY) {
+#ifdef FEATURE_NETWORK_SUPPORT
         std::unique_ptr<NetworkAbilityProxy> networkProxy = std::make_unique<NetworkAbilityProxy>(remoteObject);
         networkProxy->SendLocationRequest(workRecord);
+#endif
     } else if (abilityName == PASSIVE_ABILITY) {
+#ifdef FEATURE_PASSIVE_SUPPORT
         std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
         passiveProxy->SendLocationRequest(workRecord);
+#endif
     }
     auto fusionController = DelayedSingleton<FusionController>::GetInstance();
     if (fusionController != nullptr) {

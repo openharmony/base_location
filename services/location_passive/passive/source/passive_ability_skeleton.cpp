@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability_skeleton.h"
 
 #include "ipc_object_stub.h"
@@ -76,3 +77,4 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_PASSIVE_SUPPORT

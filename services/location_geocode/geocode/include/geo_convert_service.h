@@ -15,6 +15,7 @@
 
 #ifndef GEO_CONVERT_SERVICE_H
 #define GEO_CONVERT_SERVICE_H
+#ifdef FEATURE_GEOCODE_SUPPORT
 
 #include <mutex>
 #include <singleton.h>
@@ -69,4 +70,5 @@ private:
 };
 } // namespace OHOS
 } // namespace Location
+#endif // FEATURE_GEOCODE_SUPPORT
 #endif // GEO_CONVERT_SERVICE_H

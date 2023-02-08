@@ -28,13 +28,19 @@
 #include "app_identity.h"
 #include "common_hisysevent.h"
 #include "constant_definition.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
 #include "geofence_state.h"
+#endif
 #include "location.h"
 #include "location_log.h"
 #include "request_config.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "satellite_status.h"
+#endif
 #include "permission_status_change_cb.h"
 #include "common_utils.h"
 #include "locator_event_subscriber.h"
@@ -44,8 +50,10 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 using Want = OHOS::AAFwk::Want;
+#ifdef FEATURE_GEOCODE_SUPPORT
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
+#endif
 const double VERIFY_LOCATION_LATITUDE = 12.0;
 const double VERIFY_LOCATION_LONGITUDE = 13.0;
 const double VERIFY_LOCATION_ALTITUDE = 14.0;
@@ -63,6 +71,7 @@ void LocationCommonTest::TearDown()
 {
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 void LocationCommonTest::SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress)
 {
     MessageParcel parcel;
@@ -91,7 +100,9 @@ void LocationCommonTest::SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress)
     parcel.WriteBool(true);
     geoAddress->ReadFromParcel(parcel);
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 void LocationCommonTest::VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddress>& geoAddress)
 {
     EXPECT_EQ("localeLanguage", geoAddress->m_localeLanguage);
@@ -120,7 +131,9 @@ void LocationCommonTest::VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddre
     EXPECT_EQ("addressUrl", geoAddress->m_addressUrl);
     EXPECT_EQ(true, geoAddress->m_isFromMock);
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
 {
     EXPECT_EQ("localeLanguage", newParcel.ReadString());
@@ -147,6 +160,7 @@ void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
     EXPECT_EQ("addressUrl", newParcel.ReadString());
     EXPECT_EQ(true, newParcel.ReadBool());
 }
+#endif
 
 void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
 {
@@ -171,6 +185,7 @@ void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
  * @tc.desc: read from parcel.
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -185,12 +200,14 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
     VerifyGeoAddressMarshalling(newParcel);
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressTest001 end");
 }
+#endif
 
 /*
  * @tc.name: GeoAddressTest001
  * @tc.desc: read from parcel.
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeoAddressTest002, TestSize.Level1)
 {
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
@@ -208,6 +225,7 @@ HWTEST_F(LocationCommonTest, GeoAddressTest002, TestSize.Level1)
     geoAddress->m_hasLongitude = false;
     EXPECT_EQ(0.0, geoAddress->GetLongitude());
 }
+#endif
 
 /*
  * @tc.name: LocationTest001
@@ -262,6 +280,7 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
  * @tc.desc: read from parcel.
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -301,6 +320,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
     }
     LBSLOGI(LOCATOR, "[LocationCommonTest] SateLLiteStatusTest001 end");
 }
+#endif
 
 /*
  * @tc.name: RequestConfigTest001
@@ -384,6 +404,7 @@ HWTEST_F(LocationCommonTest, RequestConfigTest002, TestSize.Level1)
  * @tc.desc: read from parcel.
  * @tc.type: FUNC
  */
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeocodingMockInfoTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -411,6 +432,7 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest001, TestSize.Level1)
     EXPECT_EQ(1, newParcel.ReadInt32());
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest001 end");
 }
+#endif
 
 HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
 {
@@ -438,13 +460,16 @@ HWTEST_F(LocationCommonTest, CommonHisyseventTest001, TestSize.Level1)
         << "LocationCommonTest, CommonHisyseventTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] CommonHisyseventTest001 begin");
     std::string state = "state";
+#ifdef FEATURE_GNSS_SUPPORT
     pid_t pid = 1;
     pid_t uid = 2;
     WriteGnssStateEvent(state, pid, uid);
+#endif
     WriteLocationSwitchStateEvent(state);
     LBSLOGI(LOCATOR, "[LocationCommonTest] CommonHisyseventTest001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocationCommonTest, GeoFenceStateTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -460,7 +485,9 @@ HWTEST_F(LocationCommonTest, GeoFenceStateTest001, TestSize.Level1)
     EXPECT_NE(nullptr, state);
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoFenceStateTest001 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -477,6 +504,7 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)
     EXPECT_NE(nullptr, mockInfo->GetGeoAddressInfo());
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest002 end");
 }
+#endif
 
 HWTEST_F(LocationCommonTest, PermStateChangeCallbackTest001, TestSize.Level1)
 {
@@ -527,6 +555,7 @@ HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest002 end");
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -537,7 +566,9 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest001, TestSize.Level1)
     geoAddress->GetDescriptions(0);
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest001 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -548,7 +579,9 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest002, TestSize.Level1)
     geoAddress->GetDescriptions(1);
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest002 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -559,5 +592,6 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
     geoAddress->GetDescriptions(-1);
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest003 end");
 }
+#endif
 } // namespace Location
 } // namespace OHOS

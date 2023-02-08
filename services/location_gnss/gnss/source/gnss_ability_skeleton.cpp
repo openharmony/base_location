@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_skeleton.h"
 
 #include "ipc_skeleton.h"
@@ -122,3 +123,4 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 }
 } // namespace Location
 } // namespace OHOS
+#endif

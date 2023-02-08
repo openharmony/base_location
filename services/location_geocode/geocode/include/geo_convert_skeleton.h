@@ -15,6 +15,7 @@
 
 #ifndef GEO_CONVERT_SKELETON_H
 #define GEO_CONVERT_SKELETON_H
+#ifdef FEATURE_GEOCODE_SUPPORT
 
 #include <vector>
 
@@ -55,4 +56,5 @@ private:
 };
 } // namespace OHOS
 } // namespace Location
+#endif // FEATURE_GEOCODE_SUPPORT
 #endif // GEO_CONVERT_SKELETON_H

@@ -11,35 +11,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/ohos.gni")
 
-LOCATION_PASSIVE_ROOT = "//base/location/services/location_passive/passive"
+if (location_feature_with_passive) {
+  ohos_shared_library("lbsservice_passive") {
+    sources = [
+      "$LOCATION_PASSIVE_ROOT/source/passive_ability.cpp",
+      "$LOCATION_PASSIVE_ROOT/source/passive_ability_skeleton.cpp",
+    ]
 
-ohos_shared_library("lbsservice_passive") {
-  sources = [
-    "$LOCATION_PASSIVE_ROOT/source/passive_ability.cpp",
-    "$LOCATION_PASSIVE_ROOT/source/passive_ability_skeleton.cpp",
-  ]
+    include_dirs = [
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_PASSIVE_ROOT/include",
+    ]
 
-  include_dirs = [
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/services/location_locator/locator/include",
-    "//base/location/services/location_passive/passive/include",
-  ]
+    deps = [
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    ]
 
-  deps = [
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/services/location_locator/locator:lbsservice_locator",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-  ]
+    external_deps = [
+      "c_utils:utils",
+      "eventhandler:libeventhandler",
+      "hiviewdfx_hilog_native:libhilog",
+    ]
 
-  external_deps = [
-    "c_utils:utils",
-    "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+    defines = []
+    if (location_feature_with_passive) {
+      defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    }
 
-  part_name = "location"
-  subsystem_name = "location"
+    part_name = "location"
+    subsystem_name = "location"
+  }
+} else {
+  ohos_shared_library("lbsservice_passive") {
+    part_name = "location"
+    subsystem_name = "location"
+  }
 }

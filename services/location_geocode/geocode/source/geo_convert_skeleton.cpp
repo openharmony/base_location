@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_skeleton.h"
 #include "common_utils.h"
 #include "ipc_skeleton.h"
@@ -92,3 +93,4 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeoc
 }
 } // namespace Location
 } // namespace OHOS
+#endif

@@ -20,19 +20,27 @@
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "cached_locations_callback_host.h"
+#endif
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
 #include "country_code_callback_host.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_host.h"
 #include "i_cached_locations_callback.h"
+#endif
 #include "location.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_proxy.h"
 #include "locator_proxy.h"
+#ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
+#endif
 #include "request_config.h"
 
 using namespace testing::ext;
@@ -41,9 +49,13 @@ namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const int INVALID_PRIVACY_TYPE = -1;
+#ifdef FEATURE_GNSS_SUPPORT
 const int INVALID_CACHED_SIZE = -1;
+#endif
+#ifdef FEATURE_GEOCODE_SUPPORT
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
+#endif
 void LocatorImplTest::SetUp()
 {
     MockNativePermission();
@@ -78,6 +90,7 @@ void LocatorImplTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorImplTest::SetGeocodingMockInfo()
 {
     std::vector<std::shared_ptr<GeocodingMockInfo>> geoMockInfos;
@@ -115,6 +128,7 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorImplTest::SetGeocodingMoc
     geoMockInfos.emplace_back(std::move(geocodingMockInfo));
     return geoMockInfos;
 }
+#endif
 
 HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
 {
@@ -212,6 +226,7 @@ HWTEST_F(LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyStateV9001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplGetCachedGnssLocationsSizeV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -222,7 +237,9 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedGnssLocationsSizeV9, TestSize.Leve
     EXPECT_EQ(INVALID_CACHED_SIZE, size);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedGnssLocationsSizeV9 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplFlushCachedGnssLocationsV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -231,7 +248,9 @@ HWTEST_F(LocatorImplTest, locatorImplFlushCachedGnssLocationsV9, TestSize.Level1
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->FlushCachedGnssLocationsV9());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplFlushCachedGnssLocationsV9 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplSendCommandV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -243,7 +262,9 @@ HWTEST_F(LocatorImplTest, locatorImplSendCommandV9, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SendCommandV9(command));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSendCommandV9 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -261,6 +282,7 @@ HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RemoveFenceV9(fenceRequest));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 end");
 }
+#endif
 
 HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCodeV9, TestSize.Level1)
 {
@@ -296,6 +318,7 @@ HWTEST_F(LocatorImplTest, locatorImplProxyUidForFreezeV9, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreezeV9 end");
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -312,7 +335,9 @@ HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1
     EXPECT_EQ(false, isAvailable);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailableV9001 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -339,7 +364,9 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9001 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -362,7 +389,9 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level
     EXPECT_EQ(true, geoAddressList002.empty());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9002 end");
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationNameV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -386,7 +415,9 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationNameV9001, TestSize.Lev
     EXPECT_EQ(true, geoAddressList003.empty());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationNameV9001 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallbackV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -405,7 +436,9 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallbackV9001, TestSiz
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterCachedLocationCallbackV9(cachedCallback));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallbackV9001 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplGnssStatusCallbackV9, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -423,7 +456,9 @@ HWTEST_F(LocatorImplTest, locatorImplGnssStatusCallbackV9, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_)); // after reg, stop locating
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGnssStatusCallbackV9 end");
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -441,7 +476,6 @@ HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_)); // after reg, stop locating
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallbackV9001 end");
 }
-
-
+#endif
 }  // namespace Location
 }  // namespace OHOS

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_proxy.h"
 #include "location_log.h"
 
@@ -125,3 +126,4 @@ LocationErrCode GeoConvertProxy::SetReverseGeocodingMockInfo(
 }
 } // namespace Location
 } // namespace OHOS
+#endif

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "mock_i_cellular_data_manager.h"
 
 #include "cellular_data_client.h"
@@ -31,5 +32,6 @@ MockICellularDataManager &MockICellularDataManager::GetInstance()
     static MockICellularDataManager gMockICellularDataManager;
     return gMockICellularDataManager;
 };
-}
-}
+} // namespace Telephony
+} // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

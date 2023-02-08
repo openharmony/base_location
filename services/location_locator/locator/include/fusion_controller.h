@@ -29,7 +29,9 @@ public:
     void Process(std::string abilityName);
     void FuseResult(std::string abilityName, const std::unique_ptr<Location>& location);
 private:
+#ifdef FEATURE_NETWORK_SUPPORT
     void RequestQuickFix(bool state);
+#endif
 
     uint32_t fusedFlag_ = 0;
     bool needReset_ = true;

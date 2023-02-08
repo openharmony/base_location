@@ -11,53 +11,65 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/test.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
-ohos_unittest("NetworkAbilityTest") {
-  module_out_path = module_output_path
-  sources = [
-    "//base/location/test/location_network/source/network_ability_stub_test.cpp",
-    "//base/location/test/location_network/source/network_ability_test.cpp",
-  ]
+if (location_feature_with_network) {
+  NETWORK_UNIT_TEST_DIR = "$LOCATION_ROOT_DIR/test/location_network"
+  ohos_unittest("NetworkAbilityTest") {
+    module_out_path = module_output_path
+    sources = [
+      "$NETWORK_UNIT_TEST_DIR/source/network_ability_stub_test.cpp",
+      "$NETWORK_UNIT_TEST_DIR/source/network_ability_test.cpp",
+    ]
 
-  include_dirs = [
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/test/location_network/include",
-    "//base/location/test/location_network/mock/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
-    "$SUBSYSTEM_DIR/location_network/network/include",
-  ]
+    include_dirs = [
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$NETWORK_UNIT_TEST_DIR/include",
+      "$NETWORK_UNIT_TEST_DIR/mock/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_NETWORK_ROOT/include",
+    ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "$SUBSYSTEM_DIR/location_network/network:lbsservice_network",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
-    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
-    "//base/startup/init/interfaces/innerkits:libbegetutil",
-    "//foundation/arkui/napi:ace_napi",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-  ]
+    deps = [
+      "$ARKUI_ROOT_DIR/napi:ace_napi",
+      "$GOOGLE_TEST_DIR:gmock_main",
+      "$GOOGLE_TEST_DIR:gtest_main",
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_NETWORK_ROOT:lbsservice_network",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+      "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
+    ]
 
-  external_deps = [
-    "ability_base:want",
-    "access_token:libaccesstoken_sdk",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+    external_deps = [
+      "ability_base:want",
+      "access_token:libaccesstoken_sdk",
+      "c_utils:utils",
+      "common_event_service:cesfwk_innerkits",
+      "eventhandler:libeventhandler",
+      "hisysevent_native:libhisysevent",
+      "hiviewdfx_hilog_native:libhilog",
+    ]
 
-  module_out_path = module_output_path
+    defines = []
+    if (location_feature_with_network) {
+      defines += [ "FEATURE_NETWORK_SUPPORT" ]
+    }
+
+    module_out_path = module_output_path
+  }
+} else {
+  ohos_unittest("NetworkAbilityTest") {
+    module_out_path = module_output_path
+  }
 }
 
 group("unittest") {

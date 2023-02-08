@@ -12,8 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef GNSS_ABILITY_FUZZER_H
 #define GNSS_ABILITY_FUZZER_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include "message_option.h"
 #include "message_parcel.h"
@@ -30,4 +32,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT
 #endif // GNSS_ABILITY_FUZZER_H

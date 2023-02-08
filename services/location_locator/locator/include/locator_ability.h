@@ -69,53 +69,58 @@ public:
     LocationErrCode EnableAbility(bool isEnabled);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
+#ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
+        sptr<ICachedLocationsCallback>& callback, std::string bundleName);
+    LocationErrCode UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback);
+    LocationErrCode GetCachedGnssLocationsSize(int& size);
+    LocationErrCode FlushCachedGnssLocations();
+    LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands);
+    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request);
+    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request);
+#endif
     LocationErrCode RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
     LocationErrCode StopLocating(sptr<ILocatorCallback>& callback);
     LocationErrCode GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity);
+#ifdef FEATURE_GEOCODE_SUPPORT
     LocationErrCode IsGeoConvertAvailable(bool &isAvailable);
     void GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply);
     void GetAddressByLocationName(MessageParcel &data, MessageParcel &reply);
-
+    LocationErrCode EnableReverseGeocodingMock();
+    LocationErrCode DisableReverseGeocodingMock();
+    LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
+#endif
     LocationErrCode IsLocationPrivacyConfirmed(const int type, bool& isConfirmed);
     LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
-
-    LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
-        sptr<ICachedLocationsCallback>& callback, std::string bundleName);
-    LocationErrCode UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback);
-
-    LocationErrCode GetCachedGnssLocationsSize(int& size);
-    LocationErrCode FlushCachedGnssLocations();
-    LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands);
-    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request);
     LocationErrCode GetIsoCountryCode(std::shared_ptr<CountryCode>& country);
     LocationErrCode EnableLocationMock();
     LocationErrCode DisableLocationMock();
     LocationErrCode SetMockedLocations(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
-
-    LocationErrCode EnableReverseGeocodingMock();
-    LocationErrCode DisableReverseGeocodingMock();
-    LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
-
     LocationErrCode ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     LocationErrCode ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
     LocationErrCode ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
     LocationErrCode ProcessLocationMockMsg(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+#ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
     LocationErrCode SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
     LocationErrCode SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
+#endif
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
@@ -134,8 +139,12 @@ private:
     bool Init();
     bool CheckSaValid();
     static int QuerySwitchState();
+#ifdef FEATURE_GEOCODE_SUPPORT
     LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
+#endif
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

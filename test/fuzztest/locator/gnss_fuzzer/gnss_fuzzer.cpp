@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_fuzzer.h"
 
 #include <vector>
@@ -85,4 +86,4 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::GnssProxyFuzzTest(data, size);
     return 0;
 }
-
+#endif // FEATURE_GNSS_SUPPORT

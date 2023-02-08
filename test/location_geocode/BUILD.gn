@@ -11,50 +11,58 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/test.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
+if (location_feature_with_geocode) {
+  ohos_unittest("GeocodeServiceAbilityTest") {
+    module_out_path = module_output_path
+    sources = [ "$LOCATION_ROOT_DIR/test/location_geocode/source/geo_convert_service_test.cpp" ]
 
-ohos_unittest("GeocodeServiceAbilityTest") {
-  module_out_path = module_output_path
-  sources = [
-    "//base/location/test/location_geocode/source/geo_convert_service_test.cpp",
-  ]
+    include_dirs = [
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_ROOT_DIR/test/location_geocode/include",
+      "$LOCATION_GEOCONVERT_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+    ]
 
-  include_dirs = [
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/test/location_geocode/include",
-  ]
+    deps = [
+      "$ARKUI_ROOT_DIR/napi:ace_napi",
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+      "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
+    ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/location_geocode/geocode:lbsservice_geocode",
-    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
-    "//base/startup/init/interfaces/innerkits:libbegetutil",
-    "//foundation/arkui/napi:ace_napi",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-  ]
+    external_deps = [
+      "access_token:libaccesstoken_sdk",
+      "c_utils:utils",
+      "common_event_service:cesfwk_innerkits",
+      "hisysevent_native:libhisysevent",
+      "hiviewdfx_hilog_native:libhilog",
+      "init:libbegetutil",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+    ]
 
-  external_deps = [
-    "access_token:libaccesstoken_sdk",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
+    defines = []
+    if (location_feature_with_geocode) {
+      defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+    }
 
-  module_out_path = module_output_path
+    module_out_path = module_output_path
+  }
+} else {
+  ohos_unittest("GeocodeServiceAbilityTest") {
+    module_out_path = module_output_path
+  }
 }
 
 group("unittest") {

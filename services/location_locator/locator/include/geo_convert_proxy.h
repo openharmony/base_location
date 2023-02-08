@@ -15,6 +15,7 @@
 
 #ifndef GEO_CONVERT_PROXY_H
 #define GEO_CONVERT_PROXY_H
+#ifdef FEATURE_GEOCODE_SUPPORT
 
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -44,4 +45,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GEOCODE_SUPPORT
 #endif // GEO_CONVERT_PROXY_H

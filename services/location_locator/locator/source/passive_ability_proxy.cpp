@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability_proxy.h"
 
 #include "message_parcel.h"
@@ -124,3 +125,4 @@ LocationErrCode PassiveAbilityProxy::SetMocked(
 }
 } // namespace Location
 } // namespace OHOS
+#endif

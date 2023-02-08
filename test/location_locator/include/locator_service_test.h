@@ -18,7 +18,9 @@
 
 #include <gtest/gtest.h>
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
+#endif
 #include "i_locator_callback.h"
 #include "locator_background_proxy.h"
 #include "locator_proxy.h"
@@ -35,7 +37,9 @@ public:
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
     void MockNativePermission();
+#ifdef FEATURE_GEOCODE_SUPPORT
     std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
+#endif
 
     sptr<LocatorProxy> proxy_;
     sptr<ILocatorCallback> callbackStub_;

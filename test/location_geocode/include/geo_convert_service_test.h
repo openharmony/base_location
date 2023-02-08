@@ -15,6 +15,7 @@
 
 #ifndef GEO_CONVERT_SERVICE_TEST_H
 #define GEO_CONVERT_SERVICE_TEST_H
+#ifdef FEATURE_GEOCODE_SUPPORT
 
 #include <gtest/gtest.h>
 
@@ -36,4 +37,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GEOCODE_SUPPORT
 #endif // GEO_CONVERT_SERVICE_TEST_H

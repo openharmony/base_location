@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_stub_test.h"
 
 #include "ipc_types.h"
@@ -296,3 +297,4 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest016, TestSize.Level1)
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

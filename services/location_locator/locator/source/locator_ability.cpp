@@ -25,13 +25,22 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
+#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_proxy.h"
+#endif
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_proxy.h"
+#endif
 #include "locator_background_proxy.h"
 #include "location_config_manager.h"
 #include "location_log.h"
+#include "location_sa_load_manager.h"
+#ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability_proxy.h"
+#endif
 #include "permission_status_change_cb.h"
 
 namespace OHOS {
@@ -46,6 +55,7 @@ const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t SET_ENABLE = 3;
+#ifdef FEATURE_GNSS_SUPPORT
 const uint32_t REG_GNSS_STATUS = 7;
 const uint32_t UNREG_GNSS_STATUS = 8;
 const uint32_t REG_NMEA = 9;
@@ -57,6 +67,7 @@ const uint32_t FLUSH_CACHED = 14;
 const uint32_t SEND_COMMANDS = 15;
 const uint32_t ADD_FENCE_INFO = 16;
 const uint32_t REMOVE_FENCE_INFO = 17;
+#endif
 const float_t PRECISION = 0.000001;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
@@ -209,12 +220,18 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 void LocatorAbility::InitRequestManagerMap()
 {
     if (requests_ != nullptr) {
+#ifdef FEATURE_GNSS_SUPPORT
         std::list<std::shared_ptr<Request>> gnssList;
         requests_->insert(make_pair(GNSS_ABILITY, gnssList));
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
         std::list<std::shared_ptr<Request>> networkList;
         requests_->insert(make_pair(NETWORK_ABILITY, networkList));
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
         std::list<std::shared_ptr<Request>> passiveList;
         requests_->insert(make_pair(PASSIVE_ABILITY, passiveList));
+#endif
     }
 }
 
@@ -226,16 +243,20 @@ std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> Loca
 int LocatorAbility::GetActiveRequestNum()
 {
     int num = 0;
+#ifdef FEATURE_GNSS_SUPPORT
     auto gpsListIter = requests_->find(GNSS_ABILITY);
-    auto networkListIter = requests_->find(NETWORK_ABILITY);
     if (gpsListIter != requests_->end()) {
         auto list = &(gpsListIter->second);
         num += list->size();
     }
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
+    auto networkListIter = requests_->find(NETWORK_ABILITY);
     if (networkListIter != requests_->end()) {
         auto list = &(networkListIter->second);
         num += list->size();
     }
+#endif
     return num;
 }
 
@@ -262,6 +283,7 @@ void LocatorAbility::InitSaAbility()
     if (proxyMap_ == nullptr) {
         return;
     }
+#ifdef FEATURE_GNSS_SUPPORT
     // init gnss ability sa
     sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
     if (objectGnss != nullptr) {
@@ -269,7 +291,8 @@ void LocatorAbility::InitSaAbility()
     } else {
         LBSLOGE(LOCATOR, "GetRemoteObject gnss sa is null");
     }
-
+#endif
+#ifdef FEATURE_NETWROK_SUPPORT
     // init network ability sa
     sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,
         CommonUtils::InitDeviceId());
@@ -278,7 +301,8 @@ void LocatorAbility::InitSaAbility()
     } else {
         LBSLOGE(LOCATOR, "GetRemoteObject network sa is null");
     }
-
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
     // init passive ability sa
     sptr<IRemoteObject> objectPassive = CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID,
         CommonUtils::InitDeviceId());
@@ -287,30 +311,33 @@ void LocatorAbility::InitSaAbility()
     } else {
         LBSLOGE(LOCATOR, "GetRemoteObject passive sa is null");
     }
-
+#endif
     UpdateSaAbilityHandler();
 }
 
 bool LocatorAbility::CheckSaValid()
 {
+#ifdef FEATURE_GNSS_SUPPORT
     auto objectGnss = proxyMap_->find(GNSS_ABILITY);
     if (objectGnss == proxyMap_->end()) {
         LBSLOGI(LOCATOR, "gnss sa is null");
         return false;
     }
-
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
     auto objectNetwork = proxyMap_->find(NETWORK_ABILITY);
     if (objectNetwork == proxyMap_->end()) {
         LBSLOGI(LOCATOR, "network sa is null");
         return false;
     }
-
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
     auto objectPassive = proxyMap_->find(PASSIVE_ABILITY);
     if (objectPassive == proxyMap_->end()) {
         LBSLOGI(LOCATOR, "passive sa is null");
         return false;
     }
-
+#endif
     return true;
 }
 
@@ -346,11 +373,17 @@ void LocatorAbility::UpdateSaAbilityHandler()
         sptr<IRemoteObject> remoteObject = iter->second;
         MessageParcel data;
         if (iter->first == GNSS_ABILITY) {
+#ifdef FEATURE_GNSS_SUPPORT
             data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+#endif
         } else if (iter->first == NETWORK_ABILITY) {
+#ifdef FEATURE_NETWORK_SUPPORT
             data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
+#endif
         } else if (iter->first == PASSIVE_ABILITY) {
+#ifdef FEATURE_PASSIVE_SUPPORT
             data.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
+#endif
         }
         data.WriteBool(isEnabled_);
 
@@ -384,6 +417,20 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
     isEnabled_ = (QuerySwitchState() == ENABLED);
+    if (isEnabled_) {
+#ifdef FEATURE_GNSS_SUPPORT
+        CHK_ERRORCODE_RETURN_VALUE(
+            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID));
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
+        CHK_ERRORCODE_RETURN_VALUE(
+            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID));
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
+        CHK_ERRORCODE_RETURN_VALUE(
+            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID));
+#endif
+    }
     state = isEnabled_ ? ENABLED : DISABLED;
     return ERRCODE_SUCCESS;
 }
@@ -449,6 +496,7 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
     auto remoteObject = proxyMap_->find(GNSS_ABILITY);
@@ -463,7 +511,9 @@ LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, M
     obj->SendRequest(type, data, reply, option);
     return LocationErrCode(reply.ReadInt32());
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     LBSLOGD(LOCATOR, "uid is: %{public}d", uid);
@@ -475,7 +525,9 @@ LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObj
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(REG_GNSS_STATUS, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
     MessageParcel dataToStub;
@@ -486,7 +538,9 @@ LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteO
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(UNREG_GNSS_STATUS, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     MessageParcel dataToStub;
@@ -497,7 +551,9 @@ LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteOb
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(REG_NMEA, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
     MessageParcel dataToStub;
@@ -508,6 +564,7 @@ LocationErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemote
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(UNREG_NMEA, dataToStub, replyToStub);
 }
+#endif
 
 LocationErrCode LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
@@ -529,6 +586,7 @@ LocationErrCode LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemote
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
 {
@@ -543,7 +601,9 @@ LocationErrCode LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<C
     dataToStub.WriteString16(Str8ToStr16(bundleName));
     return SendGnssRequest(REG_CACHED, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
 {
     MessageParcel dataToStub;
@@ -554,7 +614,9 @@ LocationErrCode LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLoc
     dataToStub.WriteRemoteObject(callback->AsObject());
     return SendGnssRequest(UNREG_CACHED, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
 {
     MessageParcel dataToStub;
@@ -568,7 +630,9 @@ LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
     }
     return errorCode;
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::FlushCachedGnssLocations()
 {
     MessageParcel dataToStub;
@@ -578,7 +642,9 @@ LocationErrCode LocatorAbility::FlushCachedGnssLocations()
     }
     return SendGnssRequest(FLUSH_CACHED, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
     MessageParcel dataToStub;
@@ -590,7 +656,9 @@ LocationErrCode LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& co
     dataToStub.WriteString16(Str8ToStr16(commands->command));
     return SendGnssRequest(SEND_COMMANDS, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
     MessageParcel dataToStub;
@@ -605,7 +673,9 @@ LocationErrCode LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& reque
     dataToStub.WriteDouble(request->geofence.expiration);
     return SendGnssRequest(ADD_FENCE_INFO, dataToStub, replyToStub);
 }
+#endif
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
     MessageParcel dataToStub;
@@ -620,6 +690,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& re
     dataToStub.WriteDouble(request->geofence.expiration);
     return SendGnssRequest(REMOVE_FENCE_INFO, dataToStub, replyToStub);
 }
+#endif
 
 LocationErrCode LocatorAbility::GetIsoCountryCode(std::shared_ptr<CountryCode>& countryCode)
 {
@@ -632,6 +703,7 @@ LocationErrCode LocatorAbility::GetIsoCountryCode(std::shared_ptr<CountryCode>& 
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
@@ -649,7 +721,9 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteOb
     }
     return ERRCODE_NOT_SUPPORTED;
 }
+#endif
 
+#ifdef FEATURE_NETWORK_SUPPORT
 LocationErrCode LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
@@ -668,7 +742,9 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemot
     }
     return ERRCODE_NOT_SUPPORTED;
 }
+#endif
 
+#ifdef FEATURE_PASSIVE_SUPPORT
 LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
@@ -687,18 +763,29 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemot
     }
     return ERRCODE_NOT_SUPPORTED;
 }
+#endif
 
 LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
+#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: mock service unavailable", __func__);
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         auto obj = iter->second;
         if (iter->first == GNSS_ABILITY) {
+#ifdef FEATURE_GNSS_SUPPORT
             SendLocationMockMsgToGnssSa(obj, timeInterval, location, msgId);
+#endif
         } else if (iter->first == NETWORK_ABILITY) {
+#ifdef FEATURE_NETWORK_SUPPORT
             SendLocationMockMsgToNetworkSa(obj, timeInterval, location, msgId);
+#endif
         } else if (iter->first == PASSIVE_ABILITY) {
+#ifdef FEATURE_PASSIVE_SUPPORT
             SendLocationMockMsgToPassiveSa(obj, timeInterval, location, msgId);
+#endif
         }
     }
     return ERRCODE_SUCCESS;
@@ -727,6 +814,10 @@ LocationErrCode LocatorAbility::SetMockedLocations(
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
+#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
     if (isEnabled_ == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
@@ -756,6 +847,10 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 
 LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
+#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
     LBSLOGI(LOCATOR, "stop locating");
     if (requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -856,6 +951,7 @@ void LocatorAbility::RegisterAction()
     }
 }
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
 {
     MessageParcel dataParcel;
@@ -873,7 +969,9 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
     }
     return errorCode;
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
@@ -892,7 +990,9 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteString16(data.ReadString16()); // ""
     SendGeoRequest(GET_FROM_COORDINATE, dataParcel, reply);
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByLocationName");
@@ -914,7 +1014,9 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteString16(data.ReadString16()); // ""
     SendGeoRequest(GET_FROM_LOCATION_NAME, dataParcel, reply);
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
@@ -927,7 +1029,9 @@ LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, Me
     remoteObject->SendRequest(type, data, reply, option);
     return ERRCODE_SUCCESS;
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
 {
     MessageParcel dataParcel;
@@ -938,7 +1042,9 @@ LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
     SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
     return LocationErrCode(replyParcel.ReadInt32());
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
 {
     MessageParcel dataParcel;
@@ -949,7 +1055,9 @@ LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
     SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
     return LocationErrCode(replyParcel.ReadInt32());
 }
+#endif
 
+#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     MessageParcel dataParcel;
@@ -964,6 +1072,7 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
     SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
     return LocationErrCode(replyParcel.ReadInt32());
 }
+#endif
 
 LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {

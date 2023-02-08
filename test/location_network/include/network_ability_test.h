@@ -15,6 +15,7 @@
 
 #ifndef NETWORK_ABILITY_TEST_H
 #define NETWORK_ABILITY_TEST_H
+#ifdef FEATURE_NETWORK_SUPPORT
 
 #include <gtest/gtest.h>
 
@@ -34,4 +35,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_NETWORK_SUPPORT
 #endif // NETWORK_ABILITY_TEST_H

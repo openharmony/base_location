@@ -12,6 +12,7 @@
 # limitations under the License.
 
 #####################hydra-fuzz###################
+import("//base/location/config.gni")
 import("//build/config/features.gni")
 import("//build/test.gni")
 
@@ -54,6 +55,23 @@ ohos_fuzztest("LocatorFuzzTest") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (location_feature_with_geocode) {
+    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+  }
+
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
+
+  if (location_feature_with_network) {
+    defines += [ "FEATURE_NETWORK_SUPPORT" ]
+  }
+
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
 }
 
 ###############################################################################
