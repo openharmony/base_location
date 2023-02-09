@@ -44,6 +44,7 @@
 #include "i_locator.h"
 #include "location.h"
 #include "location_log.h"
+#include "location_sa_load_manager.h"
 #include "location_switch_callback_host.h"
 #include "locator.h"
 #include "locator_ability.h"
@@ -71,6 +72,7 @@ void LocatorServiceTest::SetUp()
     /*
      * @tc.setup: Get system ability's pointer and get sa proxy object.
      */
+    LoadSystemAbility();
     MockNativePermission();
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -101,6 +103,23 @@ void LocatorServiceTest::TearDown()
      */
     proxy_ = nullptr;
     callbackStub_ = nullptr;
+}
+
+void LocatorServiceTest::LoadSystemAbility()
+{
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+#ifdef FEATURE_GNSS_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+#endif
+#ifdef FEATURE_GEOCODE_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+#endif
 }
 
 void LocatorServiceTest::MockNativePermission()
