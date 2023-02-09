@@ -60,19 +60,24 @@
             ]
         },
         "build": {
-            "sub_component": [
-                "//base/location/frameworks/native:locator_sdk",
-                "//base/location/frameworks/js/napi:geolocation",
-                "//base/location/frameworks/js/napi:geolocationmanager",
-                "//base/location/frameworks/location_common/common:lbsservice_common",
-                "//base/location/services/location_geocode/geocode:lbsservice_geocode",
-                "//base/location/services/location_gnss/gnss:lbsservice_gnss",
-                "//base/location/services/location_locator/locator:lbsservice_locator",
-                "//base/location/services/location_network/network:lbsservice_network",
-                "//base/location/services/location_passive/passive:lbsservice_passive",
-                "//base/location/services/etc:etc",
-                "//base/location/sa_profile:location_sa_profile"
-            ],
+            "group_type": {
+                "base_group": [],
+                "fwk_group": [
+                    "//base/location/frameworks/native:locator_sdk",
+                    "//base/location/frameworks/js/napi:geolocation",
+                    "//base/location/frameworks/js/napi:geolocationmanager",
+                    "//base/location/frameworks/location_common/common:lbsservice_common"
+                ],
+                "service_group": [
+                    "//base/location/services/location_geocode/geocode:lbsservice_geocode",
+                    "//base/location/services/location_gnss/gnss:lbsservice_gnss",
+                    "//base/location/services/location_locator/locator:lbsservice_locator",
+                    "//base/location/services/location_network/network:lbsservice_network",
+                    "//base/location/services/location_passive/passive:lbsservice_passive",
+                    "//base/location/services/etc:etc",
+                    "//base/location/sa_profile:location_sa_profile"
+                ]
+            },
             "inner_kits": [
                 {
                     "header" : {
