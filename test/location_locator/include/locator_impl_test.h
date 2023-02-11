@@ -30,6 +30,7 @@ public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
+    void LoadSystemAbility();
 #ifdef FEATURE_GEOCODE_SUPPORT
     std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
 #endif

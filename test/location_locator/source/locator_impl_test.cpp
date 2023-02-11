@@ -18,6 +18,7 @@
 #include "accesstoken_kit.h"
 #include "message_parcel.h"
 #include "nativetoken_kit.h"
+#include "system_ability_definition.h"
 #include "token_setproc.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
@@ -35,6 +36,7 @@
 #include "i_cached_locations_callback.h"
 #endif
 #include "location.h"
+#include "location_sa_load_manager.h"
 #include "location_switch_callback_host.h"
 #include "locator_callback_proxy.h"
 #include "locator_proxy.h"
@@ -58,6 +60,7 @@ const double MOCK_LONGITUDE = 100.0;
 #endif
 void LocatorImplTest::SetUp()
 {
+    LoadSystemAbility();
     MockNativePermission();
     locatorImpl_ = Locator::GetInstance();
     ASSERT_TRUE(locatorImpl_ != nullptr);
@@ -67,6 +70,23 @@ void LocatorImplTest::SetUp()
 
 void LocatorImplTest::TearDown()
 {
+}
+
+void LocatorImplTest::LoadSystemAbility()
+{
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+#ifdef FEATURE_GNSS_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+#endif
+#ifdef FEATURE_GEOCODE_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+#endif
 }
 
 void LocatorImplTest::MockNativePermission()

@@ -37,6 +37,7 @@ public:
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
     void MockNativePermission();
+    void LoadSystemAbility();
 #ifdef FEATURE_GEOCODE_SUPPORT
     std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
 #endif
