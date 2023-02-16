@@ -13,19 +13,25 @@
  * limitations under the License.
  */
 
-#include "locator.h"
-#include "location_log.h"
-#include "locator_impl.h"
+#ifndef SWITCH_CALLBACK_PROXY_H
+#define SWITCH_CALLBACK_PROXY_H
+
+#include "iremote_broker.h"
+#include "iremote_object.h"
+#include "iremote_proxy.h"
+
+#include "i_switch_callback.h"
 
 namespace OHOS {
 namespace Location {
-Locator::~Locator()
-{}
-
-std::unique_ptr<Locator> Locator::GetInstance()
-{
-    std::unique_ptr<LocatorImpl> locator = std::make_unique<LocatorImpl>();
-    return locator;
-}
-}  // namespace Location
-}  // namespace OHOS
+class SwitchCallbackProxy : public IRemoteProxy<ISwitchCallback> {
+public:
+    explicit SwitchCallbackProxy(const sptr<IRemoteObject> &impl);
+    ~SwitchCallbackProxy() = default;
+    void OnSwitchChange(const int state) override;
+private:
+    static inline BrokerDelegator<SwitchCallbackProxy> delegator_;
+};
+} // namespace Location
+} // namespace OHOS
+#endif // SWITCH_CALLBACK_PROXY_H

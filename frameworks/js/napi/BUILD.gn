@@ -13,31 +13,42 @@
 
 import("//build/ohos.gni")
 
+LOCATION_NAPI_ROOT = "//base/location/frameworks/js/napi/source"
 ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
     "//base/location/frameworks/js/napi/include",
     "//base/location/interfaces/inner_api/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager/include",
   ]
 
   sources = [
-    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
+    "$LOCATION_NAPI_ROOT/location_data_rdb_observer.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_adapter.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_entry.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_event.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_system.cpp",
   ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager:dataobs_manager",
     "//foundation/arkui/napi:ace_napi",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
   ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
+    "relational_store:native_rdb",
   ]
 
   relative_install_dir = "module"
@@ -49,26 +60,33 @@ ohos_static_library("geolocation_static") {
   include_dirs = [
     "//base/location/frameworks/js/napi/include",
     "//base/location/interfaces/inner_api/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager/include",
   ]
 
   sources = [
-    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_adapter.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_entry.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_event.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_system.cpp",
   ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager:dataobs_manager",
     "//foundation/arkui/napi:ace_napi",
   ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
     "ipc:ipc_core",
+    "relational_store:native_rdb",
   ]
 
   part_name = "location"
@@ -86,29 +104,37 @@ ohos_shared_library("geolocationmanager") {
     "//base/location/frameworks/js/napi/include",
     "//base/location/interfaces/inner_api/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager/include",
   ]
 
   sources = [
-    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_errcode.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
+    "$LOCATION_NAPI_ROOT/location_data_rdb_observer.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_adapter.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_entry.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_errcode.cpp",
+    "$LOCATION_NAPI_ROOT/location_napi_event.cpp",
   ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//base/location/frameworks/native:locator_sdk",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/dataobs_manager:dataobs_manager",
     "//foundation/arkui/napi:ace_napi",
   ]
 
   defines = [ "ENABLE_NAPI_MANAGER" ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
+    "relational_store:native_rdb",
   ]
 
   relative_install_dir = "module"

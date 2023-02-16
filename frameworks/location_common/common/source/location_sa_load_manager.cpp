@@ -19,11 +19,13 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
+#include "common_utils.h"
 #include "location_log.h"
 
 namespace OHOS {
 namespace Location {
 DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationSaLoadManager);
+bool g_state = false;
 
 LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
 {
@@ -34,6 +36,18 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
         LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+
+    if (samgr->CheckSystemAbility(systemAbilityId) != nullptr) {
+        LBSLOGE(LOCATOR,
+            "%{public}s: no need load sa, systemAbilityId = [%{public}d]", __func__, systemAbilityId);
+        return ERRCODE_SUCCESS;
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(locatorMutex_);
+        g_state = false;
+    }
+
     auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
     int32_t ret = samgr->LoadSystemAbility(systemAbilityId, locationSaLoadCallback);
     if (ret != ERR_OK) {
@@ -41,6 +55,18 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
             __func__, systemAbilityId, ret);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+
+    {
+        std::unique_lock<std::mutex> lock(locatorMutex_);
+        auto wait = locatorCon_.wait_for(lock, std::chrono::milliseconds(LOCATION_LOADSA_TIMEOUT_MS), [this] {
+            return g_state == true;
+        });
+        if (!wait) {
+            LBSLOGE(LOCATOR_STANDARD, "locator sa start time out.");;
+            return ERRCODE_SERVICE_UNAVAILABLE;
+        }
+    }
+
     return ERRCODE_SUCCESS;
 }
 
@@ -66,11 +92,13 @@ void LocationSaLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
+    g_state = true;
 }
 
 void LocationSaLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
+    g_state = false;
 }
 }; // namespace Location
 }; // namespace OHOS

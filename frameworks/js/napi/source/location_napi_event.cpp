@@ -16,6 +16,11 @@
 
 #include "callback_manager.h"
 #include "common_utils.h"
+#include "ipc_skeleton.h"
+#include "location_data_handler.h"
+#include "location_data_manager.h"
+#include "location_data_rdb_observer.h"
+#include "location_data_rdb_helper.h"
 #include "location_log.h"
 #include "location_napi_errcode.h"
 #include "country_code_callback_host.h"
@@ -31,6 +36,7 @@ CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
 CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 std::vector<GeoFenceState*> mFences;
+auto g_dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
 auto g_locatorProxy = Locator::GetInstance();
 
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
@@ -98,7 +104,14 @@ void SubscribeLocationServiceState(const napi_env& env,
 {
     switchCallbackHost->SetEnv(env);
     switchCallbackHost->SetHandleCb(handlerRef);
-    g_locatorProxy->RegisterSwitchCallback(switchCallbackHost->AsObject(), DEFAULT_UID);
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return;
+    }
+    LocationDataManager::GetInstance().
+        RegisterSwitchCallback(switchCallbackHost->AsObject(), IPCSkeleton::GetCallingUid());
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -107,7 +120,14 @@ LocationErrCode SubscribeLocationServiceStateV9(const napi_env& env,
 {
     switchCallbackHost->SetEnv(env);
     switchCallbackHost->SetHandleCb(handlerRef);
-    return g_locatorProxy->RegisterSwitchCallbackV9(switchCallbackHost->AsObject());
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    return LocationDataManager::GetInstance().
+        RegisterSwitchCallback(switchCallbackHost->AsObject(), IPCSkeleton::GetCallingUid());
 }
 #endif
 
@@ -158,14 +178,26 @@ LocationErrCode SubscribeNmeaMessageV9(const napi_env& env, const napi_ref& hand
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeLocationServiceState");
-    g_locatorProxy->UnregisterSwitchCallback(switchCallbackHost->AsObject());
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return;
+    }
+    LocationDataManager::GetInstance().UnregisterSwitchCallback(switchCallbackHost->AsObject());
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeLocationServiceStateV9(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeLocationServiceStateV9");
-    return g_locatorProxy->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject());
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    return LocationDataManager::GetInstance().UnregisterSwitchCallback(switchCallbackHost->AsObject());
 }
 #endif
 

@@ -24,6 +24,7 @@
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
+#include "i_locator.h"
 #include "locator.h"
 #include "locator_proxy.h"
 
@@ -114,8 +115,28 @@ public:
     LocationErrCode SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) override;
     LocationErrCode ResetAllProxyV9() override;
+    void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
+
 private:
-    std::unique_ptr<LocatorProxy> client_;
+    class LocatorDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        explicit LocatorDeathRecipient(LocatorImpl &impl) : impl_(impl) {}
+        ~LocatorDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override
+        {
+            impl_.ResetLocatorProxy(remote);
+        }
+    private:
+        LocatorImpl &impl_;
+    };
+
+private:
+    sptr<LocatorProxy> GetProxy();
+
+    sptr<LocatorProxy> client_ { nullptr };
+    sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
+    bool state_ = false;
+    std::mutex mutex_;
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -31,24 +31,38 @@ ohos_shared_library("locator_sdk") {
     "//base/location/frameworks/native/source/country_code_callback_host.cpp",
     "//base/location/frameworks/native/source/gnss_status_callback_host.cpp",
     "//base/location/frameworks/native/source/location_switch_callback_host.cpp",
+    "//base/location/frameworks/native/source/location_data_handler.cpp",
+    "//base/location/frameworks/native/source/location_data_manager.cpp",
     "//base/location/frameworks/native/source/locator.cpp",
     "//base/location/frameworks/native/source/locator_callback_host.cpp",
     "//base/location/frameworks/native/source/locator_impl.cpp",
     "//base/location/frameworks/native/source/locator_proxy.cpp",
     "//base/location/frameworks/native/source/napi_util.cpp",
     "//base/location/frameworks/native/source/nmea_message_callback_host.cpp",
+    "//base/location/frameworks/native/source/switch_callback_proxy.cpp",
   ]
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//base/location/frameworks/location_common/common:lbsservice_common",
+    "//foundation/ability/ability_runtime/frameworks/native/ability/native:data_ability_helper",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager",
     "//foundation/arkui/napi:ace_napi",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/libuv:uv",
   ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
     "c_utils:utils",
+    "bundle_framework:appexecfwk_core",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
   ]
 
   cflags_cc = [

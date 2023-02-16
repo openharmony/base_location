@@ -32,6 +32,7 @@ namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
+const uint32_t SET_ENABLE = 3;
 
 bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
@@ -354,6 +355,49 @@ bool CommonUtils::CheckAppInstalled(const std::string& bundleName)
         return false;
     }
     return true;
+}
+
+bool CommonUtils::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
+{
+    sptr<ISystemAbilityManager> samgr =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
+        return false;
+    }
+    return (samgr->CheckSystemAbility(systemAbilityId) != nullptr);
+}
+
+void CommonUtils::EnableSystemAbility(std::string ability, bool isEnable)
+{
+    sptr<IRemoteObject> remoteObject;
+    MessageParcel data;
+    if (ability == GNSS_ABILITY) {
+#ifdef FEATURE_GNSS_SUPPORT
+        remoteObject = GetRemoteObject(LOCATION_GNSS_SA_ID, InitDeviceId());
+        data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+#endif
+    } else if (ability == NETWORK_ABILITY) {
+#ifdef FEATURE_NETWORK_SUPPORT
+        remoteObject = GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID, InitDeviceId());
+        data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
+#endif
+    } else if (ability == PASSIVE_ABILITY) {
+#ifdef FEATURE_PASSIVE_SUPPORT
+        remoteObject = GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID, InitDeviceId());
+        data.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
+#endif
+    }
+    if (remoteObject == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr!", __func__);
+        return;
+    }
+    data.WriteBool(isEnable);
+
+    MessageParcel reply;
+    MessageOption option;
+    int error = remoteObject->SendRequest(SET_ENABLE, data, reply, option);
+    LBSLOGI(LOCATOR, "%{public}s isEnable = %{public}d, remote result %{public}d", ability.c_str(), isEnable, error);
 }
 } // namespace Location
 } // namespace OHOS
