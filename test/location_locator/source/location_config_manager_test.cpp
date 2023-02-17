@@ -15,9 +15,12 @@
 
 #include "location_config_manager_test.h"
 
+#include <cstdio>
+
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location_config_manager.h"
+#include "location_log.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -31,6 +34,17 @@ void LocationConfigManagerTest::SetUp()
 
 void LocationConfigManagerTest::TearDown()
 {
+}
+
+std::string LocationConfigManagerTest::GetLocationSwitchConfigPath()
+{
+    int userId = 0;
+    bool ret = CommonUtils::GetCurrentUserId(userId);
+    if (!ret) {
+        LBSLOGE(LOCATOR, "GetCurrentUserId failed");
+    }
+    std::string filePath = LOCATION_DIR + SWITCH_CONFIG_NAME + "_" + std::to_string(userId) + ".conf";
+    return filePath;
 }
 
 HWTEST_F(LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.Level1)
@@ -61,6 +75,9 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, Tes
         LocationConfigManager::GetInstance().SetLocationSwitchState(STATE_UNKNOWN));
     EXPECT_EQ(STATE_OPEN,
         LocationConfigManager::GetInstance().GetLocationSwitchState());
+    EXPECT_EQ(true,
+        LocationConfigManager::GetInstance().IsExistFile(GetLocationSwitchConfigPath()));
+    remove(GetLocationSwitchConfigPath().c_str());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerSwitchStateTest001 end");
 }
 
@@ -91,6 +108,8 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, isConfirmed));
     EXPECT_EQ(false, isConfirmed);
+    remove(LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(PRIVACY_TYPE_STARTUP).c_str());
+    remove(LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(PRIVACY_TYPE_CORE_LOCATION).c_str());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 end");
 }
 
@@ -106,8 +125,6 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerIsExistFileTest001, Tes
     std::string configPath = LOCATION_DIR + SWITCH_CONFIG_NAME + "_" + std::to_string(userId) + ".conf";
     EXPECT_EQ(false,
         LocationConfigManager::GetInstance().IsExistFile("/wrongpath" + configPath));
-    EXPECT_EQ(true,
-        LocationConfigManager::GetInstance().IsExistFile(configPath));
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerIsExistFileTest001 end");
 }
 
