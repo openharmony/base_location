@@ -116,6 +116,26 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(DisableMock());
             break;
         }
+        case ADD_FENCE_INFO: {
+            std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+            request->scenario = data.ReadInt32();
+            request->geofence.latitude = data.ReadDouble();
+            request->geofence.longitude = data.ReadDouble();
+            request->geofence.radius = data.ReadDouble();
+            request->geofence.expiration = data.ReadDouble();
+            reply.WriteInt32(AddFence(request));
+            break;
+        }
+        case REMOVE_FENCE_INFO: {
+            std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
+            request->scenario = data.ReadInt32();
+            request->geofence.latitude = data.ReadDouble();
+            request->geofence.longitude = data.ReadDouble();
+            request->geofence.radius = data.ReadDouble();
+            request->geofence.expiration = data.ReadDouble();
+            reply.WriteInt32(RemoveFence(request));
+            break;
+        }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
