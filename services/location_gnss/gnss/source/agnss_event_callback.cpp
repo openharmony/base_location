@@ -36,8 +36,9 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
 {
     LBSLOGI(GNSS, "AGnssEventCallback::RequestSubscriberSetId. type:%{public}d", static_cast<int>(type));
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
-    std::string imsi =
-        CommonUtils::Str16ToStr8(DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIMSI(slotId));
+    std::u16string tempImsi;
+    DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIMSI(slotId, tempImsi);
+    std::string imsi = CommonUtils::Str16ToStr8(tempImsi);
     SubscriberSetId setId;
     setId.type = HDI::Location::Agnss::V1_0::SETID_TYPE_IMSI;
     setId.id = imsi;
@@ -53,8 +54,8 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
 int32_t AGnssEventCallback::RequestAgnssRefInfo()
 {
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
-    std::vector<sptr<CellInformation>> cellInformations =
-        DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetCellInfoList(slotId);
+    std::vector<sptr<CellInformation>> cellInformations;
+    DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetCellInfoList(slotId, cellInformations);
     LBSLOGI(GNSS, "RequestAgnssRefInfo,cellInformations.");
     for (sptr<CellInformation> infoItem : cellInformations) {
         if (!infoItem->GetIsCamped()) {

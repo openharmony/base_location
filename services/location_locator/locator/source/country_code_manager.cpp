@@ -224,8 +224,10 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
     LBSLOGI(COUNTRY_CODE, "CountryCodeManager::GetIsoCountryCode");
     int type = COUNTRY_CODE_FROM_LOCALE;
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
-    std::string countryCodeStr8 = Str16ToStr8(
-        DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIsoCountryCodeForNetwork(slotId));
+    std::u16string countryCodeForNetwork;
+    DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIsoCountryCodeForNetwork(
+        slotId, countryCodeForNetwork);
+    std::string countryCodeStr8 = Str16ToStr8(countryCodeForNetwork);
     type = COUNTRY_CODE_FROM_NETWORK;
 
     if (countryCodeStr8.empty()) {
@@ -234,8 +236,10 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
     }
 
     if (countryCodeStr8.empty()) {
-        countryCodeStr8 = Str16ToStr8(
-            DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetISOCountryCodeForSim(slotId));
+        std::u16string countryCodeForSim;
+        DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetISOCountryCodeForSim(
+            slotId, countryCodeForSim);
+        countryCodeStr8 = Str16ToStr8(countryCodeForSim);
         type = COUNTRY_CODE_FROM_SIM;
     }
 
