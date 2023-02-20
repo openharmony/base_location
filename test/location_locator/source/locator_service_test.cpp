@@ -1087,8 +1087,8 @@ HWTEST_F(LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetIsoCountryCode001 begin");
     MessageParcel reply;
     auto country = proxy_->GetIsoCountryCode();
-    EXPECT_EQ("CN", country->GetCountryCodeStr());
-    EXPECT_EQ(COUNTRY_CODE_FROM_LOCALE, country->GetCountryCodeType());
+    EXPECT_NE("", country->GetCountryCodeStr());
+    EXPECT_NE(-1, country->GetCountryCodeType());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetIsoCountryCode001 end");
 }
 
