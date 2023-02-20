@@ -56,7 +56,8 @@ void LocationDataRdbHelper::Initialize()
         return;
     }
     
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
+    sptr<IRemoteObject> remoteObject =
+        CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remoteObject is nullptr", __func__);
         return;
@@ -66,7 +67,6 @@ void LocationDataRdbHelper::Initialize()
 
 std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataShareHelper()
 {
-
     return DataShare::DataShareHelper::Creator(remoteObj_, LOCATION_DATA_URI);
 }
 

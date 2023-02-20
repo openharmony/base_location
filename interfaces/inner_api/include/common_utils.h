@@ -171,7 +171,6 @@ public:
     static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool CheckAppInstalled(const std::string& bundleName);
-    static void EnableSystemAbility(std::string ability, bool isEnable);
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
 };
 

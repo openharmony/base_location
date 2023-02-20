@@ -24,7 +24,6 @@
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
-#include "i_locator.h"
 #include "locator.h"
 #include "locator_proxy.h"
 

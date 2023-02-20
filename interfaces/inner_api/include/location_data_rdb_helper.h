@@ -43,7 +43,6 @@ public:
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
 private:
     static void Initialize();
-
 };
 } // namespace Location
 } // namespace OHOS

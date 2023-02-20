@@ -36,9 +36,12 @@ class LocationSaLoadManager {
 public:
     LocationErrCode LoadLocationSa(int32_t systemAbilityId);
     LocationErrCode UnloadLocationSa(int32_t systemAbilityId);
+    void LoadSystemAbilitySuccess();
+    void LoadSystemAbilityFail();
 private:
     std::condition_variable locatorCon_;
     std::mutex locatorMutex_;
+    bool state_ = false;
 };
 }  // namespace Location
 }  // namespace OHOS

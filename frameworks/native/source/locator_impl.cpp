@@ -14,18 +14,22 @@
  */
 #include "locator_impl.h"
 
-#include "singleton.h"
+#include "if_system_ability_manager.h"
+#include "ipc_skeleton.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 
 #include "common_utils.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
+#include "country_code.h"
+#include "location_data_manager.h"
+#include "location_data_rdb_observer.h"
+#include "location_data_rdb_helper.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
-#include "system_ability_definition.h"
-#include "country_code.h"
 
 namespace OHOS {
 namespace Location {
+auto g_dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
 LocatorImpl::LocatorImpl()
 {}
 
@@ -134,30 +138,28 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
 
 bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (!Init()) {
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
-   if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    proxy->RegisterSwitchCallback(callback, DEFAULT_UID);
-    return true;
+    errorCode = LocationDataManager::GetInstance().
+        RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid());
+    return errorCode == ERRCODE_SUCCESS;
 }
 
 bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 {
-    if (!Init()) {
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    proxy->UnregisterSwitchCallback(callback);
-    return true;
+    errorCode =
+        LocationDataManager::GetInstance().UnregisterSwitchCallback(callback);
+    return errorCode == ERRCODE_SUCCESS;
 }
 
 bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
@@ -377,7 +379,7 @@ int LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirme
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->SetLocationPrivacyConfirmStatus(type, isConfirmed);
+    int flag = proxy->SetLocationPrivacyConfirmStatus(type, isConfirmed);
     return flag;
 }
 
@@ -670,32 +672,25 @@ LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
 
 LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!Init()) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
     }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterSwitchCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LocationErrCode errCode = proxy->RegisterSwitchCallbackV9(callback);
-    return errCode;
+    return LocationDataManager::GetInstance().
+        RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid());
 }
 
 LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!Init()) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errorCode =
+        LocationDataRdbHelper::GetInstance().UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
     }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterSwitchCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LocationErrCode errCode = proxy->UnregisterSwitchCallbackV9(callback);
-    return errCode;
+    return LocationDataManager::GetInstance().UnregisterSwitchCallback(callback);
 }
 
 LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)

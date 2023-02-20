@@ -17,7 +17,6 @@
 
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "location_sa_load_manager.h"
 #include "string_ex.h"
 
 #include "common_utils.h"
@@ -123,13 +122,11 @@ void SubAbility::Enable(bool state, const sptr<IRemoteObject> ability)
     if (state) {
         if (sam->CheckSystemAbility(saId) == nullptr) {
             sam->AddSystemAbility(saId, ability, ISystemAbilityManager::SAExtraProp(true, 1, capability_, u""));
-            LocationSaLoadManager::GetInstance().LoadLocationSa(saId);
             LBSLOGI(label_, "enable %{public}s ability", name_.c_str());
         }
     } else {
         if (sam->CheckSystemAbility(saId) != nullptr) {
             sam->RemoveSystemAbility(saId);
-            LocationSaLoadManager::GetInstance().UnloadLocationSa(saId);
             LBSLOGI(label_, "disable %{public}s ability", name_.c_str());
         }
     }

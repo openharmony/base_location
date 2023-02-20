@@ -429,6 +429,10 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
     int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
     LocationSaLoadManager::GetInstance().LoadLocationSa(systemAbilityId);
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
+        return;
+    }
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
 #ifdef FEATURE_GNSS_SUPPORT

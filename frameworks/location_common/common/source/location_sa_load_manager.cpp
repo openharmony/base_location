@@ -25,7 +25,6 @@
 namespace OHOS {
 namespace Location {
 DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationSaLoadManager);
-bool g_state = false;
 
 LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
 {
@@ -45,7 +44,7 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
 
     {
         std::unique_lock<std::mutex> lock(locatorMutex_);
-        g_state = false;
+        state_ = false;
     }
 
     auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
@@ -59,10 +58,10 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
     {
         std::unique_lock<std::mutex> lock(locatorMutex_);
         auto wait = locatorCon_.wait_for(lock, std::chrono::milliseconds(LOCATION_LOADSA_TIMEOUT_MS), [this] {
-            return g_state == true;
+            return state_ == true;
         });
         if (!wait) {
-            LBSLOGE(LOCATOR_STANDARD, "locator sa start time out.");;
+            LBSLOGE(LOCATOR_STANDARD, "locator sa [%{public}d] start time out.", systemAbilityId);
             return ERRCODE_SERVICE_UNAVAILABLE;
         }
     }
@@ -88,17 +87,31 @@ LocationErrCode LocationSaLoadManager::UnloadLocationSa(int32_t systemAbilityId)
     return ERRCODE_SUCCESS;
 }
 
+void LocationSaLoadManager::LoadSystemAbilitySuccess()
+{
+    std::unique_lock<std::mutex> lock(locatorMutex_);
+    state_ = true;
+    locatorCon_.notify_one();
+}
+
+void LocationSaLoadManager::LoadSystemAbilityFail()
+{
+    std::unique_lock<std::mutex> lock(locatorMutex_);
+    state_ = false;
+    locatorCon_.notify_one();
+}
+
 void LocationSaLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
-    g_state = true;
+    LocationSaLoadManager::GetInstance().LoadSystemAbilitySuccess();
 }
 
 void LocationSaLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
-    g_state = false;
+    LocationSaLoadManager::GetInstance().LoadSystemAbilityFail();
 }
 }; // namespace Location
 }; // namespace OHOS

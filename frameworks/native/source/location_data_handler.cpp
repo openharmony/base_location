@@ -25,7 +25,8 @@ namespace OHOS {
 namespace Location {
 const uint32_t SWITCH_STATE_CHANGED = 1;
 
-LocationDataHandler::LocationDataHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+LocationDataHandler::LocationDataHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner)
+    : EventHandler(runner) {}
 
 LocationDataHandler::~LocationDataHandler() {}
 

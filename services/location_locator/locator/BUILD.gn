@@ -13,9 +13,6 @@
 
 import("//base/location/config.gni")
 import("//build/ohos.gni")
-
-SUBSYSTEM_DIR = "//base/location/services"
-
 ohos_shared_library("lbsservice_locator") {
   sources = [
     "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
@@ -55,9 +52,9 @@ ohos_shared_library("lbsservice_locator") {
   ]
 
   deps = [
+    "$ABILITY_RUNTIME/frameworks/native/ability/native:data_ability_helper",
     "//base/global/i18n/frameworks/intl:intl_util",
     "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//foundation/ability/ability_runtime/frameworks/native/ability/native:data_ability_helper",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
