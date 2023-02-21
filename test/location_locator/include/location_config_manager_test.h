@@ -24,6 +24,7 @@ class LocationConfigManagerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    std::string GetLocationSwitchConfigPath();
 };
 } // namespace Location
 } // namespace OHOS

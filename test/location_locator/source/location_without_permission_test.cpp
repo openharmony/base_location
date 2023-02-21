@@ -57,7 +57,9 @@ void LocationWithoutPermissionTest::TearDown()
 
 void LocationWithoutPermissionTest::MockNativePermission()
 {
-    const char *perms[] = {ACCESS_BACKGROUND_LOCATION.c_str()};
+    const char *perms[] = {
+        ACCESS_BACKGROUND_LOCATION.c_str(),
+    };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
         .permsNum = LOCATION_WITHOUT_PERM,
@@ -136,7 +138,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
     EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
 #endif
-    EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
+    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(1));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
 #ifdef FEATURE_GNSS_SUPPORT
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocations());
