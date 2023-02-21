@@ -355,5 +355,16 @@ bool CommonUtils::CheckAppInstalled(const std::string& bundleName)
     }
     return true;
 }
+
+bool CommonUtils::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
+{
+    sptr<ISystemAbilityManager> samgr =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
+        return false;
+    }
+    return (samgr->CheckSystemAbility(systemAbilityId) != nullptr);
+}
 } // namespace Location
 } // namespace OHOS

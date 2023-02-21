@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,21 @@
  * limitations under the License.
  */
 
-#include "locator.h"
-#include "location_log.h"
-#include "locator_impl.h"
+#ifndef LOCATION_DATA_HANDLER_H
+#define LOCATION_DATA_HANDLER_H
+
+#include "event_handler.h"
 
 namespace OHOS {
 namespace Location {
-Locator::~Locator()
-{}
+class LocationDataHandler : public AppExecFwk::EventHandler {
+public:
+    explicit LocationDataHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~LocationDataHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void HandleSwitchStateChanged(const AppExecFwk::InnerEvent::Pointer &event);
+};
 
-std::unique_ptr<Locator> Locator::GetInstance()
-{
-    std::unique_ptr<LocatorImpl> locator = std::make_unique<LocatorImpl>();
-    return locator;
-}
-}  // namespace Location
-}  // namespace OHOS
+} // namespace Location
+} // namespace OHOS
+#endif // LOCATION_DATA_HANDLER_H

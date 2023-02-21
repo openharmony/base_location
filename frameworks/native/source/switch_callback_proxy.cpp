@@ -13,32 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef PASSIVE_ABILITY_SKELETON_H
-#define PASSIVE_ABILITY_SKELETON_H
-#ifdef FEATURE_PASSIVE_SUPPORT
-
-#include "iremote_stub.h"
+#include "switch_callback_proxy.h"
 
 #include "message_option.h"
 #include "message_parcel.h"
 
-#include "subability_common.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {
-class IPassiveAbility : public ISubAbility {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.IPassiveAbility");
-};
+SwitchCallbackProxy::SwitchCallbackProxy(const sptr<IRemoteObject> &impl)
+    : IRemoteProxy<ISwitchCallback>(impl)
+{
+}
 
-class PassiveAbilityStub : public IRemoteStub<IPassiveAbility> {
-public:
-    int32_t OnRemoteRequest(uint32_t code,
-        MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-    virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
-    virtual void UnloadPassiveSystemAbility() = 0;
-};
+void SwitchCallbackProxy::OnSwitchChange(const int state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    data.WriteInt32(state);
+    MessageOption option = { MessageOption::TF_ASYNC };
+    int error = Remote()->SendRequest(RECEIVE_SWITCH_STATE_EVENT, data, reply, option);
+    LBSLOGI(SWITCH_CALLBACK, "SwitchCallbackProxy::OnSwitchChange Transact ErrCode = %{public}d", error);
+}
 } // namespace Location
 } // namespace OHOS
-#endif // FEATURE_PASSIVE_SUPPORT
-#endif // PASSIVE_ABILITY_SKELETON_H

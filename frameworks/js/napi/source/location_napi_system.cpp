@@ -25,7 +25,7 @@ namespace Location {
 sptr<LocatorCallbackHost> g_systemSingleLocatorCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
 sptr<LocatorCallbackHost> g_systemSubcribeCallbackHost =
-    sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());;
+    sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
 std::unique_ptr<Locator> g_locatorImpl = Locator::GetInstance();
 
 napi_value GetLocationOnce(const napi_env& env,

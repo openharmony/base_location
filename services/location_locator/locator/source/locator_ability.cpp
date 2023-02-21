@@ -19,6 +19,7 @@
 #include "event_runner.h"
 #include "system_ability_definition.h"
 #include "switch_callback_proxy.h"
+#include "uri.h"
 
 #include "common_event_manager.h"
 #include "common_hisysevent.h"
@@ -33,6 +34,7 @@
 #endif
 #include "locator_background_proxy.h"
 #include "location_config_manager.h"
+#include "location_data_rdb_helper.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #ifdef FEATURE_NETWORK_SUPPORT
@@ -54,7 +56,6 @@ const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
-const uint32_t SET_ENABLE = 3;
 #ifdef FEATURE_GNSS_SUPPORT
 const uint32_t REG_GNSS_STATUS = 7;
 const uint32_t UNREG_GNSS_STATUS = 8;
@@ -283,35 +284,6 @@ void LocatorAbility::InitSaAbility()
     if (proxyMap_ == nullptr) {
         return;
     }
-#ifdef FEATURE_GNSS_SUPPORT
-    // init gnss ability sa
-    sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
-    if (objectGnss != nullptr) {
-        proxyMap_->insert(make_pair(GNSS_ABILITY, objectGnss));
-    } else {
-        LBSLOGE(LOCATOR, "GetRemoteObject gnss sa is null");
-    }
-#endif
-#ifdef FEATURE_NETWROK_SUPPORT
-    // init network ability sa
-    sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (objectNetwork != nullptr) {
-        proxyMap_->insert(make_pair(NETWORK_ABILITY, objectNetwork));
-    } else {
-        LBSLOGE(LOCATOR, "GetRemoteObject network sa is null");
-    }
-#endif
-#ifdef FEATURE_PASSIVE_SUPPORT
-    // init passive ability sa
-    sptr<IRemoteObject> objectPassive = CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID,
-        CommonUtils::InitDeviceId());
-    if (objectPassive != nullptr) {
-        proxyMap_->insert(make_pair(PASSIVE_ABILITY, objectPassive));
-    } else {
-        LBSLOGE(LOCATOR, "GetRemoteObject passive sa is null");
-    }
-#endif
     UpdateSaAbilityHandler();
 }
 
@@ -360,38 +332,12 @@ void LocatorAbility::UpdateSaAbilityHandler()
     if (isEnabled_ == currentEnable) {
         return;
     }
-    if (proxyMap_ == nullptr) {
-        return;
-    }
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
         return;
     }
     locatorBackgroundProxy.get()->OnSaStateChange(isEnabled_);
-    for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
-        sptr<IRemoteObject> remoteObject = iter->second;
-        MessageParcel data;
-        if (iter->first == GNSS_ABILITY) {
-#ifdef FEATURE_GNSS_SUPPORT
-            data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
-#endif
-        } else if (iter->first == NETWORK_ABILITY) {
-#ifdef FEATURE_NETWORK_SUPPORT
-            data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
-#endif
-        } else if (iter->first == PASSIVE_ABILITY) {
-#ifdef FEATURE_PASSIVE_SUPPORT
-            data.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
-#endif
-        }
-        data.WriteBool(isEnabled_);
-
-        MessageParcel reply;
-        MessageOption option;
-        int error = remoteObject->SendRequest(SET_ENABLE, data, reply, option);
-        LBSLOGD(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
-    }
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
@@ -407,7 +353,13 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
     }
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
-    LocationConfigManager::GetInstance().SetLocationSwitchState(modeValue);
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errCode =
+        LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     UpdateSaAbility();
     std::string state = isEnabled ? "enable" : "disable";
     WriteLocationSwitchStateEvent(state);
@@ -417,27 +369,21 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
     isEnabled_ = (QuerySwitchState() == ENABLED);
-    if (isEnabled_) {
-#ifdef FEATURE_GNSS_SUPPORT
-        CHK_ERRORCODE_RETURN_VALUE(
-            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID));
-#endif
-#ifdef FEATURE_PASSIVE_SUPPORT
-        CHK_ERRORCODE_RETURN_VALUE(
-            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID));
-#endif
-#ifdef FEATURE_NETWORK_SUPPORT
-        CHK_ERRORCODE_RETURN_VALUE(
-            LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID));
-#endif
-    }
     state = isEnabled_ ? ENABLED : DISABLED;
     return ERRCODE_SUCCESS;
 }
 
 int LocatorAbility::QuerySwitchState()
 {
-    return LocationConfigManager::GetInstance().GetLocationSwitchState();
+    int32_t state = DISABLED;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errCode =
+        LocationDataRdbHelper::GetInstance().GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not query state, reset state.", __func__);
+        LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    }
+    return state;
 }
 
 LocationErrCode LocatorAbility::IsLocationPrivacyConfirmed(const int type, bool& isConfirmed)
@@ -499,16 +445,14 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
 #ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
-    auto remoteObject = proxyMap_->find(GNSS_ABILITY);
-    if (remoteObject == proxyMap_->end()) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    auto obj = remoteObject->second;
-    if (obj == nullptr) {
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+    sptr<IRemoteObject> objectGnss =
+            CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
+    if (objectGnss == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     MessageOption option;
-    obj->SendRequest(type, data, reply, option);
+    objectGnss->SendRequest(type, data, reply, option);
     return LocationErrCode(reply.ReadInt32());
 }
 #endif
@@ -712,14 +656,15 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteOb
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
+    LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
     if (msgId == ENABLE_LOCATION_MOCK) {
-        return gnssProxy->EnableMock();
+        errorCode = gnssProxy->EnableMock();
     } else if (msgId == DISABLE_LOCATION_MOCK) {
-        return gnssProxy->DisableMock();
+        errorCode = gnssProxy->DisableMock();
     } else if (msgId == SET_MOCKED_LOCATIONS) {
-        return gnssProxy->SetMocked(timeInterval, location);
+        errorCode = gnssProxy->SetMocked(timeInterval, location);
     }
-    return ERRCODE_NOT_SUPPORTED;
+    return errorCode;
 }
 #endif
 
@@ -733,14 +678,15 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemot
     }
     std::unique_ptr<NetworkAbilityProxy> networkProxy =
         std::make_unique<NetworkAbilityProxy>(obj);
+    LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
     if (msgId == ENABLE_LOCATION_MOCK) {
-        return networkProxy->EnableMock();
+        errorCode = networkProxy->EnableMock();
     } else if (msgId == DISABLE_LOCATION_MOCK) {
-        return networkProxy->DisableMock();
+        errorCode = networkProxy->DisableMock();
     } else if (msgId == SET_MOCKED_LOCATIONS) {
-        return networkProxy->SetMocked(timeInterval, location);
+        errorCode = networkProxy->SetMocked(timeInterval, location);
     }
-    return ERRCODE_NOT_SUPPORTED;
+    return errorCode;
 }
 #endif
 
@@ -754,14 +700,15 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemot
     }
     std::unique_ptr<PassiveAbilityProxy> passiveProxy =
         std::make_unique<PassiveAbilityProxy>(obj);
+    LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
     if (msgId == ENABLE_LOCATION_MOCK) {
-        return passiveProxy->EnableMock();
+        errorCode = passiveProxy->EnableMock();
     } else if (msgId == DISABLE_LOCATION_MOCK) {
-        return passiveProxy->DisableMock();
+        errorCode = passiveProxy->DisableMock();
     } else if (msgId == SET_MOCKED_LOCATIONS) {
-        return passiveProxy->SetMocked(timeInterval, location);
+        errorCode = passiveProxy->SetMocked(timeInterval, location);
     }
-    return ERRCODE_NOT_SUPPORTED;
+    return errorCode;
 }
 #endif
 
@@ -772,6 +719,9 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     LBSLOGE(LOCATOR, "%{public}s: mock service unavailable", __func__);
     return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+    if (!CheckSaValid()) {
+        UpdateProxyMap();
+    }
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         auto obj = iter->second;
         if (iter->first == GNSS_ABILITY) {
@@ -789,6 +739,42 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
         }
     }
     return ERRCODE_SUCCESS;
+}
+
+void LocatorAbility::UpdateProxyMap()
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    // init gnss ability sa
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+    sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
+    if (objectGnss != nullptr) {
+        proxyMap_->insert(make_pair(GNSS_ABILITY, objectGnss));
+    } else {
+        LBSLOGE(LOCATOR, "GetRemoteObject gnss sa is null");
+    }
+#endif
+#ifdef FEATURE_NETWROK_SUPPORT
+    // init network ability sa
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (objectNetwork != nullptr) {
+        proxyMap_->insert(make_pair(NETWORK_ABILITY, objectNetwork));
+    } else {
+        LBSLOGE(LOCATOR, "GetRemoteObject network sa is null");
+    }
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
+    // init passive ability sa
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    sptr<IRemoteObject> objectPassive = CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID,
+        CommonUtils::InitDeviceId());
+    if (objectPassive != nullptr) {
+        proxyMap_->insert(make_pair(PASSIVE_ABILITY, objectPassive));
+    } else {
+        LBSLOGE(LOCATOR, "GetRemoteObject passive sa is null");
+    }
+#endif
 }
 
 LocationErrCode LocatorAbility::EnableLocationMock()
@@ -822,7 +808,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     if (!CheckSaValid()) {
-        InitSaAbility();
+        UpdateSaAbilityHandler();
     }
     // update offset before add request
     if (reportManager_ == nullptr || requestManager_ == nullptr) {
@@ -1019,6 +1005,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
 #ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
         CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {

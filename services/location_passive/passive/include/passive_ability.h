@@ -63,9 +63,11 @@ public:
     void SendReportMockLocationEvent() override;
     bool IsMockEnabled();
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
+    void UnloadPassiveSystemAbility() override;
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
+    bool CheckIfPassiveConnecting();
 
     std::shared_ptr<PassiveHandler> passiveHandler_;
     bool registerToAbility_ = false;
