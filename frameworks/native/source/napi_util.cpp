@@ -293,7 +293,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
         return COMMON_ERROR;
     }
     std::string str = "";
-    dataParcel.WriteString(description);
+    dataParcel.WriteString16(Str8ToStr16(description));
     dataParcel.WriteDouble(minLatitude); // latitude
     dataParcel.WriteDouble(minLongitude); // longitude
     dataParcel.WriteDouble(maxLatitude); // latitude
