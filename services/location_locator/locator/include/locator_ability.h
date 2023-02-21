@@ -145,6 +145,7 @@ private:
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
+    void UpdateProxyMap();
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

@@ -65,6 +65,7 @@ public:
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
+    void UnloadNetworkSystemAbility() override;
     void ProcessReportLocationMock();
     bool ConnectNlpService();
     bool ReConnectNlpService();
@@ -76,6 +77,7 @@ private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
+    bool CheckIfNetworkConnecting();
 
     bool nlpServiceReady_ = false;
     std::mutex mutex_;

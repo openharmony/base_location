@@ -43,6 +43,13 @@ const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTIN
 const std::string LOCATION_DIR = "/data/service/el1/public/location/";
 const std::string SWITCH_CONFIG_NAME = "location_switch";
 const std::string PRIVACY_CONFIG_NAME = "location_privacy";
+const std::string LOCATION_DATA_ABILITY_PREFIX = "datashare://";
+const std::string LOCATION_DATA_URI_ID =
+    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=location_enable";
+const std::string LOCATION_DATA_URI = LOCATION_DATA_ABILITY_PREFIX + LOCATION_DATA_URI_ID;
+const std::string LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
+const std::string LOCATION_DATA_COLUMN_VALUE = "VALUE";
+const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
@@ -87,6 +94,7 @@ static constexpr double MIN_LONGITUDE = -180.0;
 static constexpr double MAX_LONGITUDE = 180.0;
 static constexpr double DEGREE_DOUBLE_PI = 360.0;
 static constexpr long LONG_TIME_INTERVAL = 24 * 60 * 60;
+static constexpr int32_t LOCATION_LOADSA_TIMEOUT_MS = 500;
 
 static constexpr int PERMISSION_ACCURATE = 2;
 static constexpr int PERMISSION_APPROXIMATELY = 1;
@@ -163,6 +171,7 @@ public:
     static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool CheckAppInstalled(const std::string& bundleName);
+    static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
 };
 
 class CountDownLatch {

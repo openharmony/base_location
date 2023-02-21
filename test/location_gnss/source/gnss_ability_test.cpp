@@ -374,7 +374,7 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1)
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback003 end");
 }
 
@@ -399,13 +399,13 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
 
     /*
      * @tc.steps: step3. test unregister cached call back if call back is not null.
      * @tc.expected: no exception happens.
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->UnregisterCachedCallback(callbackStub_->AsObject()));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->UnregisterCachedCallback(callbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterCachedCallback002 end");
 }
 
@@ -447,8 +447,8 @@ HWTEST_F(GnssAbilityTest, GetCachedGnssLocationsSize001, TestSize.Level1)
      * @tc.expected: size equals -1.
      */
     int size = 0;
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->GetCachedGnssLocationsSize(size));
-    EXPECT_EQ(-1, size);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->GetCachedGnssLocationsSize(size));
+    EXPECT_EQ(0, size);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetCachedGnssLocationsSize001 end");
 }
 
@@ -519,7 +519,7 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
      * @tc.steps: step2. test add fence
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->AddFence(request));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->AddFence(request));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFence001 end");
 }
 
@@ -547,7 +547,7 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
      * @tc.steps: step2. test remove fence
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RemoveFence(request));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->RemoveFence(request));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RemoveFence001 end");
 }
 

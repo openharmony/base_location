@@ -48,6 +48,7 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     }
 
     int ret = ERRCODE_SUCCESS;
+    bool isMessageRequest = false;
     switch (code) {
         case SEND_LOCATION_REQUEST: {
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
@@ -68,10 +69,14 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
         }
         case SET_MOCKED_LOCATIONS: {
             SendMessage(code, data, reply);
+            isMessageRequest = true;
             break;
         }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    }
+    if (!isMessageRequest) {
+        UnloadPassiveSystemAbility();
     }
     return ret;
 }

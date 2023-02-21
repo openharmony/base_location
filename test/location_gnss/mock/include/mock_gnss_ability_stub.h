@@ -55,6 +55,7 @@ public:
     MOCK_METHOD(LocationErrCode, DisableMock, ());
     MOCK_METHOD(LocationErrCode, SetMocked, (const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location));
+    MOCK_METHOD(void, UnloadGnssSystemAbility, ());
 };
 } // namespace Location
 } // namespace OHOS

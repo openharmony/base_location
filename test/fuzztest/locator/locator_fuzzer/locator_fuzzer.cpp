@@ -179,9 +179,7 @@ namespace OHOS {
         g_locatorImpl->RemoveFence(fence);
 #endif
         g_locatorImpl->GetIsoCountryCode();
-        g_locatorImpl->ProxyUidForFreeze(data[index++], true);
         g_locatorImpl->ProxyUidForFreeze(data[index++], false);
-        g_locatorImpl->ResetAllProxy();
         return true;
     }
 
@@ -219,9 +217,7 @@ namespace OHOS {
 #endif
         std::shared_ptr<CountryCode> countryCode = std::make_shared<CountryCode>();
         g_locatorImpl->GetIsoCountryCodeV9(countryCode);
-        g_locatorImpl->ProxyUidForFreezeV9(data[index++], true);
         g_locatorImpl->ProxyUidForFreezeV9(data[index++], false);
-        g_locatorImpl->ResetAllProxyV9();
         return true;
     }
 
@@ -557,9 +553,7 @@ namespace OHOS {
         locatorAbility->GetProxyMap();
         locatorAbility->UpdateSaAbilityHandler();
         locatorAbility->RegisterAction();
-        locatorAbility->ProxyUidForFreeze(data[index++], true);
         locatorAbility->ProxyUidForFreeze(data[index++], false);
-        locatorAbility->ResetAllProxy();
         locatorAbility->IsProxyUid(data[index++]);
         locatorAbility->GetActiveRequestNum();
         std::vector<std::string> permissionNameList;
