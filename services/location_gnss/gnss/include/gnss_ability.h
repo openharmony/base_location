@@ -99,7 +99,6 @@ public:
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
-    void UnloadGnssSystemAbility() override;
     void StartGnss();
     void StopGnss();
     bool EnableGnss();
@@ -117,8 +116,6 @@ private:
     static void SaDumpInfo(std::string& result);
     bool IsGnssEnabled();
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
-    bool CheckIfGnssConnecting();
-    bool IsMockProcessing();
 
     bool isHdiConnected_;
     size_t mockLocationIndex_ = 0;

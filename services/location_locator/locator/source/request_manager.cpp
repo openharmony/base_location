@@ -24,7 +24,6 @@
 #endif
 #include "fusion_controller.h"
 #include "location_log.h"
-#include "location_sa_load_manager.h"
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
 #include "locator_event_manager.h"
@@ -337,24 +336,40 @@ void RequestManager::HandleRequest()
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
-    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
-    lock.lock();
-    auto requests = locatorAbility->GetRequests();
-    lock.unlock();
-    if (requests == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+    auto proxyMap = locatorAbility->GetProxyMap();
+    if (proxyMap->empty()) {
+        LBSLOGE(REQUEST_MANAGER, "proxy map is empty");
         return;
     }
-    std::map<std::string, std::list<std::shared_ptr<Request>>>::iterator iter;
-    for (iter = requests->begin(); iter != requests->end(); ++iter) {
+    std::map<std::string, sptr<IRemoteObject>>::iterator iter;
+    for (iter = proxyMap->begin(); iter != proxyMap->end(); ++iter) {
         std::string abilityName = iter->first;
-        std::list<std::shared_ptr<Request>> requestList = iter->second;
-        HandleRequest(abilityName, requestList);
+        HandleRequest(abilityName);
     }
 }
 
-void RequestManager::HandleRequest(std::string abilityName, std::list<std::shared_ptr<Request>> list)
+void RequestManager::HandleRequest(std::string abilityName)
 {
+    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
+    lock.lock();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        lock.unlock();
+        return;
+    }
+    auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        lock.unlock();
+        return;
+    }
+    auto mapIter = requests->find(abilityName);
+    if (mapIter == requests->end()) {
+        LBSLOGE(REQUEST_MANAGER, "can not find %{public}s ability request list.", abilityName.c_str());
+        lock.unlock();
+        return;
+    }
+    auto list = mapIter->second;
     // generate work record, and calculate interval
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
     for (auto iter = list.begin(); iter != list.end(); iter++) {
@@ -369,7 +384,9 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
             request->GetPackageName().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}s) work record:%{public}s",
+        
         abilityName.c_str(), std::to_string(list.size()).c_str(), workRecord->ToString().c_str());
+    lock.unlock();
 
     ProxySendLocationRequest(abilityName, *workRecord);
 }
@@ -426,11 +443,8 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
 
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
-    int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
-    LocationSaLoadManager::GetInstance().LoadLocationSa(systemAbilityId);
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
+    sptr<IRemoteObject> remoteObject = GetRemoteObject(abilityName);
     if (remoteObject == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
         return;
     }
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());

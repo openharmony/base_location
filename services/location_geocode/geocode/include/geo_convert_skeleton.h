@@ -51,7 +51,6 @@ class GeoConvertServiceStub : public IRemoteStub<IGeoConvert> {
 public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-    virtual void UnloadGeoConvertSystemAbility() = 0;
 private:
     std::vector<std::shared_ptr<GeocodingMockInfo>> ParseGeocodingMockInfos(MessageParcel &data);
 };

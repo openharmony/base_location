@@ -49,13 +49,11 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     }
 
     int ret = ERRCODE_SUCCESS;
-    bool isMessageRequest = false;
     switch (code) {
         case SEND_LOCATION_REQUEST: // fall through
         case SET_MOCKED_LOCATIONS: // fall through
         case SELF_REQUEST: {
             SendMessage(code, data, reply);
-            isMessageRequest = true;
             break;
         }
         case SET_ENABLE: {
@@ -72,9 +70,6 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         }
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
-    }
-    if (!isMessageRequest) {
-        UnloadNetworkSystemAbility();
     }
     return ret;
 }

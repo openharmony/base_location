@@ -23,8 +23,6 @@
 #include "locator_ability.h"
 #include "location_dumper.h"
 #include "request_config.h"
-#include "system_ability_definition.h"
-#include "location_sa_load_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -773,9 +771,7 @@ int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    LocationErrCode errorCode = locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid());
-    reply.WriteInt32(errorCode);
-    isCountryCodeReg_ = (errorCode == ERRCODE_SUCCESS) ? true : isCountryCodeReg_;
+    reply.WriteInt32(locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid()));
     return ERRCODE_SUCCESS;
 }
 
@@ -789,9 +785,7 @@ int LocatorAbilityStub::PreUnregisterCountryCodeCallback(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    LocationErrCode errorCode = locatorAbility->UnregisterCountryCodeCallback(client);
-    reply.WriteInt32(errorCode);
-    isCountryCodeReg_ = (errorCode == ERRCODE_SUCCESS) ? false : isCountryCodeReg_;
+    reply.WriteInt32(locatorAbility->UnregisterCountryCodeCallback(client));
     return ERRCODE_SUCCESS;
 }
 
@@ -815,9 +809,6 @@ int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel 
     int32_t uid = data.ReadInt32();
     bool isProxy = data.ReadBool();
     reply.WriteInt32(locatorAbility->ProxyUidForFreeze(uid, isProxy));
-    if (isProxy) {
-        UnloadLocatorSa();
-    }
     return ERRCODE_SUCCESS;
 }
 
@@ -839,7 +830,6 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(locatorAbility->ResetAllProxy());
-    UnloadLocatorSa();
     return ERRCODE_SUCCESS;
 }
 
@@ -977,14 +967,6 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
     return ERR_OK;
 }
 
-bool LocatorAbilityStub::UnloadLocatorSa()
-{
-    if (!isCountryCodeReg_) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
-    }
-    return true;
-}
-
 LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient()
 {
 }
@@ -1001,11 +983,6 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
         locatorAbility->StopLocating(callback);
         LBSLOGI(LOCATOR, "locator callback OnRemoteDied");
     }
-    LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_GNSS_SA_ID);
-    LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
-    LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
-    LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
-    LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
 }
 
 SwitchCallbackDeathRecipient::SwitchCallbackDeathRecipient()

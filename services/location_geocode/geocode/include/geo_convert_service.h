@@ -55,13 +55,11 @@ public:
     bool DisableReverseGeocodingMock() override;
     LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-    void UnloadGeoConvertSystemAbility() override;
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     int RemoteToService(uint32_t code, MessageParcel &data, MessageParcel &rep);
     void ReportAddressMock(MessageParcel &data, MessageParcel &reply);
-    bool CheckIfGeoConvertConnecting();
 
     bool mockEnabled_ = false;
     bool registerToService_ = false;

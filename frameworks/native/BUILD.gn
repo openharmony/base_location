@@ -11,10 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 ################################################################################
+
 ohos_shared_library("locator_sdk") {
   install_enable = true
 
@@ -24,31 +24,22 @@ ohos_shared_library("locator_sdk") {
     "//base/location/frameworks/js/napi/include",
     "//native_engine",
     "//commonlibrary/c_utils/base/include",
-    "$ABILITY_RUNTIME/interfaces/inner_api/dataobs_manager/include",
   ]
 
   sources = [
-    "$LOCATION_NATIVE_DIR/source/cached_locations_callback_host.cpp",
-    "$LOCATION_NATIVE_DIR/source/country_code_callback_host.cpp",
-    "$LOCATION_NATIVE_DIR/source/gnss_status_callback_host.cpp",
-    "$LOCATION_NATIVE_DIR/source/location_data_handler.cpp",
-    "$LOCATION_NATIVE_DIR/source/location_data_manager.cpp",
-    "$LOCATION_NATIVE_DIR/source/location_data_rdb_observer.cpp",
-    "$LOCATION_NATIVE_DIR/source/location_switch_callback_host.cpp",
-    "$LOCATION_NATIVE_DIR/source/locator.cpp",
-    "$LOCATION_NATIVE_DIR/source/locator_callback_host.cpp",
-    "$LOCATION_NATIVE_DIR/source/locator_impl.cpp",
-    "$LOCATION_NATIVE_DIR/source/locator_proxy.cpp",
-    "$LOCATION_NATIVE_DIR/source/napi_util.cpp",
-    "$LOCATION_NATIVE_DIR/source/nmea_message_callback_host.cpp",
-    "$LOCATION_NATIVE_DIR/source/switch_callback_proxy.cpp",
+    "//base/location/frameworks/native/source/cached_locations_callback_host.cpp",
+    "//base/location/frameworks/native/source/country_code_callback_host.cpp",
+    "//base/location/frameworks/native/source/gnss_status_callback_host.cpp",
+    "//base/location/frameworks/native/source/location_switch_callback_host.cpp",
+    "//base/location/frameworks/native/source/locator.cpp",
+    "//base/location/frameworks/native/source/locator_callback_host.cpp",
+    "//base/location/frameworks/native/source/locator_impl.cpp",
+    "//base/location/frameworks/native/source/locator_proxy.cpp",
+    "//base/location/frameworks/native/source/napi_util.cpp",
+    "//base/location/frameworks/native/source/nmea_message_callback_host.cpp",
   ]
 
   deps = [
-    "$ABILITY_RUNTIME/frameworks/native/ability/native:data_ability_helper",
-    "$ABILITY_RUNTIME/interfaces/inner_api/ability_manager:ability_manager",
-    "$ABILITY_RUNTIME/interfaces/inner_api/dataobs_manager:dataobs_manager",
-    "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/arkui/napi:ace_napi",
@@ -56,16 +47,8 @@ ohos_shared_library("locator_sdk") {
   ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_base:zuri",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "data_share:datashare_common",
-    "data_share:datashare_consumer",
-    "eventhandler:libeventhandler",
     "ipc:ipc_core",
-    "relational_store:native_dataability",
-    "relational_store:native_rdb",
   ]
 
   cflags_cc = [

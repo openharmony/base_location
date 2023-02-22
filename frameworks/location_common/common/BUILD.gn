@@ -25,9 +25,7 @@ ohos_shared_library("lbsservice_common") {
     "$LOCATION_COMMON_ROOT/source/geo_coding_mock_info.cpp",
     "$LOCATION_COMMON_ROOT/source/geofence_state.cpp",
     "$LOCATION_COMMON_ROOT/source/location.cpp",
-    "$LOCATION_COMMON_ROOT/source/location_data_rdb_helper.cpp",
     "$LOCATION_COMMON_ROOT/source/location_dumper.cpp",
-    "$LOCATION_COMMON_ROOT/source/location_sa_load_manager.cpp",
     "$LOCATION_COMMON_ROOT/source/request_config.cpp",
     "$LOCATION_COMMON_ROOT/source/satellite_status.cpp",
   ]
@@ -52,20 +50,15 @@ ohos_shared_library("lbsservice_common") {
   ]
 
   external_deps = [
-    "ability_base:want",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "data_share:datashare_common",
-    "data_share:datashare_consumer",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "os_account:os_account_innerkits",
-    "relational_store:native_dataability",
-    "relational_store:native_rdb",
   ]
 
   part_name = "location"

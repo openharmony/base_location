@@ -31,7 +31,6 @@ if (location_feature_with_geocode) {
       "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
       "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     ]
 
     defines = []

@@ -18,7 +18,6 @@
 #include <file_ex.h>
 #include "geo_address.h"
 #include "location_dumper.h"
-#include "location_sa_load_manager.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -150,23 +149,9 @@ LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
     LBSLOGD(GEO_CONVERT, "SetReverseGeocodingMockInfo");
-    std::unique_lock<std::mutex> lock(mockInfoMutex_, std::defer_lock);
-    lock.lock();
+    std::lock_guard lock(mockInfoMutex_);
     mockInfo_.assign(mockInfo.begin(), mockInfo.end());
-    lock.unlock();
     return ERRCODE_SUCCESS;
-}
-
-void GeoConvertService::UnloadGeoConvertSystemAbility()
-{
-    if (!CheckIfGeoConvertConnecting()) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
-    }
-}
-
-bool GeoConvertService::CheckIfGeoConvertConnecting()
-{
-    return mockEnabled_;
 }
 
 void GeoConvertService::SaDumpInfo(std::string& result)

@@ -28,8 +28,6 @@ START_UP_ROOT_DIR = "//base/startup"
 GOOGLE_TEST_DIR = "//third_party/googletest"
 LIB_UV_DIR = "//third_party/libuv"
 DFX_HILOG_DIR = "//base/hiviewdfx/hilog"
-ABILITY_RUNTIME = "//foundation/ability/ability_runtime"
-LOCATION_NATIVE_DIR = "$LOCATION_ROOT_DIR/frameworks/native"
 
 declare_args() {
   location_feature_with_geocode = true

@@ -45,7 +45,7 @@ private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
     void DeleteRequestRecord(std::shared_ptr<std::list<std::shared_ptr<Request>>> requests);
-    void HandleRequest(std::string abilityName, std::list<std::shared_ptr<Request>> list);
+    void HandleRequest(std::string abilityName);
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
