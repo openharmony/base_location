@@ -25,7 +25,12 @@ Locator::~Locator()
 std::unique_ptr<Locator> Locator::GetInstance()
 {
     std::unique_ptr<LocatorImpl> locator = std::make_unique<LocatorImpl>();
-    return locator;
+    if (locator->Init()) {
+        LBSLOGI(LOCATOR_STANDARD, "init successfully!");
+        return locator;
+    }
+    LBSLOGE(LOCATOR_STANDARD, "new locator_standard failed!");
+    return nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS

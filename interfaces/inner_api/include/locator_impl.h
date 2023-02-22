@@ -114,28 +114,8 @@ public:
     LocationErrCode SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) override;
     LocationErrCode ResetAllProxyV9() override;
-    void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
-
 private:
-    class LocatorDeathRecipient : public IRemoteObject::DeathRecipient {
-    public:
-        explicit LocatorDeathRecipient(LocatorImpl &impl) : impl_(impl) {}
-        ~LocatorDeathRecipient() override = default;
-        void OnRemoteDied(const wptr<IRemoteObject> &remote) override
-        {
-            impl_.ResetLocatorProxy(remote);
-        }
-    private:
-        LocatorImpl &impl_;
-    };
-
-private:
-    sptr<LocatorProxy> GetProxy();
-
-    sptr<LocatorProxy> client_ { nullptr };
-    sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
-    bool state_ = false;
-    std::mutex mutex_;
+    std::unique_ptr<LocatorProxy> client_;
 };
 }  // namespace Location
 }  // namespace OHOS

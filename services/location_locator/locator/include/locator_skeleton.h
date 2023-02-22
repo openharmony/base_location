@@ -87,13 +87,11 @@ private:
 
 private:
     LocatorMsgHandleMap locatorHandleMap_;
-    bool isCountryCodeReg_ = false;
     bool CheckLocationPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckSettingsPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity);
     bool CheckLocationSwitchState(MessageParcel &reply);
     static void SaDumpInfo(std::string& result);
-    bool UnloadLocatorSa();
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

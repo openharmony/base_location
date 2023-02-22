@@ -72,7 +72,6 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         default:
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    UnloadGeoConvertSystemAbility();
     return ret;
 }
 

@@ -33,7 +33,6 @@
 #include "i_cached_locations_callback.h"
 #include "location_dumper.h"
 #include "location_log.h"
-#include "location_sa_load_manager.h"
 #include "locator_ability.h"
 
 namespace OHOS {
@@ -122,27 +121,8 @@ LocationErrCode GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode GnssAbility::SetEnable(bool state)
 {
-    if (state) {
-        Enable(true, AsObject());
-        return ERRCODE_SUCCESS;
-    }
-    if (!CheckIfGnssConnecting()) {
-        Enable(false, AsObject());
-    }
+    Enable(state, AsObject());
     return ERRCODE_SUCCESS;
-}
-
-void GnssAbility::UnloadGnssSystemAbility()
-{
-    if (!CheckIfGnssConnecting()) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_GNSS_SA_ID);
-    }
-}
-
-bool GnssAbility::CheckIfGnssConnecting()
-{
-    return IsMockEnabled() || !gnssStatusCallback_->empty()
-        || !nmeaCallback_->empty() || isHdiConnected_ || IsMockProcessing();
 }
 
 LocationErrCode GnssAbility::RefrashRequirements()
@@ -595,12 +575,6 @@ bool GnssAbility::IsMockEnabled()
     return IsLocationMocked();
 }
 
-bool GnssAbility::IsMockProcessing()
-{
-    auto loc = GetLocationMock();
-    return !loc.empty();
-}
-
 void GnssAbility::ProcessReportLocationMock()
 {
     std::vector<std::shared_ptr<Location>> mockLocationArray = GetLocationMock();
@@ -740,7 +714,6 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         default:
             break;
     }
-    gnssAbility->UnloadGnssSystemAbility();
 }
 } // namespace Location
 } // namespace OHOS

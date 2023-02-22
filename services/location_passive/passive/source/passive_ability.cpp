@@ -27,7 +27,6 @@
 #include "location.h"
 #include "location_dumper.h"
 #include "location_log.h"
-#include "location_sa_load_manager.h"
 #include "work_record.h"
 
 namespace OHOS {
@@ -87,26 +86,8 @@ LocationErrCode PassiveAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode PassiveAbility::SetEnable(bool state)
 {
-    if (state) {
-        Enable(true, AsObject());
-        return ERRCODE_SUCCESS;
-    }
-    if (!CheckIfPassiveConnecting()) {
-        Enable(false, AsObject());
-    }
+    Enable(state, AsObject());
     return ERRCODE_SUCCESS;
-}
-
-void PassiveAbility::UnloadPassiveSystemAbility()
-{
-    if (!CheckIfPassiveConnecting()) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
-    }
-}
-
-bool PassiveAbility::CheckIfPassiveConnecting()
-{
-    return IsMockEnabled() || !GetLocationMock().empty();
 }
 
 void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
@@ -146,7 +127,6 @@ LocationErrCode PassiveAbility::SetMocked(const int timeInterval,
 
 void PassiveAbility::SendReportMockLocationEvent()
 {
-    ClearLocationMock();
 }
 
 void PassiveAbility::SaDumpInfo(std::string& result)
@@ -213,10 +193,6 @@ PassiveHandler::~PassiveHandler() {}
 
 void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto passiveAbility = DelayedSingleton<PassiveAbility>::GetInstance();
-    if (passiveAbility == nullptr) {
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(PASSIVE, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
@@ -230,6 +206,7 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
                 mockLocations.push_back(*it);
             }
+            auto passiveAbility = DelayedSingleton<PassiveAbility>::GetInstance();
             if (passiveAbility != nullptr) {
                 passiveAbility->SetMocked(timeInterval, mockLocations);
             }
@@ -238,7 +215,6 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         default:
             break;
     }
-    passiveAbility->UnloadPassiveSystemAbility();
 }
 } // namespace Location
 } // namespace OHOS
