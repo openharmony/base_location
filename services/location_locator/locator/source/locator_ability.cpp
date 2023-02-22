@@ -18,7 +18,6 @@
 #include "accesstoken_kit.h"
 #include "event_runner.h"
 #include "system_ability_definition.h"
-#include "switch_callback_proxy.h"
 #include "uri.h"
 
 #include "common_event_manager.h"
@@ -338,11 +337,6 @@ void LocatorAbility::UpdateSaAbilityHandler()
         return;
     }
     locatorBackgroundProxy.get()->OnSaStateChange(isEnabled_);
-    for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
-        sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
-        auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
-        callback->OnSwitchChange(state);
-    }
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
