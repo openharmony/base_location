@@ -29,6 +29,7 @@
 #include "location_config_manager.h"
 #include "location_dumper.h"
 #include "location_log.h"
+#include "location_sa_load_manager.h"
 #include "locator_ability.h"
 #include "network_callback_host.h"
 
@@ -182,8 +183,26 @@ LocationErrCode NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode NetworkAbility::SetEnable(bool state)
 {
-    Enable(state, AsObject());
+    if (state) {
+        Enable(true, AsObject());
+        return ERRCODE_SUCCESS;
+    }
+    if (!CheckIfNetworkConnecting()) {
+        Enable(false, AsObject());
+    }
     return ERRCODE_SUCCESS;
+}
+
+void NetworkAbility::UnloadNetworkSystemAbility()
+{
+    if (!CheckIfNetworkConnecting()) {
+        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    }
+}
+
+bool NetworkAbility::CheckIfNetworkConnecting()
+{
+    return IsMockEnabled() || !GetLocationMock().empty() || nlpServiceReady_;
 }
 
 LocationErrCode NetworkAbility::SelfRequest(bool state)
@@ -446,6 +465,7 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         default:
             break;
     }
+    networkAbility->UnloadNetworkSystemAbility();
 }
 } // namespace Location
 } // namespace OHOS

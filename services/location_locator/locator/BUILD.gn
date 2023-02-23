@@ -13,9 +13,6 @@
 
 import("//base/location/config.gni")
 import("//build/ohos.gni")
-
-SUBSYSTEM_DIR = "//base/location/services"
-
 ohos_shared_library("lbsservice_locator") {
   sources = [
     "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
@@ -23,13 +20,11 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/switch_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/country_code_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/location_config_manager.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/location_sa_load_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_ability.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_background_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_manager.cpp",
@@ -56,6 +51,7 @@ ohos_shared_library("lbsservice_locator") {
   ]
 
   deps = [
+    "$ABILITY_RUNTIME/frameworks/native/ability/native:data_ability_helper",
     "//base/global/i18n/frameworks/intl:intl_util",
     "//base/location/frameworks/location_common/common:lbsservice_common",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
@@ -65,17 +61,23 @@ ohos_shared_library("lbsservice_locator") {
 
   external_deps = [
     "ability_base:want",
+    "ability_base:zuri",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "cellular_data:tel_cellular_data_api",
     "common_event_service:cesfwk_innerkits",
     "core_service:tel_core_service_api",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "os_account:os_account_innerkits",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
   ]
 
   defines = []

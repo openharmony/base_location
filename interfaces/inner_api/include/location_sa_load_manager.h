@@ -16,6 +16,7 @@
 #ifndef OHOS_LOCATION_SA_LOAD_MANAGER_H
 #define OHOS_LOCATION_SA_LOAD_MANAGER_H
 
+#include <condition_variable>
 #include "iremote_object.h"
 
 #include "constant_definition.h"
@@ -35,6 +36,12 @@ class LocationSaLoadManager {
 public:
     LocationErrCode LoadLocationSa(int32_t systemAbilityId);
     LocationErrCode UnloadLocationSa(int32_t systemAbilityId);
+    void LoadSystemAbilitySuccess();
+    void LoadSystemAbilityFail();
+private:
+    std::condition_variable locatorCon_;
+    std::mutex locatorMutex_;
+    bool state_ = false;
 };
 }  // namespace Location
 }  // namespace OHOS
