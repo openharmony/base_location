@@ -623,10 +623,10 @@ int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel 
     std::shared_ptr<CountryCode> country;
     reply.WriteInt32(locatorAbility->GetIsoCountryCode(country));
     if (country) {
-        reply.WriteString(country->GetCountryCodeStr());
+        reply.WriteString16(Str8ToStr16(country->GetCountryCodeStr()));
         reply.WriteInt32(country->GetCountryCodeType());
     } else {
-        reply.WriteString("");
+        reply.WriteString16(Str8ToStr16(""));
         reply.WriteInt32(COUNTRY_CODE_FROM_LOCALE);
     }
     return ERRCODE_SUCCESS;
