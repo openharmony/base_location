@@ -109,6 +109,13 @@ public:
     SwitchCallbackDeathRecipient();
     ~SwitchCallbackDeathRecipient() override;
 };
+
+class CountryCodeCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    CountryCodeCallbackDeathRecipient();
+    ~CountryCodeCallbackDeathRecipient() override;
+};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_SKELETON_H

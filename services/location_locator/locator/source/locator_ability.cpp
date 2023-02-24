@@ -53,8 +53,10 @@ const uint32_t EVENT_UPDATE_SA = 0x0001;
 const uint32_t EVENT_INIT_REQUEST_MANAGER = 0x0002;
 const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
+const uint32_t EVENT_UNLOAD_SA = 0x0010;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
+const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 5 * RETRY_INTERVAL_UNITE;
 #ifdef FEATURE_GNSS_SUPPORT
 const uint32_t REG_GNSS_STATUS = 7;
 const uint32_t UNREG_GNSS_STATUS = 8;
@@ -212,6 +214,12 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             }
             break;
         }
+        case EVENT_UNLOAD_SA: {
+            if (locatorAbility != nullptr) {
+                LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+            }
+            break;
+        }
         default:
             break;
     }
@@ -337,6 +345,13 @@ void LocatorAbility::UpdateSaAbilityHandler()
         return;
     }
     locatorBackgroundProxy.get()->OnSaStateChange(isEnabled_);
+}
+
+void LocatorAbility::UnloadSaAbility()
+{
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendHighPriorityEvent(EVENT_UNLOAD_SA, 0, RETRY_INTERVAL_OF_UNLOAD_SA);
+    }
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
