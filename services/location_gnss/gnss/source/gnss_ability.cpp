@@ -36,6 +36,7 @@
 #include "location_sa_load_manager.h"
 #include "locator_ability.h"
 
+using namespace OHOS::HDI;
 namespace OHOS {
 namespace Location {
 namespace {
@@ -299,6 +300,17 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
+void GnssAbility::ReConnectHdi()
+{
+    LBSLOGI(GNSS, "%{public}s called", __func__);
+    ConnectHdi();
+    EnableGnss();
+    SetAgnssCallback();
+    SetAgnssServer();
+    isHdiConnected_ = true;
+    StartGnss();
+}
+
 LocationErrCode GnssAbility::GetCachedGnssLocationsSize(int& size)
 {
     size = -1;
@@ -451,6 +463,7 @@ bool GnssAbility::ConnectHdi()
             LBSLOGI(GNSS, "connect v1_0 hdi success.");
             gnssCallback_ = new (std::nothrow) GnssEventCallback();
             agnssCallback_ = new (std::nothrow) AGnssEventCallback();
+            RegisterLocationHdiDeathRecipient();
             lock.unlock();
             return true;
         }
@@ -700,6 +713,21 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
     }
 }
 
+void RegisterLocationHdiDeathRecipient()
+{
+    if (gnssInterface_ == nullptr) {
+        LBSLOGE(GNSS, "%{public}s: gnssInterface_ is nullptr", __func__);
+        return;
+    }
+    sptr<IRemoteObject> obj = hdi_objcast<IGnssInterface>(gnssInterface_);
+    if (obj == nullptr) {
+        LBSLOGE(GNSS, "%{public}s: hdi obj is nullptr", __func__);
+        return;
+    }
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocationHdiDeathRecipient());
+    obj->AddDeathRecipient(death.GetRefPtr());
+}
+
 GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
 
 GnssHandler::~GnssHandler() {}
@@ -741,6 +769,24 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             break;
     }
     gnssAbility->UnloadGnssSystemAbility();
+}
+
+LocationHdiDeathRecipient::LocationHdiDeathRecipient()
+{
+}
+
+LocationHdiDeathRecipient::~LocationHdiDeathRecipient()
+{
+}
+
+void LocationHdiDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility != nullptr) {
+        LBSLOGI(LOCATOR, "hdi reconnecting");
+        gnssAbility->ReConnectHdi();
+        LBSLOGI(LOCATOR, "hdi connected finish");
+    }
 }
 } // namespace Location
 } // namespace OHOS
