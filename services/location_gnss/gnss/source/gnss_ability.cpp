@@ -157,7 +157,8 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
         LBSLOGE(GNSS, "register an invalid gnssStatus callback");
         return ERRCODE_INVALID_PARAM;
     }
-
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
+    callback->AddDeathRecipient(death.GetRefPtr());
     sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
     if (gnssStatusCallback == nullptr) {
         LBSLOGE(GNSS, "cast switch callback fail!");
@@ -202,7 +203,8 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
         LBSLOGE(GNSS, "register an invalid nmea callback");
         return ERRCODE_INVALID_PARAM;
     }
-
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
+    callback->AddDeathRecipient(death.GetRefPtr());
     sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
     if (nmeaCallback == nullptr) {
         LBSLOGE(GNSS, "cast nmea callback fail!");
@@ -248,7 +250,8 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
         LBSLOGE(GNSS, "register an invalid cached location callback");
         return ERRCODE_INVALID_PARAM;
     }
-
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CachedLocationCallbackDeathRecipient());
+    callback->AddDeathRecipient(death.GetRefPtr());
     sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
     if (cachedCallback == nullptr) {
         LBSLOGE(GNSS, "cast cached location callback fail!");

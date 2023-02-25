@@ -146,6 +146,57 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     }
     return ret;
 }
+
+GnssStatusCallbackDeathRecipient::GnssStatusCallbackDeathRecipient()
+{
+}
+
+GnssStatusCallbackDeathRecipient::~GnssStatusCallbackDeathRecipient()
+{
+}
+
+void GnssStatusCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility != nullptr) {
+        gnssAbility->UnregisterGnssStatusCallback(remote.promote());
+        LBSLOGI(LOCATOR, "gnss status callback OnRemoteDied");
+    }
+}
+
+NmeaCallbackDeathRecipient::NmeaCallbackDeathRecipient()
+{
+}
+
+NmeaCallbackDeathRecipient::~NmeaCallbackDeathRecipient()
+{
+}
+
+void NmeaCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility != nullptr) {
+        gnssAbility->UnregisterNmeaMessageCallback(remote.promote());
+        LBSLOGI(LOCATOR, "nmea callback OnRemoteDied");
+    }
+}
+
+CachedLocationCallbackDeathRecipient::CachedLocationCallbackDeathRecipient()
+{
+}
+
+CachedLocationCallbackDeathRecipient::~CachedLocationCallbackDeathRecipient()
+{
+}
+
+void CachedLocationCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility != nullptr) {
+        gnssAbility->UnregisterCachedCallback(remote.promote());
+        LBSLOGI(LOCATOR, "cached location callback OnRemoteDied");
+    }
+}
 } // namespace Location
 } // namespace OHOS
 #endif

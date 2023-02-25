@@ -53,6 +53,27 @@ public:
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
     virtual void UnloadGnssSystemAbility() = 0;
 };
+
+class GnssStatusCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    GnssStatusCallbackDeathRecipient();
+    ~GnssStatusCallbackDeathRecipient() override;
+};
+
+class NmeaCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    NmeaCallbackDeathRecipient();
+    ~NmeaCallbackDeathRecipient() override;
+};
+
+class CachedLocationCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    CachedLocationCallbackDeathRecipient();
+    ~CachedLocationCallbackDeathRecipient() override;
+};
 } // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT

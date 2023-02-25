@@ -134,6 +134,7 @@ public:
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
+    void UnloadSaAbility();
 
 private:
     bool Init();
