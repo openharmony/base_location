@@ -1108,7 +1108,6 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remote is nullptr.", __func__);
         return;
     }
-    std::lock_guard<std::mutex> lock(mutex_);
     if (client_ == nullptr || !state_) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: proxy is nullptr.", __func__);
         return;

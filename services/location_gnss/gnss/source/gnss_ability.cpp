@@ -23,6 +23,7 @@
 #include "event_runner.h"
 #include "idevmgr_hdi.h"
 #include "ipc_skeleton.h"
+#include "iproxy_broker.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
@@ -36,7 +37,6 @@
 #include "location_sa_load_manager.h"
 #include "locator_ability.h"
 
-using namespace OHOS::HDI;
 namespace OHOS {
 namespace Location {
 namespace {
@@ -158,7 +158,8 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
         LBSLOGE(GNSS, "register an invalid gnssStatus callback");
         return ERRCODE_INVALID_PARAM;
     }
-
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
+    callback->AddDeathRecipient(death.GetRefPtr());
     sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
     if (gnssStatusCallback == nullptr) {
         LBSLOGE(GNSS, "cast switch callback fail!");
@@ -203,7 +204,8 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
         LBSLOGE(GNSS, "register an invalid nmea callback");
         return ERRCODE_INVALID_PARAM;
     }
-
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
+    callback->AddDeathRecipient(death.GetRefPtr());
     sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
     if (nmeaCallback == nullptr) {
         LBSLOGE(GNSS, "cast nmea callback fail!");
@@ -249,7 +251,8 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
         LBSLOGE(GNSS, "register an invalid cached location callback");
         return ERRCODE_INVALID_PARAM;
     }
-
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CachedLocationCallbackDeathRecipient());
+    callback->AddDeathRecipient(death.GetRefPtr());
     sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
     if (cachedCallback == nullptr) {
         LBSLOGE(GNSS, "cast cached location callback fail!");
@@ -303,11 +306,13 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 void GnssAbility::ReConnectHdi()
 {
     LBSLOGI(GNSS, "%{public}s called", __func__);
+    if (!isHdiConnected_) {
+        LBSLOGI(GNSS, "%{public}s: HDI should be disconnected", __func__);
+    }
     ConnectHdi();
     EnableGnss();
     SetAgnssCallback();
     SetAgnssServer();
-    isHdiConnected_ = true;
     StartGnss();
 }
 
@@ -713,13 +718,13 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
     }
 }
 
-void RegisterLocationHdiDeathRecipient()
+void GnssAbility::RegisterLocationHdiDeathRecipient()
 {
     if (gnssInterface_ == nullptr) {
         LBSLOGE(GNSS, "%{public}s: gnssInterface_ is nullptr", __func__);
         return;
     }
-    sptr<IRemoteObject> obj = hdi_objcast<IGnssInterface>(gnssInterface_);
+    sptr<IRemoteObject> obj = OHOS::HDI::hdi_objcast<IGnssInterface>(gnssInterface_);
     if (obj == nullptr) {
         LBSLOGE(GNSS, "%{public}s: hdi obj is nullptr", __func__);
         return;

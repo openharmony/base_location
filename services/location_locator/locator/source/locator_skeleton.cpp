@@ -470,7 +470,6 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_INVALID_PARAM);
         return ERRCODE_INVALID_PARAM;
     }
-
     sptr<ICachedLocationsCallback> callback = iface_cast<ICachedLocationsCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->RegisterCachedLocationCallback(requestConfig, callback, bundleName));
     return ERRCODE_SUCCESS;
@@ -773,6 +772,13 @@ int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+    if (client == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: client is nullptr.", __func__);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CountryCodeCallbackDeathRecipient());
+    client->AddDeathRecipient(death.GetRefPtr());
     LocationErrCode errorCode = locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid());
     reply.WriteInt32(errorCode);
     isCountryCodeReg_ = (errorCode == ERRCODE_SUCCESS) ? true : isCountryCodeReg_;
@@ -815,9 +821,6 @@ int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel 
     int32_t uid = data.ReadInt32();
     bool isProxy = data.ReadBool();
     reply.WriteInt32(locatorAbility->ProxyUidForFreeze(uid, isProxy));
-    if (isProxy) {
-        UnloadLocatorSa();
-    }
     return ERRCODE_SUCCESS;
 }
 
@@ -839,7 +842,6 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(locatorAbility->ResetAllProxy());
-    UnloadLocatorSa();
     return ERRCODE_SUCCESS;
 }
 
@@ -943,6 +945,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         ret = ERRCODE_NOT_SUPPORTED;
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
+    UnloadLocatorSa();
     return ret;
 }
 
@@ -980,7 +983,12 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
 bool LocatorAbilityStub::UnloadLocatorSa()
 {
     if (!isCountryCodeReg_) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+        auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+        if (locatorAbility == nullptr) {
+            LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
+            return false;
+        }
+        locatorAbility->UnloadSaAbility();
     }
     return true;
 }
@@ -1017,6 +1025,23 @@ void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remot
     if (locatorAbility != nullptr) {
         locatorAbility->UnregisterSwitchCallback(remote.promote());
         LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
+    }
+}
+
+CountryCodeCallbackDeathRecipient::CountryCodeCallbackDeathRecipient()
+{
+}
+
+CountryCodeCallbackDeathRecipient::~CountryCodeCallbackDeathRecipient()
+{
+}
+
+void CountryCodeCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->UnregisterCountryCodeCallback(remote.promote());
+        LBSLOGI(LOCATOR, "countrycode callback OnRemoteDied");
     }
 }
 } // namespace Location

@@ -38,9 +38,6 @@ CountryCodeManager::CountryCodeManager()
     countryCodeCallback_ = std::make_unique<std::map<pid_t, sptr<ICountryCodeCallback>>>();
     simSubscriber_ = nullptr;
     networkSubscriber_ = nullptr;
-#ifdef FEATURE_PASSIVE_SUPPORT
-    StartPassiveLocationListen();
-#endif
     SubscribeLocaleConfigEvent();
 }
 
