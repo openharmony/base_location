@@ -762,7 +762,7 @@ void LocatorAbility::UpdateProxyMap()
         LBSLOGE(LOCATOR, "GetRemoteObject gnss sa is null");
     }
 #endif
-#ifdef FEATURE_NETWROK_SUPPORT
+#ifdef FEATURE_NETWORK_SUPPORT
     // init network ability sa
     LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,

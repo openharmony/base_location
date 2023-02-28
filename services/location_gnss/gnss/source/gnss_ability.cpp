@@ -48,7 +48,6 @@ const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
-constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -454,10 +453,6 @@ bool GnssAbility::ConnectHdi()
         LBSLOGE(GNSS, "Load agnss service failed!");
         return false;
     }
-    if (devmgr->LoadDevice(GEOFENCE_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load geofence service failed!");
-        return false;
-    }
     int32_t retry = 0;
     while (retry < GET_HDI_SERVICE_COUNT) {
         std::unique_lock<std::mutex> lock(gnssMutex_, std::defer_lock);
@@ -494,10 +489,6 @@ bool GnssAbility::RemoveHdi()
     }
     if (devmgr->UnloadDevice(AGNSS_SERVICE_NAME) != 0) {
         LBSLOGE(GNSS, "Load agnss service failed!");
-        return false;
-    }
-    if (devmgr->UnloadDevice(GEOFENCE_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load geofence service failed!");
         return false;
     }
     return true;
@@ -789,6 +780,8 @@ void LocationHdiDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
     if (gnssAbility != nullptr) {
         LBSLOGI(LOCATOR, "hdi reconnecting");
+        // wait for device unloaded
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
         gnssAbility->ReConnectHdi();
         LBSLOGI(LOCATOR, "hdi connected finish");
     }
