@@ -60,8 +60,8 @@ const double MOCK_LONGITUDE = 100.0;
 #endif
 void LocatorImplTest::SetUp()
 {
-    LoadSystemAbility();
     MockNativePermission();
+    LoadSystemAbility();
     locatorImpl_ = Locator::GetInstance();
     ASSERT_TRUE(locatorImpl_ != nullptr);
     callbackStub_ = new (std::nothrow) LocatorCallbackStub();

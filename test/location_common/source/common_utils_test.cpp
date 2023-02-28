@@ -26,6 +26,7 @@
 
 #include "common_utils.h"
 #include "location_log.h"
+#include "location_sa_load_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -39,6 +40,7 @@ const double NUM_ACC_E6 = 1.000001;
 const double NUM_ACC_E7 = 1.0000001;
 void CommonUtilsTest::SetUp()
 {
+    LoadSystemAbility();
 }
 
 void CommonUtilsTest::TearDown()
@@ -106,6 +108,23 @@ void CommonUtilsTest::MockNativeAccurateLocation()
     tokenIdForAcc_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenIdForAcc_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
+
+void CommonUtilsTest::LoadSystemAbility()
+{
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+#ifdef FEATURE_GNSS_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+#endif
+#ifdef FEATURE_PASSIVE_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+#endif
+#ifdef FEATURE_GEOCODE_SUPPORT
+    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+#endif
 }
 
 HWTEST_F(CommonUtilsTest, AbilityConvertToIdTest001, TestSize.Level1)

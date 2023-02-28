@@ -27,6 +27,7 @@ public:
     void MockNativePermission();
     void MockNativeApproxiPermission();
     void MockNativeAccurateLocation();
+    void LoadSystemAbility();
 
     uint64_t tokenId_;
     uint64_t tokenIdForApproxi_;

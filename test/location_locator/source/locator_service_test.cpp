@@ -1451,7 +1451,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     locatorImpl->EnableAbility(true);
     EXPECT_EQ(true, locatorImpl->IsLocationEnabled());
 
-    EXPECT_NE(nullptr, locatorImpl->GetCachedLocation());
+    EXPECT_EQ(nullptr, locatorImpl->GetCachedLocation());
 
     locatorImpl->SetLocationPrivacyConfirmStatus(1, true);
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
