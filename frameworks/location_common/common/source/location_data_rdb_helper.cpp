@@ -67,6 +67,10 @@ void LocationDataRdbHelper::Initialize()
 
 std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataShareHelper()
 {
+    if (remoteObj_ == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: remoteObject is nullptr, reInitialize", __func__);
+        Initialize();
+    }
     return DataShare::DataShareHelper::Creator(remoteObj_, LOCATION_DATA_URI);
 }
 

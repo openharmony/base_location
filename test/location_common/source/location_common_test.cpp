@@ -75,28 +75,28 @@ void LocationCommonTest::TearDown()
 void LocationCommonTest::SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress)
 {
     MessageParcel parcel;
-    parcel.WriteString("localeLanguage");
-    parcel.WriteString("localeCountry");
+    parcel.WriteString16(u"localeLanguage");
+    parcel.WriteString16(u"localeCountry");
     parcel.WriteInt32(1); // size
     parcel.WriteInt32(0); // line
-    parcel.WriteString("line");
-    parcel.WriteString("placeName");
-    parcel.WriteString("administrativeArea");
-    parcel.WriteString("subAdministrativeArea");
-    parcel.WriteString("locality");
-    parcel.WriteString("subLocality");
-    parcel.WriteString("roadName");
-    parcel.WriteString("subRoadName");
-    parcel.WriteString("premises");
-    parcel.WriteString("postalCode");
-    parcel.WriteString("countryCode");
-    parcel.WriteString("countryName");
+    parcel.WriteString16(u"line");
+    parcel.WriteString16(u"placeName");
+    parcel.WriteString16(u"administrativeArea");
+    parcel.WriteString16(u"subAdministrativeArea");
+    parcel.WriteString16(u"locality");
+    parcel.WriteString16(u"subLocality");
+    parcel.WriteString16(u"roadName");
+    parcel.WriteString16(u"subRoadName");
+    parcel.WriteString16(u"premises");
+    parcel.WriteString16(u"postalCode");
+    parcel.WriteString16(u"countryCode");
+    parcel.WriteString16(u"countryName");
     parcel.WriteInt32(1); // hasLatitude
     parcel.WriteDouble(MOCK_LATITUDE); // latitude
     parcel.WriteInt32(1); // hasLongitude
     parcel.WriteDouble(MOCK_LONGITUDE); // longitude
-    parcel.WriteString("phoneNumber");
-    parcel.WriteString("addressUrl");
+    parcel.WriteString16(u"phoneNumber");
+    parcel.WriteString16(u"addressUrl");
     parcel.WriteBool(true);
     geoAddress->ReadFromParcel(parcel);
 }
@@ -136,28 +136,28 @@ void LocationCommonTest::VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddre
 #ifdef FEATURE_GEOCODE_SUPPORT
 void LocationCommonTest::VerifyGeoAddressMarshalling(MessageParcel& newParcel)
 {
-    EXPECT_EQ("localeLanguage", newParcel.ReadString());
-    EXPECT_EQ("localeCountry", newParcel.ReadString());
+    EXPECT_EQ("localeLanguage", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("localeCountry", Str16ToStr8(newParcel.ReadString16()));
     EXPECT_EQ(1, newParcel.ReadInt32());
     EXPECT_EQ(0, newParcel.ReadInt32());
-    EXPECT_EQ("line", newParcel.ReadString());
-    EXPECT_EQ("placeName", newParcel.ReadString());
-    EXPECT_EQ("administrativeArea", newParcel.ReadString());
-    EXPECT_EQ("subAdministrativeArea", newParcel.ReadString());
-    EXPECT_EQ("locality", newParcel.ReadString());
-    EXPECT_EQ("subLocality", newParcel.ReadString());
-    EXPECT_EQ("roadName", newParcel.ReadString());
-    EXPECT_EQ("subRoadName", newParcel.ReadString());
-    EXPECT_EQ("premises", newParcel.ReadString());
-    EXPECT_EQ("postalCode", newParcel.ReadString());
-    EXPECT_EQ("countryCode", newParcel.ReadString());
-    EXPECT_EQ("countryName", newParcel.ReadString());
+    EXPECT_EQ("line", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("placeName", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("administrativeArea", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("subAdministrativeArea", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("locality", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("subLocality", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("roadName", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("subRoadName", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("premises", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("postalCode", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("countryCode", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("countryName", Str16ToStr8(newParcel.ReadString16()));
     EXPECT_EQ(1, newParcel.ReadInt32());
     EXPECT_EQ(MOCK_LATITUDE, newParcel.ReadDouble());
     EXPECT_EQ(1, newParcel.ReadInt32());
     EXPECT_EQ(MOCK_LONGITUDE, newParcel.ReadDouble());
-    EXPECT_EQ("phoneNumber", newParcel.ReadString());
-    EXPECT_EQ("addressUrl", newParcel.ReadString());
+    EXPECT_EQ("phoneNumber", Str16ToStr8(newParcel.ReadString16()));
+    EXPECT_EQ("addressUrl", Str16ToStr8(newParcel.ReadString16()));
     EXPECT_EQ(true, newParcel.ReadBool());
 }
 #endif
@@ -172,7 +172,7 @@ void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
     EXPECT_EQ(VERIFY_LOCATION_DIRECTION, newParcel.ReadDouble()); // direction
     EXPECT_EQ(VERIFY_LOCATION_TIME, newParcel.ReadInt64()); // timeStamp
     EXPECT_EQ(VERIFY_LOCATION_TIMESINCEBOOT, newParcel.ReadInt64()); // timeSinceBoot
-    EXPECT_EQ(u"additions", newParcel.ReadString16()); // additions
+    EXPECT_EQ("additions", Str16ToStr8(newParcel.ReadString16())); // additions
     EXPECT_EQ(1, newParcel.ReadInt64()); // additionSize
     EXPECT_EQ(true, newParcel.ReadBool()); // isFromMock
     EXPECT_EQ(1, newParcel.ReadInt32()); // sourceType

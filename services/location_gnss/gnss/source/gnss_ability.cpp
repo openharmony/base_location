@@ -23,6 +23,7 @@
 #include "event_runner.h"
 #include "idevmgr_hdi.h"
 #include "ipc_skeleton.h"
+#include "iproxy_broker.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
@@ -47,7 +48,6 @@ const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
-constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -302,6 +302,19 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
+void GnssAbility::ReConnectHdi()
+{
+    LBSLOGI(GNSS, "%{public}s called", __func__);
+    if (!isHdiConnected_) {
+        LBSLOGI(GNSS, "%{public}s: HDI should be disconnected", __func__);
+    }
+    ConnectHdi();
+    EnableGnss();
+    SetAgnssCallback();
+    SetAgnssServer();
+    StartGnss();
+}
+
 LocationErrCode GnssAbility::GetCachedGnssLocationsSize(int& size)
 {
     size = -1;
@@ -440,10 +453,6 @@ bool GnssAbility::ConnectHdi()
         LBSLOGE(GNSS, "Load agnss service failed!");
         return false;
     }
-    if (devmgr->LoadDevice(GEOFENCE_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load geofence service failed!");
-        return false;
-    }
     int32_t retry = 0;
     while (retry < GET_HDI_SERVICE_COUNT) {
         std::unique_lock<std::mutex> lock(gnssMutex_, std::defer_lock);
@@ -454,6 +463,7 @@ bool GnssAbility::ConnectHdi()
             LBSLOGI(GNSS, "connect v1_0 hdi success.");
             gnssCallback_ = new (std::nothrow) GnssEventCallback();
             agnssCallback_ = new (std::nothrow) AGnssEventCallback();
+            RegisterLocationHdiDeathRecipient();
             lock.unlock();
             return true;
         }
@@ -479,10 +489,6 @@ bool GnssAbility::RemoveHdi()
     }
     if (devmgr->UnloadDevice(AGNSS_SERVICE_NAME) != 0) {
         LBSLOGE(GNSS, "Load agnss service failed!");
-        return false;
-    }
-    if (devmgr->UnloadDevice(GEOFENCE_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load geofence service failed!");
         return false;
     }
     return true;
@@ -703,6 +709,21 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
     }
 }
 
+void GnssAbility::RegisterLocationHdiDeathRecipient()
+{
+    if (gnssInterface_ == nullptr) {
+        LBSLOGE(GNSS, "%{public}s: gnssInterface_ is nullptr", __func__);
+        return;
+    }
+    sptr<IRemoteObject> obj = OHOS::HDI::hdi_objcast<IGnssInterface>(gnssInterface_);
+    if (obj == nullptr) {
+        LBSLOGE(GNSS, "%{public}s: hdi obj is nullptr", __func__);
+        return;
+    }
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocationHdiDeathRecipient());
+    obj->AddDeathRecipient(death.GetRefPtr());
+}
+
 GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
 
 GnssHandler::~GnssHandler() {}
@@ -744,6 +765,26 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             break;
     }
     gnssAbility->UnloadGnssSystemAbility();
+}
+
+LocationHdiDeathRecipient::LocationHdiDeathRecipient()
+{
+}
+
+LocationHdiDeathRecipient::~LocationHdiDeathRecipient()
+{
+}
+
+void LocationHdiDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility != nullptr) {
+        LBSLOGI(LOCATOR, "hdi reconnecting");
+        // wait for device unloaded
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
+        gnssAbility->ReConnectHdi();
+        LBSLOGI(LOCATOR, "hdi connected finish");
+    }
 }
 } // namespace Location
 } // namespace OHOS

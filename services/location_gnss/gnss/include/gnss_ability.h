@@ -112,6 +112,7 @@ public:
     void SetRefInfo(const AGnssRefInfo& refInfo);
     bool IsMockEnabled();
     void ProcessReportLocationMock();
+    void ReConnectHdi();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -119,6 +120,7 @@ private:
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
     bool CheckIfGnssConnecting();
     bool IsMockProcessing();
+    void RegisterLocationHdiDeathRecipient();
 
     bool isHdiConnected_;
     size_t mockLocationIndex_ = 0;
@@ -133,6 +135,13 @@ private:
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
     std::mutex gnssMutex_;
+};
+
+class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    LocationHdiDeathRecipient();
+    ~LocationHdiDeathRecipient() override;
 };
 } // namespace Location
 } // namespace OHOS

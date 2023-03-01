@@ -726,7 +726,7 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
 {
 #if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
     LBSLOGE(LOCATOR, "%{public}s: mock service unavailable", __func__);
-    return ERRCODE_SERVICE_UNAVAILABLE;
+    return ERRCODE_NOT_SUPPORTED;
 #endif
     if (!CheckSaValid()) {
         UpdateProxyMap();
@@ -762,7 +762,7 @@ void LocatorAbility::UpdateProxyMap()
         LBSLOGE(LOCATOR, "GetRemoteObject gnss sa is null");
     }
 #endif
-#ifdef FEATURE_NETWROK_SUPPORT
+#ifdef FEATURE_NETWORK_SUPPORT
     // init network ability sa
     LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,
@@ -811,7 +811,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 {
 #if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
-    return ERRCODE_SERVICE_UNAVAILABLE;
+    return ERRCODE_NOT_SUPPORTED;
 #endif
     if (isEnabled_ == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
@@ -844,7 +844,7 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 {
 #if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
-    return ERRCODE_SERVICE_UNAVAILABLE;
+    return ERRCODE_NOT_SUPPORTED;
 #endif
     LBSLOGI(LOCATOR, "stop locating");
     if (requestManager_ == nullptr) {
