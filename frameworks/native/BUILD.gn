@@ -15,16 +15,18 @@ import("//build/ohos.gni")
 
 ################################################################################
 
+config("locator_sdk_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "//base/location/interfaces/inner_api/include",
+    "//base/location/frameworks/js/napi/include",
+  ]
+}
+
 ohos_shared_library("locator_sdk") {
   install_enable = true
 
-  include_dirs = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/frameworks/js/napi/include",
-    "//native_engine",
-    "//commonlibrary/c_utils/base/include",
-  ]
+  public_configs = [ ":locator_sdk_config" ]
 
   sources = [
     "//base/location/frameworks/native/source/cached_locations_callback_host.cpp",
@@ -40,15 +42,15 @@ ohos_shared_library("locator_sdk") {
   ]
 
   deps = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//foundation/arkui/napi:ace_napi",
     "//third_party/libuv:uv",
   ]
 
   external_deps = [
     "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   cflags_cc = [
