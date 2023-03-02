@@ -30,6 +30,7 @@ LIB_UV_DIR = "//third_party/libuv"
 DFX_HILOG_DIR = "//base/hiviewdfx/hilog"
 ABILITY_RUNTIME = "//foundation/ability/ability_runtime"
 LOCATION_NATIVE_DIR = "$LOCATION_ROOT_DIR/frameworks/native"
+LOCATION_COMMON_DIR = "$LOCATION_ROOT_DIR/frameworks/location_common/common"
 
 declare_args() {
   location_feature_with_geocode = true
