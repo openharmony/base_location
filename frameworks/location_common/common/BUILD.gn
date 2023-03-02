@@ -39,15 +39,9 @@ ohos_shared_library("lbsservice_common") {
     "$SUBSYSTEM_DIR/location_locator/locator/include",
     "$SUBSYSTEM_DIR/location_network/network/include",
     "$SUBSYSTEM_DIR/location_passive/passive/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
   ]
 
-  deps = [
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-  ]
+  deps = []
 
   external_deps = [
     "ability_runtime:wantagent_innerkits",
@@ -57,7 +51,9 @@ ohos_shared_library("lbsservice_common") {
     "c_utils:utils",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "os_account:os_account_innerkits",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "location"
