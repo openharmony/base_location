@@ -15,17 +15,19 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 ################################################################################
+
+config("locator_sdk_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "//base/location/interfaces/inner_api/include",
+    "//base/location/frameworks/js/napi/include",
+  ]
+}
+
 ohos_shared_library("locator_sdk") {
   install_enable = true
 
-  include_dirs = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/frameworks/js/napi/include",
-    "//native_engine",
-    "//commonlibrary/c_utils/base/include",
-    "$ABILITY_RUNTIME/interfaces/inner_api/dataobs_manager/include",
-  ]
+  public_configs = [ ":locator_sdk_config" ]
 
   sources = [
     "$LOCATION_NATIVE_DIR/source/cached_locations_callback_host.cpp",
@@ -45,27 +47,27 @@ ohos_shared_library("locator_sdk") {
   ]
 
   deps = [
-    "$ABILITY_RUNTIME/frameworks/native/ability/native:data_ability_helper",
-    "$ABILITY_RUNTIME/interfaces/inner_api/ability_manager:ability_manager",
-    "$ABILITY_RUNTIME/interfaces/inner_api/dataobs_manager:dataobs_manager",
-    "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//foundation/arkui/napi:ace_napi",
+    "$LOCATION_COMMON_DIR:lbsservice_common",
     "//third_party/libuv:uv",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:data_ability_helper",
+    "ability_runtime:dataobs_manager",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "data_share:datashare_common",
     "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "samgr:samgr_proxy",
   ]
 
   cflags_cc = [
