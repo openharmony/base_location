@@ -342,14 +342,14 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
         return errorCode;
     }
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
-    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_GEOFENCE_FAIL);
+    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
     auto request = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, request);
     if (mFences.size() > 0) {
         mFences.erase(mFences.begin());
         return g_locatorProxy->RemoveFenceV9(request);
     }
-    return ERRCODE_GEOFENCE_FAIL;
+    return ERRCODE_NOT_SUPPORTED;
 }
 #endif
 

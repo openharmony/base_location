@@ -235,7 +235,7 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
     }
     LBSLOGD(GNSS, "request:%{public}d %{public}d",
         request->reportingPeriodSec, request->wakeUpCacheQueueFull ? 1 : 0);
-    return ERRCODE_SUCCESS;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
@@ -250,7 +250,7 @@ LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>&
         LBSLOGE(GNSS, "cast cached location callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    return ERRCODE_SUCCESS;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
@@ -281,7 +281,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 LocationErrCode GnssAbility::GetCachedGnssLocationsSize(int& size)
 {
     size = -1;
-    return ERRCODE_SUCCESS;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode GnssAbility::FlushCachedGnssLocations()
@@ -297,12 +297,12 @@ LocationErrCode GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& comma
 
 LocationErrCode GnssAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
 {
-    return ERRCODE_SUCCESS;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode GnssAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 {
-    return ERRCODE_SUCCESS;
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 void GnssAbility::ReportGnssSessionStatus(int status)
