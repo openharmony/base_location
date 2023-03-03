@@ -31,11 +31,17 @@ CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
 CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 std::vector<GeoFenceState*> mFences;
+
+std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
+std::unique_ptr<GeofenceRequest> g_fenceRequest = std::make_unique<GeofenceRequest>();
+std::unique_ptr<RequestConfig> g_requestConfig = std::make_unique<RequestConfig>();
+std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
 auto g_locatorProxy = Locator::GetInstance();
 
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const napi_value &)> g_offFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const size_t, const napi_value *)> g_onFuncMap;
+std::map<std::string, void(CallbackResumeManager::*)()> g_resumeFuncMap;
 
 void InitOnFuncMap()
 {
@@ -204,9 +210,8 @@ void SubscribeLocationChange(const napi_env& env, const napi_value& object,
     locatorCallbackHost->SetFixNumber(0);
     locatorCallbackHost->SetEnv(env);
     locatorCallbackHost->SetHandleCb(handlerRef);
-    auto requestConfig = std::make_unique<RequestConfig>();
-    JsObjToLocationRequest(env, object, requestConfig);
-    g_locatorProxy->StartLocating(requestConfig, locatorCallback);
+    JsObjToLocationRequest(env, object, g_requestConfig);
+    g_locatorProxy->StartLocating(g_requestConfig, locatorCallback);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -221,9 +226,8 @@ LocationErrCode SubscribeLocationChangeV9(const napi_env& env, const napi_value&
     locatorCallbackHost->SetFixNumber(0);
     locatorCallbackHost->SetEnv(env);
     locatorCallbackHost->SetHandleCb(handlerRef);
-    auto requestConfig = std::make_unique<RequestConfig>();
-    JsObjToLocationRequest(env, object, requestConfig);
-    return g_locatorProxy->StartLocatingV9(requestConfig, locatorCallback);
+    JsObjToLocationRequest(env, object, g_requestConfig);
+    return g_locatorProxy->StartLocatingV9(g_requestConfig, locatorCallback);
 }
 #endif
 
@@ -267,9 +271,8 @@ void SubscribeCacheLocationChange(const napi_env& env, const napi_value& object,
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
     cachedCallbackHost->SetEnv(env);
     cachedCallbackHost->SetHandleCb(handlerRef);
-    auto request = std::make_unique<CachedGnssLocationsRequest>();
-    JsObjToCachedLocationRequest(env, object, request);
-    g_locatorProxy->RegisterCachedLocationCallback(request, cachedCallback);
+    JsObjToCachedLocationRequest(env, object, g_cachedRequest);
+    g_locatorProxy->RegisterCachedLocationCallback(g_cachedRequest, cachedCallback);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -283,9 +286,8 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
     cachedCallbackHost->SetEnv(env);
     cachedCallbackHost->SetHandleCb(handlerRef);
-    auto request = std::make_unique<CachedGnssLocationsRequest>();
-    JsObjToCachedLocationRequest(env, object, request);
-    return g_locatorProxy->RegisterCachedLocationCallbackV9(request, cachedCallback);
+    JsObjToCachedLocationRequest(env, object, g_cachedRequest);
+    return g_locatorProxy->RegisterCachedLocationCallbackV9(g_cachedRequest, cachedCallback);
 }
 #endif
 
@@ -293,12 +295,11 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
 {
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
     NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
-    auto request = std::make_unique<GeofenceRequest>();
-    JsObjToGeoFenceRequest(env, object, request);
-    auto state = new (std::nothrow) GeoFenceState(request->geofence, wantAgent);
+    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
+    auto state = new (std::nothrow) GeoFenceState(g_fenceRequest->geofence, wantAgent);
     if (state != nullptr) {
         mFences.push_back(state);
-        g_locatorProxy->AddFence(request);
+        g_locatorProxy->AddFence(g_fenceRequest);
     }
 }
 
@@ -311,12 +312,11 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
     }
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
     NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_GEOFENCE_FAIL);
-    auto request = std::make_unique<GeofenceRequest>();
-    JsObjToGeoFenceRequest(env, object, request);
-    auto state = new (std::nothrow) GeoFenceState(request->geofence, wantAgent);
+    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
+    auto state = new (std::nothrow) GeoFenceState(g_fenceRequest->geofence, wantAgent);
     if (state != nullptr) {
         mFences.push_back(state);
-        return g_locatorProxy->AddFenceV9(request);
+        return g_locatorProxy->AddFenceV9(g_fenceRequest);
     }
     return ERRCODE_GEOFENCE_FAIL;
 }
@@ -326,11 +326,10 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
 {
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
     NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
-    auto request = std::make_unique<GeofenceRequest>();
-    JsObjToGeoFenceRequest(env, object, request);
+    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
     if (mFences.size() > 0) {
         mFences.erase(mFences.begin());
-        g_locatorProxy->RemoveFence(request);
+        g_locatorProxy->RemoveFence(g_fenceRequest);
     }
 }
 
@@ -343,11 +342,10 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
     }
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
     NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
-    auto request = std::make_unique<GeofenceRequest>();
-    JsObjToGeoFenceRequest(env, object, request);
+    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
     if (mFences.size() > 0) {
         mFences.erase(mFences.begin());
-        return g_locatorProxy->RemoveFenceV9(request);
+        return g_locatorProxy->RemoveFenceV9(g_fenceRequest);
     }
     return ERRCODE_NOT_SUPPORTED;
 }
@@ -570,7 +568,6 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
     if (switchCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
-        g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeLocationServiceStateV9(env, handlerRef, switchCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -580,6 +577,7 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
 #else
         SubscribeLocationServiceState(env, handlerRef, switchCallbackHost);
 #endif
+        g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
     }
     return true;
 }
@@ -618,7 +616,6 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
     if (cachedCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef), false);
-        g_cachedLocationCallbacks.AddCallback(env, handlerRef, cachedCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeCacheLocationChangeV9(env, argv[PARAM1], handlerRef, cachedCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -628,6 +625,7 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
 #else
         SubscribeCacheLocationChange(env, argv[PARAM1], handlerRef, cachedCallbackHost);
 #endif
+        g_cachedLocationCallbacks.AddCallback(env, handlerRef, cachedCallbackHost);
     }
     return true;
 }
@@ -657,7 +655,6 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
     if (gnssCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
-        g_gnssStatusInfoCallbacks.AddCallback(env, handlerRef, gnssCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeGnssStatusV9(env, handlerRef, gnssCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -667,6 +664,7 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
 #else
         SubscribeGnssStatus(env, handlerRef, gnssCallbackHost);
 #endif
+        g_gnssStatusInfoCallbacks.AddCallback(env, handlerRef, gnssCallbackHost);
     }
     return true;
 }
@@ -703,7 +701,6 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
     if (locatorCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef), false);
-        g_locationCallbacks.AddCallback(env, handlerRef, locatorCallbackHost);
         // argv[1]:request params, argv[2]:handler
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeLocationChangeV9(env, argv[PARAM1], handlerRef, locatorCallbackHost);
@@ -714,6 +711,7 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
 #else
         SubscribeLocationChange(env, argv[PARAM1], handlerRef, locatorCallbackHost);
 #endif
+        g_locationCallbacks.AddCallback(env, handlerRef, locatorCallbackHost);
     }
     return true;
 }
@@ -743,7 +741,6 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
     if (nmeaCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
-        g_nmeaCallbacks.AddCallback(env, handlerRef, nmeaCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeNmeaMessageV9(env, handlerRef, nmeaCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -753,6 +750,7 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
 #else
         SubscribeNmeaMessage(env, handlerRef, nmeaCallbackHost);
 #endif
+        g_nmeaCallbacks.AddCallback(env, handlerRef, nmeaCallbackHost);
     }
     return true;
 }
@@ -782,7 +780,6 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
     if (callbackHost) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
-        g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeCountryCodeChangeV9(env, handlerRef, callbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -792,6 +789,7 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
 #else
         SubscribeCountryCodeChange(env, handlerRef, callbackHost);
 #endif
+        g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
     }
     return true;
 }
@@ -849,6 +847,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
+    g_locatorProxy->SetResumer(g_callbackResumer);
     auto onCallbackFunc = g_onFuncMap.find(event);
     if (onCallbackFunc != g_onFuncMap.end() && onCallbackFunc->second != nullptr) {
         auto memberFunc = onCallbackFunc->second;
@@ -1343,5 +1342,154 @@ LocationErrCode CheckLocationSwitchEnable()
     return ERRCODE_SUCCESS;
 }
 #endif
+
+void CallbackResumeManager::InitResumeCallbackFuncMap()
+{
+    if (g_resumeFuncMap.size() != 0) {
+        return;
+    }
+    g_resumeFuncMap.insert(std::make_pair("satelliteStatusChange", &CallbackResumeManager::ResumeGnssStatusCallback));
+    g_resumeFuncMap.insert(std::make_pair("nmeaMessage", &CallbackResumeManager::ResumeNmeaMessageCallback));
+    g_resumeFuncMap.insert(std::make_pair("locationChange", &CallbackResumeManager::ResumeLocating));
+    g_resumeFuncMap.insert(std::make_pair("countryCodeChange", &CallbackResumeManager::ResumeCountryCodeCallback));
+}
+
+void CallbackResumeManager::ResumeCallback()
+{
+    LBSLOGI(LOCATION_NAPI, "%{public}s enter", __func__);
+    InitResumeCallbackFuncMap();
+    for (auto iter = g_resumeFuncMap.begin(); iter != g_resumeFuncMap.end(); iter++) {
+        auto resumeFunc = iter->second;
+        (this->*resumeFunc)();
+    }
+}
+
+void CallbackResumeManager::ResumeSwitchCallback()
+{
+    auto callbackMap = g_switchCallbacks.GetCallbackMap();
+    napi_env env;
+    for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
+        env = iter->first;
+        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+            auto switchCallbackHost = innerIter->second;
+            if (switchCallbackHost == nullptr) {
+                continue;
+            }
+    #ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->RegisterSwitchCallbackV9(switchCallbackHost->AsObject());
+    #endif
+        }
+        LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
+    }
+}
+
+void CallbackResumeManager::ResumeGnssStatusCallback()
+{
+    auto callbackMap = g_gnssStatusInfoCallbacks.GetCallbackMap();
+    napi_env env;
+    for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
+        env = iter->first;
+        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+            auto gnssStatusCallbackHost = innerIter->second;
+            if (gnssStatusCallbackHost == nullptr) {
+                continue;
+            }
+    #ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->RegisterGnssStatusCallbackV9(gnssStatusCallbackHost->AsObject());
+    #endif
+        }
+        LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
+    }
+}
+
+void CallbackResumeManager::ResumeNmeaMessageCallback()
+{
+    auto callbackMap = g_nmeaCallbacks.GetCallbackMap();
+    napi_env env;
+    for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
+        env = iter->first;
+        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+            auto nmeaCallbackHost = innerIter->second;
+            if (nmeaCallbackHost == nullptr) {
+                continue;
+            }
+    #ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject());
+    #endif
+        }
+        LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
+    }
+}
+
+void CallbackResumeManager::ResumeCountryCodeCallback()
+{
+    auto callbackMap = g_countryCodeCallbacks.GetCallbackMap();
+    napi_env env;
+    for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
+        env = iter->first;
+        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+            auto countryCodeCallbackHost = innerIter->second;
+            if (countryCodeCallbackHost == nullptr) {
+                continue;
+            }
+    #ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject());
+    #endif
+        }
+        LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
+    }
+}
+
+void CallbackResumeManager::ResumeCachedLocationCallback()
+{
+    auto callbackMap = g_cachedLocationCallbacks.GetCallbackMap();
+    napi_env env;
+    for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
+        env = iter->first;
+        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+            auto cachedCallbackHost = innerIter->second;
+            if (cachedCallbackHost == nullptr) {
+                continue;
+            }
+            auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
+    #ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->RegisterCachedLocationCallbackV9(g_cachedRequest, cachedCallback);
+    #endif
+        }
+        LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
+    }
+}
+
+void CallbackResumeManager::ResumeFence()
+{
+    if (mFences.size() == 0) {
+        LBSLOGE(LOCATION_NAPI, "%{public}s, no fence need add", __func__);
+        return;
+    }
+#ifdef ENABLE_NAPI_MANAGER
+    g_locatorProxy->AddFenceV9(g_fenceRequest);
+#endif
+    LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
+}
+
+void CallbackResumeManager::ResumeLocating()
+{
+    auto callbackMap = g_locationCallbacks.GetCallbackMap();
+    napi_env env;
+    for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
+        env = iter->first;
+        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+            auto locatorCallbackHost = innerIter->second;
+            if (locatorCallbackHost == nullptr) {
+                continue;
+            }
+            auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
+    #ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->StartLocatingV9(g_requestConfig, locatorCallback);
+    #endif
+        }
+        LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
+    }
+}
 }  // namespace Location
 }  // namespace OHOS

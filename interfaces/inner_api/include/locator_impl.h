@@ -115,6 +115,7 @@ public:
     LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) override;
     LocationErrCode ResetAllProxyV9() override;
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
+    void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer) override;
 
 private:
     class LocatorDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -131,11 +132,17 @@ private:
 
 private:
     sptr<LocatorProxy> GetProxy();
+    bool IsLocationProcessing();
+    bool IsCallbackResuming();
+    void UpdateCallbackResumingState(bool state);
 
     sptr<LocatorProxy> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
-    bool state_ = false;
+    std::shared_ptr<ICallbackResumeManager> resumer_ { nullptr };
+    bool isServerExist_ = false;
+    bool isCallbackResuming_ = false;
     std::mutex mutex_;
+    std::mutex resumeMutex_;
 };
 }  // namespace Location
 }  // namespace OHOS

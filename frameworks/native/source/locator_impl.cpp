@@ -30,6 +30,8 @@
 namespace OHOS {
 namespace Location {
 auto g_dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
+constexpr uint32_t WAIT_MS = 1000;
+
 LocatorImpl::LocatorImpl()
 {}
 
@@ -566,6 +568,10 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
 
 bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
+    if (!IsLocationProcessing()) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+        return true;
+    }
     if (!Init()) {
         return false;
     }
@@ -581,6 +587,10 @@ bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 
 bool LocatorImpl::ResetAllProxy()
 {
+    if (!IsLocationProcessing()) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+        return true;
+    }
     if (!Init()) {
         return false;
     }
@@ -1074,6 +1084,10 @@ LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shar
 
 LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 {
+    if (!IsLocationProcessing()) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+        return ERRCODE_SUCCESS;
+    }
     if (!Init()) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1089,6 +1103,10 @@ LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 
 LocationErrCode LocatorImpl::ResetAllProxyV9()
 {
+    if (!IsLocationProcessing()) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+        return ERRCODE_SUCCESS;
+    }
     if (!Init()) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1108,18 +1126,28 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remote is nullptr.", __func__);
         return;
     }
-    if (client_ == nullptr || !state_) {
+    if (client_ == nullptr || !isServerExist_) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: proxy is nullptr.", __func__);
         return;
     }
-    remote.promote()->RemoveDeathRecipient(recipient_);
-    state_ = false;
+    if (remote.promote() != nullptr) {
+        remote.promote()->RemoveDeathRecipient(recipient_);
+    }
+    isServerExist_ = false;
+    if (resumer_ != nullptr && !IsCallbackResuming()) {
+        // only the first request will be handled
+        UpdateCallbackResumingState(true);
+        // wait for remote died finished
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
+        resumer_->ResumeCallback();
+        UpdateCallbackResumingState(false);
+    }
 }
 
 sptr<LocatorProxy> LocatorImpl::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (client_ != nullptr && state_) {
+    if (client_ != nullptr && isServerExist_) {
         LBSLOGI(LOCATOR_STANDARD, "get proxy success.");
         return client_;
     }
@@ -1139,9 +1167,39 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: deathRecipient add failed.", __func__);
         return nullptr;
     }
-    state_ = true;
+    isServerExist_ = true;
     client_ = sptr<LocatorProxy>(new (std::nothrow) LocatorProxy(obj));
     return client_;
+}
+
+void LocatorImpl::SetResumer(std::shared_ptr<ICallbackResumeManager> resumer)
+{
+    if (resumer_ == nullptr) {
+        resumer_ = resumer;
+    }
+}
+
+bool LocatorImpl::IsLocationProcessing()
+{
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
+        return false;
+    }
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
+    return (obj != nullptr);
+}
+
+void LocatorImpl::UpdateCallbackResumingState(bool state)
+{
+    std::lock_guard<std::mutex> lock(resumeMutex_);
+    isCallbackResuming_ = state;
+}
+
+bool LocatorImpl::IsCallbackResuming()
+{
+    std::lock_guard<std::mutex> lock(resumeMutex_);
+    return isCallbackResuming_;
 }
 }  // namespace Location
 }  // namespace OHOS

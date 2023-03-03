@@ -217,6 +217,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         case EVENT_UNLOAD_SA: {
             if (locatorAbility != nullptr) {
                 LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+                locatorAbility->UpdateUnloadState(false);
             }
             break;
         }
@@ -349,6 +350,10 @@ void LocatorAbility::UpdateSaAbilityHandler()
 
 void LocatorAbility::UnloadSaAbility()
 {
+    if (IsUnloadSaProcessing()) {
+        return;
+    }
+    UpdateUnloadState(true);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_UNLOAD_SA, 0, RETRY_INTERVAL_OF_UNLOAD_SA);
     }
@@ -1136,6 +1141,16 @@ void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
     permissionMap_->erase(callingTokenId);
     LBSLOGD(LOCATOR, "after tokenId:%{public}d unregister, permission callback size:%{public}s",
         callingTokenId, std::to_string(permissionMap_->size()).c_str());
+}
+
+void LocatorAbility::UpdateUnloadState(bool isProcessing)
+{
+    isProcessing_ = isProcessing;
+}
+
+bool LocatorAbility::IsUnloadSaProcessing()
+{
+    return isProcessing_;
 }
 } // namespace Location
 } // namespace OHOS

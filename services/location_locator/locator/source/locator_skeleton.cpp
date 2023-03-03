@@ -781,7 +781,7 @@ int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
     client->AddDeathRecipient(death.GetRefPtr());
     LocationErrCode errorCode = locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid());
     reply.WriteInt32(errorCode);
-    isCountryCodeReg_ = (errorCode == ERRCODE_SUCCESS) ? true : isCountryCodeReg_;
+    isCallbackReg_ = (errorCode == ERRCODE_SUCCESS) ? true : isCallbackReg_;
     return ERRCODE_SUCCESS;
 }
 
@@ -797,7 +797,7 @@ int LocatorAbilityStub::PreUnregisterCountryCodeCallback(MessageParcel &data,
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     LocationErrCode errorCode = locatorAbility->UnregisterCountryCodeCallback(client);
     reply.WriteInt32(errorCode);
-    isCountryCodeReg_ = (errorCode == ERRCODE_SUCCESS) ? false : isCountryCodeReg_;
+    isCallbackReg_ = (errorCode == ERRCODE_SUCCESS) ? false : isCallbackReg_;
     return ERRCODE_SUCCESS;
 }
 
@@ -982,7 +982,7 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
 
 bool LocatorAbilityStub::UnloadLocatorSa()
 {
-    if (!isCountryCodeReg_) {
+    if (!isCallbackReg_) {
         auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
         if (locatorAbility == nullptr) {
             LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
