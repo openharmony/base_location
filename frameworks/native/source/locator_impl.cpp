@@ -1124,7 +1124,7 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
         return nullptr;
     }
-    recipient_ = (std::make_unique<LocatorDeathRecipient>(*this)).release();
+    recipient_ = sptr<LocatorDeathRecipient>(new (std::nothrow) LocatorDeathRecipient(*this));
     if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(recipient_))) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: deathRecipient add failed.", __func__);
         return nullptr;
