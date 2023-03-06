@@ -114,7 +114,8 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
                 return;
             }
             napi_value jsEvent = nullptr;
-            NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &jsEvent));
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
+                scope, context, work);
             if (context->callback[1]) {
                 SystemLocationToJs(context->env, context->loc, jsEvent);
             } else {
@@ -123,20 +124,24 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
             if (context->callback[0] != nullptr) {
                 napi_value undefine = nullptr;
                 napi_value handler = nullptr;
-                NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
+                    scope, context, work);
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_get_reference_value(context->env, context->callback[0], &handler),
+                    scope, context, work);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
                 }
             } else if (context->deferred != nullptr) {
                 if (jsEvent != nullptr) {
-                    NAPI_CALL_RETURN_VOID(context->env,
-                        napi_resolve_deferred(context->env, context->deferred, jsEvent));
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                        napi_resolve_deferred(context->env, context->deferred, jsEvent),
+                        scope, context, work);
                 } else {
-                    NAPI_CALL_RETURN_VOID(context->env,
-                        napi_reject_deferred(context->env, context->deferred, jsEvent));
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                        napi_reject_deferred(context->env, context->deferred, jsEvent),
+                        scope, context, work);
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
@@ -171,9 +176,11 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
             if (context->callback[FAIL_CALLBACK] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
+                    scope, context, work);
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler),
+                    scope, context, work);
                 std::string msg = GetErrorMsgByCode(context->errCode);
                 CreateFailCallBackParams(*context, msg, context->errCode);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
