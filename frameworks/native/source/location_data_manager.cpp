@@ -15,8 +15,11 @@
 
 #include "location_data_manager.h"
 
+#include "uri.h"
+
 #include "switch_callback_proxy.h"
 #include "constant_definition.h"
+#include "location_data_rdb_helper.h"
 #include "location_log.h"
 #include "common_hisysevent.h"
 #include "common_utils.h"
@@ -80,6 +83,20 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
     LBSLOGD(LOCATOR, "after uid:%{public}d unregister, switch callback size:%{public}s",
         uid, std::to_string(g_switchCallbacks->size()).c_str());
     return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocationDataManager::QuerySwitchState(bool &isEnabled)
+{
+    int32_t state = DISABLED;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errCode =
+        LocationDataRdbHelper::GetInstance().GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not query state, reset state.", __func__);
+        errCode = LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    }
+    isEnabled = (state == ENABLED);
+    return errCode;
 }
 }  // namespace Location
 }  // namespace OHOS

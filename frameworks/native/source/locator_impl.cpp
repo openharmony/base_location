@@ -48,11 +48,8 @@ bool LocatorImpl::Init()
 
 bool LocatorImpl::IsLocationEnabled()
 {
-    if (!Init()) {
-        return false;
-    }
-    sptr<LocatorProxy> proxy = GetProxy();
-    bool flag = proxy->GetSwitchState() == 1;
+    bool flag = false;
+    LocationDataManager::GetInstance().QuerySwitchState(flag);
     return flag;
 }
 
@@ -596,16 +593,9 @@ bool LocatorImpl::ResetAllProxy()
 
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
-    if (!Init()) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LocationErrCode errCode = proxy->GetSwitchStateV9(isEnabled);
+    LocationErrCode errCode =
+        LocationDataManager::GetInstance().QuerySwitchState(isEnabled);
     return errCode;
 }
 
