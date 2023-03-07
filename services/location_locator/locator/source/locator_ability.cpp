@@ -417,7 +417,7 @@ LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>
         return ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) SwitchCallbackDeathRecipient());
-    callback->AddDeathRecipient(death.GetRefPtr());
+    callback->AddDeathRecipient(death);
     sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
     if (switchCallback == nullptr) {
         LBSLOGE(LOCATOR, "cast switch callback fail!");

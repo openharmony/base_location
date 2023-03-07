@@ -565,8 +565,8 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
 
 bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
-    if (!IsLocationProcessing()) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+    if (!isServerExist_) {
+        LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need freeze", __func__);
         return true;
     }
     if (!Init()) {
@@ -584,8 +584,8 @@ bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 
 bool LocatorImpl::ResetAllProxy()
 {
-    if (!IsLocationProcessing()) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+    if (!isServerExist_) {
+        LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need reset proxy", __func__);
         return true;
     }
     if (!Init()) {
@@ -1074,8 +1074,8 @@ LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shar
 
 LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 {
-    if (!IsLocationProcessing()) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+    if (!isServerExist_) {
+        LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need freeze", __func__);
         return ERRCODE_SUCCESS;
     }
     if (!Init()) {
@@ -1093,8 +1093,8 @@ LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 
 LocationErrCode LocatorImpl::ResetAllProxyV9()
 {
-    if (!IsLocationProcessing()) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s no location transaction processing", __func__);
+    if (!isServerExist_) {
+        LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need reset proxy", __func__);
         return ERRCODE_SUCCESS;
     }
     if (!Init()) {
@@ -1152,7 +1152,7 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
         return nullptr;
     }
-    recipient_ = (std::make_unique<LocatorDeathRecipient>(*this)).release();
+    recipient_ = sptr<LocatorDeathRecipient>(new (std::nothrow) LocatorDeathRecipient(*this));
     if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(recipient_))) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: deathRecipient add failed.", __func__);
         return nullptr;

@@ -39,6 +39,9 @@ public:
     void LoadSystemAbilitySuccess();
     void LoadSystemAbilityFail();
 private:
+    void InitLoadState();
+    LocationErrCode WaitLoadStateChange(int32_t systemAbilityId);
+
     std::condition_variable locatorCon_;
     std::mutex locatorMutex_;
     bool state_ = false;

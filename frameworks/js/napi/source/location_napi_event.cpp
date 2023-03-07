@@ -1375,9 +1375,9 @@ void CallbackResumeManager::ResumeSwitchCallback()
             if (switchCallbackHost == nullptr) {
                 continue;
             }
-    #ifdef ENABLE_NAPI_MANAGER
+#ifdef ENABLE_NAPI_MANAGER
             g_locatorProxy->RegisterSwitchCallbackV9(switchCallbackHost->AsObject());
-    #endif
+#endif
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
@@ -1394,9 +1394,9 @@ void CallbackResumeManager::ResumeGnssStatusCallback()
             if (gnssStatusCallbackHost == nullptr) {
                 continue;
             }
-    #ifdef ENABLE_NAPI_MANAGER
+#ifdef ENABLE_NAPI_MANAGER
             g_locatorProxy->RegisterGnssStatusCallbackV9(gnssStatusCallbackHost->AsObject());
-    #endif
+#endif
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
@@ -1413,9 +1413,9 @@ void CallbackResumeManager::ResumeNmeaMessageCallback()
             if (nmeaCallbackHost == nullptr) {
                 continue;
             }
-    #ifdef ENABLE_NAPI_MANAGER
+#ifdef ENABLE_NAPI_MANAGER
             g_locatorProxy->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject());
-    #endif
+#endif
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
@@ -1432,9 +1432,9 @@ void CallbackResumeManager::ResumeCountryCodeCallback()
             if (countryCodeCallbackHost == nullptr) {
                 continue;
             }
-    #ifdef ENABLE_NAPI_MANAGER
+#ifdef ENABLE_NAPI_MANAGER
             g_locatorProxy->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject());
-    #endif
+#endif
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
@@ -1452,9 +1452,9 @@ void CallbackResumeManager::ResumeCachedLocationCallback()
                 continue;
             }
             auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
-    #ifdef ENABLE_NAPI_MANAGER
+#ifdef ENABLE_NAPI_MANAGER
             g_locatorProxy->RegisterCachedLocationCallbackV9(g_cachedRequest, cachedCallback);
-    #endif
+#endif
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
@@ -1484,9 +1484,9 @@ void CallbackResumeManager::ResumeLocating()
                 continue;
             }
             auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
-    #ifdef ENABLE_NAPI_MANAGER
+#ifdef ENABLE_NAPI_MANAGER
             g_locatorProxy->StartLocatingV9(g_requestConfig, locatorCallback);
-    #endif
+#endif
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
