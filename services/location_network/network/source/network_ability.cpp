@@ -202,7 +202,7 @@ void NetworkAbility::UnloadNetworkSystemAbility()
 
 bool NetworkAbility::CheckIfNetworkConnecting()
 {
-    return IsMockEnabled() || !GetLocationMock().empty() || nlpServiceReady_;
+    return IsMockEnabled() || !GetLocationMock().empty() || GetRequestNum() != 0;
 }
 
 LocationErrCode NetworkAbility::SelfRequest(bool state)
@@ -460,7 +460,8 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         case ISubAbility::SELF_REQUEST: {
             bool state = event->GetParam();
             networkAbility->SelfRequest(state);
-            break;
+            // no need unload sa, return
+            return;
         }
         default:
             break;

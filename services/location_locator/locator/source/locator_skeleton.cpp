@@ -136,7 +136,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     }
 
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
-    remoteObject->AddDeathRecipient(death.GetRefPtr());
+    remoteObject->AddDeathRecipient(death);
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->StartLocating(requestConfig, callback, identity));
     return ERRCODE_SUCCESS;
@@ -778,7 +778,7 @@ int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CountryCodeCallbackDeathRecipient());
-    client->AddDeathRecipient(death.GetRefPtr());
+    client->AddDeathRecipient(death);
     LocationErrCode errorCode = locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid());
     reply.WriteInt32(errorCode);
     isCountryCodeReg_ = (errorCode == ERRCODE_SUCCESS) ? true : isCountryCodeReg_;

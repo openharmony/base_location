@@ -158,7 +158,7 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
         return ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
-    callback->AddDeathRecipient(death.GetRefPtr());
+    callback->AddDeathRecipient(death);
     sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
     if (gnssStatusCallback == nullptr) {
         LBSLOGE(GNSS, "cast switch callback fail!");
@@ -204,7 +204,7 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
         return ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
-    callback->AddDeathRecipient(death.GetRefPtr());
+    callback->AddDeathRecipient(death);
     sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
     if (nmeaCallback == nullptr) {
         LBSLOGE(GNSS, "cast nmea callback fail!");
@@ -251,7 +251,7 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
         return ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CachedLocationCallbackDeathRecipient());
-    callback->AddDeathRecipient(death.GetRefPtr());
+    callback->AddDeathRecipient(death);
     sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
     if (cachedCallback == nullptr) {
         LBSLOGE(GNSS, "cast cached location callback fail!");
@@ -307,6 +307,7 @@ void GnssAbility::ReConnectHdi()
     LBSLOGI(GNSS, "%{public}s called", __func__);
     if (!isHdiConnected_) {
         LBSLOGI(GNSS, "%{public}s: HDI should be disconnected", __func__);
+        return;
     }
     ConnectHdi();
     EnableGnss();
@@ -721,7 +722,7 @@ void GnssAbility::RegisterLocationHdiDeathRecipient()
         return;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocationHdiDeathRecipient());
-    obj->AddDeathRecipient(death.GetRefPtr());
+    obj->AddDeathRecipient(death);
 }
 
 GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}

@@ -94,7 +94,7 @@ static constexpr double MIN_LONGITUDE = -180.0;
 static constexpr double MAX_LONGITUDE = 180.0;
 static constexpr double DEGREE_DOUBLE_PI = 360.0;
 static constexpr long LONG_TIME_INTERVAL = 24 * 60 * 60;
-static constexpr int32_t LOCATION_LOADSA_TIMEOUT_MS = 500;
+static constexpr int32_t LOCATION_LOADSA_TIMEOUT_MS = 1000;
 
 static constexpr int PERMISSION_ACCURATE = 2;
 static constexpr int PERMISSION_APPROXIMATELY = 1;
