@@ -29,22 +29,12 @@ DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationSaLoadManager);
 LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
 {
     LBSLOGI(LOCATOR, "%{public}s enter, systemAbilityId = [%{public}d] loading", __func__, systemAbilityId);
+    InitLoadState();
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-
-    if (samgr->CheckSystemAbility(systemAbilityId) != nullptr) {
-        LBSLOGE(LOCATOR,
-            "%{public}s: no need load sa, systemAbilityId = [%{public}d]", __func__, systemAbilityId);
-        return ERRCODE_SUCCESS;
-    }
-
-    {
-        std::unique_lock<std::mutex> lock(locatorMutex_);
-        state_ = false;
     }
 
     auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
@@ -54,18 +44,25 @@ LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
             __func__, systemAbilityId, ret);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    return WaitLoadStateChange(systemAbilityId);
+}
 
-    {
-        std::unique_lock<std::mutex> lock(locatorMutex_);
-        auto wait = locatorCon_.wait_for(lock, std::chrono::milliseconds(LOCATION_LOADSA_TIMEOUT_MS), [this] {
-            return state_ == true;
-        });
-        if (!wait) {
-            LBSLOGE(LOCATOR_STANDARD, "locator sa [%{public}d] start time out.", systemAbilityId);
-            return ERRCODE_SERVICE_UNAVAILABLE;
-        }
+void LocationSaLoadManager::InitLoadState()
+{
+    std::unique_lock<std::mutex> lock(locatorMutex_);
+    state_ = false;
+}
+
+LocationErrCode LocationSaLoadManager::WaitLoadStateChange(int32_t systemAbilityId)
+{
+    std::unique_lock<std::mutex> lock(locatorMutex_);
+    auto wait = locatorCon_.wait_for(lock, std::chrono::milliseconds(LOCATION_LOADSA_TIMEOUT_MS), [this] {
+        return state_ == true;
+    });
+    if (!wait) {
+        LBSLOGE(LOCATOR_STANDARD, "locator sa [%{public}d] start time out.", systemAbilityId);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-
     return ERRCODE_SUCCESS;
 }
 

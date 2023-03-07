@@ -307,6 +307,7 @@ void GnssAbility::ReConnectHdi()
     LBSLOGI(GNSS, "%{public}s called", __func__);
     if (!isHdiConnected_) {
         LBSLOGI(GNSS, "%{public}s: HDI should be disconnected", __func__);
+        return;
     }
     ConnectHdi();
     EnableGnss();

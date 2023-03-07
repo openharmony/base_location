@@ -134,7 +134,7 @@ private:
 
     sptr<LocatorProxy> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
-    bool state_ = false;
+    bool isServerExist_ = false;
     std::mutex mutex_;
 };
 }  // namespace Location
