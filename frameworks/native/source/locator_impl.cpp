@@ -30,6 +30,8 @@
 namespace OHOS {
 namespace Location {
 auto g_dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
+constexpr uint32_t WAIT_MS = 1000;
+
 LocatorImpl::LocatorImpl()
 {}
 
@@ -1118,8 +1120,18 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: proxy is nullptr.", __func__);
         return;
     }
-    remote.promote()->RemoveDeathRecipient(recipient_);
+    if (remote.promote() != nullptr) {
+        remote.promote()->RemoveDeathRecipient(recipient_);
+    }
     isServerExist_ = false;
+    if (resumer_ != nullptr && !IsCallbackResuming()) {
+        // only the first request will be handled
+        UpdateCallbackResumingState(true);
+        // wait for remote died finished
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
+        resumer_->ResumeCallback();
+        UpdateCallbackResumingState(false);
+    }
 }
 
 sptr<LocatorProxy> LocatorImpl::GetProxy()
@@ -1148,6 +1160,25 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
     isServerExist_ = true;
     client_ = sptr<LocatorProxy>(new (std::nothrow) LocatorProxy(obj));
     return client_;
+}
+
+void LocatorImpl::SetResumer(std::shared_ptr<ICallbackResumeManager> resumer)
+{
+    if (resumer_ == nullptr) {
+        resumer_ = resumer;
+    }
+}
+
+void LocatorImpl::UpdateCallbackResumingState(bool state)
+{
+    std::lock_guard<std::mutex> lock(resumeMutex_);
+    isCallbackResuming_ = state;
+}
+
+bool LocatorImpl::IsCallbackResuming()
+{
+    std::lock_guard<std::mutex> lock(resumeMutex_);
+    return isCallbackResuming_;
 }
 }  // namespace Location
 }  // namespace OHOS

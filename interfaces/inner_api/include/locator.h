@@ -31,6 +31,11 @@
 
 namespace OHOS {
 namespace Location {
+class ICallbackResumeManager {
+public:
+    virtual ~ICallbackResumeManager() = default;
+    virtual void ResumeCallback() = 0;
+};
 class Locator {
 public:
     static std::unique_ptr<Locator> GetInstance();
@@ -116,6 +121,7 @@ public:
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
     virtual LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) = 0;
     virtual LocationErrCode ResetAllProxyV9() = 0;
+    virtual void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer) = 0;
 };
 } // namespace Location
 } // namespace OHOS
