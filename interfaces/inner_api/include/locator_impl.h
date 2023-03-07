@@ -132,7 +132,6 @@ private:
 
 private:
     sptr<LocatorProxy> GetProxy();
-    bool IsLocationProcessing();
     bool IsCallbackResuming();
     void UpdateCallbackResumingState(bool state);
 

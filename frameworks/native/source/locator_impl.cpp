@@ -1169,17 +1169,6 @@ void LocatorImpl::SetResumer(std::shared_ptr<ICallbackResumeManager> resumer)
     }
 }
 
-bool LocatorImpl::IsLocationProcessing()
-{
-    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
-        return false;
-    }
-    sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
-    return (obj != nullptr);
-}
-
 void LocatorImpl::UpdateCallbackResumingState(bool state)
 {
     std::lock_guard<std::mutex> lock(resumeMutex_);
