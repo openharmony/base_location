@@ -84,6 +84,7 @@ public:
     bool IsLocationMocked();
     std::vector<std::shared_ptr<Location>> GetLocationMock();
     void ClearLocationMock();
+    void ReportLocationInfo(const std::string& systemAbility, const std::shared_ptr<Location> location);
 private:
     void HandleLocalRequest(WorkRecord &record);
     void HandleRemoveRecord(WorkRecord &newRecord);

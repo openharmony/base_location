@@ -20,7 +20,6 @@
 #include "common_utils.h"
 #include "gnss_ability.h"
 #include "location_log.h"
-#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {
@@ -29,13 +28,12 @@ using namespace OHOS::HiviewDFX;
 int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 {
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (gnssAbility == nullptr ||locatorAbility == nullptr) {
-        LBSLOGE(GNSS, "ReportLocation: gnss ability or locator ability is nullptr.");
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ReportLocation: gnss ability is nullptr.");
         return ERR_OK;
     }
     std::string identity = IPCSkeleton::ResetCallingIdentity();
-    std::unique_ptr<Location> locationNew = std::make_unique<Location>();
+    std::shared_ptr<Location> locationNew = std::make_shared<Location>();
     locationNew->SetLatitude(location.latitude);
     locationNew->SetLongitude(location.longitude);
     locationNew->SetAltitude(location.altitude);
@@ -50,9 +48,9 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
         IPCSkeleton::SetCallingIdentity(identity);
         return ERR_OK;
     }
-    locatorAbility.get()->ReportLocation(locationNew, GNSS_ABILITY);
+    gnssAbility->ReportLocationInfo(GNSS_ABILITY, locationNew);
 #ifdef FEATURE_PASSIVE_SUPPORT
-    locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    gnssAbility->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
 #endif
     IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;

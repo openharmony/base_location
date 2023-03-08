@@ -24,14 +24,10 @@ if (location_feature_with_geocode) {
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_GEOCONVERT_ROOT/include",
-      "$LOCATION_LOCATOR_ROOT/include",
     ]
 
     deps = [
-      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     ]
 
     defines = []
@@ -42,6 +38,9 @@ if (location_feature_with_geocode) {
     external_deps = [
       "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
     ]
 
     part_name = "location"

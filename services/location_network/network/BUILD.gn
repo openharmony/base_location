@@ -17,6 +17,9 @@ import("//build/ohos.gni")
 if (location_feature_with_network) {
   ohos_shared_library("lbsservice_network") {
     sources = [
+      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
       "$LOCATION_NETWORK_ROOT/source/network_ability.cpp",
       "$LOCATION_NETWORK_ROOT/source/network_ability_skeleton.cpp",
       "$LOCATION_NETWORK_ROOT/source/network_callback_host.cpp",
@@ -24,15 +27,12 @@ if (location_feature_with_network) {
 
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
-      "$LOCATION_NETWORK_ROOT/include",
       "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_NETWORK_ROOT/include",
     ]
 
     deps = [
-      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
-      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
 
     external_deps = [
@@ -44,6 +44,9 @@ if (location_feature_with_network) {
       "common_event_service:cesfwk_innerkits",
       "eventhandler:libeventhandler",
       "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
     ]
 
     defines = []

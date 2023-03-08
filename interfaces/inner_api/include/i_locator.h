@@ -60,6 +60,7 @@ public:
         RESET_ALL_PROXY = 39,
         REG_NMEA_CALLBACK_v9 = 40,
         UNREG_NMEA_CALLBACK_v9 = 41,
+        REPORT_LOCATION = 42,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
 };
