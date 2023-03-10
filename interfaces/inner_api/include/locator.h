@@ -27,18 +27,14 @@
 #include "i_cached_locations_callback.h"
 #include "i_locator_callback.h"
 #include "location.h"
+#include "locator_impl.h"
 #include "request_config.h"
 
 namespace OHOS {
 namespace Location {
-class ICallbackResumeManager {
-public:
-    virtual ~ICallbackResumeManager() = default;
-    virtual void ResumeCallback() = 0;
-};
 class Locator {
 public:
-    static std::unique_ptr<Locator> GetInstance();
+    static std::shared_ptr<LocatorImpl> GetInstance();
     virtual ~Locator();
     virtual bool IsLocationEnabled() = 0;
     virtual void RequestEnableLocation() = 0;
@@ -122,6 +118,9 @@ public:
     virtual LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) = 0;
     virtual LocationErrCode ResetAllProxyV9() = 0;
     virtual void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer) = 0;
+private:
+    static std::shared_ptr<LocatorImpl> instance_;
+    static std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

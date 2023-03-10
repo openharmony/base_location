@@ -80,7 +80,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, Tes
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermission001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
@@ -96,7 +96,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, Tes
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
@@ -123,7 +123,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     bool state = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->IsLocationEnabledV9(state));
@@ -160,7 +160,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission003 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 #ifdef FEATURE_GNSS_SUPPORT
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
@@ -196,7 +196,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermissionV9001, T
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutSettingsPermissionV9001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermissionV9001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->EnableAbilityV9(true));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatusV9(1, true));
@@ -208,7 +208,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9001, T
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 
     bool state = false;
@@ -239,7 +239,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9002 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 
     bool state = false;
@@ -272,7 +272,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     GTEST_LOG_(INFO)
         << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 
     bool state = false;

@@ -15,17 +15,24 @@
 
 #include "locator.h"
 #include "location_log.h"
-#include "locator_impl.h"
 
 namespace OHOS {
 namespace Location {
+std::shared_ptr<LocatorImpl> Locator::instance_ = nullptr;
+std::mutex Locator::mutex_;
 Locator::~Locator()
 {}
 
-std::unique_ptr<Locator> Locator::GetInstance()
+std::shared_ptr<LocatorImpl> Locator::GetInstance()
 {
-    std::unique_ptr<LocatorImpl> locator = std::make_unique<LocatorImpl>();
-    return locator;
+    if (instance_ == nullptr) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (instance_ == nullptr) {
+            std::shared_ptr<LocatorImpl> locator = std::make_shared<LocatorImpl>();
+            instance_ = locator;
+        }
+    }
+    return instance_;
 }
 }  // namespace Location
 }  // namespace OHOS

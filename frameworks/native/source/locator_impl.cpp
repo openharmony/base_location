@@ -31,6 +31,20 @@ namespace OHOS {
 namespace Location {
 auto g_dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
 constexpr uint32_t WAIT_MS = 1000;
+std::shared_ptr<LocatorImpl> LocatorImpl::instance_ = nullptr;
+std::mutex LocatorImpl::locatorMutex_;
+
+std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
+{
+    if (instance_ == nullptr) {
+        std::lock_guard<std::mutex> lock(locatorMutex_);
+        if (instance_ == nullptr) {
+            std::shared_ptr<LocatorImpl> locator = std::make_shared<LocatorImpl>();
+            instance_ = locator;
+        }
+    }
+    return instance_;
+}
 
 LocatorImpl::LocatorImpl()
 {}

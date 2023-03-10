@@ -24,98 +24,104 @@
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
-#include "locator.h"
 #include "locator_proxy.h"
 
 namespace OHOS {
 namespace Location {
-class LocatorImpl : public Locator {
+class ICallbackResumeManager {
 public:
-    explicit LocatorImpl();
-    ~LocatorImpl() override;
-    bool Init();
-    bool IsLocationEnabled() override;
-    void ShowNotification() override;
-    void RequestPermission() override;
-    void RequestEnableLocation() override;
-    void EnableAbility(bool enable) override;
-    void StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback) override;
-    void StopLocating(sptr<ILocatorCallback>& callback) override;
-    std::unique_ptr<Location> GetCachedLocation() override;
-    bool RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    bool UnregisterSwitchCallback(const sptr<IRemoteObject>& callback) override;
-    bool RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
-    bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
-    bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
-    bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback) override;
-    void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
-        sptr<ICachedLocationsCallback>& callback) override;
-    void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback) override;
-    bool IsGeoServiceAvailable() override;
-    void GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
-    void GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList) override;
-    bool IsLocationPrivacyConfirmed(const int type) override;
-    int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed) override;
-    int GetCachedGnssLocationsSize() override;
-    int FlushCachedGnssLocations() override;
-    bool SendCommand(std::unique_ptr<LocationCommand>& commands) override;
-    bool AddFence(std::unique_ptr<GeofenceRequest>& request) override;
-    bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
-    std::shared_ptr<CountryCode> GetIsoCountryCode() override;
-    bool EnableLocationMock() override;
-    bool DisableLocationMock() override;
-    bool SetMockedLocations(
-        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
-    bool EnableReverseGeocodingMock() override;
-    bool DisableReverseGeocodingMock() override;
-    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
-    bool ProxyUidForFreeze(int32_t uid, bool isProxy) override;
-    bool ResetAllProxy() override;
+    virtual ~ICallbackResumeManager() = default;
+    virtual void ResumeCallback() = 0;
+};
 
-    LocationErrCode IsLocationEnabledV9(bool &isEnabled) override;
-    LocationErrCode EnableAbilityV9(bool enable) override;
+class LocatorImpl {
+public:
+    static std::shared_ptr<LocatorImpl> GetInstance();
+    explicit LocatorImpl();
+    ~LocatorImpl();
+    bool Init();
+    bool IsLocationEnabled();
+    void ShowNotification();
+    void RequestPermission();
+    void RequestEnableLocation();
+    void EnableAbility(bool enable);
+    void StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
+        sptr<ILocatorCallback>& callback);
+    void StopLocating(sptr<ILocatorCallback>& callback);
+    std::unique_ptr<Location> GetCachedLocation();
+    bool RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    bool UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
+    bool RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    bool UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback);
+    bool RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    bool UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback);
+    bool RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    bool UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
+    void RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
+        sptr<ICachedLocationsCallback>& callback);
+    void UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback);
+    bool IsGeoServiceAvailable();
+    void GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList);
+    void GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList);
+    bool IsLocationPrivacyConfirmed(const int type);
+    int SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
+    int GetCachedGnssLocationsSize();
+    int FlushCachedGnssLocations();
+    bool SendCommand(std::unique_ptr<LocationCommand>& commands);
+    bool AddFence(std::unique_ptr<GeofenceRequest>& request);
+    bool RemoveFence(std::unique_ptr<GeofenceRequest>& request);
+    std::shared_ptr<CountryCode> GetIsoCountryCode();
+    bool EnableLocationMock();
+    bool DisableLocationMock();
+    bool SetMockedLocations(
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
+    bool EnableReverseGeocodingMock();
+    bool DisableReverseGeocodingMock();
+    bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
+    bool ProxyUidForFreeze(int32_t uid, bool isProxy);
+    bool ResetAllProxy();
+
+    LocationErrCode IsLocationEnabledV9(bool &isEnabled);
+    LocationErrCode EnableAbilityV9(bool enable);
     LocationErrCode StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback) override;
-    LocationErrCode StopLocatingV9(sptr<ILocatorCallback>& callback) override;
-    LocationErrCode GetCachedLocationV9(std::unique_ptr<Location> &loc) override;
-    LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback) override;
+        sptr<ILocatorCallback>& callback);
+    LocationErrCode StopLocatingV9(sptr<ILocatorCallback>& callback);
+    LocationErrCode GetCachedLocationV9(std::unique_ptr<Location> &loc);
+    LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback);
+    LocationErrCode UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback);
+    LocationErrCode UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback);
+    LocationErrCode UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback);
+    LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
-        sptr<ICachedLocationsCallback>& callback) override;
-    LocationErrCode UnregisterCachedLocationCallbackV9(sptr<ICachedLocationsCallback>& callback) override;
-    LocationErrCode IsGeoServiceAvailableV9(bool &isAvailable) override;
+        sptr<ICachedLocationsCallback>& callback);
+    LocationErrCode UnregisterCachedLocationCallbackV9(sptr<ICachedLocationsCallback>& callback);
+    LocationErrCode IsGeoServiceAvailableV9(bool &isAvailable);
     LocationErrCode GetAddressByCoordinateV9(MessageParcel &data,
-        std::list<std::shared_ptr<GeoAddress>>& replyList) override;
+        std::list<std::shared_ptr<GeoAddress>>& replyList);
     LocationErrCode GetAddressByLocationNameV9(MessageParcel &data,
-        std::list<std::shared_ptr<GeoAddress>>& replyList) override;
-    LocationErrCode IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed) override;
-    LocationErrCode SetLocationPrivacyConfirmStatusV9(const int type, bool isConfirmed) override;
-    LocationErrCode GetCachedGnssLocationsSizeV9(int &size) override;
-    LocationErrCode FlushCachedGnssLocationsV9() override;
-    LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands) override;
-    LocationErrCode AddFenceV9(std::unique_ptr<GeofenceRequest>& request) override;
-    LocationErrCode RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request) override;
-    LocationErrCode GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode) override;
-    LocationErrCode EnableLocationMockV9() override;
-    LocationErrCode DisableLocationMockV9() override;
+        std::list<std::shared_ptr<GeoAddress>>& replyList);
+    LocationErrCode IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed);
+    LocationErrCode SetLocationPrivacyConfirmStatusV9(const int type, bool isConfirmed);
+    LocationErrCode GetCachedGnssLocationsSizeV9(int &size);
+    LocationErrCode FlushCachedGnssLocationsV9();
+    LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands);
+    LocationErrCode AddFenceV9(std::unique_ptr<GeofenceRequest>& request);
+    LocationErrCode RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request);
+    LocationErrCode GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode);
+    LocationErrCode EnableLocationMockV9();
+    LocationErrCode DisableLocationMockV9();
     LocationErrCode SetMockedLocationsV9(
-        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
-    LocationErrCode EnableReverseGeocodingMockV9() override;
-    LocationErrCode DisableReverseGeocodingMockV9() override;
-    LocationErrCode SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
-    LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) override;
-    LocationErrCode ResetAllProxyV9() override;
+        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
+    LocationErrCode EnableReverseGeocodingMockV9();
+    LocationErrCode DisableReverseGeocodingMockV9();
+    LocationErrCode SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
+    LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy);
+    LocationErrCode ResetAllProxyV9();
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
-    void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer) override;
+    void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
 
 private:
     class LocatorDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -142,6 +148,8 @@ private:
     bool isCallbackResuming_ = false;
     std::mutex mutex_;
     std::mutex resumeMutex_;
+    static std::mutex locatorMutex_;
+    static std::shared_ptr<LocatorImpl> instance_;
 };
 }  // namespace Location
 }  // namespace OHOS

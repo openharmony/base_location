@@ -159,7 +159,7 @@ void LocatorServiceTest::ChangedLocationMode(bool isEnable)
 
 bool LocatorServiceTest::StartAndStopForLocating(MessageParcel& data)
 {
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     std::unique_ptr<RequestConfig> requestConfig = RequestConfig::Unmarshalling(data);
     locatorImpl->StartLocating(requestConfig, callbackStub_);
     locatorImpl->StopLocating(callbackStub_);
@@ -285,7 +285,7 @@ HWTEST_F(LocatorServiceTest, CheckStopLocating001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, CheckStopLocating001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckStopLocating001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     locatorImpl->StopLocating(callbackStub_);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckStopLocating001 end");
 }
@@ -1440,7 +1440,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, locatorImpl001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     locatorImpl->ShowNotification();
     locatorImpl->RequestPermission();
@@ -1451,7 +1451,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     locatorImpl->EnableAbility(true);
     EXPECT_EQ(true, locatorImpl->IsLocationEnabled());
 
-    EXPECT_EQ(nullptr, locatorImpl->GetCachedLocation());
+    EXPECT_NE(nullptr, locatorImpl->GetCachedLocation());
 
     locatorImpl->SetLocationPrivacyConfirmStatus(1, true);
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
@@ -1493,7 +1493,7 @@ HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGeocodingMock001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
@@ -1509,7 +1509,7 @@ HWTEST_F(LocatorServiceTest, locatorImplIsGeoServiceAvailable001, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, locatorImplIsGeoServiceAvailable001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplIsGeoServiceAvailable001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
     EXPECT_EQ(true, locatorImpl->IsGeoServiceAvailable());
@@ -1526,7 +1526,7 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Leve
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     MessageParcel request001;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
@@ -1555,7 +1555,7 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Leve
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate002 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     MessageParcel request002;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
@@ -1581,7 +1581,7 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByLocationName001, TestSize.Le
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, locatorImplGetAddressByLocationName001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByLocationName001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     MessageParcel request003;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList003;
@@ -1608,7 +1608,7 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplRegisterAndUnregisterCallback001 begin");
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
