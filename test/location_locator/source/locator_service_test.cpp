@@ -1389,7 +1389,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl->SetLocationPrivacyConfirmStatus(-1, true));
     EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
 
-    EXPECT_EQ(-1, locatorImpl->GetCachedGnssLocationsSize());
+    EXPECT_EQ(0, locatorImpl->GetCachedGnssLocationsSize());
 
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl->FlushCachedGnssLocations());
 
