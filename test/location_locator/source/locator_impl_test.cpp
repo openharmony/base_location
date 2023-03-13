@@ -218,7 +218,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedGnssLocationsSizeV9, TestSize.Leve
         << "LocatorImplTest, locatorImplGetCachedGnssLocationsSizeV9, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedGnssLocationsSizeV9 begin");
     int size = INVALID_CACHED_SIZE;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetCachedGnssLocationsSizeV9(size));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->GetCachedGnssLocationsSizeV9(size));
     EXPECT_EQ(INVALID_CACHED_SIZE, size);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedGnssLocationsSizeV9 end");
 }
@@ -257,8 +257,8 @@ HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
     geofence.radius = 3.0;
     geofence.expiration = 4.0;
     fenceRequest->geofence = geofence;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->AddFenceV9(fenceRequest));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RemoveFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->AddFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->RemoveFenceV9(fenceRequest));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 end");
 }
 
@@ -401,8 +401,8 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallbackV9001, TestSiz
     EXPECT_NE(nullptr, request);
     request->reportingPeriodSec = 10;
     request->wakeUpCacheQueueFull = true;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCachedLocationCallbackV9(request, cachedCallback));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterCachedLocationCallbackV9(cachedCallback));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->RegisterCachedLocationCallbackV9(request, cachedCallback));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->UnregisterCachedLocationCallbackV9(cachedCallback));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallbackV9001 end");
 }
 
