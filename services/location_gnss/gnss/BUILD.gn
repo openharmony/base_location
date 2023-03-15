@@ -21,20 +21,18 @@ if (location_feature_with_gnss) {
       "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
     ]
 
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_GNSS_ROOT/include",
-      "$LOCATION_LOCATOR_CALLBACK_ROOT/include",
       "$LOCATION_LOCATOR_ROOT/include",
     ]
 
     deps = [
-      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
-      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
 
     external_deps = [
@@ -48,6 +46,9 @@ if (location_feature_with_gnss) {
       "eventhandler:libeventhandler",
       "hdf_core:libhdi",
       "hiviewdfx_hilog_native:libhilog",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
     ]
 
     defines = []

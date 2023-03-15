@@ -18,12 +18,13 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "string_ex.h"
+#include "system_ability_definition.h"
 
 #include "common_utils.h"
-#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {
+const int REPORT_LOCATION = 42;
 SubAbility::SubAbility()
 {
     label_ = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
@@ -200,6 +201,24 @@ std::vector<std::shared_ptr<Location>> SubAbility::GetLocationMock()
 void SubAbility::ClearLocationMock()
 {
     mockLoc_.clear();
+}
+
+void SubAbility::ReportLocationInfo(
+    const std::string& systemAbility, const std::shared_ptr<Location> location)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(u"location.ILocator");
+    data.WriteString(systemAbility);
+    location->Marshalling(data);
+    sptr<IRemoteObject> objectLocator =
+        CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
+    if (objectLocator == nullptr) {
+        LBSLOGE(label_, "%{public}s get locator sa failed", __func__);
+        return;
+    }
+    objectLocator->SendRequest(REPORT_LOCATION, data, reply, option);
 }
 } // namespace Location
 } // namespace OHOS

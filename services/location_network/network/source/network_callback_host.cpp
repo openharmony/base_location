@@ -15,8 +15,10 @@
 
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_callback_host.h"
+
+#include "common_utils.h"
 #include "location_log.h"
-#include "locator_ability.h"
+#include "network_ability.h"
 
 namespace OHOS {
 namespace Location {
@@ -45,7 +47,8 @@ int NetworkCallbackHost::OnRemoteRequest(
 void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport");
-    DelayedSingleton<LocatorAbility>::GetInstance().get()->ReportLocation(location, NETWORK_ABILITY);
+    std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
+    DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
 }
 
 void NetworkCallbackHost::OnLocatingStatusChange(const int status)

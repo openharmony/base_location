@@ -51,6 +51,7 @@ void LocatorAbilityStub::InitLocatorHandleMap()
     locatorHandleMap_[UNREG_COUNTRY_CODE_CALLBACK] = &LocatorAbilityStub::PreUnregisterCountryCodeCallback;
     locatorHandleMap_[PROXY_UID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyUidForFreeze;
     locatorHandleMap_[RESET_ALL_PROXY] = &LocatorAbilityStub::PreResetAllProxy;
+    locatorHandleMap_[REPORT_LOCATION] = &LocatorAbilityStub::PreReportLocation;
 #ifdef FEATURE_GEOCODE_SUPPORT
     locatorHandleMap_[GEO_IS_AVAILABLE] = &LocatorAbilityStub::PreIsGeoConvertAvailable;
     locatorHandleMap_[GET_FROM_COORDINATE] = &LocatorAbilityStub::PreGetAddressByCoordinate;
@@ -842,6 +843,26 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(locatorAbility->ResetAllProxy());
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(LOCATOR, "check system permission failed, [%{public}s]",
+            identity.ToString().c_str());
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "PreReportLocation: LocatorAbility is nullptr.");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::string systemAbility = data.ReadString();
+    std::unique_ptr<Location> location = Location::Unmarshalling(data);
+    locatorAbility->ReportLocation(location, systemAbility);
     return ERRCODE_SUCCESS;
 }
 

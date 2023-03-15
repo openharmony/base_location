@@ -35,7 +35,6 @@
 #include "location_dumper.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
-#include "locator_ability.h"
 
 namespace OHOS {
 namespace Location {
@@ -635,31 +634,14 @@ void GnssAbility::SendReportMockLocationEvent()
 
 int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> location)
 {
-    std::unique_ptr<Location> locationNew = std::make_unique<Location>();
-    locationNew->SetLatitude(location->GetLatitude());
-    locationNew->SetLongitude(location->GetLongitude());
-    locationNew->SetAltitude(location->GetAltitude());
-    locationNew->SetAccuracy(location->GetAccuracy());
-    locationNew->SetSpeed(location->GetSpeed());
-    locationNew->SetDirection(location->GetDirection());
-    locationNew->SetTimeStamp(location->GetTimeStamp());
-    locationNew->SetTimeSinceBoot(location->GetTimeSinceBoot());
-    locationNew->SetAdditions(location->GetAdditions());
-    locationNew->SetAdditionSize(location->GetAdditionSize());
-    locationNew->SetIsFromMock(location->GetIsFromMock());
     if ((IsLocationMocked() && !location->GetIsFromMock()) ||
         (!IsLocationMocked() && location->GetIsFromMock())) {
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(GNSS, "ReportMockedLocation: locator ability is nullptr");
-        return ERR_OK;
-    }
-    locatorAbility.get()->ReportLocation(locationNew, GNSS_ABILITY);
+    ReportLocationInfo(GNSS_ABILITY, location);
 #ifdef FEATURE_PASSIVE_SUPPORT
-    locatorAbility.get()->ReportLocation(locationNew, PASSIVE_ABILITY);
+    ReportLocationInfo(PASSIVE_ABILITY, location);
 #endif
     return ERR_OK;
 }

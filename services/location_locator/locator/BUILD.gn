@@ -50,19 +50,13 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_passive/passive/include",
   ]
 
-  deps = [
-    "$ABILITY_RUNTIME/frameworks/native/ability/native:data_ability_helper",
-    "//base/global/i18n/frameworks/intl:intl_util",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-  ]
+  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:app_manager",
+    "ability_runtime:data_ability_helper",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
     "bundle_framework:appexecfwk_core",
@@ -74,10 +68,14 @@ ohos_shared_library("lbsservice_locator") {
     "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
+    "i18n:intl_util",
     "init:libbeget_proxy",
+    "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   defines = []

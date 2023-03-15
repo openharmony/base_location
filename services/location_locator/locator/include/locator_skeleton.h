@@ -84,6 +84,7 @@ private:
     int PreUnregisterCountryCodeCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreResetAllProxy(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreReportLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
 
 private:
     LocatorMsgHandleMap locatorHandleMap_;
