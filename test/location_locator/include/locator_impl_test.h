@@ -19,7 +19,7 @@
 #include <gtest/gtest.h>
 
 #include "i_locator_callback.h"
-#include "locator.h"
+#include "locator_impl.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
 #endif
@@ -36,7 +36,7 @@ public:
 #endif
 
     sptr<ILocatorCallback> callbackStub_;
-    std::unique_ptr<Locator> locatorImpl_;
+    std::shared_ptr<LocatorImpl> locatorImpl_;
     uint64_t tokenId_;
 };
 } // namespace Location

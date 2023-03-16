@@ -280,7 +280,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
     requestConfig->SetPriority(PRIORITY_ACCURACY);
     requestConfig->SetFixNumber(0);
     requestConfig->SetTimeInterval(1);
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
     locatorImpl->EnableAbility(true);
     locatorImpl->StartLocating(requestConfig, callbackStub); // start locating
@@ -319,7 +319,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
     requestConfig->SetPriority(PRIORITY_ACCURACY);
     requestConfig->SetFixNumber(1); // locating once
     requestConfig->SetTimeOut(120000);
-    std::unique_ptr<Locator> locatorImpl = Locator::GetInstance();
+    auto locatorImpl = Locator::GetInstance();
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
     locatorImpl->EnableAbility(true);
     locatorImpl->StartLocating(requestConfig, callbackStub); // start locating

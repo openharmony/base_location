@@ -38,6 +38,7 @@
 #include "location.h"
 #include "location_sa_load_manager.h"
 #include "location_switch_callback_host.h"
+#include "locator.h"
 #include "locator_callback_proxy.h"
 #include "locator_proxy.h"
 #ifdef FEATURE_GNSS_SUPPORT

@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace Location {
-std::unique_ptr<Locator> g_locatorClient = Locator::GetInstance();
+auto g_locatorClient = Locator::GetInstance();
 
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
 {

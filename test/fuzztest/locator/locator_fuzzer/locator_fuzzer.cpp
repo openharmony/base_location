@@ -69,7 +69,7 @@ namespace OHOS {
     bool TestStartLocating(const uint8_t* data, size_t size)
     {
         /* init locator and LocatorCallbackHost */
-        std::unique_ptr<Locator> locator = Locator::GetInstance();
+        auto locator = Locator::GetInstance();
         int index = 0;
         locatorCallbackHostForTest_->SetFixNumber(data[index++]);
         /* init requestConfig */

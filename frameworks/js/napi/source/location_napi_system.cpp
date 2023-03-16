@@ -26,7 +26,7 @@ sptr<LocatorCallbackHost> g_systemSingleLocatorCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
 sptr<LocatorCallbackHost> g_systemSubcribeCallbackHost =
     sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
-std::unique_ptr<Locator> g_locatorImpl = Locator::GetInstance();
+auto g_locatorImpl = Locator::GetInstance();
 
 napi_value GetLocationOnce(const napi_env& env,
                            const napi_ref& successHandlerRef,
