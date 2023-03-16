@@ -303,20 +303,25 @@ bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
 {
     sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (smgr == nullptr) {
-        LBSLOGE(COMMON_UTILS, "GetBundleNameByUid Fail to get system ability manager.");
+        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get system ability manager.", __func__);
         return false;
     }
     sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (remoteObject == nullptr) {
-        LBSLOGE(COMMON_UTILS, "GetBundleNameByUid Fail to get system ability manager.");
+        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get sa obj.", __func__);
         return false;
     }
     sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
     if (bundleMgrProxy == nullptr) {
-        LBSLOGE(COMMON_UTILS, "GetBundleNameByUid Bundle mgr proxy is nullptr.");
+        LBSLOGE(COMMON_UTILS, "%{public}s Bundle mgr proxy is nullptr.", __func__);
         return false;
     }
-    return bundleMgrProxy->GetBundleNameForUid(uid, bundleName);
+    int32_t error = bundleMgrProxy->GetNameForUid(uid, bundleName);
+    if (error != ERR_OK) {
+        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get bundle name, errcode = %{public}d.", __func__, error);
+        return false;
+    }
+    return true;
 }
 
 /*
