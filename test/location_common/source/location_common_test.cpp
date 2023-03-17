@@ -22,12 +22,16 @@
 #include "common_event_subscriber.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "system_ability_definition.h"
 #include "want.h"
 #include "want_agent.h"
 
 #include "app_identity.h"
 #include "common_hisysevent.h"
+#include "common_utils.h"
+#include "country_code_manager.h"
 #include "constant_definition.h"
+#include "permission_status_change_cb.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
@@ -36,15 +40,15 @@
 #include "geofence_state.h"
 #endif
 #include "location.h"
+#include "location_data_rdb_observer.h"
+#include "location_data_rdb_helper.h"
 #include "location_log.h"
+#include "location_sa_load_manager.h"
+#include "locator_event_subscriber.h"
 #include "request_config.h"
 #ifdef FEATURE_GNSS_SUPPORT
 #include "satellite_status.h"
 #endif
-#include "permission_status_change_cb.h"
-#include "common_utils.h"
-#include "locator_event_subscriber.h"
-#include "country_code_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -63,6 +67,8 @@ const double VERIFY_LOCATION_DIRECTION = 90.0;
 const double VERIFY_LOCATION_TIME = 1000000000;
 const double VERIFY_LOCATION_TIMESINCEBOOT = 1000000000;
 const double VERIFY_LOCATION_FLOOR_ACC = 1000.0;
+const int32_t UN_SAID = 999999;
+const std::string UN_URI = "unknown_uri";
 void LocationCommonTest::SetUp()
 {
 }
@@ -593,5 +599,78 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest003 end");
 }
 #endif
+
+HWTEST_F(LocationCommonTest, LoadLocationSaTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LoadLocationSaTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest001 begin");
+    LocationErrCode err = LocationSaLoadManager::GetInstance().LoadLocationSa(UN_SAID);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
+
+    err = LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    EXPECT_EQ(ERRCODE_SUCCESS, err);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest001 end");
+}
+
+HWTEST_F(LocationCommonTest, LoadLocationSaTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LoadLocationSaTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest002 begin");
+    LocationErrCode err = LocationSaLoadManager::GetInstance().UnloadLocationSa(UN_SAID);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
+
+    // can not unload sa by another sa
+    err = LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest002 end");
+}
+
+HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationDataRdbHelperTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest001 begin");
+
+    Uri unknownUri(UN_URI);
+    auto dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
+    LocationErrCode err = LocationDataRdbHelper::GetInstance().RegisterDataObserver(unknownUri, dataRdbObserver);
+    EXPECT_EQ(ERRCODE_SUCCESS, err);
+
+    err = LocationDataRdbHelper::GetInstance().UnregisterDataObserver(unknownUri, dataRdbObserver);
+    EXPECT_EQ(ERRCODE_SUCCESS, err);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest001 end");
+}
+
+HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationDataRdbHelperTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest002 begin");
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    int32_t state = DISABLED;
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state));
+
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        LocationDataRdbHelper::GetInstance().GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state));
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest002 end");
+}
+
+HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationDataRdbHelperTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest003 begin");
+    Uri unknownUri(UN_URI);
+    int32_t state = DISABLED;
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE,
+        LocationDataRdbHelper::GetInstance().SetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state));
+
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE,
+        LocationDataRdbHelper::GetInstance().GetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state));
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest003 end");
+}
 } // namespace Location
 } // namespace OHOS
