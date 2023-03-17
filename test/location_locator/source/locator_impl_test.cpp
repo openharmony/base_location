@@ -41,7 +41,7 @@ namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const int INVALID_PRIVACY_TYPE = -1;
-const int INVALID_CACHED_SIZE = -1;
+const int INVALID_CACHED_SIZE = 0;
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
 void LocatorImplTest::SetUp()
