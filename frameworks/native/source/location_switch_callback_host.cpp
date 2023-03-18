@@ -117,7 +117,8 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             napi_value jsEvent;
-            NAPI_CALL_RETURN_VOID(context->env, napi_get_boolean(context->env, context->enable, &jsEvent));
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_boolean(context->env, context->enable, &jsEvent),
+                scope, context, work);
             if (scope == nullptr) {
                 LBSLOGE(SWITCH_CALLBACK, "scope is nullptr");
                 delete context;
@@ -127,9 +128,10 @@ void LocationSwitchCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
+                    scope, context, work);
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(SWITCH_CALLBACK, "Report event failed");

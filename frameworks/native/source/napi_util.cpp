@@ -945,16 +945,19 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
                 return;
             }
             if (context->callback[SUCCESS_CALLBACK] != nullptr) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[SUCCESS_CALLBACK]));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_delete_reference(context->env, context->callback[SUCCESS_CALLBACK]),
+                    scope, context, work);
             }
             if (context->callback[FAIL_CALLBACK] != nullptr) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[FAIL_CALLBACK]));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_delete_reference(context->env, context->callback[FAIL_CALLBACK]),
+                    scope, context, work);
             }
             if (context->callback[COMPLETE_CALLBACK] != nullptr) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[COMPLETE_CALLBACK]));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_delete_reference(context->env, context->callback[COMPLETE_CALLBACK]),
+                    scope, context, work);
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
