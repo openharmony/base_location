@@ -1220,7 +1220,7 @@ bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
     InitOffFuncMap();
-    size_t argc = PARAM2;
+    size_t argc = PARAM3;
     napi_value argv[PARAM3] = {0};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
