@@ -34,37 +34,50 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(GEO_CONVERT, "uid pid not match locationhub process.");
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return ERRCODE_PERMISSION_DENIED;
-    }
 
     int ret = ERRCODE_SUCCESS;
     switch (code) {
         case IS_AVAILABLE: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             IsGeoConvertAvailable(reply);
             break;
         }
         case GET_FROM_COORDINATE: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             GetAddressByCoordinate(data, reply);
             break;
         }
         case GET_FROM_LOCATION_NAME_BY_BOUNDARY: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             GetAddressByLocationName(data, reply);
             break;
         }
         case ENABLE_REVERSE_GEOCODE_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             EnableReverseGeocodingMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
                 reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
             break;
         }
         case DISABLE_REVERSE_GEOCODE_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             DisableReverseGeocodingMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
                 reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
             break;
         }
         case SET_REVERSE_GEOCODE_MOCKINFO: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo = ParseGeocodingMockInfos(data);
             reply.WriteInt32(SetReverseGeocodingMockInfo(mockInfo));
             break;

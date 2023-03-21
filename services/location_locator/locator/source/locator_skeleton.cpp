@@ -962,8 +962,10 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         ret = (this->*memberFunc)(data, reply, identity);
     } else {
         LBSLOGE(LOCATOR, "OnReceived cmd = %{public}u, unsupport service.", code);
+#if !defined(FEATURE_GNSS_SUPPORT) || !defined(FEATURE_GEOCODE_SUPPORT)
         reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-        ret = ERRCODE_NOT_SUPPORTED;
+#endif
+        ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
     UnloadLocatorSa();
