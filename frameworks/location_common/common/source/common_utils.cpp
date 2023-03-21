@@ -74,6 +74,16 @@ bool CommonUtils::CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId)
     return CheckPermission(MANAGE_SECURE_SETTINGS, tokenId, firstTokenId);
 }
 
+bool CommonUtils::CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply)
+{
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(COMMON_UTILS, "uid pid not match locationhub process.");
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return false;
+    }
+    return true;
+}
+
 int CommonUtils::GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId)
 {
     int ret = PERMISSION_INVALID;

@@ -883,6 +883,9 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
         ret = (this->*memberFunc)(data, reply, identity);
+    } else {
+        LBSLOGE(LOCATOR, "OnReceived cmd = %{public}u, unsupport service.", code);
+        ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
     return ret;

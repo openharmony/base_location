@@ -40,32 +40,42 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(PASSIVE, "uid pid not match locationhub process.");
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return ERRCODE_PERMISSION_DENIED;
-    }
 
     int ret = ERRCODE_SUCCESS;
     switch (code) {
         case SEND_LOCATION_REQUEST: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             reply.WriteInt32(SendLocationRequest(*workrecord));
             break;
         }
         case SET_ENABLE: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
         case ENABLE_LOCATION_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(EnableMock());
             break;
         }
         case DISABLE_LOCATION_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(DisableMock());
             break;
         }
         case SET_MOCKED_LOCATIONS: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             SendMessage(code, data, reply);
             break;
         }

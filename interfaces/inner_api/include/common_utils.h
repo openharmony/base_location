@@ -145,6 +145,7 @@ public:
     static bool CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckPermission(const std::string &permission, uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply);
     static bool GetCurrentUserId(int &userId);
     static std::string Str16ToStr8(std::u16string str);
     static bool DoubleEqual(double a, double b);
