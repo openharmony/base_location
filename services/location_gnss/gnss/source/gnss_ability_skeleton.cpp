@@ -37,50 +37,69 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(GNSS, "uid pid not match locationhub process.");
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return ERRCODE_PERMISSION_DENIED;
-    }
 
     int ret = ERRCODE_SUCCESS;
     bool isMessageRequest = false;
     switch (code) {
         case SEND_LOCATION_REQUEST: // fall through
         case SET_MOCKED_LOCATIONS: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             SendMessage(code, data, reply);
             isMessageRequest = true;
             break;
         }
         case SET_ENABLE: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
         case REFRESH_REQUESTS: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(RefrashRequirements());
             break;
         }
         case REG_GNSS_STATUS: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
             reply.WriteInt32(RegisterGnssStatusCallback(client, callingUid));
             break;
         }
         case UNREG_GNSS_STATUS: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
             reply.WriteInt32(UnregisterGnssStatusCallback(client));
             break;
         }
         case REG_NMEA: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
             reply.WriteInt32(RegisterNmeaMessageCallback(client, callingUid));
             break;
         }
         case UNREG_NMEA: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
             reply.WriteInt32(UnregisterNmeaMessageCallback(client));
             break;
         }
         case REG_CACHED: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
             requestConfig->reportingPeriodSec = data.ReadInt32();
             requestConfig->wakeUpCacheQueueFull = data.ReadBool();
@@ -89,21 +108,33 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case UNREG_CACHED: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
             reply.WriteInt32(UnregisterCachedCallback(callback));
             break;
         }
         case GET_CACHED_SIZE: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             int size = -1;
             reply.WriteInt32(GetCachedGnssLocationsSize(size));
             reply.WriteInt32(size);
             break;
         }
         case FLUSH_CACHED: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(FlushCachedGnssLocations());
             break;
         }
         case SEND_COMMANDS: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
             locationCommand->scenario =  data.ReadInt32();
             locationCommand->command = data.ReadBool();
@@ -111,14 +142,23 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case ENABLE_LOCATION_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(EnableMock());
             break;
         }
         case DISABLE_LOCATION_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(DisableMock());
             break;
         }
         case ADD_FENCE_INFO: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
             request->scenario = data.ReadInt32();
             request->geofence.latitude = data.ReadDouble();
@@ -129,6 +169,9 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             break;
         }
         case REMOVE_FENCE_INFO: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
             request->scenario = data.ReadInt32();
             request->geofence.latitude = data.ReadDouble();

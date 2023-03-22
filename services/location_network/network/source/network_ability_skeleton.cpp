@@ -42,11 +42,6 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(NETWORK, "uid pid not match locationhub process.");
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return ERRCODE_PERMISSION_DENIED;
-    }
 
     int ret = ERRCODE_SUCCESS;
     bool isMessageRequest = false;
@@ -54,19 +49,31 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         case SEND_LOCATION_REQUEST: // fall through
         case SET_MOCKED_LOCATIONS: // fall through
         case SELF_REQUEST: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             SendMessage(code, data, reply);
             isMessageRequest = true;
             break;
         }
         case SET_ENABLE: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
         case ENABLE_LOCATION_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(EnableMock());
             break;
         }
         case DISABLE_LOCATION_MOCK: {
+            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
+                return ERRCODE_PERMISSION_DENIED;
+            }
             reply.WriteInt32(DisableMock());
             break;
         }
