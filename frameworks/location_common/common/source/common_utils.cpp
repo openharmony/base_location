@@ -25,6 +25,7 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
