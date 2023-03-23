@@ -570,7 +570,6 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
     if (switchCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
-        g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeLocationServiceStateV9(env, handlerRef, switchCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -580,6 +579,7 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
 #else
         SubscribeLocationServiceState(env, handlerRef, switchCallbackHost);
 #endif
+        g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
     }
     return true;
 }
@@ -618,7 +618,6 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
     if (cachedCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef), false);
-        g_cachedLocationCallbacks.AddCallback(env, handlerRef, cachedCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeCacheLocationChangeV9(env, argv[PARAM1], handlerRef, cachedCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -628,6 +627,7 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
 #else
         SubscribeCacheLocationChange(env, argv[PARAM1], handlerRef, cachedCallbackHost);
 #endif
+        g_cachedLocationCallbacks.AddCallback(env, handlerRef, cachedCallbackHost);
     }
     return true;
 }
@@ -657,7 +657,6 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
     if (gnssCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
-        g_gnssStatusInfoCallbacks.AddCallback(env, handlerRef, gnssCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeGnssStatusV9(env, handlerRef, gnssCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -667,6 +666,7 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
 #else
         SubscribeGnssStatus(env, handlerRef, gnssCallbackHost);
 #endif
+        g_gnssStatusInfoCallbacks.AddCallback(env, handlerRef, gnssCallbackHost);
     }
     return true;
 }
@@ -703,7 +703,6 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
     if (locatorCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef), false);
-        g_locationCallbacks.AddCallback(env, handlerRef, locatorCallbackHost);
         // argv[1]:request params, argv[2]:handler
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeLocationChangeV9(env, argv[PARAM1], handlerRef, locatorCallbackHost);
@@ -714,6 +713,7 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
 #else
         SubscribeLocationChange(env, argv[PARAM1], handlerRef, locatorCallbackHost);
 #endif
+        g_locationCallbacks.AddCallback(env, handlerRef, locatorCallbackHost);
     }
     return true;
 }
@@ -743,7 +743,6 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
     if (nmeaCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
-        g_nmeaCallbacks.AddCallback(env, handlerRef, nmeaCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeNmeaMessageV9(env, handlerRef, nmeaCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -753,6 +752,7 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
 #else
         SubscribeNmeaMessage(env, handlerRef, nmeaCallbackHost);
 #endif
+        g_nmeaCallbacks.AddCallback(env, handlerRef, nmeaCallbackHost);
     }
     return true;
 }
@@ -782,7 +782,6 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
     if (callbackHost) {
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
-        g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = SubscribeCountryCodeChangeV9(env, handlerRef, callbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
@@ -792,6 +791,7 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
 #else
         SubscribeCountryCodeChange(env, handlerRef, callbackHost);
 #endif
+        g_countryCodeCallbacks.AddCallback(env, handlerRef, callbackHost);
     }
     return true;
 }
