@@ -71,6 +71,7 @@ ohos_shared_library("lbsservice_locator") {
     "i18n:intl_util",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
