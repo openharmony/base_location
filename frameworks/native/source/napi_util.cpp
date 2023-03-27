@@ -97,6 +97,7 @@ void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Locati
             SetValueInt64(env, "timeSinceBoot", locations[index]->GetTimeSinceBoot(), value);
             SetValueUtf8String(env, "additions", locations[index]->GetAdditions().c_str(), value);
             SetValueInt64(env, "additionSize", locations[index]->GetAdditionSize(), value);
+            SetValueBool(env, "isFromMock", locations[index]->GetIsFromMock(), value);
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, value));
         }
     }
@@ -114,6 +115,7 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt64(env, "timeSinceBoot", locationInfo->GetTimeSinceBoot(), result);
     SetValueUtf8String(env, "additions", locationInfo->GetAdditions().c_str(), result);
     SetValueInt64(env, "additionSize", locationInfo->GetAdditionSize(), result);
+    SetValueBool(env, "isFromMock", locationInfo->GetIsFromMock(), result);
 }
 
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result)
@@ -169,6 +171,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
             SetValueStringArray(env, "descriptions", descriptionArray, eachObj);
         }
         SetValueInt32(env, "descriptionsSize", geoAddress->m_descriptionsSize, eachObj);
+        SetValueBool(env, "isFromMock", geoAddress->m_isFromMock, eachObj);
         NAPI_CALL_BASE(env, napi_set_element(env, arrayResult, idx++, eachObj), false);
     }
     return true;
@@ -945,16 +948,19 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
                 return;
             }
             if (context->callback[SUCCESS_CALLBACK] != nullptr) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[SUCCESS_CALLBACK]));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_delete_reference(context->env, context->callback[SUCCESS_CALLBACK]),
+                    scope, context, work);
             }
             if (context->callback[FAIL_CALLBACK] != nullptr) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[FAIL_CALLBACK]));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_delete_reference(context->env, context->callback[FAIL_CALLBACK]),
+                    scope, context, work);
             }
             if (context->callback[COMPLETE_CALLBACK] != nullptr) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[COMPLETE_CALLBACK]));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_delete_reference(context->env, context->callback[COMPLETE_CALLBACK]),
+                    scope, context, work);
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;

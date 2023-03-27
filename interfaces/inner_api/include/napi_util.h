@@ -101,6 +101,16 @@ bool CheckIfParamIsFunctionType(napi_env env, napi_value param);
             return INPUT_PARAMS_ERROR;                                                                \
         }                                                                                             \
     } while (0)
+
+#define CHK_NAPI_ERR_CLOSE_SCOPE(env, state, scope, context, work)             \
+    do {                                                                       \
+        if ((state) != napi_ok && (context) != nullptr && (work) != nullptr) { \
+            napi_close_handle_scope((env), (scope));                           \
+            delete (context);                                                  \
+            delete (work);                                                     \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
 }  // namespace Location
 }  // namespace OHOS
 #endif // NAPI_UTIL_H

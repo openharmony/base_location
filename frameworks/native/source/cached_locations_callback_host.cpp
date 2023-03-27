@@ -125,14 +125,16 @@ void CachedLocationsCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             napi_value jsEvent = nullptr;
-            NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &jsEvent));
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
+                scope, context, work);
             LocationsToJs(context->env, context->locationList, jsEvent);
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &undefine));
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler));
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
+                    scope, context, work);
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(CACHED_LOCATIONS_CALLBACK, "Report event failed");
