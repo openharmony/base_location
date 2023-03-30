@@ -287,7 +287,8 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
     cachedCallbackHost->SetEnv(env);
     cachedCallbackHost->SetHandleCb(handlerRef);
     JsObjToCachedLocationRequest(env, object, g_cachedRequest);
-    return g_locatorProxy->RegisterCachedLocationCallbackV9(g_cachedRequest, cachedCallback);
+    g_locatorProxy->RegisterCachedLocationCallbackV9(g_cachedRequest, cachedCallback);
+    return ERRCODE_NOT_SUPPORTED;
 }
 #endif
 
@@ -311,14 +312,14 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
         return errorCode;
     }
     auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
-    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_GEOFENCE_FAIL);
+    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
     JsObjToGeoFenceRequest(env, object, g_fenceRequest);
     auto state = new (std::nothrow) GeoFenceState(g_fenceRequest->geofence, wantAgent);
     if (state != nullptr) {
         mFences.push_back(state);
-        return g_locatorProxy->AddFenceV9(g_fenceRequest);
+        g_locatorProxy->AddFenceV9(g_fenceRequest);
     }
-    return ERRCODE_GEOFENCE_FAIL;
+    return ERRCODE_NOT_SUPPORTED;
 }
 #endif
 
@@ -345,7 +346,7 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
     JsObjToGeoFenceRequest(env, object, g_fenceRequest);
     if (mFences.size() > 0) {
         mFences.erase(mFences.begin());
-        return g_locatorProxy->RemoveFenceV9(g_fenceRequest);
+        g_locatorProxy->RemoveFenceV9(g_fenceRequest);
     }
     return ERRCODE_NOT_SUPPORTED;
 }
@@ -527,7 +528,8 @@ void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback)
 LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>& callback)
 {
     LBSLOGI(LOCATION_NAPI, "UnSubscribeCacheLocationChangeV9");
-    return g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
+    g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
+    return ERRCODE_NOT_SUPPORTED;
 }
 #endif
 
@@ -1007,6 +1009,9 @@ bool OffAllCachedGnssLocationsReportingCallback(const napi_env& env)
         g_cachedLocationCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
+#ifdef ENABLE_NAPI_MANAGER
+        HandleSyncErrCode(env, ERRCODE_NOT_SUPPORTED);
+#endif
         return false;
     }
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
@@ -1191,6 +1196,11 @@ bool OffCachedGnssLocationsReportingCallback(const napi_env& env, const napi_val
         cachedCallbackHost->DeleteHandler();
         cachedCallbackHost = nullptr;
         return true;
+    } else {
+        LBSLOGI(LOCATION_NAPI, "%{public}s, the callback is not in the map", __func__);
+#ifdef ENABLE_NAPI_MANAGER
+        HandleSyncErrCode(env, ERRCODE_NOT_SUPPORTED);
+#endif
     }
     return false;
 }
