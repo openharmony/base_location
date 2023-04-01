@@ -977,5 +977,13 @@ bool CheckIfParamIsFunctionType(napi_env env, napi_value param)
     }
     return true;
 }
+
+napi_value SetEnumPropertyByInteger(napi_env env, napi_value dstObj, int32_t enumValue, const char *enumName)
+{
+    napi_value enumProp = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, enumValue, &enumProp));
+    NAPI_CALL(env, napi_set_named_property(env, dstObj, enumName, enumProp));
+    return enumProp;
+}
 }  // namespace Location
 }  // namespace OHOS

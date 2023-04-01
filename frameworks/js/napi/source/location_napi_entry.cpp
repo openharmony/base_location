@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "constant_definition.h"
 #include "napi_util.h"
 #include "location_log.h"
 #include "location_napi_adapter.h"
@@ -21,6 +22,65 @@
 
 namespace OHOS {
 namespace Location {
+napi_value LocationRequestPriorityTypeConstructor(napi_env env)
+{
+    napi_value locationRequestPriority = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &locationRequestPriority));
+    SetEnumPropertyByInteger(env, locationRequestPriority, PRIORITY_UNSET, "UNSET");
+    SetEnumPropertyByInteger(env, locationRequestPriority, PRIORITY_ACCURACY, "ACCURACY");
+    SetEnumPropertyByInteger(env, locationRequestPriority, PRIORITY_LOW_POWER, "LOW_POWER");
+    SetEnumPropertyByInteger(env, locationRequestPriority, PRIORITY_FAST_FIRST_FIX, "FIRST_FIX");
+    return locationRequestPriority;
+}
+
+napi_value LocationRequestScenarioTypeConstructor(napi_env env)
+{
+    napi_value locationRequestScenario = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &locationRequestScenario));
+    SetEnumPropertyByInteger(env, locationRequestScenario, SCENE_UNSET, "UNSET");
+    SetEnumPropertyByInteger(env, locationRequestScenario, SCENE_NAVIGATION, "NAVIGATION");
+    SetEnumPropertyByInteger(env, locationRequestScenario, SCENE_TRAJECTORY_TRACKING, "TRAJECTORY_TRACKING");
+    SetEnumPropertyByInteger(env, locationRequestScenario, SCENE_CAR_HAILING, "CAR_HAILING");
+    SetEnumPropertyByInteger(env, locationRequestScenario, SCENE_DAILY_LIFE_SERVICE, "DAILY_LIFE_SERVICE");
+    SetEnumPropertyByInteger(env, locationRequestScenario, SCENE_NO_POWER, "NO_POWER");
+    return locationRequestScenario;
+}
+
+napi_value LocationPrivacyTypeConstructor(napi_env env)
+{
+    napi_value locationPrivacyType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &locationPrivacyType));
+    SetEnumPropertyByInteger(env, locationPrivacyType, PRIVACY_TYPE_OTHERS, "OTHERS");
+    SetEnumPropertyByInteger(env, locationPrivacyType, PRIVACY_TYPE_STARTUP, "STARTUP");
+    SetEnumPropertyByInteger(env, locationPrivacyType, PRIVACY_TYPE_CORE_LOCATION, "CORE_LOCATION");
+    return locationPrivacyType;
+}
+
+napi_value CountryCodeTypeConstructor(napi_env env)
+{
+    napi_value countryCodeType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &countryCodeType));
+    SetEnumPropertyByInteger(env, countryCodeType, COUNTRY_CODE_FROM_LOCALE, "COUNTRY_CODE_FROM_LOCALE");
+    SetEnumPropertyByInteger(env, countryCodeType, COUNTRY_CODE_FROM_SIM, "COUNTRY_CODE_FROM_SIM");
+    SetEnumPropertyByInteger(env, countryCodeType, COUNTRY_CODE_FROM_LOCATION, "COUNTRY_CODE_FROM_LOCATION");
+    SetEnumPropertyByInteger(env, countryCodeType, COUNTRY_CODE_FROM_NETWORK, "COUNTRY_CODE_FROM_NETWORK");
+    return countryCodeType;
+}
+
+napi_value GeoLocationErrorCodeTypeConstructor(napi_env env)
+{
+    napi_value geoLocationErrorCode = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &geoLocationErrorCode));
+    SetEnumPropertyByInteger(env, geoLocationErrorCode, INPUT_PARAMS_ERROR, "INPUT_PARAMS_ERROR");
+    SetEnumPropertyByInteger(env, geoLocationErrorCode, REVERSE_GEOCODE_ERROR, "REVERSE_GEOCODE_ERROR");
+    SetEnumPropertyByInteger(env, geoLocationErrorCode, GEOCODE_ERROR, "GEOCODE_ERROR");
+    SetEnumPropertyByInteger(env, geoLocationErrorCode, LOCATOR_ERROR, "LOCATOR_ERROR");
+    SetEnumPropertyByInteger(env, geoLocationErrorCode, LOCATION_SWITCH_ERROR, "LOCATION_SWITCH_ERROR");
+    SetEnumPropertyByInteger(env, geoLocationErrorCode, LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR");
+    SetEnumPropertyByInteger(env, geoLocationErrorCode, LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR");
+    return geoLocationErrorCode;
+}
+
 #ifndef ENABLE_NAPI_MANAGER
 /*
  * Module initialization function
@@ -50,6 +110,11 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("subscribe", Subscribe),
         DECLARE_NAPI_FUNCTION("unsubscribe", Unsubscribe),
         DECLARE_NAPI_FUNCTION("getSupportedCoordTypes", GetSupportedCoordTypes),
+
+        DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocationPrivacyType", LocationPrivacyTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("GeoLocationErrorCode", GeoLocationErrorCodeTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
@@ -99,6 +164,11 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("enableReverseGeocodingMock", EnableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("disableReverseGeocodingMock", DisableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("setReverseGeocodingMockInfo", SetReverseGeocodingMockInfo),
+
+        DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocationPrivacyType", LocationPrivacyTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("CountryCodeType", CountryCodeTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
