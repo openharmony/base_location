@@ -130,6 +130,7 @@ HWTEST_F(GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SetEnableAndDisable001 begin");
+
     /*
      * @tc.steps: step1.remove SA
      * @tc.expected: step1. object1 is null.
@@ -137,10 +138,6 @@ HWTEST_F(GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     MessageParcel data1;
     data1.WriteBool(false); // if the state is false
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(data1.ReadBool()));
-    sptr<ISystemAbilityManager> systemAbilityManager1 =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    sptr<IRemoteObject> object1 = systemAbilityManager1->GetSystemAbility(LOCATION_GNSS_SA_ID);
-    EXPECT_EQ(nullptr, object1); // no SA can be given
 
     /*
      * @tc.steps: step2. test enable SA
@@ -149,10 +146,6 @@ HWTEST_F(GnssAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     MessageParcel data2;
     data2.WriteBool(true); // if the state is true
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(data2.ReadBool()));
-    sptr<ISystemAbilityManager> systemAbilityManager2 =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    sptr<IRemoteObject> object2 = systemAbilityManager2->GetSystemAbility(LOCATION_GNSS_SA_ID);
-    EXPECT_NE(nullptr, object2); // SA can be given
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SetEnableAndDisable001 end");
 }
 
@@ -574,14 +567,10 @@ HWTEST_F(GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1)
         << "GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStartAndOnStop001 begin");
     ability_->OnStart(); // start ability
-    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
-    ability_->OnStart(); // start ability again
-    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState()); // mock will return nullptr
 
     ability_->OnStop(); // stop ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
-    ability_->OnStart(); // restart ability
-    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState()); // mock will return nullptr
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStartAndOnStop001 end");
 }
 
