@@ -21,6 +21,9 @@
 #include "country_code_callback_host.h"
 #include "locator.h"
 #include "napi_util.h"
+#ifdef SUPPORT_JSSTACK
+#include "xpower_event_js.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -673,6 +676,9 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
 
 bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
+#ifdef SUPPORT_JSSTACK
+    HiviewDFX::ReportXPowerJsStackSysEvent(env, "GNSS_STATE");
+#endif
 #ifdef ENABLE_NAPI_MANAGER
     if (argc != PARAM3) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
@@ -841,7 +847,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
 #else
     NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
 #endif
-    
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
 
     char type[64] = {0}; // max length
@@ -1305,7 +1310,9 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
     napi_valuetype valueType = napi_undefined;
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
     LBSLOGI(LOCATION_NAPI, "GetCurrentLocation enter");
-
+#ifdef SUPPORT_JSSTACK
+    HiviewDFX::ReportXPowerJsStackSysEvent(env, "GNSS_STATE");
+#endif
     if (argc == PARAM1) {
         NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
 #ifdef ENABLE_NAPI_MANAGER

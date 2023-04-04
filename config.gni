@@ -37,4 +37,5 @@ declare_args() {
   location_feature_with_gnss = true
   location_feature_with_network = true
   location_feature_with_passive = true
+  location_feature_with_jsstack = true
 }

@@ -26,7 +26,8 @@
             "location_feature_with_geocode",
             "location_feature_with_gnss",
             "location_feature_with_network",
-            "location_feature_with_passive"
+            "location_feature_with_passive",
+            "location_feature_with_jsstack"
         ],
         "adapted_system_type": [
             "standard"

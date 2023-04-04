@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 ohos_shared_library("geolocation") {
@@ -39,6 +40,12 @@ ohos_shared_library("geolocation") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
+  defines = []
+  if (location_feature_with_jsstack) {
+    defines += [ "SUPPORT_JSSTACK" ]
+    external_deps += [ "hiview:libxpower_event_js" ]
+  }
 
   relative_install_dir = "module"
   part_name = "location"
@@ -104,6 +111,11 @@ ohos_shared_library("geolocationmanager") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
+  if (location_feature_with_jsstack) {
+    defines += [ "SUPPORT_JSSTACK" ]
+    external_deps += [ "hiview:libxpower_event_js" ]
+  }
 
   relative_install_dir = "module"
   part_name = "location"
