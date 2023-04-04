@@ -24,6 +24,7 @@ if (location_feature_with_gnss) {
       "$GNSS_UNIT_TEST_DIR/mock/src/mock_i_cellular_data_manager.cpp",
       "$GNSS_UNIT_TEST_DIR/source/gnss_ability_stub_test.cpp",
       "$GNSS_UNIT_TEST_DIR/source/gnss_ability_test.cpp",
+      "$LOCATION_ROOT_DIR/test/mock/src/mock_service_registry.cpp",
     ]
 
     include_dirs = [
