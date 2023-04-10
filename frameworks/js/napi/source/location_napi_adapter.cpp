@@ -582,7 +582,8 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
         
 #ifdef ENABLE_NAPI_MANAGER
         int size = -1;
-        context->errCode = g_locatorClient->GetCachedGnssLocationsSizeV9(size);
+        g_locatorClient->GetCachedGnssLocationsSizeV9(size);
+        context->errCode = ERRCODE_NOT_SUPPORTED;
         context->locationSize = size;
 #else
         context->locationSize = g_locatorClient->GetCachedGnssLocationsSize();
@@ -628,7 +629,8 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
             context->errCode = errorCode;
             return;
         }
-        context->errCode = g_locatorClient->FlushCachedGnssLocationsV9();
+        g_locatorClient->FlushCachedGnssLocationsV9();
+        context->errCode = ERRCODE_NOT_SUPPORTED;
 #else
         if (g_locatorClient->IsLocationEnabled()) {
             g_locatorClient->FlushCachedGnssLocations();
