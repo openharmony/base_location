@@ -20,7 +20,12 @@
 
 #include "i_locator_callback.h"
 #include "request.h"
+
+#define private public
+#define protected public
 #include "request_manager.h"
+#undef protected
+#undef private
 
 namespace OHOS {
 namespace Location {

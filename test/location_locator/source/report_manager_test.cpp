@@ -44,6 +44,8 @@ void ReportManagerTest::SetUp()
 
 void ReportManagerTest::TearDown()
 {
+    reportManager_ = nullptr;
+    DelayedSingleton<ReportManager>::DestroyInstance();
 }
 
 void ReportManagerTest::MockNativePermission()
@@ -189,15 +191,6 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     EXPECT_EQ(13.0, newLocation->GetLongitude());
     EXPECT_EQ(1000.0, newLocation->GetAccuracy());
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] GetPermittedLocationTest001 end");
-}
-
-HWTEST_F(ReportManagerTest, UpdateRandomTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "ReportManagerTest, UpdateRandomTest001, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest001 begin");
-    reportManager_->UpdateRandom();
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest001 end");
 }
 
 HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)

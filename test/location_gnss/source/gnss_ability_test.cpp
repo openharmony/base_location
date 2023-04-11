@@ -669,8 +669,8 @@ HWTEST_F(GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1)
         << "GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFenceAndRemoveFenceTest001 begin");
     std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
-    ability_->AddFence(fence);
-    ability_->RemoveFence(fence);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, ability_->AddFence(fence));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, ability_->RemoveFence(fence));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFenceAndRemoveFenceTest001 end");
 }
 

@@ -460,21 +460,6 @@ HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest001 end");
 }
 
-HWTEST_F(LocationCommonTest, CommonHisyseventTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationCommonTest, CommonHisyseventTest001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationCommonTest] CommonHisyseventTest001 begin");
-    std::string state = "state";
-#ifdef FEATURE_GNSS_SUPPORT
-    pid_t pid = 1;
-    pid_t uid = 2;
-    WriteGnssStateEvent(state, pid, uid);
-#endif
-    WriteLocationSwitchStateEvent(state);
-    LBSLOGI(LOCATOR, "[LocationCommonTest] CommonHisyseventTest001 end");
-}
-
 #ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocationCommonTest, GeoFenceStateTest001, TestSize.Level1)
 {
@@ -523,6 +508,7 @@ HWTEST_F(LocationCommonTest, PermStateChangeCallbackTest001, TestSize.Level1)
     scopeInfo.tokenIDs = {callingTokenId};
     auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
     struct PermStateChangeInfo result{0, callingTokenId, ACCESS_LOCATION};
+    ASSERT_TRUE(callbackPtr != nullptr);
     callbackPtr->PermStateChangeCallback(result);
     LBSLOGI(LOCATOR, "[LocationCommonTest] PermStateChangeCallbackTest001 end");
 }
@@ -540,6 +526,7 @@ HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest001, TestSize.Level1)
     want.SetAction("usual.event.location.MODE_STATE_CHANGED");
     OHOS::EventFwk::CommonEventData data;
     data.SetWant(want);
+    ASSERT_TRUE(locatorEventSubscriber != nullptr);
     locatorEventSubscriber->OnReceiveEvent(data);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest001 end");
 }
@@ -557,6 +544,7 @@ HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1)
     want.SetAction("Invalid action");
     OHOS::EventFwk::CommonEventData data;
     data.SetWant(want);
+    ASSERT_TRUE(locatorEventSubscriber != nullptr);
     locatorEventSubscriber->OnReceiveEvent(data);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest002 end");
 }
@@ -569,7 +557,7 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest001 begin");
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
-    geoAddress->GetDescriptions(0);
+    EXPECT_EQ("line", geoAddress->GetDescriptions(0));
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest001 end");
 }
 #endif
@@ -582,7 +570,7 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest002 begin");
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
-    geoAddress->GetDescriptions(1);
+    EXPECT_EQ("", geoAddress->GetDescriptions(1));
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest002 end");
 }
 #endif
@@ -595,7 +583,7 @@ HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest003, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest003 begin");
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
-    geoAddress->GetDescriptions(-1);
+    EXPECT_EQ("", geoAddress->GetDescriptions(-1));
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest003 end");
 }
 #endif

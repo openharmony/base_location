@@ -18,6 +18,12 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#define protected public
+#include "country_code_manager.h"
+#undef protected
+#undef private
+
 namespace OHOS {
 namespace Location {
 class CountryCodeManagerTest : public testing::Test {

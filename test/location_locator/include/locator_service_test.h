@@ -22,6 +22,11 @@
 #include "geo_coding_mock_info.h"
 #endif
 #include "i_locator_callback.h"
+#define private public
+#define protected public
+#include "locator_ability.h"
+#undef protected
+#undef private
 #include "locator_background_proxy.h"
 #include "locator_proxy.h"
 #include "request.h"
