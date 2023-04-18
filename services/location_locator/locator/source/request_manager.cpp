@@ -277,7 +277,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
     }
     sptr<IRemoteObject> deadCallback = callback->AsObject();
     // get dead request list
-    LBSLOGD(REQUEST_MANAGER, "stop callback %{public}p", &deadCallback);
+    LBSLOGD(REQUEST_MANAGER, "stop callback");
     auto iterator = receivers->find(deadCallback);
     if (iterator == receivers->end()) {
         LBSLOGD(REQUEST_MANAGER, "this callback has no record in receiver map");
