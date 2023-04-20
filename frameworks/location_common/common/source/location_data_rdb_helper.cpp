@@ -22,6 +22,7 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
+#include "i_locator.h"
 #include "location_log.h"
 
 namespace OHOS {
@@ -49,20 +50,12 @@ LocationDataRdbHelper& LocationDataRdbHelper::GetInstance()
 
 void LocationDataRdbHelper::Initialize()
 {
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
-    auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: samgr is nullptr", __func__);
-        return;
-    }
-    
-    sptr<IRemoteObject> remoteObject =
-        CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
+    auto remote = sptr<ILocator>(new (std::nothrow) IRemoteStub<ILocator>());
+    if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remoteObject is nullptr", __func__);
         return;
     }
-    remoteObj_ = remoteObject;
+    remoteObj_ = remote->AsObject();
 }
 
 std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataShareHelper()

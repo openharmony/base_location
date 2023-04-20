@@ -335,17 +335,12 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
-    bool currentEnable = isEnabled_;
-    isEnabled_ = (state == ENABLED);
-    if (isEnabled_ == currentEnable) {
-        return;
-    }
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
         return;
     }
-    locatorBackgroundProxy.get()->OnSaStateChange(isEnabled_);
+    locatorBackgroundProxy.get()->OnSaStateChange(state == ENABLED);
 }
 
 void LocatorAbility::UnloadSaAbility()
@@ -361,10 +356,6 @@ void LocatorAbility::UnloadSaAbility()
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
-    if (isEnabled_ == isEnabled) {
-        LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", isEnabled_);
-        return ERRCODE_SUCCESS;
-    }
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
     Uri locationDataEnableUri(LOCATION_DATA_URI);
@@ -382,8 +373,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    isEnabled_ = (QuerySwitchState() == ENABLED);
-    state = isEnabled_ ? ENABLED : DISABLED;
+    state = QuerySwitchState();
     return ERRCODE_SUCCESS;
 }
 
@@ -818,7 +808,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return ERRCODE_NOT_SUPPORTED;
 #endif
-    if (isEnabled_ == DISABLED) {
+    if (QuerySwitchState() == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     if (!CheckSaValid()) {

@@ -152,7 +152,6 @@ private:
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
-    bool isEnabled_ = false;
     bool isProcessing_ = false;
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
