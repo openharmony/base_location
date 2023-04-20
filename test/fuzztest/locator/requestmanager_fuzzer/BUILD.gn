@@ -12,6 +12,7 @@
 # limitations under the License.
 
 #####################hydra-fuzz###################
+import("//base/location/config.gni")
 import("//build/config/features.gni")
 import("//build/test.gni")
 
@@ -19,10 +20,10 @@ import("//build/test.gni")
 ohos_fuzztest("RequestManagerFuzzTest") {
   module_out_path = "location/services"
   fuzz_config_file =
-      "//base/location/test/fuzztest/locator/requestmanager_fuzzer"
+      "$LOCATION_ROOT_DIR/test/fuzztest/locator/requestmanager_fuzzer"
   include_dirs = [
-    "//base/location/services/location_locator/locator/include",
-    "//base/location/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/services/location_locator/locator/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
   ]
   cflags = [
     "-g",
@@ -32,12 +33,10 @@ ohos_fuzztest("RequestManagerFuzzTest") {
   ]
   sources = [ "requestmanager_fuzzer.cpp" ]
   deps = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//base/location/frameworks/js/napi:geolocation_static",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
-    "//base/location/services/location_locator/locator:lbsservice_locator",
-    "//foundation/arkui/napi:ace_napi",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     "//third_party/libuv:uv",
   ]
   external_deps = [
@@ -48,6 +47,7 @@ ohos_fuzztest("RequestManagerFuzzTest") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
 }
