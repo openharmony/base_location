@@ -71,6 +71,7 @@ const uint32_t ADD_FENCE_INFO = 16;
 const uint32_t REMOVE_FENCE_INFO = 17;
 #endif
 const float_t PRECISION = 0.000001;
+const std::string UNLOAD_TASK = "locatior_sa_unload";
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
@@ -345,12 +346,19 @@ void LocatorAbility::UpdateSaAbilityHandler()
 
 void LocatorAbility::UnloadSaAbility()
 {
-    if (IsUnloadSaProcessing()) {
+    if (locatorHandler_ == nullptr || countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s locatorHandler or countryCodeManager is nullptr", __func__);
         return;
     }
-    UpdateUnloadState(true);
+    locatorHandler_->RemoveTask(UNLOAD_TASK);
+    if (countryCodeManager_->IsCountryCodeRegistered()) {
+        return;
+    }
+    auto task = [this]() {
+        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+    };
     if (locatorHandler_ != nullptr) {
-        locatorHandler_->SendHighPriorityEvent(EVENT_UNLOAD_SA, 0, RETRY_INTERVAL_OF_UNLOAD_SA);
+        locatorHandler_->PostTask(task, UNLOAD_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
     }
 }
 
@@ -358,6 +366,10 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
+    if (modeValue == QuerySwitchState()) {
+        LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
+        return ERRCODE_SUCCESS;
+    }
     Uri locationDataEnableUri(LOCATION_DATA_URI);
     LocationErrCode errCode =
         LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);

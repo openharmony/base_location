@@ -88,7 +88,6 @@ private:
 
 private:
     LocatorMsgHandleMap locatorHandleMap_;
-    bool isCallbackReg_ = false;
     bool CheckLocationPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckSettingsPermission(MessageParcel &reply, AppIdentity &identity);
     bool CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity);

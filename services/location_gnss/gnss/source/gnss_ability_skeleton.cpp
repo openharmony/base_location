@@ -203,6 +203,7 @@ void GnssStatusCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &r
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->UnregisterGnssStatusCallback(remote.promote());
+        gnssAbility->UnloadGnssSystemAbility();
         LBSLOGI(LOCATOR, "gnss status callback OnRemoteDied");
     }
 }
@@ -220,6 +221,7 @@ void NmeaCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->UnregisterNmeaMessageCallback(remote.promote());
+        gnssAbility->UnloadGnssSystemAbility();
         LBSLOGI(LOCATOR, "nmea callback OnRemoteDied");
     }
 }
@@ -237,6 +239,7 @@ void CachedLocationCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->UnregisterCachedCallback(remote.promote());
+        gnssAbility->UnloadGnssSystemAbility();
         LBSLOGI(LOCATOR, "cached location callback OnRemoteDied");
     }
 }

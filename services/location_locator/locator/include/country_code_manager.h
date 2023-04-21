@@ -40,6 +40,7 @@ public:
     void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     void ReSubscribeEvent();
     void ReUnsubscribeEvent();
+    bool IsCountryCodeRegistered();
 
 private:
 #ifdef FEATURE_PASSIVE_SUPPORT
