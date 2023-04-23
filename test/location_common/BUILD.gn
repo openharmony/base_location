@@ -19,19 +19,19 @@ module_output_path = "location/common"
 ohos_unittest("LocationCommonTest") {
   module_out_path = module_output_path
   sources = [
-    "//base/location/test/location_common/source/common_utils_test.cpp",
-    "//base/location/test/location_common/source/location_common_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_common/source/common_utils_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_common/source/location_common_test.cpp",
   ]
 
   include_dirs = [
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/services/location_locator/locator/include",
-    "//base/location/test/location_common/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/services/location_locator/locator/include",
+    "$LOCATION_ROOT_DIR/test/location_common/include",
   ]
 
   deps = [
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/services/location_locator/locator:lbsservice_locator",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
   ]
 
   external_deps = [

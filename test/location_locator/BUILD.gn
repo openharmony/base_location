@@ -14,47 +14,39 @@
 import("//base/location/config.gni")
 import("//build/test.gni")
 
-SUBSYSTEM_DIR = "//base/location/services"
 module_output_path = "location/service"
 
 ohos_unittest("LocatorServiceAbilityTest") {
   module_out_path = module_output_path
   sources = [
-    "//base/location/test/location_locator/source/callback_test.cpp",
-    "//base/location/test/location_locator/source/country_code_manager_test.cpp",
-    "//base/location/test/location_locator/source/fusion_controller_test.cpp",
-    "//base/location/test/location_locator/source/location_approximately_permission_test.cpp",
-    "//base/location/test/location_locator/source/location_config_manager_test.cpp",
-    "//base/location/test/location_locator/source/location_without_permission_test.cpp",
-    "//base/location/test/location_locator/source/locator_background_proxy_test.cpp",
-    "//base/location/test/location_locator/source/locator_event_manager_test.cpp",
-    "//base/location/test/location_locator/source/locator_impl_test.cpp",
-    "//base/location/test/location_locator/source/locator_service_test.cpp",
-    "//base/location/test/location_locator/source/report_manager_test.cpp",
-    "//base/location/test/location_locator/source/request_manager_test.cpp",
-    "//base/location/test/location_locator/source/work_record_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/callback_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/country_code_manager_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/fusion_controller_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/location_approximately_permission_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/location_config_manager_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/location_without_permission_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_background_proxy_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_event_manager_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_impl_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_service_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/report_manager_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/request_manager_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/work_record_test.cpp",
   ]
 
   include_dirs = [
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/test/location_locator/include",
+    "$LOCATION_ROOT_DIR/test/location_locator/mock/include",
+    "$LOCATION_ROOT_DIR/test/mock/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/test/location_locator/include",
-    "//base/location/test/location_locator/mock/include",
-    "//base/location/test/mock/include",
   ]
 
   deps = [
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
-    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
-    "//base/startup/init/interfaces/innerkits:libbegetutil",
-    "//foundation/arkui/napi:ace_napi",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -63,6 +55,8 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "ability_base:want",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -71,6 +65,8 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 

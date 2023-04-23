@@ -11,29 +11,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/ohos.gni")
-
-SUBSYSTEM_DIR = "//base/location/services"
-LOCATION_COMMON_ROOT = "//base/location/frameworks/location_common/common"
 
 ohos_shared_library("lbsservice_common") {
   sources = [
-    "$LOCATION_COMMON_ROOT/source/app_identity.cpp",
-    "$LOCATION_COMMON_ROOT/source/common_hisysevent.cpp",
-    "$LOCATION_COMMON_ROOT/source/common_utils.cpp",
-    "$LOCATION_COMMON_ROOT/source/geo_address.cpp",
-    "$LOCATION_COMMON_ROOT/source/geo_coding_mock_info.cpp",
-    "$LOCATION_COMMON_ROOT/source/geofence_state.cpp",
-    "$LOCATION_COMMON_ROOT/source/location.cpp",
-    "$LOCATION_COMMON_ROOT/source/location_data_rdb_helper.cpp",
-    "$LOCATION_COMMON_ROOT/source/location_dumper.cpp",
-    "$LOCATION_COMMON_ROOT/source/location_sa_load_manager.cpp",
-    "$LOCATION_COMMON_ROOT/source/request_config.cpp",
-    "$LOCATION_COMMON_ROOT/source/satellite_status.cpp",
+    "$LOCATION_COMMON_DIR/source/app_identity.cpp",
+    "$LOCATION_COMMON_DIR/source/common_hisysevent.cpp",
+    "$LOCATION_COMMON_DIR/source/common_utils.cpp",
+    "$LOCATION_COMMON_DIR/source/geo_address.cpp",
+    "$LOCATION_COMMON_DIR/source/geo_coding_mock_info.cpp",
+    "$LOCATION_COMMON_DIR/source/geofence_state.cpp",
+    "$LOCATION_COMMON_DIR/source/location.cpp",
+    "$LOCATION_COMMON_DIR/source/location_data_rdb_helper.cpp",
+    "$LOCATION_COMMON_DIR/source/location_dumper.cpp",
+    "$LOCATION_COMMON_DIR/source/location_sa_load_manager.cpp",
+    "$LOCATION_COMMON_DIR/source/request_config.cpp",
+    "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
   ]
 
   include_dirs = [
-    "//base/location/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",

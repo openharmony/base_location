@@ -17,20 +17,20 @@ import("//build/ohos.gni")
 ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
-    "//base/location/frameworks/js/napi/include",
-    "//base/location/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
   ]
 
   sources = [
-    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_event.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_system.cpp",
   ]
 
   deps = [
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
   ]
 
   external_deps = [
@@ -55,20 +55,20 @@ ohos_shared_library("geolocation") {
 
 ohos_static_library("geolocation_static") {
   include_dirs = [
-    "//base/location/frameworks/js/napi/include",
-    "//base/location/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
   ]
 
   sources = [
-    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_event.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_system.cpp",
   ]
 
   deps = [
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
   ]
 
   external_deps = [
@@ -87,21 +87,21 @@ ohos_static_library("geolocation_static") {
 ohos_shared_library("geolocationmanager") {
   install_enable = true
   include_dirs = [
-    "//base/location/frameworks/js/napi/include",
-    "//base/location/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
   ]
 
   sources = [
-    "//base/location/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_entry.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_errcode.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_event.cpp",
-    "//base/location/frameworks/js/napi/source/location_napi_system.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_errcode.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_event.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_system.cpp",
   ]
 
   deps = [
-    "//base/location/frameworks/location_common/common:lbsservice_common",
-    "//base/location/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
   ]
 
   defines = [ "ENABLE_NAPI_MANAGER" ]

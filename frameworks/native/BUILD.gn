@@ -19,8 +19,8 @@ import("//build/ohos.gni")
 config("locator_sdk_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "//base/location/interfaces/inner_api/include",
-    "//base/location/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
   ]
 }
 

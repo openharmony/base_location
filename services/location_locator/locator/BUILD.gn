@@ -41,7 +41,7 @@ ohos_shared_library("lbsservice_locator") {
   ]
 
   include_dirs = [
-    "//base/location/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     "$SUBSYSTEM_DIR/location_geocode/geocode/include",
     "$SUBSYSTEM_DIR/location_gnss/gnss/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",

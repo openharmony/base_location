@@ -22,8 +22,8 @@ group("etc") {
 
 ohos_prebuilt_etc("location_sa_rc") {
   source = "./init/locationsa.cfg"
+  part_name = "location"
   subsystem_name = "location"
-
   relative_install_dir = "init"
 }
 
