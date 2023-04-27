@@ -32,8 +32,8 @@
         "adapted_system_type": [
             "standard"
         ],
-        "rom": "",
-        "ram": "",
+        "rom": "1769KB",
+        "ram": "8458KB",
         "hisysevent_config": [
             "//base/location/services/location_locator/hisysevent.yaml"
         ],
