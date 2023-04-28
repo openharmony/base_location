@@ -86,6 +86,7 @@ HWTEST_F(LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Lev
     appStateData.uid = 1;
     appStateData.pid = 0;
     appStateData.state = state;
+    ASSERT_TRUE(appStateObserver != nullptr);
     appStateObserver->OnForegroundApplicationChanged(appStateData);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] AppStateChangeCallbackTest001 end");
 }
@@ -531,6 +532,7 @@ HWTEST_F(LocatorBackgroundProxyTest, UserSwitchSubscriberOnReceiveEventTest001, 
     OHOS::EventFwk::CommonEventData event;
     event.SetWant(want);
     event.SetCode(0);
+    ASSERT_TRUE(subscriber != nullptr);
     subscriber->OnReceiveEvent(event);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UserSwitchSubscriberOnReceiveEventTest001 end");
 }

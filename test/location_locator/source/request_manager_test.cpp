@@ -21,6 +21,7 @@
 #include "token_setproc.h"
 
 #include "i_locator_callback.h"
+#include "locator_ability.h"
 #include "locator_callback_host.h"
 #include "request.h"
 #include "request_config.h"
@@ -57,6 +58,8 @@ void RequestManagerTest::SetUp()
 
 void RequestManagerTest::TearDown()
 {
+    requestManager_ = nullptr;
+    DelayedSingleton<RequestManager>::DestroyInstance();
 }
 
 void RequestManagerTest::MockNativePermission()
@@ -132,6 +135,7 @@ HWTEST_F(RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
     requestManager_->HandleStartLocating(request_);
     requestManager_->HandleStopLocating(nullptr); // can't stop locating
 
@@ -149,6 +153,7 @@ HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged001, TestSize.Level1)
         << "RequestManagerTest, HandlePowerSuspendChanged001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePowerSuspendChanged001 begin");
     requestManager_->UpdateRequestRecord(request_, true);
+    EXPECT_EQ(true, requestManager_->IsUidInProcessing(SYSTEM_UID));
     int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
         request_->GetUid(), state1);
@@ -163,35 +168,53 @@ HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "RequestManagerTest, HandlePowerSuspendChanged002, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePowerSuspendChanged002 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
     requestManager_->UpdateRequestRecord(request_, false);
+    EXPECT_EQ(false, requestManager_->IsUidInProcessing(SYSTEM_UID));
+
     int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
         request_->GetUid(), state1);
     int32_t state2 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
         request_->GetUid(), state2);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePowerSuspendChanged002 end");
 }
 
 HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged003, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, HandlePowerSuspendChanged003, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePowerSuspendChanged003 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
     requestManager_->UpdateRequestRecord(request_, false);
+    EXPECT_EQ(false, requestManager_->IsUidInProcessing(SYSTEM_UID));
+
     int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid() + 1,
         request_->GetUid(), state1);
     int32_t state2 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid() + 1,
         request_->GetUid(), state2);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePowerSuspendChanged003 end");
 }
 
 HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged004, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, HandlePowerSuspendChanged004, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePowerSuspendChanged004 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
     requestManager_->UpdateRequestRecord(request_, false);
+    EXPECT_EQ(false, requestManager_->IsUidInProcessing(SYSTEM_UID));
+
     int32_t state1 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
         request_->GetUid() + 1, state1);
     int32_t state2 = static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND);
     requestManager_->HandlePowerSuspendChanged(request_->GetPid(),
         request_->GetUid() + 1, state2);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePowerSuspendChanged004 end");
 }
 
 HWTEST_F(RequestManagerTest, UpdateRequestRecord001, TestSize.Level1)
@@ -200,7 +223,9 @@ HWTEST_F(RequestManagerTest, UpdateRequestRecord001, TestSize.Level1)
         << "RequestManagerTest, UpdateRequestRecord001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateRequestRecord001 begin");
     requestManager_->UpdateRequestRecord(request_, true); // uid = 1000 should be added to runningUids
+    EXPECT_EQ(true, requestManager_->IsUidInProcessing(SYSTEM_UID));
     requestManager_->UpdateRequestRecord(request_, false); // uid = 1000 should be removed from runningUids
+    EXPECT_EQ(false, requestManager_->IsUidInProcessing(SYSTEM_UID));
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateRequestRecord001 end");
 }
 
@@ -209,6 +234,7 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
     requestManager_->UpdateUsingPermission(nullptr);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest001 end");
 }
@@ -255,6 +281,8 @@ HWTEST_F(RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1)
         << "RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePermissionChangedTest001 begin");
     requestManager_->HandleStartLocating(request_);
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    EXPECT_NE(0, locatorAbility->GetActiveRequestNum());
     requestManager_->HandlePermissionChanged(request_->GetTokenId());
 
     requestManager_->HandleStopLocating(callback_);
@@ -281,6 +309,7 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest001, TestSize.Level1)
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::shared_ptr<std::list<std::string>> proxyList = nullptr;
     request->GetProxyName(proxyList);
+    EXPECT_EQ(nullptr, proxyList);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] RequestGetProxyNameTest001 end");
 }
 

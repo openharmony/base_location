@@ -18,7 +18,11 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#define protected public
 #include "fusion_controller.h"
+#undef protected
+#undef private
 
 namespace OHOS {
 namespace Location {

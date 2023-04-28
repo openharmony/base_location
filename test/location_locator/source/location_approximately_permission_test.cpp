@@ -37,6 +37,8 @@ void LocationApproximatelyPermissionTest::SetUp()
 
 void LocationApproximatelyPermissionTest::TearDown()
 {
+    reportManager_ = nullptr;
+    DelayedSingleton<ReportManager>::DestroyInstance();
 }
 
 void LocationApproximatelyPermissionTest::MockNativePermission()
