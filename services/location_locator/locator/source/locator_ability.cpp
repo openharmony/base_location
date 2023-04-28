@@ -256,14 +256,14 @@ int LocatorAbility::GetActiveRequestNum()
     auto gpsListIter = requests_->find(GNSS_ABILITY);
     if (gpsListIter != requests_->end()) {
         auto list = &(gpsListIter->second);
-        num += list->size();
+        num += static_cast<int>(list->size());
     }
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
     auto networkListIter = requests_->find(NETWORK_ABILITY);
     if (networkListIter != requests_->end()) {
         auto list = &(networkListIter->second);
-        num += list->size();
+        num += static_cast<int>(list->size());
     }
 #endif
     return num;
