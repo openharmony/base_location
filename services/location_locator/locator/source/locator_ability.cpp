@@ -230,11 +230,11 @@ int LocatorAbility::GetActiveRequestNum()
     auto networkListIter = requests_->find(NETWORK_ABILITY);
     if (gpsListIter != requests_->end()) {
         auto list = &(gpsListIter->second);
-        num += list->size();
+        num += static_cast<int>(list->size());
     }
     if (networkListIter != requests_->end()) {
         auto list = &(networkListIter->second);
-        num += list->size();
+        num += static_cast<int>(list->size());
     }
     return num;
 }

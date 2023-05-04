@@ -175,7 +175,7 @@ bool SubAbility::SetMockedLocations(const int timeInterval, const std::vector<st
 
 void SubAbility::CacheLocationMock(const std::vector<std::shared_ptr<Location>> &location)
 {
-    int locationSize = location.size();
+    int locationSize = static_cast<int>(location.size());
     ClearLocationMock();
     for (int i = 0; i < locationSize; i++) {
         mockLoc_.push_back(std::make_shared<Location>(*location.at(i)));
