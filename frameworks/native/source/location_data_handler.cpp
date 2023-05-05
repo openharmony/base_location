@@ -54,10 +54,12 @@ void LocationDataHandler::HandleSwitchStateChanged(const AppExecFwk::InnerEvent:
     }
     int32_t state = DISABLED;
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationDataRdbHelper::GetInstance().GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     int64_t value = event->GetParam();
     if (state != value) {
-        LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+        DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+            SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     }
     LocationDataManager::GetInstance().ReportSwitchState(state);
 }

@@ -152,8 +152,8 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
 bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errorCode =
-        LocationDataRdbHelper::GetInstance().RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    LocationErrCode errorCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
     if (errorCode != ERRCODE_SUCCESS) {
         return false;
     }
@@ -165,8 +165,8 @@ bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pi
 bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 {
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errorCode =
-        LocationDataRdbHelper::GetInstance().UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    LocationErrCode errorCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
     if (errorCode != ERRCODE_SUCCESS) {
         return false;
     }
@@ -687,8 +687,8 @@ LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
 LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
 {
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errorCode =
-        LocationDataRdbHelper::GetInstance().RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    LocationErrCode errorCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        RegisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
     if (errorCode != ERRCODE_SUCCESS) {
         return errorCode;
     }
@@ -699,8 +699,8 @@ LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>&
 LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
 {
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errorCode =
-        LocationDataRdbHelper::GetInstance().UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
+    LocationErrCode errorCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        UnregisterDataObserver(locationDataEnableUri, g_dataRdbObserver);
     if (errorCode != ERRCODE_SUCCESS) {
         return errorCode;
     }

@@ -27,25 +27,14 @@
 
 namespace OHOS {
 namespace Location {
-static LocationDataRdbHelper* instance_;
-static std::mutex mutex_;
-static sptr<IRemoteObject> remoteObj_;
-LocationDataRdbHelper::~LocationDataRdbHelper()
+LocationDataRdbHelper::LocationDataRdbHelper()
 {
-    instance_ = nullptr;
-    remoteObj_ = nullptr;
+    Initialize();
 }
 
-LocationDataRdbHelper& LocationDataRdbHelper::GetInstance()
+LocationDataRdbHelper::~LocationDataRdbHelper()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = new LocationDataRdbHelper();
-            Initialize();
-        }
-    }
-    return *instance_;
+    remoteObj_ = nullptr;
 }
 
 void LocationDataRdbHelper::Initialize()
