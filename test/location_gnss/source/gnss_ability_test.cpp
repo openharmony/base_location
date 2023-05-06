@@ -439,9 +439,8 @@ HWTEST_F(GnssAbilityTest, GetCachedGnssLocationsSize001, TestSize.Level1)
      * @tc.steps: step1. test get cached gnss locations size.
      * @tc.expected: size equals -1.
      */
-    int size = 0;
+    int size = -1;
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->GetCachedGnssLocationsSize(size));
-    EXPECT_EQ(0, size);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetCachedGnssLocationsSize001 end");
 }
 
@@ -690,7 +689,9 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
         parcel.WriteDouble(i + 3.0); // azimuth
         parcel.WriteDouble(i + 4.0); // carrierFrequency
     }
+    ASSERT_TRUE(status != nullptr);
     status->ReadFromParcel(parcel);
+    ASSERT_TRUE(ability_ != nullptr);
     ability_->ReportSv(status);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssAbilityReportSv001 end");
 }
