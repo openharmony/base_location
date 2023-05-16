@@ -104,6 +104,7 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
     napi_value res;
     bool isEnabled = false;
     LocationErrCode errorCode = g_locatorClient->IsLocationEnabledV9(isEnabled);
+    delete asyncContext;
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
@@ -188,6 +189,7 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
 
 #ifdef ENABLE_NAPI_MANAGER
     LocationErrCode errorCode = g_locatorClient->EnableAbilityV9(false);
+    delete asyncContext;
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
     }
@@ -263,6 +265,7 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
     napi_value res;
     bool isAvailable = false;
     LocationErrCode errorCode = g_locatorClient->IsGeoServiceAvailableV9(isAvailable);
+    delete asyncContext;
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
