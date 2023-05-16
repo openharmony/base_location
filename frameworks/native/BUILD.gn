@@ -80,6 +80,7 @@ ohos_shared_library("locator_sdk") {
     "-Wl,-E",
   ]
 
+  innerapi_tags = [ "platformsdk" ]
   part_name = "location"
   subsystem_name = "location"
 }

@@ -62,6 +62,7 @@ ohos_shared_library("lbsservice_common") {
     "samgr:samgr_proxy",
   ]
 
+  innerapi_tags = [ "platformsdk" ]
   part_name = "location"
   subsystem_name = "location"
 }
