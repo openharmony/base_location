@@ -97,14 +97,11 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "isLocationEnabled", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
 #ifdef ENABLE_NAPI_MANAGER
     napi_value res;
     bool isEnabled = false;
     LocationErrCode errorCode = g_locatorClient->IsLocationEnabledV9(isEnabled);
-    delete asyncContext;
+
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
@@ -112,6 +109,9 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_boolean(env, isEnabled, &res));
     return res;
 #else
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    napi_create_string_latin1(env, "isLocationEnabled", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         context->enable = g_locatorClient->IsLocationEnabled();
@@ -183,18 +183,17 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "disableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-
 #ifdef ENABLE_NAPI_MANAGER
     LocationErrCode errorCode = g_locatorClient->EnableAbilityV9(false);
-    delete asyncContext;
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
     }
     return UndefinedNapiValue(env);
 #else
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    NAPI_CALL(env, napi_create_string_latin1(env, "disableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         g_locatorClient->EnableAbility(false);
@@ -257,15 +256,10 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
 
-    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env,
-        napi_create_string_latin1(env, "isGeoServiceAvailable", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 #ifdef ENABLE_NAPI_MANAGER
     napi_value res;
     bool isAvailable = false;
     LocationErrCode errorCode = g_locatorClient->IsGeoServiceAvailableV9(isAvailable);
-    delete asyncContext;
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
@@ -273,6 +267,11 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_boolean(env, isAvailable, &res));
     return res;
 #else
+    auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    NAPI_CALL(env,
+        napi_create_string_latin1(env, "isGeoServiceAvailable", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         bool isAvailable = g_locatorClient->IsGeoServiceAvailable();
