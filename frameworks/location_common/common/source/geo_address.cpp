@@ -15,6 +15,7 @@
 
 #include "geo_address.h"
 #include "string_ex.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -68,9 +69,12 @@ void GeoAddress::ReadFromParcel(Parcel& in)
     m_localeLanguage = Str16ToStr8(in.ReadString16());
     m_localeCountry = Str16ToStr8(in.ReadString16());
     int size = in.ReadInt32();
-    if (size > 0 && size < MAX_PARCEL_SIZE) {
+    if (size > 0 && size < MAXIMUM_INTERATION) {
         for (int i = 0; i < size; i++) {
             int index = in.ReadInt32();
+            if (index < 0 || index >= MAXIMUM_INTERATION) {
+                continue;
+            }
             std::string line = Str16ToStr8(in.ReadString16());
             m_descriptions.insert(std::pair<int, std::string>(index, line));
             m_descriptionsSize = std::max(m_descriptionsSize, index + 1);

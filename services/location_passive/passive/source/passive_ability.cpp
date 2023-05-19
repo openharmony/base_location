@@ -186,6 +186,7 @@ void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
             }
             int timeInterval = data.ReadInt32();
             int locationSize = data.ReadInt32();
+            timeInterval = timeInterval < 0 ? 1 : timeInterval;
             locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX :
                 locationSize;
             std::shared_ptr<std::vector<std::shared_ptr<Location>>> vcLoc =

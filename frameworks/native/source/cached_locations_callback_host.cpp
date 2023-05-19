@@ -50,11 +50,13 @@ int CachedLocationsCallbackHost::OnRemoteRequest(
     switch (code) {
         case RECEIVE_CACHED_LOCATIONS_EVENT: {
             int size = data.ReadInt32();
-            std::vector<std::shared_ptr<Location>> locations(size);
-            for (int i = 0; i < size; i++) {
-                locations.push_back(Location::UnmarshallingShared(data));
+            if (size > 0 && size < MAXIMUM_CACHE_LOCATIONS) {
+                std::vector<std::shared_ptr<Location>> locations(size);
+                for (int i = 0; i < size; i++) {
+                    locations.push_back(Location::UnmarshallingShared(data));
+                }
+                Send(locations);
             }
-            Send(locations);
             break;
         }
         default: {
