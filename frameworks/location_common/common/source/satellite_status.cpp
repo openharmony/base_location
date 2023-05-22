@@ -14,9 +14,7 @@
  */
 
 #include "satellite_status.h"
-
 #include <parcel.h>
-
 #include "common_utils.h"
 
 namespace OHOS {
@@ -39,6 +37,7 @@ SatelliteStatus::SatelliteStatus(SatelliteStatus& satelliteStatus)
 void SatelliteStatus::ReadFromParcel(Parcel& parcel)
 {
     satellitesNumber_ = parcel.ReadInt64();
+    satellitesNumber_ = satellitesNumber_ > MAXIMUM_INTERATION ? MAXIMUM_INTERATION : satellitesNumber_;
     for (int i = 0; i < satellitesNumber_; i++) {
         satelliteIds_.push_back(parcel.ReadInt64());
         carrierToNoiseDensitys_.push_back(parcel.ReadDouble());

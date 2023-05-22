@@ -99,8 +99,9 @@ static constexpr int32_t LOCATION_LOADSA_TIMEOUT_MS = 1000;
 static constexpr int PERMISSION_ACCURATE = 2;
 static constexpr int PERMISSION_APPROXIMATELY = 1;
 static constexpr int PERMISSION_INVALID = 0;
-
 static constexpr int LOCATOR_UID = 1021;
+static constexpr int MAXIMUM_INTERATION = 100;
+static constexpr int MAXIMUM_CACHE_LOCATIONS = 1000;
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \

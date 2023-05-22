@@ -684,6 +684,7 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
     }
     int timeInterval = data.ReadInt32();
     int locationSize = data.ReadInt32();
+    timeInterval = timeInterval < 0 ? 1 : timeInterval;
     locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX : locationSize;
     std::vector<std::shared_ptr<Location>> vcLoc;
     for (int i = 0; i < locationSize; i++) {
