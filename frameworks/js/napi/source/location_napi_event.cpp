@@ -465,7 +465,7 @@ napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const nap
         auto callbackPtr = sptr<ILocatorCallback>(singleLocatorCallbackHost);
         g_locatorProxy->StartLocating(requestConfig, callbackPtr);
     }
-    
+
     auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
@@ -832,8 +832,8 @@ bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const n
 napi_value On(napi_env env, napi_callback_info cbinfo)
 {
     InitOnFuncMap();
-    size_t argc = PARAM3;
-    napi_value argv[PARAM3] = {0};
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
     LBSLOGI(LOCATION_NAPI, "On function entry");
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
@@ -1234,8 +1234,8 @@ bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
     InitOffFuncMap();
-    size_t argc = PARAM3;
-    napi_value argv[PARAM3] = {0};
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
@@ -1301,8 +1301,8 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
 
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = PARAM3;
-    napi_value argv[PARAM3] = {0};
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));

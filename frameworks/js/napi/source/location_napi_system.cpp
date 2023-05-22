@@ -85,8 +85,8 @@ void GetAllCallback(const napi_env &env, const napi_value &argv, napi_ref &succe
 
 napi_value GetLocation(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = 1;
-    napi_value argv[1] = {0};
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
@@ -152,8 +152,8 @@ bool EmitSyncCallbackWork(const napi_env& env,
 
 napi_value GetLocationType(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = 1;
-    napi_value argv[1] = {0};
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
     napi_valuetype valueType = napi_undefined;
@@ -211,8 +211,8 @@ void SubscribeSystemLocationChange(napi_env env,
 
 napi_value Subscribe(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = 1;
-    napi_value argv[1] = {0};
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
     napi_value result = nullptr;
     napi_value nVcoordType;
@@ -259,8 +259,8 @@ napi_value Unsubscribe(napi_env env, napi_callback_info cbinfo)
 
 napi_value GetSupportedCoordTypes(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = 1;
-    napi_value argv[1] = {0};
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc == 0, "number of parameters is error");

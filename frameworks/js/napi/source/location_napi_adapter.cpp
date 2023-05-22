@@ -25,8 +25,8 @@ auto g_locatorClient = Locator::GetInstance();
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = PARAM1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
 
@@ -90,8 +90,8 @@ napi_value HandleGetCachedLocation(napi_env env)
 napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = PARAM1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -129,8 +129,8 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 napi_value EnableLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = PARAM1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -173,8 +173,8 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
 napi_value DisableLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = PARAM1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -209,8 +209,8 @@ napi_value DisableLocation(napi_env env, napi_callback_info info)
 napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = PARAM1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -243,8 +243,8 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -370,8 +370,8 @@ void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
 napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 2;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
@@ -426,8 +426,8 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
 napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 2;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
@@ -476,8 +476,8 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
 napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 2;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -512,8 +512,8 @@ napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info)
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 2;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -549,8 +549,8 @@ napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info
 napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -600,8 +600,8 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -681,8 +681,8 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
 napi_value SendCommand(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 2;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -738,8 +738,8 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
 napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 1;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -838,8 +838,8 @@ napi_value DisableLocationMock(napi_env env, napi_callback_info info)
 napi_value SetMockedLocations(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 2;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
@@ -901,8 +901,8 @@ napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info)
 napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = 2;
-    napi_value argv[argc];
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
