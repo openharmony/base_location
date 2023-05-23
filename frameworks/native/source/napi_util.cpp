@@ -28,8 +28,6 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
-static constexpr int MAX_CALLBACK_NUM = 3;
-static constexpr int MAX_ARGU_NUM = 10;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -704,14 +702,12 @@ napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool b
 static bool InitAsyncCallBackEnv(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum)
 {
-    if (asyncContext == nullptr || argv == nullptr) {
+    if (asyncContext == nullptr || argv == nullptr ||
+        argc > MAXIMUM_JS_PARAMS || objectArgsNum > MAXIMUM_JS_PARAMS) {
         return false;
     }
     size_t startLoop = objectArgsNum;
     size_t endLoop = argc;
-    if (startLoop > MAX_ARGU_NUM || endLoop > MAX_ARGU_NUM) {
-        return false;
-    }
     for (size_t i = startLoop; i < endLoop; ++i) {
         napi_valuetype valuetype;
         NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valuetype), false);

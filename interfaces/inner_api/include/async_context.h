@@ -26,7 +26,7 @@ public:
     napi_env env;
     napi_async_work work;
     napi_deferred deferred;
-    napi_ref callback[3] = { 0 };
+    napi_ref callback[MAX_CALLBACK_NUM] = { 0 };
     std::function<void(void*)> executeFunc;
     std::function<void(void*)> completeFunc;
     napi_value resourceName;
