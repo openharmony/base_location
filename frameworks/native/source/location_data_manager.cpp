@@ -89,11 +89,12 @@ LocationErrCode LocationDataManager::QuerySwitchState(bool &isEnabled)
 {
     int32_t state = DISABLED;
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        LocationDataRdbHelper::GetInstance().GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s: can not query state, reset state.", __func__);
-        errCode = LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+        errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+            SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     }
     isEnabled = (state == ENABLED);
     return errCode;

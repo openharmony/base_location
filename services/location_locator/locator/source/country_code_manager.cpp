@@ -126,6 +126,12 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
     UnsubscribeNetworkStatusEvent();
 }
 
+bool CountryCodeManager::IsCountryCodeRegistered()
+{
+    std::lock_guard lock(countryCodeCallbackMutex_);
+    return countryCodeCallback_->size() != 0;
+}
+
 std::string CountryCodeManager::GetCountryCodeByLastLocation()
 {
     std::string code = "";

@@ -16,8 +16,8 @@
 #ifndef LOCATION_DATA_RDB_HELPER_H
 #define LOCATION_DATA_RDB_HELPER_H
 #include <memory>
-#include <mutex>
 #include <utility>
+#include <singleton.h>
 
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
@@ -28,13 +28,12 @@
 #include "uri.h"
 
 #include "constant_definition.h"
-#include "single_instance.h"
 
 namespace OHOS {
 namespace Location {
-class LocationDataRdbHelper {
+class LocationDataRdbHelper : DelayedSingleton<LocationDataRdbHelper> {
 public:
-    static LocationDataRdbHelper& GetInstance();
+    LocationDataRdbHelper();
     ~LocationDataRdbHelper();
     LocationErrCode RegisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
     LocationErrCode UnregisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
@@ -42,7 +41,9 @@ public:
     LocationErrCode SetValue(Uri &uri, const std::string &column, int &value);
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
 private:
-    static void Initialize();
+    void Initialize();
+
+    sptr<IRemoteObject> remoteObj_;
 };
 } // namespace Location
 } // namespace OHOS

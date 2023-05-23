@@ -71,6 +71,7 @@ const uint32_t ADD_FENCE_INFO = 16;
 const uint32_t REMOVE_FENCE_INFO = 17;
 #endif
 const float_t PRECISION = 0.000001;
+const std::string UNLOAD_TASK = "locatior_sa_unload";
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
@@ -217,7 +218,6 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         case EVENT_UNLOAD_SA: {
             if (locatorAbility != nullptr) {
                 LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
-                locatorAbility->UpdateUnloadState(false);
             }
             break;
         }
@@ -335,41 +335,48 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
-    bool currentEnable = isEnabled_;
-    isEnabled_ = (state == ENABLED);
-    if (isEnabled_ == currentEnable) {
-        return;
-    }
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
         return;
     }
-    locatorBackgroundProxy.get()->OnSaStateChange(isEnabled_);
+    locatorBackgroundProxy.get()->OnSaStateChange(state == ENABLED);
 }
 
 void LocatorAbility::UnloadSaAbility()
 {
-    if (IsUnloadSaProcessing()) {
+    if (locatorHandler_ == nullptr || countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s locatorHandler or countryCodeManager is nullptr", __func__);
         return;
     }
-    UpdateUnloadState(true);
-    if (locatorHandler_ != nullptr) {
-        locatorHandler_->SendHighPriorityEvent(EVENT_UNLOAD_SA, 0, RETRY_INTERVAL_OF_UNLOAD_SA);
+    locatorHandler_->RemoveTask(UNLOAD_TASK);
+    if (CheckIfLocatorConnecting()) {
+        return;
     }
+    auto task = [this]() {
+        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+    };
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->PostTask(task, UNLOAD_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
+    }
+}
+
+bool LocatorAbility::CheckIfLocatorConnecting()
+{
+    return countryCodeManager_->IsCountryCodeRegistered();
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
-    if (isEnabled_ == isEnabled) {
-        LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", isEnabled_);
-        return ERRCODE_SUCCESS;
-    }
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
+    if (modeValue == QuerySwitchState()) {
+        LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
+        return ERRCODE_SUCCESS;
+    }
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -382,8 +389,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    isEnabled_ = (QuerySwitchState() == ENABLED);
-    state = isEnabled_ ? ENABLED : DISABLED;
+    state = QuerySwitchState();
     return ERRCODE_SUCCESS;
 }
 
@@ -391,11 +397,12 @@ int LocatorAbility::QuerySwitchState()
 {
     int32_t state = DISABLED;
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        LocationDataRdbHelper::GetInstance().GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s: can not query state, reset state.", __func__);
-        LocationDataRdbHelper::GetInstance().SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+        DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+            SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     }
     return state;
 }
@@ -818,7 +825,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return ERRCODE_NOT_SUPPORTED;
 #endif
-    if (isEnabled_ == DISABLED) {
+    if (QuerySwitchState() == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     if (!CheckSaValid()) {
@@ -1141,16 +1148,6 @@ void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
     permissionMap_->erase(callingTokenId);
     LBSLOGD(LOCATOR, "after tokenId:%{public}d unregister, permission callback size:%{public}s",
         callingTokenId, std::to_string(permissionMap_->size()).c_str());
-}
-
-void LocatorAbility::UpdateUnloadState(bool isProcessing)
-{
-    isProcessing_ = isProcessing;
-}
-
-bool LocatorAbility::IsUnloadSaProcessing()
-{
-    return isProcessing_;
 }
 } // namespace Location
 } // namespace OHOS

@@ -783,7 +783,6 @@ int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
     client->AddDeathRecipient(death);
     LocationErrCode errorCode = locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid());
     reply.WriteInt32(errorCode);
-    isCallbackReg_ = (errorCode == ERRCODE_SUCCESS) ? true : isCallbackReg_;
     return ERRCODE_SUCCESS;
 }
 
@@ -799,7 +798,6 @@ int LocatorAbilityStub::PreUnregisterCountryCodeCallback(MessageParcel &data,
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     LocationErrCode errorCode = locatorAbility->UnregisterCountryCodeCallback(client);
     reply.WriteInt32(errorCode);
-    isCallbackReg_ = (errorCode == ERRCODE_SUCCESS) ? false : isCallbackReg_;
     return ERRCODE_SUCCESS;
 }
 
@@ -1006,14 +1004,12 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
 
 bool LocatorAbilityStub::UnloadLocatorSa()
 {
-    if (!isCallbackReg_) {
-        auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-        if (locatorAbility == nullptr) {
-            LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
-            return false;
-        }
-        locatorAbility->UnloadSaAbility();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
+        return false;
     }
+    locatorAbility->UnloadSaAbility();
     return true;
 }
 
@@ -1031,6 +1027,7 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->StopLocating(callback);
+        locatorAbility->UnloadSaAbility();
         LBSLOGI(LOCATOR, "locator callback OnRemoteDied");
     }
 }
@@ -1048,6 +1045,7 @@ void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remot
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->UnregisterSwitchCallback(remote.promote());
+        locatorAbility->UnloadSaAbility();
         LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
     }
 }
@@ -1065,6 +1063,7 @@ void CountryCodeCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->UnregisterCountryCodeCallback(remote.promote());
+        locatorAbility->UnloadSaAbility();
         LBSLOGI(LOCATOR, "countrycode callback OnRemoteDied");
     }
 }

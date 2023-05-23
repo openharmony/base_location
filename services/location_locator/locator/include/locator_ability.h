@@ -135,7 +135,6 @@ public:
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
     void UnloadSaAbility();
-    void UpdateUnloadState(bool isProcessing);
 
 private:
     bool Init();
@@ -148,12 +147,10 @@ private:
     LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
     void UpdateProxyMap();
-    bool IsUnloadSaProcessing();
+    bool CheckIfLocatorConnecting();
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
-    bool isEnabled_ = false;
-    bool isProcessing_ = false;
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;

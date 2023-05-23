@@ -41,8 +41,8 @@ void LocationDataRdbObserver::OnChange()
     }
     int32_t state = DISABLED;
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        LocationDataRdbHelper::GetInstance().GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         return;
     }
