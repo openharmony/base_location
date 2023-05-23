@@ -82,36 +82,47 @@ bool CheckIfParamIsFunctionType(napi_env env, napi_value param);
 napi_value SetEnumPropertyByInteger(napi_env env, napi_value dstObj, int32_t enumValue, const char *enumName);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
-{ \
-    if ((state) != napi_ok) { \
-        LBSLOGE("(%{public}s) fail", #message); \
-        GET_AND_THROW_LAST_ERROR((env)); \
-        continue; \
-    } \
+{                                                \
+    if ((state) != napi_ok) {                    \
+        LBSLOGE("(%{public}s) fail", #message);  \
+        GET_AND_THROW_LAST_ERROR((env));         \
+        continue;                                \
+    }                                            \
 }
 
-#define CHK_ERROR_CODE(type, theCall, isRequired)                                                     \
-    do {                                                                                              \
-        int errorCode = (theCall);                                                                    \
-        if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {                           \
-            LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed.");                            \
-            return errorCode;                                                                         \
-        }                                                                                             \
-        if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
-            LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
-            return INPUT_PARAMS_ERROR;                                                                \
-        }                                                                                             \
-    } while (0)
+#define CHK_ERROR_CODE(type, theCall, isRequired)                                                 \
+{                                                                                                 \
+    int errorCode = (theCall);                                                                    \
+    if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {                           \
+        LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed.");                            \
+        return errorCode;                                                                         \
+    }                                                                                             \
+    if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
+        LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
+        return INPUT_PARAMS_ERROR;                                                                \
+    }                                                                                             \
+}
 
-#define CHK_NAPI_ERR_CLOSE_SCOPE(env, state, scope, context, work)             \
-    do {                                                                       \
-        if ((state) != napi_ok && (context) != nullptr && (work) != nullptr) { \
-            napi_close_handle_scope((env), (scope));                           \
-            delete (context);                                                  \
-            delete (work);                                                     \
-            return;                                                            \
-        }                                                                      \
-    } while (0)
+#define DELETE_SCOPE_CONTEXT_WORK(env, scope, context, work) \
+{                                                            \
+    if ((env) != nullptr && (scope) != nullptr) {            \
+        napi_close_handle_scope((env), (scope));             \
+    }                                                        \
+    if ((context) != nullptr) {                              \
+        delete (context);                                    \
+    }                                                        \
+    if ((work) != nullptr) {                                 \
+        delete (work);                                       \
+    }                                                        \
+}
+
+#define CHK_NAPI_ERR_CLOSE_SCOPE(env, state, scope, context, work)    \
+{                                                                     \
+    if ((state) != napi_ok) {                                         \
+        DELETE_SCOPE_CONTEXT_WORK((env), (scope), (context), (work)); \
+        return;                                                       \
+    }                                                                 \
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // NAPI_UTIL_H

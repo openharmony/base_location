@@ -101,16 +101,15 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
             if (work == nullptr) {
                 return;
             }
+            napi_handle_scope scope = nullptr;
             auto context = static_cast<LocationAsyncContext*>(work->data);
-            if (context == nullptr || context->env == nullptr) {
-                delete work;
+            if (context == nullptr || context->env == nullptr || context->loc == nullptr) {
+                DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
                 return;
             }
-            napi_handle_scope scope = nullptr;
-            NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
-            if (scope == nullptr || context->loc == nullptr) {
-                delete context;
-                delete work;
+            napi_open_handle_scope(context->env, &scope);
+            if (scope == nullptr) {
+                DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
                 return;
             }
             napi_value jsEvent = nullptr;
@@ -134,19 +133,12 @@ void LocatorCallbackHost::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
                     LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
                 }
             } else if (context->deferred != nullptr) {
-                if (jsEvent != nullptr) {
-                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                        napi_resolve_deferred(context->env, context->deferred, jsEvent),
-                        scope, context, work);
-                } else {
-                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                        napi_reject_deferred(context->env, context->deferred, jsEvent),
-                        scope, context, work);
-                }
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    ((jsEvent != nullptr) ? napi_resolve_deferred(context->env, context->deferred, jsEvent) :
+                    napi_reject_deferred(context->env, context->deferred, jsEvent)),
+                    scope, context, work);
             }
-            NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
-            delete context;
-            delete work;
+            DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
     });
 }
 
