@@ -26,14 +26,23 @@
 
 namespace OHOS {
 namespace Location {
-DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationDataManager);
+LocationDataManager::LocationDataManager()
+{
+    switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
+}
 
-auto g_switchCallbacks = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
+LocationDataManager::~LocationDataManager()
+{
+}
 
 LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 {
+    if (switchCallbacks_ == nullptr) {
+        LBSLOGE(LOCATOR, "switchCallbacks_ is nullptr");
+        return ERRCODE_INVALID_PARAM;
+    }
     int state = isEnabled ? ENABLED : DISABLED;
-    for (auto iter = g_switchCallbacks->begin(); iter != g_switchCallbacks->end(); iter++) {
+    for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
         callback->OnSwitchChange(state);
@@ -43,7 +52,7 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 
 LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (callback == nullptr) {
+    if (callback == nullptr || switchCallbacks_ == nullptr) {
         LBSLOGE(LOCATOR, "register an invalid switch callback");
         return ERRCODE_INVALID_PARAM;
     }
@@ -52,16 +61,16 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         LBSLOGE(LOCATOR, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    g_switchCallbacks->erase(uid);
-    g_switchCallbacks->insert(std::make_pair(uid, switchCallback));
+    switchCallbacks_->erase(uid);
+    switchCallbacks_->insert(std::make_pair(uid, switchCallback));
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
-        uid, std::to_string(g_switchCallbacks->size()).c_str());
+        uid, std::to_string(switchCallbacks_->size()).c_str());
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 {
-    if (callback == nullptr) {
+    if (callback == nullptr || switchCallbacks_ == nullptr) {
         LBSLOGE(LOCATOR, "unregister an invalid switch callback");
         return ERRCODE_INVALID_PARAM;
     }
@@ -72,16 +81,16 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
     }
 
     pid_t uid = -1;
-    for (auto iter = g_switchCallbacks->begin(); iter != g_switchCallbacks->end(); iter++) {
+    for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         if (remoteObject == callback) {
             uid = iter->first;
             break;
         }
     }
-    g_switchCallbacks->erase(uid);
+    switchCallbacks_->erase(uid);
     LBSLOGD(LOCATOR, "after uid:%{public}d unregister, switch callback size:%{public}s",
-        uid, std::to_string(g_switchCallbacks->size()).c_str());
+        uid, std::to_string(switchCallbacks_->size()).c_str());
     return ERRCODE_SUCCESS;
 }
 

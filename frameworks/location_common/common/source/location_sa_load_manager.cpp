@@ -24,7 +24,13 @@
 
 namespace OHOS {
 namespace Location {
-DECLARE_SINGLE_INSTANCE_IMPLEMENT(LocationSaLoadManager);
+LocationSaLoadManager::LocationSaLoadManager()
+{
+}
+
+LocationSaLoadManager::~LocationSaLoadManager()
+{
+}
 
 LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
 {
@@ -102,13 +108,23 @@ void LocationSaLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
-    LocationSaLoadManager::GetInstance().LoadSystemAbilitySuccess();
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr) {
+        LBSLOGE(LOCATOR, "LocationSaLoadManager GetInstance return null");
+        return;
+    }
+    instance->LoadSystemAbilitySuccess();
 }
 
 void LocationSaLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
-    LocationSaLoadManager::GetInstance().LoadSystemAbilityFail();
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr) {
+        LBSLOGE(LOCATOR, "LocationSaLoadManager GetInstance return null");
+        return;
+    }
+    instance->LoadSystemAbilityFail();
 }
 }; // namespace Location
 }; // namespace OHOS

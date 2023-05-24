@@ -17,19 +17,17 @@
 #define LOCATION_DATA_MANAGER_H
 
 #include <map>
-
+#include <singleton.h>
 #include "iremote_object.h"
-
 #include "constant_definition.h"
 #include "i_switch_callback.h"
-#include "single_instance.h"
 
 namespace OHOS {
 namespace Location {
-
-class LocationDataManager {
-    DECLARE_SINGLE_INSTANCE(LocationDataManager);
+class LocationDataManager : public DelayedSingleton<LocationDataManager> {
 public:
+    LocationDataManager();
+    ~LocationDataManager();
     LocationErrCode ReportSwitchState(bool isEnabled);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);

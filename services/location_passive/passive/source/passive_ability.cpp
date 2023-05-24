@@ -99,8 +99,13 @@ LocationErrCode PassiveAbility::SetEnable(bool state)
 
 void PassiveAbility::UnloadPassiveSystemAbility()
 {
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locationSaLoadManager == nullptr) {
+        return;
+    }
+
     if (!CheckIfPassiveConnecting()) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+        locationSaLoadManager->UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     }
 }
 

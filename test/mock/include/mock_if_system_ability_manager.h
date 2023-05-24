@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,7 +42,8 @@ public:
     MOCK_METHOD(int32_t, AddSystemAbility, (int32_t systemAbilityId, const sptr<IRemoteObject>& ability,
         const ISystemAbilityManager::SAExtraProp& extraProp));
     MOCK_METHOD(int32_t, AddSystemProcess, (const std::u16string& procName, const sptr<IRemoteObject>& procObject));
-    MOCK_METHOD(int32_t, LoadSystemAbility, (int32_t systemAbilityId, const sptr<ISystemAbilityLoadCallback>& callback));
+    MOCK_METHOD(int32_t, LoadSystemAbility, (int32_t systemAbilityId,
+        const sptr<ISystemAbilityLoadCallback>& callback));
     MOCK_METHOD(int32_t, LoadSystemAbility, (int32_t systemAbilityId, const std::string& deviceId,
         const sptr<ISystemAbilityLoadCallback>& callback));
     MOCK_METHOD(int32_t, UnloadSystemAbility, (int32_t systemAbilityId));

@@ -15,6 +15,7 @@
 
 #include "common_utils_test.h"
 
+#include <singleton.h>
 #include "string_ex.h"
 
 #include "accesstoken_kit.h"
@@ -112,18 +113,22 @@ void CommonUtilsTest::MockNativeAccurateLocation()
 
 void CommonUtilsTest::LoadSystemAbility()
 {
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locationSaLoadManager == nullptr) {
+        return;
+    }
+    locationSaLoadManager->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
 #ifdef FEATURE_GNSS_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+    locationSaLoadManager->LoadLocationSa(LOCATION_GNSS_SA_ID);
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    locationSaLoadManager->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    locationSaLoadManager->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_GEOCODE_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    locationSaLoadManager->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
 #endif
 }
 

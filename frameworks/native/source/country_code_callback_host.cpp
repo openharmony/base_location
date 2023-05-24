@@ -128,9 +128,11 @@ void CountryCodeCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine), scope, context, work);
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler), scope, context, work);
+                    napi_get_undefined(context->env, &undefine), scope, context, work);
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
+                    scope, context, work);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(COUNTRY_CODE_CALLBACK, "Report event failed");

@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
+#include <singleton.h>
 #include "location_data_handler.h"
-
 #include "uri.h"
-
 #include "common_utils.h"
 #include "location_data_rdb_helper.h"
 #include "location_data_manager.h"
@@ -49,19 +48,21 @@ void LocationDataHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
 
 void LocationDataHandler::HandleSwitchStateChanged(const AppExecFwk::InnerEvent::Pointer &event)
 {
-    if (event == nullptr) {
+    auto rdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    auto locationDataManager = DelayedSingleton<LocationDataManager>::GetInstance();
+    if (event == nullptr || rdbHelper == nullptr || locationDataManager == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: param is nullptr", __func__);
         return;
     }
-    int32_t state = DISABLED;
+
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
-        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    int32_t state = DISABLED;
+    rdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     int64_t value = event->GetParam();
     if (state != value) {
-        DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
-            SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+        rdbHelper->SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     }
-    LocationDataManager::GetInstance().ReportSwitchState(state);
+    locationDataManager->ReportSwitchState(state);
 }
 } // namespace Location
 } // namespace OHOS

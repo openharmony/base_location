@@ -15,6 +15,7 @@
 
 #include "locator_impl_test.h"
 
+#include <singleton.h>
 #include "accesstoken_kit.h"
 #include "message_parcel.h"
 #include "nativetoken_kit.h"
@@ -75,18 +76,18 @@ void LocatorImplTest::TearDown()
 
 void LocatorImplTest::LoadSystemAbility()
 {
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
 #ifdef FEATURE_GNSS_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_GEOCODE_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
 #endif
 }
 
@@ -161,7 +162,7 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
     EXPECT_NE(nullptr, switchCallbackHost);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     sleep(1);
-    
+
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(false));
     bool isEnabled = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
@@ -194,7 +195,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 begin");
-    
+
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableLocationMockV9()); // mock switch on
 
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();

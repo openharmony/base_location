@@ -426,8 +426,12 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
 
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locationSaLoadManager == nullptr) {
+        return;
+    }
     int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
-    LocationSaLoadManager::GetInstance().LoadLocationSa(systemAbilityId);
+    locationSaLoadManager->LoadLocationSa(systemAbilityId);
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);

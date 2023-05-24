@@ -17,10 +17,9 @@
 #define OHOS_LOCATION_SA_LOAD_MANAGER_H
 
 #include <condition_variable>
+#include <singleton.h>
 #include "iremote_object.h"
-
 #include "constant_definition.h"
-#include "single_instance.h"
 #include "system_ability_load_callback_stub.h"
 
 namespace OHOS {
@@ -31,9 +30,10 @@ public:
     void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
 };
 
-class LocationSaLoadManager {
-    DECLARE_SINGLE_INSTANCE(LocationSaLoadManager);
+class LocationSaLoadManager : public DelayedSingleton<LocationSaLoadManager> {
 public:
+    LocationSaLoadManager();
+    ~LocationSaLoadManager();
     LocationErrCode LoadLocationSa(int32_t systemAbilityId);
     LocationErrCode UnloadLocationSa(int32_t systemAbilityId);
     void LoadSystemAbilitySuccess();
