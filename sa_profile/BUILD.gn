@@ -15,11 +15,11 @@ import("//build/ohos/sa_profile/sa_profile.gni")
 
 ohos_sa_profile("location_sa_profile") {
   sources = [
-    "2801.xml",
-    "2802.xml",
-    "2803.xml",
-    "2804.xml",
-    "2805.xml",
+    "2801.json",
+    "2802.json",
+    "2803.json",
+    "2804.json",
+    "2805.json",
   ]
 
   subsystem_name = "location"
