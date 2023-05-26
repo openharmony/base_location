@@ -1,0 +1,12 @@
+{
+    "process": "locationhub",
+    "systemability": [
+        {
+            "name": 2802,
+            "libpath": "liblbsservice_locator.z.so",
+            "run-on-create": false,
+            "distributed": false,
+            "dump_level": 1
+        }
+    ]
+}
