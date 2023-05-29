@@ -16,6 +16,7 @@
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_service.h"
 #include <file_ex.h>
+#include <singleton.h>
 #include "geo_address.h"
 #include "location_dumper.h"
 #include "location_sa_load_manager.h"
@@ -159,8 +160,9 @@ LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
 
 void GeoConvertService::UnloadGeoConvertSystemAbility()
 {
-    if (!CheckIfGeoConvertConnecting()) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (!CheckIfGeoConvertConnecting() && locationSaLoadManager != nullptr) {
+        locationSaLoadManager->UnloadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
     }
 }
 

@@ -77,7 +77,8 @@ napi_value GeoLocationErrorCodeTypeConstructor(napi_env env)
     SetEnumPropertyByInteger(env, geoLocationErrorCode, LOCATOR_ERROR, "LOCATOR_ERROR");
     SetEnumPropertyByInteger(env, geoLocationErrorCode, LOCATION_SWITCH_ERROR, "LOCATION_SWITCH_ERROR");
     SetEnumPropertyByInteger(env, geoLocationErrorCode, LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR");
-    SetEnumPropertyByInteger(env, geoLocationErrorCode, LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR");
+    SetEnumPropertyByInteger(env, geoLocationErrorCode,
+        LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR");
     return geoLocationErrorCode;
 }
 

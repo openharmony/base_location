@@ -133,8 +133,9 @@ LocationErrCode GnssAbility::SetEnable(bool state)
 
 void GnssAbility::UnloadGnssSystemAbility()
 {
-    if (!CheckIfGnssConnecting()) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_GNSS_SA_ID);
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (!CheckIfGnssConnecting() && locationSaLoadManager != nullptr) {
+        locationSaLoadManager->UnloadLocationSa(LOCATION_GNSS_SA_ID);
     }
 }
 

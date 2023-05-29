@@ -1384,9 +1384,7 @@ void CallbackResumeManager::ResumeCallback()
 void CallbackResumeManager::ResumeSwitchCallback()
 {
     auto callbackMap = g_switchCallbacks.GetCallbackMap();
-    napi_env env;
     for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
-        env = iter->first;
         for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
             auto switchCallbackHost = innerIter->second;
             if (switchCallbackHost == nullptr) {
@@ -1403,9 +1401,7 @@ void CallbackResumeManager::ResumeSwitchCallback()
 void CallbackResumeManager::ResumeGnssStatusCallback()
 {
     auto callbackMap = g_gnssStatusInfoCallbacks.GetCallbackMap();
-    napi_env env;
     for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
-        env = iter->first;
         for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
             auto gnssStatusCallbackHost = innerIter->second;
             if (gnssStatusCallbackHost == nullptr) {
@@ -1422,9 +1418,7 @@ void CallbackResumeManager::ResumeGnssStatusCallback()
 void CallbackResumeManager::ResumeNmeaMessageCallback()
 {
     auto callbackMap = g_nmeaCallbacks.GetCallbackMap();
-    napi_env env;
     for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
-        env = iter->first;
         for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
             auto nmeaCallbackHost = innerIter->second;
             if (nmeaCallbackHost == nullptr) {
@@ -1441,9 +1435,7 @@ void CallbackResumeManager::ResumeNmeaMessageCallback()
 void CallbackResumeManager::ResumeCountryCodeCallback()
 {
     auto callbackMap = g_countryCodeCallbacks.GetCallbackMap();
-    napi_env env;
     for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
-        env = iter->first;
         for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
             auto countryCodeCallbackHost = innerIter->second;
             if (countryCodeCallbackHost == nullptr) {
@@ -1460,9 +1452,7 @@ void CallbackResumeManager::ResumeCountryCodeCallback()
 void CallbackResumeManager::ResumeCachedLocationCallback()
 {
     auto callbackMap = g_cachedLocationCallbacks.GetCallbackMap();
-    napi_env env;
     for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
-        env = iter->first;
         for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
             auto cachedCallbackHost = innerIter->second;
             if (cachedCallbackHost == nullptr) {
@@ -1492,9 +1482,7 @@ void CallbackResumeManager::ResumeFence()
 void CallbackResumeManager::ResumeLocating()
 {
     auto callbackMap = g_locationCallbacks.GetCallbackMap();
-    napi_env env;
     for (auto iter = callbackMap.begin(); iter != callbackMap.end(); iter++) {
-        env = iter->first;
         for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
             auto locatorCallbackHost = innerIter->second;
             if (locatorCallbackHost == nullptr) {

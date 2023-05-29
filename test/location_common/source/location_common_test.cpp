@@ -15,6 +15,7 @@
 
 #include "location_common_test.h"
 
+#include <singleton.h>
 #include "string_ex.h"
 
 #include "message_parcel.h"
@@ -200,7 +201,7 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
     SetGeoAddress(geoAddress);
     VerifyGeoAddressReadFromParcel(geoAddress);
-    
+
     MessageParcel newParcel;
     geoAddress->Marshalling(newParcel);
     VerifyGeoAddressMarshalling(newParcel);
@@ -485,7 +486,7 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)
         << "LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest002 begin");
     std::unique_ptr<GeocodingMockInfo> mockInfo = std::make_unique<GeocodingMockInfo>();
-    
+
     auto reverseGeocodeRequest = std::make_shared<ReverseGeocodeRequest>();
     mockInfo->SetLocation(reverseGeocodeRequest);
     EXPECT_NE(nullptr, mockInfo->GetLocation());
@@ -593,10 +594,10 @@ HWTEST_F(LocationCommonTest, LoadLocationSaTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LoadLocationSaTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest001 begin");
-    LocationErrCode err = LocationSaLoadManager::GetInstance().LoadLocationSa(UN_SAID);
+    LocationErrCode err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(UN_SAID);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
 
-    err = LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
     EXPECT_EQ(ERRCODE_SUCCESS, err);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest001 end");
 }
@@ -606,11 +607,11 @@ HWTEST_F(LocationCommonTest, LoadLocationSaTest002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LoadLocationSaTest002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest002 begin");
-    LocationErrCode err = LocationSaLoadManager::GetInstance().UnloadLocationSa(UN_SAID);
+    LocationErrCode err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->UnloadLocationSa(UN_SAID);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
 
     // can not unload sa by another sa
-    err = LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest002 end");
 }

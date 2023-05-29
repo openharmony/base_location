@@ -16,6 +16,7 @@
 #include "locator_service_test.h"
 
 #include <cstdlib>
+#include <singleton.h>
 
 #include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
@@ -110,18 +111,18 @@ void LocatorServiceTest::TearDown()
 
 void LocatorServiceTest::LoadSystemAbility()
 {
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
 #ifdef FEATURE_GNSS_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_GEOCODE_SUPPORT
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
 #endif
 }
 
@@ -830,7 +831,7 @@ HWTEST_F(LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1)
     data.WriteString16(Str8ToStr16("cn")); // locale.getCountry()
     data.WriteString16(Str8ToStr16("")); // locale.getVariant()
     data.WriteString16(Str8ToStr16("")); // ""
-    
+
     /*
      * @tc.steps: step2. test get address by coordinate.
      * @tc.expected: step2. get reply state is true.
@@ -1501,7 +1502,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->RemoveFence(fenceRequest));
 #endif
     EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
-    
+
     EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
 
     int timeInterval = 2;
@@ -1776,7 +1777,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     // uid pid not match locationhub process
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
         locatorAbility->RegisterCachedLocationCallback(cachedRequest, cachedCallback, "unit.test"));
-        
+
     sleep(1);
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
         locatorAbility->UnregisterCachedLocationCallback(cachedCallback)); // uid pid not match locationhub process

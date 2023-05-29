@@ -188,6 +188,11 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locatorAbility == nullptr || requestManager == nullptr || locationSaLoadManager == nullptr) {
+        LBSLOGE(LOCATOR, "GetInstance return null");
+        return;
+    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
@@ -217,7 +222,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case EVENT_UNLOAD_SA: {
             if (locatorAbility != nullptr) {
-                LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+                locationSaLoadManager->UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
             }
             break;
         }
@@ -354,7 +359,12 @@ void LocatorAbility::UnloadSaAbility()
         return;
     }
     auto task = [this]() {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+        if (instance == nullptr) {
+            LBSLOGE(LOCATOR, "%{public}s instance is nullptr", __func__);
+            return;
+        }
+        instance->UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
     };
     if (locatorHandler_ != nullptr) {
         locatorHandler_->PostTask(task, UNLOAD_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -466,7 +476,11 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
 #ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locationSaLoadManager == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    locationSaLoadManager->LoadLocationSa(LOCATION_GNSS_SA_ID);
     sptr<IRemoteObject> objectGnss =
             CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
     if (objectGnss == nullptr) {
@@ -764,9 +778,13 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
 
 void LocatorAbility::UpdateProxyMap()
 {
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locationSaLoadManager == nullptr) {
+        return;
+    }
 #ifdef FEATURE_GNSS_SUPPORT
     // init gnss ability sa
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GNSS_SA_ID);
+    locationSaLoadManager->LoadLocationSa(LOCATION_GNSS_SA_ID);
     sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
     if (objectGnss != nullptr) {
         proxyMap_->insert(make_pair(GNSS_ABILITY, objectGnss));
@@ -776,7 +794,7 @@ void LocatorAbility::UpdateProxyMap()
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
     // init network ability sa
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    locationSaLoadManager->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,
         CommonUtils::InitDeviceId());
     if (objectNetwork != nullptr) {
@@ -787,7 +805,7 @@ void LocatorAbility::UpdateProxyMap()
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
     // init passive ability sa
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    locationSaLoadManager->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     sptr<IRemoteObject> objectPassive = CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID,
         CommonUtils::InitDeviceId());
     if (objectPassive != nullptr) {
@@ -1026,7 +1044,12 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
 #ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
-    LocationSaLoadManager::GetInstance().LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locationSaLoadManager == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+
+    locationSaLoadManager->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID,
         CommonUtils::InitDeviceId());
     if (remoteObject == nullptr) {

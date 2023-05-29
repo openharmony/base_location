@@ -194,8 +194,13 @@ LocationErrCode NetworkAbility::SetEnable(bool state)
 
 void NetworkAbility::UnloadNetworkSystemAbility()
 {
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (locationSaLoadManager == nullptr) {
+        return;
+    }
+
     if (!CheckIfNetworkConnecting()) {
-        LocationSaLoadManager::GetInstance().UnloadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+        locationSaLoadManager->UnloadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     }
 }
 
