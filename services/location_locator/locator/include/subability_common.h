@@ -102,6 +102,7 @@ private:
     int mockTimeInterval_ = 0;
     bool mockEnabled_ = false;
     std::vector<std::shared_ptr<Location>> mockLoc_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

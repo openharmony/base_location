@@ -141,6 +141,8 @@ void GnssAbility::UnloadGnssSystemAbility()
 
 bool GnssAbility::CheckIfGnssConnecting()
 {
+    std::unique_lock<std::mutex> gnssLock(gnssMutex_);
+    std::unique_lock<std::mutex> nmeaLock(nmeaMutex_);
     return IsMockEnabled() || !gnssStatusCallback_->empty()
         || !nmeaCallback_->empty() || isHdiConnected_ || IsMockProcessing();
 }
@@ -164,6 +166,7 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
         LBSLOGE(GNSS, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
+    std::unique_lock<std::mutex> lock(gnssMutex_);
     gnssStatusCallback_->erase(uid);
     gnssStatusCallback_->insert(std::make_pair(uid, gnssStatusCallback));
     LBSLOGD(GNSS, "after uid:%{public}d register, gnssStatusCallback size:%{public}s",
@@ -183,6 +186,7 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
         return ERRCODE_INVALID_PARAM;
     }
 
+    std::unique_lock<std::mutex> lock(gnssMutex_);
     pid_t uid = -1;
     for (auto iter = gnssStatusCallback_->begin(); iter != gnssStatusCallback_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
@@ -210,6 +214,7 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
         LBSLOGE(GNSS, "cast nmea callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
+    std::unique_lock<std::mutex> lock(nmeaMutex_);
     nmeaCallback_->erase(uid);
     nmeaCallback_->insert(std::make_pair(uid, nmeaCallback));
     LBSLOGD(GNSS, "after uid:%{public}d register, nmeaCallback size:%{public}s",
@@ -229,6 +234,7 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         return ERRCODE_INVALID_PARAM;
     }
 
+    std::unique_lock<std::mutex> lock(nmeaMutex_);
     pid_t uid = -1;
     for (auto iter = nmeaCallback_->begin(); iter != nmeaCallback_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
@@ -349,6 +355,7 @@ void GnssAbility::ReportGnssSessionStatus(int status)
 
 void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 {
+    std::unique_lock<std::mutex> lock(nmeaMutex_);
     for (auto iter = nmeaCallback_->begin(); iter != nmeaCallback_->end(); iter++) {
         sptr<INmeaMessageCallback> nmeaCallback = (iter->second);
         nmeaCallback->OnMessageChange(timestamp, nmea);
@@ -357,6 +364,7 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 
 void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 {
+    std::unique_lock<std::mutex> lock(gnssMutex_);
     for (auto iter = gnssStatusCallback_->begin(); iter != gnssStatusCallback_->end(); iter++) {
         sptr<IGnssStatusCallback> callback = (iter->second);
         callback->OnStatusChange(sv);
@@ -456,7 +464,7 @@ bool GnssAbility::ConnectHdi()
     }
     int32_t retry = 0;
     while (retry < GET_HDI_SERVICE_COUNT) {
-        std::unique_lock<std::mutex> lock(gnssMutex_, std::defer_lock);
+        std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
         lock.lock();
         gnssInterface_ = IGnssInterface::Get();
         agnssInterface_ = IAGnssInterface::Get();

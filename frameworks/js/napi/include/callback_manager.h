@@ -33,20 +33,20 @@ public:
     std::map<napi_env, std::map<napi_ref, sptr<T>>> GetCallbackMap();
 private:
     std::map<napi_env, std::map<napi_ref, sptr<T>>> callbackMap_;
-    std::mutex mMutex;
+    std::mutex mutex_;
 };
 
 template <typename T>
 std::map<napi_env, std::map<napi_ref, sptr<T>>> CallbackManager<T>::GetCallbackMap()
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     return callbackMap_;
 }
 
 template <typename T>
 void CallbackManager<T>::DeleteCallbackByEnv(const napi_env& env)
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
         return;
@@ -58,7 +58,7 @@ void CallbackManager<T>::DeleteCallbackByEnv(const napi_env& env)
 template <typename T>
 bool CallbackManager<T>::IsCallbackInMap(const napi_env& env, const napi_value& handler)
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
         return false;
@@ -75,7 +75,7 @@ bool CallbackManager<T>::IsCallbackInMap(const napi_env& env, const napi_value& 
 template <typename T>
 void CallbackManager<T>::AddCallback(const napi_env& env, const napi_ref& handlerRef, const sptr<T>& callback)
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
         std::map<napi_ref, sptr<T>> innerMap;
@@ -89,7 +89,7 @@ void CallbackManager<T>::AddCallback(const napi_env& env, const napi_ref& handle
 template <typename T>
 void CallbackManager<T>::DeleteCallback(const napi_env& env, const napi_value& handler)
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
         return;
@@ -109,7 +109,7 @@ void CallbackManager<T>::DeleteCallback(const napi_env& env, const napi_value& h
 template <typename T>
 sptr<T> CallbackManager<T>::GetCallbackPtr(const napi_env& env, const napi_value& handler)
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     auto iter = callbackMap_.find(env);
     if (iter == callbackMap_.end()) {
         return nullptr;

@@ -36,6 +36,7 @@ SatelliteStatus::SatelliteStatus(SatelliteStatus& satelliteStatus)
 
 void SatelliteStatus::ReadFromParcel(Parcel& parcel)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     satellitesNumber_ = parcel.ReadInt64();
     satellitesNumber_ = satellitesNumber_ > MAXIMUM_INTERATION ? MAXIMUM_INTERATION : satellitesNumber_;
     for (int i = 0; i < satellitesNumber_; i++) {

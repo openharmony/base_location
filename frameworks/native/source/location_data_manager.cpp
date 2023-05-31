@@ -42,6 +42,8 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         return ERRCODE_INVALID_PARAM;
     }
     int state = isEnabled ? ENABLED : DISABLED;
+
+    std::unique_lock<std::mutex> lock(mutex_);
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
@@ -61,6 +63,8 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         LBSLOGE(LOCATOR, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
+
+    std::unique_lock<std::mutex> lock(mutex_);
     switchCallbacks_->erase(uid);
     switchCallbacks_->insert(std::make_pair(uid, switchCallback));
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
@@ -81,6 +85,7 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
     }
 
     pid_t uid = -1;
+    std::unique_lock<std::mutex> lock(mutex_);
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         if (remoteObject == callback) {

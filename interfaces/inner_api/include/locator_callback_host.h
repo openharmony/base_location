@@ -144,8 +144,9 @@ public:
         deferred_ = deferred;
     }
 
-    inline std::shared_ptr<Location> GetSingleLocation() const
+    inline std::shared_ptr<Location> GetSingleLocation()
     {
+        std::shared_lock<std::shared_mutex> guard(mutex_);
         return singleLocation_;
     }
 

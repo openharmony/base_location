@@ -112,31 +112,31 @@ void LocationCommonTest::SetGeoAddress(std::unique_ptr<GeoAddress>& geoAddress)
 #ifdef FEATURE_GEOCODE_SUPPORT
 void LocationCommonTest::VerifyGeoAddressReadFromParcel(std::unique_ptr<GeoAddress>& geoAddress)
 {
-    EXPECT_EQ("localeLanguage", geoAddress->m_localeLanguage);
-    EXPECT_EQ("localeCountry", geoAddress->m_localeCountry);
-    EXPECT_EQ(1, geoAddress->m_descriptions.size());
-    auto iter = geoAddress->m_descriptions.find(0);
-    EXPECT_EQ(true, iter != geoAddress->m_descriptions.end());
+    EXPECT_EQ("localeLanguage", geoAddress->localeLanguage_);
+    EXPECT_EQ("localeCountry", geoAddress->localeCountry_);
+    EXPECT_EQ(1, geoAddress->descriptions_.size());
+    auto iter = geoAddress->descriptions_.find(0);
+    EXPECT_EQ(true, iter != geoAddress->descriptions_.end());
     EXPECT_EQ(0, iter->first);
     EXPECT_EQ("line", iter->second);
-    EXPECT_EQ("placeName", geoAddress->m_placeName);
-    EXPECT_EQ("administrativeArea", geoAddress->m_administrativeArea);
-    EXPECT_EQ("subAdministrativeArea", geoAddress->m_subAdministrativeArea);
-    EXPECT_EQ("locality", geoAddress->m_locality);
-    EXPECT_EQ("subLocality", geoAddress->m_subLocality);
-    EXPECT_EQ("roadName", geoAddress->m_roadName);
-    EXPECT_EQ("subRoadName", geoAddress->m_subRoadName);
-    EXPECT_EQ("premises", geoAddress->m_premises);
-    EXPECT_EQ("postalCode", geoAddress->m_postalCode);
-    EXPECT_EQ("countryCode", geoAddress->m_countryCode);
-    EXPECT_EQ("countryName", geoAddress->m_countryName);
-    EXPECT_EQ(1, geoAddress->m_hasLatitude);
-    EXPECT_EQ(MOCK_LATITUDE, geoAddress->m_latitude);
-    EXPECT_EQ(1, geoAddress->m_hasLongitude);
-    EXPECT_EQ(MOCK_LONGITUDE, geoAddress->m_longitude);
-    EXPECT_EQ("phoneNumber", geoAddress->m_phoneNumber);
-    EXPECT_EQ("addressUrl", geoAddress->m_addressUrl);
-    EXPECT_EQ(true, geoAddress->m_isFromMock);
+    EXPECT_EQ("placeName", geoAddress->placeName_);
+    EXPECT_EQ("administrativeArea", geoAddress->administrativeArea_);
+    EXPECT_EQ("subAdministrativeArea", geoAddress->subAdministrativeArea_);
+    EXPECT_EQ("locality", geoAddress->locality_);
+    EXPECT_EQ("subLocality", geoAddress->subLocality_);
+    EXPECT_EQ("roadName", geoAddress->roadName_);
+    EXPECT_EQ("subRoadName", geoAddress->subRoadName_);
+    EXPECT_EQ("premises", geoAddress->premises_);
+    EXPECT_EQ("postalCode", geoAddress->postalCode_);
+    EXPECT_EQ("countryCode", geoAddress->countryCode_);
+    EXPECT_EQ("countryName", geoAddress->countryName_);
+    EXPECT_EQ(1, geoAddress->hasLatitude_);
+    EXPECT_EQ(MOCK_LATITUDE, geoAddress->latitude_);
+    EXPECT_EQ(1, geoAddress->hasLongitude_);
+    EXPECT_EQ(MOCK_LONGITUDE, geoAddress->longitude_);
+    EXPECT_EQ("phoneNumber", geoAddress->phoneNumber_);
+    EXPECT_EQ("addressUrl", geoAddress->addressUrl_);
+    EXPECT_EQ(true, geoAddress->isFromMock_);
 }
 #endif
 
@@ -218,18 +218,18 @@ HWTEST_F(LocationCommonTest, GeoAddressTest001, TestSize.Level1)
 HWTEST_F(LocationCommonTest, GeoAddressTest002, TestSize.Level1)
 {
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
-    geoAddress->m_hasLatitude = true;
-    geoAddress->m_latitude = 1.0;
+    geoAddress->hasLatitude_ = true;
+    geoAddress->latitude_ = 1.0;
     EXPECT_EQ(1.0, geoAddress->GetLatitude());
 
-    geoAddress->m_hasLatitude = false;
+    geoAddress->hasLatitude_ = false;
     EXPECT_EQ(0.0, geoAddress->GetLatitude());
 
-    geoAddress->m_hasLongitude = true;
-    geoAddress->m_longitude = 1.0;
+    geoAddress->hasLongitude_ = true;
+    geoAddress->longitude_ = 1.0;
     EXPECT_EQ(1.0, geoAddress->GetLongitude());
 
-    geoAddress->m_hasLongitude = false;
+    geoAddress->hasLongitude_ = false;
     EXPECT_EQ(0.0, geoAddress->GetLongitude());
 }
 #endif

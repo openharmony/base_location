@@ -47,7 +47,7 @@ CountryCodeManager::~CountryCodeManager()
 
 void CountryCodeManager::NotifyAllListener()
 {
-    std::lock_guard lock(countryCodeCallbackMutex_);
+    std::unique_lock lock(countryCodeCallbackMutex_);
     if (lastCountry_ == nullptr || countryCodeCallback_ == nullptr) {
         LBSLOGE(COUNTRY_CODE, "NotifyAllListener cancel, para is invalid");
         return;
@@ -128,7 +128,7 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
 
 bool CountryCodeManager::IsCountryCodeRegistered()
 {
-    std::lock_guard lock(countryCodeCallbackMutex_);
+    std::unique_lock lock(countryCodeCallbackMutex_);
     return countryCodeCallback_->size() != 0;
 }
 

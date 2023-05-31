@@ -49,6 +49,7 @@ public:
     int GetInt(const std::string& name);
 private:
     std::map<std::string, int> intValues_;
+    std::mutex mutex_;
 };
 
 class DftHandler : public AppExecFwk::EventHandler {
@@ -73,6 +74,7 @@ private:
     std::shared_ptr<AppRequestCount> GetTopRequest();
 
     std::shared_ptr<DftHandler> handler_;
+    std::mutex mutex_;
     std::list<std::shared_ptr<AppRequestCount>> appRequests_;
     uint32_t distributeSissionCnt_;
     uint32_t distributeDisconnectCnt_;

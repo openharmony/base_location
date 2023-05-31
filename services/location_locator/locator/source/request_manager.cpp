@@ -155,7 +155,7 @@ void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
 
 bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
 {
-    std::lock_guard lock(requestMutex_);
+    std::unique_lock lock(requestMutex_);
 
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
@@ -229,7 +229,7 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
-    std::lock_guard lock(requestMutex_);
+    std::unique_lock lock(requestMutex_);
     auto requests = locatorAbility->GetRequests();
     if (requests == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
@@ -509,7 +509,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
             if ((uid1.compare(uid2) != 0) || (pid1.compare(pid2) != 0)) {
                 continue;
             }
-            request->SetRequesting(isActive);
             auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
             if (locatorBackgroundProxy != nullptr) {
                 locatorBackgroundProxy.get()->OnSuspend(request, isActive);
