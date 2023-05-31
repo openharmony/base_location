@@ -128,13 +128,15 @@ private:
     int gnssWorkingStatus_ = 0;
     std::shared_ptr<GnssHandler> gnssHandler_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
+    std::mutex gnssMutex_;
+    std::mutex nmeaMutex_;
+    std::mutex hdiMutex_;
     std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
     std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     sptr<IGnssInterface> gnssInterface_;
     sptr<IGnssCallback> gnssCallback_;
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
-    std::mutex gnssMutex_;
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {

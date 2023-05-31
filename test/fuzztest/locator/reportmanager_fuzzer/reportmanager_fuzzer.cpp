@@ -23,7 +23,7 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
-    const int MIN_DATA_LEN = 4;
+    const int MIN_DATA_LEN = 5;
     bool ReportManagerFuzzerTest(const uint8_t* data, size_t size)
     {
         if (size < MIN_DATA_LEN) {
@@ -48,9 +48,10 @@ namespace OHOS {
         reportManager->ResultCheck(location, request);
         reportManager->SetLastLocation(location);
         reportManager->GetLastLocation();
+        pid_t uid = data[index++];
         uint32_t tokenId = data[index++];
         uint32_t firstTokenId = data[index++];
-        reportManager->GetPermittedLocation(tokenId, firstTokenId, location);
+        reportManager->GetPermittedLocation(uid, tokenId, firstTokenId, location);
         reportManager->UpdateRandom();
         return true;
     }

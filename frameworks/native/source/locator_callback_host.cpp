@@ -70,6 +70,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
             OnLocationReport(location);
+            std::shared_lock<std::shared_mutex> guard(mutex_);
             singleLocation_ = std::move(location);
             CountDown();
             break;
@@ -96,49 +97,50 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
 
 void LocatorCallbackHost::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
 {
-    uv_queue_work(loop, work, [](uv_work_t* work) {},
-        [](uv_work_t* work, int status) {
-            if (work == nullptr) {
-                return;
-            }
-            napi_handle_scope scope = nullptr;
-            auto context = static_cast<LocationAsyncContext*>(work->data);
-            if (context == nullptr || context->env == nullptr || context->loc == nullptr) {
-                DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
-                return;
-            }
-            napi_open_handle_scope(context->env, &scope);
-            if (scope == nullptr) {
-                DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
-                return;
-            }
-            napi_value jsEvent = nullptr;
-            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
-                scope, context, work);
-            if (context->callback[1]) {
-                SystemLocationToJs(context->env, context->loc, jsEvent);
-            } else {
-                LocationToJs(context->env, context->loc, jsEvent);
-            }
-            if (context->callback[0] != nullptr) {
-                napi_value undefine = nullptr;
-                napi_value handler = nullptr;
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
-                    scope, context, work);
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler),
-                    scope, context, work);
-                if (napi_call_function(context->env, nullptr, handler, 1,
-                    &jsEvent, &undefine) != napi_ok) {
-                    LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
-                }
-            } else if (context->deferred != nullptr) {
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    ((jsEvent != nullptr) ? napi_resolve_deferred(context->env, context->deferred, jsEvent) :
-                    napi_reject_deferred(context->env, context->deferred, jsEvent)),
-                    scope, context, work);
-            }
+    uv_queue_work(loop, work, [](uv_work_t* work) {}, [](uv_work_t* work, int status) {
+        if (work == nullptr) {
+            return;
+        }
+        napi_handle_scope scope = nullptr;
+        auto context = static_cast<LocationAsyncContext*>(work->data);
+        if (context == nullptr) {
+            delete work;
+            return;
+        }
+        if (context->env == nullptr || context->loc == nullptr) {
+            delete context;
+            delete work;
+            return;
+        }
+        napi_open_handle_scope(context->env, &scope);
+        if (scope == nullptr) {
             DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
+            return;
+        }
+        napi_value jsEvent = nullptr;
+        CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent), scope, context, work);
+        if (context->callback[1]) {
+            SystemLocationToJs(context->env, context->loc, jsEvent);
+        } else {
+            LocationToJs(context->env, context->loc, jsEvent);
+        }
+        if (context->callback[0] != nullptr) {
+            napi_value undefine = nullptr;
+            napi_value handler = nullptr;
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
+                scope, context, work);
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
+            if (napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
+                LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
+            }
+        } else if (context->deferred != nullptr) {
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                ((jsEvent != nullptr) ? napi_resolve_deferred(context->env, context->deferred, jsEvent) :
+                napi_reject_deferred(context->env, context->deferred, jsEvent)),
+                scope, context, work);
+        }
+        DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
     });
 }
 
@@ -314,6 +316,7 @@ void LocatorCallbackHost::CountDown()
 
 void LocatorCallbackHost::Wait(int time)
 {
+    LBSLOGI(LOCATOR_CALLBACK, "Wait time:%{public}d", time);
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         latch_->Wait(time);
     }

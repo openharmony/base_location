@@ -21,8 +21,8 @@ namespace OHOS {
 namespace Location {
 GeoAddress::GeoAddress()
 {
-    m_latitude = 0.0;
-    m_longitude = 0.0;
+    latitude_ = 0.0;
+    longitude_ = 0.0;
 }
 
 std::string GeoAddress::GetDescriptions(int index)
@@ -30,11 +30,13 @@ std::string GeoAddress::GetDescriptions(int index)
     if (index < 0) {
         return "";
     }
-    if (m_descriptionsSize <= 0) {
+    if (descriptionsSize_ <= 0) {
         return "";
     }
-    std::map<int, std::string>::iterator it = m_descriptions.find(index);
-    if (it == m_descriptions.end()) {
+
+    std::unique_lock<std::mutex> lock(mutex_);
+    std::map<int, std::string>::iterator it = descriptions_.find(index);
+    if (it == descriptions_.end()) {
         return "";
     }
 
@@ -43,16 +45,16 @@ std::string GeoAddress::GetDescriptions(int index)
 
 double GeoAddress::GetLatitude()
 {
-    if (m_hasLatitude) {
-        return m_latitude;
+    if (hasLatitude_) {
+        return latitude_;
     }
     return 0.0;
 }
 
 double GeoAddress::GetLongitude()
 {
-    if (m_hasLongitude) {
-        return m_longitude;
+    if (hasLongitude_) {
+        return longitude_;
     }
     return 0.0;
 }
@@ -66,8 +68,8 @@ std::unique_ptr<GeoAddress> GeoAddress::Unmarshalling(Parcel& parcel)
 
 void GeoAddress::ReadFromParcel(Parcel& in)
 {
-    m_localeLanguage = Str16ToStr8(in.ReadString16());
-    m_localeCountry = Str16ToStr8(in.ReadString16());
+    localeLanguage_ = Str16ToStr8(in.ReadString16());
+    localeCountry_ = Str16ToStr8(in.ReadString16());
     int size = in.ReadInt32();
     if (size > 0 && size < MAXIMUM_INTERATION) {
         for (int i = 0; i < size; i++) {
@@ -76,71 +78,72 @@ void GeoAddress::ReadFromParcel(Parcel& in)
                 continue;
             }
             std::string line = Str16ToStr8(in.ReadString16());
-            m_descriptions.insert(std::pair<int, std::string>(index, line));
-            m_descriptionsSize = std::max(m_descriptionsSize, index + 1);
+            std::unique_lock<std::mutex> lock(mutex_);
+            descriptions_.insert(std::pair<int, std::string>(index, line));
+            descriptionsSize_ = std::max(descriptionsSize_, index + 1);
         }
     } else {
-        m_descriptionsSize = 0;
+        descriptionsSize_ = 0;
     }
-    m_placeName = Str16ToStr8(in.ReadString16());
-    m_administrativeArea = Str16ToStr8(in.ReadString16());
-    m_subAdministrativeArea = Str16ToStr8(in.ReadString16());
-    m_locality = Str16ToStr8(in.ReadString16());
-    m_subLocality = Str16ToStr8(in.ReadString16());
-    m_roadName = Str16ToStr8(in.ReadString16());
-    m_subRoadName = Str16ToStr8(in.ReadString16());
-    m_premises = Str16ToStr8(in.ReadString16());
-    m_postalCode = Str16ToStr8(in.ReadString16());
-    m_countryCode = Str16ToStr8(in.ReadString16());
-    m_countryName = Str16ToStr8(in.ReadString16());
-    m_hasLatitude = (in.ReadInt32() != 0);
-    if (m_hasLatitude) {
-        m_latitude = in.ReadDouble();
+    placeName_ = Str16ToStr8(in.ReadString16());
+    administrativeArea_ = Str16ToStr8(in.ReadString16());
+    subAdministrativeArea_ = Str16ToStr8(in.ReadString16());
+    locality_ = Str16ToStr8(in.ReadString16());
+    subLocality_ = Str16ToStr8(in.ReadString16());
+    roadName_ = Str16ToStr8(in.ReadString16());
+    subRoadName_ = Str16ToStr8(in.ReadString16());
+    premises_ = Str16ToStr8(in.ReadString16());
+    postalCode_ = Str16ToStr8(in.ReadString16());
+    countryCode_ = Str16ToStr8(in.ReadString16());
+    countryName_ = Str16ToStr8(in.ReadString16());
+    hasLatitude_ = (in.ReadInt32() != 0);
+    if (hasLatitude_) {
+        latitude_ = in.ReadDouble();
     }
-    m_hasLongitude = (in.ReadInt32() != 0);
-    if (m_hasLongitude) {
-        m_longitude = in.ReadDouble();
+    hasLongitude_ = (in.ReadInt32() != 0);
+    if (hasLongitude_) {
+        longitude_ = in.ReadDouble();
     }
-    m_phoneNumber = Str16ToStr8(in.ReadString16());
-    m_addressUrl = Str16ToStr8(in.ReadString16());
-    m_isFromMock = in.ReadBool();
+    phoneNumber_ = Str16ToStr8(in.ReadString16());
+    addressUrl_ = Str16ToStr8(in.ReadString16());
+    isFromMock_ = in.ReadBool();
 }
 
 bool GeoAddress::Marshalling(Parcel& parcel) const
 {
-    parcel.WriteString16(Str8ToStr16(m_localeLanguage));
-    parcel.WriteString16(Str8ToStr16(m_localeCountry));
-    if (m_descriptions.size() == 0) {
+    parcel.WriteString16(Str8ToStr16(localeLanguage_));
+    parcel.WriteString16(Str8ToStr16(localeCountry_));
+    if (descriptions_.size() == 0) {
         parcel.WriteInt32(0);
     } else {
-        parcel.WriteInt32(m_descriptions.size());
-        for (auto iter = m_descriptions.begin(); iter != m_descriptions.end(); iter++) {
+        parcel.WriteInt32(descriptions_.size());
+        for (auto iter = descriptions_.begin(); iter != descriptions_.end(); iter++) {
             parcel.WriteInt32(iter->first);
             parcel.WriteString16(Str8ToStr16(iter->second));
         }
     }
-    parcel.WriteString16(Str8ToStr16(m_placeName));
-    parcel.WriteString16(Str8ToStr16(m_administrativeArea));
-    parcel.WriteString16(Str8ToStr16(m_subAdministrativeArea));
-    parcel.WriteString16(Str8ToStr16(m_locality));
-    parcel.WriteString16(Str8ToStr16(m_subLocality));
-    parcel.WriteString16(Str8ToStr16(m_roadName));
-    parcel.WriteString16(Str8ToStr16(m_subRoadName));
-    parcel.WriteString16(Str8ToStr16(m_premises));
-    parcel.WriteString16(Str8ToStr16(m_postalCode));
-    parcel.WriteString16(Str8ToStr16(m_countryCode));
-    parcel.WriteString16(Str8ToStr16(m_countryName));
-    parcel.WriteInt32(m_hasLatitude ? 1 : 0);
-    if (m_hasLatitude) {
-        parcel.WriteDouble(m_latitude);
+    parcel.WriteString16(Str8ToStr16(placeName_));
+    parcel.WriteString16(Str8ToStr16(administrativeArea_));
+    parcel.WriteString16(Str8ToStr16(subAdministrativeArea_));
+    parcel.WriteString16(Str8ToStr16(locality_));
+    parcel.WriteString16(Str8ToStr16(subLocality_));
+    parcel.WriteString16(Str8ToStr16(roadName_));
+    parcel.WriteString16(Str8ToStr16(subRoadName_));
+    parcel.WriteString16(Str8ToStr16(premises_));
+    parcel.WriteString16(Str8ToStr16(postalCode_));
+    parcel.WriteString16(Str8ToStr16(countryCode_));
+    parcel.WriteString16(Str8ToStr16(countryName_));
+    parcel.WriteInt32(hasLatitude_ ? 1 : 0);
+    if (hasLatitude_) {
+        parcel.WriteDouble(latitude_);
     }
-    parcel.WriteInt32(m_hasLongitude ? 1 : 0);
-    if (m_hasLongitude) {
-        parcel.WriteDouble(m_longitude);
+    parcel.WriteInt32(hasLongitude_ ? 1 : 0);
+    if (hasLongitude_) {
+        parcel.WriteDouble(longitude_);
     }
-    parcel.WriteString16(Str8ToStr16(m_phoneNumber));
-    parcel.WriteString16(Str8ToStr16(m_addressUrl));
-    parcel.WriteBool(m_isFromMock);
+    parcel.WriteString16(Str8ToStr16(phoneNumber_));
+    parcel.WriteString16(Str8ToStr16(addressUrl_));
+    parcel.WriteBool(isFromMock_);
     return true;
 }
 } // namespace Location

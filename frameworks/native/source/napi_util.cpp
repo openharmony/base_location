@@ -141,26 +141,26 @@ bool GeoAddressesToJsObj(const napi_env& env,
         NAPI_CALL_BASE(env, napi_create_object(env, &eachObj), false);
         SetValueDouble(env, "latitude", geoAddress->GetLatitude(), eachObj);
         SetValueDouble(env, "longitude", geoAddress->GetLongitude(), eachObj);
-        SetValueUtf8String(env, "locale", geoAddress->m_localeLanguage.c_str(), eachObj);
-        SetValueUtf8String(env, "placeName", geoAddress->m_placeName.c_str(), eachObj);
-        SetValueUtf8String(env, "countryCode", geoAddress->m_countryCode.c_str(), eachObj);
-        SetValueUtf8String(env, "countryName", geoAddress->m_countryName.c_str(), eachObj);
-        SetValueUtf8String(env, "administrativeArea", geoAddress->m_administrativeArea.c_str(), eachObj);
-        SetValueUtf8String(env, "subAdministrativeArea", geoAddress->m_subAdministrativeArea.c_str(), eachObj);
-        SetValueUtf8String(env, "locality", geoAddress->m_locality.c_str(), eachObj);
-        SetValueUtf8String(env, "subLocality", geoAddress->m_subLocality.c_str(), eachObj);
-        SetValueUtf8String(env, "roadName", geoAddress->m_roadName.c_str(), eachObj);
-        SetValueUtf8String(env, "subRoadName", geoAddress->m_subRoadName.c_str(), eachObj);
-        SetValueUtf8String(env, "premises", geoAddress->m_premises.c_str(), eachObj);
-        SetValueUtf8String(env, "postalCode", geoAddress->m_postalCode.c_str(), eachObj);
-        SetValueUtf8String(env, "phoneNumber", geoAddress->m_phoneNumber.c_str(), eachObj);
-        SetValueUtf8String(env, "addressUrl", geoAddress->m_addressUrl.c_str(), eachObj);
+        SetValueUtf8String(env, "locale", geoAddress->localeLanguage_.c_str(), eachObj);
+        SetValueUtf8String(env, "placeName", geoAddress->placeName_.c_str(), eachObj);
+        SetValueUtf8String(env, "countryCode", geoAddress->countryCode_.c_str(), eachObj);
+        SetValueUtf8String(env, "countryName", geoAddress->countryName_.c_str(), eachObj);
+        SetValueUtf8String(env, "administrativeArea", geoAddress->administrativeArea_.c_str(), eachObj);
+        SetValueUtf8String(env, "subAdministrativeArea", geoAddress->subAdministrativeArea_.c_str(), eachObj);
+        SetValueUtf8String(env, "locality", geoAddress->locality_.c_str(), eachObj);
+        SetValueUtf8String(env, "subLocality", geoAddress->subLocality_.c_str(), eachObj);
+        SetValueUtf8String(env, "roadName", geoAddress->roadName_.c_str(), eachObj);
+        SetValueUtf8String(env, "subRoadName", geoAddress->subRoadName_.c_str(), eachObj);
+        SetValueUtf8String(env, "premises", geoAddress->premises_.c_str(), eachObj);
+        SetValueUtf8String(env, "postalCode", geoAddress->postalCode_.c_str(), eachObj);
+        SetValueUtf8String(env, "phoneNumber", geoAddress->phoneNumber_.c_str(), eachObj);
+        SetValueUtf8String(env, "addressUrl", geoAddress->addressUrl_.c_str(), eachObj);
         napi_value descriptionArray;
-        if (geoAddress->m_descriptionsSize > 0) {
+        if (geoAddress->descriptionsSize_ > 0) {
             NAPI_CALL_BASE(env,
-                napi_create_array_with_length(env, geoAddress->m_descriptionsSize, &descriptionArray), false);
+                napi_create_array_with_length(env, geoAddress->descriptionsSize_, &descriptionArray), false);
             uint32_t idx1 = 0;
-            for (int index = 0; index < geoAddress->m_descriptionsSize; index++) {
+            for (int index = 0; index < geoAddress->descriptionsSize_; index++) {
                 napi_value value;
                 NAPI_CALL_BASE(env, napi_create_string_utf8(env, geoAddress->GetDescriptions(index).c_str(),
                     NAPI_AUTO_LENGTH, &value), false);
@@ -168,8 +168,8 @@ bool GeoAddressesToJsObj(const napi_env& env,
             }
             SetValueStringArray(env, "descriptions", descriptionArray, eachObj);
         }
-        SetValueInt32(env, "descriptionsSize", geoAddress->m_descriptionsSize, eachObj);
-        SetValueBool(env, "isFromMock", geoAddress->m_isFromMock, eachObj);
+        SetValueInt32(env, "descriptionsSize", geoAddress->descriptionsSize_, eachObj);
+        SetValueBool(env, "isFromMock", geoAddress->isFromMock_, eachObj);
         NAPI_CALL_BASE(env, napi_set_element(env, arrayResult, idx++, eachObj), false);
     }
     return true;
@@ -434,41 +434,41 @@ bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
     double longitude = 0.0;
     JsObjectToDouble(env, value, "latitude", latitude);
     if (CommonUtils::DoubleEqual(latitude, 0.0)) {
-        address->m_hasLatitude = false;
+        address->hasLatitude_ = false;
     } else {
-        address->m_hasLatitude = true;
-        address->m_latitude = latitude;
+        address->hasLatitude_ = true;
+        address->latitude_ = latitude;
     }
     JsObjectToDouble(env, value, "longitude", longitude);
     if (CommonUtils::DoubleEqual(longitude, 0.0)) {
-        address->m_hasLongitude = false;
+        address->hasLongitude_ = false;
     } else {
-        address->m_hasLongitude = true;
-        address->m_longitude = longitude;
+        address->hasLongitude_ = true;
+        address->longitude_ = longitude;
     }
     int bufLen = MAX_BUF_LEN;
-    JsObjectToString(env, value, "locale", bufLen, address->m_localeLanguage);
-    JsObjectToString(env, value, "placeName", bufLen, address->m_placeName);
-    JsObjectToString(env, value, "countryCode", bufLen, address->m_countryCode);
-    JsObjectToString(env, value, "countryName", bufLen, address->m_countryName);
-    JsObjectToString(env, value, "administrativeArea", bufLen, address->m_administrativeArea);
-    JsObjectToString(env, value, "subAdministrativeArea", bufLen, address->m_subAdministrativeArea);
-    JsObjectToString(env, value, "locality", bufLen, address->m_locality);
-    JsObjectToString(env, value, "subLocality", bufLen, address->m_subLocality);
-    JsObjectToString(env, value, "roadName", bufLen, address->m_roadName);
-    JsObjectToString(env, value, "subRoadName", bufLen, address->m_subRoadName);
-    JsObjectToString(env, value, "premises", bufLen, address->m_premises);
-    JsObjectToString(env, value, "postalCode", bufLen, address->m_postalCode);
-    JsObjectToString(env, value, "phoneNumber", bufLen, address->m_phoneNumber);
-    JsObjectToString(env, value, "addressUrl", bufLen, address->m_addressUrl);
-    JsObjectToInt(env, value, "descriptionsSize", address->m_descriptionsSize);
-    JsObjectToBool(env, value, "isFromMock", address->m_isFromMock);
+    JsObjectToString(env, value, "locale", bufLen, address->localeLanguage_);
+    JsObjectToString(env, value, "placeName", bufLen, address->placeName_);
+    JsObjectToString(env, value, "countryCode", bufLen, address->countryCode_);
+    JsObjectToString(env, value, "countryName", bufLen, address->countryName_);
+    JsObjectToString(env, value, "administrativeArea", bufLen, address->administrativeArea_);
+    JsObjectToString(env, value, "subAdministrativeArea", bufLen, address->subAdministrativeArea_);
+    JsObjectToString(env, value, "locality", bufLen, address->locality_);
+    JsObjectToString(env, value, "subLocality", bufLen, address->subLocality_);
+    JsObjectToString(env, value, "roadName", bufLen, address->roadName_);
+    JsObjectToString(env, value, "subRoadName", bufLen, address->subRoadName_);
+    JsObjectToString(env, value, "premises", bufLen, address->premises_);
+    JsObjectToString(env, value, "postalCode", bufLen, address->postalCode_);
+    JsObjectToString(env, value, "phoneNumber", bufLen, address->phoneNumber_);
+    JsObjectToString(env, value, "addressUrl", bufLen, address->addressUrl_);
+    JsObjectToInt(env, value, "descriptionsSize", address->descriptionsSize_);
+    JsObjectToBool(env, value, "isFromMock", address->isFromMock_);
     std::vector<std::string> descriptions;
     GetStringArrayValueByKey(env, value, "descriptions", descriptions);
-    size_t size = static_cast<size_t>(address->m_descriptionsSize) > descriptions.size() ?
-        descriptions.size() : static_cast<size_t>(address->m_descriptionsSize);
+    size_t size = static_cast<size_t>(address->descriptionsSize_) > descriptions.size() ?
+        descriptions.size() : static_cast<size_t>(address->descriptionsSize_);
     for (size_t i = 0; i < size; i++) {
-        address->m_descriptions.insert(std::make_pair(i, descriptions[i]));
+        address->descriptions_.insert(std::make_pair(i, descriptions[i]));
     }
     return true;
 }

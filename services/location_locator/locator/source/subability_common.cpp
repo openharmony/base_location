@@ -178,6 +178,7 @@ void SubAbility::CacheLocationMock(const std::vector<std::shared_ptr<Location>> 
 {
     int locationSize = static_cast<int>(location.size());
     ClearLocationMock();
+    std::unique_lock lock(mutex_);
     for (int i = 0; i < locationSize; i++) {
         mockLoc_.push_back(std::make_shared<Location>(*location.at(i)));
     }
@@ -195,11 +196,13 @@ int SubAbility::GetTimeIntervalMock()
 
 std::vector<std::shared_ptr<Location>> SubAbility::GetLocationMock()
 {
+    std::unique_lock lock(mutex_);
     return mockLoc_;
 }
 
 void SubAbility::ClearLocationMock()
 {
+    std::unique_lock lock(mutex_);
     mockLoc_.clear();
 }
 

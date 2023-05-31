@@ -35,7 +35,7 @@ public:
     bool ResultCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     void SetLastLocation(const std::unique_ptr<Location>& location);
     std::unique_ptr<Location> GetLastLocation();
-    std::unique_ptr<Location> GetPermittedLocation(uint32_t tokenId, uint32_t firstTokenId,
+    std::unique_ptr<Location> GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
         const std::unique_ptr<Location>& location);
     void UpdateRandom();
 private:

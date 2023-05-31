@@ -74,7 +74,7 @@ private:
 private:
     std::atomic<int> mPrivacyTypeState[3];
     std::atomic<int> mLocationSwitchState;         /* location switch state */
-    std::mutex mMutex;
+    std::mutex mutex_;
 };
 }  // namespace Location
 }  // namespace OHOS
