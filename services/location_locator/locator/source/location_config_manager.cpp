@@ -127,7 +127,7 @@ std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
 
 int LocationConfigManager::GetLocationSwitchState()
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     if (!IsExistFile(GetLocationSwitchConfigPath())) {
         CreateFile(GetLocationSwitchConfigPath(), "0");
     }
@@ -177,7 +177,7 @@ bool LocationConfigManager::GetNlpServiceName(const std::string& path, std::stri
 
 int LocationConfigManager::SetLocationSwitchState(int state)
 {
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     if (!IsExistFile(GetLocationSwitchConfigPath())) {
         CreateFile(GetLocationSwitchConfigPath(), "0");
     }
@@ -208,7 +208,7 @@ LocationErrCode LocationConfigManager::GetPrivacyTypeState(const int type, bool&
         isConfirmed = false;
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
         CreateFile(GetPrivacyTypeConfigPath(type), "0");
     }
@@ -242,7 +242,7 @@ LocationErrCode LocationConfigManager::SetPrivacyTypeState(const int type, bool 
         LBSLOGE(LOCATOR, "SetPrivacyTypeState,invalid types");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<std::mutex> lock(mMutex);
+    std::unique_lock<std::mutex> lock(mutex_);
     if (!IsExistFile(GetPrivacyTypeConfigPath(type))) {
         CreateFile(GetPrivacyTypeConfigPath(type), "0");
     }

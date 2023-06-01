@@ -41,6 +41,7 @@ std::unique_ptr<RequestConfig> g_requestConfig = std::make_unique<RequestConfig>
 std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
 auto g_locatorProxy = Locator::GetInstance();
 
+std::mutex g_FuncMapMutex;
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const napi_value &)> g_offFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const size_t, const napi_value *)> g_onFuncMap;
@@ -48,6 +49,7 @@ std::map<std::string, void(CallbackResumeManager::*)()> g_resumeFuncMap;
 
 void InitOnFuncMap()
 {
+    std::unique_lock<std::mutex> lock(g_FuncMapMutex);
     if (g_onFuncMap.size() != 0) {
         return;
     }
@@ -70,6 +72,7 @@ void InitOnFuncMap()
 
 void InitOffFuncMap()
 {
+    std::unique_lock<std::mutex> lock(g_FuncMapMutex);
     if (g_offAllFuncMap.size() != 0 || g_offFuncMap.size() != 0) {
         return;
     }
@@ -855,6 +858,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
     g_locatorProxy->SetResumer(g_callbackResumer);
+
+    std::unique_lock<std::mutex> lock(g_FuncMapMutex);
     auto onCallbackFunc = g_onFuncMap.find(event);
     if (onCallbackFunc != g_onFuncMap.end() && onCallbackFunc->second != nullptr) {
         auto memberFunc = onCallbackFunc->second;
@@ -1231,31 +1236,57 @@ bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler
     return false;
 }
 
+bool VerifyOffFuncParam(napi_env env, napi_callback_info cbinfo, size_t& argc)
+{
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
+    napi_valuetype valueType[PARAM3] = {napi_undefined};
+    napi_value thisVar = nullptr;
+    NAPI_CALL_BASE(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr), false);
+    NAPI_ASSERT_BASE(env, g_locatorProxy != nullptr, "locator instance is null.", false);
+    argc = (argc > PARAM3) ? PARAM3 : argc;
+    if (argc > 0) {
+        for (int i = (int)(argc - 1); i >= 0; i--) {
+            NAPI_CALL_BASE(env, napi_typeof(env, argv[i], &valueType[i]), false);
+            /* If the type of the last input parameter is incorrect, ignore it. */
+            if (valueType[i] != napi_function && valueType[i] != napi_object && valueType[i] != napi_string &&
+                i == (int)(argc - 1)) {
+                argc--;
+            }
+        }
+    }
+    if (argc == PARAM3 && valueType[argc - 1] != napi_object) {
+        argc--;
+    }
+    if (argc == PARAM2 && valueType[argc - 1] != napi_function) {
+        argc--;
+    }
+    if (argc < PARAM1 || valueType[PARAM0] != napi_string ||
+        (argc == PARAM2 && valueType[PARAM1] != napi_function) ||
+        (argc == PARAM3 && valueType[PARAM1] != napi_object && valueType[PARAM2] != napi_object)) {
+#ifdef ENABLE_NAPI_MANAGER
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+#else
+        NAPI_ASSERT_BASE(env, false, "ERRCODE_INVALID_PARAM", false);
+#endif
+        return false;
+    }
+    return true;
+}
+
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
+    LBSLOGI(LOCATION_NAPI, "Off function entry");
     InitOffFuncMap();
+
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
-    NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
-#ifdef ENABLE_NAPI_MANAGER
-    if (argc < PARAM1) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+
+    if (!VerifyOffFuncParam(env, cbinfo, argc)) {
+        LBSLOGI(LOCATION_NAPI, "VerifyOffFuncParam fail");
         return UndefinedNapiValue(env);
     }
-#endif
-    napi_valuetype eventName = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &eventName));
-#ifdef ENABLE_NAPI_MANAGER
-    if (eventName != napi_string) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
-#else
-    NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
-#endif
-    LBSLOGI(LOCATION_NAPI, "Off function entry");
 
     char type[64] = {0};
     size_t typeLen = 0;
@@ -1263,21 +1294,14 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     std::string event = type;
     LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
     if (argc == PARAM1) {
+        std::unique_lock<std::mutex> lock(g_FuncMapMutex);
         auto offAllCallbackFunc = g_offAllFuncMap.find(event);
         if (offAllCallbackFunc != g_offAllFuncMap.end() && offAllCallbackFunc->second != nullptr) {
             auto memberFunc = offAllCallbackFunc->second;
             (*memberFunc)(env);
         }
     } else if (argc == PARAM2) {
-#ifdef ENABLE_NAPI_MANAGER
-        if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
-            HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-            return UndefinedNapiValue(env);
-        }
-#else
-        NAPI_ASSERT(env, CheckIfParamIsFunctionType(env, argv[PARAM1]),
-            "callback should be function, mismatch for param.");
-#endif
+        std::unique_lock<std::mutex> lock(g_FuncMapMutex);
         auto offCallbackFunc = g_offFuncMap.find(event);
         if (offCallbackFunc != g_offFuncMap.end() && offCallbackFunc->second != nullptr) {
             auto singleMemberFunc = offCallbackFunc->second;
@@ -1303,40 +1327,44 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS] = {0};
+    napi_valuetype valueType[MAXIMUM_JS_PARAMS] = {napi_undefined};
     napi_value thisVar = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
-
-    napi_valuetype valueType = napi_undefined;
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
     LBSLOGI(LOCATION_NAPI, "GetCurrentLocation enter");
 #ifdef SUPPORT_JSSTACK
     HiviewDFX::ReportXPowerJsStackSysEvent(env, "GNSS_STATE");
 #endif
-    if (argc == PARAM1) {
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
-#ifdef ENABLE_NAPI_MANAGER
-        if (valueType != napi_function && valueType != napi_object) {
-            HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-            return UndefinedNapiValue(env);
+    argc = (argc > PARAM2) ? PARAM2 : argc;
+    if (argc > 0) {
+        for (int i = (int)(argc - 1); i >= 0; i--) {
+            NAPI_CALL(env, napi_typeof(env, argv[i], &valueType[i]));
+            /* If the type of the last input parameter is incorrect, ignore it. */
+            if (valueType[i] != napi_function && valueType[i] != napi_object &&
+                i == (int)(argc - 1)) {
+                argc--;
+            }
         }
-#else
-        NAPI_ASSERT(env, valueType == napi_function || valueType == napi_object, "type mismatch for parameter 2");
-#endif
     }
     if (argc == PARAM2) {
-        napi_valuetype valueType1 = napi_undefined;
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
-        NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType1));
+        if (valueType[PARAM1] != napi_function) {
+            argc--;
+        }
 #ifdef ENABLE_NAPI_MANAGER
-        if (valueType != napi_object || valueType1 != napi_function) {
+        else if (valueType[PARAM0] != napi_object) {
             HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
             return UndefinedNapiValue(env);
         }
 #else
-        NAPI_ASSERT(env, valueType == napi_object, "type mismatch for parameter 1");
-        NAPI_ASSERT(env, valueType1 == napi_function, "type mismatch for parameter 2");
+        else {
+            NAPI_ASSERT(env, valueType[PARAM0] == napi_object, "type mismatch for parameter 1");
+        }
 #endif
+    }
+    if (argc == PARAM1) {
+        if (valueType[PARAM0] != napi_function && valueType[PARAM0] != napi_object) {
+            argc--;
+        }
     }
 #ifdef ENABLE_NAPI_MANAGER
     return RequestLocationOnceV9(env, argc, argv);
@@ -1362,6 +1390,7 @@ LocationErrCode CheckLocationSwitchEnable()
 
 void CallbackResumeManager::InitResumeCallbackFuncMap()
 {
+    std::unique_lock<std::mutex> lock(g_FuncMapMutex);
     if (g_resumeFuncMap.size() != 0) {
         return;
     }
@@ -1375,6 +1404,8 @@ void CallbackResumeManager::ResumeCallback()
 {
     LBSLOGI(LOCATION_NAPI, "%{public}s enter", __func__);
     InitResumeCallbackFuncMap();
+
+    std::unique_lock<std::mutex> lock(g_FuncMapMutex);
     for (auto iter = g_resumeFuncMap.begin(); iter != g_resumeFuncMap.end(); iter++) {
         auto resumeFunc = iter->second;
         (this->*resumeFunc)();

@@ -22,6 +22,7 @@
 #include "i_locator_callback.h"
 #include "location_log.h"
 #include "locator_ability.h"
+#include "locator_background_proxy.h"
 
 namespace OHOS {
 namespace Location {
@@ -69,7 +70,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
             continue;
         }
     }
-    
+
     for (auto iter = deadRequests->begin(); iter != deadRequests->end(); ++iter) {
         auto request = *iter;
         if (request == nullptr) {
@@ -92,10 +93,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         !request->GetIsRequesting()) {
         return false;
     }
-    uint32_t tokenId = request->GetTokenId();
-    uint32_t firstTokenId = request->GetFirstTokenId();
-    std::unique_ptr<Location> finalLocation = GetPermittedLocation(tokenId, firstTokenId, location);
-
+    std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
+        request->GetTokenId(), request->GetFirstTokenId(), location);
     if (!ResultCheck(finalLocation, request)) {
         return false;
     }
@@ -113,19 +112,25 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     return true;
 }
 
-std::unique_ptr<Location> ReportManager::GetPermittedLocation(uint32_t tokenId, uint32_t firstTokenId,
+std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
     const std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {
         return nullptr;
+    }
+    std::string bundleName = "";
+    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        LBSLOGE(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
         CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         finalLocation = ApproximatelyLocation(location);
-    } else if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    } else if ((!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) ||
+        (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
+        !CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId))) {
         return nullptr;
     }
     return finalLocation;
@@ -163,7 +168,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         return false;
     }
     if (locatorAbility->IsProxyUid(request->GetUid())) {
-        LBSLOGD(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());
+        LBSLOGE(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());
         return false;
     }
     int permissionLevel = CommonUtils::GetPermissionLevel(request->GetTokenId(), request->GetFirstTokenId());
@@ -189,7 +194,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         LBSLOGE(REPORT_MANAGER, "timeInterval check fail, do not report location");
         return false;
     }
-    
+
     int distanceInterval = request->GetRequestConfig()->GetDistanceInterval();
     double deltaDis = CommonUtils::CalDistance(location->GetLatitude(), location->GetLongitude(),
         request->GetLastLocation()->GetLatitude(), request->GetLastLocation()->GetLongitude());

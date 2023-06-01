@@ -44,7 +44,7 @@ bool CommonUtils::CheckPermission(const std::string &permission, uint32_t caller
     int result = Security::AccessToken::PERMISSION_DENIED;
     if (tokenFirstCaller == 0) {
         if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
-            LBSLOGD(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
+            LBSLOGE(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
             return false;
         } else {
             result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
@@ -55,7 +55,7 @@ bool CommonUtils::CheckPermission(const std::string &permission, uint32_t caller
     if (result == Security::AccessToken::PERMISSION_GRANTED) {
         return true;
     } else {
-        LBSLOGD(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
+        LBSLOGE(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
         return false;
     }
 }
@@ -157,7 +157,7 @@ sptr<IRemoteObject> CommonUtils::GetRemoteObject(int abilityId)
 
 sptr<IRemoteObject> CommonUtils::GetRemoteObject(int abilityId, std::string deviceId)
 {
-    std::lock_guard<std::mutex> lock(g_proxyMutex);
+    std::unique_lock<std::mutex> lock(g_proxyMutex);
     auto objectGnss = g_proxyMap->find(abilityId);
     if (objectGnss == g_proxyMap->end()) {
         auto manager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -328,7 +328,8 @@ bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
     }
     int32_t error = bundleMgrProxy->GetNameForUid(uid, bundleName);
     if (error != ERR_OK) {
-        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get bundle name, errcode = %{public}d.", __func__, error);
+        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get bundle name, uid = %{public}d, errcode = %{public}d.",
+            __func__, uid, error);
         return false;
     }
     return true;

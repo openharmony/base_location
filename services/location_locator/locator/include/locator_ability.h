@@ -154,6 +154,11 @@ private:
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
+    std::mutex switchMutex_;
+    std::mutex requestsMutex_;
+    std::mutex receiversMutex_;
+    std::mutex proxyMapMutex_;
+    std::mutex permissionMapMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requests_;
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> receivers_;
@@ -163,10 +168,7 @@ private:
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
     std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
-
-    std::mutex proxyMutex_;
-    std::mutex permissionMutex_;
-    std::mutex processingStateMutex_;
+    std::mutex proxyUidsMutex_;
     std::set<int32_t> proxyUids_;
 };
 } // namespace Location

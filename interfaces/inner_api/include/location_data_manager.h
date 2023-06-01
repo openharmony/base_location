@@ -33,6 +33,7 @@ public:
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode QuerySwitchState(bool &isEnabled);
 private:
+    std::mutex mutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
 };
 }  // namespace Location

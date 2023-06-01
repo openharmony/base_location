@@ -23,11 +23,13 @@ namespace OHOS {
 namespace Location {
 void DftEvent::PutInt(const std::string& name, int value)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     intValues_.emplace(name, value);
 }
 
 int DftEvent::GetInt(const std::string& name)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     auto it = intValues_.find(name);
     if (it == intValues_.end()) {
         return 0;
@@ -70,6 +72,8 @@ void LocatorDftManager::LocationSessionStart(std::shared_ptr<Request> request)
     if (request == nullptr) {
         return;
     }
+
+    std::unique_lock<std::mutex> lock(mutex_);
     for (auto appRequest : appRequests_) {
         if (appRequest->packageName.compare(request->GetPackageName()) == 0) {
             requestCount = appRequest;
@@ -136,6 +140,7 @@ std::shared_ptr<AppRequestCount> LocatorDftManager::GetTopRequest()
 {
     std::shared_ptr<AppRequestCount> topRequest;
     int topSum = 0;
+    std::unique_lock<std::mutex> lock(mutex_);
     for (auto appRequest : appRequests_) {
         int sum = 0;
         for (unsigned i = 0; i < appRequest->count.size(); i++) {

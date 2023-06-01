@@ -37,7 +37,7 @@ std::mutex LocatorImpl::locatorMutex_;
 std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(locatorMutex_);
+        std::unique_lock<std::mutex> lock(locatorMutex_);
         if (instance_ == nullptr) {
             std::shared_ptr<LocatorImpl> locator = std::make_shared<LocatorImpl>();
             instance_ = locator;
@@ -1180,7 +1180,7 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 
 sptr<LocatorProxy> LocatorImpl::GetProxy()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     if (client_ != nullptr && isServerExist_) {
         LBSLOGI(LOCATOR_STANDARD, "get proxy success.");
         return client_;
@@ -1215,13 +1215,13 @@ void LocatorImpl::SetResumer(std::shared_ptr<ICallbackResumeManager> resumer)
 
 void LocatorImpl::UpdateCallbackResumingState(bool state)
 {
-    std::lock_guard<std::mutex> lock(resumeMutex_);
+    std::unique_lock<std::mutex> lock(resumeMutex_);
     isCallbackResuming_ = state;
 }
 
 bool LocatorImpl::IsCallbackResuming()
 {
-    std::lock_guard<std::mutex> lock(resumeMutex_);
+    std::unique_lock<std::mutex> lock(resumeMutex_);
     return isCallbackResuming_;
 }
 }  // namespace Location

@@ -144,7 +144,7 @@ void LocatorBackgroundProxy::StopLocatorThread()
 
 void LocatorBackgroundProxy::StopLocator()
 {
-    std::lock_guard lock(locatorMutex_);
+    std::unique_lock lock(locatorMutex_);
     if (!isLocating_) {
         return;
     }
@@ -154,7 +154,7 @@ void LocatorBackgroundProxy::StopLocator()
 
 void LocatorBackgroundProxy::StartLocator()
 {
-    std::lock_guard lock(locatorMutex_);
+    std::unique_lock lock(locatorMutex_);
     if (isLocating_ || !proxySwtich_ || isWating_) {
         return;
     }
@@ -262,7 +262,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
         return;
     }
     requestManager->UpdateUsingPermission(request);
-    std::lock_guard lock(requestListMutex_);
+    std::unique_lock lock(requestListMutex_);
     auto userId = GetUserId(request->GetUid());
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
@@ -291,7 +291,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
 
 void LocatorBackgroundProxy::UpdateListOnUserSwitch(int32_t userId)
 {
-    std::lock_guard lock(requestListMutex_);
+    std::unique_lock lock(requestListMutex_);
     auto iter = requestsMap_->find(userId);
     if (iter == requestsMap_->end()) {
         auto mRequestsList = std::make_shared<std::list<std::shared_ptr<Request>>>();
@@ -316,6 +316,7 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     if (!featureSwitch_) {
         return false;
     }
+    std::unique_lock lock(requestListMutex_);
     for (auto request : *requestsList_) {
         if (request->GetLocatorCallBack() == callback) {
             return true;
@@ -345,7 +346,7 @@ void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
 void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
 {
     // if user is removed, remove the requestList from the user in requestsMap
-    std::lock_guard lock(requestListMutex_);
+    std::unique_lock lock(requestListMutex_);
     auto iter = requestsMap_->find(userId);
     if (iter != requestsMap_->end()) {
         requestsMap_->erase(iter);
@@ -475,13 +476,13 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
 {
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Get system ability manager failed.");
         return false;
     }
     sptr<AppExecFwk::IAppMgr> iAppManager =
         iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
     if (iAppManager == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Failed to get ability manager service.");
         return false;
     }
     std::vector<AppExecFwk::AppStateData> foregroundAppList;
@@ -490,7 +491,7 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
         return bundleName.compare(foregroundApp.bundleName) == 0;
     });
     if (it != foregroundAppList.end()) {
-        LBSLOGE(REQUEST_MANAGER, "app : %{public}s is foreground.", bundleName.c_str());
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "app : %{public}s is foreground.", bundleName.c_str());
         return false;
     }
     return true;

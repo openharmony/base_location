@@ -16,9 +16,9 @@
 #ifndef SATELLITE_STATUS_H
 #define SATELLITE_STATUS_H
 
-#include <vector>
-
+#include <mutex>
 #include <parcel.h>
+#include <vector>
 
 namespace OHOS {
 namespace Location {
@@ -45,6 +45,7 @@ public:
 
     inline void SetSatelliteIds(std::vector<int> ids)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         for (std::vector<int>::iterator it = ids.begin(); it != ids.end(); ++it) {
             satelliteIds_.push_back(*it);
         }
@@ -52,6 +53,7 @@ public:
 
     inline void SetSatelliteId(int id)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         satelliteIds_.push_back(id);
     }
 
@@ -62,6 +64,7 @@ public:
 
     inline void SetCarrierToNoiseDensitys(std::vector<double> cn0)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         for (std::vector<double>::iterator it = cn0.begin(); it != cn0.end(); ++it) {
             carrierToNoiseDensitys_.push_back(*it);
         }
@@ -69,6 +72,7 @@ public:
 
     inline void SetCarrierToNoiseDensity(double cn0)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         carrierToNoiseDensitys_.push_back(cn0);
     }
 
@@ -79,6 +83,7 @@ public:
 
     inline void SetAltitudes(std::vector<double> altitudes)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         for (std::vector<double>::iterator it = altitudes.begin(); it != altitudes.end(); ++it) {
             altitudes_.push_back(*it);
         }
@@ -86,6 +91,7 @@ public:
 
     inline void SetAltitude(double altitude)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         altitudes_.push_back(altitude);
     }
 
@@ -96,6 +102,7 @@ public:
 
     inline void SetAzimuths(std::vector<double> azimuths)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         for (std::vector<double>::iterator it = azimuths.begin(); it != azimuths.end(); ++it) {
             azimuths_.push_back(*it);
         }
@@ -103,6 +110,7 @@ public:
 
     inline void SetAzimuth(double azimuth)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         azimuths_.push_back(azimuth);
     }
 
@@ -113,6 +121,7 @@ public:
 
     inline void SetCarrierFrequencies(std::vector<double> cfs)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         for (std::vector<double>::iterator it = cfs.begin(); it != cfs.end(); ++it) {
             carrierFrequencies_.push_back(*it);
         }
@@ -120,6 +129,7 @@ public:
 
     inline void SetCarrierFrequencie(double cf)
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         carrierFrequencies_.push_back(cf);
     }
 
@@ -133,6 +143,7 @@ private:
     std::vector<double> altitudes_;
     std::vector<double> azimuths_;
     std::vector<double> carrierFrequencies_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS
