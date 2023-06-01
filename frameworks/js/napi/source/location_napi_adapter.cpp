@@ -413,9 +413,6 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
         HandleSyncErrCode(env, code);
         return UndefinedNapiValue(env);
     }
-#else
-    NAPI_ASSERT(env, asyncContext->errCode != INPUT_PARAMS_ERROR,
-        "The input params should be checked first.");
 #endif
     CreateReverseGeocodeAsyncContext(asyncContext);
 
@@ -463,9 +460,6 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-#else
-    NAPI_ASSERT(env, asyncContext->errCode != INPUT_PARAMS_ERROR,
-        "The input params should be checked first.");
 #endif
     CreateGeocodeAsyncContext(asyncContext);
     size_t objectArgsNum = 1;
