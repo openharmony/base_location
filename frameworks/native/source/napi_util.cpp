@@ -566,7 +566,10 @@ int JsObjectToString(const napi_env& env, const napi_value& object,
 
         NAPI_CALL_BASE(env, napi_get_named_property(env, object, fieldStr, &field), COMMON_ERROR);
         NAPI_CALL_BASE(env, napi_typeof(env, field, &valueType), COMMON_ERROR);
-        NAPI_ASSERT_BASE(env, valueType == napi_string, "Wrong argument type.", INPUT_PARAMS_ERROR);
+        if (valueType != napi_string) {
+            LBSLOGE(LOCATOR_STANDARD, "JsObjectToString, valueType != napi_string.");
+            return INPUT_PARAMS_ERROR;
+        }
         if (bufLen <= 0) {
             LBSLOGE(LOCATOR_STANDARD, "The length of buf should be greater than 0.");
             return COMMON_ERROR;
