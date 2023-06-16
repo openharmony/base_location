@@ -14,7 +14,9 @@
  */
 #ifndef LOCATOR_FUZZER_H
 #define LOCATOR_FUZZER_H
+#include <thread>
 
+#include "securec.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 
@@ -22,6 +24,8 @@
 #include "cached_locations_callback_host.h"
 #endif
 #include "country_code_callback_host.h"
+#include "locator_callback_proxy.h"
+
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_host.h"
 #endif
@@ -32,6 +36,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
 #endif
+
 
 namespace OHOS {
 namespace Location {

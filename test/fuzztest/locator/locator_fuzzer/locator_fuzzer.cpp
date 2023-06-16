@@ -53,6 +53,13 @@
 #include "satellite_status.h"
 #endif
 
+#include "network_ability.h"
+#include "network_callback_host.h"
+#include "passive_ability.h"
+#include "geo_convert_service.h"
+#include "gnss_ability.h"
+
+
 namespace OHOS {
     using namespace OHOS::Location;
     auto locatorCallbackHostForTest_ =
@@ -65,6 +72,7 @@ namespace OHOS {
     const int32_t SWITCH_STATE_ON = 1;
     const int32_t WAIT_TIME_SEC = 1000;
     const int32_t COUNT = 10;
+    const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 
     bool TestStartLocating(const uint8_t* data, size_t size)
     {
@@ -561,6 +569,224 @@ namespace OHOS {
         locatorAbility->UnregisterPermissionCallback(data[index++]);
         return true;
     }
+    uint32_t GetU32Data(const char* ptr)
+    {
+        // 随机数字生成
+        return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+    }
+
+    char* ParseData(const uint8_t* data, size_t size)
+    {
+        if (data == nullptr) {
+            return nullptr;
+        }
+
+        if (size > MAX_MEM_SIZE) {
+            return nullptr;
+        }
+
+        char* ch = (char *)malloc(size + 1);
+        if (ch == nullptr) {
+            return nullptr;
+        }
+
+        (void)memset_s(ch, size + 1, 0x00, size + 1);
+        if (memcpy_s(ch, size, data, size) != EOK) {
+            free(ch);
+            ch = nullptr;
+            return nullptr;
+        }
+        return ch;
+    }
+
+    // 函数名称需要改
+    bool LocatorSkeletonFuzzTest(const char* data, size_t size)
+    {
+        // 1、生成随机的sa code
+        uint32_t code = GetU32Data(data);
+        // 2、构造request parcel
+        MessageParcel requestParcel;
+        // stub端需要对parcel做token校验（u"location.ILocator"需要改的）
+        requestParcel.WriteInterfaceToken(u"location.ILocator");
+        // 根据传入的data生成随机的数据填入request parcel中
+        requestParcel.WriteBuffer(data, size);
+        // 指定读指针回归初始状态
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        // LocatorAbilityStub需要改的
+        DelayedSingleton<LocatorAbilityStub>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool CountryCodeCodeCallbackHostFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.ICountryCodeCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<CountryCodeCallbackHost>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+	
+	bool NetworkAbilitySkeletonFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.INetworkAbility");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<NetworkAbility>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }   
+    
+    bool LocatorCallbackProxyFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.ILocatorCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<LocatorCallbackStub>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool PassiveAbilitySkeletonFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.IPassiveAbility");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<PassiveAbility>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool GeoConvertServiceStubFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<GeoConvertService>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool GnssAbilitySkeletonFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<GnssAbility>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool NetworkCallbackHostFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.ILocatorCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<NetworkCallbackHost>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool CachedCallbackHostFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.ICachedLocationsCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<CachedLocationsCallbackHost>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool GnssStatusCallbackHostFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.IGnssStatusCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<GnssStatusCallbackHost>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool LocationSwitchCallbackHostFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.ISwitchCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<LocationSwitchCallbackHost>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool LocatorCallbackHostFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.ILocatorCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<LocatorCallbackHost>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
+
+    bool NmeaMessageCallbackHostFuzzTest(const char* data, size_t size)
+    {
+        uint32_t code = GetU32Data(data);
+        MessageParcel requestParcel;
+        requestParcel.WriteInterfaceToken(u"location.INmeaMessageCallback");
+        requestParcel.WriteBuffer(data, size);
+        requestParcel.RewindRead(0);
+
+        MessageParcel reply;
+        MessageOption option;
+        DelayedSingleton<NmeaMessageCallbackHost>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
+        return true;
+    }
 }
 
 /* Fuzzer entry point */
@@ -596,6 +822,28 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 #ifdef FEATURE_GNSS_SUPPORT
     OHOS::NmeaMessageCallbackHostFuzzerTest(data, size);
 #endif
+    char* ch = OHOS::ParseData(data, size);
+    if (ch != nullptr) {
+        OHOS::LocatorSkeletonFuzzTest(ch, size);
+        OHOS::CountryCodeCodeCallbackHostFuzzTest(ch, size);
+        OHOS::LocatorCallbackProxyFuzzTest(ch, size);
+        OHOS::NetworkAbilitySkeletonFuzzTest(ch, size);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        OHOS::PassiveAbilitySkeletonFuzzTest(ch, size);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        OHOS::GeoConvertServiceStubFuzzTest(ch, size);
+        OHOS::GnssAbilitySkeletonFuzzTest(ch, size);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        OHOS::NetworkCallbackHostFuzzTest(ch, size);
+        OHOS::CachedCallbackHostFuzzTest(ch, size);
+        OHOS::GnssStatusCallbackHostFuzzTest(ch, size);
+        OHOS::LocationSwitchCallbackHostFuzzTest(ch, size);
+        OHOS::LocatorCallbackHostFuzzTest(ch, size);
+        OHOS::NmeaMessageCallbackHostFuzzTest(ch, size);
+        // 释放内存
+        free(ch);
+        ch = nullptr;
+    }
     return 0;
 }
 
