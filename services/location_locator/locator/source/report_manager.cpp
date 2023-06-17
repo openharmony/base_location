@@ -195,10 +195,10 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         return false;
     }
 
-    int distanceInterval = request->GetRequestConfig()->GetDistanceInterval();
+    double distanceInterval = request->GetRequestConfig()->GetDistanceInterval();
     double deltaDis = CommonUtils::CalDistance(location->GetLatitude(), location->GetLongitude(),
         request->GetLastLocation()->GetLatitude(), request->GetLastLocation()->GetLongitude());
-    LBSLOGD(REPORT_MANAGER, "distanceInterval ResultCheck :  %{public}lf - %{public}d", deltaDis, distanceInterval);
+    LBSLOGD(REPORT_MANAGER, "distanceInterval ResultCheck :  %{public}lf - %{public}f", deltaDis, distanceInterval);
     if (deltaDis - distanceInterval < 0) {
         LBSLOGE(REPORT_MANAGER, "distanceInterval check fail, do not report location");
         return false;

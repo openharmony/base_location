@@ -26,7 +26,7 @@ RequestConfig::RequestConfig()
     scenario_ = SCENE_UNSET;
     priority_ = PRIORITY_FAST_FIRST_FIX;
     timeInterval_ = 1; // no time interval limit for reporting location
-    distanceInterval_ = 0; // no distance interval limit for reporting location
+    distanceInterval_ = 0.0; // no distance interval limit for reporting location
     maxAccuracy_ = 0.0; // no accuracy limit for reporting location
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = DEFAULT_TIMEOUT_30S;
@@ -36,7 +36,7 @@ RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
 {
     priority_ = PRIORITY_UNSET;
     timeInterval_ = 0; // no time interval limit for reporting location
-    distanceInterval_ = 0; // no distance interval limit for reporting location
+    distanceInterval_ = 0.0; // no distance interval limit for reporting location
     maxAccuracy_ = 0.0; // no accuracy limit for reporting location
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = 0;
@@ -68,7 +68,7 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
     scenario_ = parcel.ReadInt32();
     priority_ = parcel.ReadInt32();
     timeInterval_ = parcel.ReadInt32();
-    distanceInterval_ = parcel.ReadInt32();
+    distanceInterval_ = parcel.ReadDouble();
     maxAccuracy_ = parcel.ReadFloat();
     fixNumber_ = parcel.ReadInt32();
 }
@@ -85,7 +85,7 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
     return parcel.WriteInt32(scenario_) &&
            parcel.WriteInt32(priority_) &&
            parcel.WriteInt32(timeInterval_) &&
-           parcel.WriteInt32(distanceInterval_) &&
+           parcel.WriteDouble(distanceInterval_) &&
            parcel.WriteFloat(maxAccuracy_) &&
            parcel.WriteInt32(fixNumber_);
 }
