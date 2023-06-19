@@ -41,11 +41,11 @@ ohos_fuzztest("LocatorFuzzTest") {
     "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/services/location_geocode/geocode:lbsservice_geocode",
+    "$LOCATION_ROOT_DIR/services/location_gnss/gnss:lbsservice_gnss",
     "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     "$LOCATION_ROOT_DIR/services/location_network/network:lbsservice_network",
     "$LOCATION_ROOT_DIR/services/location_passive/passive:lbsservice_passive",
-    "$LOCATION_ROOT_DIR/services/location_geocode/geocode:lbsservice_geocode",
-    "$LOCATION_ROOT_DIR/services/location_gnss/gnss:lbsservice_gnss",
     "//third_party/libuv:uv",
   ]
   external_deps = [
@@ -54,6 +54,9 @@ ohos_fuzztest("LocatorFuzzTest") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "core_service:tel_core_service_api",
+    "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
+    "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
@@ -61,9 +64,6 @@ ohos_fuzztest("LocatorFuzzTest") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
-    "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
-    "core_service:tel_core_service_api",
   ]
 
   defines = []
