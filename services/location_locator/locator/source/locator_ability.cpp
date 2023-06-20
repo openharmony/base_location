@@ -36,6 +36,7 @@
 #include "location_data_rdb_helper.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
+#include "locationhub_ipc_interface_code.h"
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
 #endif
@@ -46,6 +47,8 @@
 
 namespace OHOS {
 namespace Location {
+using namespace OHOS::Security::AccessToken;
+
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     DelayedSingleton<LocatorAbility>::GetInstance().get());
 
@@ -57,19 +60,6 @@ const uint32_t EVENT_UNLOAD_SA = 0x0010;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
-#ifdef FEATURE_GNSS_SUPPORT
-const uint32_t REG_GNSS_STATUS = 7;
-const uint32_t UNREG_GNSS_STATUS = 8;
-const uint32_t REG_NMEA = 9;
-const uint32_t UNREG_NMEA = 10;
-const uint32_t REG_CACHED = 11;
-const uint32_t UNREG_CACHED = 12;
-const uint32_t GET_CACHED_SIZE = 13;
-const uint32_t FLUSH_CACHED = 14;
-const uint32_t SEND_COMMANDS = 15;
-const uint32_t ADD_FENCE_INFO = 16;
-const uint32_t REMOVE_FENCE_INFO = 17;
-#endif
 const float_t PRECISION = 0.000001;
 const std::string UNLOAD_TASK = "locatior_sa_unload";
 
@@ -510,7 +500,7 @@ LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObj
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
-    return SendGnssRequest(REG_GNSS_STATUS, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::REG_GNSS_STATUS), dataToStub, replyToStub);
 }
 #endif
 
@@ -523,7 +513,7 @@ LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteO
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
-    return SendGnssRequest(UNREG_GNSS_STATUS, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::UNREG_GNSS_STATUS), dataToStub, replyToStub);
 }
 #endif
 
@@ -536,7 +526,7 @@ LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteOb
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
-    return SendGnssRequest(REG_NMEA, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::REG_NMEA), dataToStub, replyToStub);
 }
 #endif
 
@@ -549,7 +539,7 @@ LocationErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemote
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback);
-    return SendGnssRequest(UNREG_NMEA, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::UNREG_NMEA), dataToStub, replyToStub);
 }
 #endif
 
@@ -586,7 +576,7 @@ LocationErrCode LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<C
     dataToStub.WriteBool(request->wakeUpCacheQueueFull);
     dataToStub.WriteRemoteObject(callback->AsObject());
     dataToStub.WriteString16(Str8ToStr16(bundleName));
-    return SendGnssRequest(REG_CACHED, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::REG_CACHED), dataToStub, replyToStub);
 }
 #endif
 
@@ -599,7 +589,7 @@ LocationErrCode LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLoc
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteRemoteObject(callback->AsObject());
-    return SendGnssRequest(UNREG_CACHED, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::UNREG_CACHED), dataToStub, replyToStub);
 }
 #endif
 
@@ -611,7 +601,7 @@ LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errorCode = SendGnssRequest(GET_CACHED_SIZE, dataToStub, replyToStub);
+    LocationErrCode errorCode = SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::GET_CACHED_SIZE), dataToStub, replyToStub);
     if (errorCode == ERRCODE_SUCCESS) {
         size = replyToStub.ReadInt32();
     }
@@ -627,7 +617,7 @@ LocationErrCode LocatorAbility::FlushCachedGnssLocations()
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return SendGnssRequest(FLUSH_CACHED, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::FLUSH_CACHED), dataToStub, replyToStub);
 }
 #endif
 
@@ -641,7 +631,7 @@ LocationErrCode LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& co
     }
     dataToStub.WriteInt32(commands->scenario);
     dataToStub.WriteString16(Str8ToStr16(commands->command));
-    return SendGnssRequest(SEND_COMMANDS, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_COMMANDS), dataToStub, replyToStub);
 }
 #endif
 
@@ -658,7 +648,7 @@ LocationErrCode LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& reque
     dataToStub.WriteDouble(request->geofence.longitude);
     dataToStub.WriteDouble(request->geofence.radius);
     dataToStub.WriteDouble(request->geofence.expiration);
-    return SendGnssRequest(ADD_FENCE_INFO, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ADD_FENCE_INFO), dataToStub, replyToStub);
 }
 #endif
 
@@ -675,7 +665,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& re
     dataToStub.WriteDouble(request->geofence.longitude);
     dataToStub.WriteDouble(request->geofence.radius);
     dataToStub.WriteDouble(request->geofence.expiration);
-    return SendGnssRequest(REMOVE_FENCE_INFO, dataToStub, replyToStub);
+    return SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
 }
 #endif
 
@@ -700,11 +690,11 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteOb
     }
     std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
     LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
-    if (msgId == ENABLE_LOCATION_MOCK) {
+    if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)) {
         errorCode = gnssProxy->EnableMock();
-    } else if (msgId == DISABLE_LOCATION_MOCK) {
+    } else if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)) {
         errorCode = gnssProxy->DisableMock();
-    } else if (msgId == SET_MOCKED_LOCATIONS) {
+    } else if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS)) {
         errorCode = gnssProxy->SetMocked(timeInterval, location);
     }
     return errorCode;
@@ -722,11 +712,11 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemot
     std::unique_ptr<NetworkAbilityProxy> networkProxy =
         std::make_unique<NetworkAbilityProxy>(obj);
     LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
-    if (msgId == ENABLE_LOCATION_MOCK) {
+    if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)) {
         errorCode = networkProxy->EnableMock();
-    } else if (msgId == DISABLE_LOCATION_MOCK) {
+    } else if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)) {
         errorCode = networkProxy->DisableMock();
-    } else if (msgId == SET_MOCKED_LOCATIONS) {
+    } else if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS)) {
         errorCode = networkProxy->SetMocked(timeInterval, location);
     }
     return errorCode;
@@ -744,11 +734,11 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemot
     std::unique_ptr<PassiveAbilityProxy> passiveProxy =
         std::make_unique<PassiveAbilityProxy>(obj);
     LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
-    if (msgId == ENABLE_LOCATION_MOCK) {
+    if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)) {
         errorCode = passiveProxy->EnableMock();
-    } else if (msgId == DISABLE_LOCATION_MOCK) {
+    } else if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)) {
         errorCode = passiveProxy->DisableMock();
-    } else if (msgId == SET_MOCKED_LOCATIONS) {
+    } else if (msgId == static_cast<uint32_t>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS)) {
         errorCode = passiveProxy->SetMocked(timeInterval, location);
     }
     return errorCode;
@@ -831,20 +821,20 @@ LocationErrCode LocatorAbility::EnableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
-    return ProcessLocationMockMsg(timeInterval, location, ENABLE_LOCATION_MOCK);
+    return ProcessLocationMockMsg(timeInterval, location, static_cast<uint32_t>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK));
 }
 
 LocationErrCode LocatorAbility::DisableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
-    return ProcessLocationMockMsg(timeInterval, location, DISABLE_LOCATION_MOCK);
+    return ProcessLocationMockMsg(timeInterval, location, static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK));
 }
 
 LocationErrCode LocatorAbility::SetMockedLocations(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
-    return ProcessLocationMockMsg(timeInterval, location, SET_MOCKED_LOCATIONS);
+    return ProcessLocationMockMsg(timeInterval, location, static_cast<uint32_t>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS));
 }
 
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -996,7 +986,7 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
         isAvailable = false;
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    SendGeoRequest(GEO_IS_AVAILABLE, dataParcel, replyParcel);
+    SendGeoRequest(static_cast<uint32_t>(LocatorInterfaceCode::GEO_IS_AVAILABLE), dataParcel, replyParcel);
     LocationErrCode errorCode = LocationErrCode(replyParcel.ReadInt32());
     if (errorCode == ERRCODE_SUCCESS) {
         isAvailable = replyParcel.ReadBool();
@@ -1024,7 +1014,7 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
     dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
     dataParcel.WriteString16(data.ReadString16()); // ""
-    SendGeoRequest(GET_FROM_COORDINATE, dataParcel, reply);
+    SendGeoRequest(static_cast<uint32_t>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
 }
 #endif
 
@@ -1048,7 +1038,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
     dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
     dataParcel.WriteString16(data.ReadString16()); // ""
-    SendGeoRequest(GET_FROM_LOCATION_NAME, dataParcel, reply);
+    SendGeoRequest(static_cast<uint32_t>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
 }
 #endif
 
@@ -1081,7 +1071,7 @@ LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    SendGeoRequest(ENABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    SendGeoRequest(static_cast<uint32_t>(LocatorInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK), dataParcel, replyParcel);
     return LocationErrCode(replyParcel.ReadInt32());
 }
 #endif
@@ -1094,7 +1084,7 @@ LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    SendGeoRequest(DISABLE_REVERSE_GEOCODE_MOCK, dataParcel, replyParcel);
+    SendGeoRequest(static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK), dataParcel, replyParcel);
     return LocationErrCode(replyParcel.ReadInt32());
 }
 #endif
@@ -1111,7 +1101,7 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
     for (size_t i = 0; i < mockInfo.size(); i++) {
         mockInfo[i]->Marshalling(dataParcel);
     }
-    SendGeoRequest(SET_REVERSE_GEOCODE_MOCKINFO, dataParcel, replyParcel);
+    SendGeoRequest(static_cast<uint32_t>(LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO), dataParcel, replyParcel);
     return LocationErrCode(replyParcel.ReadInt32());
 }
 #endif

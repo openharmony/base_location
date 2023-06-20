@@ -29,9 +29,13 @@
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "work_record.h"
+#include "locationhub_ipc_interface_code.h"
+
 
 namespace OHOS {
 namespace Location {
+using namespace OHOS::Security::AccessToken;
+
 const bool REGISTER_RESULT = PassiveAbility::MakeAndRegisterAbility(
     DelayedSingleton<PassiveAbility>::GetInstance().get());
 
@@ -184,7 +188,7 @@ void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
         return;
     }
     switch (code) {
-        case SET_MOCKED_LOCATIONS: {
+        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
                 reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
                 break;
@@ -226,7 +230,7 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(PASSIVE, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
-        case ISubAbility::SET_MOCKED_LOCATIONS: {
+        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
             int timeInterval = event->GetParam();
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
             if (vcLoc == nullptr) {

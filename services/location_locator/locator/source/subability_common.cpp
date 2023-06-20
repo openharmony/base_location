@@ -21,10 +21,11 @@
 #include "system_ability_definition.h"
 
 #include "common_utils.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
-const int REPORT_LOCATION = 42;
+using namespace OHOS::Security::AccessToken;
 SubAbility::SubAbility()
 {
     label_ = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
@@ -221,7 +222,7 @@ void SubAbility::ReportLocationInfo(
         LBSLOGE(label_, "%{public}s get locator sa failed", __func__);
         return;
     }
-    objectLocator->SendRequest(REPORT_LOCATION, data, reply, option);
+    objectLocator->SendRequest(static_cast<uint32_t>(LocatorInterfaceCode::REPORT_LOCATION), data, reply, option);
 }
 } // namespace Location
 } // namespace OHOS

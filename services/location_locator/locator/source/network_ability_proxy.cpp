@@ -21,9 +21,12 @@
 
 #include "location_log.h"
 #include "subability_common.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
+using namespace OHOS::Security::AccessToken;
+
 NetworkAbilityProxy::NetworkAbilityProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<INetworkAbility>(impl)
 {
@@ -39,7 +42,7 @@ LocationErrCode NetworkAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     workrecord.Marshalling(data);
-    int error = Remote()->SendRequest(ISubAbility::SEND_LOCATION_REQUEST, data, reply, option);
+    int error = Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -55,7 +58,7 @@ LocationErrCode NetworkAbilityProxy::SetEnable(bool state)
 
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(ISubAbility::SET_ENABLE, data, reply, option);
+    int error = Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_ENABLE), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -70,7 +73,7 @@ LocationErrCode NetworkAbilityProxy::SelfRequest(bool state)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     data.WriteBool(state);
-    int error = Remote()->SendRequest(SELF_REQUEST, data, reply, option);
+    int error = Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SELF_REQUEST), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -89,7 +92,7 @@ LocationErrCode NetworkAbilityProxy::EnableMock()
         LBSLOGE(NETWORK, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int error = remote->SendRequest(ISubAbility::ENABLE_LOCATION_MOCK, data, reply, option);
+    int error = remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -108,7 +111,7 @@ LocationErrCode NetworkAbilityProxy::DisableMock()
         LBSLOGE(NETWORK, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int error = remote->SendRequest(ISubAbility::DISABLE_LOCATION_MOCK, data, reply, option);
+    int error = remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -134,7 +137,7 @@ LocationErrCode NetworkAbilityProxy::SetMocked(
     for (int i = 0; i < locationSize; i++) {
         location.at(i)->Marshalling(data);
     }
-    int error = remote->SendRequest(ISubAbility::SET_MOCKED_LOCATIONS, data, reply, option);
+    int error = remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
