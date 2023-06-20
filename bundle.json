@@ -97,6 +97,13 @@
                         ]
                     },
                     "name" : "//base/location/frameworks/native:locator_sdk"
+                },
+                {
+                    "header" : {
+                        "header_base": "//base/location/interfaces/inner_api/include",
+                        "header_files": []
+                    },
+                    "name" : "//base/location/frameworks/location_common/common:lbsservice_common"
                 }
             ],
             "test": [
