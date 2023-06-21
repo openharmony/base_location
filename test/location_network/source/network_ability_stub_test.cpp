@@ -33,8 +33,6 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
-
 const int UNKNOWN_CODE = -1;
 const int ERR_CODE = 100;
 const int DEFAULT_STATUS = 0;
@@ -58,7 +56,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest001, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST), 
+        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST), 
         parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest001 end");
 }
@@ -75,7 +73,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest002, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_ENABLE), 
+        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE), 
         parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest002 end");
 }
@@ -92,7 +90,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest003, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SELF_REQUEST), 
+        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST), 
         parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest003 end");
 }
@@ -109,7 +107,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest004, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK), 
+        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::ENABLE_LOCATION_MOCK), 
         parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest004 end");
 }
@@ -126,7 +124,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest005, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK), 
+        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::DISABLE_LOCATION_MOCK), 
         parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest005 end");
 }
@@ -143,7 +141,7 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest006, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS), 
+        networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS), 
         parcel, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest006 end");
 }

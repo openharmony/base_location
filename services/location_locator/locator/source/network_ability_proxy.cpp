@@ -25,8 +25,6 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
-
 NetworkAbilityProxy::NetworkAbilityProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<INetworkAbility>(impl)
 {
@@ -42,7 +40,7 @@ LocationErrCode NetworkAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     workrecord.Marshalling(data);
-    int error = Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST), 
+    int error = Remote()->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST), 
                                       data, 
                                       reply, 
                                       option);
@@ -61,7 +59,7 @@ LocationErrCode NetworkAbilityProxy::SetEnable(bool state)
 
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_ENABLE), data, reply, option);
+    int error = Remote()->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -77,7 +75,7 @@ LocationErrCode NetworkAbilityProxy::SelfRequest(bool state)
     }
     data.WriteBool(state);
     int error = 
-        Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SELF_REQUEST), data, reply, option);
+        Remote()->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -97,7 +95,7 @@ LocationErrCode NetworkAbilityProxy::EnableMock()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = 
-        remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::ENABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -117,7 +115,7 @@ LocationErrCode NetworkAbilityProxy::DisableMock()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = 
-        remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::DISABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -144,7 +142,7 @@ LocationErrCode NetworkAbilityProxy::SetMocked(
         location.at(i)->Marshalling(data);
     }
     int error = 
-        remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS), data, reply, option);
     LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }

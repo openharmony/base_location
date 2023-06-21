@@ -39,7 +39,6 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
 namespace {
 constexpr int32_t GET_HDI_SERVICE_COUNT = 30;
 constexpr uint32_t WAIT_MS = 200;
@@ -664,7 +663,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
         return;
     }
     switch (code) {
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST): {
+        case static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST): {
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
                 Get(code, workrecord);
@@ -675,7 +674,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             }
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
+        case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
                 reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
                 break;
@@ -737,14 +736,14 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             gnssAbility->ProcessReportLocationMock();
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST): {
+        case static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST): {
             std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
             if (workrecord != nullptr) {
                 gnssAbility->LocationRequest(*workrecord);
             }
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
+        case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
             int timeInterval = event->GetParam();
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
             if (vcLoc != nullptr) {

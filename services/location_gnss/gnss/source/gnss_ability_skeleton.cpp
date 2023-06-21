@@ -26,8 +26,6 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
-
 int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -45,8 +43,8 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     int ret = ERRCODE_SUCCESS;
     bool isMessageRequest = false;
     switch (code) {
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST): // fall through
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
+        case static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST): // fall through
+        case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -54,21 +52,21 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             isMessageRequest = true;
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_ENABLE): {
+        case static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::REFRESH_REQUESTS): {
+        case static_cast<uint32_t>(GnssInterfaceCode::REFRESH_REQUESTS): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(RefrashRequirements());
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::REG_GNSS_STATUS): {
+        case static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -76,7 +74,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(RegisterGnssStatusCallback(client, callingUid));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::UNREG_GNSS_STATUS): {
+        case static_cast<uint32_t>(GnssInterfaceCode::UNREG_GNSS_STATUS): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -84,7 +82,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(UnregisterGnssStatusCallback(client));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::REG_NMEA): {
+        case static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -92,7 +90,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(RegisterNmeaMessageCallback(client, callingUid));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::UNREG_NMEA): {
+        case static_cast<uint32_t>(GnssInterfaceCode::UNREG_NMEA): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -100,7 +98,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(UnregisterNmeaMessageCallback(client));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::REG_CACHED): {
+        case static_cast<uint32_t>(GnssInterfaceCode::REG_CACHED): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -111,7 +109,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(RegisterCachedCallback(requestConfig, callback));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::UNREG_CACHED): {
+        case static_cast<uint32_t>(GnssInterfaceCode::UNREG_CACHED): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -119,7 +117,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(UnregisterCachedCallback(callback));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::GET_CACHED_SIZE): {
+        case static_cast<uint32_t>(GnssInterfaceCode::GET_CACHED_SIZE): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -128,14 +126,14 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(size);
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::FLUSH_CACHED): {
+        case static_cast<uint32_t>(GnssInterfaceCode::FLUSH_CACHED): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(FlushCachedGnssLocations());
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_COMMANDS): {
+        case static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -145,21 +143,21 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(SendCommand(locationCommand));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK): {
+        case static_cast<uint32_t>(GnssInterfaceCode::ENABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(EnableMock());
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK): {
+        case static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(DisableMock());
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::ADD_FENCE_INFO): {
+        case static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -172,7 +170,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(AddFence(request));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::REMOVE_FENCE_INFO): {
+        case static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }

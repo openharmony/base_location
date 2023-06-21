@@ -22,8 +22,6 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
-
 int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {

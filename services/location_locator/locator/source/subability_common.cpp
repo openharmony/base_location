@@ -25,7 +25,6 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
 SubAbility::SubAbility()
 {
     label_ = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
@@ -222,7 +221,7 @@ void SubAbility::ReportLocationInfo(
         LBSLOGE(label_, "%{public}s get locator sa failed", __func__);
         return;
     }
-    objectLocator->SendRequest(static_cast<uint32_t>(LocatorInterfaceCode::REPORT_LOCATION), data, reply, option);
+    objectLocator->SendRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION), data, reply, option);
 }
 } // namespace Location
 } // namespace OHOS

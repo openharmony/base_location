@@ -29,8 +29,6 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
-
 int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -48,7 +46,7 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     int ret = ERRCODE_SUCCESS;
     bool isMessageRequest = false;
     switch (code) {
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST): {
+        case static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -56,28 +54,28 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(SendLocationRequest(*workrecord));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_ENABLE): {
+        case static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK): {
+        case static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(EnableMock());
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK): {
+        case static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(DisableMock());
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
+        case static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }

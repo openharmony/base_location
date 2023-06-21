@@ -35,8 +35,6 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Location;
-
 const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 constexpr uint32_t WAIT_MS = 100;
@@ -368,7 +366,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
         return;
     }
     switch (code) {
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST): {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST): {
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, workrecord);
             if (networkHandler_->SendEvent(event)) {
@@ -378,7 +376,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
             }
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
                 reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
                 break;
@@ -402,7 +400,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
             }
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SELF_REQUEST): {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST): {
             int64_t param = data.ReadBool() ? 1 : 0;
             networkHandler_->SendEvent(code, param, 0) ? reply.WriteInt32(ERRCODE_SUCCESS) :
                 reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -431,14 +429,14 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             networkAbility->ProcessReportLocationMock();
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST): {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST): {
             std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
             if (workrecord != nullptr) {
                 networkAbility->LocationRequest(*workrecord);
             }
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS): {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS): {
             int timeInterval = event->GetParam();
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
             if (vcLoc != nullptr) {
@@ -450,7 +448,7 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             }
             break;
         }
-        case static_cast<uint32_t>(SubAbilityInterfaceCode::SELF_REQUEST): {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST): {
             bool state = event->GetParam();
             networkAbility->SelfRequest(state);
             // no need unload sa, return

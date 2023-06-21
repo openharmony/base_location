@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -70,7 +70,65 @@ enum class GeoConvertInterfaceCode {
     SET_REVERSE_GEOCODE_MOCKINFO = 35,
 };
 
-enum class SubAbilityInterfaceCode {
+enum class GnssInterfaceCode {
+    SEND_LOCATION_REQUEST = 1,
+    GET_CACHED_LOCATION = 2,
+    SET_ENABLE = 3,
+    SELF_REQUEST = 4,
+    HANDLE_REMOTE_REQUEST = 5,
+    REFRESH_REQUESTS = 6,
+    REG_GNSS_STATUS = 7,
+    UNREG_GNSS_STATUS = 8,
+    REG_NMEA = 9,
+    UNREG_NMEA = 10,
+    REG_CACHED = 11,
+    UNREG_CACHED = 12,
+    GET_CACHED_SIZE = 13,
+    FLUSH_CACHED = 14,
+    SEND_COMMANDS = 15,
+    ADD_FENCE_INFO = 16,
+    REMOVE_FENCE_INFO = 17,
+    REPORT_GNSS_SESSION_STATUS = 18,
+    REPORT_SV = 19,
+    REPORT_NMEA = 20,
+    GET_ISO_COUNTRY_CODE = 21,
+    ENABLE_LOCATION_MOCK = 22,
+    DISABLE_LOCATION_MOCK = 23,
+    SET_MOCKED_LOCATIONS = 24,
+    ENABLE_REV_GEOCODE_MOCK = 25,
+    DISABLE_REV_GEOCODE_MOCK = 26,
+};
+
+enum class NetworkInterfaceCode {
+    SEND_LOCATION_REQUEST = 1,
+    GET_CACHED_LOCATION = 2,
+    SET_ENABLE = 3,
+    SELF_REQUEST = 4,
+    HANDLE_REMOTE_REQUEST = 5,
+    REFRESH_REQUESTS = 6,
+    REG_GNSS_STATUS = 7,
+    UNREG_GNSS_STATUS = 8,
+    REG_NMEA = 9,
+    UNREG_NMEA = 10,
+    REG_CACHED = 11,
+    UNREG_CACHED = 12,
+    GET_CACHED_SIZE = 13,
+    FLUSH_CACHED = 14,
+    SEND_COMMANDS = 15,
+    ADD_FENCE_INFO = 16,
+    REMOVE_FENCE_INFO = 17,
+    REPORT_GNSS_SESSION_STATUS = 18,
+    REPORT_SV = 19,
+    REPORT_NMEA = 20,
+    GET_ISO_COUNTRY_CODE = 21,
+    ENABLE_LOCATION_MOCK = 22,
+    DISABLE_LOCATION_MOCK = 23,
+    SET_MOCKED_LOCATIONS = 24,
+    ENABLE_REV_GEOCODE_MOCK = 25,
+    DISABLE_REV_GEOCODE_MOCK = 26,
+};
+
+enum class PassiveInterfaceCode {
     SEND_LOCATION_REQUEST = 1,
     GET_CACHED_LOCATION = 2,
     SET_ENABLE = 3,
