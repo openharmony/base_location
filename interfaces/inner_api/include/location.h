@@ -57,22 +57,22 @@ public:
         altitude_ = altitude;
     }
 
-    inline float GetAccuracy() const
+    inline double GetAccuracy() const
     {
         return accuracy_;
     }
 
-    inline void SetAccuracy(float accuracy)
+    inline void SetAccuracy(double accuracy)
     {
         accuracy_ = accuracy;
     }
 
-    inline float GetSpeed() const
+    inline double GetSpeed() const
     {
         return speed_;
     }
 
-    inline void SetSpeed(float speed)
+    inline void SetSpeed(double speed)
     {
         speed_ = speed;
     }

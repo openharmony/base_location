@@ -344,14 +344,14 @@ HWTEST_F(LocationCommonTest, RequestConfigTest001, TestSize.Level1)
     parcel.WriteInt32(1); // scenario
     parcel.WriteInt32(2); // priority
     parcel.WriteInt32(3); // timeInterval
-    parcel.WriteInt32(10); // distanceInterval
+    parcel.WriteDouble(10.0); // distanceInterval
     parcel.WriteFloat(1000.0); // maxAccuracy
     parcel.WriteInt32(1); // fixNumber
     requestConfig->ReadFromParcel(parcel);
     EXPECT_EQ(1, requestConfig->GetScenario());
     EXPECT_EQ(2, requestConfig->GetPriority());
     EXPECT_EQ(3, requestConfig->GetTimeInterval());
-    EXPECT_EQ(10, requestConfig->GetDistanceInterval());
+    EXPECT_EQ(10.0, requestConfig->GetDistanceInterval());
     EXPECT_EQ(1000.0, requestConfig->GetMaxAccuracy());
     EXPECT_EQ(1, requestConfig->GetFixNumber());
 
@@ -360,7 +360,7 @@ HWTEST_F(LocationCommonTest, RequestConfigTest001, TestSize.Level1)
     EXPECT_EQ(1, newParcel.ReadInt32());
     EXPECT_EQ(2, newParcel.ReadInt32());
     EXPECT_EQ(3, newParcel.ReadInt32());
-    EXPECT_EQ(10, newParcel.ReadInt32());
+    EXPECT_EQ(10.0, newParcel.ReadDouble()); // distanceInterval
     EXPECT_EQ(1000.0, newParcel.ReadFloat());
     EXPECT_EQ(1, newParcel.ReadInt32());
     LBSLOGI(LOCATOR, "[LocationCommonTest] RequestConfigTest001 end");
@@ -378,7 +378,7 @@ HWTEST_F(LocationCommonTest, RequestConfigTest002, TestSize.Level1)
     requestConfigForSet1.SetScenario(1);
     requestConfigForSet1.SetPriority(2);
     requestConfigForSet1.SetTimeInterval(3);
-    requestConfigForSet1.SetDistanceInterval(4);
+    requestConfigForSet1.SetDistanceInterval(4.0);
     requestConfigForSet1.SetMaxAccuracy(1000.0); // accuracy
     requestConfigForSet1.SetFixNumber(1);
     requestConfigForCompare->Set(requestConfigForSet1);

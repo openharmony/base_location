@@ -221,8 +221,8 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
     }
-    if (JsObjectToInt(env, object, "distanceInterval", value) == SUCCESS) {
-        requestConfig->SetDistanceInterval(value);
+    if (JsObjectToDouble(env, object, "distanceInterval", valueDouble) == SUCCESS) {
+        requestConfig->SetDistanceInterval(valueDouble);
     }
 }
 
@@ -524,12 +524,12 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         double altitude = 0.0;
         JsObjectToDouble(env, elementValue, "altitude", altitude);
         locationAdapter->SetAltitude(altitude);
-        int32_t accuracy = 0;
-        JsObjectToInt(env, elementValue, "accuracy", accuracy);
-        locationAdapter->SetAccuracy(static_cast<float>(accuracy));
-        int32_t speed = 0;
-        JsObjectToInt(env, elementValue, "speed", speed);
-        locationAdapter->SetSpeed(static_cast<float>(speed));
+        double accuracy = 0.0;
+        JsObjectToDouble(env, elementValue, "accuracy", accuracy);
+        locationAdapter->SetAccuracy(accuracy);
+        double speed = 0.0;
+        JsObjectToDouble(env, elementValue, "speed", speed);
+        locationAdapter->SetSpeed(speed);
         double direction = 0.0;
         JsObjectToDouble(env, elementValue, "direction", direction);
         locationAdapter->SetDirection(direction);

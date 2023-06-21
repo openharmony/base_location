@@ -57,12 +57,12 @@ public:
         timeInterval_ = timeInterval;
     }
 
-    inline int GetDistanceInterval() const
+    inline double GetDistanceInterval() const
     {
         return distanceInterval_;
     }
 
-    inline void SetDistanceInterval(int distanceInterval)
+    inline void SetDistanceInterval(double distanceInterval)
     {
         distanceInterval_ = distanceInterval;
     }
@@ -106,7 +106,7 @@ public:
 private:
     int scenario_;
     int timeInterval_; /* Units are seconds */
-    int distanceInterval_;
+    double distanceInterval_;
     float maxAccuracy_;
     int fixNumber_;
     int priority_;
