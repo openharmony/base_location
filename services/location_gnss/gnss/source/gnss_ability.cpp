@@ -39,7 +39,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 namespace {
 constexpr int32_t GET_HDI_SERVICE_COUNT = 30;
 constexpr uint32_t WAIT_MS = 200;

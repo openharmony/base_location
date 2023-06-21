@@ -35,7 +35,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;

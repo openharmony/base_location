@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)

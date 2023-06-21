@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 GeoConvertProxy::GeoConvertProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IGeoConvert>(impl)
@@ -55,7 +55,9 @@ int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    error = SendMsgWithDataReply(static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY), data, reply);
+    error = SendMsgWithDataReply(static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY), 
+                                 data, 
+                                 reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
     return error;
 }

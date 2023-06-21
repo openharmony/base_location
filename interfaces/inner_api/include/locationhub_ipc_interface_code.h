@@ -19,8 +19,7 @@
 /* SAID: 2804 */
 /* SAID: 2805 */
 namespace OHOS {
-namespace Security {
-namespace AccessToken{
+namespace Location {
 enum class LocatorInterfaceCode {
     GET_SWITCH_STATE = 1,
     REG_SWITCH_CALLBACK = 2,
@@ -62,7 +61,7 @@ enum class LocatorInterfaceCode {
     REPORT_LOCATION = 42,
 };
 
-enum class GeoConvertInterfaceCode{
+enum class GeoConvertInterfaceCode {
     IS_AVAILABLE = 11,
     GET_FROM_COORDINATE = 12,
     GET_FROM_LOCATION_NAME_BY_BOUNDARY = 13,
@@ -71,7 +70,7 @@ enum class GeoConvertInterfaceCode{
     SET_REVERSE_GEOCODE_MOCKINFO = 35,
 };
 
-enum class SubAbilityInterfaceCode{
+enum class SubAbilityInterfaceCode {
     SEND_LOCATION_REQUEST = 1,
     GET_CACHED_LOCATION = 2,
     SET_ENABLE = 3,
@@ -99,6 +98,5 @@ enum class SubAbilityInterfaceCode{
     ENABLE_REV_GEOCODE_MOCK = 25,
     DISABLE_REV_GEOCODE_MOCK = 26,
 };
-} // namespace AccessToken
-} // namespace Security
+} // namespace Location
 } // namespace OHOS

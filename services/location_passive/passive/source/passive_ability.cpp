@@ -34,7 +34,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 const bool REGISTER_RESULT = PassiveAbility::MakeAndRegisterAbility(
     DelayedSingleton<PassiveAbility>::GetInstance().get());

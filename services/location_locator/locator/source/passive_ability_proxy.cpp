@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 PassiveAbilityProxy::PassiveAbilityProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IPassiveAbility>(impl)
@@ -42,7 +42,10 @@ LocationErrCode PassiveAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     workrecord.Marshalling(data);
-    int error = Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST), data, reply, option);
+    int error = Remote()->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST), 
+                                      data, 
+                                      reply, 
+                                      option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -77,7 +80,8 @@ LocationErrCode PassiveAbilityProxy::EnableMock()
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int error = remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK), data, reply, option);
+    int error = 
+        remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -96,7 +100,8 @@ LocationErrCode PassiveAbilityProxy::DisableMock()
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int error = remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK), data, reply, option);
+    int error = 
+        remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
@@ -122,7 +127,8 @@ LocationErrCode PassiveAbilityProxy::SetMocked(
     for (int i = 0; i < locationSize; i++) {
         location.at(i)->Marshalling(data);
     }
-    int error = remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS), data, reply, option);
+    int error = 
+        remote->SendRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS), data, reply, option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }

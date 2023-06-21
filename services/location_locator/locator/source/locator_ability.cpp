@@ -47,7 +47,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     DelayedSingleton<LocatorAbility>::GetInstance().get());
@@ -601,7 +601,8 @@ LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errorCode = SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::GET_CACHED_SIZE), dataToStub, replyToStub);
+    LocationErrCode errorCode = 
+        SendGnssRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::GET_CACHED_SIZE), dataToStub, replyToStub);
     if (errorCode == ERRCODE_SUCCESS) {
         size = replyToStub.ReadInt32();
     }
@@ -821,20 +822,23 @@ LocationErrCode LocatorAbility::EnableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
-    return ProcessLocationMockMsg(timeInterval, location, static_cast<uint32_t>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK));
+    return ProcessLocationMockMsg(timeInterval, location, 
+        static_cast<uint32_t>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK));
 }
 
 LocationErrCode LocatorAbility::DisableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
-    return ProcessLocationMockMsg(timeInterval, location, static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK));
+    return ProcessLocationMockMsg(timeInterval, location, 
+        static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK));
 }
 
 LocationErrCode LocatorAbility::SetMockedLocations(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
-    return ProcessLocationMockMsg(timeInterval, location, static_cast<uint32_t>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS));
+    return ProcessLocationMockMsg(timeInterval, location, 
+        static_cast<uint32_t>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS));
 }
 
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,

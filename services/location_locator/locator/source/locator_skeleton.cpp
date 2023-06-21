@@ -29,7 +29,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 void LocatorAbilityStub::InitLocatorHandleMap()
 {

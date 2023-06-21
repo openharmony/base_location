@@ -32,7 +32,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 
 const int UNKNOWN_CODE = -1;
 void PassiveAbilityStubTest::SetUp()
@@ -55,7 +55,8 @@ HWTEST_F(PassiveAbilityStubTest, PassiveAbilityStubTest001, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST), parcel, reply, option));
+        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SEND_LOCATION_REQUEST), 
+        parcel, reply, option));
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveAbilityStubTest001 end");
 }
 
@@ -71,7 +72,8 @@ HWTEST_F(PassiveAbilityStubTest, PassiveAbilityStubTest002, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_ENABLE), parcel, reply, option));
+        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_ENABLE), 
+        parcel, reply, option));
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveAbilityStubTest002 end");
 }
 
@@ -87,7 +89,8 @@ HWTEST_F(PassiveAbilityStubTest, PassiveAbilityStubTest003, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK), parcel, reply, option));
+        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::ENABLE_LOCATION_MOCK), 
+        parcel, reply, option));
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveAbilityStubTest003 end");
 }
 
@@ -103,7 +106,8 @@ HWTEST_F(PassiveAbilityStubTest, PassiveAbilityStubTest004, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK), parcel, reply, option));
+        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::DISABLE_LOCATION_MOCK), 
+        parcel, reply, option));
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveAbilityStubTest004 end");
 }
 
@@ -119,7 +123,8 @@ HWTEST_F(PassiveAbilityStubTest, PassiveAbilityStubTest005, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(ERRCODE_SUCCESS,
-        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS), parcel, reply, option));
+        passiveAbilityStub->OnRemoteRequest(static_cast<uint32_t>(SubAbilityInterfaceCode::SET_MOCKED_LOCATIONS), 
+        parcel, reply, option));
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveAbilityStubTest005 end");
 }
 

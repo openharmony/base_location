@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace Location {
-using namespace OHOS::Security::AccessToken;
+using namespace OHOS::Location;
 SubAbility::SubAbility()
 {
     label_ = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
