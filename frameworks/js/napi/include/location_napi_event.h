@@ -70,6 +70,7 @@ void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHo
 bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback);
 void GenRequestConfig(const napi_env& env, const napi_value* argv,
     const size_t& objectArgsNum, std::unique_ptr<RequestConfig>& requestConfig);
+bool CheckIfParamInvalid(std::unique_ptr<RequestConfig>& config);
 napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const napi_value* argv);
 napi_value On(napi_env env, napi_callback_info cbinfo);
 napi_value Off(napi_env env, napi_callback_info cbinfo);
