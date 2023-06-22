@@ -40,9 +40,9 @@ LocationErrCode PassiveAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     workrecord.Marshalling(data);
-    int error = Remote()->SendRequest(static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST), 
-                                      data, 
-                                      reply, 
+    int error = Remote()->SendRequest(static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST),
+                                      data,
+                                      reply,
                                       option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
@@ -78,7 +78,7 @@ LocationErrCode PassiveAbilityProxy::EnableMock()
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int error = 
+    int error =
         remote->SendRequest(static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
@@ -98,7 +98,7 @@ LocationErrCode PassiveAbilityProxy::DisableMock()
         LBSLOGE(PASSIVE, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int error = 
+    int error =
         remote->SendRequest(static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK), data, reply, option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
@@ -125,7 +125,7 @@ LocationErrCode PassiveAbilityProxy::SetMocked(
     for (int i = 0; i < locationSize; i++) {
         location.at(i)->Marshalling(data);
     }
-    int error = 
+    int error =
         remote->SendRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS), data, reply, option);
     LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());

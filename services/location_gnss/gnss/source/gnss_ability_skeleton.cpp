@@ -23,7 +23,6 @@
 #include "gnss_ability.h"
 #include "locationhub_ipc_interface_code.h"
 
-
 namespace OHOS {
 namespace Location {
 int GnssAbilityStub::OnRemoteRequest(uint32_t code,

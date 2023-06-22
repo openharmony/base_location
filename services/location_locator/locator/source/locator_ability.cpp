@@ -599,7 +599,7 @@ LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errorCode = 
+    LocationErrCode errorCode =
         SendGnssRequest(static_cast<int>(GnssInterfaceCode::GET_CACHED_SIZE), dataToStub, replyToStub);
     if (errorCode == ERRCODE_SUCCESS) {
         size = replyToStub.ReadInt32();
@@ -820,7 +820,7 @@ LocationErrCode LocatorAbility::EnableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
-    return ProcessLocationMockMsg(timeInterval, location, 
+    return ProcessLocationMockMsg(timeInterval, location,
         static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK));
 }
 
@@ -828,14 +828,14 @@ LocationErrCode LocatorAbility::DisableLocationMock()
 {
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
-    return ProcessLocationMockMsg(timeInterval, location, 
+    return ProcessLocationMockMsg(timeInterval, location,
         static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK));
 }
 
 LocationErrCode LocatorAbility::SetMockedLocations(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
-    return ProcessLocationMockMsg(timeInterval, location, 
+    return ProcessLocationMockMsg(timeInterval, location,
         static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS));
 }
 

@@ -31,7 +31,6 @@
 #include "work_record.h"
 #include "locationhub_ipc_interface_code.h"
 
-
 namespace OHOS {
 namespace Location {
 const bool REGISTER_RESULT = PassiveAbility::MakeAndRegisterAbility(

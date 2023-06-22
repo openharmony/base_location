@@ -53,8 +53,8 @@ int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    error = SendMsgWithDataReply(static_cast<int>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY), 
-                                 data, 
+    error = SendMsgWithDataReply(static_cast<int>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY),
+                                 data,
                                  reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
     return error;
