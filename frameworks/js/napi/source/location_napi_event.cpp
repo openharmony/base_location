@@ -233,6 +233,9 @@ LocationErrCode SubscribeLocationChangeV9(const napi_env& env, const napi_value&
     locatorCallbackHost->SetEnv(env);
     locatorCallbackHost->SetHandleCb(handlerRef);
     JsObjToLocationRequest(env, object, g_requestConfig);
+    if (CheckIfParamInvalid(g_requestConfig)) {
+        return ERRCODE_INVALID_PARAM;
+    }
     return g_locatorProxy->StartLocatingV9(g_requestConfig, locatorCallback);
 }
 #endif
@@ -480,7 +483,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
     size_t objectArgsNum = 0;
     objectArgsNum = static_cast<size_t>(GetObjectArgsNum(env, argc, argv));
     auto requestConfig = CreateRequestConfig(env, argv, objectArgsNum);
-    if (requestConfig == nullptr) {
+    if (CheckIfParamInvalid(requestConfig)) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -1526,6 +1529,20 @@ void CallbackResumeManager::ResumeLocating()
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
+}
+
+bool CheckIfParamInvalid(std::unique_ptr<RequestConfig>& config)
+{
+    if (config == nullptr) {
+        return true;
+    }
+    if (config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) {
+        return true;
+    }
+    if (config->GetPriority() > PRIORITY_FAST_FIRST_FIX || config->GetScenario() < PRIORITY_UNSET) {
+        return true;
+    }
+    return false;
 }
 }  // namespace Location
 }  // namespace OHOS
