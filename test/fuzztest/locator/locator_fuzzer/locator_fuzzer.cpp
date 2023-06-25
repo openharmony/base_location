@@ -42,7 +42,9 @@
 #include "locator.h"
 #include "location_switch_callback_host.h"
 #include "locator.h"
+#define private public
 #include "locator_ability.h"
+#undef private
 #include "locator_callback_host.h"
 #include "location_log.h"
 #ifdef FEATURE_GNSS_SUPPORT
@@ -79,6 +81,9 @@ const int32_t SWITCH_STATE_ON = 1;
 const int32_t WAIT_TIME_SEC = 1000;
 const int32_t COUNT = 10;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
+const int32_t U32DATA_SIZE = 4;
+const int32_t U64DATA_SIZE = 8;
+const int32_t SLEEP_TIMES = 1000;
 
 bool TestStartLocating(const uint8_t* data, size_t size)
 {
@@ -115,6 +120,10 @@ bool LocatorProxySendRequestTest(const uint8_t* data, size_t size)
     }
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        LBSLOGE(LOCATOR, "systemAbilityManager is nullptr");
+        return false;
+    }
     sptr<IRemoteObject> object = systemAbilityManager->GetSystemAbility(LOCATION_LOCATOR_SA_ID);
     auto client = std::make_unique<LocatorProxyTestFuzzer>(object);
     if (client == nullptr) {
@@ -445,7 +454,7 @@ bool NmeaMessageCallbackHostFuzzerTest(const uint8_t* data, size_t size)
     MessageOption option;
     nmeaCallbackHost->OnRemoteRequest(data[index++], request, reply, option);
     nmeaCallbackHost->IsRemoteDied();
-    std::string msg((const char*) data, size);
+    std::string msg(reinterpret_cast<const char*>(data), size);
     nmeaCallbackHost->PackResult(msg);
     nmeaCallbackHost->Send(msg);
     int64_t timestamp = 0;
@@ -460,7 +469,7 @@ bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size)
     int index = 0;
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::string deviceId((const char*) data, size);
+    std::string deviceId(reinterpret_cast<const char*>(data), size);
     locatorAbility->OnAddSystemAbility(data[index++], deviceId);
     locatorAbility->OnRemoveSystemAbility(data[index++], deviceId);
     locatorAbility->QueryServiceState();
@@ -552,7 +561,7 @@ bool LocatorAbility003FuzzerTest(const uint8_t* data, size_t size)
     locatorAbility->SetReverseGeocodingMockInfo(geoMockInfo);
 #endif
     auto location = std::make_unique<OHOS::Location::Location>();
-    std::string abilityName((const char*) data, size);
+    std::string abilityName(reinterpret_cast<const char*>(data), size);
     int timeInterval = 2;
     locatorAbility->ReportLocation(location, abilityName);
     locatorAbility->ProcessLocationMockMsg(timeInterval, locations, data[index++]);
@@ -579,6 +588,12 @@ bool LocatorAbility003FuzzerTest(const uint8_t* data, size_t size)
 uint32_t GetU32Data(const char* ptr)
 {
     return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+}
+
+uint64_t GetU64Data(const char* ptr)
+{
+    uint64_t u64data = (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+    return (u64data << 32) | (ptr[4] << 24) | (ptr[5] << 16) | (ptr[6] << 8) | (ptr[7]);
 }
 
 char* ParseData(const uint8_t* data, size_t size)
@@ -633,7 +648,7 @@ bool CountryCodeCallbackHostFuzzTest(const char* data, size_t size)
     return true;
 }
 
-#ifdef FEATURE_NETWORK_SUPPORT	
+#ifdef FEATURE_NETWORK_SUPPORT
 bool NetworkAbilityFuzzTest(const char* data, size_t size)
 {
     uint32_t code = GetU32Data(data);
@@ -645,9 +660,9 @@ bool NetworkAbilityFuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     DelayedSingleton<NetworkAbility>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     return true;
-}   
+}
 #endif
     
 bool LocatorCallbackStubFuzzTest(const char* data, size_t size)
@@ -676,7 +691,7 @@ bool PassiveAbilityFuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     DelayedSingleton<PassiveAbility>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     return true;
 }
 #endif
@@ -709,7 +724,7 @@ bool GnssAbilityFuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     DelayedSingleton<GnssAbility>::GetInstance()->OnRemoteRequest(code, requestParcel, reply, option);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     return true;
 }
 #endif
@@ -803,7 +818,30 @@ bool NmeaMessageCallbackHostFuzzTest(const char* data, size_t size)
     return true;
 }
 #endif
-}//namespace OHOS
+
+bool LocatorAbility004FuzzerTest(const char* data, size_t size)
+{
+    MessageParcel reply;
+    AppIdentity identity;
+    int offset = 0;
+    if (size <= 32) {
+        return true;
+    }
+    identity.SetPid(static_cast<pid_t>(GetU64Data(data)));
+    identity.SetUid(static_cast<pid_t>(GetU64Data(data + (offset += U64DATA_SIZE))));
+    identity.SetTokenId(GetU32Data(data + (offset += U64DATA_SIZE)));
+    identity.SetTokenIdEx(GetU64Data(data + (offset += U32DATA_SIZE)));
+    identity.SetFirstTokenId(GetU32Data(data + (offset += U64DATA_SIZE)));
+    identity.SetBundleName(data + (offset += U32DATA_SIZE));
+
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->CheckLocationPermission(reply, identity);
+    locatorAbility->CheckSettingsPermission(reply, identity);
+    locatorAbility->CheckPreciseLocationPermissions(reply, identity);
+    locatorAbility->CheckLocationSwitchState(reply);
+    return true;
+}
+} //namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -863,6 +901,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 #ifdef FEATURE_GNSS_SUPPORT
         OHOS::NmeaMessageCallbackHostFuzzTest(ch, size);
 #endif
+        OHOS::LocatorAbility004FuzzerTest(ch, size);
         free(ch);
         ch = nullptr;
     }

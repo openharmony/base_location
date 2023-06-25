@@ -59,20 +59,35 @@ bool TestMockFunc(const uint8_t* data, size_t size);
 bool TestCallbackRegister(const uint8_t* data, size_t size);
 #ifdef FEATURE_GNSS_SUPPORT
 bool CachedLocationsCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool NmeaMessageCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool GnssStatusCallbackHostFuzzerTest(const uint8_t* data, size_t size);
+bool CachedLocationsCallbackHostFuzzTest(const char* data, size_t size);
+bool NmeaMessageCallbackHostFuzzTest(const char* data, size_t size);
+bool GnssStatusCallbackHostFuzzTest(const char* data, size_t size);
+bool GnssAbilityFuzzTest(const char* data, size_t size);
 #endif
 bool CountryCodeCallbackHostFuzzerTest(const uint8_t* data, size_t size);
-#ifdef FEATURE_GNSS_SUPPORT
-bool GnssStatusCallbackHostFuzzerTest(const uint8_t* data, size_t size);
-#endif
 bool LocationSwitchCallbackHostFuzzerTest(const uint8_t* data, size_t size);
 bool LocationCallbackHostFuzzerTest(const uint8_t* data, size_t size);
-#ifdef FEATURE_GNSS_SUPPORT
-bool NmeaMessageCallbackHostFuzzerTest(const uint8_t* data, size_t size);
-#endif
-
 bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size);
 bool LocatorAbility002FuzzerTest(const uint8_t* data, size_t size);
 bool LocatorAbility003FuzzerTest(const uint8_t* data, size_t size);
+bool LocatorAbilityStubFuzzTest(const char* data, size_t size);
+bool CountryCodeCallbackHostFuzzTest(const char* data, size_t size);
+#ifdef FEATURE_NETWORK_SUPPORT
+bool NetworkAbilityFuzzTest(const char* data, size_t size);
+bool NetworkCallbackHostFuzzTest(const char* data, size_t size);
+#endif
+bool LocatorCallbackStubFuzzTest(const char* data, size_t size);
+#ifdef FEATURE_PASSIVE_SUPPORT
+bool PassiveAbilityFuzzTest(const char* data, size_t size);
+#endif
+#ifdef FEATURE_GEOCODE_SUPPORT
+bool GeoConvertServiceFuzzTest(const char* data, size_t size);
+#endif
+bool LocationSwitchCallbackHostFuzzTest(const char* data, size_t size);
+bool LocatorCallbackHostFuzzTest(const char* data, size_t size);
+bool LocatorAbility004FuzzerTest(const uint8_t* data, size_t size);
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_FUZZER_H
