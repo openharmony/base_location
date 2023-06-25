@@ -30,14 +30,6 @@ namespace OHOS {
 namespace Location {
 class IGeoConvert : public IRemoteBroker {
 public:
-    enum {
-        IS_AVAILABLE = 11,
-        GET_FROM_COORDINATE = 12,
-        GET_FROM_LOCATION_NAME_BY_BOUNDARY = 13,
-        ENABLE_REVERSE_GEOCODE_MOCK = 33,
-        DISABLE_REVERSE_GEOCODE_MOCK = 34,
-        SET_REVERSE_GEOCODE_MOCKINFO = 35,
-    };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGeoConvert");
     virtual int IsGeoConvertAvailable(MessageParcel &rep) = 0;
     virtual int GetAddressByCoordinate(MessageParcel &data, MessageParcel &rep) = 0;

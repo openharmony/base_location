@@ -26,6 +26,7 @@
 #include "location_log.h"
 #include "subability_common.h"
 #include "work_record.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -46,9 +47,9 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     int ret = ERRCODE_SUCCESS;
     bool isMessageRequest = false;
     switch (code) {
-        case SEND_LOCATION_REQUEST: // fall through
-        case SET_MOCKED_LOCATIONS: // fall through
-        case SELF_REQUEST: {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST): // fall through
+        case static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS): // fall through
+        case static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -56,21 +57,21 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
             isMessageRequest = true;
             break;
         }
-        case SET_ENABLE: {
+        case static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
-        case ENABLE_LOCATION_MOCK: {
+        case static_cast<uint32_t>(NetworkInterfaceCode::ENABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(EnableMock());
             break;
         }
-        case DISABLE_LOCATION_MOCK: {
+        case static_cast<uint32_t>(NetworkInterfaceCode::DISABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }

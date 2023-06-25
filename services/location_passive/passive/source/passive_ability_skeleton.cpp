@@ -25,6 +25,7 @@
 #include "location.h"
 #include "location_log.h"
 #include "work_record.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -45,7 +46,7 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     int ret = ERRCODE_SUCCESS;
     bool isMessageRequest = false;
     switch (code) {
-        case SEND_LOCATION_REQUEST: {
+        case static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -53,28 +54,28 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
             reply.WriteInt32(SendLocationRequest(*workrecord));
             break;
         }
-        case SET_ENABLE: {
+        case static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(SetEnable(data.ReadBool()));
             break;
         }
-        case ENABLE_LOCATION_MOCK: {
+        case static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(EnableMock());
             break;
         }
-        case DISABLE_LOCATION_MOCK: {
+        case static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             reply.WriteInt32(DisableMock());
             break;
         }
-        case SET_MOCKED_LOCATIONS: {
+        case static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }

@@ -18,6 +18,7 @@
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -37,28 +38,28 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
 
     int ret = ERRCODE_SUCCESS;
     switch (code) {
-        case IS_AVAILABLE: {
+        case static_cast<uint32_t>(GeoConvertInterfaceCode::IS_AVAILABLE): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             IsGeoConvertAvailable(reply);
             break;
         }
-        case GET_FROM_COORDINATE: {
+        case static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_COORDINATE): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             GetAddressByCoordinate(data, reply);
             break;
         }
-        case GET_FROM_LOCATION_NAME_BY_BOUNDARY: {
+        case static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
             GetAddressByLocationName(data, reply);
             break;
         }
-        case ENABLE_REVERSE_GEOCODE_MOCK: {
+        case static_cast<uint32_t>(GeoConvertInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -66,7 +67,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
                 reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
             break;
         }
-        case DISABLE_REVERSE_GEOCODE_MOCK: {
+        case static_cast<uint32_t>(GeoConvertInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }
@@ -74,7 +75,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
                 reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
             break;
         }
-        case SET_REVERSE_GEOCODE_MOCKINFO: {
+        case static_cast<uint32_t>(GeoConvertInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO): {
             if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
                 return ERRCODE_PERMISSION_DENIED;
             }

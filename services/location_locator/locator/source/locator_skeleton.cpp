@@ -25,6 +25,7 @@
 #include "request_config.h"
 #include "system_ability_definition.h"
 #include "location_sa_load_manager.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -33,47 +34,85 @@ void LocatorAbilityStub::InitLocatorHandleMap()
     if (locatorHandleMap_.size() != 0 || locatorHandleMap_.size() != 0) {
         return;
     }
-    locatorHandleMap_[GET_SWITCH_STATE] = &LocatorAbilityStub::PreGetSwitchState;
-    locatorHandleMap_[REG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreRegisterSwitchCallback;
-    locatorHandleMap_[UNREG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreUnregisterSwitchCallback;
-    locatorHandleMap_[START_LOCATING] = &LocatorAbilityStub::PreStartLocating;
-    locatorHandleMap_[STOP_LOCATING] = &LocatorAbilityStub::PreStopLocating;
-    locatorHandleMap_[GET_CACHE_LOCATION] = &LocatorAbilityStub::PreGetCacheLocation;
-    locatorHandleMap_[ENABLE_ABILITY] = &LocatorAbilityStub::PreEnableAbility;
-    locatorHandleMap_[UPDATE_SA_ABILITY] = &LocatorAbilityStub::PreUpdateSaAbility;
-    locatorHandleMap_[IS_PRIVACY_COMFIRMED] = &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
-    locatorHandleMap_[SET_PRIVACY_COMFIRM_STATUS] = &LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus;
-    locatorHandleMap_[GET_ISO_COUNTRY_CODE] = &LocatorAbilityStub::PreGetIsoCountryCode;
-    locatorHandleMap_[ENABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreEnableLocationMock;
-    locatorHandleMap_[DISABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreDisableLocationMock;
-    locatorHandleMap_[SET_MOCKED_LOCATIONS] = &LocatorAbilityStub::PreSetMockedLocations;
-    locatorHandleMap_[REG_COUNTRY_CODE_CALLBACK] = &LocatorAbilityStub::PreRegisterCountryCodeCallback;
-    locatorHandleMap_[UNREG_COUNTRY_CODE_CALLBACK] = &LocatorAbilityStub::PreUnregisterCountryCodeCallback;
-    locatorHandleMap_[PROXY_UID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyUidForFreeze;
-    locatorHandleMap_[RESET_ALL_PROXY] = &LocatorAbilityStub::PreResetAllProxy;
-    locatorHandleMap_[REPORT_LOCATION] = &LocatorAbilityStub::PreReportLocation;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_SWITCH_STATE)] =
+        &LocatorAbilityStub::PreGetSwitchState;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_SWITCH_CALLBACK)] =
+        &LocatorAbilityStub::PreRegisterSwitchCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_SWITCH_CALLBACK)] =
+        &LocatorAbilityStub::PreUnregisterSwitchCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::START_LOCATING)] =
+        &LocatorAbilityStub::PreStartLocating;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::STOP_LOCATING)] =
+        &LocatorAbilityStub::PreStopLocating;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_CACHE_LOCATION)] =
+        &LocatorAbilityStub::PreGetCacheLocation;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ENABLE_ABILITY)] =
+        &LocatorAbilityStub::PreEnableAbility;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UPDATE_SA_ABILITY)] =
+        &LocatorAbilityStub::PreUpdateSaAbility;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::IS_PRIVACY_COMFIRMED)] =
+        &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS)] =
+        &LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_ISO_COUNTRY_CODE)] =
+        &LocatorAbilityStub::PreGetIsoCountryCode;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)] =
+        &LocatorAbilityStub::PreEnableLocationMock;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)] =
+        &LocatorAbilityStub::PreDisableLocationMock;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS)] =
+        &LocatorAbilityStub::PreSetMockedLocations;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_COUNTRY_CODE_CALLBACK)] =
+        &LocatorAbilityStub::PreRegisterCountryCodeCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_COUNTRY_CODE_CALLBACK)] =
+        &LocatorAbilityStub::PreUnregisterCountryCodeCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE)] =
+        &LocatorAbilityStub::PreProxyUidForFreeze;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY)] =
+        &LocatorAbilityStub::PreResetAllProxy;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION)] =
+        &LocatorAbilityStub::PreReportLocation;
 #ifdef FEATURE_GEOCODE_SUPPORT
-    locatorHandleMap_[GEO_IS_AVAILABLE] = &LocatorAbilityStub::PreIsGeoConvertAvailable;
-    locatorHandleMap_[GET_FROM_COORDINATE] = &LocatorAbilityStub::PreGetAddressByCoordinate;
-    locatorHandleMap_[GET_FROM_LOCATION_NAME] = &LocatorAbilityStub::PreGetAddressByLocationName;
-    locatorHandleMap_[ENABLE_REVERSE_GEOCODE_MOCK] = &LocatorAbilityStub::PreEnableReverseGeocodingMock;
-    locatorHandleMap_[DISABLE_REVERSE_GEOCODE_MOCK] = &LocatorAbilityStub::PreDisableReverseGeocodingMock;
-    locatorHandleMap_[SET_REVERSE_GEOCODE_MOCKINFO] = &LocatorAbilityStub::PreSetReverseGeocodingMockInfo;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GEO_IS_AVAILABLE)] =
+        &LocatorAbilityStub::PreIsGeoConvertAvailable;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE)] =
+        &LocatorAbilityStub::PreGetAddressByCoordinate;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME)] =
+        &LocatorAbilityStub::PreGetAddressByLocationName;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK)] =
+        &LocatorAbilityStub::PreEnableReverseGeocodingMock;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK)] =
+        &LocatorAbilityStub::PreDisableReverseGeocodingMock;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO)] =
+        &LocatorAbilityStub::PreSetReverseGeocodingMockInfo;
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
-    locatorHandleMap_[REG_GNSS_STATUS_CALLBACK] = &LocatorAbilityStub::PreRegisterGnssStatusCallback;
-    locatorHandleMap_[UNREG_GNSS_STATUS_CALLBACK] = &LocatorAbilityStub::PreUnregisterGnssStatusCallback;
-    locatorHandleMap_[REG_NMEA_CALLBACK] = &LocatorAbilityStub::PreRegisterNmeaMessageCallback;
-    locatorHandleMap_[UNREG_NMEA_CALLBACK] = &LocatorAbilityStub::PreUnregisterNmeaMessageCallback;
-    locatorHandleMap_[REG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStartCacheLocating;
-    locatorHandleMap_[UNREG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStopCacheLocating;
-    locatorHandleMap_[GET_CACHED_LOCATION_SIZE] = &LocatorAbilityStub::PreGetCachedGnssLocationsSize;
-    locatorHandleMap_[FLUSH_CACHED_LOCATIONS] = &LocatorAbilityStub::PreFlushCachedGnssLocations;
-    locatorHandleMap_[SEND_COMMAND] = &LocatorAbilityStub::PreSendCommand;
-    locatorHandleMap_[ADD_FENCE] = &LocatorAbilityStub::PreAddFence;
-    locatorHandleMap_[REMOVE_FENCE] = &LocatorAbilityStub::PreRemoveFence;
-    locatorHandleMap_[REG_NMEA_CALLBACK_v9] = &LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9;
-    locatorHandleMap_[UNREG_NMEA_CALLBACK_v9] = &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_GNSS_STATUS_CALLBACK)] =
+        &LocatorAbilityStub::PreRegisterGnssStatusCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_GNSS_STATUS_CALLBACK)] =
+        &LocatorAbilityStub::PreUnregisterGnssStatusCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK)] =
+        &LocatorAbilityStub::PreRegisterNmeaMessageCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK)] =
+        &LocatorAbilityStub::PreUnregisterNmeaMessageCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_CACHED_CALLBACK)] =
+        &LocatorAbilityStub::PreStartCacheLocating;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_CACHED_CALLBACK)] =
+        &LocatorAbilityStub::PreStopCacheLocating;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_CACHED_LOCATION_SIZE)] =
+        &LocatorAbilityStub::PreGetCachedGnssLocationsSize;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::FLUSH_CACHED_LOCATIONS)] =
+        &LocatorAbilityStub::PreFlushCachedGnssLocations;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SEND_COMMAND)] =
+        &LocatorAbilityStub::PreSendCommand;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ADD_FENCE)] =
+        &LocatorAbilityStub::PreAddFence;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE)] =
+        &LocatorAbilityStub::PreRemoveFence;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_v9)] =
+        &LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_v9)] =
+        &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
 #endif
 }
 

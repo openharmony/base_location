@@ -35,6 +35,7 @@
 #include "location_dumper.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -662,7 +663,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
         return;
     }
     switch (code) {
-        case SEND_LOCATION_REQUEST: {
+        case static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST): {
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
                 Get(code, workrecord);
@@ -673,7 +674,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             }
             break;
         }
-        case SET_MOCKED_LOCATIONS: {
+        case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
                 reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
                 break;
@@ -735,14 +736,14 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             gnssAbility->ProcessReportLocationMock();
             break;
         }
-        case ISubAbility::SEND_LOCATION_REQUEST: {
+        case static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST): {
             std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
             if (workrecord != nullptr) {
                 gnssAbility->LocationRequest(*workrecord);
             }
             break;
         }
-        case ISubAbility::SET_MOCKED_LOCATIONS: {
+        case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
             int timeInterval = event->GetParam();
             auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
             if (vcLoc != nullptr) {

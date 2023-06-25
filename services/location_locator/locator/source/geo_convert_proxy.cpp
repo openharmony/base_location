@@ -16,6 +16,7 @@
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_proxy.h"
 #include "location_log.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -26,7 +27,7 @@ GeoConvertProxy::GeoConvertProxy(const sptr<IRemoteObject> &impl)
 
 int GeoConvertProxy::IsGeoConvertAvailable(MessageParcel &reply)
 {
-    return SendSimpleMsg(IS_AVAILABLE, reply);
+    return SendSimpleMsg(static_cast<int>(GeoConvertInterfaceCode::IS_AVAILABLE), reply);
 }
 
 int GeoConvertProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
@@ -38,7 +39,7 @@ int GeoConvertProxy::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    error = SendMsgWithDataReply(GET_FROM_COORDINATE, data, reply);
+    error = SendMsgWithDataReply(static_cast<int>(GeoConvertInterfaceCode::GET_FROM_COORDINATE), data, reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByCoordinate result from server.");
     return error;
 }
@@ -52,7 +53,9 @@ int GeoConvertProxy::GetAddressByLocationName(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    error = SendMsgWithDataReply(GET_FROM_LOCATION_NAME_BY_BOUNDARY, data, reply);
+    error = SendMsgWithDataReply(static_cast<int>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY),
+                                 data,
+                                 reply);
     LBSLOGI(GEO_CONVERT, "GetAddressByLocationName result from server.");
     return error;
 }
@@ -99,12 +102,12 @@ bool GeoConvertProxy::SendSimpleMsgAndParseResult(const int msgId)
 
 bool GeoConvertProxy::EnableReverseGeocodingMock()
 {
-    return SendSimpleMsgAndParseResult(ENABLE_REVERSE_GEOCODE_MOCK);
+    return SendSimpleMsgAndParseResult(static_cast<int>(GeoConvertInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK));
 }
 
 bool GeoConvertProxy::DisableReverseGeocodingMock()
 {
-    return SendSimpleMsgAndParseResult(DISABLE_REVERSE_GEOCODE_MOCK);
+    return SendSimpleMsgAndParseResult(static_cast<int>(GeoConvertInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK));
 }
 
 LocationErrCode GeoConvertProxy::SetReverseGeocodingMockInfo(
@@ -121,7 +124,7 @@ LocationErrCode GeoConvertProxy::SetReverseGeocodingMockInfo(
     for (size_t i = 0; i < mockInfo.size(); i++) {
         mockInfo[i]->Marshalling(data);
     }
-    SendMsgWithDataReply(SET_REVERSE_GEOCODE_MOCKINFO, data, reply);
+    SendMsgWithDataReply(static_cast<int>(GeoConvertInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO), data, reply);
     return LocationErrCode(reply.ReadInt32());
 }
 } // namespace Location
