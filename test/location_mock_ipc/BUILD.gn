@@ -1,0 +1,103 @@
+# Copyright (C) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/location/config.gni")
+import("//build/test.gni")
+
+module_output_path = "location/service"
+
+MOCK_IPC_UNIT_TEST_DIR = "$LOCATION_ROOT_DIR/test/location_mock_ipc"
+ohos_unittest("LocationMockIpcTest") {
+  module_out_path = module_output_path
+  sources = [
+    "$LOCATION_ROOT_DIR/test/mock/src/mock_ipc.cpp",
+    "$MOCK_IPC_UNIT_TEST_DIR/src/location_mock_ipc.cpp",
+  ]
+
+  include_dirs = [
+    "$MOCK_IPC_UNIT_TEST_DIR/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_GNSS_ROOT/include",
+    "$LOCATION_NETWORK_ROOT/include",
+    "$LOCATION_GEOCONVERT_ROOT/include",
+    "$LOCATION_PASSIVE_ROOT/include",
+    "$LOCATION_LOCATOR_ROOT/include",
+  ]
+
+  deps = [
+    "$GOOGLE_TEST_DIR:gmock_main",
+    "$GOOGLE_TEST_DIR:gtest_main",
+    "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode",
+    "$LOCATION_GNSS_ROOT:lbsservice_gnss",
+    "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
+    "$LOCATION_NETWORK_ROOT:lbsservice_network",
+    "$LOCATION_PASSIVE_ROOT:lbsservice_passive",
+    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "cellular_data:tel_cellular_data_api",
+    "common_event_service:cesfwk_innerkits",
+    "core_service:tel_core_service_api",
+    "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
+    "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "hdf_core:libhdi",
+    "hdf_core:libpub_utils",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = []
+
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
+
+  if (location_feature_with_network) {
+    defines += [ "FEATURE_NETWORK_SUPPORT" ]
+  }
+
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
+
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
+
+  if (location_feature_with_geocode) {
+    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+  }
+
+  module_out_path = module_output_path
+}
+
+group("unittest") {
+  testonly = true
+  deps = []
+
+  deps += [ ":LocationMockIpcTest" ]
+}
