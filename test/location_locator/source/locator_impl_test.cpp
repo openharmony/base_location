@@ -495,5 +495,30 @@ HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplNmeaMessageCallbackV9001 end");
 }
 #endif
+
+HWTEST_F(LocatorImplTest, locatorImplResetLocatorProxy001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplResetLocatorProxy001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResetLocatorProxy001 begin");
+    ASSERT_TRUE(locatorImpl_ != nullptr);
+    wptr<IRemoteObject> remote = nullptr;
+    locatorImpl_->ResetLocatorProxy(remote); // remote is nullptr
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResetLocatorProxy001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplSetResumer001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplSetResumer001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSetResumer001 begin");
+    std::shared_ptr<MockCallbackResumeManager> callbackResumer = std::make_shared<MockCallbackResumeManager>();
+    locatorImpl_->SetResumer(callbackResumer); //resumer isn't nullptr
+    EXPECT_NE(nullptr, locatorImpl_->resumer_);
+
+    callbackResumer = nullptr;
+    locatorImpl_->SetResumer(callbackResumer); //resumer is nullptr
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSetResumer001 end");
+}
 }  // namespace Location
 }  // namespace OHOS

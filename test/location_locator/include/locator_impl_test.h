@@ -19,7 +19,13 @@
 #include <gtest/gtest.h>
 
 #include "i_locator_callback.h"
+
+#define private public
+#define protected public
 #include "locator_impl.h"
+#undef protected
+#undef private
+
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
 #endif
@@ -38,6 +44,16 @@ public:
     sptr<ILocatorCallback> callbackStub_;
     std::shared_ptr<LocatorImpl> locatorImpl_;
     uint64_t tokenId_;
+};
+
+class MockCallbackResumeManager : public ICallbackResumeManager {
+public:
+    MockCallbackResumeManager() = default;
+    ~MockCallbackResumeManager() = default;
+    void ResumeCallback() override
+    {
+        return;
+    };
 };
 } // namespace Location
 } // namespace OHOS
