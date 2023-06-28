@@ -57,6 +57,7 @@ private:
 
     std::list<int32_t> runningUids_;
     static std::mutex requestMutex_;
+    std::mutex permissionRecordMutex_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -59,15 +59,17 @@ bool RequestManager::InitSystemListeners()
 
 void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
 {
+    std::unique_lock<std::mutex> lock(permissionRecordMutex_, std::defer_lock);
+    lock.lock();
     if (request == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "request is null");
+        lock.unlock();
         return;
     }
     LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
         request->GetTokenId(), request->GetFirstTokenId());
-    UpdateUsingLocationPermission(request);
     UpdateUsingApproximatelyPermission(request);
-    UpdateUsingBackgroundPermission(request);
+    lock.unlock();
 }
 
 void RequestManager::UpdateUsingLocationPermission(std::shared_ptr<Request> request)
