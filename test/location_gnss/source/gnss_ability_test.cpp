@@ -55,6 +55,10 @@ void GnssAbilityTest::SetUp()
     EXPECT_NE(nullptr, ability_);
     callbackStub_ = new (std::nothrow) GnssStatusCallbackHost();
     EXPECT_NE(nullptr, callbackStub_);
+    nemaCallbackStub_ = new (std::nothrow) NmeaMessageCallbackHost();
+    EXPECT_NE(nullptr, nemaCallbackStub_);
+    cachedLocationCallbackStub_ = new (std::nothrow) CachedLocationsCallbackHost();
+    EXPECT_NE(nullptr, cachedLocationCallbackStub_);
     proxy_ = new (std::nothrow) GnssAbilityProxy(ability_);
     EXPECT_NE(nullptr, proxy_);
 }
@@ -286,13 +290,13 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.
      * @tc.steps: step2. test register nmea message callback
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterNmeaMessageCallback(callbackStub_->AsObject(), uid));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterNmeaMessageCallback(nemaCallbackStub_->AsObject(), uid));
 
     /*
      * @tc.steps: step3. test unregister nmea message callback
      * @tc.expected: no exception happens.
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->UnregisterNmeaMessageCallback(callbackStub_->AsObject()));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->UnregisterNmeaMessageCallback(nemaCallbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterNmeaMessageCallback001 end");
 }
 
@@ -367,7 +371,8 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1)
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED,
+        proxy_->RegisterCachedCallback(requestConfig, cachedLocationCallbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback003 end");
 }
 
@@ -392,13 +397,14 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->RegisterCachedCallback(requestConfig, callbackStub_->AsObject()));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED,
+        proxy_->RegisterCachedCallback(requestConfig, cachedLocationCallbackStub_->AsObject()));
 
     /*
      * @tc.steps: step3. test unregister cached call back if call back is not null.
      * @tc.expected: no exception happens.
      */
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->UnregisterCachedCallback(callbackStub_->AsObject()));
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->UnregisterCachedCallback(cachedLocationCallbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterCachedCallback002 end");
 }
 

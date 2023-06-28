@@ -29,6 +29,8 @@
 #include "gnss_ability.h"
 #include "gnss_ability_proxy.h"
 #include "gnss_status_callback_host.h"
+#include "nmea_message_callback_host.h"
+#include "cached_locations_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,6 +43,8 @@ public:
     sptr<GnssAbilityProxy> proxy_;
     sptr<GnssStatusCallbackHost> callbackStub_;
     sptr<GnssAbility> ability_;
+    sptr<NmeaMessageCallbackHost> nemaCallbackStub_;
+    sptr<CachedLocationsCallbackHost> cachedLocationCallbackStub_;
 };
 } // namespace Location
 } // namespace OHOS

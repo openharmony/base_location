@@ -108,7 +108,7 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     parcel.WriteDouble(10.0); // speed
     parcel.WriteDouble(90.0); // direction
     parcel.WriteInt64(1000000000); // timeStamp
-    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteInt64(1000000100); // timeSinceBoot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
     parcel.WriteBool(true); // isFromMock
@@ -129,8 +129,37 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     request->SetRequestConfig(*requestConfig);
     EXPECT_EQ(true, reportManager_->ResultCheck(location, request)); // no last location
 
-    request->SetLastLocation(location);
-    EXPECT_EQ(true, reportManager_->ResultCheck(location, request));
+    std::unique_ptr<Location> lastLocation1 = std::make_unique<Location>(*location);
+    lastLocation1->SetLatitude(-91.0);
+    request->SetLastLocation(lastLocation1);
+    EXPECT_EQ(true, reportManager_->ResultCheck(location, request)); // no need to check
+
+    std::unique_ptr<Location> lastLocation2 = std::make_unique<Location>(*location);
+    request->SetLastLocation(lastLocation2);
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // time interval check failed
+
+    std::unique_ptr<Location> lastLocation3 = std::make_unique<Location>(*location);
+    lastLocation3->SetTimeSinceBoot(1000000000);
+    requestConfig->SetDistanceInterval(1.0);
+    request->SetRequestConfig(*requestConfig);
+    request->SetLastLocation(lastLocation3);
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // distance interval check failed
+
+    std::unique_ptr<Location> lastLocation4 = std::make_unique<Location>(*location);
+    lastLocation4->SetTimeSinceBoot(1000000000);
+    requestConfig->SetDistanceInterval(0.0);
+    requestConfig->SetMaxAccuracy(10.0);
+    request->SetRequestConfig(*requestConfig);
+    request->SetLastLocation(lastLocation4);
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // acc check failed
+
+    std::unique_ptr<Location> lastLocation5 = std::make_unique<Location>(*location);
+    lastLocation5->SetTimeSinceBoot(1000000000);
+    requestConfig->SetDistanceInterval(0.0);
+    requestConfig->SetMaxAccuracy(0.0);
+    request->SetRequestConfig(*requestConfig);
+    request->SetLastLocation(lastLocation5);
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // check pass
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest001 end");
 }
 
