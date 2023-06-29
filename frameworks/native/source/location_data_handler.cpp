@@ -62,6 +62,7 @@ void LocationDataHandler::HandleSwitchStateChanged(const AppExecFwk::InnerEvent:
     if (state != value) {
         rdbHelper->SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     }
+    locationDataManager->SetCachedSwitchState(state);
     locationDataManager->ReportSwitchState(state);
 }
 } // namespace Location

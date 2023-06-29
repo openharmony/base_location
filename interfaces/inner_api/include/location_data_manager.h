@@ -21,6 +21,7 @@
 #include "iremote_object.h"
 #include "constant_definition.h"
 #include "i_switch_callback.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -32,9 +33,14 @@ public:
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode QuerySwitchState(bool &isEnabled);
+    int32_t GetCachedSwitchState();
+    void SetCachedSwitchState(int32_t state);
 private:
     std::mutex mutex_;
+    std::mutex switchStateMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
+    int32_t cachedSwitchState_ = DISABLED;
+    bool isStateCached_ = false;
 };
 }  // namespace Location
 }  // namespace OHOS
