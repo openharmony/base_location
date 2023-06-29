@@ -264,12 +264,16 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest003, TestSize.Level1)
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(false, request_->GetApproximatelyPermState());
     requestManager_->UpdateUsingPermission(request_);
-    EXPECT_EQ(true, request_->GetLocationPermState());
+    // location permission is not recorded
+    EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
+    // background location permission is not recorded
     EXPECT_EQ(true, request_->GetApproximatelyPermState());
 
     requestManager_->UpdateRequestRecord(request_, false);
-    EXPECT_EQ(true, request_->GetLocationPermState());
+    // location permission is not recorded
+    EXPECT_EQ(false, request_->GetLocationPermState());
+    // background location permission is not recorded
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(true, request_->GetApproximatelyPermState());
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest003 end");
