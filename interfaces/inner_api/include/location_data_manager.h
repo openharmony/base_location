@@ -33,7 +33,6 @@ public:
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode QuerySwitchState(bool &isEnabled);
-    int32_t GetCachedSwitchState();
     void SetCachedSwitchState(int32_t state);
 private:
     std::mutex mutex_;

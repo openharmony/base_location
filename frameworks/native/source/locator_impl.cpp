@@ -51,7 +51,9 @@ LocatorImpl::LocatorImpl()
     auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
     auto dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
+    if (locationDataRdbHelper != nullptr) {
+        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
+    }
 }
 
 LocatorImpl::~LocatorImpl()
@@ -103,11 +105,13 @@ void LocatorImpl::EnableAbility(bool enable)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    proxy->EnableAbility(enable);
-    if (locationDataManager_ == nullptr) {
-        return;
+    LocationErrCode errCode = proxy->EnableAbilityV9(enable);
+    // cache the value
+    if (errCode == ERRCODE_SUCCESS) {
+        if (locationDataManager_ != nullptr) {
+            locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
+        }
     }
-    locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
 }
 
 void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -640,10 +644,12 @@ LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->EnableAbilityV9(enable);
-    if (locationDataManager_ == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    // cache the value
+    if (errCode == ERRCODE_SUCCESS) {
+        if (locationDataManager_ != nullptr) {
+            locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
+        }
     }
-    locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
     return errCode;
 }
 

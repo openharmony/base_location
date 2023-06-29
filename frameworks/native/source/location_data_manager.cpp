@@ -23,7 +23,6 @@
 #include "location_log.h"
 #include "common_hisysevent.h"
 
-
 namespace OHOS {
 namespace Location {
 LocationDataManager::LocationDataManager()
@@ -101,27 +100,27 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
 
 LocationErrCode LocationDataManager::QuerySwitchState(bool &isEnabled)
 {
-    int32_t state = GetCachedSwitchState();
+    std::unique_lock<std::mutex> lock(switchStateMutex_);
+    // Default value is DISABLED
+    int32_t state = isStateCached_ ? cachedSwitchState_ : DISABLED;
     LocationErrCode errCode = ERRCODE_SUCCESS;
     if (!isStateCached_) {
         Uri locationDataEnableUri(LOCATION_DATA_URI);
-         DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
             GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+        // At the first time, the key "location_switch_enable" is not in the database
+        // DISABLED will be set in the database
         if (errCode != ERRCODE_SUCCESS) {
             LBSLOGE(LOCATOR, "%{public}s: can not query state, reset state.", __func__);
             errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
                 SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
         }
-        SetCachedSwitchState(state);
+        // cache the value
+        isStateCached_ = true;
+        cachedSwitchState_ = state;
     }
     isEnabled = (state == ENABLED);
     return errCode;
-}
-
-int32_t LocationDataManager::GetCachedSwitchState()
-{
-    std::unique_lock<std::mutex> lock(switchStateMutex_);
-    return isStateCached_ ? cachedSwitchState_ : DISABLED;
 }
 
 void LocationDataManager::SetCachedSwitchState(int state)
