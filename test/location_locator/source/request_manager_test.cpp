@@ -480,5 +480,53 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest011, TestSize.Level1)
     EXPECT_EQ(true, proxyList10->empty());
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] RequestGetProxyNameTest011 end");
 }
+
+HWTEST_F(RequestManagerTest, UpdateUsingLocationPermission001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, UpdateUsingLocationPermission001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingLocationPermission001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    requestManager_->runningUids_.push_back(0);
+    requestManager_->UpdateUsingLocationPermission(request1);
+
+    std::shared_ptr<Request> request2 = std::make_shared<Request>();
+    requestManager_->UpdateUsingLocationPermission(request2);
+
+    std::shared_ptr<Request> request3 = std::make_shared<Request>();
+    request3->SetLocationPermState(true);
+    requestManager_->runningUids_.push_back(0);
+    requestManager_->UpdateUsingLocationPermission(request3);
+
+    std::shared_ptr<Request> request4 = std::make_shared<Request>();
+    request3->SetLocationPermState(true);
+    requestManager_->UpdateUsingLocationPermission(request4);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingLocationPermission001 end");
+}
+
+HWTEST_F(RequestManagerTest, UpdateUsingBackgroundPermission001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, UpdateUsingBackgroundPermission001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingBackgroundPermission001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    requestManager_->runningUids_.push_back(0);
+    requestManager_->UpdateUsingBackgroundPermission(request1);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingBackgroundPermission001 end");
+}
+
+HWTEST_F(RequestManagerTest, GetRemoteObject001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, GetRemoteObject001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    requestManager_->GetRemoteObject(GNSS_ABILITY);
+
+    requestManager_->GetRemoteObject("");
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
