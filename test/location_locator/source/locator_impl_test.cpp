@@ -236,6 +236,15 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 end");
 }
 
+HWTEST_F(LocatorImplTest, locatorImplDisableLocationMockV9, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplDisableLocationMockV9, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplDisableLocationMockV9 begin");
+    EXPECT_EQ(ERRCODE_SUCCESS, Locator::GetInstance()->DisableLocationMockV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplDisableLocationMockV9 end");
+}
+
 HWTEST_F(LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

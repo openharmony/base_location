@@ -19,7 +19,11 @@
 
 #include <gtest/gtest.h>
 
+#define private public
+#define protected public
 #include "network_ability.h"
+#undef protected
+#undef private
 #include "network_ability_proxy.h"
 
 namespace OHOS {

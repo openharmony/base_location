@@ -662,5 +662,18 @@ HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest003, TestSize.Level1)
         GetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state));
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest003 end");
 }
+
+HWTEST_F(LocationCommonTest, LocationSaLoadManager002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationSaLoadManager002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationSaLoadManager002 begin");
+    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadSystemAbilityFail();
+
+    auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
+    ASSERT_TRUE(locationSaLoadCallback != nullptr);
+    locationSaLoadCallback->OnLoadSystemAbilityFail(0);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationSaLoadManager002 end");
+}
 } // namespace Location
 } // namespace OHOS

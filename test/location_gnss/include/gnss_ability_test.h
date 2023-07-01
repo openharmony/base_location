@@ -21,12 +21,12 @@
 
 #define private public
 #include "agnss_event_callback.h"
+#include "gnss_ability.h"
 #undef private
 
 #include <v1_0/ia_gnss_interface.h>
 #include <v1_0/ignss_interface.h>
 
-#include "gnss_ability.h"
 #include "gnss_ability_proxy.h"
 #include "gnss_status_callback_host.h"
 #include "nmea_message_callback_host.h"
