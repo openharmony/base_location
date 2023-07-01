@@ -182,6 +182,7 @@ public:
     {
         count_ = 0;
     }
+    ~CountDownLatch() = default;
     void Wait(int time);
     void CountDown();
     int GetCount();

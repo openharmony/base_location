@@ -25,7 +25,7 @@
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "locator_proxy.h"
-
+#include "location_data_manager.h"
 namespace OHOS {
 namespace Location {
 class ICallbackResumeManager {
@@ -144,6 +144,7 @@ private:
     sptr<LocatorProxy> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
     std::shared_ptr<ICallbackResumeManager> resumer_ { nullptr };
+    std::shared_ptr<LocationDataManager> locationDataManager_ { nullptr };
     bool isServerExist_ = false;
     bool isCallbackResuming_ = false;
     std::mutex mutex_;
