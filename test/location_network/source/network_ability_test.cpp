@@ -17,7 +17,6 @@
 #include "network_ability_test.h"
 
 #include <cstdlib>
-
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -33,6 +32,8 @@
 #include "location_dumper.h"
 #include "location_log.h"
 #include "network_ability_skeleton.h"
+
+#include "network_callback_host.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -310,6 +311,105 @@ HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1)
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 begin");
     EXPECT_EQ(false, ability_->ReConnectNlpService());
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, ReConnectNlpService001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReConnectNlpService001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService001 begin");
+    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
+    ability->nlpServiceReady_ = true;
+    EXPECT_EQ(true, ability->ReConnectNlpService()); // Connect success
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NotifyConnected001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NotifyConnected001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NotifyConnected001 begin");
+    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
+    sptr<IRemoteObject> obj = nullptr;
+    ability->NotifyConnected(obj);
+    EXPECT_EQ(nullptr, ability->nlpServiceProxy_);
+    EXPECT_EQ(true, ability->nlpServiceReady_);
+
+    ability->NotifyDisConnected();
+    EXPECT_EQ(nullptr, ability->nlpServiceProxy_);
+    EXPECT_EQ(true, ability->nlpServiceReady_);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NotifyConnected001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, SendLocationRequest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, SendLocationRequest002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] SendLocationRequest002 begin");
+    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
+    WorkRecord workRecord;
+    ability->SendLocationRequest(workRecord);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] SendLocationRequest002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RequestRecord001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RequestRecord001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestRecord001 begin");
+    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
+    WorkRecord workRecord;
+    ability->nlpServiceReady_ = true;
+    ability->RequestRecord(workRecord, true);
+
+    ability->nlpServiceReady_ = true;
+    ability->RequestRecord(workRecord, false);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestRecord001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest001 begin");
+    sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+    uint32_t code = static_cast<uint32_t>(ILocatorCallback::RECEIVE_LOCATION_INFO_EVENT);
+    MessageParcel data;
+    data.WriteInterfaceToken(u"location.ILocatorCallback");
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(0, callback->OnRemoteRequest(code, data, reply, option));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest002 begin");
+    sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+    uint32_t code = 0;
+    MessageParcel data;
+    data.WriteInterfaceToken(u"location.ILocatorCallback");
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(0, callback->OnRemoteRequest(code, data, reply, option));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest003, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest003 begin");
+    sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+    uint32_t code = 0;
+    MessageParcel data;
+    data.WriteInterfaceToken(u"location.ILocatorCallback");
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(-1, callback->OnRemoteRequest(code, data, reply, option));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest003 end");
 }
 } // namespace Location
 } // namespace OHOS

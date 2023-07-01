@@ -2037,5 +2037,16 @@ HWTEST_F(LocatorServiceTest, LocatorAbilityStubDump001, TestSize.Level1)
     EXPECT_EQ(ERR_OK, locatorAbility->Dump(fd, helpArgs));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityStubDump001 end");
 }
+
+HWTEST_F(LocatorServiceTest, LocatorAbilityGetProxyMap001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, LocatorAbilityGetProxyMap001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityGetProxyMap001 begin");
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    locatorAbility->GetProxyMap();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityGetProxyMap001 end");
+}
 }  // namespace Location
 }  // namespace OHOS

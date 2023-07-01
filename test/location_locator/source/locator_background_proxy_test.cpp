@@ -559,5 +559,100 @@ HWTEST_F(LocatorBackgroundProxyTest, UserSwitchSubscriberOnReceiveEventTest002, 
     EXPECT_EQ(true, iter == (locatorBackgroundProxy->requestsMap_)->end());
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UserSwitchSubscriberOnReceiveEventTest002 end");
 }
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread001 begin");
+    auto locatorBackgroundProxy1 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy1 != nullptr);
+    locatorBackgroundProxy1->isLocating_ = true;
+    locatorBackgroundProxy1->proxySwtich_ = true;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    locatorBackgroundProxy1->requestsList_->push_back(request);
+    locatorBackgroundProxy1->StartLocator();
+
+    auto locatorBackgroundProxy2 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy2 != nullptr);
+    locatorBackgroundProxy2->isLocating_ = true;
+    locatorBackgroundProxy2->proxySwtich_ = true;
+    locatorBackgroundProxy2->StartLocator();
+
+    auto locatorBackgroundProxy3 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy3 != nullptr);
+    locatorBackgroundProxy3->isLocating_ = true;
+    locatorBackgroundProxy3->proxySwtich_ = false;
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    locatorBackgroundProxy3->requestsList_->push_back(request1);
+    locatorBackgroundProxy3->StartLocator();
+
+    auto locatorBackgroundProxy4 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy4 != nullptr);
+    locatorBackgroundProxy4->isLocating_ = false;
+    locatorBackgroundProxy4->proxySwtich_ = true;
+    std::shared_ptr<Request> request2 = std::make_shared<Request>();
+    locatorBackgroundProxy4->requestsList_->push_back(request2);
+    locatorBackgroundProxy4->StartLocator();
+
+    auto locatorBackgroundProxy5 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy5 != nullptr);
+    locatorBackgroundProxy5->isLocating_ = true;
+    locatorBackgroundProxy5->proxySwtich_ = false;
+    locatorBackgroundProxy5->StartLocator();
+
+    auto locatorBackgroundProxy6 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy6 != nullptr);
+    locatorBackgroundProxy6->isLocating_ = false;
+    locatorBackgroundProxy6->proxySwtich_ = false;
+    std::shared_ptr<Request> request3 = std::make_shared<Request>();
+    locatorBackgroundProxy6->requestsList_->push_back(request3);
+    locatorBackgroundProxy6->StartLocator();
+
+    auto locatorBackgroundProxy7 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy7 != nullptr);
+    locatorBackgroundProxy7->isLocating_ = false;
+    locatorBackgroundProxy7->proxySwtich_ = false;
+    locatorBackgroundProxy7->StartLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread002 begin");
+    auto locatorBackgroundProxy1 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy1 != nullptr);
+    locatorBackgroundProxy1->isLocating_ = false;
+    locatorBackgroundProxy1->StopLocator();
+
+    auto locatorBackgroundProxy2 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy2 != nullptr);
+    locatorBackgroundProxy2->isLocating_ = true;
+    locatorBackgroundProxy2->StopLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread002 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnSuspend001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnSuspend001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSuspend001 begin");
+    auto locatorBackgroundProxy1 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy1 != nullptr);
+    locatorBackgroundProxy1->featureSwitch_ = true;
+    locatorBackgroundProxy1->isUserSwitchSubscribed_ = true;
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    locatorBackgroundProxy1->OnSuspend(request1, true);
+
+    auto locatorBackgroundProxy2 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy2 != nullptr);
+    locatorBackgroundProxy2->featureSwitch_ = true;
+    locatorBackgroundProxy1->isUserSwitchSubscribed_ = false;
+    std::shared_ptr<Request> request2 = std::make_shared<Request>();
+    locatorBackgroundProxy2->OnSuspend(request2, false);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSuspend001 end");
+}
 }  // namespace Location
 }  // namespace OHOS

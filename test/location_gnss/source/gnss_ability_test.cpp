@@ -979,6 +979,63 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Lev
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportCachedLocation001 end");
 }
 
+HWTEST_F(GnssAbilityTest, GnssOnStart001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssOnStart001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStart001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    gnssAbility->state_ = ServiceRunningState::STATE_RUNNING;
+    gnssAbility->OnStart();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStart001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendLocationRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssSendLocationRequest001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendLocationRequest001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    WorkRecord workrecord;
+    gnssAbility->SendLocationRequest(workrecord);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendLocationRequest001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssDisableGnss001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssDisableGnss001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssDisableGnss001 begin");
+    sptr<GnssAbility> gnssAbility1 = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility1 != nullptr);
+    gnssAbility1->gnssWorkingStatus_ = GNSS_STATUS_SESSION_BEGIN;
+    gnssAbility1->DisableGnss();
+
+    sptr<GnssAbility> gnssAbility2 = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility2 != nullptr);
+    gnssAbility2->gnssWorkingStatus_ = GNSS_STATUS_ENGINE_OFF;
+    gnssAbility2->DisableGnss();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssDisableGnss001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssStartGnss001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssStartGnss001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssStartGnss001 begin");
+    sptr<GnssAbility> gnssAbility1 = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility1 != nullptr);
+    gnssAbility1->gnssWorkingStatus_ = GNSS_STATUS_SESSION_BEGIN;
+    gnssAbility1->StartGnss();
+
+    sptr<GnssAbility> gnssAbility2 = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility2 != nullptr);
+    gnssAbility2->gnssWorkingStatus_ = GNSS_STATUS_ENGINE_OFF;
+    gnssAbility2->StartGnss();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssStartGnss001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT
