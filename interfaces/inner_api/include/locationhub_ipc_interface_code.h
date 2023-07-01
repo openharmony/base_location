@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef LOCATIONHUB_IPC_INTERFACE_CODE_H
+#define LOCATIONHUB_IPC_INTERFACE_CODE_H
+
 /* SAID: 2801 */
 /* SAID: 2802 */
 /* SAID: 2803 */
@@ -158,3 +161,4 @@ enum class PassiveInterfaceCode {
 };
 } // namespace Location
 } // namespace OHOS
+#endif // LOCATIONHUB_IPC_INTERFACE_CODE_H
