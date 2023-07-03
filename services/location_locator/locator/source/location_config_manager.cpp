@@ -20,6 +20,8 @@
 #include "constant_definition.h"
 #include "location_log.h"
 
+#include "parameter.h"
+
 namespace OHOS {
 namespace Location {
 LocationConfigManager &LocationConfigManager::GetInstance()
@@ -155,23 +157,14 @@ int LocationConfigManager::GetLocationSwitchState()
 
 bool LocationConfigManager::GetNlpServiceName(const std::string& path, std::string& name)
 {
-    if (!IsExistFile(path)) {
-        LBSLOGE(LOCATOR, "%{public}s is not exit!", path.c_str());
+    char value[MAX_BUFF_SIZE] = {0};
+    auto res = GetParameter(NLP_SERVICE_NAME.c_str(), "", value, MAX_BUFF_SIZE);
+    if (res <= 0) {
+        LBSLOGE(LOCATOR, "%{public}s get %{public}s para value failed, res: %{public}d",
+            __func__, NLP_SERVICE_NAME.c_str(), res);
         return false;
     }
-    std::ifstream fs(path);
-    if (!fs.is_open()) {
-        LBSLOGE(LOCATOR, "fs.is_open false, return");
-        return false;
-    }
-    while (std::getline(fs, name)) {
-        if (name.empty()) {
-            break;
-        }
-        break;
-    }
-    fs.clear();
-    fs.close();
+    name = value;
     return true;
 }
 
