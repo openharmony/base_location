@@ -50,6 +50,7 @@ const std::string LOCATION_DATA_URI = LOCATION_DATA_ABILITY_PREFIX + LOCATION_DA
 const std::string LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
 const std::string LOCATION_DATA_COLUMN_VALUE = "VALUE";
 const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
+const std::string NLP_SERVICE_NAME = "const.location.nlp_service_name";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
@@ -68,6 +69,7 @@ const int REPLY_CODE_SECURITY_EXCEPTION = -4;
 const int REPLY_CODE_UNSUPPORT = -5;
 
 const int INPUT_ARRAY_LEN_MAX = 100;
+const int MAX_BUFF_SIZE = 100;
 
 const int EVENT_REGITERED_MAX_TRY_TIME = 30;
 const int EVENT_REGITERED_MAX_TRY_INTERVAL = 5000;
