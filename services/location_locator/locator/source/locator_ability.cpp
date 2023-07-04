@@ -359,6 +359,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
         int error = remoteObject->SendRequest(SET_ENABLE, data, reply, option);
         LBSLOGD(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
     }
+    std::unique_lock<std::mutex> lock(switchMutex_);
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
@@ -416,6 +417,7 @@ LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>
         LBSLOGE(LOCATOR, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
+    std::unique_lock<std::mutex> lock(switchMutex_);
     switchCallbacks_->erase(uid);
     switchCallbacks_->insert(std::make_pair(uid, switchCallback));
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
@@ -434,8 +436,8 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
         LBSLOGE(LOCATOR, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-
     pid_t uid = -1;
+    std::unique_lock<std::mutex> lock(switchMutex_);
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
         if (remoteObject == callback) {
