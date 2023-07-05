@@ -67,7 +67,7 @@ ohos_shared_library("lbsservice_locator") {
     "data_share:datashare_common",
     "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "i18n:intl_util",
     "init:libbeget_proxy",
     "init:libbegetutil",

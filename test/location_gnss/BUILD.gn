@@ -65,8 +65,8 @@ if (location_feature_with_gnss) {
       "eventhandler:libeventhandler",
       "hdf_core:libhdi",
       "hdf_core:libpub_utils",
-      "hisysevent_native:libhisysevent",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
+      "hisysevent:libhisysevent",
     ]
 
     defines = []
