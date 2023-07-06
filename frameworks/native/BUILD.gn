@@ -62,7 +62,7 @@ ohos_shared_library("locator_sdk") {
     "data_share:datashare_common",
     "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "relational_store:native_dataability",
