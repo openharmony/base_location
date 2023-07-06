@@ -337,7 +337,7 @@ HWTEST_F(NetworkAbilityTest, NotifyConnected001, TestSize.Level1)
 
     ability->NotifyDisConnected();
     EXPECT_EQ(nullptr, ability->nlpServiceProxy_);
-    EXPECT_EQ(true, ability->nlpServiceReady_);
+    EXPECT_EQ(false, ability->nlpServiceReady_);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NotifyConnected001 end");
 }
 
@@ -405,7 +405,7 @@ HWTEST_F(NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest003, TestSize.Lev
     sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
     uint32_t code = 0;
     MessageParcel data;
-    data.WriteInterfaceToken(u"location.ILocatorCallback");
+    data.WriteInterfaceToken(u"wrong.interface.token");
     MessageParcel reply;
     MessageOption option;
     EXPECT_EQ(-1, callback->OnRemoteRequest(code, data, reply, option));
