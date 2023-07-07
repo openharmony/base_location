@@ -155,7 +155,7 @@ int LocationConfigManager::GetLocationSwitchState()
     return mLocationSwitchState;
 }
 
-bool LocationConfigManager::GetNlpServiceName(const std::string& path, std::string& name)
+bool LocationConfigManager::GetServiceName(std::string& name)
 {
     char value[MAX_BUFF_SIZE] = {0};
     auto res = GetParameter(NLP_SERVICE_NAME.c_str(), "", value, MAX_BUFF_SIZE);

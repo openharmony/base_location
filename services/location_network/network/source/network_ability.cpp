@@ -113,7 +113,7 @@ bool NetworkAbility::ConnectNlpService()
     if (!nlpServiceReady_) {
         AAFwk::Want connectionWant;
         std::string name;
-        bool result = LocationConfigManager::GetInstance().GetNlpServiceName(SERVICE_CONFIG_FILE, name);
+        bool result = LocationConfigManager::GetInstance().GetServiceName(name);
         if (!result || name.empty()) {
             LBSLOGE(NETWORK, "get service name failed!");
             return false;
@@ -221,7 +221,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     if (!nlpServiceReady_) {
         std::string name;
-        bool result = LocationConfigManager::GetInstance().GetNlpServiceName(SERVICE_CONFIG_FILE, name);
+        bool result = LocationConfigManager::GetInstance().GetServiceName(name);
         if (!result || name.empty()) {
             LBSLOGE(NETWORK, "get service name failed!");
             return;

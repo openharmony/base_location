@@ -80,6 +80,7 @@ const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int SEC_TO_MILLI_SEC = 1000;
 const int CONNECT_TIME_OUT = 10;
+const int GEOCODE_TIME_OUT = 60;
 
 const char DEFAULT_STRING[] = "error";
 const std::wstring DEFAULT_WSTRING = L"error";

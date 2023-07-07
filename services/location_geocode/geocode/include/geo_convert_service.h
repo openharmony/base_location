@@ -31,6 +31,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "geo_coding_mock_info.h"
+#include "geo_convert_callback_host.h"
 #include "geo_convert_skeleton.h"
 
 namespace OHOS {
@@ -56,19 +57,31 @@ public:
     LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void UnloadGeoConvertSystemAbility() override;
+
+    bool ConnectService();
+    bool ReConnectService();
+    void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
+    void NotifyDisConnected();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     int RemoteToService(uint32_t code, MessageParcel &data, MessageParcel &rep);
     void ReportAddressMock(MessageParcel &data, MessageParcel &reply);
     bool CheckIfGeoConvertConnecting();
+    bool WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag);
+    bool WriteResultToParcel(const sptr<GeoConvertCallbackHost> callback, MessageParcel &reply, bool flag);
+    bool GetService();
+    bool IsConnect();
 
     bool mockEnabled_ = false;
     bool registerToService_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
-    sptr<IRemoteObject> locationService_;
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo_;
     std::mutex mockInfoMutex_;
+
+    std::mutex mutex_;
+    sptr<IRemoteObject> serviceProxy_ = nullptr;
+    std::condition_variable connectCondition_;
 };
 } // namespace OHOS
 } // namespace Location
