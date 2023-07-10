@@ -21,6 +21,7 @@ if (location_feature_with_passive) {
   ohos_unittest("PassiveAbilityTest") {
     module_out_path = module_output_path
     sources = [
+      "$LOCATION_ROOT_DIR/test/mock/src/mock_service_registry.cpp",
       "$PASSIVE_UNIT_TEST_DIR/source/passive_ability_stub_test.cpp",
       "$PASSIVE_UNIT_TEST_DIR/source/passive_ability_test.cpp",
     ]

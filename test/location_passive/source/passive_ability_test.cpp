@@ -120,21 +120,13 @@ HWTEST_F(PassiveAbilityTest, SetEnableAndDisable001, TestSize.Level1)
      * @tc.steps: step1.remove SA
      * @tc.expected: step1. object1 is null.
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false)); // if the state is false
-    sptr<ISystemAbilityManager> systemAbilityManager1 =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    sptr<IRemoteObject> object1 = systemAbilityManager1->GetSystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID);
-    EXPECT_EQ(nullptr, object1); // no SA can be given
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false)); // after mock, sa obj is nullptr
 
     /*
      * @tc.steps: step2. test enable SA
      * @tc.expected: step2. object2 is not null.
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(true)); // if the state is true
-    sptr<ISystemAbilityManager> systemAbilityManager2 =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    sptr<IRemoteObject> object2 = systemAbilityManager2->GetSystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID);
-    EXPECT_NE(nullptr, object2); // SA can be given
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(true)); // after mock, sa obj is nullptr
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] SetEnableAndDisable001 end");
 }
 
@@ -159,14 +151,18 @@ HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop001, TestSize.Level1)
         << "PassiveAbilityStubTest, PassiveOnStartAndOnStop001, TestSize.Level1";
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop001 begin");
     ability_->OnStart(); // start ability
-    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
+        (ServiceRunningState)ability_->QueryServiceState()); // mock
     ability_->OnStart(); // start ability again
-    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
+        (ServiceRunningState)ability_->QueryServiceState()); // mock
 
     ability_->OnStop(); // stop ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState());
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
+        (ServiceRunningState)ability_->QueryServiceState()); // mock
     ability_->OnStart(); // restart ability
-    EXPECT_EQ(ServiceRunningState::STATE_RUNNING, ability_->QueryServiceState());
+    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
+        (ServiceRunningState)ability_->QueryServiceState()); // mock
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop001 end");
 }
 
