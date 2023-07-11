@@ -41,10 +41,12 @@
 #include "geofence_state.h"
 #endif
 #include "location.h"
-#include "location_data_rdb_observer.h"
 #include "location_data_rdb_helper.h"
 #include "location_log.h"
+#define private public
+#include "location_data_rdb_observer.h"
 #include "location_sa_load_manager.h"
+#undef private
 #include "locator_event_subscriber.h"
 #include "request_config.h"
 #ifdef FEATURE_GNSS_SUPPORT
@@ -437,6 +439,7 @@ HWTEST_F(LocationCommonTest, GeocodingMockInfoTest001, TestSize.Level1)
     EXPECT_EQ(12.0, newParcel.ReadDouble());
     EXPECT_EQ(13.0, newParcel.ReadDouble());
     EXPECT_EQ(1, newParcel.ReadInt32());
+    GeocodingMockInfo::Unmarshalling(newParcel);
     LBSLOGI(LOCATOR, "[LocationCommonTest] GeocodingMockInfoTest001 end");
 }
 #endif
@@ -675,5 +678,74 @@ HWTEST_F(LocationCommonTest, LocationSaLoadManager002, TestSize.Level1)
     locationSaLoadCallback->OnLoadSystemAbilityFail(0);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationSaLoadManager002 end");
 }
+
+HWTEST_F(LocationCommonTest, GeoAddressDescriptionsTest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, GeoAddressDescriptionsTest004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest004 begin");
+    std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
+    geoAddress->descriptionsSize_ = 1;
+    EXPECT_EQ("", geoAddress->GetDescriptions(-1));
+    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoAddressDescriptionsTest004 end");
+}
+
+HWTEST_F(LocationCommonTest, LocationTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest002 begin");
+    auto location = std::make_shared<Location>();
+    location->SetLatitude(VERIFY_LOCATION_LATITUDE);
+    location->SetLongitude(VERIFY_LOCATION_LONGITUDE);
+    location->SetAltitude(VERIFY_LOCATION_ALTITUDE);
+    location->SetAccuracy(VERIFY_LOCATION_ACCURACY);
+    location->SetSpeed(VERIFY_LOCATION_SPEED);
+    location->SetDirection(VERIFY_LOCATION_DIRECTION);
+    location->SetTimeStamp(VERIFY_LOCATION_TIME);
+    location->SetTimeSinceBoot(VERIFY_LOCATION_TIMESINCEBOOT);
+    location->SetAdditions("additions");
+    location->SetAdditionSize(1);
+    location->SetIsFromMock(true);
+    location->SetSourceType(1);
+    location->SetFloorNo(0);
+    location->SetFloorAccuracy(VERIFY_LOCATION_FLOOR_ACC);
+    location->ToString();
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest002 end");
+}
+
+HWTEST_F(LocationCommonTest, AppIdentityTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest002 begin");
+    AppIdentity identity(1, 2, 3, 4, 5);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest002 end");
+}
+
+HWTEST_F(LocationCommonTest, RequestConfigTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, RequestConfigTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] RequestConfigTest003 begin");
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>(1);
+    ASSERT_TRUE(requestConfig != nullptr);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] RequestConfigTest003 end");
+}
+
+#define LOCATION_LOADSA_TIMEOUT_MS_FOR_TEST = 0
+#define LOCATION_LOADSA_TIMEOUT_MS LOCATION_LOADSA_TIMEOUT_MS_FOR_TEST
+HWTEST_F(LocationCommonTest, LoadLocationSaTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LoadLocationSaTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest003 begin");
+    LocationErrCode err =
+        DelayedSingleton<LocationSaLoadManager>::GetInstance()->WaitLoadStateChange(LOCATION_LOCATOR_SA_ID);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest003 end");
+}
+#undef LOCATION_LOADSA_TIMEOUT_MS
+#undef LOCATION_LOADSA_TIMEOUT_MS_FOR_TEST
 } // namespace Location
 } // namespace OHOS
