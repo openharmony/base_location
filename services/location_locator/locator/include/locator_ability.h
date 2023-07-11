@@ -155,6 +155,7 @@ private:
 
     std::mutex proxyMutex_;
     std::mutex permissionMutex_;
+    std::mutex switchMutex_;
     std::set<int32_t> proxyUids_;
 };
 } // namespace Location
