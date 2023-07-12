@@ -54,18 +54,12 @@ void LocatorAbilityStub::InitLocatorHandleMap()
         &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS)] =
         &LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_ISO_COUNTRY_CODE)] =
-        &LocatorAbilityStub::PreGetIsoCountryCode;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)] =
         &LocatorAbilityStub::PreEnableLocationMock;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)] =
         &LocatorAbilityStub::PreDisableLocationMock;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS)] =
         &LocatorAbilityStub::PreSetMockedLocations;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_COUNTRY_CODE_CALLBACK)] =
-        &LocatorAbilityStub::PreRegisterCountryCodeCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_COUNTRY_CODE_CALLBACK)] =
-        &LocatorAbilityStub::PreUnregisterCountryCodeCallback;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE)] =
         &LocatorAbilityStub::PreProxyUidForFreeze;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY)] =
@@ -651,26 +645,6 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
 }
 #endif
 
-int LocatorAbilityStub::PreGetIsoCountryCode(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
-{
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreGetIsoCountryCode: LocatorAbility is nullptr.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    std::shared_ptr<CountryCode> country;
-    reply.WriteInt32(locatorAbility->GetIsoCountryCode(country));
-    if (country) {
-        reply.WriteString16(Str8ToStr16(country->GetCountryCodeStr()));
-        reply.WriteInt32(country->GetCountryCodeType());
-    } else {
-        reply.WriteString16(Str8ToStr16(""));
-        reply.WriteInt32(COUNTRY_CODE_FROM_LOCALE);
-    }
-    return ERRCODE_SUCCESS;
-}
-
 int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
@@ -802,43 +776,6 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
     return ERRCODE_SUCCESS;
 }
 #endif
-
-int LocatorAbilityStub::PreRegisterCountryCodeCallback(MessageParcel &data,
-    MessageParcel &reply, AppIdentity &identity)
-{
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreRegisterCountryCodeCallback: LocatorAbility is nullptr.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    if (client == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: client is nullptr.", __func__);
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CountryCodeCallbackDeathRecipient());
-    client->AddDeathRecipient(death);
-    LocationErrCode errorCode = locatorAbility->RegisterCountryCodeCallback(client, identity.GetUid());
-    reply.WriteInt32(errorCode);
-    return ERRCODE_SUCCESS;
-}
-
-int LocatorAbilityStub::PreUnregisterCountryCodeCallback(MessageParcel &data,
-    MessageParcel &reply, AppIdentity &identity)
-{
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreUnregisterCountryCodeCallback: LocatorAbility is nullptr.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    LocationErrCode errorCode = locatorAbility->UnregisterCountryCodeCallback(client);
-    reply.WriteInt32(errorCode);
-    return ERRCODE_SUCCESS;
-}
 
 int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
@@ -1086,24 +1023,6 @@ void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remot
         locatorAbility->UnregisterSwitchCallback(remote.promote());
         locatorAbility->UnloadSaAbility();
         LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
-    }
-}
-
-CountryCodeCallbackDeathRecipient::CountryCodeCallbackDeathRecipient()
-{
-}
-
-CountryCodeCallbackDeathRecipient::~CountryCodeCallbackDeathRecipient()
-{
-}
-
-void CountryCodeCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
-{
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility != nullptr) {
-        locatorAbility->UnregisterCountryCodeCallback(remote.promote());
-        locatorAbility->UnloadSaAbility();
-        LBSLOGI(LOCATOR, "countrycode callback OnRemoteDied");
     }
 }
 } // namespace Location

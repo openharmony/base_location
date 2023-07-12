@@ -24,7 +24,6 @@
 #include "common_hisysevent.h"
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "country_code.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_proxy.h"
 #endif
@@ -113,12 +112,6 @@ void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::stri
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locatorEventSubscriber_);
     LBSLOGI(LOCATOR, "SubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
-    if (countryCodeManager_ == nullptr) {
-        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
-    }
-    if (countryCodeManager_ != nullptr) {
-        countryCodeManager_->ReSubscribeEvent();
-    }
 }
 
 void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
@@ -133,12 +126,6 @@ void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
     }
     bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locatorEventSubscriber_);
     LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
-    if (countryCodeManager_ == nullptr) {
-        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
-    }
-    if (countryCodeManager_ != nullptr) {
-        countryCodeManager_->ReUnsubscribeEvent();
-    }
 }
 
 bool LocatorAbility::Init()
@@ -156,9 +143,6 @@ bool LocatorAbility::Init()
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
-    if (countryCodeManager_ == nullptr) {
-        countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
-    }
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
@@ -344,8 +328,8 @@ void LocatorAbility::UpdateSaAbilityHandler()
 
 void LocatorAbility::UnloadSaAbility()
 {
-    if (locatorHandler_ == nullptr || countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s locatorHandler or countryCodeManager is nullptr", __func__);
+    if (locatorHandler_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s locatorHandler is nullptr", __func__);
         return;
     }
     locatorHandler_->RemoveTask(UNLOAD_TASK);
@@ -367,7 +351,7 @@ void LocatorAbility::UnloadSaAbility()
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return countryCodeManager_->IsCountryCodeRegistered();
+    return false;
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
@@ -541,26 +525,6 @@ LocationErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemote
 }
 #endif
 
-LocationErrCode LocatorAbility::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
-{
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "RegisterCountryCodeCallback countryCodeManager_ is nullptr");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
-    return ERRCODE_SUCCESS;
-}
-
-LocationErrCode LocatorAbility::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
-{
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "UnregisterCountryCodeCallback countryCodeManager_ is nullptr");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    countryCodeManager_->UnregisterCountryCodeCallback(callback);
-    return ERRCODE_SUCCESS;
-}
-
 #ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback, std::string bundleName)
@@ -667,17 +631,6 @@ LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& re
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
 }
 #endif
-
-LocationErrCode LocatorAbility::GetIsoCountryCode(std::shared_ptr<CountryCode>& countryCode)
-{
-    if (countryCodeManager_ == nullptr) {
-        countryCode = nullptr;
-        LBSLOGE(LOCATOR, "GetIsoCountryCode countryCodeManager_ is nullptr");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    countryCode = countryCodeManager_->GetIsoCountryCode();
-    return ERRCODE_SUCCESS;
-}
 
 #ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,

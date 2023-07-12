@@ -25,8 +25,6 @@
 
 #include "app_identity.h"
 #include "common_utils.h"
-#include "country_code_manager.h"
-#include "country_code.h"
 #include "geo_coding_mock_info.h"
 #include "i_switch_callback.h"
 #include "i_cached_locations_callback.h"
@@ -83,8 +81,6 @@ public:
     LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request);
 #endif
-    LocationErrCode RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
-    LocationErrCode UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
     LocationErrCode StopLocating(sptr<ILocatorCallback>& callback);
@@ -99,7 +95,6 @@ public:
 #endif
     LocationErrCode IsLocationPrivacyConfirmed(const int type, bool& isConfirmed);
     LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
-    LocationErrCode GetIsoCountryCode(std::shared_ptr<CountryCode>& country);
     LocationErrCode EnableLocationMock();
     LocationErrCode DisableLocationMock();
     LocationErrCode SetMockedLocations(
@@ -167,7 +162,6 @@ private:
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
-    std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
     std::mutex proxyUidsMutex_;
     std::set<int32_t> proxyUids_;
 };

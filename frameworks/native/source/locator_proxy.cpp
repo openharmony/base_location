@@ -25,7 +25,6 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "country_code.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator.h"
@@ -167,20 +166,6 @@ void LocatorProxy::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& call
     LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterNmeaMessageCallback Transact ErrCodes = %{public}d", error);
 }
 
-void LocatorProxy::RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid)
-{
-    int error =
-        SendRegisterMsgToRemote(static_cast<int>(LocatorInterfaceCode::REG_COUNTRY_CODE_CALLBACK), callback, uid);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterCountryCodeCallback Transact ErrCodes = %{public}d", error);
-}
-
-void LocatorProxy::UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback)
-{
-    int error =
-        SendRegisterMsgToRemote(static_cast<int>(LocatorInterfaceCode::UNREG_COUNTRY_CODE_CALLBACK), callback, 0);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCountryCodeCallback Transact ErrCodes = %{public}d", error);
-}
-
 int LocatorProxy::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid)
 {
@@ -210,7 +195,7 @@ int LocatorProxy::StopLocating(sptr<ILocatorCallback>& callback)
     }
     int error =
         SendRegisterMsgToRemote(static_cast<int>(LocatorInterfaceCode::STOP_LOCATING), callback->AsObject(), 0);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCountryCodeCallback Transact ErrCodes = %{public}d", error);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::StopLocating Transact ErrCodes = %{public}d", error);
     return error;
 }
 
@@ -367,23 +352,6 @@ void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
     data.WriteDouble(request->geofence.expiration);
     int error = SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
-}
-
-std::shared_ptr<CountryCode> LocatorProxy::GetIsoCountryCode()
-{
-    MessageParcel reply;
-    int error = SendMsgWithReply(static_cast<int>(LocatorInterfaceCode::GET_ISO_COUNTRY_CODE), reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", error);
-    if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
-        std::string country = Str16ToStr8(reply.ReadString16());
-        int countryType = reply.ReadInt32();
-        auto countryCode = std::make_shared<CountryCode>();
-        countryCode->SetCountryCodeStr(country);
-        countryCode->SetCountryCodeType(countryType);
-        return countryCode;
-    } else {
-        return nullptr;
-    }
 }
 
 bool LocatorProxy::EnableLocationMock()
@@ -685,22 +653,6 @@ LocationErrCode LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemote
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback)
-{
-    LocationErrCode errorCode =
-        SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::REG_COUNTRY_CODE_CALLBACK), callback);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterCountryCodeCallback Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
-LocationErrCode LocatorProxy::UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback)
-{
-    LocationErrCode errorCode =
-        SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::UNREG_COUNTRY_CODE_CALLBACK), callback);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCountryCodeCallback Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
 LocationErrCode LocatorProxy::StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback)
 {
@@ -729,7 +681,7 @@ LocationErrCode LocatorProxy::StopLocatingV9(sptr<ILocatorCallback>& callback)
     }
     LocationErrCode errorCode =
         SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::STOP_LOCATING), callback->AsObject());
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnregisterCountryCodeCallback Transact ErrCodes = %{public}d", errorCode);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::StopLocatingV9 Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 
@@ -944,24 +896,6 @@ LocationErrCode LocatorProxy::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& re
     LocationErrCode errorCode =
         SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
-LocationErrCode LocatorProxy::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
-{
-    if (countryCode == nullptr) {
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel reply;
-    LocationErrCode errorCode =
-        SendMsgWithReplyV9(static_cast<int>(LocatorInterfaceCode::GET_ISO_COUNTRY_CODE), reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetIsoCountryCode Transact ErrCodes = %{public}d", errorCode);
-    if (errorCode == ERRCODE_SUCCESS) {
-        std::string country = Str16ToStr8(reply.ReadString16());
-        int countryType = reply.ReadInt32();
-        countryCode->SetCountryCodeStr(country);
-        countryCode->SetCountryCodeType(countryType);
-    }
     return errorCode;
 }
 
