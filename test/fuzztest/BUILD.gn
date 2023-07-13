@@ -16,14 +16,28 @@ import("//build/test.gni")
 group("fuzztest") {
   testonly = true
   deps = [
+    "locator/cachedlocationcallbackhost_fuzzer:CachedLocationCallbackHostFuzzTest",
+    "locator/checkmessage_fuzzer:CheckMessageFuzzTest",
+    "locator/countrycodecallbackhost_fuzzer:CountryCodeCallbackHostFuzzTest",
     "locator/countrycodemanager_fuzzer:CountryCodeManagerFuzzTest",
     "locator/fusioncontroller_fuzzer:FusionControllerFuzzTest",
     "locator/geoconvertproxy_fuzzer:GeoConvertProxyFuzzTest",
+    "locator/geoconvertservice_fuzzer:GeoconvertServiceFuzzTest",
     "locator/gnss_fuzzer:GnssFuzzTest",
+    "locator/gnssability_fuzzer:GnssAbilityFuzzTest",
+    "locator/gnssstatuscallbackhost_fuzzer:GnssStatusCallbackHostFuzzTest",
     "locator/locationconfigmanager_fuzzer:LocationConfigManagerFuzzTest",
+    "locator/locationswitchcallbackhost_fuzzer:LocationSwitchCallbackHostFuzzTest",
     "locator/locator_fuzzer:LocatorFuzzTest",
+    "locator/locatorabilitystub_fuzzer:LocatorAbilityStubFuzzTest",
     "locator/locatorbackgroundproxy_fuzzer:LocatorBackgroundProxyFuzzTest",
+    "locator/locatorcallbackhost_fuzzer:LocatorCallbackHostFuzzTest",
+    "locator/locatorcallbackstub_fuzzer:LocatorCallbackStubFuzzTest",
     "locator/locatoreventmanager_fuzzer:LocatorEventManagerFuzzTest",
+    "locator/networkability_fuzzer:NetworkAbilityFuzzTest",
+    "locator/networkcallbackhost_fuzzer:NetworkCallbackHostFuzzTest",
+    "locator/nmeamessagecallbackhost_fuzzer:NmeaMessageCallbackHostFuzzTest",
+    "locator/passiveability_fuzzer:PassiveAbilityFuzzTest",
     "locator/reportmanager_fuzzer:ReportManagerFuzzTest",
     "locator/requestmanager_fuzzer:RequestManagerFuzzTest",
   ]
