@@ -21,6 +21,7 @@
 
 #include "constant_definition.h"
 #include "country_code.h"
+#include "country_code_manager.h"
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
@@ -151,6 +152,7 @@ private:
     std::mutex resumeMutex_;
     static std::mutex locatorMutex_;
     static std::shared_ptr<LocatorImpl> instance_;
+    std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
 };
 }  // namespace Location
 }  // namespace OHOS

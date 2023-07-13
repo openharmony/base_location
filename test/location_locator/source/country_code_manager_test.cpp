@@ -270,18 +270,6 @@ HWTEST_F(CountryCodeManagerTest, GetCountryCodeByLocation001, TestSize.Level1)
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetCountryCodeByLocation001 end");
 }
 
-HWTEST_F(CountryCodeManagerTest, StartPassiveLocationListen001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CountryCodeManagerTest, StartPassiveLocationListen001, TestSize.Level1";
-    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] StartPassiveLocationListen001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
-    ASSERT_TRUE(countryCodeManager != nullptr);
-    countryCodeManager->StartPassiveLocationListen();
-    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] StartPassiveLocationListen001 end");
-}
-
 HWTEST_F(CountryCodeManagerTest, OnLocationReport001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

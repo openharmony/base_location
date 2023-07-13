@@ -25,9 +25,7 @@
 #include "constant_definition.h"
 #include "country_code.h"
 #include "location_log.h"
-#include "locator_ability.h"
-#include "request.h"
-#include "request_manager.h"
+#include "locator_impl.h"
 
 namespace OHOS {
 namespace Location {
@@ -140,14 +138,14 @@ std::string CountryCodeManager::GetCountryCodeByLastLocation()
         return code;
     }
     if (lastCountryByLocation_->GetCountryCodeStr().empty()) {
-        std::shared_ptr<ReportManager> reportManager = DelayedSingleton<ReportManager>::GetInstance();
-        if (reportManager) {
-            auto lastLocation = reportManager->GetLastLocation();
-            if (lastLocation == nullptr) {
+        auto locatorImpl = LocatorImpl::GetInstance();
+        if (locatorImpl) {
+            std::unique_ptr<Location> lastLocation = std::make_unique<Location>();
+            LocationErrCode errorCode = locatorImpl->GetCachedLocationV9(lastLocation);
+            if (errorCode != ERRCODE_SUCCESS) {
                 return code;
             }
-            auto location = std::make_unique<Location>(*lastLocation);
-            code = GetCountryCodeByLocation(location);
+            code = GetCountryCodeByLocation(lastLocation);
             lastCountryByLocation_->SetCountryCodeStr(code);
         }
     }
@@ -192,39 +190,6 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
     }
     return "";
 }
-
-#ifdef FEATURE_PASSIVE_SUPPORT
-void CountryCodeManager::StartPassiveLocationListen()
-{
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (requestManager == nullptr || locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK,
-            "StartPassiveLocationListen: RequestManager is nullptr or LocatorAbility is nullptr.");
-        return;
-    }
-    auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetScenario(SCENE_NO_POWER);
-    requestConfig->SetTimeInterval(DEFAULT_TIME_INTERVAL);
-
-    sptr<ILocatorCallback> callback =
-        sptr<ILocatorCallback>(new (std::nothrow) CountryCodeManager::LocatorCallback());
-    if (callback == nullptr) {
-        LBSLOGE(COUNTRY_CODE, "callback is nullptr");
-        return;
-    }
-
-    auto request = std::make_shared<Request>();
-    request->SetUid(SYSTEM_UID);
-    request->SetPid(getpid());
-    request->SetPackageName(PROC_NAME);
-    request->SetRequestConfig(*requestConfig);
-    request->SetLocatorCallBack(callback);
-    LBSLOGE(COUNTRY_CODE, "StartPassiveLocationListen");
-    requestManager.get()->HandleStartLocating(request);
-    locatorAbility.get()->ReportLocationStatus(callback, SESSION_START);
-}
-#endif
 
 std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 {
