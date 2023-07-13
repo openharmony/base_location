@@ -21,6 +21,7 @@ if (location_feature_with_network) {
   ohos_unittest("NetworkAbilityTest") {
     module_out_path = module_output_path
     sources = [
+      "$LOCATION_ROOT_DIR/test/mock/src/mock_service_registry.cpp",
       "$NETWORK_UNIT_TEST_DIR/source/network_ability_stub_test.cpp",
       "$NETWORK_UNIT_TEST_DIR/source/network_ability_test.cpp",
     ]

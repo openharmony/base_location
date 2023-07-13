@@ -14,7 +14,9 @@
  */
 
 #ifdef FEATURE_GEOCODE_SUPPORT
+#define private public
 #include "geo_convert_service_test.h"
+#undef private
 
 #include "parameters.h"
 #include <string>
@@ -257,6 +259,43 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply2.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
 }
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStart001 begin");
+    service_->state_  = ServiceRunningState::STATE_NOT_START;
+    service_->OnStart();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStart001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertInit001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertInit001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertInit001 begin");
+    service_->registerToService_  = true;
+    service_->Init();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnInit001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertOnRemoteRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertOnRemoteRequest001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnRemoteRequest001 begin");
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
+    requestParcel.WriteBuffer("data", 4);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    service_->OnRemoteRequest(0, requestParcel, reply, option);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnRemoteRequest001 end");
+}
+
 }  // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GEOCODE_SUPPORT
