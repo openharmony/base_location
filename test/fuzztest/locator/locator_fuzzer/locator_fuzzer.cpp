@@ -505,8 +505,8 @@ bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size)
     locatorAbility->IsGeoConvertAvailable(isAvailable);
     MessageParcel request;
     MessageParcel reply;
-    locatorAbility->GetAddressByCoordinate(request, reply);
-    locatorAbility->GetAddressByLocationName(request, reply);
+    locatorAbility->GetAddressByCoordinate(request, reply, "test");
+    locatorAbility->GetAddressByLocationName(request, reply, "test");
 #endif
     return true;
 }

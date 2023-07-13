@@ -953,7 +953,7 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
 #endif
 
 #ifdef FEATURE_GEOCODE_SUPPORT
-void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
+void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
@@ -961,6 +961,7 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
+    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
@@ -974,7 +975,7 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
 #endif
 
 #ifdef FEATURE_GEOCODE_SUPPORT
-void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
+void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
     LBSLOGI(LOCATOR, "locator_ability GetAddressByLocationName");
     MessageParcel dataParcel;
@@ -982,6 +983,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
+    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     dataParcel.WriteString16(data.ReadString16()); // description
     dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // minLongitude

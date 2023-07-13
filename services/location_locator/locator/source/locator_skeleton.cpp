@@ -285,7 +285,7 @@ int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessagePa
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    locatorAbility->GetAddressByCoordinate(data, reply);
+    locatorAbility->GetAddressByCoordinate(data, reply, identity.GetBundleName());
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -299,7 +299,7 @@ int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, Message
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    locatorAbility->GetAddressByLocationName(data, reply);
+    locatorAbility->GetAddressByLocationName(data, reply, identity.GetBundleName());
     return ERRCODE_SUCCESS;
 }
 #endif

@@ -87,8 +87,8 @@ public:
     LocationErrCode GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity);
 #ifdef FEATURE_GEOCODE_SUPPORT
     LocationErrCode IsGeoConvertAvailable(bool &isAvailable);
-    void GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply);
-    void GetAddressByLocationName(MessageParcel &data, MessageParcel &reply);
+    void GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, std::string bundleName);
+    void GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName);
     LocationErrCode EnableReverseGeocodingMock();
     LocationErrCode DisableReverseGeocodingMock();
     LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
