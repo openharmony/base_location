@@ -54,10 +54,18 @@ LocatorImpl::LocatorImpl()
     if (locationDataRdbHelper != nullptr) {
         locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
     }
+    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager_ != nullptr) {
+        countryCodeManager_->ReSubscribeEvent();
+    }
 }
 
 LocatorImpl::~LocatorImpl()
-{}
+{
+    if (countryCodeManager_ != nullptr) {
+        countryCodeManager_->ReUnsubscribeEvent();
+    }
+}
 
 bool LocatorImpl::Init()
 {
@@ -240,29 +248,21 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
 
 bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (!Init()) {
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    proxy->RegisterCountryCodeCallback(callback, uid);
+    countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
     return true;
 }
 
 bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
 {
-    if (!Init()) {
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    proxy->UnregisterCountryCodeCallback(callback);
+    countryCodeManager_->UnregisterCountryCodeCallback(callback);
     return true;
 }
 
@@ -480,17 +480,12 @@ bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 
 std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 {
-    if (!Init()) {
-        return nullptr;
-    }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
         return nullptr;
     }
-    auto country = proxy->GetIsoCountryCode();
-    return country;
+    return countryCodeManager_->GetIsoCountryCode();
 }
 
 bool LocatorImpl::EnableLocationMock()
@@ -778,32 +773,24 @@ LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteO
 
 LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!Init()) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCountryCodeCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->RegisterCountryCodeCallbackV9(callback);
-    return errCode;
+    countryCodeManager_->RegisterCountryCodeCallback(callback, 0);
+    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorImpl::UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!Init()) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCountryCodeCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->UnregisterCountryCodeCallbackV9(callback);
-    return errCode;
+    countryCodeManager_->UnregisterCountryCodeCallback(callback);
+    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorImpl::RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
@@ -991,17 +978,13 @@ LocationErrCode LocatorImpl::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& req
 
 LocationErrCode LocatorImpl::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
 {
-    if (!Init()) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCodeV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+    if (countryCodeManager_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->GetIsoCountryCodeV9(countryCode);
-    return errCode;
+    countryCode = countryCodeManager_->GetIsoCountryCode();
+    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorImpl::EnableLocationMockV9()

@@ -76,12 +76,9 @@ private:
 #endif
     int PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreSetLocationPrivacyConfirmStatus(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreGetIsoCountryCode(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreEnableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreDisableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreSetMockedLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreRegisterCountryCodeCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreUnregisterCountryCodeCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreResetAllProxy(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreReportLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
@@ -110,12 +107,6 @@ public:
     ~SwitchCallbackDeathRecipient() override;
 };
 
-class CountryCodeCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-    CountryCodeCallbackDeathRecipient();
-    ~CountryCodeCallbackDeathRecipient() override;
-};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_SKELETON_H

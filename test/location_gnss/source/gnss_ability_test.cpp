@@ -1036,6 +1036,146 @@ HWTEST_F(GnssAbilityTest, GnssStartGnss001, TestSize.Level1)
     gnssAbility2->StartGnss();
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssStartGnss001 end");
 }
+
+HWTEST_F(GnssAbilityTest, GnssInit001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssInit001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssInit001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    gnssAbility->registerToAbility_ = true;
+    EXPECT_EQ(true, gnssAbility->Init());
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssInit001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssRequestRecord001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssRequestRecord001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRequestRecord001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
+    gnssAbility->isHdiConnected_ = false;
+    gnssAbility->RequestRecord(*workRecord, false);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRequestRecord001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssReConnectHdi001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssReConnectHdi001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssReConnectHdi001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+
+    gnssAbility->isHdiConnected_ = true;
+    gnssAbility->ReConnectHdi();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssReConnectHdi001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssSetRefInfo001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssSetRefInfo001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSetRefInfo001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    AGnssRefInfo refInfo;
+    gnssAbility->SetRefInfo(refInfo);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSetRefInfo001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendReportMockLocationEvent003 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    gnssAbility->gnssHandler_  = nullptr;
+    gnssAbility->SendReportMockLocationEvent();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendReportMockLocationEvent003 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendMessage001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssSendMessage001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.INetworkAbility");
+    requestParcel.WriteBuffer("data", 4);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    gnssAbility->gnssHandler_  = nullptr;
+    gnssAbility->SendMessage(0, requestParcel, reply);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage001 end");
+}
+
+
+HWTEST_F(GnssAbilityTest, GnssRegisterLocationHdiDeathRecipient001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssRegisterLocationHdiDeathRecipient001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRegisterLocationHdiDeathRecipient001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    gnssAbility->gnssHandler_  = nullptr;
+    gnssAbility->RegisterLocationHdiDeathRecipient();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRegisterLocationHdiDeathRecipient001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SubAbilityCommonGetRequestNum001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "SubAbilityCommonTest, GetRequestNum001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[SubAbilityCommonTest] GetRequestNum001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    gnssAbility->newRecord_ = nullptr;
+    gnssAbility->GetRequestNum();
+
+    gnssAbility->newRecord_ = std::make_unique<WorkRecord>();
+    std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
+    int num = 2;
+    for (int i = 0; i < num; i++) {
+        int uid = i + 1;
+        int pid = i + 2;
+        int timeInterval = i;
+        std::string name = "nameForTest";
+        std::string uuid = "uuidForTest";
+        workRecord->Add(uid, pid, name, timeInterval, uuid);
+    }
+    gnssAbility->newRecord_->Set(*workRecord);
+    gnssAbility->GetRequestNum();
+
+    gnssAbility->newRecord_ = nullptr;
+    gnssAbility->GetRequestNum();
+    
+    gnssAbility->lastRecord_->Add(0, 0, "nameForTest", 0, "uuidForTest");
+    gnssAbility->HandleRemoveRecord(*workRecord);
+
+    gnssAbility->lastRecord_->Clear();
+    gnssAbility->lastRecord_->Set(*workRecord);
+    gnssAbility->HandleAddRecord(*workRecord);
+    LBSLOGI(LOCATOR, "[SubAbilityCommonTest] GetRequestNum001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SubAbilityCommonHandleSelfRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "SubAbilityCommonTest, HandleSelfRequest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[SubAbilityCommonTest] HandleSelfRequest001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    gnssAbility->HandleSelfRequest(0, 0, false);
+
+    gnssAbility->GetTimeIntervalMock();
+    LBSLOGI(LOCATOR, "[SubAbilityCommonTest] HandleSelfRequest001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT

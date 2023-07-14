@@ -876,87 +876,6 @@ HWTEST_F(LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSiz
 }
 
 /*
- * @tc.name: RegisterCountryCodeCallback001
- * @tc.desc: Test register country code callback if client is null
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, RegisterCountryCodeCallback001, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1.the client is null.
-     */
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, RegisterCountryCodeCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterCountryCodeCallback001 begin");
-    pid_t callinguid = 1;
-    sptr<IRemoteObject> client = nullptr;
-
-    /*
-     * @tc.steps: step2. test register country code callback
-     * @tc.expected: log info : "RegisterCountryCodeCallback countryCodeManager_ is nullptr".
-     */
-    ASSERT_TRUE(proxy_ != nullptr);
-    proxy_->RegisterCountryCodeCallback(client, callinguid);
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterCountryCodeCallback001 end");
-}
-
-/*
- * @tc.name: RegisterAndUnregisterCountryCodeCallback001
- * @tc.desc: Test register and unregister country code callback if client is not null
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCountryCodeCallback001, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. give the last calling uid
-     */
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, RegisterAndUnregisterCountryCodeCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCountryCodeCallback001 begin");
-    pid_t callinguid = 1;
-
-    /*
-     * @tc.steps: step2. test register country code callback
-     * @tc.expected: no exception happens.
-     */
-    ASSERT_TRUE(proxy_ != nullptr);
-    proxy_->RegisterCountryCodeCallback(callbackStub_->AsObject(), callinguid);
-
-    /*
-     * @tc.steps: step3. test unregister country code callback
-     * @tc.steps: step4. continue to test unregister country code callback
-     * @tc.expected: no exception happens
-     */
-    proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
-    proxy_->UnregisterCountryCodeCallback(callbackStub_->AsObject());
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCountryCodeCallback001 end");
-}
-
-/*
- * @tc.name: UnregisterCountryCodeCallback001
- * @tc.desc: Test unregister country code callback if client is null
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, UnregisterCountryCodeCallback001, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. the client is null.
-     */
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, UnregisterCountryCodeCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterCountryCodeCallback001 begin");
-    sptr<IRemoteObject> client = nullptr;
-
-    /*
-     * @tc.steps: step2. test unregister country code callback
-     * @tc.expected: log exception : "UnregisterCountryCodeCallback countryCodeManager_ is nullptr".
-     */
-    ASSERT_TRUE(proxy_ != nullptr);
-    proxy_->UnregisterCountryCodeCallback(client);
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterCountryCodeCallback001 end");
-}
-
-/*
  * @tc.name: RegisterAndUnregisterCachedLocationCallback001
  * @tc.desc: Test register and unregister cached location callback if the params are not null.
  * @tc.type: FUNC
@@ -1158,27 +1077,6 @@ HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 end");
 }
 #endif
-
-/*
- * @tc.name: GetIsoCountryCode001
- * @tc.desc: Test get iso country code
- * @tc.type: FUNC
- */
-HWTEST_F(LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. test get iso country code
-     * @tc.expected: no exception happens
-     */
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, GetIsoCountryCode001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetIsoCountryCode001 begin");
-    MessageParcel reply;
-    auto country = proxy_->GetIsoCountryCode();
-    EXPECT_NE("", country->GetCountryCodeStr());
-    EXPECT_NE(-1, country->GetCountryCodeType());
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetIsoCountryCode001 end");
-}
 
 /*
  * @tc.name: EnableLocationMock001
@@ -1843,23 +1741,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
 }
 #endif
 
-HWTEST_F(LocatorServiceTest, locatorServiceCountryCodeCallback001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceCountryCodeCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCountryCodeCallback001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    auto countryCodeCallbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
-    locatorAbility->OnStart();
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->RegisterCountryCodeCallback(nullptr, SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->RegisterCountryCodeCallback(countryCodeCallbackHost, SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->UnregisterCountryCodeCallback(nullptr));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->UnregisterCountryCodeCallback(countryCodeCallbackHost));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCountryCodeCallback001 end");
-}
-
 HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1914,20 +1795,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 end");
 }
 #endif
-
-HWTEST_F(LocatorServiceTest, locatorServiceIsoCountryCode001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceIsoCountryCode001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceIsoCountryCode001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->OnStart();
-    std::shared_ptr<CountryCode> countryCode;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetIsoCountryCode(countryCode));
-    EXPECT_NE(nullptr, countryCode);
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceIsoCountryCode001 end");
-}
 
 HWTEST_F(LocatorServiceTest, locatorServiceLocationMock001, TestSize.Level1)
 {

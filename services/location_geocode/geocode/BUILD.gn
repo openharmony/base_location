@@ -17,13 +17,16 @@ import("//build/ohos.gni")
 if (location_feature_with_geocode) {
   ohos_shared_library("lbsservice_geocode") {
     sources = [
+      "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_callback_host.cpp",
       "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
       "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_skeleton.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
     ]
 
     include_dirs = [
-      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_GEOCONVERT_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     ]
 
     deps = [
@@ -36,8 +39,11 @@ if (location_feature_with_geocode) {
     }
 
     external_deps = [
+      "ability_base:want",
+      "ability_runtime:ability_manager",
       "c_utils:utils",
       "hilog:libhilog",
+      "init:libbegetutil",
       "ipc:ipc_core",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",

@@ -367,5 +367,32 @@ HWTEST_F(CommonUtilsTest, CountDownLatchCountDownTest001, TestSize.Level1)
     latch->CountDown();
     EXPECT_EQ(0, latch->GetCount());
 }
+
+HWTEST_F(CommonUtilsTest, CountDownLatchCountDownTest002, TestSize.Level1)
+{
+    auto latch = std::make_shared<CountDownLatch>();
+    latch->CountDown();
+    EXPECT_EQ(0, latch->GetCount());
+}
+
+HWTEST_F(CommonUtilsTest, CountDownLatchCountDownTest003, TestSize.Level1)
+{
+    auto latch = std::make_shared<CountDownLatch>();
+    latch->SetCount(5);
+    latch->CountDown();
+    EXPECT_EQ(4, latch->GetCount());
+}
+
+HWTEST_F(CommonUtilsTest, CheckCallingPermissionTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CommonUtilsTest, CheckCallingPermissionTest001, TestSize.Level1";
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckCallingPermissionTest001 begin");
+    pid_t uid = 8888;
+    pid_t pid = 8888;
+    MessageParcel reply;
+    EXPECT_EQ(false, CommonUtils::CheckCallingPermission(uid, pid, reply));
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckCallingPermissionTest001 end");
+}
 } // namespace Location
 } // namespace OHOS

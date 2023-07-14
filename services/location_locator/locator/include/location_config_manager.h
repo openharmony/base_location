@@ -61,11 +61,10 @@ public:
     /*
      * @Description get nlp service name
      *
-     * @param path - config file path
      * @param name - service name
      * @return bool - true success
      */
-    bool GetNlpServiceName(const std::string& path, std::string& name);
+    bool GetServiceName(std::string& name);
 
 private:
     LocationConfigManager();

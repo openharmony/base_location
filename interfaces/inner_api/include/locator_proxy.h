@@ -24,7 +24,6 @@
 #include "iremote_proxy.h"
 
 #include "constant_definition.h"
-#include "country_code.h"
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator.h"
@@ -47,8 +46,6 @@ public:
     void UnregisterGnssStatusCallback(const sptr<IRemoteObject> &callback);
     void RegisterNmeaMessageCallback(const sptr<IRemoteObject> &callback, pid_t uid);
     void UnregisterNmeaMessageCallback(const sptr<IRemoteObject> &callback);
-    void RegisterCountryCodeCallback(const sptr<IRemoteObject> &callback, pid_t uid);
-    void UnregisterCountryCodeCallback(const sptr<IRemoteObject> &callback);
     int StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, std::string bundleName, pid_t pid, pid_t uid);
     int StopLocating(sptr<ILocatorCallback>& callback);
@@ -66,7 +63,6 @@ public:
     void SendCommand(std::unique_ptr<LocationCommand>& commands);
     void AddFence(std::unique_ptr<GeofenceRequest>& request);
     void RemoveFence(std::unique_ptr<GeofenceRequest>& request);
-    std::shared_ptr<CountryCode> GetIsoCountryCode();
     bool EnableLocationMock();
     bool DisableLocationMock();
     bool SetMockedLocations(
@@ -90,8 +86,6 @@ public:
     LocationErrCode UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject> &callback);
-    LocationErrCode RegisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback);
-    LocationErrCode UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback);
     LocationErrCode StopLocatingV9(sptr<ILocatorCallback>& callback);
@@ -111,7 +105,6 @@ public:
     LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands);
     LocationErrCode AddFenceV9(std::unique_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request);
-    LocationErrCode GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode);
     LocationErrCode EnableLocationMockV9();
     LocationErrCode DisableLocationMockV9();
     LocationErrCode SetMockedLocationsV9(

@@ -494,10 +494,6 @@ bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size)
     locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, data[index++]);
     locatorAbility->UnregisterNmeaMessageCallback(nmeaCallbackHost);
 #endif
-    auto countryCodeCallbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
-    locatorAbility->RegisterCountryCodeCallback(countryCodeCallbackHost, data[index++]);
-    locatorAbility->UnregisterCountryCodeCallback(countryCodeCallbackHost);
     sptr<ILocatorCallback> locatorCallback = sptr<ILocatorCallback>(locatorCallbackHostForTest_);
     AppIdentity identity;
     locatorAbility->StopLocating(locatorCallback);
@@ -509,8 +505,8 @@ bool LocatorAbility001FuzzerTest(const uint8_t* data, size_t size)
     locatorAbility->IsGeoConvertAvailable(isAvailable);
     MessageParcel request;
     MessageParcel reply;
-    locatorAbility->GetAddressByCoordinate(request, reply);
-    locatorAbility->GetAddressByLocationName(request, reply);
+    locatorAbility->GetAddressByCoordinate(request, reply, "test");
+    locatorAbility->GetAddressByLocationName(request, reply, "test");
 #endif
     return true;
 }
@@ -540,8 +536,6 @@ bool LocatorAbility002FuzzerTest(const uint8_t* data, size_t size)
     locatorAbility->AddFence(fence);
     locatorAbility->RemoveFence(fence);
 #endif
-    std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
-    locatorAbility->GetIsoCountryCode(country);
     return true;
 }
 
