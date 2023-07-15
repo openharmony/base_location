@@ -155,17 +155,37 @@ int LocationConfigManager::GetLocationSwitchState()
     return mLocationSwitchState;
 }
 
-bool LocationConfigManager::GetServiceName(std::string& name)
+bool LocationConfigManager::GetStringParameter(const std::string& type, std::string& value)
 {
-    char value[MAX_BUFF_SIZE] = {0};
-    auto res = GetParameter(NLP_SERVICE_NAME.c_str(), "", value, MAX_BUFF_SIZE);
+    char result[MAX_BUFF_SIZE] = {0};
+    auto res = GetParameter(type.c_str(), "", result, MAX_BUFF_SIZE);
     if (res <= 0) {
-        LBSLOGE(LOCATOR, "%{public}s get %{public}s para value failed, res: %{public}d",
-            __func__, NLP_SERVICE_NAME.c_str(), res);
+        LBSLOGE(LOCATOR, "%{public}s get para value failed, res: %{public}d",
+            __func__, res);
         return false;
     }
-    name = value;
+    value = result;
     return true;
+}
+
+bool LocationConfigManager::GetNlpServiceName(std::string& name)
+{
+    return GetStringParameter(NLP_SERVICE_NAME, name);
+}
+
+bool LocationConfigManager::GetNlpAbilityName(std::string& name)
+{
+    return GetStringParameter(NLP_ABILITY_NAME, name);
+}
+
+bool LocationConfigManager::GetGeocodeServiceName(std::string& name)
+{
+    return GetStringParameter(GEOCODE_SERVICE_NAME, name);
+}
+
+bool LocationConfigManager::GetGeocodeAbilityName(std::string& name)
+{
+    return GetStringParameter(GEOCODE_ABILITY_NAME, name);
 }
 
 int LocationConfigManager::SetLocationSwitchState(int state)

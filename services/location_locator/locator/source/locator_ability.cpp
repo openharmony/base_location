@@ -961,15 +961,11 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
-    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
+    dataParcel.WriteString16(data.ReadString16()); // locale
     dataParcel.WriteDouble(data.ReadDouble()); // latitude
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
-    dataParcel.WriteInt32(data.ReadInt32()); // locale object size = 1
-    dataParcel.WriteString16(data.ReadString16()); // locale.getLanguage()
-    dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
-    dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
-    dataParcel.WriteString16(data.ReadString16()); // ""
+    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
 }
 #endif
@@ -983,18 +979,14 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return;
     }
-    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
+    dataParcel.WriteString16(data.ReadString16()); // locale
     dataParcel.WriteString16(data.ReadString16()); // description
+    dataParcel.WriteInt32(data.ReadInt32()); // maxItems
     dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // minLongitude
     dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
-    dataParcel.WriteInt32(data.ReadInt32()); // maxreplyItems
-    dataParcel.WriteInt32(data.ReadInt32()); // locale object size = 1
-    dataParcel.WriteString16(data.ReadString16()); // locale.getLanguage()
-    dataParcel.WriteString16(data.ReadString16()); // locale.getCountry()
-    dataParcel.WriteString16(data.ReadString16()); // locale.getVariant()
-    dataParcel.WriteString16(data.ReadString16()); // ""
+    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
 }
 #endif

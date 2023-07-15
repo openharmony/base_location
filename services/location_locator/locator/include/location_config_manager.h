@@ -64,12 +64,36 @@ public:
      * @param name - service name
      * @return bool - true success
      */
-    bool GetServiceName(std::string& name);
+    bool GetNlpServiceName(std::string& name);
 
+    /*
+     * @Description get nlp ability name
+     *
+     * @param name - ability name
+     * @return bool - true success
+     */
+    bool GetNlpAbilityName(std::string& name);
+
+    /*
+     * @Description get geocode service name
+     *
+     * @param name - service name
+     * @return bool - true success
+     */
+    bool GetGeocodeServiceName(std::string& name);
+
+    /*
+     * @Description get geocode ability name
+     *
+     * @param name - ability name
+     * @return bool - true success
+     */
+    bool GetGeocodeAbilityName(std::string& name);
 private:
     LocationConfigManager();
     std::string GetLocationSwitchConfigPath();
 
+    bool GetStringParameter(const std::string& type, std::string& value);
 private:
     std::atomic<int> mPrivacyTypeState[3];
     std::atomic<int> mLocationSwitchState;         /* location switch state */

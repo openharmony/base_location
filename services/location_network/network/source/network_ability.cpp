@@ -112,13 +112,19 @@ bool NetworkAbility::ConnectNlpService()
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     if (!nlpServiceReady_) {
         AAFwk::Want connectionWant;
-        std::string name;
-        bool result = LocationConfigManager::GetInstance().GetServiceName(name);
-        if (!result || name.empty()) {
+        std::string serviceName;
+        bool result = LocationConfigManager::GetInstance().GetNlpServiceName(serviceName);
+        if (!result || serviceName.empty()) {
             LBSLOGE(NETWORK, "get service name failed!");
             return false;
         }
-        connectionWant.SetElementName(name, ABILITY_NAME);
+        std::string abilityName;
+        bool res = LocationConfigManager::GetInstance().GetNlpAbilityName(abilityName);
+        if (!res || abilityName.empty()) {
+            LBSLOGE(NETWORK, "get service name failed!");
+            return false;
+        }
+        connectionWant.SetElementName(serviceName, abilityName);
         sptr<AAFwk::IAbilityConnection> conn = new (std::nothrow) AbilityConnection();
         if (conn == nullptr) {
             LBSLOGE(NETWORK, "get connection failed!");
@@ -220,13 +226,13 @@ LocationErrCode NetworkAbility::SelfRequest(bool state)
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     if (!nlpServiceReady_) {
-        std::string name;
-        bool result = LocationConfigManager::GetInstance().GetServiceName(name);
-        if (!result || name.empty()) {
+        std::string serviceName;
+        bool result = LocationConfigManager::GetInstance().GetNlpServiceName(serviceName);
+        if (!result || serviceName.empty()) {
             LBSLOGE(NETWORK, "get service name failed!");
             return;
         }
-        if (!CommonUtils::CheckAppInstalled(name)) { // app is not installed
+        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
             LBSLOGE(NETWORK, "nlp service is not available.");
             return;
         } else if (!ReConnectNlpService()) {

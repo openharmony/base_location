@@ -31,7 +31,6 @@ namespace OHOS {
 namespace Location {
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     DelayedSingleton<GeoConvertService>::GetInstance().get());
-const std::string ABILITY_NAME = "GeocodeServiceAbility";
 static constexpr int REQUEST_GEOCODE = 1;
 static constexpr int REQUEST_REVERSE_GEOCODE = 2;
 constexpr uint32_t WAIT_MS = 100;
@@ -125,13 +124,19 @@ bool GeoConvertService::ConnectService()
     LBSLOGD(GEO_CONVERT, "start ConnectService");
     if (!IsConnect()) {
         AAFwk::Want connectionWant;
-        std::string name;
-        bool result = LocationConfigManager::GetInstance().GetServiceName(name);
-        if (!result || name.empty()) {
+        std::string serviceName;
+        bool result = LocationConfigManager::GetInstance().GetGeocodeServiceName(serviceName);
+        if (!result || serviceName.empty()) {
             LBSLOGE(GEO_CONVERT, "get service name failed!");
             return false;
         }
-        connectionWant.SetElementName(name, ABILITY_NAME);
+        std::string abilityName;
+        bool res = LocationConfigManager::GetInstance().GetGeocodeAbilityName(abilityName);
+        if (!res || abilityName.empty()) {
+            LBSLOGE(GEO_CONVERT, "get service name failed!");
+            return false;
+        }
+        connectionWant.SetElementName(serviceName, abilityName);
         sptr<AAFwk::IAbilityConnection> conn = new (std::nothrow) AbilityConnection();
         if (conn == nullptr) {
             LBSLOGE(GEO_CONVERT, "get connection failed!");
@@ -169,16 +174,15 @@ void GeoConvertService::NotifyDisConnected()
 
 int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
 {
-    LBSLOGD(GEO_CONVERT, "IsGeoConvertAvailable enter");
-    std::string name;
-    bool result = LocationConfigManager::GetInstance().GetServiceName(name);
-    if (!result || name.empty()) {
+    std::string serviceName;
+    bool result = LocationConfigManager::GetInstance().GetGeocodeServiceName(serviceName);
+    if (!result || serviceName.empty()) {
         LBSLOGE(GEO_CONVERT, "get service name failed!");
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
     reply.WriteInt32(ERRCODE_SUCCESS);
-    if (!CommonUtils::CheckAppInstalled(name)) { // app is not installed
+    if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
         reply.WriteBool(false);
     } else {
         reply.WriteBool(true);
@@ -224,7 +228,8 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
-    if (!WriteResultToParcel(callback, reply, true)) {
+    std::list<std::shared_ptr<GeoAddress>> result = callback->GetResult();
+    if (!WriteResultToParcel(result, reply, true)) {
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
     return ERRCODE_SUCCESS;
@@ -296,7 +301,8 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
         reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return ERRCODE_GEOCODING_FAIL;
     }
-    if (!WriteResultToParcel(callback, reply, false)) {
+    std::list<std::shared_ptr<GeoAddress>> result = callback->GetResult();
+    if (!WriteResultToParcel(result, reply, false)) {
         return ERRCODE_GEOCODING_FAIL;
     }
     return ERRCODE_SUCCESS;
@@ -308,37 +314,21 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
  */
 bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag)
 {
-    std::string bundleName = Str16ToStr8(data.ReadString16());
     if (flag) {
-        double latitude = data.ReadDouble();
-        double longitude = data.ReadDouble();
-        int maxItems = data.ReadInt32();
-        data.ReadInt32(); // localeSize
-        std::string language = Str16ToStr8(data.ReadString16());
-
-        dataParcel.WriteString16(Str8ToStr16(language));
-        dataParcel.WriteDouble(latitude); // latitude
-        dataParcel.WriteDouble(longitude); // longitude
-        dataParcel.WriteInt32(maxItems); // maxItems
+        dataParcel.WriteString16(data.ReadString16()); // locale
+        dataParcel.WriteDouble(data.ReadDouble()); // latitude
+        dataParcel.WriteDouble(data.ReadDouble()); // longitude
+        dataParcel.WriteInt32(data.ReadInt32()); // maxItems
     } else {
-        std::string description = Str16ToStr8(data.ReadString16());
-        double minLatitude = data.ReadDouble();
-        double minLongitude = data.ReadDouble();
-        double maxLatitude = data.ReadDouble();
-        double maxLongitude = data.ReadDouble();
-        int maxItems = data.ReadInt32();
-        data.ReadInt32(); // localeSize
-        std::string language = Str16ToStr8(data.ReadString16());
-
-        dataParcel.WriteString16(Str8ToStr16(language));
-        dataParcel.WriteString16(Str8ToStr16(description));
-        dataParcel.WriteInt32(maxItems);
-        dataParcel.WriteDouble(minLatitude);
-        dataParcel.WriteDouble(minLongitude);
-        dataParcel.WriteDouble(maxLatitude);
-        dataParcel.WriteDouble(maxLongitude);
+        dataParcel.WriteString16(data.ReadString16()); // locale
+        dataParcel.WriteString16(data.ReadString16()); // description
+        dataParcel.WriteInt32(data.ReadInt32()); // maxItems
+        dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
+        dataParcel.WriteDouble(data.ReadDouble()); // minLongitude
+        dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
+        dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
     }
-    dataParcel.WriteString16(Str8ToStr16(bundleName));
+    dataParcel.WriteString16(data.ReadString16()); // bundleName
     return true;
 }
 
@@ -346,10 +336,9 @@ bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &da
  * write result info to reply.
  * flag: true for reverse geocoding, false for geocoding.
  */
-bool GeoConvertService::WriteResultToParcel(const sptr<GeoConvertCallbackHost> callback,
+bool GeoConvertService::WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result,
     MessageParcel &reply, bool flag)
 {
-    std::list<std::shared_ptr<GeoAddress>> result = callback->GetResult();
     if (result.size() == 0) {
         LBSLOGE(GEO_CONVERT, "empty result!");
         reply.WriteInt32(flag ? ERRCODE_REVERSE_GEOCODING_FAIL : ERRCODE_GEOCODING_FAIL);
@@ -369,13 +358,13 @@ bool GeoConvertService::WriteResultToParcel(const sptr<GeoConvertCallbackHost> c
 bool GeoConvertService::GetService()
 {
     if (!IsConnect()) {
-        std::string name;
-        bool result = LocationConfigManager::GetInstance().GetServiceName(name);
-        if (!result || name.empty()) {
+        std::string serviceName;
+        bool result = LocationConfigManager::GetInstance().GetGeocodeServiceName(serviceName);
+        if (!result || serviceName.empty()) {
             LBSLOGE(GEO_CONVERT, "get service name failed!");
             return false;
         }
-        if (!CommonUtils::CheckAppInstalled(name)) { // app is not installed
+        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
             LBSLOGE(GEO_CONVERT, "service is not available.");
             return false;
         } else if (!ReConnectService()) {

@@ -51,6 +51,9 @@ const std::string LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
 const std::string LOCATION_DATA_COLUMN_VALUE = "VALUE";
 const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
 const std::string NLP_SERVICE_NAME = "const.location.nlp_service_name";
+const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
+const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
+const std::string GEOCODE_ABILITY_NAME = "const.location.geocode_ability_name";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
