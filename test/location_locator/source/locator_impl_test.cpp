@@ -21,6 +21,7 @@
 #include "nativetoken_kit.h"
 #include "system_ability_definition.h"
 #include "token_setproc.h"
+#include "iremote_object.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
 #include "cached_locations_callback_host.h"
@@ -528,6 +529,20 @@ HWTEST_F(LocatorImplTest, locatorImplSetResumer001, TestSize.Level1)
     callbackResumer = nullptr;
     locatorImpl_->SetResumer(callbackResumer); //resumer is nullptr
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSetResumer001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplOnRemoteDied001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplOnRemoteDied001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplOnRemoteDied001 begin");
+    auto impl = Locator::GetInstance();
+    ASSERT_TRUE(impl != nullptr);
+    auto recipient =
+        sptr<LocatorImpl::LocatorDeathRecipient>(new (std::nothrow) LocatorImpl::LocatorDeathRecipient(*impl));
+    wptr<IRemoteObject> remote;
+    recipient->OnRemoteDied(remote);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplOnRemoteDied001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
