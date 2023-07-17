@@ -1,0 +1,97 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//base/location/config.gni")
+import("//build/config/features.gni")
+import("//build/test.gni")
+
+##############################fuzztest##########################################
+ohos_fuzztest("NetworkCallbackHostFuzzTest") {
+  module_out_path = "location/services"
+  fuzz_config_file =
+      "$LOCATION_ROOT_DIR/test/fuzztest/locator/networkcallbackhost_fuzzer"
+  include_dirs = [
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/services/location_locator/locator/include",
+    "$LOCATION_ROOT_DIR/services/location_locator/callback/include",
+    "$LOCATION_ROOT_DIR/services/location_network/network/include",
+    "$LOCATION_ROOT_DIR/services/location_passive/passive/include",
+    "$LOCATION_ROOT_DIR/services/location_geocode/geocode/include",
+    "$LOCATION_ROOT_DIR/services/location_gnss/gnss/include",
+  ]
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "networkcallbackhost_fuzzer.cpp" ]
+  deps = [
+    "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/services/location_geocode/geocode:lbsservice_geocode",
+    "$LOCATION_ROOT_DIR/services/location_gnss/gnss:lbsservice_gnss",
+    "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
+    "$LOCATION_ROOT_DIR/services/location_network/network:lbsservice_network",
+    "$LOCATION_ROOT_DIR/services/location_passive/passive:lbsservice_passive",
+    "//third_party/libuv:uv",
+  ]
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "core_service:tel_core_service_api",
+    "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
+    "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = []
+  if (location_feature_with_geocode) {
+    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+  }
+
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
+
+  if (location_feature_with_network) {
+    defines += [ "FEATURE_NETWORK_SUPPORT" ]
+  }
+
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
+}
+
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":NetworkCallbackHostFuzzTest",
+  ]
+}
+###############################################################################
