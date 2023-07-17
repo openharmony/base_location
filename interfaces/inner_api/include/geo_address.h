@@ -36,8 +36,7 @@ public:
 
     double latitude_;
     double longitude_;
-    std::string localeLanguage_;
-    std::string localeCountry_;
+    std::string locale_;
     std::string placeName_;
     std::string countryCode_;
     std::string countryName_;
@@ -54,8 +53,6 @@ public:
     std::mutex mutex_;
     std::map<int, std::string> descriptions_;
     int descriptionsSize_ = 0;
-    bool hasLatitude_ = false;
-    bool hasLongitude_ = false;
     bool isFromMock_ = false;
     static constexpr double PARCEL_INT_SIZE = 64.0;
     static constexpr int MAX_RESULT = 10;

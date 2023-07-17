@@ -141,7 +141,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
         NAPI_CALL_BASE(env, napi_create_object(env, &eachObj), false);
         SetValueDouble(env, "latitude", geoAddress->GetLatitude(), eachObj);
         SetValueDouble(env, "longitude", geoAddress->GetLongitude(), eachObj);
-        SetValueUtf8String(env, "locale", geoAddress->localeLanguage_.c_str(), eachObj);
+        SetValueUtf8String(env, "locale", geoAddress->locale_.c_str(), eachObj);
         SetValueUtf8String(env, "placeName", geoAddress->placeName_.c_str(), eachObj);
         SetValueUtf8String(env, "countryCode", geoAddress->countryCode_.c_str(), eachObj);
         SetValueUtf8String(env, "countryName", geoAddress->countryName_.c_str(), eachObj);
@@ -293,18 +293,13 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
         LBSLOGE(LOCATOR_STANDARD, "write interfaceToken fail!");
         return COMMON_ERROR;
     }
-    std::string str = "";
-    dataParcel.WriteString16(Str8ToStr16(description));
+    dataParcel.WriteString16(Str8ToStr16(locale)); // locale
+    dataParcel.WriteString16(Str8ToStr16(description)); // description
+    dataParcel.WriteInt32(maxItems); // maxItems
     dataParcel.WriteDouble(minLatitude); // latitude
     dataParcel.WriteDouble(minLongitude); // longitude
     dataParcel.WriteDouble(maxLatitude); // latitude
     dataParcel.WriteDouble(maxLongitude); // longitude
-    dataParcel.WriteInt32(maxItems); // maxItems
-    dataParcel.WriteInt32(1); // locale object size = 1
-    dataParcel.WriteString16(Str8ToStr16(locale)); // locale.getLanguage()
-    dataParcel.WriteString16(Str8ToStr16(str)); // locale.getCountry()
-    dataParcel.WriteString16(Str8ToStr16(str)); // locale.getVariant()
-    dataParcel.WriteString16(Str8ToStr16(str)); // ""
     return SUCCESS;
 }
 
@@ -330,14 +325,10 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
         return false;
     }
+    dataParcel.WriteString16(Str8ToStr16(locale)); // locale
     dataParcel.WriteDouble(latitude); // latitude
     dataParcel.WriteDouble(longitude); // longitude
     dataParcel.WriteInt32(maxItems); // maxItems
-    dataParcel.WriteInt32(1); // locale object size = 1
-    dataParcel.WriteString16(Str8ToStr16(locale)); // locale.getLanguage()
-    dataParcel.WriteString16(Str8ToStr16(str)); // locale.getCountry()
-    dataParcel.WriteString16(Str8ToStr16(str)); // locale.getVariant()
-    dataParcel.WriteString16(Str8ToStr16(str)); // ""
     return true;
 }
 
@@ -430,24 +421,10 @@ bool GetGeoAddressInfo(const napi_env& env, const napi_value& object,
         LBSLOGE(LOCATOR_STANDARD, "GetNapiValueByKey is nullptr.");
         return false;
     }
-    double latitude = 0.0;
-    double longitude = 0.0;
-    JsObjectToDouble(env, value, "latitude", latitude);
-    if (CommonUtils::DoubleEqual(latitude, 0.0)) {
-        address->hasLatitude_ = false;
-    } else {
-        address->hasLatitude_ = true;
-        address->latitude_ = latitude;
-    }
-    JsObjectToDouble(env, value, "longitude", longitude);
-    if (CommonUtils::DoubleEqual(longitude, 0.0)) {
-        address->hasLongitude_ = false;
-    } else {
-        address->hasLongitude_ = true;
-        address->longitude_ = longitude;
-    }
     int bufLen = MAX_BUF_LEN;
-    JsObjectToString(env, value, "locale", bufLen, address->localeLanguage_);
+    JsObjectToDouble(env, value, "latitude", address->latitude_);
+    JsObjectToDouble(env, value, "longitude", address->longitude_);
+    JsObjectToString(env, value, "locale", bufLen, address->locale_);
     JsObjectToString(env, value, "placeName", bufLen, address->placeName_);
     JsObjectToString(env, value, "countryCode", bufLen, address->countryCode_);
     JsObjectToString(env, value, "countryName", bufLen, address->countryName_);

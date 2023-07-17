@@ -69,7 +69,7 @@ private:
     void ReportAddressMock(MessageParcel &data, MessageParcel &reply);
     bool CheckIfGeoConvertConnecting();
     bool WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag);
-    bool WriteResultToParcel(const sptr<GeoConvertCallbackHost> callback, MessageParcel &reply, bool flag);
+    bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel &reply, bool flag);
     bool GetService();
     bool IsConnect();
 
