@@ -108,7 +108,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
      * @tc.expected: step1. system ability is available.
      */
     bool result = Available();
-    EXPECT_EQ(false, result);
+    EXPECT_EQ(true, result);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
 }
 
@@ -259,7 +259,6 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply2.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
 }
-
 HWTEST_F(GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

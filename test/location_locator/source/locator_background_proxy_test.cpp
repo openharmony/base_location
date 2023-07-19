@@ -614,6 +614,11 @@ HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread001, TestSize.Level1)
     locatorBackgroundProxy7->isLocating_ = false;
     locatorBackgroundProxy7->proxySwtich_ = false;
     locatorBackgroundProxy7->StartLocator();
+	auto locatorBackgroundProxy8 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy7 != nullptr);
+    locatorBackgroundProxy7->isLocating_ = false;
+    locatorBackgroundProxy7->proxySwtich_ = false;
+    locatorBackgroundProxy7->StartLocator();
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread001 end");
 }
 
@@ -653,6 +658,127 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSuspend001, TestSize.Level1)
     std::shared_ptr<Request> request2 = std::make_shared<Request>();
     locatorBackgroundProxy2->OnSuspend(request2, false);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSuspend001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnSaStateChangeTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSaStateChangeTest002 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    locatorBackgroundProxy->proxySwtich_ = true;
+    locatorBackgroundProxy->OnSaStateChange(true);
+
+    locatorBackgroundProxy->proxySwtich_ = false;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    locatorBackgroundProxy->requestsList_->push_back(request);
+    locatorBackgroundProxy->OnSaStateChange(true);
+    
+    locatorBackgroundProxy->proxySwtich_ = true;
+    locatorBackgroundProxy->OnSaStateChange(false);
+
+    locatorBackgroundProxy->proxySwtich_ = false;
+    locatorBackgroundProxy->OnSaStateChange(false);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnSaStateChangeTest002 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnDeleteRequestRecord002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnDeleteRequestRecord002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnDeleteRequestRecord002 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+
+    locatorBackgroundProxy->featureSwitch_ = false;
+    locatorBackgroundProxy->OnDeleteRequestRecord(request1);
+
+    locatorBackgroundProxy->featureSwitch_ = true;
+    request1->SetUid(1000);
+    request1->SetPid(0);
+    request1->SetTokenId(tokenId_);
+    request1->SetFirstTokenId(0);
+    request1->SetPackageName("LocatorBackgroundProxyTest");
+    locatorBackgroundProxy->OnDeleteRequestRecord(request1);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnDeleteRequestRecord002 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, UpdateListOnSuspend001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, UpdateListOnSuspend001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UpdateListOnSuspend001 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    locatorBackgroundProxy->UpdateListOnSuspend(nullptr, true);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    request1->SetUid(1000);
+    request1->SetPid(0);
+    request1->SetTokenId(tokenId_);
+    request1->SetFirstTokenId(0);
+    request1->SetPackageName("LocatorBackgroundProxyTest");
+    request1->requestConfig_ = nullptr;
+    locatorBackgroundProxy->UpdateListOnSuspend(request1, true);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UpdateListOnSuspend001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, IsCallbackInProxyTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, IsCallbackInProxyTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsCallbackInProxyTest003 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    locatorBackgroundProxy->featureSwitch_ = false;
+    sptr<ILocatorCallback> newCallback = new (std::nothrow) LocatorCallbackStub();
+    bool ret = locatorBackgroundProxy->IsCallbackInProxy(newCallback);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsCallbackInProxyTest003 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnUserSwitchTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnUserSwitchTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnUserSwitchTest003 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    locatorBackgroundProxy->requestsMap_->clear();
+    int32_t userId = 0;
+    auto list = std::make_shared<std::list<std::shared_ptr<Request>>>();
+    auto request = std::make_shared<Request>();
+    request->SetUid(VAL_UID);
+    request->SetPackageName("INVALID_PKG_NAME");
+    list->push_back(request);
+    (locatorBackgroundProxy->requestsMap_)->insert(make_pair(userId, list));
+    locatorBackgroundProxy->OnUserSwitch(userId);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnUserSwitchTest003 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UnregisterAppStateObserverTest001 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    EXPECT_NE(nullptr, locatorBackgroundProxy);
+    locatorBackgroundProxy->iAppMgr_  = nullptr;
+    locatorBackgroundProxy->appStateObserver_  = nullptr;
+    EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
+
+    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    locatorBackgroundProxy->iAppMgr_  = nullptr;
+    EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
+
+    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    locatorBackgroundProxy->appStateObserver_  = nullptr;
+    EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
+
+    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UnregisterAppStateObserverTest001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
