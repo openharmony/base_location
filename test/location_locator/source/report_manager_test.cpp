@@ -23,10 +23,11 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "locator.h"
+#define private public
 #include "locator_ability.h"
+#undef private
 #include "locator_callback_host.h"
 #include "locator_callback_proxy.h"
-#include "report_manager.h"
 #include "request.h"
 #include "request_manager.h"
 
@@ -349,6 +350,24 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // will resolve deadRequests
     locatorImpl->StopLocating(callbackStub);
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest004 end");
+}
+
+HWTEST_F(ReportManagerTest, UpdateRandomTest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, UpdateRandomTest004, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest004 begin");
+    std::list<std::shared_ptr<Request>> gnssList;
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->requests_->insert(make_pair(GNSS_ABILITY, gnssList));
+    reportManager_->UpdateRandom();
+
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+    reportManager_->lastUpdateTime_.tv_sec = now.tv_sec + LONG_TIME_INTERVAL +1;
+    locatorAbility->requests_->clear();
+    reportManager_->UpdateRandom();
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest004 end");
 }
 }  // namespace Location
 }  // namespace OHOS
