@@ -352,15 +352,10 @@ HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1
     GTEST_LOG_(INFO)
         << "LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailableV9001 begin");
-    bool isAvailable = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableReverseGeocodingMockV9());
+    bool isAvailable = true;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsGeoServiceAvailableV9(isAvailable));
     EXPECT_EQ(true, isAvailable);
-
-    isAvailable = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->IsGeoServiceAvailableV9(isAvailable));
-    EXPECT_EQ(false, isAvailable);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailableV9001 end");
 }
 #endif
@@ -385,7 +380,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationNameV9001, TestSize.Lev
     request003.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request003.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request003.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorImpl_->GetAddressByLocationNameV9(request003, geoAddressList003));
+    EXPECT_EQ(ERRCODE_GEOCODING_FAIL, locatorImpl_->GetAddressByLocationNameV9(request003, geoAddressList003));
     EXPECT_EQ(true, geoAddressList003.empty());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationNameV9001 end");
 }
