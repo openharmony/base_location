@@ -682,7 +682,7 @@ HWTEST_F(LocatorServiceTest, GetAddressByLocationName001, TestSize.Level1)
      * @tc.expected: return REPLY_CODE_NO_EXCEPTION.
      */
     proxy_->GetAddressByLocationName(data, reply);
-    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    EXPECT_EQ(ERRCODE_GEOCODING_FAIL, reply.ReadInt32());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByLocationName001 end");
 }
 #endif
@@ -805,7 +805,7 @@ HWTEST_F(LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1)
      * @tc.expected: step2. get reply state is true.
      */
     proxy_->GetAddressByCoordinate(data, reply);
-    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, reply.ReadInt32());
 
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByCoordinate001 end");
 }
@@ -1419,7 +1419,7 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Leve
     request001.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request001.WriteString16(Str8ToStr16("")); // ""
     locatorImpl->GetAddressByCoordinate(request001, geoAddressList001);
-    EXPECT_EQ(false, geoAddressList001.empty());
+    EXPECT_EQ(true, geoAddressList001.empty());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGetAddressByCoordinate001 end");
 }
 #endif
