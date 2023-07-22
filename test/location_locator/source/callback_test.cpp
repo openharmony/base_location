@@ -326,5 +326,20 @@ HWTEST_F(CallbackTest, NmeaMessageCallbackHost001, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] NmeaMessageCallbackHost001 end");
 }
 #endif
+
+HWTEST_F(CallbackTest, CountryCodeCallbackProxy002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, CountryCodeCallbackProxy002, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CountryCodeCallbackProxy002 begin");
+    auto countryCodeCallbackHost =
+        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    EXPECT_NE(nullptr, countryCodeCallbackHost);
+    auto countryCodeCallbackProxy =
+        new (std::nothrow) CountryCodeCallbackProxy(countryCodeCallbackHost);
+    EXPECT_NE(nullptr, countryCodeCallbackProxy);
+    countryCodeCallbackProxy->OnCountryCodeChange(nullptr);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CountryCodeCallbackProxy002 end");
+}
 }  // namespace Location
 }  // namespace OHOS

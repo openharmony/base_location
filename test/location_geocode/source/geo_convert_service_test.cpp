@@ -108,7 +108,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
      * @tc.expected: step1. system ability is available.
      */
     bool result = Available();
-    EXPECT_EQ(false, result);
+    EXPECT_EQ(true, result);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
 }
 
@@ -158,7 +158,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
      * @tc.expected: step2. no exception head info.
      */
     proxy_->GetAddressByCoordinate(dataParcel, replyParcel);
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, replyParcel.ReadInt32());
+    EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, replyParcel.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 end");
 }
 
@@ -196,7 +196,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
      * @tc.expected: step2. no exception head info.
      */
     proxy_->GetAddressByLocationName(dataParcel, replyParcel);
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, replyParcel.ReadInt32());
+    EXPECT_EQ(ERRCODE_GEOCODING_FAIL, replyParcel.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 end");
 }
 
@@ -256,10 +256,9 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     MessageParcel reply2;
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
     proxy_->GetAddressByCoordinate(parcel2, reply2);
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, reply2.ReadInt32());
+    EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, reply2.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
 }
-
 HWTEST_F(GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

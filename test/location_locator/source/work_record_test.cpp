@@ -13,19 +13,23 @@
  * limitations under the License.
  */
 
+#define private public
 #include "work_record_test.h"
+#undef private
 
 #include "string_ex.h"
 
 #include "message_parcel.h"
 
 #include "common_utils.h"
-#include "work_record.h"
+
 
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int WRONG_UID = 1001;
+const int MAX_RECORD_COUNT = 100;
+
 void WorkRecordTest::SetUp()
 {
 }
@@ -183,6 +187,52 @@ HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0")); // diff uid, add to record
     EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "DiffName", 1, "0")); // diff name, add to record
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 end");
+}
+
+HWTEST_F(WorkRecordTest, ReadFromParcel001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, ReadFromParcel001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] ReadFromParcel001 begin");
+    MessageParcel parcel;
+    for (int i = 0;i < MAX_RECORD_COUNT + 1; i++) {
+        parcel.WriteInt32(1); // uid
+        parcel.WriteInt32(1); // pid
+        parcel.WriteString("nameForTest"); // name
+        parcel.WriteInt32(1); // timeInterval
+        parcel.WriteString("uuidForTest"); // uuid
+    }
+    std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
+    workrecord->ReadFromParcel(parcel);
+    LBSLOGI(LOCATOR, "[WorkRecordTest] ReadFromParcel001 end");
+}
+
+HWTEST_F(WorkRecordTest, GetTimeInterval001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, GetTimeInterval001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] GetTimeInterval001 begin");
+    std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
+    workrecord->num_ = 1;
+    workrecord->uuid_.clear();
+    workrecord->uuid_.push_back("uuidForTest");
+    workrecord->timeInterval_.clear();
+    workrecord->timeInterval_.push_back(0);
+    EXPECT_EQ(0, workrecord->GetTimeInterval(0));
+    EXPECT_EQ("uuidForTest", workrecord->GetUuid(0));
+
+    workrecord->num_ = 1;
+    EXPECT_EQ(-1, workrecord->GetTimeInterval(1));
+    EXPECT_EQ("", workrecord->GetUuid(1));
+
+    workrecord->num_ = 1;
+    EXPECT_EQ(-1, workrecord->GetTimeInterval(-1));
+    EXPECT_EQ("", workrecord->GetUuid(-1));
+
+    workrecord->num_ = -1;
+    EXPECT_EQ(-1, workrecord->GetTimeInterval(-1));
+    EXPECT_EQ("", workrecord->GetUuid(-1));
+    LBSLOGI(LOCATOR, "[WorkRecordTest] GetTimeInterval001 end");
 }
 } // namespace Location
 } // namespace OHOS

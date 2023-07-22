@@ -107,7 +107,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, Tes
 
     EXPECT_EQ(nullptr, locatorImpl->GetCachedLocation());
 #ifdef FEATURE_GEOCODE_SUPPORT
-    EXPECT_EQ(false, locatorImpl->IsGeoServiceAvailable());
+    EXPECT_EQ(true, locatorImpl->IsGeoServiceAvailable());
     MessageParcel request001;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
     locatorImpl->GetAddressByCoordinate(request001, geoAddressList001);

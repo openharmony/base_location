@@ -17,7 +17,9 @@
 #define REPORT_MANAGER_TEST_H
 
 #include <gtest/gtest.h>
+#define private public
 #include "report_manager.h"
+#undef private
 
 namespace OHOS {
 namespace Location {
