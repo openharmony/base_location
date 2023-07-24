@@ -361,6 +361,60 @@ HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1
 #endif
 
 #ifdef FEATURE_GEOCODE_SUPPORT
+HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9001 begin");
+    MessageParcel request001;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableReverseGeocodingMockV9());
+
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetReverseGeocodingMockInfoV9(mockInfos));
+    request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request001.WriteDouble(MOCK_LATITUDE); // latitude
+    request001.WriteDouble(MOCK_LONGITUDE); // longitude
+    request001.WriteInt32(3); // maxItems
+    request001.WriteInt32(1); // locale object size = 1
+    request001.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request001.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request001.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request001.WriteString16(Str8ToStr16("")); // ""
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetAddressByCoordinateV9(request001, geoAddressList001));
+    EXPECT_EQ(true, geoAddressList001.empty());
+
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9001 end");
+}
+#endif
+
+#ifdef FEATURE_GEOCODE_SUPPORT
+HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9002 begin");
+    MessageParcel request002;
+    std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
+
+    request002.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    request002.WriteDouble(1.0); // latitude
+    request002.WriteDouble(2.0); // longitude
+    request002.WriteInt32(3); // maxItems
+    request002.WriteInt32(1); // locale object size = 1
+    request002.WriteString16(Str8ToStr16("Language")); // locale.getLanguage()
+    request002.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
+    request002.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
+    request002.WriteString16(Str8ToStr16("")); // ""
+    EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, locatorImpl_->GetAddressByCoordinateV9(request002, geoAddressList002));
+    EXPECT_EQ(true, geoAddressList002.empty());
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9002 end");
+}
+#endif
+
+#ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationNameV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
