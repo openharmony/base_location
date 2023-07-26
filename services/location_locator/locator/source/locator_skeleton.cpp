@@ -26,6 +26,8 @@
 #include "system_ability_definition.h"
 #include "location_sa_load_manager.h"
 #include "locationhub_ipc_interface_code.h"
+#include "locating_required_data_config.h"
+#include "locator_required_data_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -66,6 +68,10 @@ void LocatorAbilityStub::InitLocatorHandleMap()
         &LocatorAbilityStub::PreResetAllProxy;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION)] =
         &LocatorAbilityStub::PreReportLocation;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK)] =
+        &LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback;
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK)] =
+        &LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback;
 #ifdef FEATURE_GEOCODE_SUPPORT
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GEO_IS_AVAILABLE)] =
         &LocatorAbilityStub::PreIsGeoConvertAvailable;
@@ -838,6 +844,71 @@ int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &re
     std::string systemAbility = data.ReadString();
     std::unique_ptr<Location> location = Location::Unmarshalling(data);
     locatorAbility->ReportLocation(location, systemAbility);
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &data,
+    MessageParcel &reply, AppIdentity &identity)
+{
+    LBSLOGE(LOCATOR, "TEST0706, %{public}s enter.", __func__);
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    std::shared_ptr<LocatingRequiredDataConfig> dataConfig = LocatingRequiredDataConfig::Unmarshalling(data);
+    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+    if (client == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: client is nullptr.", __func__);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    if (locatorDataManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: locatorDataManager is nullptr.", __func__);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
+
+    reply.WriteInt32(errorCode);
+    LBSLOGE(LOCATOR, "TEST0706, %{public}s exit.", __func__);
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel &data,
+    MessageParcel &reply, AppIdentity &identity)
+{
+    LBSLOGE(LOCATOR, "TEST0706, %{public}s enter.", __func__);
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+    if (client == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: client is nullptr.", __func__);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    if (locatorDataManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: locatorDataManager is nullptr.", __func__);
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errorCode = locatorDataManager->UnregisterCallback(client);
+
+    reply.WriteInt32(errorCode);
+    LBSLOGE(LOCATOR, "TEST0706, %{public}s exit.", __func__);
     return ERRCODE_SUCCESS;
 }
 

@@ -36,6 +36,7 @@
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "locationhub_ipc_interface_code.h"
+#include "locator_required_data_manager.h"
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
 #endif
@@ -59,6 +60,7 @@ const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
 const float_t PRECISION = 0.000001;
 const std::string UNLOAD_TASK = "locatior_sa_unload";
+const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
@@ -351,7 +353,7 @@ void LocatorAbility::UnloadSaAbility()
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return false;
+    return DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->IsConnecting();
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)

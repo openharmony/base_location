@@ -26,6 +26,8 @@
 #include "geo_coding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "locator_proxy.h"
+#include "i_locating_required_data_callback.h"
+#include "locating_required_data_config.h"
 #include "location_data_manager.h"
 namespace OHOS {
 namespace Location {
@@ -121,6 +123,9 @@ public:
     LocationErrCode SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
     LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy);
     LocationErrCode ResetAllProxyV9();
+    LocationErrCode RegisterLocatingRequiredDataCallback(std::unique_ptr<LocatingRequiredDataConfig>& dataConfig,
+        sptr<ILocatingRequiredDataCallback>& callback);
+    LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
 

@@ -1124,6 +1124,37 @@ LocationErrCode LocatorImpl::ResetAllProxyV9()
     return errCode;
 }
 
+LocationErrCode LocatorImpl::RegisterLocatingRequiredDataCallback(
+    std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback)
+{
+    LBSLOGE(LOCATOR_STANDARD, "TEST0706 LocatorImpl::%{public}s enter", __func__);
+    if (!Init()) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    return proxy->RegisterLocatingRequiredDataCallback(dataConfig, callback);
+}
+
+LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback)
+{
+    LBSLOGE(LOCATOR_STANDARD, "TEST0706 LocatorImpl::%{public}s enter", __func__);
+    if (!Init()) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    return proxy->UnRegisterLocatingRequiredDataCallback(callback);
+}
+
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {

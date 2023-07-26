@@ -34,6 +34,7 @@ ohos_shared_library("locator_sdk") {
     "$LOCATION_NATIVE_DIR/source/country_code_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/country_code_manager.cpp",
     "$LOCATION_NATIVE_DIR/source/gnss_status_callback_host.cpp",
+    "$LOCATION_NATIVE_DIR/source/locating_required_data_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_handler.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_manager.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_rdb_observer.cpp",

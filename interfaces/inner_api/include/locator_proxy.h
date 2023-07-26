@@ -31,6 +31,9 @@
 #include "location.h"
 #include "request_config.h"
 
+#include "i_locating_required_data_callback.h"
+#include "locating_required_data_config.h"
+
 namespace OHOS {
 namespace Location {
 class LocatorProxy : public IRemoteProxy<ILocator> {
@@ -118,6 +121,9 @@ public:
     LocationErrCode SendRegisterMsgToRemoteV9(const int msgId, const sptr<IRemoteObject>& callback);
     LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy);
     LocationErrCode ResetAllProxyV9();
+    LocationErrCode RegisterLocatingRequiredDataCallback(
+        std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
+    LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };
