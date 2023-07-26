@@ -100,6 +100,12 @@ enum LocationErrCode {
     ERRCODE_COUNTRYCODE_FAIL  = 3301500,      /* Failed to query the area information */
     ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
+    ERRCODE_SCAN_FAIL = 3301800,              /* Failed to start WiFi or Bluetooth scanning. */
+};
+
+enum LocatingRequiredDataType {
+    WIFI = 1,
+    BLUE_TOOTH,
 };
 
 typedef struct {

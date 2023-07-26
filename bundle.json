@@ -63,7 +63,9 @@
                 "os_account",
                 "relational_store",
                 "safwk",
-                "samgr"
+                "samgr",
+                "wifi",
+                "bluetooth"
             ],
             "third_party": [
                 "libuv"

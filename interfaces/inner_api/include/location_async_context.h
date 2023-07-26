@@ -27,6 +27,9 @@
 #include "country_code.h"
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
+#include "locating_required_data.h"
+#include "locating_required_data_callback_host.h"
+#include "locating_required_data_config.h"
 #include "location.h"
 #include "location_log.h"
 #include "locator_callback_host.h"
@@ -223,6 +226,44 @@ public:
     SingleLocationAsyncContext() = delete;
 
     ~SingleLocationAsyncContext() override {}
+};
+
+class LocatingRequiredDataAsyncContext : public AsyncContext {
+public:
+    std::vector<std::shared_ptr<LocatingRequiredData>> locatingRequiredDataList_;
+
+    explicit LocatingRequiredDataAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
+
+    LocatingRequiredDataAsyncContext() = delete;
+
+    ~LocatingRequiredDataAsyncContext() override {}
+};
+
+class LocatingRequiredDataConfigAsyncContext : public AsyncContext {
+public:
+    std::unique_ptr<LocatingRequiredDataConfig> requestConfig_;
+    std::vector<std::shared_ptr<LocatingRequiredData>> locatingRequiredDataList_;
+
+    explicit LocatingRequiredDataConfigAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
+
+    LocatingRequiredDataConfigAsyncContext() = delete;
+
+    ~LocatingRequiredDataConfigAsyncContext() override {}
+};
+
+class SingleScanAsyncContext : public AsyncContext {
+public:
+    int timeout_;
+    sptr<LocatingRequiredDataCallbackHost> callbackHost_;
+
+    explicit SingleScanAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(nullptr) {}
+
+    SingleScanAsyncContext() = delete;
+
+    ~SingleScanAsyncContext() override {}
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -45,6 +45,7 @@ napi_value DisableReverseGeocodingMock(napi_env env, napi_callback_info info);
 napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info);
 napi_value HandleGetCachedLocation(napi_env env);
 LocationErrCode CheckLocationSwitchState();
+napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info);
 #endif
 }  // namespace Location
 }  // namespace OHOS

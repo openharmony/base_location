@@ -36,6 +36,9 @@ static constexpr OHOS::HiviewDFX::HiLogLabel CACHED_LOCATIONS_CALLBACK = {
 static constexpr OHOS::HiviewDFX::HiLogLabel COUNTRY_CODE_CALLBACK = {
     LOG_CORE, LOCATOR_LOG_ID, "CountryCodeCallback"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel LOCATING_DATA_CALLBACK = {
+    LOG_CORE, LOCATOR_LOG_ID, "LocatingDataCallback"
+};
 static constexpr OHOS::HiviewDFX::HiLogLabel LOCATOR_CALLBACK = {LOG_CORE, LOCATOR_LOG_ID, "LocatorCallback"};
 static constexpr OHOS::HiviewDFX::HiLogLabel GNSS = {LOG_CORE, LOCATOR_LOG_ID, "GnssAbility"};
 static constexpr OHOS::HiviewDFX::HiLogLabel GNSS_TEST = {LOG_CORE, LOCATOR_LOG_ID, "GnssAbilityTest"};
