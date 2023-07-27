@@ -178,8 +178,9 @@ int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
     bool result = LocationConfigManager::GetInstance().GetGeocodeServiceName(serviceName);
     if (!result || serviceName.empty()) {
         LBSLOGE(GEO_CONVERT, "get service name failed!");
-        reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
-        return ERRCODE_REVERSE_GEOCODING_FAIL;
+        reply.WriteInt32(ERRCODE_SUCCESS);
+        reply.WriteBool(false);
+        return ERRCODE_SUCCESS;
     }
     reply.WriteInt32(ERRCODE_SUCCESS);
     if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
