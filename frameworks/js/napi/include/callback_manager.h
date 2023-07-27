@@ -32,7 +32,7 @@ public:
     void DeleteCallbackByEnv(const napi_env& env);
     std::map<napi_env, std::map<napi_ref, sptr<T>>> GetCallbackMap();
     bool RegCallback(const napi_env& env, const size_t argc, const napi_value* argv);
-    LocationErrCode SubscribeChange(const napi_env& env,const napi_ref& handlerRef, sptr<T>& callbackHost);
+    LocationErrCode SubscribeChange(const napi_env& env, const napi_ref& handlerRef, sptr<T>& callbackHost);
 private:
     std::map<napi_env, std::map<napi_ref, sptr<T>>> callbackMap_;
     std::mutex mutex_;
@@ -159,10 +159,8 @@ template<typename T>
 LocationErrCode CallbackManager<T>::SubscribeChange(const napi_env& env,
     const napi_ref& handlerRef, sptr<T>& callbackHost)
 {
-    // auto callbackPtr = sptr<T2>(callbackHost);
     callbackHost->SetEnv(env);
     callbackHost->SetHandleCb(handlerRef);
-    // return g_locatorProxy->RegisterWifiScanInfoCallbackV9(callbackPtr);
     return ERRCODE_SUCCESS;
 }
 } // namespace Location

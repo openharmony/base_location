@@ -33,7 +33,7 @@ namespace OHOS {
 namespace Location {
 void LocatorAbilityStub::InitLocatorHandleMap()
 {
-    if (locatorHandleMap_.size() != 0 || locatorHandleMap_.size() != 0) {
+    if (locatorHandleMap_.size() != 0) {
         return;
     }
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_SWITCH_STATE)] =
@@ -850,7 +850,6 @@ int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &re
 int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    LBSLOGE(LOCATOR, "TEST0706, %{public}s enter.", __func__);
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -876,14 +875,12 @@ int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &d
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
 
     reply.WriteInt32(errorCode);
-    LBSLOGE(LOCATOR, "TEST0706, %{public}s exit.", __func__);
     return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    LBSLOGE(LOCATOR, "TEST0706, %{public}s enter.", __func__);
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -908,7 +905,6 @@ int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel 
     LocationErrCode errorCode = locatorDataManager->UnregisterCallback(client);
 
     reply.WriteInt32(errorCode);
-    LBSLOGE(LOCATOR, "TEST0706, %{public}s exit.", __func__);
     return ERRCODE_SUCCESS;
 }
 

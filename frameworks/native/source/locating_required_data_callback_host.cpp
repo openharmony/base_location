@@ -141,8 +141,6 @@ void LocatingRequiredDataCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 return;
             }
             napi_value jsEvent = nullptr;
-            // CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
-            //     scope, context, work);
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                 napi_create_array_with_length(context->env, context->locatingRequiredDataList_.size(), &jsEvent),
                 scope, context, work);

@@ -268,10 +268,7 @@ LocationErrCode SubscribeCountryCodeChangeV9(const napi_env& env,
 LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<LocatingRequiredDataCallbackHost>& locatingCallbackHost)
 {
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s, enter", __func__);
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(locatingCallbackHost);
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s, is callback nullptr: %{public}d",
-        __func__, callbackPtr == nullptr);
     locatingCallbackHost->SetEnv(env);
     locatingCallbackHost->SetHandleCb(handlerRef);
     std::unique_ptr<LocatingRequiredDataConfig> dataConfig = std::make_unique<LocatingRequiredDataConfig>();
@@ -384,11 +381,8 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataCallbackHost>& callbackHost)
 {
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s, enter", __func__);
     LBSLOGI(LOCATION_NAPI, "%{public}s start", __func__);
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s, is callback nullptr: %{public}d",
-        __func__, callbackPtr == nullptr);
     return g_locatorProxy->UnRegisterLocatingRequiredDataCallback(callbackPtr);
 }
 #endif
@@ -869,20 +863,16 @@ bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const n
 
 #ifdef ENABLE_NAPI_MANAGER
 bool OnLocatingRequiredDataChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
-{    
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s enter, argc=%{public}zu", __func__, argc);
+{
     if (argc != PARAM3) {
-        LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s param number should be 2", __func__);
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
     if (!CheckIfParamIsFunctionType(env, argv[PARAM2])) {
-        LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s param 2 isn't function type", __func__);
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return false;
     }
     if (g_locatingRequiredDataCallbacks.IsCallbackInMap(env, argv[PARAM2])) {
-        LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s callback in map", __func__);
         LBSLOGE(LOCATION_NAPI, "%{public}s, This request already exists", __func__);
         return false;
     }
@@ -892,17 +882,14 @@ bool OnLocatingRequiredDataChangeCallback(const napi_env& env, const size_t argc
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef), false);
 
-        LocationErrCode errorCode = SubscribeLocatingRequiredDataChange(env, argv[PARAM1], handlerRef, locatingCallbackHost);
+        LocationErrCode errorCode =
+            SubscribeLocatingRequiredDataChange(env, argv[PARAM1], handlerRef, locatingCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
-            LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s SubscribeLocatingRequiredDataChange failed return, err = %{public}d",
-                __func__, errorCode);
             HandleSyncErrCode(env, errorCode);
             return false;
         }
         g_locatingRequiredDataCallbacks.AddCallback(env, handlerRef, locatingCallbackHost);
-        LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s AddCallback success", __func__);
     }
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s exit", __func__);
     return true;
 }
 #endif
@@ -1153,24 +1140,19 @@ bool OffAllCountryCodeChangeCallback(const napi_env& env)
 #ifdef ENABLE_NAPI_MANAGER
 bool OffAllLocatingRequiredDataChangeCallback(const napi_env& env)
 {
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s enter", __func__);
     std::map<napi_env, std::map<napi_ref, sptr<LocatingRequiredDataCallbackHost>>> callbackMap =
         g_locatingRequiredDataCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
-        LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s can't find callback", __func__);
         return false;
     }
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto callbackHost = innerIter->second;
         if (callbackHost == nullptr) {
-            LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s callback is nullptr", __func__);
             continue;
         }
         LocationErrCode errorCode = UnSubscribeLocatingRequiredDataChange(callbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
-            LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s UnSubscribeLocatingRequiredDataChange failed return, err = %{public}d",
-                __func__, errorCode);            
             HandleSyncErrCode(env, errorCode);
             return false;
         }
@@ -1178,7 +1160,6 @@ bool OffAllLocatingRequiredDataChangeCallback(const napi_env& env)
         callbackHost = nullptr;
     }
     g_locatingRequiredDataCallbacks.DeleteCallbackByEnv(env);
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s DeleteCallbackByEnv success", __func__);
     return true;
 }
 #endif
@@ -1347,24 +1328,18 @@ bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler
 #ifdef ENABLE_NAPI_MANAGER
 bool OffLocatingRequiredDataChangeCallback(const napi_env& env, const napi_value& handler)
 {
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s enter", __func__);
     auto callbackHost = g_locatingRequiredDataCallbacks.GetCallbackPtr(env, handler);
     if (callbackHost) {
-        LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s callabck exist", __func__);
         LocationErrCode errorCode = UnSubscribeLocatingRequiredDataChange(callbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
-            LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s exit, err = %{public}d", __func__, errorCode);
             HandleSyncErrCode(env, errorCode);
             return false;
         }
         g_locatingRequiredDataCallbacks.DeleteCallback(env, handler);
         callbackHost->DeleteHandler();
         callbackHost = nullptr;
-        LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s exit true", __func__);
         return true;
     }
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s callabck empty", __func__);
-    LBSLOGE(LOCATION_NAPI, "TEST0706 %{public}s exit false", __func__);
     return false;
 }
 #endif
