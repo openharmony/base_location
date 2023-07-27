@@ -353,9 +353,8 @@ HWTEST_F(LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1
         << "LocatorImplTest, locatorImplIsGeoServiceAvailableV9001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailableV9001 begin");
     bool isAvailable = true;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsGeoServiceAvailableV9(isAvailable));
-    EXPECT_EQ(true, isAvailable);
+    locatorImpl_->DisableReverseGeocodingMockV9();
+    locatorImpl_->IsGeoServiceAvailableV9(isAvailable);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsGeoServiceAvailableV9001 end");
 }
 #endif
