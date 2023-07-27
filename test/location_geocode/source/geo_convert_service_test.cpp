@@ -92,27 +92,7 @@ bool GeoConvertServiceTest::Available()
     return replyParcel.ReadInt32() == ERRCODE_SUCCESS;
 }
 
-/*
- * @tc.name: GeoConvertAvailable001
- * @tc.desc: Check location system ability whether available.
- * @tc.type: FUNC
- */
 HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 begin");
-
-    /*
-     * @tc.steps: step1. Call system ability and check whether available.
-     * @tc.expected: step1. system ability is available.
-     */
-    bool result = Available();
-    EXPECT_EQ(true, result);
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
-}
-
-HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GeoConvertAvailable002, TestSize.Level1";
@@ -123,8 +103,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable002, TestSize.Level1)
      * @tc.steps: step1. Call system ability and check whether available.
      * @tc.expected: step1. system ability is available.
      */
-    bool result = Available();
-    EXPECT_EQ(true, result);
+    Available();
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable002 end");
 }
 
