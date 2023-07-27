@@ -175,6 +175,40 @@ bool GeoAddressesToJsObj(const napi_env& env,
     return true;
 }
 
+bool LocatingRequiredDataToJsObj(const napi_env& env,
+    std::vector<std::shared_ptr<LocatingRequiredData>>& replyList, napi_value& arrayResult)
+{
+    uint32_t idx = 0;
+    for (size_t i = 0; i < replyList.size(); i++) {
+        napi_value eachObj;
+        NAPI_CALL_BASE(env, napi_create_object(env, &eachObj), false);
+        napi_value wifiObj;
+        NAPI_CALL_BASE(env, napi_create_object(env, &wifiObj), false);
+        SetValueUtf8String(env, "ssid", replyList[i]->GetWifiScanInfo()->GetSsid().c_str(), wifiObj);
+        SetValueUtf8String(env, "bssid", replyList[i]->GetWifiScanInfo()->GetBssid().c_str(), wifiObj);
+        SetValueInt32(env, "rssi", replyList[i]->GetWifiScanInfo()->GetRssi(), wifiObj);
+        SetValueInt32(env, "frequency", replyList[i]->GetWifiScanInfo()->GetFrequency(), wifiObj);
+        SetValueInt64(env, "timestamp", replyList[i]->GetWifiScanInfo()->GetTimestamp(), wifiObj);
+
+        napi_value blueToothObj;
+        NAPI_CALL_BASE(env, napi_create_object(env, &blueToothObj), false);
+        SetValueUtf8String(env, "deviceName",
+            replyList[i]->GetBluetoothScanInfo()->GetDeviceName().c_str(), blueToothObj);
+        SetValueUtf8String(env, "macAddress", replyList[i]->GetBluetoothScanInfo()->GetMac().c_str(), blueToothObj);
+        SetValueInt64(env, "rssi", replyList[i]->GetBluetoothScanInfo()->GetRssi(), blueToothObj);
+        SetValueInt64(env, "timestamp", replyList[i]->GetBluetoothScanInfo()->GetTimeStamp(), blueToothObj);
+
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), napi_generic_failure);
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), napi_generic_failure);
+        napi_status status = napi_set_element(env, arrayResult, idx++, eachObj);
+        if (status != napi_ok) {
+            LBSLOGE(LOCATING_DATA_CALLBACK, "set element error: %{public}d, idx: %{public}d", status, idx - 1);
+            return false;
+        }
+    }
+    return true;
+}
+
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<CachedGnssLocationsRequest>& request)
 {
@@ -223,6 +257,25 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     }
     if (JsObjectToDouble(env, object, "distanceInterval", valueDouble) == SUCCESS) {
         requestConfig->SetDistanceInterval(valueDouble);
+    }
+}
+
+void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& object,
+    std::unique_ptr<LocatingRequiredDataConfig>& config)
+{
+    int valueInt = 0;
+    bool valueBool = false;
+    if (JsObjectToInt(env, object, "type", valueInt) == SUCCESS) {
+        config->SetType(valueInt);
+    }
+    if (JsObjectToBool(env, object, "needStartScan", valueBool) == SUCCESS) {
+        config->SetNeedStartScan(valueBool);
+    }
+    if (JsObjectToInt(env, object, "scanInterval", valueInt) == SUCCESS) {
+        config->SetScanIntervalMs(valueInt);
+    }
+    if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
+        config->SetScanTimeoutMs(valueInt);
     }
 }
 
@@ -321,7 +374,6 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
         return false;
     }
-    std::string str = "";
     if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
         return false;
     }
@@ -880,19 +932,19 @@ void DeleteQueueWork(AsyncContext* context)
 {
     uv_loop_s *loop = nullptr;
     if (context->env == nullptr) {
-        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "env is nullptr.");
+        LBSLOGE(LOCATOR_STANDARD, "env is nullptr.");
         delete context;
         return;
     }
     NAPI_CALL_RETURN_VOID(context->env, napi_get_uv_event_loop(context->env, &loop));
     if (loop == nullptr) {
-        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
+        LBSLOGE(LOCATOR_STANDARD, "loop == nullptr.");
         delete context;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
+        LBSLOGE(LOCATOR_STANDARD, "work == nullptr.");
         delete context;
         return;
     }
@@ -960,6 +1012,16 @@ napi_value SetEnumPropertyByInteger(napi_env env, napi_value dstObj, int32_t enu
     NAPI_CALL(env, napi_create_int32(env, enumValue, &enumProp));
     NAPI_CALL(env, napi_set_named_property(env, dstObj, enumName, enumProp));
     return enumProp;
+}
+
+bool CheckIfParamIsObjectType(napi_env env, napi_value param)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_BASE(env, napi_typeof(env, param, &valueType), false);
+    if (valueType != napi_object) {
+        return false;
+    }
+    return true;
 }
 }  // namespace Location
 }  // namespace OHOS

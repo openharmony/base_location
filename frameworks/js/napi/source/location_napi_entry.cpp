@@ -82,6 +82,15 @@ napi_value GeoLocationErrorCodeTypeConstructor(napi_env env)
     return geoLocationErrorCode;
 }
 
+napi_value LocatingRequiredDataTypeConstructor(napi_env env)
+{
+    napi_value locatingPriority = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &locatingPriority));
+    SetEnumPropertyByInteger(env, locatingPriority, LocatingRequiredDataType::WIFI, "WIFI");
+    SetEnumPropertyByInteger(env, locatingPriority, LocatingRequiredDataType::BLUE_TOOTH, "BLUE_TOOTH");
+    return locatingPriority;
+}
+
 #ifndef ENABLE_NAPI_MANAGER
 /*
  * Module initialization function
@@ -165,11 +174,13 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("enableReverseGeocodingMock", EnableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("disableReverseGeocodingMock", DisableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("setReverseGeocodingMockInfo", SetReverseGeocodingMockInfo),
+        DECLARE_NAPI_FUNCTION("getLocatingRequiredData", GetLocatingRequiredData),
 
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationPrivacyType", LocationPrivacyTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("CountryCodeType", CountryCodeTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocatingRequiredDataType ", LocatingRequiredDataTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

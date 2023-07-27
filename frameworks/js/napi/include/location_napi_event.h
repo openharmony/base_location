@@ -19,6 +19,7 @@
 #include "cached_locations_callback_host.h"
 #include "geofence_state.h"
 #include "gnss_status_callback_host.h"
+#include "locating_required_data_callback_host.h"
 #include "location_switch_callback_host.h"
 #include "locator.h"
 #include "locator_callback_host.h"
@@ -35,6 +36,9 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
 bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
 bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
 bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+#ifdef ENABLE_NAPI_MANAGER
+bool OnLocatingRequiredDataChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+#endif
 
 void InitOffFuncMap();
 bool OffAllLocationServiceStateCallback(const napi_env& env);
@@ -49,6 +53,11 @@ bool OffGnssStatusChangeCallback(const napi_env& env, const napi_value& handler)
 bool OffNmeaMessageChangeCallback(const napi_env& env, const napi_value& handler);
 bool OffCachedGnssLocationsReportingCallback(const napi_env& env, const napi_value& handler);
 bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler);
+#ifdef ENABLE_NAPI_MANAGER
+bool OffAllLocatingRequiredDataChangeCallback(const napi_env& env);
+bool OffLocatingRequiredDataChangeCallback(const napi_env& env, const napi_value& handler);
+
+#endif
 
 void SubscribeLocationServiceState(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationSwitchCallbackHost>& switchCallbackHost);
@@ -88,6 +97,8 @@ LocationErrCode SubscribeLocationChangeV9(const napi_env& env, const napi_value&
 LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<CachedLocationsCallbackHost>& cachedCallbackHost);
 LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler);
+LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const napi_value& object,
+    const napi_ref& handlerRef, sptr<LocatingRequiredDataCallbackHost>& locatingCallbackHost);
 LocationErrCode UnSubscribeLocationChangeV9(sptr<ILocatorCallback>& callback);
 LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env,
     const napi_value& object, const napi_value& handler);
@@ -95,6 +106,7 @@ LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>&
 LocationErrCode UnSubscribeLocationServiceStateV9(sptr<LocationSwitchCallbackHost>& switchCallbackHost);
 LocationErrCode UnSubscribeGnssStatusV9(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
 LocationErrCode UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
+LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataCallbackHost>& callbackHost);
 napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const napi_value* argv);
 LocationErrCode CheckLocationSwitchEnable();
 #endif

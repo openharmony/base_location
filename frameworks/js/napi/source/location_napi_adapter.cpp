@@ -935,6 +935,109 @@ LocationErrCode CheckLocationSwitchState()
     }
     return ERRCODE_SUCCESS;
 }
+
+sptr<LocatingRequiredDataCallbackHost> CreateSingleCallbackHost()
+{
+    auto callbackHost =
+        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+    if (callbackHost) {
+        callbackHost->SetFixNumber(1);
+    }
+    return callbackHost;
+}
+
+SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
+    std::unique_ptr<LocatingRequiredDataConfig>& config, sptr<LocatingRequiredDataCallbackHost> callback)
+{
+    auto asyncContext = new (std::nothrow) SingleScanAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    NAPI_CALL(env, napi_create_string_latin1(env, "getLocatingRequiredDataOnce",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    asyncContext->timeout_ = config->GetScanTimeoutMs();
+    asyncContext->callbackHost_ = callback;
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<SingleScanAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        if (callbackHost != nullptr) {
+            callbackHost->Wait(context->timeout_);
+            auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
+            g_locatorClient->UnRegisterLocatingRequiredDataCallback(callbackPtr);
+            if (callbackHost->GetCount() != 0) {
+                context->errCode = ERRCODE_SCAN_FAIL;
+            }
+            callbackHost->SetCount(1);
+        }
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<SingleScanAsyncContext*>(data);
+        
+        auto callbackHost = context->callbackHost_;
+        if (callbackHost != nullptr) {
+            std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
+            napi_create_array_with_length(context->env, res.size(), &context->result[PARAM1]);
+            LocatingRequiredDataToJsObj(context->env, res, context->result[PARAM1]);
+        } else {
+            LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
+        }
+        if (context->callbackHost_) {
+            context->callbackHost_ = nullptr;
+        }
+        LBSLOGI(LOCATOR_STANDARD, "Push scan info to client");
+    };
+    return asyncContext;
+}
+
+napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
+    if (argc > PARAM1 || (argc == PARAM1 && !CheckIfParamIsObjectType(env, argv[PARAM0]))) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    if (argc == PARAM1) {
+        napi_valuetype valueType;
+        NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+        if (valueType != napi_object) {
+            HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+            return UndefinedNapiValue(env);
+        }
+    }
+
+    auto singleCallbackHost = CreateSingleCallbackHost();
+    if (singleCallbackHost == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    std::unique_ptr<LocatingRequiredDataConfig> requestConfig = std::make_unique<LocatingRequiredDataConfig>();
+    JsObjToLocatingRequiredDataConfig(env, argv[0], requestConfig);
+    auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
+    LocationErrCode errorCode = g_locatorClient->RegisterLocatingRequiredDataCallback(requestConfig, callbackPtr);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+
+    auto asyncContext = CreateSingleScanAsyncContext(env, requestConfig, singleCallbackHost);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    return DoAsyncWork(env, asyncContext, argc, argv, 1);
+}
 #endif
 } // namespace Location
 } // namespace OHOS

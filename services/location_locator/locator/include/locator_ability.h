@@ -116,6 +116,12 @@ public:
     LocationErrCode SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
 #endif
+    LocationErrCode RegisterWifiScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode UnregisterWifiScanInfoCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterBluetoothScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode UnregisterBluetoothScanInfoCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterBleScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode UnregisterBleScanInfoCallback(const sptr<IRemoteObject>& callback);
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();

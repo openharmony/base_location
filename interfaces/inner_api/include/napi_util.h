@@ -29,6 +29,8 @@
 #include "constant_definition.h"
 #include "geo_coding_mock_info.h"
 #include "geo_address.h"
+#include "locating_required_data.h"
+#include "locating_required_data_config.h"
 #include "location.h"
 #include "location_log.h"
 #include "request_config.h"
@@ -71,6 +73,10 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum);
 bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
+void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& object,
+    std::unique_ptr<LocatingRequiredDataConfig>& config);
+bool LocatingRequiredDataToJsObj(const napi_env& env,
+    std::vector<std::shared_ptr<LocatingRequiredData>>& replyList, napi_value& arrayResult);
 std::string GetErrorMsgByCode(int code);
 void CreateFailCallBackParams(AsyncContext& context, const std::string& msg, int32_t errorCode);
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
@@ -80,6 +86,7 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work);
 napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string& errMsg);
 bool CheckIfParamIsFunctionType(napi_env env, napi_value param);
 napi_value SetEnumPropertyByInteger(napi_env env, napi_value dstObj, int32_t enumValue, const char *enumName);
+bool CheckIfParamIsObjectType(napi_env env, napi_value param);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \
