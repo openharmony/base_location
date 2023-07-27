@@ -1009,7 +1009,6 @@ LocationErrCode LocatorProxy::ResetAllProxyV9()
 LocationErrCode LocatorProxy::RegisterLocatingRequiredDataCallback(
     std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback)
 {
-    LBSLOGE(LOCATOR_STANDARD, "TEST0706 LocatorProxy::%{public}s enter", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1022,14 +1021,14 @@ LocationErrCode LocatorProxy::RegisterLocatingRequiredDataCallback(
     }
     MessageParcel reply;
     LocationErrCode errorCode =
-        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK), data, reply);
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK),
+        data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
     return errorCode;
 }
 
 LocationErrCode LocatorProxy::UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback)
 {
-    LBSLOGE(LOCATOR_STANDARD, "TEST0706 LocatorProxy::%{public}s enter", __func__);
     LocationErrCode errorCode =
         SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK),
             callback->AsObject());

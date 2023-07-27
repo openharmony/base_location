@@ -1127,7 +1127,6 @@ LocationErrCode LocatorImpl::ResetAllProxyV9()
 LocationErrCode LocatorImpl::RegisterLocatingRequiredDataCallback(
     std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback)
 {
-    LBSLOGE(LOCATOR_STANDARD, "TEST0706 LocatorImpl::%{public}s enter", __func__);
     if (!Init()) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1142,7 +1141,6 @@ LocationErrCode LocatorImpl::RegisterLocatingRequiredDataCallback(
 
 LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback)
 {
-    LBSLOGE(LOCATOR_STANDARD, "TEST0706 LocatorImpl::%{public}s enter", __func__);
     if (!Init()) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }

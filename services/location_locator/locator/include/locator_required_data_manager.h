@@ -39,7 +39,8 @@ public:
     explicit LocatorWifiScanEventCallback() {}
     ~LocatorWifiScanEventCallback() {}
     void OnWifiScanStateChanged(int state) override;
-    sptr<IRemoteObject> AsObject() override {
+    sptr<IRemoteObject> AsObject() override
+    {
         return nullptr;
     }
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByWifi(
@@ -78,7 +79,8 @@ public:
      * @param value notify msg value.
      * @since 6
      */
-    void OnNotifyMsgReportFromLpDevice(const Bluetooth::UUID &btUuid, int msgType, const std::vector<uint8_t> &value) override;
+    void OnNotifyMsgReportFromLpDevice(const Bluetooth::UUID &btUuid,
+        int msgType, const std::vector<uint8_t> &value) override;
 
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByBle(
         const Bluetooth::BleScanResult &result);
@@ -167,7 +169,8 @@ class LocatorRequiredDataManager : public DelayedSingleton<LocatorRequiredDataMa
 public:
     LocatorRequiredDataManager();
     ~LocatorRequiredDataManager();
-    LocationErrCode RegisterCallback(std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterCallback(std::shared_ptr<LocatingRequiredDataConfig>& config,
+        const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
     void StartWifiScan(bool flag);

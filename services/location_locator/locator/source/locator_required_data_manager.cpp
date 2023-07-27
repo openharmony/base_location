@@ -35,7 +35,8 @@ LocatorRequiredDataManager::~LocatorRequiredDataManager()
 {
 }
 
-LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<LocatingRequiredDataConfig>& config,
+    const sptr<IRemoteObject>& callback)
 {
     int ret = 0;
     LBSLOGI(LOCATOR, "%{public}s enter", __func__);
@@ -44,18 +45,15 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
         LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
         return ERRCODE_INVALID_PARAM;
     }
-
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
         if (wifiScanPtr_ == nullptr) {
             LBSLOGE(LOCATOR, "%{public}s WifiScan get instance failed", __func__);
             return ERRCODE_SERVICE_UNAVAILABLE;
         }
-
         if (wifiScanEventCallback_ == nullptr) {
             LBSLOGE(LOCATOR, "%{public}s wifi scanInfo callback is nullptr!", __func__);
             return ERRCODE_SERVICE_UNAVAILABLE;
         }
-        
         std::vector<std::string> events = {EVENT_STA_SCAN_STATE_CHANGE};
         ret = wifiScanPtr_->RegisterCallBack(wifiScanEventCallback_, events);
         if (ret != Wifi::WIFI_OPT_SUCCESS) {
@@ -67,7 +65,6 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
         callbacks_.push_back(dataCallback);
         lock.unlock();
         LBSLOGI(LOCATOR, "after RegisterCallback, callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
-        // todo 
         if (config->GetNeedStartScan()) {
             timeInterval_ = config->GetScanIntervalMs();
             if (scanHandler_ != nullptr) {
@@ -80,12 +77,12 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
             LBSLOGE(LOCATOR, "%{public}s bluetoothHost is nullptr", __func__);
             return ERRCODE_SERVICE_UNAVAILABLE;
         }
-
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
         callbacks_.push_back(dataCallback);
         lock.unlock();
-        LBSLOGI(LOCATOR, "after RegisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
+        LBSLOGI(LOCATOR, "after RegisterCallback,  callback size:%{public}s",
+            std::to_string(callbacks_.size()).c_str());
         if (config->GetNeedStartScan()) {
             bleCentralManager_->StartScan();
             bluetoothHost_->RegisterObserver(locatorBluetoothHost_);

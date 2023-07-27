@@ -192,7 +192,8 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
 
         napi_value blueToothObj;
         NAPI_CALL_BASE(env, napi_create_object(env, &blueToothObj), false);
-        SetValueUtf8String(env, "deviceName", replyList[i]->GetBluetoothScanInfo()->GetDeviceName().c_str(), blueToothObj);
+        SetValueUtf8String(env, "deviceName",
+            replyList[i]->GetBluetoothScanInfo()->GetDeviceName().c_str(), blueToothObj);
         SetValueUtf8String(env, "macAddress", replyList[i]->GetBluetoothScanInfo()->GetMac().c_str(), blueToothObj);
         SetValueInt64(env, "rssi", replyList[i]->GetBluetoothScanInfo()->GetRssi(), blueToothObj);
         SetValueInt64(env, "timestamp", replyList[i]->GetBluetoothScanInfo()->GetTimeStamp(), blueToothObj);

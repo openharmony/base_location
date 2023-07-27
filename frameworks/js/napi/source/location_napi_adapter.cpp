@@ -964,7 +964,7 @@ SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
             callbackHost->Wait(context->timeout_);
-            auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);           
+            auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
             g_locatorClient->UnRegisterLocatingRequiredDataCallback(callbackPtr);
             if (callbackHost->GetCount() != 0) {
                 context->errCode = ERRCODE_SCAN_FAIL;
@@ -980,7 +980,7 @@ SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
         auto context = static_cast<SingleScanAsyncContext*>(data);
         
         auto callbackHost = context->callbackHost_;
-        if (callbackHost != nullptr ) {
+        if (callbackHost != nullptr) {
             std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
             napi_create_array_with_length(context->env, res.size(), &context->result[PARAM1]);
             LocatingRequiredDataToJsObj(context->env, res, context->result[PARAM1]);

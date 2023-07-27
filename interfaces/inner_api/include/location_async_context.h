@@ -232,7 +232,8 @@ class LocatingRequiredDataAsyncContext : public AsyncContext {
 public:
     std::vector<std::shared_ptr<LocatingRequiredData>> locatingRequiredDataList_;
 
-    explicit LocatingRequiredDataAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit LocatingRequiredDataAsyncContext(napi_env env,
+        napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}
 
     LocatingRequiredDataAsyncContext() = delete;
@@ -245,7 +246,8 @@ public:
     std::unique_ptr<LocatingRequiredDataConfig> requestConfig_;
     std::vector<std::shared_ptr<LocatingRequiredData>> locatingRequiredDataList_;
 
-    explicit LocatingRequiredDataConfigAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit LocatingRequiredDataConfigAsyncContext(napi_env env,
+        napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}
 
     LocatingRequiredDataConfigAsyncContext() = delete;
