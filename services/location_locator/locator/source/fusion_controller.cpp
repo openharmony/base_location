@@ -41,8 +41,6 @@ void FusionController::ActiveFusionStrategies(int type)
     switch (type) {
         case SCENE_NAVIGATION:
         case SCENE_TRAJECTORY_TRACKING:
-            fusedFlag_ = fusedFlag_ | QUICK_FIX_FLAG;
-            LBSLOGI(FUSION_CONTROLLER, "enable quick first fix");
             break;
         case PRIORITY_FAST_FIRST_FIX:
             fusedFlag_ = fusedFlag_ | REPORT_FUSED_LOCATION_FLAG;
