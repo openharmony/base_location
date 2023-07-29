@@ -34,6 +34,7 @@ using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t U32DATA_SIZE = 4;
 const int32_t U64DATA_SIZE = 8;
+const int32_t MIN_SIZE_NUM = 8;
 
 
 uint32_t GetU32Data(const char* ptr)
@@ -98,6 +99,9 @@ bool CheckMessageFuzzTest(const char* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::MIN_SIZE_NUM) {
+        return 0;
+    }
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
         OHOS::CheckMessageFuzzTest(ch, size);

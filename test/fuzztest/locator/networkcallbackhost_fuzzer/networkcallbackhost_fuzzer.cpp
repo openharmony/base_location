@@ -34,6 +34,7 @@ using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t CODE_MAX = 50;
 const int32_t CODE_MIN = 1;
+const int32_t MIN_SIZE_NUM = 4;
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -85,6 +86,9 @@ bool NetworkCallbackHostFuzzTest(const char* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::MIN_SIZE_NUM) {
+        return 0;
+    } 
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
 #ifdef FEATURE_NETWORK_SUPPORT

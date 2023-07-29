@@ -36,7 +36,6 @@ if (location_feature_with_geocode) {
     sources = [ "geoconvertproxy_fuzzer.cpp" ]
     deps = [
       "$ARKUI_ROOT_DIR/napi:ace_napi",
-      "$DFX_HILOG_DIR/interfaces/native/innerkits:libhilog",
       "$LIB_UV_DIR:uv",
       "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode",
       "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
