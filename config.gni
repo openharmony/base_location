@@ -38,4 +38,33 @@ declare_args() {
   location_feature_with_network = true
   location_feature_with_passive = true
   location_feature_with_jsstack = true
+  i18n_enable = true
+  telephony_core_service_enable = true
+  telephony_cellular_data_enable = true
+  hdf_drivers_interface_location_gnss_enable = true
+  hdf_drivers_interface_location_agnss_enable = true
+
+  if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
+    i18n_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.telephony_core_service)) {
+    telephony_core_service_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.telephony_cellular_data)) {
+    telephony_cellular_data_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.hdf_drivers_interface_location_gnss)) {
+    hdf_drivers_interface_location_gnss_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.hdf_drivers_interface_location_agnss)) {
+    hdf_drivers_interface_location_agnss_enable = false
+  }
 }

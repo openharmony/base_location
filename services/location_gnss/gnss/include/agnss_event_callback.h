@@ -16,6 +16,7 @@
 #ifndef AGNSS_EVENT_CALLBACK_H
 #define AGNSS_EVENT_CALLBACK_H
 #ifdef FEATURE_GNSS_SUPPORT
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 
 #include <v1_0/ia_gnss_callback.h>
 #include "core_service_client.h"
@@ -45,5 +46,6 @@ private:
 };
 }  // namespace Location
 }  // namespace OHOS
+#endif // HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #endif // FEATURE_GNSS_SUPPORT
 #endif // AGNSS_EVENT_CALLBACK_H

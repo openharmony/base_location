@@ -19,7 +19,6 @@
 #include <file_ex.h>
 #include <thread>
 
-#include "core_service_client.h"
 #include "event_runner.h"
 #include "idevmgr_hdi.h"
 #include "ipc_skeleton.h"
@@ -27,7 +26,9 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include "agnss_event_callback.h"
+#endif
 #include "common_hisysevent.h"
 #include "common_utils.h"
 #include "gnss_event_callback.h"
@@ -42,11 +43,15 @@ namespace Location {
 namespace {
 constexpr int32_t GET_HDI_SERVICE_COUNT = 30;
 constexpr uint32_t WAIT_MS = 200;
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 constexpr int AGNSS_SERVER_PORT = 7275;
 const std::string AGNSS_SERVER_ADDR = "supl.platform.hicloud.com";
+#endif
 const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
+#endif
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
 }
 
@@ -59,8 +64,10 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     nmeaCallback_ = std::make_unique<std::map<pid_t, sptr<INmeaMessageCallback>>>();
     gnssInterface_ = nullptr;
     gnssCallback_ = nullptr;
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     agnssCallback_ = nullptr;
     agnssInterface_ = nullptr;
+#endif
     gnssWorkingStatus_ = GNSS_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
     gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
@@ -71,7 +78,9 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 GnssAbility::~GnssAbility()
 {
     gnssCallback_ = nullptr;
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     agnssCallback_ = nullptr;
+#endif
     if (isHdiConnected_) {
         DisableGnss();
         RemoveHdi();
@@ -291,8 +300,10 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         if (!isHdiConnected_) {
             ConnectHdi();
             EnableGnss();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
             SetAgnssCallback();
             SetAgnssServer();
+#endif
             isHdiConnected_ = true;
         }
         StartGnss();
@@ -318,8 +329,10 @@ void GnssAbility::ReConnectHdi()
     }
     ConnectHdi();
     EnableGnss();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     SetAgnssCallback();
     SetAgnssServer();
+#endif
     StartGnss();
 }
 
@@ -459,20 +472,26 @@ bool GnssAbility::ConnectHdi()
         LBSLOGE(GNSS, "Load gnss service failed!");
         return false;
     }
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     if (devmgr->LoadDevice(AGNSS_SERVICE_NAME) != 0) {
         LBSLOGE(GNSS, "Load agnss service failed!");
         return false;
     }
+#endif
     int32_t retry = 0;
     while (retry < GET_HDI_SERVICE_COUNT) {
         std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
         lock.lock();
         gnssInterface_ = IGnssInterface::Get();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
         agnssInterface_ = IAGnssInterface::Get();
+#endif
         if (gnssInterface_ != nullptr && agnssInterface_ != nullptr) {
             LBSLOGI(GNSS, "connect v1_0 hdi success.");
             gnssCallback_ = new (std::nothrow) GnssEventCallback();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
             agnssCallback_ = new (std::nothrow) AGnssEventCallback();
+#endif
             RegisterLocationHdiDeathRecipient();
             lock.unlock();
             return true;
@@ -497,13 +516,16 @@ bool GnssAbility::RemoveHdi()
         LBSLOGE(GNSS, "Load gnss service failed!");
         return false;
     }
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     if (devmgr->UnloadDevice(AGNSS_SERVICE_NAME) != 0) {
         LBSLOGE(GNSS, "Load agnss service failed!");
         return false;
     }
+#endif
     return true;
 }
 
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 void GnssAbility::SetAgnssServer()
 {
     if (agnssInterface_ == nullptr) {
@@ -560,6 +582,7 @@ void GnssAbility::SetRefInfo(const AGnssRefInfo& refInfo)
     }
     agnssInterface_->SetAgnssRefInfo(refInfo);
 }
+#endif
 
 void GnssAbility::SaDumpInfo(std::string& result)
 {

@@ -74,6 +74,10 @@ if (location_feature_with_gnss) {
       defines += [ "FEATURE_GNSS_SUPPORT" ]
     }
 
+    if (hdf_drivers_interface_location_agnss_enable) {
+      defines += [ "HDF_DRIVERS_INTERFACE_AGNSS_ENABLE" ]
+    }
+
     module_out_path = module_output_path
   }
 } else {

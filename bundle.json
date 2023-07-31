@@ -58,7 +58,6 @@
                 "i18n",
                 "init",
                 "ipc",
-                "image_framework",
                 "napi",
                 "os_account",
                 "relational_store",

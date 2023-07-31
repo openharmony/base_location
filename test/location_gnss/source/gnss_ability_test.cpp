@@ -702,6 +702,7 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssAbilityReportSv001 end");
 }
 
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestSetUpAgnssDataLink001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -863,6 +864,7 @@ HWTEST_F(GnssAbilityTest, AGnssEventCallbackRequestAgnssRefInfo009, TestSize.Lev
     EXPECT_NE(HDI::Location::Agnss::V1_0::CELLID_TYPE_NR, refInfo.cellId.type);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AGnssEventCallbackRequestAgnssRefInfo009 begin");
 }
+#endif
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportLocation001, TestSize.Level1)
 {
@@ -1075,6 +1077,7 @@ HWTEST_F(GnssAbilityTest, GnssReConnectHdi001, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssReConnectHdi001 end");
 }
 
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 HWTEST_F(GnssAbilityTest, GnssSetRefInfo001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1086,6 +1089,7 @@ HWTEST_F(GnssAbilityTest, GnssSetRefInfo001, TestSize.Level1)
     gnssAbility->SetRefInfo(refInfo);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSetRefInfo001 end");
 }
+#endif
 
 HWTEST_F(GnssAbilityTest, GnssSendReportMockLocationEvent003, TestSize.Level1)
 {
