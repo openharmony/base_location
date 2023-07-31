@@ -28,7 +28,6 @@ const int UNKNOWN_TYPE = 0;
 const uint32_t FUSION_DEFAULT_FLAG = 0;
 const uint32_t FUSION_BASE_FLAG = 1;
 const uint32_t REPORT_FUSED_LOCATION_FLAG = FUSION_BASE_FLAG;
-const uint32_t QUICK_FIX_FLAG = FUSION_BASE_FLAG << 1;
 void FusionControllerTest::SetUp()
 {
     fusionController_ = DelayedSingleton<FusionController>::GetInstance();
@@ -47,7 +46,7 @@ HWTEST_F(FusionControllerTest, ActiveFusionStrategies001, TestSize.Level1)
         << "FusionControllerTest, ActiveFusionStrategies001, TestSize.Level1";
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies001 begin");
     fusionController_->ActiveFusionStrategies(SCENE_NAVIGATION);
-    EXPECT_EQ(QUICK_FIX_FLAG, fusionController_->fusedFlag_);
+    EXPECT_EQ(FUSION_DEFAULT_FLAG, fusionController_->fusedFlag_);
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies001 end");
 }
 
@@ -57,7 +56,7 @@ HWTEST_F(FusionControllerTest, ActiveFusionStrategies002, TestSize.Level1)
         << "FusionControllerTest, ActiveFusionStrategies002, TestSize.Level1";
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies002 begin");
     fusionController_->ActiveFusionStrategies(SCENE_TRAJECTORY_TRACKING);
-    EXPECT_EQ(QUICK_FIX_FLAG, fusionController_->fusedFlag_);
+    EXPECT_EQ(FUSION_DEFAULT_FLAG, fusionController_->fusedFlag_);
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies002 end");
 }
 
