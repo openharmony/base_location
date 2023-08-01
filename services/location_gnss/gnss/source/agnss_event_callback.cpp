@@ -14,11 +14,17 @@
  */
 
 #ifdef FEATURE_GNSS_SUPPORT
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include "agnss_event_callback.h"
 
 #include <singleton.h>
 
+#ifdef TEL_CELLULAR_DATA_ENABLE
 #include "cellular_data_client.h"
+#endif
+#ifdef TEL_CORE_SERVICE_ENABLE
+#include "core_service_client.h"
+#endif
 
 #include "common_utils.h"
 #include "gnss_ability.h"
@@ -36,10 +42,13 @@ int32_t AGnssEventCallback::RequestSetUpAgnssDataLink(const AGnssDataLinkRequest
 int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
 {
     LBSLOGI(GNSS, "AGnssEventCallback::RequestSubscriberSetId. type:%{public}d", static_cast<int>(type));
+    std::string imsi;
+#if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
     std::u16string tempImsi;
     DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIMSI(slotId, tempImsi);
-    std::string imsi = CommonUtils::Str16ToStr8(tempImsi);
+    imsi = CommonUtils::Str16ToStr8(tempImsi);
+#endif
     SubscriberSetId setId;
     setId.type = HDI::Location::Agnss::V1_0::SETID_TYPE_IMSI;
     setId.id = imsi;
@@ -54,6 +63,7 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
 
 int32_t AGnssEventCallback::RequestAgnssRefInfo()
 {
+#if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
     std::vector<sptr<CellInformation>> cellInformations;
     DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetCellInfoList(slotId, cellInformations);
@@ -96,6 +106,7 @@ int32_t AGnssEventCallback::RequestAgnssRefInfo()
         gnssAbility.get()->SetRefInfo(refInfo);
         break;
     }
+#endif
     return ERR_OK;
 }
 
@@ -151,4 +162,5 @@ void AGnssEventCallback::JudgmentDataUmts(AGnssRefInfo& refInfo, sptr<CellInform
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif
 #endif

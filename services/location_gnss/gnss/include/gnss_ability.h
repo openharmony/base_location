@@ -20,12 +20,15 @@
 #include <mutex>
 #include <singleton.h>
 #include <v1_0/ignss_interface.h>
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include <v1_0/ia_gnss_interface.h>
+#endif
 
 #include "event_handler.h"
 #include "system_ability.h"
-
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include "agnss_event_callback.h"
+#endif
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "gnss_ability_skeleton.h"
@@ -49,10 +52,12 @@ using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_BEGIN;
 using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_END;
 using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_ON;
 using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_OFF;
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 using HDI::Location::Agnss::V1_0::IAGnssInterface;
 using HDI::Location::Agnss::V1_0::IAGnssCallback;
 using HDI::Location::Agnss::V1_0::AGNSS_TYPE_SUPL;
 using HDI::Location::Agnss::V1_0::AGnssServerInfo;
+#endif
 
 class GnssHandler : public AppExecFwk::EventHandler {
 public:
@@ -106,10 +111,12 @@ public:
     void DisableGnss();
     bool ConnectHdi();
     bool RemoveHdi();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     void SetAgnssServer();
     void SetAgnssCallback();
     void SetSetId(const SubscriberSetId& id);
     void SetRefInfo(const AGnssRefInfo& refInfo);
+#endif
     bool IsMockEnabled();
     void ProcessReportLocationMock();
     void ReConnectHdi();
@@ -135,8 +142,10 @@ private:
     std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
     sptr<IGnssInterface> gnssInterface_;
     sptr<IGnssCallback> gnssCallback_;
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
+#endif
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {

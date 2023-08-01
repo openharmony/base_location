@@ -13,10 +13,15 @@
  * limitations under the License.
  */
 #include "country_code_manager.h"
-
+#ifdef TEL_CELLULAR_DATA_ENABLE
 #include "cellular_data_client.h"
+#endif
+#ifdef TEL_CORE_SERVICE_ENABLE
 #include "core_service_client.h"
+#endif
+#ifdef I18N_ENABLE
 #include "locale_config.h"
+#endif
 #include "parameter.h"
 
 #include "common_event_manager.h"
@@ -195,18 +200,20 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 {
     LBSLOGI(COUNTRY_CODE, "CountryCodeManager::GetIsoCountryCode");
     int type = COUNTRY_CODE_FROM_LOCALE;
+    std::string countryCodeStr8;
+#if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
     std::u16string countryCodeForNetwork;
     DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIsoCountryCodeForNetwork(
         slotId, countryCodeForNetwork);
-    std::string countryCodeStr8 = Str16ToStr8(countryCodeForNetwork);
+    countryCodeStr8 = Str16ToStr8(countryCodeForNetwork);
     type = COUNTRY_CODE_FROM_NETWORK;
-
+#endif
     if (countryCodeStr8.empty()) {
         countryCodeStr8 = GetCountryCodeByLastLocation();
         type = COUNTRY_CODE_FROM_LOCATION;
     }
-
+#if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
     if (countryCodeStr8.empty()) {
         std::u16string countryCodeForSim;
         DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetISOCountryCodeForSim(
@@ -214,12 +221,13 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
         countryCodeStr8 = Str16ToStr8(countryCodeForSim);
         type = COUNTRY_CODE_FROM_SIM;
     }
-
+#endif
+#ifdef I18N_ENABLE
     if (countryCodeStr8.empty()) {
         countryCodeStr8 = Global::I18n::LocaleConfig::GetSystemRegion();
         type = COUNTRY_CODE_FROM_LOCALE;
     }
-
+#endif
     CountryCode country;
     country.SetCountryCodeStr(countryCodeStr8);
     country.SetCountryCodeType(type);
