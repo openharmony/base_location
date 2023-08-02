@@ -1,0 +1,85 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "locator_required_data_manager_test.h"
+#include "locator_required_data_manager.h"
+#include "location_log.h"
+#include "wifi_errcode.h"
+
+using namespace testing::ext;
+
+namespace OHOS {
+namespace Location {
+void LocatorRequiredDataManagerTest::SetUp()
+{
+}
+
+void LocatorRequiredDataManagerTest::TearDown()
+{
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, OnWifiScanStateChanged001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, OnWifiScanStateChanged001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnWifiScanStateChanged001 begin");
+    auto wifiScanEventCallback =
+		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
+    wifiScanEventCallback->OnWifiScanStateChanged(0);
+    wifiScanEventCallback->OnWifiScanStateChanged(1);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnWifiScanStateChanged001 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, RegisterCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback001 begin");
+    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    
+    std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
+    dataConfig->SetType(1);
+    dataConfig->SetNeedStartScan(false);
+    dataConfig->SetScanIntervalMs(1);
+    dataConfig->SetScanTimeoutMs(1);
+    MessageParcel data;
+    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
+
+    errorCode = locatorDataManager->UnregisterCallback(client);
+
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback001 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, RegisterCallback002, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback002 begin");
+    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    
+    std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
+    dataConfig->SetType(2);
+    dataConfig->SetNeedStartScan(false);
+    dataConfig->SetScanIntervalMs(1);
+    dataConfig->SetScanTimeoutMs(1);
+    MessageParcel data;
+    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
+
+    errorCode = locatorDataManager->UnregisterCallback(client);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback002 end");
+}
+}  // namespace Location
+}  // namespace OHOS

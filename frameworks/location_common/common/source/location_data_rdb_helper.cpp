@@ -92,6 +92,7 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
     auto rows = dataShareHelper->Query(uri, predicates, columns);
     if (rows == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get rows", __func__);
+        dataShareHelper->Release();
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataShareHelper->Release();
@@ -133,6 +134,7 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
     }
     if (err == -1) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: can not set value", __func__);
+        dataShareHelper->Release();
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataShareHelper->NotifyChange(uri);

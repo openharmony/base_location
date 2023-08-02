@@ -28,6 +28,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$LOCATION_ROOT_DIR/test/location_locator/source/locator_background_proxy_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/locator_event_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/locator_impl_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_required_data_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/locator_service_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/report_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/request_manager_test.cpp",
@@ -57,6 +58,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "bluetooth:btframework",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -68,6 +70,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "wifi:wifi_sdk",
   ]
 
   defines = []
