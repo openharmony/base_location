@@ -88,7 +88,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     if (size < OHOS::MIN_SIZE_NUM) {
         return 0;
-    } 
+    }
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
 #ifdef FEATURE_NETWORK_SUPPORT

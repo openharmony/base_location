@@ -274,6 +274,33 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertOnRemoteRequest001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnRemoteRequest001 end");
 }
 
+HWTEST_F(GeoConvertServiceTest, GeoConvertOnStop001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertOnStop001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStop001 begin");
+    service_->OnStop();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStop001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertNotifyDisConnected001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertNotifyDisConnected001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertNotifyDisConnected001 begin");
+    service_->NotifyDisConnected();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertNotifyDisConnected001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertSaDumpInfo001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertSaDumpInfo001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertSaDumpInfo001 begin");
+    string result = "";
+    service_->SaDumpInfo(result);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertSaDumpInfo001 end");
+}
 }  // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GEOCODE_SUPPORT

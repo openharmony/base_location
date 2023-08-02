@@ -47,6 +47,7 @@
 #include "nmea_message_callback_host.h"
 #endif
 #include "request_config.h"
+#include "locating_required_data_callback_host.h"
 
 using namespace testing::ext;
 
@@ -537,6 +538,37 @@ HWTEST_F(LocatorImplTest, locatorImplOnRemoteDied001, TestSize.Level1)
     wptr<IRemoteObject> remote;
     recipient->OnRemoteDied(remote);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplOnRemoteDied001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplRegisterLocatingRequiredDataCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplRegisterLocatingRequiredDataCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterLocatingRequiredDataCallback001 begin");
+    auto singleCallbackHost =
+        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+    if (singleCallbackHost) {
+        singleCallbackHost->SetFixNumber(1);
+    }
+    std::unique_ptr<LocatingRequiredDataConfig> requestConfig = std::make_unique<LocatingRequiredDataConfig>();
+    auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
+    locatorImpl_->RegisterLocatingRequiredDataCallback(requestConfig, callbackPtr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterLocatingRequiredDataCallback001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplUnRegisterLocatingRequiredDataCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplUnRegisterLocatingRequiredDataCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnRegisterLocatingRequiredDataCallback001 begin");
+    auto singleCallbackHost =
+        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+    if (singleCallbackHost) {
+        singleCallbackHost->SetFixNumber(1);
+    }
+    auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
+    locatorImpl_->UnRegisterLocatingRequiredDataCallback(callbackPtr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnRegisterLocatingRequiredDataCallback001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
