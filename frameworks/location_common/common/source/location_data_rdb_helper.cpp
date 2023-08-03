@@ -56,6 +56,11 @@ std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataSha
     return DataShare::DataShareHelper::Creator(remoteObj_, LOCATION_DATA_URI);
 }
 
+void LocationDataRdbHelper::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper)
+{
+    dataShareHelper->Release();
+}
+
 LocationErrCode LocationDataRdbHelper::RegisterDataObserver(
     const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
@@ -64,7 +69,7 @@ LocationErrCode LocationDataRdbHelper::RegisterDataObserver(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataShareHelper->RegisterObserver(uri, dataObserver);
-    dataShareHelper->Release();
+    ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
 
@@ -76,7 +81,7 @@ LocationErrCode LocationDataRdbHelper::UnregisterDataObserver(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataShareHelper->UnregisterObserver(uri, dataObserver);
-    dataShareHelper->Release();
+    ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
 
@@ -92,10 +97,10 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
     auto rows = dataShareHelper->Query(uri, predicates, columns);
     if (rows == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get rows", __func__);
-        dataShareHelper->Release();
+        ReleaseDataShareHelper(dataShareHelper);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataShareHelper->Release();
+    ReleaseDataShareHelper(dataShareHelper);
     rows->GoToFirstRow();
     int32_t columnIndex;
     rows->GetColumnIndex(LOCATION_DATA_COLUMN_VALUE, columnIndex);
@@ -134,11 +139,11 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
     }
     if (err == -1) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: can not set value", __func__);
-        dataShareHelper->Release();
+        ReleaseDataShareHelper(dataShareHelper);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataShareHelper->NotifyChange(uri);
-    dataShareHelper->Release();
+    ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
 

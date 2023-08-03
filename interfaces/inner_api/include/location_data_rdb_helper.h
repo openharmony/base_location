@@ -40,6 +40,7 @@ public:
     LocationErrCode GetValue(Uri &uri, const std::string &column, int32_t &value);
     LocationErrCode SetValue(Uri &uri, const std::string &column, int &value);
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
+    void ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper);
 private:
     void Initialize();
 
