@@ -110,7 +110,9 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
             break;
         }
     }
-    callbacks_.erase(callbacks_.begin() + i);
+    if (callbacks_.size() > 0) {
+        callbacks_.erase(callbacks_.begin() + i);
+    }
     LBSLOGI(LOCATOR, "after UnregisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
     return ERRCODE_SUCCESS;
 }
