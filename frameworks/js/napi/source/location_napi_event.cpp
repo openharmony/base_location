@@ -239,7 +239,7 @@ LocationErrCode SubscribeLocationChangeV9(const napi_env& env, const napi_value&
     locatorCallbackHost->SetEnv(env);
     locatorCallbackHost->SetHandleCb(handlerRef);
     JsObjToLocationRequest(env, object, g_requestConfig);
-    if (CheckIfParamInvalidSubscribe(g_requestConfig)) {
+    if (!IsRequestConfigValid(g_requestConfig)) {
         return ERRCODE_INVALID_PARAM;
     }
     return g_locatorProxy->StartLocatingV9(g_requestConfig, locatorCallback);
@@ -511,7 +511,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
     size_t objectArgsNum = 0;
     objectArgsNum = static_cast<size_t>(GetObjectArgsNum(env, argc, argv));
     auto requestConfig = CreateRequestConfig(env, argv, objectArgsNum);
-    if (CheckIfParamInvalidOnce(requestConfig)) {
+    if (!IsRequestConfigValid(requestConfig)) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -1638,47 +1638,30 @@ void CallbackResumeManager::ResumeLocating()
     }
 }
 
-bool CheckIfParamInvalidOnce(std::unique_ptr<RequestConfig>& config)
+bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
 {
     if (config == nullptr) {
-        return true;
+        return false;
     }
     if (config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) {
-        return true;
+        return false;
     }
     if (config->GetPriority() > PRIORITY_FAST_FIRST_FIX || config->GetPriority() < PRIORITY_UNSET) {
-        return true;
+        return false;
     }
     if (config->GetTimeOut() < MIN_TIMEOUTMS_FOR_LOCATIONONCE) {
-        return true;
-    }
-    if (config->GetMaxAccuracy() < 0) {
-        return true;
-    }
-    return false;
-}
-
-bool CheckIfParamInvalidSubscribe(std::unique_ptr<RequestConfig>& config)
-{
-    if (config == nullptr) {
-        return true;
-    }
-    if (config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) {
-        return true;
-    }
-    if (config->GetPriority() > PRIORITY_FAST_FIRST_FIX || config->GetPriority() < PRIORITY_UNSET) {
-        return true;
+        return false;
     }
     if (config->GetTimeInterval() < 0) {
-        return true;
+        return false;
     }
     if (config->GetDistanceInterval() < 0) {
-        return true;
+        return false;
     }
     if (config->GetMaxAccuracy() < 0) {
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 }  // namespace Location
 }  // namespace OHOS
