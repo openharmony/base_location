@@ -58,6 +58,9 @@ std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataSha
 
 void LocationDataRdbHelper::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper)
 {
+    if (dataShareHelper == nullptr) {
+        return;
+    }
     dataShareHelper->Release();
 }
 

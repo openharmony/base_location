@@ -35,11 +35,11 @@ RequestConfig::RequestConfig()
 RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
 {
     priority_ = PRIORITY_UNSET;
-    timeInterval_ = 0; // no time interval limit for reporting location
+    timeInterval_ = 1; // no time interval limit for reporting location
     distanceInterval_ = 0.0; // no distance interval limit for reporting location
     maxAccuracy_ = 0.0; // no accuracy limit for reporting location
     fixNumber_ = 0; // no fix size limit for reporting location
-    timeOut_ = 0;
+    timeOut_ = DEFAULT_TIMEOUT_30S;
 }
 
 void RequestConfig::Set(RequestConfig& requestConfig)
