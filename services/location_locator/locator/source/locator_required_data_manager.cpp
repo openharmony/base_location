@@ -197,7 +197,7 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
         return;
     }
     std::vector<Wifi::WifiScanInfo> wifiScanInfo;
-    std::unique_ptr<Wifi::WifiScan> ptrWifiScan = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
+    std::shared_ptr<Wifi::WifiScan> ptrWifiScan = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     if (ptrWifiScan == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan get instance failed", __func__);
         return;
