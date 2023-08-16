@@ -177,7 +177,7 @@ public:
     bool IsConnecting();
 private:
     int timeInterval_ = 0;
-    std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
+    std::unique_ptr<Wifi::WifiScan> wifiScanPtr_;
     sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
     std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     Bluetooth::BluetoothHost *bluetoothHost_;
