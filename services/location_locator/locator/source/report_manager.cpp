@@ -28,6 +28,7 @@ namespace OHOS {
 namespace Location {
 const long NANOS_PER_MILLI = 1000000L;
 const int SECOND_TO_MILLISECOND = 1000;
+const long MAX_LOCATION_COMPARISON_MS = 10 * SECOND_TO_MILLISECOND;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
@@ -93,17 +94,23 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         !request->GetIsRequesting()) {
         return false;
     }
+    std::unique_ptr<Location> fusedLocation = GetFusedLocation(request, location);
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
-        request->GetTokenId(), request->GetFirstTokenId(), location);
+        request->GetTokenId(), request->GetFirstTokenId(), fusedLocation);
     if (!ResultCheck(finalLocation, request)) {
         return false;
     }
+    if (request->GetLastLocation()->GetTimeSinceBoot() < location->GetTimeSinceBoot()) {
+        lastReportTimeSinceBoot_ = location->GetTimeSinceBoot();
+    } else {
+        lastReportTimeSinceBoot_ = request->GetLastLocation()->GetTimeSinceBoot();
+    }
+    
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
         locatorCallback->OnLocationReport(finalLocation);
     }
-
     int fixTime = request->GetRequestConfig()->GetFixNumber();
     if (fixTime > 0) {
         deadRequests->push_back(request);
@@ -187,7 +194,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         return true;
     }
     int minTime = request->GetRequestConfig()->GetTimeInterval();
-    long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
+    long deltaMs = (location->GetTimeSinceBoot() - lastReportTimeSinceBoot_) / NANOS_PER_MILLI;
     LBSLOGD(REPORT_MANAGER, "timeInterval ResultCheck : %{public}s %{public}d - %{public}ld",
         request->GetPackageName().c_str(), minTime, deltaMs);
     if (deltaMs < (minTime * SECOND_TO_MILLISECOND - MAX_SA_SCHEDULING_JITTER_MS)) {
@@ -281,6 +288,31 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
     coarseLocation->SetLongitude(lon);
     coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
     return coarseLocation;
+}
+
+std::unique_ptr<Location> ReportManager::GetFusedLocation(const std::shared_ptr<Request>& request,
+    const std::unique_ptr<Location>& location)
+{
+    auto lastLocation = request->GetLastLocation();
+    if (lastLocation == nullptr) {
+        return std::make_unique<Location>(*location);
+    }
+    if (location == nullptr) {
+        return std::make_unique<Location>(*lastLocation);
+    }
+    if (lastLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
+        MAX_LOCATION_COMPARISON_MS < location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        return std::make_unique<Location>(*location);
+    }
+    if (location->GetTimeSinceBoot() / NANOS_PER_MILLI + MAX_LOCATION_COMPARISON_MS <
+        lastLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        return std::make_unique<Location>(*lastLocation);
+    }
+    if (lastLocation->GetAccuracy() < location->GetAccuracy()) {
+        return std::make_unique<Location>(*lastLocation);
+    } else {
+        return std::make_unique<Location>(*location);
+    }
 }
 } // namespace OHOS
 } // namespace Location
