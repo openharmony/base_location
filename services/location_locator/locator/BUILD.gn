@@ -75,10 +75,14 @@ ohos_shared_library("lbsservice_locator") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "wifi:wifi_sdk",
   ]
 
   defines = []
+  if (communication_wifi_enable) {
+    external_deps += [ "wifi:wifi_sdk" ]
+    defines += [ "WIFI_ENABLE" ]
+  }
+
   if (location_feature_with_geocode) {
     defines += [ "FEATURE_GEOCODE_SUPPORT" ]
   }
