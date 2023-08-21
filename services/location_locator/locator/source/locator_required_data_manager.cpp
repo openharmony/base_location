@@ -38,7 +38,6 @@ LocatorRequiredDataManager::~LocatorRequiredDataManager()
 LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<LocatingRequiredDataConfig>& config,
     const sptr<IRemoteObject>& callback)
 {
-    int ret = 0;
     LBSLOGI(LOCATOR, "%{public}s enter", __func__);
     sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
     if (dataCallback == nullptr) {
@@ -55,7 +54,7 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
             return ERRCODE_SERVICE_UNAVAILABLE;
         }
         std::vector<std::string> events = {EVENT_STA_SCAN_STATE_CHANGE};
-        ret = wifiScanPtr_->RegisterCallBack(wifiScanEventCallback_, events);
+        int ret = wifiScanPtr_->RegisterCallBack(wifiScanEventCallback_, events);
         if (ret != Wifi::WIFI_OPT_SUCCESS) {
             LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
             return ERRCODE_SERVICE_UNAVAILABLE;
@@ -73,20 +72,6 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
         }
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return ERRCODE_NOT_SUPPORTED;
-        if (bluetoothHost_ == nullptr) {
-            LBSLOGE(LOCATOR, "%{public}s bluetoothHost is nullptr", __func__);
-            return ERRCODE_SERVICE_UNAVAILABLE;
-        }
-        std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
-        lock.lock();
-        callbacks_.push_back(dataCallback);
-        lock.unlock();
-        LBSLOGI(LOCATOR, "after RegisterCallback,  callback size:%{public}s",
-            std::to_string(callbacks_.size()).c_str());
-        if (config->GetNeedStartScan()) {
-            bleCentralManager_->StartScan();
-            bluetoothHost_->RegisterObserver(locatorBluetoothHost_);
-        }
     }
     return ERRCODE_SUCCESS;
 }
@@ -248,16 +233,18 @@ void LocatorRequiredDataManager::StartWifiScan(bool flag)
 {
     if (!flag) {
         LBSLOGI(LOCATOR, "%{public}s stop WifiScan.", __func__);
-        scanHandler_->RemoveEvent(EVENT_START_SCAN);
+        if (scanHandler_ != nullptr) {
+            scanHandler_->RemoveEvent(EVENT_START_SCAN);
+        }
         return;
     }
-    int ret = wifiScanPtr_->Scan();
-    LBSLOGE(LOCATOR, "%{public}s ret=%{public}d", __func__, ret);
-    if (ret != Wifi::WIFI_OPT_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
-        return;
+    if (wifiScanPtr_ != nullptr) {
+        int ret = wifiScanPtr_->Scan();
+        if (ret != Wifi::WIFI_OPT_SUCCESS) {
+            LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
+            return;
+        }
     }
-    LBSLOGE(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
     if (scanHandler_ != nullptr) {
         scanHandler_->SendHighPriorityEvent(EVENT_START_SCAN, 0, timeInterval_);
     }
