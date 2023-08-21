@@ -20,6 +20,7 @@
 #include <string>
 
 #include "location.h"
+#include "request.h"
 
 namespace OHOS {
 namespace Location {
@@ -28,6 +29,12 @@ public:
     void ActiveFusionStrategies(int type);
     void Process(std::string abilityName);
     void FuseResult(std::string abilityName, const std::unique_ptr<Location>& location);
+    std::unique_ptr<Location> chooseBestLocation(const std::unique_ptr<Location>& gnssLocation,
+        const std::unique_ptr<Location>& networkLocation);
+    std::unique_ptr<Location> GetFuseLocation(std::string abilityName,
+        const std::unique_ptr<Location>& location);
+    bool LocationEqual(const std::unique_ptr<Location>& bestLocation,
+        const std::unique_ptr<Location>& fuseLocation);
 private:
 #ifdef FEATURE_NETWORK_SUPPORT
     void RequestQuickFix(bool state);
@@ -35,6 +42,9 @@ private:
 
     uint32_t fusedFlag_ = 0;
     bool needReset_ = true;
+    std::unique_ptr<Location> gnssLocation_;
+    std::unique_ptr<Location> networkLocation_;
+    std::unique_ptr<Location> fuseLocation_;
 };
 } // namespace Location
 } // namespace OHOS

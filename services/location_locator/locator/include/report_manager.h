@@ -38,11 +38,9 @@ public:
     std::unique_ptr<Location> GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
         const std::unique_ptr<Location>& location);
     void UpdateRandom();
-    std::unique_ptr<Location> GetFusedLocation(const std::shared_ptr<Request>& request,
-        const std::unique_ptr<Location>& location);
+    bool IsRequestFuse(const std::shared_ptr<Request>& request);
 private:
     struct timespec lastUpdateTime_;
-    long lastReportTimeSinceBoot_ = 0;
     double offsetRandom_;
     Location lastLocation_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
