@@ -15,7 +15,9 @@
 #include "locator_required_data_manager_test.h"
 #include "locator_required_data_manager.h"
 #include "location_log.h"
+#ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
+#endif
 
 using namespace testing::ext;
 
@@ -34,11 +36,13 @@ HWTEST_F(LocatorRequiredDataManagerTest, OnWifiScanStateChanged001, TestSize.Lev
     GTEST_LOG_(INFO)
         << "CallbackTest, OnWifiScanStateChanged001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnWifiScanStateChanged001 begin");
+#ifdef WIFI_ENABLE
     auto wifiScanEventCallback =
 		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
     wifiScanEventCallback->OnWifiScanStateChanged(0);
     wifiScanEventCallback->OnWifiScanStateChanged(1);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnWifiScanStateChanged001 end");
+#endif
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
