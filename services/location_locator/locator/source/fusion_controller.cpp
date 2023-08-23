@@ -139,7 +139,11 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityN
     if (bestLocation != nullptr) {
         fuseLocation_ = std::make_unique<Location>(*bestLocation);
     }
-    return std::make_unique<Location>(*fuseLocation_);
+    if (fuseLocation_ == nullptr) {
+        return nullptr;
+    } else {
+        return std::make_unique<Location>(*fuseLocation_);
+    }
 }
 
 bool FusionController::LocationEqual(const std::unique_ptr<Location>& bestLocation,

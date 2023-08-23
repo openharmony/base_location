@@ -290,6 +290,9 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
 
 bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
 {
+    if (request == nullptr || request->GetRequestConfig() == nullptr) {
+        return false;
+    }
     if (request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
         request->GetRequestConfig()->GetPriority() == PRIORITY_FAST_FIRST_FIX) {
         return true;
