@@ -74,20 +74,6 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return ERRCODE_NOT_SUPPORTED;
-        if (bluetoothHost_ == nullptr) {
-            LBSLOGE(LOCATOR, "%{public}s bluetoothHost is nullptr", __func__);
-            return ERRCODE_SERVICE_UNAVAILABLE;
-        }
-        std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
-        lock.lock();
-        callbacks_.push_back(dataCallback);
-        lock.unlock();
-        LBSLOGI(LOCATOR, "after RegisterCallback,  callback size:%{public}s",
-            std::to_string(callbacks_.size()).c_str());
-        if (config->GetNeedStartScan()) {
-            bleCentralManager_->StartScan();
-            bluetoothHost_->RegisterObserver(locatorBluetoothHost_);
-        }
     }
     return ERRCODE_SUCCESS;
 }
@@ -251,12 +237,16 @@ void LocatorRequiredDataManager::StartWifiScan(bool flag)
 {
     if (!flag) {
         LBSLOGI(LOCATOR, "%{public}s stop WifiScan.", __func__);
-        scanHandler_->RemoveEvent(EVENT_START_SCAN);
+        if (scanHandler_ != nullptr) {
+            scanHandler_->RemoveEvent(EVENT_START_SCAN);
+        }
         return;
     }
 #ifdef WIFI_ENABLE
+    if (wifiScanPtr_ == nullptr) {
+        return;
+    }
     int ret = wifiScanPtr_->Scan();
-    LBSLOGI(LOCATOR, "%{public}s ret=%{public}d", __func__, ret);
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
         return;
