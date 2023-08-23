@@ -14,7 +14,9 @@
  */
 #include "locator_required_data_manager.h"
 #include "location_log.h"
+#ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -22,9 +24,11 @@ const uint32_t EVENT_START_SCAN = 0x0100;
 const uint32_t EVENT_STOP_SCAN = 0x0200;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
+#ifdef WIFI_ENABLE
     wifiScanPtr_ = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     wifiScanEventCallback_ =
 		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
+#endif
     std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
     bleCentralManager_ = std::make_shared<Bluetooth::BleCentralManager>(callback);
     bluetoothHost_ = &Bluetooth::BluetoothHost::GetDefaultHost();
@@ -45,12 +49,9 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
         return ERRCODE_INVALID_PARAM;
     }
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
-        if (wifiScanPtr_ == nullptr) {
-            LBSLOGE(LOCATOR, "%{public}s WifiScan get instance failed", __func__);
-            return ERRCODE_SERVICE_UNAVAILABLE;
-        }
-        if (wifiScanEventCallback_ == nullptr) {
-            LBSLOGE(LOCATOR, "%{public}s wifi scanInfo callback is nullptr!", __func__);
+#ifdef WIFI_ENABLE
+        if (wifiScanPtr_ == nullptr || wifiScanEventCallback_ == nullptr) {
+            LBSLOGE(LOCATOR, "%{public}s param unexpected.", __func__);
             return ERRCODE_SERVICE_UNAVAILABLE;
         }
         std::vector<std::string> events = {EVENT_STA_SCAN_STATE_CHANGE};
@@ -70,6 +71,7 @@ LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<Loc
                 scanHandler_->SendEvent(EVENT_START_SCAN, 0, 0);
             }
         }
+#endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return ERRCODE_NOT_SUPPORTED;
     }
@@ -174,6 +176,7 @@ void LocatorBleCallbackWapper::OnStartOrStopScanEvent(int32_t resultCode, bool i
 void LocatorBleCallbackWapper::OnNotifyMsgReportFromLpDevice(const Bluetooth::UUID &btUuid, int msgType,
     const std::vector<uint8_t> &value) {}
 
+#ifdef WIFI_ENABLE
 void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
 {
     LBSLOGE(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
@@ -220,6 +223,7 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorWifiScanEventCallback:
     }
     return res;
 }
+#endif
 
 void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result)
 {
@@ -238,13 +242,17 @@ void LocatorRequiredDataManager::StartWifiScan(bool flag)
         }
         return;
     }
-    if (wifiScanPtr_ != nullptr) {
-        int ret = wifiScanPtr_->Scan();
-        if (ret != Wifi::WIFI_OPT_SUCCESS) {
-            LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
-            return;
-        }
+#ifdef WIFI_ENABLE
+    if (wifiScanPtr_ == nullptr) {
+        return;
     }
+    int ret = wifiScanPtr_->Scan();
+    if (ret != Wifi::WIFI_OPT_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
+        return;
+    }
+#endif
+    LBSLOGI(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
     if (scanHandler_ != nullptr) {
         scanHandler_->SendHighPriorityEvent(EVENT_START_SCAN, 0, timeInterval_);
     }

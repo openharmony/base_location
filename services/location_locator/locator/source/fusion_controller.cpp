@@ -27,10 +27,13 @@ namespace Location {
 const uint32_t FUSION_DEFAULT_FLAG = 0;
 const uint32_t FUSION_BASE_FLAG = 1;
 const uint32_t REPORT_FUSED_LOCATION_FLAG = FUSION_BASE_FLAG;
+
 const uint32_t QUICK_FIX_FLAG = FUSION_BASE_FLAG << 1;
 #ifdef FEATURE_NETWORK_SUPPORT
 const uint32_t NETWORK_SELF_REQUEST = 4;
 #endif
+const long NANOS_PER_MILLI = 1000000L;
+const long MAX_LOCATION_COMPARISON_MS = 3 * SEC_TO_MILLI_SEC;
 
 void FusionController::ActiveFusionStrategies(int type)
 {
@@ -90,5 +93,79 @@ void FusionController::RequestQuickFix(bool state)
     remoteObject->SendRequest(NETWORK_SELF_REQUEST, data, reply, option);
 }
 #endif
+
+std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique_ptr<Location>& gnssLocation,
+    const std::unique_ptr<Location>& networkLocation)
+{
+    if (gnssLocation == nullptr && networkLocation == nullptr) {
+        return nullptr;
+    }
+    if (gnssLocation == nullptr) {
+        return std::make_unique<Location>(*networkLocation);
+    }
+    if (networkLocation == nullptr) {
+        return std::make_unique<Location>(*gnssLocation);
+    }
+    if (gnssLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
+        MAX_LOCATION_COMPARISON_MS < networkLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        return std::make_unique<Location>(*networkLocation);
+    }
+    if (networkLocation->GetTimeSinceBoot() / NANOS_PER_MILLI + MAX_LOCATION_COMPARISON_MS <
+        gnssLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        return std::make_unique<Location>(*gnssLocation);
+    }
+    if (gnssLocation->GetAccuracy() < networkLocation->GetAccuracy()) {
+        return std::make_unique<Location>(*gnssLocation);
+    } else {
+        return std::make_unique<Location>(*networkLocation);
+    }
+}
+
+std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityName,
+    const std::unique_ptr<Location>& location)
+{
+    LBSLOGI(FUSION_CONTROLLER, " GetFuseLocation enter");
+    if (GNSS_ABILITY.compare(abilityName) == 0) {
+        gnssLocation_ = std::make_unique<Location>(*location);
+    }
+    if (NETWORK_ABILITY.compare(abilityName) == 0) {
+        networkLocation_ = std::make_unique<Location>(*location);
+    }
+    auto bestLocation = chooseBestLocation(gnssLocation_, networkLocation_);
+    if (LocationEqual(bestLocation, fuseLocation_)) {
+        LBSLOGE(FUSION_CONTROLLER, "bestLocation is same to fuseLocation, return nullptr");
+        return nullptr;
+    }
+    if (bestLocation != nullptr) {
+        fuseLocation_ = std::make_unique<Location>(*bestLocation);
+    }
+    return std::make_unique<Location>(*fuseLocation_);
+}
+
+bool FusionController::LocationEqual(const std::unique_ptr<Location>& bestLocation,
+    const std::unique_ptr<Location>& fuseLocation)
+{
+    if (fuseLocation_ == nullptr || bestLocation == nullptr) {
+        LBSLOGE(FUSION_CONTROLLER, "fuseLocation_ or fuseLocation is nullptr");
+        return false;
+    }
+    if (bestLocation->GetLatitude() == fuseLocation->GetLatitude() &&
+        bestLocation->GetLongitude() == fuseLocation->GetLongitude() &&
+        bestLocation->GetAltitude() == fuseLocation->GetAltitude() &&
+        bestLocation->GetAccuracy() == fuseLocation->GetAccuracy() &&
+        bestLocation->GetSpeed() == fuseLocation->GetSpeed() &&
+        bestLocation->GetDirection() == fuseLocation->GetDirection() &&
+        bestLocation->GetTimeStamp() == fuseLocation->GetTimeStamp() &&
+        bestLocation->GetTimeSinceBoot() == fuseLocation->GetTimeSinceBoot() &&
+        bestLocation->GetAdditions() == fuseLocation->GetAdditions() &&
+        bestLocation->GetAdditionSize() == fuseLocation->GetAdditionSize() &&
+        bestLocation->GetIsFromMock() == fuseLocation->GetIsFromMock() &&
+        bestLocation->GetSourceType() == fuseLocation->GetSourceType() &&
+        bestLocation->GetFloorNo() == fuseLocation->GetFloorNo() &&
+        bestLocation->GetFloorAccuracy() == fuseLocation->GetFloorAccuracy()) {
+        return true;
+    }
+    return false;
+}
 } // namespace Location
 } // namespace OHOS

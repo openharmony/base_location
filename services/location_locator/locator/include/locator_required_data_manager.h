@@ -30,10 +30,13 @@
 #include "iremote_stub.h"
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
+#ifdef WIFI_ENABLE
 #include "wifi_scan.h"
+#endif
 
 namespace OHOS {
 namespace Location {
+#ifdef WIFI_ENABLE
 class LocatorWifiScanEventCallback : public Wifi::IWifiScanCallback {
 public:
     explicit LocatorWifiScanEventCallback() {}
@@ -46,6 +49,7 @@ public:
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByWifi(
         const std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
 };
+#endif
 
 class LocatorBleCallbackWapper : public Bluetooth::BleCentralManagerCallback {
 public:
@@ -177,8 +181,10 @@ public:
     bool IsConnecting();
 private:
     int timeInterval_ = 0;
+#ifdef WIFI_ENABLE
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
+#endif
     std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     Bluetooth::BluetoothHost *bluetoothHost_;
     LocatorBluetoothHost locatorBluetoothHost_;

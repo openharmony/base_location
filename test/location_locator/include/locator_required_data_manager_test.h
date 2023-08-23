@@ -32,7 +32,9 @@
 #include "iremote_stub.h"
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
+#ifdef WIFI_ENABLE
 #include "wifi_scan.h"
+#endif
 
 namespace OHOS {
 namespace Location {

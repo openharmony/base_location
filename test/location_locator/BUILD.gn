@@ -70,10 +70,14 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "wifi:wifi_sdk",
   ]
 
   defines = []
+  if (communication_wifi_enable) {
+    external_deps += [ "wifi:wifi_sdk" ]
+    defines += [ "WIFI_ENABLE" ]
+  }
+
   if (location_feature_with_geocode) {
     defines += [ "FEATURE_GEOCODE_SUPPORT" ]
   }
