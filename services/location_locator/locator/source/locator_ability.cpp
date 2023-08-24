@@ -54,6 +54,7 @@ const uint32_t EVENT_UPDATE_SA = 0x0001;
 const uint32_t EVENT_INIT_REQUEST_MANAGER = 0x0002;
 const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
+const uint32_t EVENT_REPORT_LOCATION_MESSAGE = 0x0005;
 const uint32_t EVENT_UNLOAD_SA = 0x0010;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -163,6 +164,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
     auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
     if (locatorAbility == nullptr || requestManager == nullptr || locationSaLoadManager == nullptr) {
         LBSLOGE(LOCATOR, "GetInstance return null");
         return;
@@ -195,8 +197,20 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             break;
         }
         case EVENT_UNLOAD_SA: {
-            if (locatorAbility != nullptr) {
+            if (locationSaLoadManager != nullptr) {
                 locationSaLoadManager->UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+            }
+            break;
+        }
+        case EVENT_REPORT_LOCATION_MESSAGE: {
+            if (reportManager != nullptr) {
+                std::unique_ptr<LocationMessage> locationMessage = event->GetUniqueObject<LocationMessage>();
+                if (locationMessage == nullptr) {
+                    return;
+                }
+                std::unique_ptr<Location> location = locationMessage->GetLocation();
+                std::string abilityName = locationMessage->GetAbilityName();
+                reportManager->OnReportLocation(location, abilityName);
             }
             break;
         }
@@ -872,8 +886,12 @@ LocationErrCode LocatorAbility::ReportLocation(const std::unique_ptr<Location>& 
         LBSLOGE(LOCATOR, "location switch is off");
         return ERRCODE_SWITCH_OFF;
     }
-    LBSLOGI(LOCATOR, "start report location");
-    if (reportManager_->OnReportLocation(location, abilityName)) {
+    std::unique_ptr<LocationMessage> locationMessage = std::make_unique<LocationMessage>();
+    locationMessage->SetAbilityName(abilityName);
+    locationMessage->SetLocation(location);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_REPORT_LOCATION_MESSAGE, locationMessage);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
         return ERRCODE_SUCCESS;
     }
     return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1124,5 +1142,32 @@ void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
     LBSLOGD(LOCATOR, "after tokenId:%{public}d unregister, permission callback size:%{public}s",
         callingTokenId, std::to_string(permissionMap_->size()).c_str());
 }
+
+void LocationMessage::SetAbilityName(std::string abilityName)
+{
+    abilityName_ = abilityName;
+}
+
+std::string LocationMessage::GetAbilityName()
+{
+    return abilityName_;
+}
+
+void LocationMessage::SetLocation(const std::unique_ptr<Location>& location)
+{
+    if (location != nullptr) {
+        location_ = std::make_unique<Location>(*location);
+    }
+}
+
+std::unique_ptr<Location> LocationMessage::GetLocation()
+{
+    if (location_ != nullptr) {
+        return std::make_unique<Location>(*location_);
+    } else {
+        return nullptr;
+    }
+}
+
 } // namespace Location
 } // namespace OHOS

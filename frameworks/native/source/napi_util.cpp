@@ -250,7 +250,11 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
         requestConfig->SetScenario(value);
     }
     if (JsObjectToInt(env, object, "timeInterval", value) == SUCCESS) {
-        requestConfig->SetTimeInterval(value);
+        if (value >= 0 && value < 1) {
+            requestConfig->SetTimeInterval(1);
+        } else {
+            requestConfig->SetTimeInterval(value);
+        }
     }
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
