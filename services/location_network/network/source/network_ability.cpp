@@ -39,6 +39,8 @@ const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
+const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
+const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
     DelayedSingleton<NetworkAbility>::GetInstance().get());
 
@@ -201,13 +203,24 @@ LocationErrCode NetworkAbility::SetEnable(bool state)
 
 void NetworkAbility::UnloadNetworkSystemAbility()
 {
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (locationSaLoadManager == nullptr) {
+    if (networkHandler_ == nullptr) {
+        LBSLOGE(NETWORK, "%{public}s networkHandler is nullptr", __func__);
         return;
     }
-
-    if (!CheckIfNetworkConnecting()) {
-        locationSaLoadManager->UnloadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    networkHandler_->RemoveTask(UNLOAD_NETWORK_TASK);
+    if (CheckIfNetworkConnecting()) {
+        return;
+    }
+    auto task = [this]() {
+        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+        if (instance == nullptr) {
+            LBSLOGE(NETWORK, "%{public}s instance is nullptr", __func__);
+            return;
+        }
+        instance->UnloadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    };
+    if (networkHandler_ != nullptr) {
+        networkHandler_->PostTask(task, UNLOAD_NETWORK_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
     }
 }
 
