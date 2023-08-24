@@ -53,6 +53,8 @@ const uint32_t EVENT_INTERVAL_UNITE = 1000;
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 #endif
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
+const std::string UNLOAD_GNSS_TASK = "gnss_sa_unload";
+const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -143,9 +145,24 @@ LocationErrCode GnssAbility::SetEnable(bool state)
 
 void GnssAbility::UnloadGnssSystemAbility()
 {
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (!CheckIfGnssConnecting() && locationSaLoadManager != nullptr) {
-        locationSaLoadManager->UnloadLocationSa(LOCATION_GNSS_SA_ID);
+    if (gnssHandler_ == nullptr) {
+        LBSLOGE(GNSS, "%{public}s gnssHandler is nullptr", __func__);
+        return;
+    }
+    gnssHandler_->RemoveTask(UNLOAD_GNSS_TASK);
+    if (CheckIfGnssConnecting()) {
+        return;
+    }
+    auto task = [this]() {
+        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+        if (instance == nullptr) {
+            LBSLOGE(GNSS, "%{public}s instance is nullptr", __func__);
+            return;
+        }
+        instance->UnloadLocationSa(LOCATION_GNSS_SA_ID);
+    };
+    if (gnssHandler_ != nullptr) {
+        gnssHandler_->PostTask(task, UNLOAD_GNSS_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
     }
 }
 
