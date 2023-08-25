@@ -171,6 +171,17 @@ private:
     std::mutex proxyUidsMutex_;
     std::set<int32_t> proxyUids_;
 };
+
+class LocationMessage {
+public:
+    void SetAbilityName(std::string abilityName);
+    std::string GetAbilityName();
+    void SetLocation(const std::unique_ptr<Location>& location);
+    std::unique_ptr<Location> GetLocation();
+private:
+    std::string abilityName_;
+    std::unique_ptr<Location> location_;
+};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_ABILITY_H
