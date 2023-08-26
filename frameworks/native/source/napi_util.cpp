@@ -28,6 +28,7 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
+static constexpr int MIN_WIFI_SCAN_TIME = 3000;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -276,10 +277,10 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
         config->SetNeedStartScan(valueBool);
     }
     if (JsObjectToInt(env, object, "scanInterval", valueInt) == SUCCESS) {
-        config->SetScanIntervalMs(valueInt);
+        config->SetScanIntervalMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
     if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
-        config->SetScanTimeoutMs(valueInt);
+        config->SetScanTimeoutMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
 }
 
