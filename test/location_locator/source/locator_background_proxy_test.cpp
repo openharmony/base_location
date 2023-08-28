@@ -572,53 +572,6 @@ HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread001, TestSize.Level1)
     std::shared_ptr<Request> request = std::make_shared<Request>();
     locatorBackgroundProxy1->requestsList_->push_back(request);
     locatorBackgroundProxy1->StartLocator();
-
-    auto locatorBackgroundProxy2 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy2 != nullptr);
-    locatorBackgroundProxy2->isLocating_ = true;
-    locatorBackgroundProxy2->proxySwtich_ = true;
-    locatorBackgroundProxy2->StartLocator();
-
-    auto locatorBackgroundProxy3 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy3 != nullptr);
-    locatorBackgroundProxy3->isLocating_ = true;
-    locatorBackgroundProxy3->proxySwtich_ = false;
-    std::shared_ptr<Request> request1 = std::make_shared<Request>();
-    locatorBackgroundProxy3->requestsList_->push_back(request1);
-    locatorBackgroundProxy3->StartLocator();
-
-    auto locatorBackgroundProxy4 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy4 != nullptr);
-    locatorBackgroundProxy4->isLocating_ = false;
-    locatorBackgroundProxy4->proxySwtich_ = true;
-    std::shared_ptr<Request> request2 = std::make_shared<Request>();
-    locatorBackgroundProxy4->requestsList_->push_back(request2);
-    locatorBackgroundProxy4->StartLocator();
-
-    auto locatorBackgroundProxy5 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy5 != nullptr);
-    locatorBackgroundProxy5->isLocating_ = true;
-    locatorBackgroundProxy5->proxySwtich_ = false;
-    locatorBackgroundProxy5->StartLocator();
-
-    auto locatorBackgroundProxy6 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy6 != nullptr);
-    locatorBackgroundProxy6->isLocating_ = false;
-    locatorBackgroundProxy6->proxySwtich_ = false;
-    std::shared_ptr<Request> request3 = std::make_shared<Request>();
-    locatorBackgroundProxy6->requestsList_->push_back(request3);
-    locatorBackgroundProxy6->StartLocator();
-
-    auto locatorBackgroundProxy7 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy7 != nullptr);
-    locatorBackgroundProxy7->isLocating_ = false;
-    locatorBackgroundProxy7->proxySwtich_ = false;
-    locatorBackgroundProxy7->StartLocator();
-	auto locatorBackgroundProxy8 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
-    ASSERT_TRUE(locatorBackgroundProxy7 != nullptr);
-    locatorBackgroundProxy7->isLocating_ = false;
-    locatorBackgroundProxy7->proxySwtich_ = false;
-    locatorBackgroundProxy7->StartLocator();
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread001 end");
 }
 
@@ -627,6 +580,90 @@ HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorBackgroundProxyTest, StartLocatorThread002, TestSize.Level1";
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread002 begin");
+    auto locatorBackgroundProxy2 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy2 != nullptr);
+    locatorBackgroundProxy2->isLocating_ = true;
+    locatorBackgroundProxy2->proxySwtich_ = true;
+    locatorBackgroundProxy2->StartLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread002 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread003, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread003 begin");
+    auto locatorBackgroundProxy3 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy3 != nullptr);
+    locatorBackgroundProxy3->isLocating_ = true;
+    locatorBackgroundProxy3->proxySwtich_ = false;
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    locatorBackgroundProxy3->requestsList_->push_back(request1);
+    locatorBackgroundProxy3->StartLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread003 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread004, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread004 begin");
+    auto locatorBackgroundProxy4 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy4 != nullptr);
+    locatorBackgroundProxy4->isLocating_ = false;
+    locatorBackgroundProxy4->proxySwtich_ = true;
+    std::shared_ptr<Request> request2 = std::make_shared<Request>();
+    locatorBackgroundProxy4->requestsList_->push_back(request2);
+    locatorBackgroundProxy4->StartLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread004 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread005, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread005 begin");
+    auto locatorBackgroundProxy5 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy5 != nullptr);
+    locatorBackgroundProxy5->isLocating_ = true;
+    locatorBackgroundProxy5->proxySwtich_ = false;
+    locatorBackgroundProxy5->StartLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread005 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread006, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread006, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread006 begin");
+    auto locatorBackgroundProxy6 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy6 != nullptr);
+    locatorBackgroundProxy6->isLocating_ = false;
+    locatorBackgroundProxy6->proxySwtich_ = false;
+    std::shared_ptr<Request> request3 = std::make_shared<Request>();
+    locatorBackgroundProxy6->requestsList_->push_back(request3);
+    locatorBackgroundProxy6->StartLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread006 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread007, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread007, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread007 begin");
+    auto locatorBackgroundProxy7 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy7 != nullptr);
+    locatorBackgroundProxy7->isLocating_ = false;
+    locatorBackgroundProxy7->proxySwtich_ = false;
+    locatorBackgroundProxy7->StartLocator();
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread007 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread008, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, StartLocatorThread008, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread008 begin");
     auto locatorBackgroundProxy1 = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     ASSERT_TRUE(locatorBackgroundProxy1 != nullptr);
     locatorBackgroundProxy1->isLocating_ = false;
@@ -636,7 +673,7 @@ HWTEST_F(LocatorBackgroundProxyTest, StartLocatorThread002, TestSize.Level1)
     ASSERT_TRUE(locatorBackgroundProxy2 != nullptr);
     locatorBackgroundProxy2->isLocating_ = true;
     locatorBackgroundProxy2->StopLocator();
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread002 end");
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] StartLocatorThread008 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, OnSuspend001, TestSize.Level1)

@@ -30,11 +30,95 @@
 
 namespace OHOS {
 namespace Location {
+void NetworkAbilityStub::InitNetworkMsgHandleMap()
+{
+    if (NetworkMsgHandleMap_.size() != 0) {
+        return;
+    }
+    NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST)] =
+        &NetworkAbilityStub::SendLocationRequestInner;
+    NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS)] =
+        &NetworkAbilityStub::SetMockLocationsInner;
+    NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST)] =
+        &NetworkAbilityStub::SelfRequestInner;
+    NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE)] =
+        &NetworkAbilityStub::SetEnableInner;
+    NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::ENABLE_LOCATION_MOCK)] =
+        &NetworkAbilityStub::EnableMockInner;
+    NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::DISABLE_LOCATION_MOCK)] =
+        &NetworkAbilityStub::DisableMockInner;
+}
+
+NetworkAbilityStub::NetworkAbilityStub()
+{
+    InitNetworkMsgHandleMap();
+}
+
+int NetworkAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST), data, reply);
+    isMessageRequest_ = true;
+    return ERRCODE_SUCCESS;
+}
+
+int NetworkAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
+    isMessageRequest_ = true;
+    return ERRCODE_SUCCESS;
+}
+
+int NetworkAbilityStub::SelfRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST), data, reply);
+    isMessageRequest_ = true;
+    return ERRCODE_SUCCESS;
+}
+
+int NetworkAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    reply.WriteInt32(SetEnable(data.ReadBool()));
+    return ERRCODE_SUCCESS;
+}
+
+int NetworkAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    reply.WriteInt32(EnableMock());
+    return ERRCODE_SUCCESS;
+}
+
+int NetworkAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    reply.WriteInt32(DisableMock());
+    return ERRCODE_SUCCESS;
+}
+
 int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
+    AppIdentity identity;
+    identity.SetPid(callingPid);
+    identity.SetUid(callingUid);
     LBSLOGI(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
 
@@ -43,45 +127,18 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-
     int ret = ERRCODE_SUCCESS;
-    bool isMessageRequest = false;
-    switch (code) {
-        case static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST): // fall through
-        case static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS): // fall through
-        case static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            SendMessage(code, data, reply);
-            isMessageRequest = true;
-            break;
-        }
-        case static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            reply.WriteInt32(SetEnable(data.ReadBool()));
-            break;
-        }
-        case static_cast<uint32_t>(NetworkInterfaceCode::ENABLE_LOCATION_MOCK): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            reply.WriteInt32(EnableMock());
-            break;
-        }
-        case static_cast<uint32_t>(NetworkInterfaceCode::DISABLE_LOCATION_MOCK): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            reply.WriteInt32(DisableMock());
-            break;
-        }
-        default:
-            ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    isMessageRequest_ = false;
+    auto handleFunc = NetworkMsgHandleMap_.find(code);
+    if (handleFunc != NetworkMsgHandleMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+        ret = (this->*memberFunc)(data, reply, identity);
+    } else {
+        LBSLOGE(NETWORK, "OnReceived cmd = %{public}u, unsupport service.", code);
+        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
+        ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    if (!isMessageRequest) {
+    if (!isMessageRequest_) {
         UnloadNetworkSystemAbility();
     }
     return ret;

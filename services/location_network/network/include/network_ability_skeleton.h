@@ -16,12 +16,13 @@
 #ifndef NETWORK_ABILITY_SKELETON_H
 #define NETWORK_ABILITY_SKELETON_H
 #ifdef FEATURE_NETWORK_SUPPORT
-
+#include <map>
 #include "message_parcel.h"
 #include "message_option.h"
 #include "iremote_stub.h"
 
 #include "subability_common.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -33,10 +34,26 @@ public:
 
 class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
 public:
+    using NetworkMsgHandle = int (NetworkAbilityStub::*)(
+        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using NetworkMsgHandleMap = std::map<int, NetworkMsgHandle>;
+    NetworkAbilityStub();
+    virtual ~NetworkAbilityStub() = default;
+    void InitNetworkMsgHandleMap();
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
     virtual void UnloadNetworkSystemAbility() = 0;
+private:
+    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SelfRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+private:
+    bool isMessageRequest_ = false;
+    NetworkMsgHandleMap NetworkMsgHandleMap_;
 };
 } // namespace Location
 } // namespace OHOS

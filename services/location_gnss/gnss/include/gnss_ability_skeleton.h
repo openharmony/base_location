@@ -16,7 +16,7 @@
 #ifndef GNSS_ABILITY_SKELETON_H
 #define GNSS_ABILITY_SKELETON_H
 #ifdef FEATURE_GNSS_SUPPORT
-
+#include <map>
 #include "message_option.h"
 #include "message_parcel.h"
 #include "iremote_object.h"
@@ -24,6 +24,8 @@
 
 #include "constant_definition.h"
 #include "subability_common.h"
+
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -48,10 +50,37 @@ public:
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
 public:
+    using GnssMsgHandle = int (GnssAbilityStub::*)(
+        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using GnssMsgHandleMap = std::map<int, GnssMsgHandle>;
+    GnssAbilityStub();
+    virtual ~GnssAbilityStub() = default;
+    void InitGnssMsgHandleMap();
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
     virtual void UnloadGnssSystemAbility() = 0;
+private:
+    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int RefreshRequirementsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int RegisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int UnregisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int RegisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int UnregisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int RegisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int UnregisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int GetCachedGnssLocationsSizeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int FlushCachedGnssLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SendCommandInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int AddFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+private:
+    bool isMessageRequest_ = false;
+    GnssMsgHandleMap GnssMsgHandleMap_;
 };
 
 class GnssStatusCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

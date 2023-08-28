@@ -674,7 +674,6 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
 
 napi_value SendCommand(napi_env env, napi_callback_info info)
 {
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
