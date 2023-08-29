@@ -20,24 +20,6 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 
-#ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
-#endif
-#include "country_code_callback_host.h"
-#include "locator_callback_proxy.h"
-
-#ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
-#endif
-#include "i_locator.h"
-#include "locator_proxy.h"
-#include "location_switch_callback_host.h"
-#include "locator_callback_host.h"
-#ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
-#endif
-
-
 namespace OHOS {
 namespace Location {
 #define FUZZ_PROJECT_NAME "gnssability_fuzzer"

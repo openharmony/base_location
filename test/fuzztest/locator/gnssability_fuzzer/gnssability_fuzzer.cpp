@@ -15,14 +15,11 @@
 
 #include "gnssability_fuzzer.h"
 
-#include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "message_option.h"
 #include "message_parcel.h"
-#include "nativetoken_kit.h"
 #include "system_ability_definition.h"
-#include "token_setproc.h"
 #include "locator_ability.h"
 #include "locationhub_ipc_interface_code.h"
 
@@ -70,10 +67,10 @@ bool GnssAbility001FuzzTest(const char* data, size_t size)
     MessageOption option;
 
     auto ability1 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability1->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST),
+    ability1->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
     auto ability2 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability2->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS),
+    ability2->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST),
         requestParcel, reply, option);
     auto ability3 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
     ability3->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE),
