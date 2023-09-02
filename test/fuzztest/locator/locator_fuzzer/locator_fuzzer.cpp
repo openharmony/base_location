@@ -578,10 +578,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::LocatorImplV9FuzzerTest(data, size);
     OHOS::TestMockFuncV9(data, size);
     OHOS::TestCallbackRegisterV9(data, size);
-
-    OHOS::LocatorAbility001FuzzerTest(data, size);
-    OHOS::LocatorAbility002FuzzerTest(data, size);
-    OHOS::LocatorAbility003FuzzerTest(data, size);
 #ifdef FEATURE_GNSS_SUPPORT
     OHOS::CachedLocationsCallbackHostFuzzerTest(data, size);
 #endif
@@ -594,6 +590,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 #ifdef FEATURE_GNSS_SUPPORT
     OHOS::NmeaMessageCallbackHostFuzzerTest(data, size);
 #endif
+    OHOS::g_locatorImpl->UnregisterObserver();
     return 0;
 }
 

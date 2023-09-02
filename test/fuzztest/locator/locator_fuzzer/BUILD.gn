@@ -54,7 +54,6 @@ ohos_fuzztest("LocatorFuzzTest") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "core_service:tel_core_service_api",
     "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0",
     "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0",
     "eventhandler:libeventhandler",
@@ -81,6 +80,20 @@ ohos_fuzztest("LocatorFuzzTest") {
 
   if (location_feature_with_passive) {
     defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
+  if (i18n_enable) {
+    external_deps += [ "i18n:intl_util" ]
+    defines += [ "I18N_ENABLE" ]
+  }
+
+  if (telephony_core_service_enable) {
+    external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TEL_CORE_SERVICE_ENABLE" ]
+  }
+
+  if (telephony_cellular_data_enable) {
+    external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
   }
 }
 
