@@ -45,7 +45,6 @@ void LocationDataRdbHelper::Initialize()
         return;
     }
     remoteObj_ = remote->AsObject();
-    dataShareHelper_ = CreateDataShareHelper();
 }
 
 std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataShareHelper()
@@ -68,40 +67,43 @@ void LocationDataRdbHelper::ReleaseDataShareHelper(std::shared_ptr<DataShare::Da
 LocationErrCode LocationDataRdbHelper::RegisterDataObserver(
     const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    if (dataShareHelper_ == nullptr) {
+    auto dataShareHelper = CreateDataShareHelper();
+    if (dataShareHelper == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataShareHelper_->RegisterObserver(uri, dataObserver);
-    ReleaseDataShareHelper(dataShareHelper_);
+    dataShareHelper->RegisterObserver(uri, dataObserver);
+    ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocationDataRdbHelper::UnregisterDataObserver(
     const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    if (dataShareHelper_ == nullptr) {
+    auto dataShareHelper = CreateDataShareHelper();
+    if (dataShareHelper == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataShareHelper_->UnregisterObserver(uri, dataObserver);
-    ReleaseDataShareHelper(dataShareHelper_);
+    dataShareHelper->UnregisterObserver(uri, dataObserver);
+    ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &column, int32_t &value)
 {
-    if (dataShareHelper_ == nullptr) {
+    auto dataShareHelper = CreateDataShareHelper();
+    if (dataShareHelper == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     DataShare::DataSharePredicates predicates;
     std::vector<std::string> columns;
     predicates.EqualTo(LOCATION_DATA_COLUMN_KEYWORD, column);
-    auto rows = dataShareHelper_->Query(uri, predicates, columns);
+    auto rows = dataShareHelper->Query(uri, predicates, columns);
     if (rows == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get rows", __func__);
-        ReleaseDataShareHelper(dataShareHelper_);
+        ReleaseDataShareHelper(dataShareHelper);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    ReleaseDataShareHelper(dataShareHelper_);
+    ReleaseDataShareHelper(dataShareHelper);
     rows->GoToFirstRow();
     int32_t columnIndex;
     rows->GetColumnIndex(LOCATION_DATA_COLUMN_VALUE, columnIndex);
@@ -119,7 +121,8 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
 
 LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &column, int &value)
 {
-    if (dataShareHelper_ == nullptr) {
+    auto dataShareHelper = CreateDataShareHelper();
+    if (dataShareHelper == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int32_t oldVal = 0;
@@ -131,19 +134,19 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
     bucket.Put(LOCATION_DATA_COLUMN_KEYWORD, keyObj);
     int32_t err;
     if (errorCode != ERRCODE_SUCCESS) {
-        err = dataShareHelper_->Insert(uri, bucket);
+        err = dataShareHelper->Insert(uri, bucket);
     } else {
         DataShare::DataSharePredicates predicates;
         predicates.EqualTo(LOCATION_DATA_COLUMN_KEYWORD, column);
-        err = dataShareHelper_->Update(uri, predicates, bucket);
+        err = dataShareHelper->Update(uri, predicates, bucket);
     }
     if (err == -1) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: can not set value", __func__);
-        ReleaseDataShareHelper(dataShareHelper_);
+        ReleaseDataShareHelper(dataShareHelper);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataShareHelper_->NotifyChange(uri);
-    ReleaseDataShareHelper(dataShareHelper_);
+    dataShareHelper->NotifyChange(uri);
+    ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
 

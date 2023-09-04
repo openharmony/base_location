@@ -25,14 +25,13 @@
 #include "location_data_rdb_observer.h"
 #include "location_data_rdb_helper.h"
 #include "location_log.h"
-
+#include "location_sa_load_manager.h"
 
 namespace OHOS {
 namespace Location {
 constexpr uint32_t WAIT_MS = 1000;
 std::shared_ptr<LocatorImpl> LocatorImpl::instance_ = nullptr;
 std::mutex LocatorImpl::locatorMutex_;
-sptr<LocationDataRdbObserver> dataRdbObserver_ = nullptr;
 
 std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
 {
@@ -48,19 +47,17 @@ std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
 
 LocatorImpl::LocatorImpl()
 {
-    LBSLOGE(LOCATOR_STANDARD, "RegisterObserver enter");
     locationDataManager_ = DelayedSingleton<LocationDataManager>::GetInstance();
     auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
-    dataRdbObserver_ =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
+    auto dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
     Uri locationDataEnableUri(LOCATION_DATA_URI);
     if (locationDataRdbHelper != nullptr) {
-        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver_);
+        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
     }
     countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
     if (countryCodeManager_ != nullptr) {
         countryCodeManager_->ReSubscribeEvent();
     }
-    saLoader_ = DelayedSingleton<LocationSaLoadManager>::GetInstance();
 }
 
 LocatorImpl::~LocatorImpl()
@@ -68,23 +65,12 @@ LocatorImpl::~LocatorImpl()
     if (countryCodeManager_ != nullptr) {
         countryCodeManager_->ReUnsubscribeEvent();
     }
-
-    locationDataManager_ = nullptr;
-    countryCodeManager_ = nullptr;
-}
-
-void LocatorImpl::UnregisterObserver()
-{
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
-    if (locationDataRdbHelper != nullptr) {
-        locationDataRdbHelper->UnregisterDataObserver(locationDataEnableUri, dataRdbObserver_);
-    }
 }
 
 bool LocatorImpl::Init()
 {
-    if (saLoader_ == nullptr || saLoader_->LoadLocationSa(LOCATION_LOCATOR_SA_ID) != ERRCODE_SUCCESS) {
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr || instance->LoadLocationSa(LOCATION_LOCATOR_SA_ID) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "locator sa load failed.");
         return false;
     }
