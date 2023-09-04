@@ -45,7 +45,6 @@ private:
     void Initialize();
 
     sptr<IRemoteObject> remoteObj_;
-    std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_;
 };
 } // namespace Location
 } // namespace OHOS

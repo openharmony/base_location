@@ -29,8 +29,6 @@
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
 #include "location_data_manager.h"
-#include "location_sa_load_manager.h"
-
 namespace OHOS {
 namespace Location {
 class ICallbackResumeManager {
@@ -130,7 +128,6 @@ public:
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
-    void UnregisterObserver();
 
 private:
     class LocatorDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -161,7 +158,6 @@ private:
     static std::mutex locatorMutex_;
     static std::shared_ptr<LocatorImpl> instance_;
     std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
-    std::shared_ptr<LocationSaLoadManager> saLoader_;
 };
 }  // namespace Location
 }  // namespace OHOS
