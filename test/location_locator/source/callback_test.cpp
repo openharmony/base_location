@@ -186,6 +186,7 @@ HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
         parcel.WriteDouble(i + 2.0);
         parcel.WriteDouble(i + 3.0);
         parcel.WriteDouble(i + 4.0);
+        parcel.WriteInt64(i + 5.0);
     }
     statusInfo->ReadFromParcel(parcel);
     EXPECT_NE(nullptr, statusInfo);

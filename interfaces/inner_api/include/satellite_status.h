@@ -133,6 +133,25 @@ public:
         carrierFrequencies_.push_back(cf);
     }
 
+    inline std::vector<int> GetConstellationTypes() const
+    {
+        return constellationTypes_;
+    }
+
+    inline void SetConstellationTypes(std::vector<int> types)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        for (std::vector<int>::iterator it = types.begin(); it != types.end(); ++it) {
+            constellationTypes_.push_back(*it);
+        }
+    }
+
+    inline void SetConstellationType(int type)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        constellationTypes_.push_back(type);
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<SatelliteStatus> Unmarshalling(Parcel& parcel);
@@ -143,6 +162,7 @@ private:
     std::vector<double> altitudes_;
     std::vector<double> azimuths_;
     std::vector<double> carrierFrequencies_;
+    std::vector<int> constellationTypes_;
     std::mutex mutex_;
 };
 } // namespace Location

@@ -32,6 +32,7 @@ SatelliteStatus::SatelliteStatus(SatelliteStatus& satelliteStatus)
     altitudes_ = satelliteStatus.GetAltitudes();
     azimuths_ = satelliteStatus.GetAzimuths();
     carrierFrequencies_ = satelliteStatus.GetCarrierFrequencies();
+    constellationTypes_ = satelliteStatus.GetConstellationTypes();
 }
 
 void SatelliteStatus::ReadFromParcel(Parcel& parcel)
@@ -45,6 +46,7 @@ void SatelliteStatus::ReadFromParcel(Parcel& parcel)
         altitudes_.push_back(parcel.ReadDouble());
         azimuths_.push_back(parcel.ReadDouble());
         carrierFrequencies_.push_back(parcel.ReadDouble());
+        constellationTypes_.push_back(parcel.ReadInt64());
     }
 }
 
@@ -57,6 +59,7 @@ bool SatelliteStatus::Marshalling(Parcel& parcel) const
         CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(altitudes_[i]));
         CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(azimuths_[i]));
         CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(carrierFrequencies_[i]));
+        CHK_PARCEL_RETURN_VALUE(parcel.WriteInt64(constellationTypes_[i]));
     }
     return true;
 }

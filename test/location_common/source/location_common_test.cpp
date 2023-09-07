@@ -290,6 +290,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
         parcel.WriteDouble(i + 2.0); // altitude
         parcel.WriteDouble(i + 3.0); // azimuth
         parcel.WriteDouble(i + 4.0); // carrierFrequency
+        parcel.WriteInt64(i + 5.0); // constellation type
     }
     status->ReadFromParcel(parcel);
     EXPECT_EQ(2, status->GetSatellitesNumber());
@@ -299,6 +300,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
         EXPECT_EQ(i + 2.0, status->GetAltitudes()[i]);
         EXPECT_EQ(i + 3.0, status->GetAzimuths()[i]);
         EXPECT_EQ(i + 4.0, status->GetCarrierFrequencies()[i]);
+        EXPECT_EQ(i + 5.0, status->GetConstellationTypes()[i]);
     }
 
     MessageParcel newParcel;
@@ -310,6 +312,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
         EXPECT_EQ(i + 2.0, newParcel.ReadDouble());
         EXPECT_EQ(i + 3.0, newParcel.ReadDouble());
         EXPECT_EQ(i + 4.0, newParcel.ReadDouble());
+        EXPECT_EQ(i + 5.0, newParcel.ReadInt64());
     }
     LBSLOGI(LOCATOR, "[LocationCommonTest] SateLLiteStatusTest001 end");
 }
