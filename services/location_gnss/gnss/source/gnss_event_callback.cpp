@@ -104,6 +104,7 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         svStatus->SetCarrierFrequencie(info.carrierFrequencies[i]);
         svStatus->SetCarrierToNoiseDensity(info.carrierToNoiseDensitys[i]);
         svStatus->SetSatelliteId(info.satelliteIds[i]);
+        svStatus->SetConstellationType(info.constellation[i]);
     }
     gnssAbility.get()->ReportSv(svStatus);
     return ERR_OK;

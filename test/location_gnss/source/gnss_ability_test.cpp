@@ -694,6 +694,7 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
         parcel.WriteDouble(i + 2.0); // altitude
         parcel.WriteDouble(i + 3.0); // azimuth
         parcel.WriteDouble(i + 4.0); // carrierFrequency
+        parcel.WriteInt64(i + 5.0); // constellation type
     }
     ASSERT_TRUE(status != nullptr);
     status->ReadFromParcel(parcel);
