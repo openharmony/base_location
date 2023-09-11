@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include <initializer_list>
+
 #include "hisysevent.h"
 
 #include "location_log.h"
@@ -41,6 +43,27 @@ void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t 
 void WriteLocationSwitchStateEvent(const std::string& state)
 {
     WriteEvent("SWITCH_STATE", "STATE", state);
+}
+
+void WriteLocationInnerEvent(const int event, std::initializer_list<std::string> params)
+{
+    std::vector<std::string> names;
+    std::vector<std::string> values;
+    bool flag = true;
+    for (auto x: params) {
+        if (flag) {
+            names.push_back(x);
+        } else {
+            values.push_back(x);
+        }
+        flag = !flag;
+    }
+    WriteEvent("LBS_CHR_INNER_EVENT", "EVENT", event, "NAMES", names, "VALUES", values);
+}
+
+void WriteLocationInnerEvent(const int event, std::vector<std::string> names,std::vector<std::string>& values)
+{
+    WriteEvent("LBS_CHR_INNER_EVENT", "EVENT", event, "NAMES", names, "VALUES", values);
 }
 }  // namespace Location
 }  // namespace OHOS

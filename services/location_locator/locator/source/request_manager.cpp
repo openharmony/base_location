@@ -35,6 +35,8 @@
 #include "passive_ability_proxy.h"
 #endif
 #include "request_config.h"
+#include "location_log_event_ids.h"
+#include "common_hisysevent.h"
 
 namespace OHOS {
 namespace Location {
@@ -247,9 +249,13 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
     LBSLOGD(REQUEST_MANAGER, "%{public}s ability current request size %{public}s",
         abilityName.c_str(), std::to_string(list->size()).c_str());
     if (shouldInsert) {
+        WriteLocationInnerEvent(ADD_REQUEST, {"PackageName", request->GetPackageName(),
+            "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
         list->push_back(request);
         runningUids_.push_back(request->GetUid());
     } else {
+        WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
+            "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
         for (auto iter = list->begin(); iter != list->end();) {
             auto findRequest = *iter;
             if (request == findRequest) {

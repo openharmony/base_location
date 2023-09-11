@@ -23,6 +23,8 @@
 #include "location_log.h"
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
+#include "location_log_event_ids.h"
+#include "common_hisysevent.h"
 
 namespace OHOS {
 namespace Location {
@@ -64,6 +66,10 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     auto fuseLocation = fusionController->GetFuseLocation(abilityName, location);
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
+        if (abilityName == NETWORK_ABILITY) {
+            WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {"PackageName", request->GetPackageName(),
+                "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
+        }
         bool ret = true;
         if (IsRequestFuse(request)) {
             ret = ProcessRequestForReport(request, deadRequests, fuseLocation);

@@ -20,6 +20,8 @@
 #include "common_utils.h"
 #include "gnss_ability.h"
 #include "location_log.h"
+#include "location_log_event_ids.h"
+#include "common_hisysevent.h"
 
 namespace OHOS {
 namespace Location {
@@ -48,6 +50,7 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
         IPCSkeleton::SetCallingIdentity(identity);
         return ERR_OK;
     }
+    WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {"speed", std::to_string(location.speed)});
     gnssAbility->ReportLocationInfo(GNSS_ABILITY, locationNew);
 #ifdef FEATURE_PASSIVE_SUPPORT
     gnssAbility->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
@@ -96,6 +99,10 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         LBSLOGD(GNSS, "SvStatusCallback, satellites_num <= 0!");
         return ERR_INVALID_VALUE;
     }
+    std::vector<std::string> names;
+    std::vector<std::string> satelliteStatusInfos;
+    names.push_back("SatelliteStatusInfo");
+    satelliteStatusInfos.push_back(std::to_string(info.satellitesNumber));
 
     svStatus->SetSatellitesNumber(info.satellitesNumber);
     for (unsigned int i = 0; i < info.satellitesNumber; i++) {
@@ -105,7 +112,16 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         svStatus->SetCarrierToNoiseDensity(info.carrierToNoiseDensitys[i]);
         svStatus->SetSatelliteId(info.satelliteIds[i]);
         svStatus->SetConstellationType(info.constellation[i]);
+        std::string str_info = "satelliteId : " + std::to_string(info.satelliteIds[i]) +
+            ", carrierToNoiseDensity : " + std::to_string(info.carrierToNoiseDensitys[i]) +
+            ", elevation : " + std::to_string(info.elevation[i]) +
+            ", azimuth : " + std::to_string(info.azimuths[i]) +
+            ", carrierFrequencie : " + std::to_string(info.carrierFrequencies[i]);
+        names.push_back(std::to_string(i));
+        satelliteStatusInfos.push_back(str_info);
     }
+
+    WriteLocationInnerEvent(RECEIVE_SATELLITESTATUSINFO, names, satelliteStatusInfos);
     gnssAbility.get()->ReportSv(svStatus);
     return ERR_OK;
 }
