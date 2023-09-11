@@ -37,6 +37,7 @@
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "locationhub_ipc_interface_code.h"
+#include "location_log_event_ids.h"
 
 namespace OHOS {
 namespace Location {
@@ -453,6 +454,7 @@ void GnssAbility::StartGnss()
     if (GetRequestNum() == 0) {
         return;
     }
+    WriteLocationInnerEvent(START_GNSS, {});
     int ret = gnssInterface_->StartGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_STATUS_SESSION_BEGIN;
@@ -472,6 +474,7 @@ void GnssAbility::StopGnss()
     if (GetRequestNum() != 0) {
         return;
     }
+    WriteLocationInnerEvent(STOP_GNSS, {});
     int ret = gnssInterface_->StopGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_STATUS_SESSION_END;

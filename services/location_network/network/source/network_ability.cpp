@@ -32,6 +32,8 @@
 #include "location_sa_load_manager.h"
 #include "network_callback_host.h"
 #include "locationhub_ipc_interface_code.h"
+#include "location_log_event_ids.h"
+#include "common_hisysevent.h"
 
 namespace OHOS {
 namespace Location {
@@ -141,6 +143,7 @@ bool NetworkAbility::ConnectNlpService()
         auto waitStatus = connectCondition_.wait_for(
             uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return nlpServiceReady_; });
         if (!waitStatus) {
+            WriteLocationInnerEvent(NLP_SERVICE_TIMEOUT, {});
             LBSLOGE(NETWORK, "Connect cloudService timeout!");
             return false;
         }

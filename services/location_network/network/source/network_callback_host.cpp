@@ -20,6 +20,9 @@
 #include "location_log.h"
 #include "network_ability.h"
 
+#include "location_log_event_ids.h"
+#include "common_hisysevent.h"
+
 namespace OHOS {
 namespace Location {
 
@@ -47,6 +50,7 @@ int NetworkCallbackHost::OnRemoteRequest(
 void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport");
+    WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {});
     std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
     DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
 }
