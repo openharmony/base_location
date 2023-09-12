@@ -46,6 +46,7 @@ private:
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
         std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location);
+    void WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request);
 };
 } // namespace OHOS
 } // namespace Location
