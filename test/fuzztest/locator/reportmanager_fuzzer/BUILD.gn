@@ -18,7 +18,7 @@ import("//build/test.gni")
 
 ##############################fuzztest##########################################
 ohos_fuzztest("ReportManagerFuzzTest") {
-  module_out_path = "location/services"
+  module_out_path = "location/location"
   fuzz_config_file =
       "$LOCATION_ROOT_DIR/test/fuzztest/locator/reportmanager_fuzzer"
   include_dirs = [

@@ -19,7 +19,7 @@ import("//build/test.gni")
 ##############################fuzztest##########################################
 if (location_feature_with_gnss) {
   ohos_fuzztest("GnssFuzzTest") {
-    module_out_path = "location/services"
+    module_out_path = "location/location"
     fuzz_config_file = "$LOCATION_ROOT_DIR/test/fuzztest/locator/gnss_fuzzer"
     include_dirs = [
       "$LOCATION_GNSS_ROOT/include",
@@ -86,7 +86,7 @@ if (location_feature_with_gnss) {
   }
 } else {
   ohos_fuzztest("GnssFuzzTest") {
-    module_out_path = "location/services"
+    module_out_path = "location/location"
   }
 }
 
