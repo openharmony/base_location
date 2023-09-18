@@ -66,10 +66,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     auto fuseLocation = fusionController->GetFuseLocation(abilityName, location);
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
-        if (abilityName == NETWORK_ABILITY) {
-            WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {"PackageName", request->GetPackageName(),
-                "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
-        }
+        WriteNetWorkReportEvent(abilityName, request);
         bool ret = true;
         if (IsRequestFuse(request)) {
             ret = ProcessRequestForReport(request, deadRequests, fuseLocation);
@@ -304,6 +301,14 @@ bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
         return true;
     }
     return false;
+}
+
+void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request)
+{
+    if (abilityName == NETWORK_ABILITY && request != nullptr) {
+        WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {"PackageName", request->GetPackageName(),
+            "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
+    }
 }
 } // namespace OHOS
 } // namespace Location

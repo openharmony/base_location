@@ -50,7 +50,6 @@ int NetworkCallbackHost::OnRemoteRequest(
 void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport");
-    WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {});
     std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
     DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
 }
