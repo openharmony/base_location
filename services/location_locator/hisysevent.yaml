@@ -13,14 +13,46 @@
 
 domain: LOCATION
 
-# Start or stop Location switch
-SWITCH_STATE:
-  __BASE: {type: STATISTIC, level: MINOR, tag: PowerStats, desc: start or stop Location switch}
-  STATE: {type: STRING, desc: enable or disable}
+GNSS_SESSION:
+  __BASE: {type: STATISTIC, level: MINOR, desc: GNSS session report}
+  APP_IDENTITIES: {type: STRING, desc: app identities  in this gnss session}
+  APP_REQUEST_GNSS_COUNT: {type: INT32, desc: all app request gnss count in this session}
+  AVG_CN0_40KMPH: {type: INT32, desc: the average CN0 of top 4 CVs when the speed exceed 40 kmph at the first time}
+  CATCH_4SV_TIME: {type: INT64, desc: timestamp of get 4 SVs whose CN0 bigger than 28}
+  DECODE_4SV_TIME: {type: INT64, desc: timestamp of decode 4 SVs whose CN0 bigger than 28}
+  FIRST_CATCH_SV_TIME: {type: INT64, desc: timestamp of find first sv}
+  FIX_SV: {type: STRING, desc: sv status when fix}
+  LOST_POSITION_COUNT: {type: INT32, desc: counts of losing fix in one session}
+  MAX_CN0: {type: INT32, desc: max value of average cn0s of TOP4 Svs reported each seconds}
+  START_TIME: {type: INT64, desc: timestamp of gnss start}
+  STOP_TIME: {type: INT64, desc: timestamp of gnss stop}
+  TTFF: {type: INT32, desc: Time to First Fix}
 
-# GNSS location status
 GNSS_STATE:
   __BASE: {type: STATISTIC, level: MINOR, tag: PowerStats, desc: GNSS location status}
   STATE: {type: STRING, desc: start or stop}
   PID: {type: INT32, desc: PID value}
   UID: {type: INT32, desc: UID value}
+
+LBS_CHR_INNER_EVENT:
+  __BASE: {type: STATISTIC, level: MINOR, desc: report data event}
+  EVENT: {type: UINT32, desc: event}
+  NAMES: {type: STRING, desc: names}
+  VALUES: {type: STRING, desc: values}
+
+LBS_DAILY_RECORD:
+  __BASE: {type: STATISTIC, level: MINOR, desc: request daily record}
+  GNSS_REQUEST_COUNT: {type: INT32, desc: GNSS request count}
+  NETWORK_REQUEST_COUNT: {type: INT32, desc: Network position count}
+  NETWORK_TIMEOUT_COUNT: {type: INT32, desc: Network position timeout count}
+
+POSITION_JUMP_ERROR:
+  __BASE: {type: FAULT, level: MINOR, desc: position jump error event}
+  AR_STATUS: {type: UINT32, desc: ar status}
+  FINAL_2F: {type: DOUBLE, desc: distance between final and final}
+  FINAL_2P: {type: DOUBLE, desc: distance between pvt and pvt}
+  PVT_2P: {type: DOUBLE, desc: distance between final and pvt}
+
+SWITCH_STATE:
+  __BASE: {type: STATISTIC, level: MINOR, tag: PowerStats, desc: start or stop Location switch}
+  STATE: {type: STRING, desc: enable or disable}
