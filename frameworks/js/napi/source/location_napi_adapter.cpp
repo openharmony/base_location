@@ -109,7 +109,10 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 #else
     auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "isLocationEnabled", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
+    if (napi_create_string_latin1(env, "isLocationEnabled", NAPI_AUTO_LENGTH,
+        &asyncContext->resourceName) != napi_ok) {
+        LBSLOGE(LOCATOR_STANDARD, "copy string failed");
+    }
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         context->enable = g_locatorClient->IsLocationEnabled();
@@ -744,8 +747,10 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
     }
     CountryCodeContext *asyncContext = new (std::nothrow) CountryCodeContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    napi_create_string_latin1(env, "CountryCodeContext", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
-
+    if (napi_create_string_latin1(env, "CountryCodeContext", NAPI_AUTO_LENGTH,
+        &asyncContext->resourceName) != napi_ok) {
+        LBSLOGE(LOCATOR_STANDARD, "copy string failed");
+    }
     asyncContext->executeFunc = [&](void *data) -> void {
         if (data == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode data == nullptr");

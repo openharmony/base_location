@@ -46,6 +46,7 @@ public:
     explicit LocatorProxyTestFuzzer(const sptr<IRemoteObject> &impl)
         : LocatorProxy(impl)
     {}
+    virtual ~LocatorProxyTestFuzzer() = default;
     sptr<IRemoteObject> GetRemote()
     {
         return Remote();
