@@ -104,6 +104,7 @@ void LocationMockIpcTest::SetUp()
 
 void LocationMockIpcTest::TearDown()
 {
+    ipcMap_.clear();
 }
 
 #ifdef FEATURE_GNSS_SUPPORT
