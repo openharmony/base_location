@@ -72,16 +72,27 @@ ohos_unittest("LocationMockIpcTest") {
 
   defines = []
 
-  if (location_feature_with_gnss) {
+  if (telephony_core_service_enable) {
+    external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TEL_CORE_SERVICE_ENABLE" ]
+  }
+
+  if (telephony_cellular_data_enable) {
+    external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
+  }
+
+  if (hdf_drivers_interface_location_agnss_enable) {
+    external_deps +=
+        [ "drivers_interface_location_agnss:liblocation_agnss_proxy_1.0" ]
+    defines += [ "HDF_DRIVERS_INTERFACE_AGNSS_ENABLE" ]
+  }
+
+  if (location_feature_with_gnss &&
+      hdf_drivers_interface_location_gnss_enable) {
+    external_deps +=
+        [ "drivers_interface_location_gnss:liblocation_gnss_proxy_1.0" ]
     defines += [ "FEATURE_GNSS_SUPPORT" ]
-  }
-
-  if (location_feature_with_network) {
-    defines += [ "FEATURE_NETWORK_SUPPORT" ]
-  }
-
-  if (location_feature_with_passive) {
-    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
   }
 
   if (location_feature_with_passive) {
@@ -90,6 +101,10 @@ ohos_unittest("LocationMockIpcTest") {
 
   if (location_feature_with_geocode) {
     defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+  }
+
+  if (location_feature_with_network) {
+    defines += [ "FEATURE_NETWORK_SUPPORT" ]
   }
 
   module_out_path = module_output_path
