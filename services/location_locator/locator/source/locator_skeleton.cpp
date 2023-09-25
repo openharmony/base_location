@@ -957,7 +957,10 @@ bool LocatorAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
         return false;
     }
     int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
+    LocationErrCode errorCode = locatorAbility->GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "GetSwitchState failed errCode = %{public}d.", errorCode);
+    }
     if (state == DISABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
@@ -1022,7 +1025,10 @@ void LocatorAbilityStub::SaDumpInfo(std::string& result)
         return;
     }
     int state = DISABLED;
-    locatorAbility->GetSwitchState(state);
+    LocationErrCode errorCode = locatorAbility->GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "GetSwitchState failed errCode = %{public}d.", errorCode);
+    }
     result += "Location switch state: ";
     std::string status = state ? "on" : "off";
     result += status + "\n";

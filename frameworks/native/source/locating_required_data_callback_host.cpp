@@ -28,11 +28,16 @@ LocatingRequiredDataCallbackHost::LocatingRequiredDataCallbackHost()
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
+    fixNumber_ = 0;
     InitLatch();
 }
 
 LocatingRequiredDataCallbackHost::~LocatingRequiredDataCallbackHost()
 {
+    if (latch_ != nullptr) {
+        delete latch_;
+        latch_ = nullptr;
+    }
 }
 
 void LocatingRequiredDataCallbackHost::InitLatch()

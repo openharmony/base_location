@@ -57,7 +57,10 @@ void LocationDataHandler::HandleSwitchStateChanged(const AppExecFwk::InnerEvent:
 
     Uri locationDataEnableUri(LOCATION_DATA_URI);
     int32_t state = DISABLED;
-    rdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    LocationErrCode errCode = rdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
+    }
     int64_t value = event->GetParam();
     if (state != value) {
         rdbHelper->SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);

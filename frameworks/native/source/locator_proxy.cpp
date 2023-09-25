@@ -249,8 +249,11 @@ int LocatorProxy::SetLocationPrivacyConfirmStatus(const int type, bool isConfirm
     }
     data.WriteInt32(type);
     data.WriteBool(isConfirmed);
-    SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS), data, reply);
-    int error = reply.ReadInt32();
+    int error = SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS), data, reply);
+    if (error != NO_ERROR) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: SendMsgWithDataReply failed, ErrCodes = %{public}d", __func__, error);
+    }
+    error = reply.ReadInt32();
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SetLocationPrivacyConfirmStatus Transact ErrCodes = %{public}d", error);
     return error;
 }
