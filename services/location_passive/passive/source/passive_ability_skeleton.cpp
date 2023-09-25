@@ -29,11 +29,83 @@
 
 namespace OHOS {
 namespace Location {
+void PassiveAbilityStub::InitPassiveMsgHandleMap()
+{
+    if (PassiveMsgHandleMap_.size() != 0) {
+        return;
+    }
+    PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST)] =
+        &PassiveAbilityStub::SendLocationRequestInner;
+    PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE)] =
+        &PassiveAbilityStub::SetEnableInner;
+    PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK)] =
+        &PassiveAbilityStub::EnableMockInner;
+    PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK)] =
+        &PassiveAbilityStub::DisableMockInner;
+    PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS)] =
+        &PassiveAbilityStub::SetMockedLocationsInner;
+}
+
+PassiveAbilityStub::PassiveAbilityStub()
+{
+    InitPassiveMsgHandleMap();
+}
+
+int PassiveAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
+    reply.WriteInt32(SendLocationRequest(*workrecord));
+    return ERRCODE_SUCCESS;
+}
+
+int PassiveAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    reply.WriteInt32(SetEnable(data.ReadBool()));
+    return ERRCODE_SUCCESS;
+}
+
+int PassiveAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    reply.WriteInt32(EnableMock());
+    return ERRCODE_SUCCESS;
+}
+
+int PassiveAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    reply.WriteInt32(DisableMock());
+    return ERRCODE_SUCCESS;
+}
+
+int PassiveAbilityStub::SetMockedLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    SendMessage(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
+    isMessageRequest_ = true;
+    return ERRCODE_SUCCESS;
+}
+
 int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t callingUid = IPCSkeleton::GetCallingUid();
+    AppIdentity identity;
+    identity.SetPid(callingPid);
+    identity.SetUid(callingUid);
     LBSLOGI(PASSIVE, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
 
@@ -42,51 +114,18 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-
     int ret = ERRCODE_SUCCESS;
-    bool isMessageRequest = false;
-    switch (code) {
-        case static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
-            reply.WriteInt32(SendLocationRequest(*workrecord));
-            break;
-        }
-        case static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            reply.WriteInt32(SetEnable(data.ReadBool()));
-            break;
-        }
-        case static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            reply.WriteInt32(EnableMock());
-            break;
-        }
-        case static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            reply.WriteInt32(DisableMock());
-            break;
-        }
-        case static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS): {
-            if (!CommonUtils::CheckCallingPermission(callingUid, callingPid, reply)) {
-                return ERRCODE_PERMISSION_DENIED;
-            }
-            SendMessage(code, data, reply);
-            isMessageRequest = true;
-            break;
-        }
-        default:
-            ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    isMessageRequest_ = false;
+    auto handleFunc = PassiveMsgHandleMap_.find(code);
+    if (handleFunc != PassiveMsgHandleMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+        ret = (this->*memberFunc)(data, reply, identity);
+    } else {
+        LBSLOGE(PASSIVE, "OnReceived cmd = %{public}u, unsupport service.", code);
+        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
+        ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    if (!isMessageRequest) {
+    if (!isMessageRequest_) {
         UnloadPassiveSystemAbility();
     }
     return ret;

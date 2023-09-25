@@ -16,13 +16,14 @@
 #ifndef PASSIVE_ABILITY_SKELETON_H
 #define PASSIVE_ABILITY_SKELETON_H
 #ifdef FEATURE_PASSIVE_SUPPORT
-
+#include <map>
 #include "iremote_stub.h"
 
 #include "message_option.h"
 #include "message_parcel.h"
 
 #include "subability_common.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -33,10 +34,25 @@ public:
 
 class PassiveAbilityStub : public IRemoteStub<IPassiveAbility> {
 public:
+    using PassiveMsgHandle = int (PassiveAbilityStub::*)(
+        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using PassiveMsgHandleMap = std::map<int, PassiveMsgHandle>;
+    PassiveAbilityStub();
+    virtual ~PassiveAbilityStub() = default;
+    void InitPassiveMsgHandleMap();
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
     virtual void UnloadPassiveSystemAbility() = 0;
+private:
+    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SetMockedLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+private:
+    bool isMessageRequest_ = false;
+    PassiveMsgHandleMap PassiveMsgHandleMap_;
 };
 } // namespace Location
 } // namespace OHOS
