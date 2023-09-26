@@ -88,13 +88,6 @@ LocationErrCode PassiveAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode PassiveAbility::SetEnable(bool state)
 {
-    if (state) {
-        Enable(true, AsObject());
-        return ERRCODE_SUCCESS;
-    }
-    if (!CheckIfPassiveConnecting()) {
-        Enable(false, AsObject());
-    }
     return ERRCODE_SUCCESS;
 }
 

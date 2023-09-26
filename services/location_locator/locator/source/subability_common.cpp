@@ -45,6 +45,21 @@ void SubAbility::SetAbility(std::string name)
     capability_ = CommonUtils::GetCapability(name);
 }
 
+void SubAbility::StopAllLocationRequests()
+{
+    // When the switch is turned off, all current requests are stopped
+    std::unique_ptr<WorkRecord> emptyRecord = std::make_unique<WorkRecord>();
+    HandleLocalRequest(*emptyRecord);
+    lastRecord_->Clear();
+}
+
+void SubAbility::RestartAllLocationRequests()
+{
+    // When the switch is turned on, all SA requests will be refreshed
+    lastRecord_->Clear();
+    HandleRefrashRequirements();
+}
+
 void SubAbility::LocationRequest(WorkRecord &workRecord)
 {
     interval_ = workRecord.GetTimeInterval(0);

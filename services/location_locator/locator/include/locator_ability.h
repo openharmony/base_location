@@ -140,7 +140,6 @@ public:
 private:
     bool Init();
     bool CheckSaValid();
-    static int QuerySwitchState();
 #ifdef FEATURE_GEOCODE_SUPPORT
     LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
@@ -149,6 +148,7 @@ private:
 #endif
     void UpdateProxyMap();
     bool CheckIfLocatorConnecting();
+    void UpdateLoadedSaMap();
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
@@ -160,10 +160,12 @@ private:
     std::mutex receiversMutex_;
     std::mutex proxyMapMutex_;
     std::mutex permissionMapMutex_;
+    std::mutex loadedSaMapMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requests_;
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> receivers_;
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> proxyMap_;
+    std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> loadedSaMap_;
     std::shared_ptr<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>> permissionMap_;
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;

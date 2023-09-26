@@ -83,6 +83,7 @@ const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int SEC_TO_MILLI_SEC = 1000;
 const int CONNECT_TIME_OUT = 10;
+const int DISCONNECT_TIME_OUT = 10;
 const int GEOCODE_TIME_OUT = 60;
 
 const char DEFAULT_STRING[] = "error";
@@ -180,6 +181,7 @@ public:
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool CheckAppInstalled(const std::string& bundleName);
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
+    static int QuerySwitchState();
 };
 
 class CountDownLatch {

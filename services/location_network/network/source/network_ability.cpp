@@ -17,7 +17,6 @@
 #include "network_ability.h"
 #include <file_ex.h>
 #include <thread>
-#include "ability_connect_callback_interface.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
 #include "ipc_skeleton.h"
@@ -38,6 +37,8 @@
 namespace OHOS {
 namespace Location {
 const uint32_t EVENT_REPORT_LOCATION = 0x0100;
+const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
+const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
@@ -53,7 +54,10 @@ NetworkAbility::NetworkAbility() : SystemAbility(LOCATION_NETWORK_LOCATING_SA_ID
     LBSLOGI(NETWORK, "ability constructed.");
 }
 
-NetworkAbility::~NetworkAbility() {}
+NetworkAbility::~NetworkAbility()
+{
+    conn_ = nullptr;
+}
 
 void NetworkAbility::OnStart()
 {
@@ -129,14 +133,14 @@ bool NetworkAbility::ConnectNlpService()
             return false;
         }
         connectionWant.SetElementName(serviceName, abilityName);
-        sptr<AAFwk::IAbilityConnection> conn = new (std::nothrow) AbilityConnection();
-        if (conn == nullptr) {
+        conn_ = sptr<AAFwk::IAbilityConnection>(new (std::nothrow) AbilityConnection());
+        if (conn_ == nullptr) {
             LBSLOGE(NETWORK, "get connection failed!");
             return false;
         }
-        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn, -1);
+        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn_, -1);
         if (ret != ERR_OK) {
-            LBSLOGE(NETWORK, "Connect cloud service failed!");
+            LBSLOGE(NETWORK, "Connect cloud service failed, ret = %{public}d", ret);
             return false;
         }
 
@@ -170,6 +174,33 @@ bool NetworkAbility::ReConnectNlpService()
     return false;
 }
 
+bool NetworkAbility::DisconnectNlpService()
+{
+    LBSLOGD(NETWORK, "start DisconnectNlpService");
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    if (!nlpServiceReady_) {
+        return true;
+    }
+    auto client = AAFwk::AbilityManagerClient::GetInstance();
+    if (client == nullptr) {
+        LBSLOGE(NETWORK, "%{public}s: get ability manager client failed.", __func__);
+        return false;
+    }
+    int32_t ret = client->DisconnectAbility(conn_);
+    if (ret != ERR_OK) {
+        LBSLOGE(NETWORK,
+            "%{public}s: Disconnect nlp service failed!, ret = %{public}d", __func__, ret);
+        return false;
+    }
+    auto waitStatus = connectCondition_.wait_for(
+        uniqueLock, std::chrono::seconds(DISCONNECT_TIME_OUT), [this]() { return !nlpServiceReady_; });
+    if (!waitStatus) {
+        LBSLOGE(NETWORK, "Disconnect cloudService timeout!");
+        return false;
+    }
+    return true;
+}
+
 void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
 {
     std::unique_lock<std::mutex> uniqueLock(mutex_);
@@ -194,13 +225,14 @@ LocationErrCode NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode NetworkAbility::SetEnable(bool state)
 {
-    if (state) {
-        Enable(true, AsObject());
-        return ERRCODE_SUCCESS;
+    LBSLOGI(NETWORK, "SetEnable: %{public}d", state);
+    if (networkHandler_ == nullptr) {
+        LBSLOGE(NETWORK, "%{public}s networkHandler is nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (!CheckIfNetworkConnecting()) {
-        Enable(false, AsObject());
-    }
+    auto event = state ? AppExecFwk::InnerEvent::Get(EVENT_RESTART_ALL_LOCATION_REQUEST, 0) :
+        AppExecFwk::InnerEvent::Get(EVENT_STOP_ALL_LOCATION_REQUEST, 0);
+    networkHandler_->SendHighPriorityEvent(event);
     return ERRCODE_SUCCESS;
 }
 
@@ -265,6 +297,10 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     MessageParcel reply;
     MessageOption option;
     if (isAdded) {
+        if (CommonUtils::QuerySwitchState() == DISABLED) {
+            LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
+            return;
+        }
         LBSLOGD(NETWORK, "start network location");
         sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
         if (callback == nullptr) {
@@ -451,6 +487,14 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
             networkAbility->ProcessReportLocationMock();
+            break;
+        }
+        case EVENT_RESTART_ALL_LOCATION_REQUEST: {
+            networkAbility->RestartAllLocationRequests();
+            break;
+        }
+        case EVENT_STOP_ALL_LOCATION_REQUEST: {
+            networkAbility->StopAllLocationRequests();
             break;
         }
         case static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST): {
