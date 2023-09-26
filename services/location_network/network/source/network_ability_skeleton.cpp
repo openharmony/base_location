@@ -79,6 +79,9 @@ int NetworkAbilityStub::SelfRequestInner(MessageParcel &data, MessageParcel &rep
     if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    if (CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST), data, reply);
     isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
@@ -142,6 +145,16 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         UnloadNetworkSystemAbility();
     }
     return ret;
+}
+
+bool NetworkAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
+{
+    if (CommonUtils::QuerySwitchState() == DISABLED) {
+        LBSLOGE(NETWORK, "switch state is off.");
+        reply.WriteInt32(ERRCODE_SWITCH_OFF);
+        return false;
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

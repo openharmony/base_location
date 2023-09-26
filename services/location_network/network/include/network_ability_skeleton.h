@@ -51,6 +51,7 @@ private:
     int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    bool CheckLocationSwitchState(MessageParcel &reply);
 private:
     bool isMessageRequest_ = false;
     NetworkMsgHandleMap NetworkMsgHandleMap_;

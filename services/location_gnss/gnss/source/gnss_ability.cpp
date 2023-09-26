@@ -134,13 +134,8 @@ LocationErrCode GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode GnssAbility::SetEnable(bool state)
 {
-    if (state) {
-        Enable(true, AsObject());
-        return ERRCODE_SUCCESS;
-    }
-    if (!CheckIfGnssConnecting()) {
-        Enable(false, AsObject());
-    }
+    LBSLOGI(GNSS, "SetEnable: %{public}d", state);
+    state ? StartGnss() : StopGnss();
     return ERRCODE_SUCCESS;
 }
 
@@ -326,12 +321,11 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         }
         StartGnss();
     } else {
-        if (isHdiConnected_) {
+        // GNSS will stop only if all requests have stopped
+        if (isHdiConnected_ && GetRequestNum() == 0) {
             StopGnss();
-            if (GetRequestNum() == 0) {
-                RemoveHdi();
-                isHdiConnected_ = false;
-            }
+            RemoveHdi();
+            isHdiConnected_ = false;
         }
     }
     std::string state = isAdded ? "start" : "stop";
@@ -439,6 +433,10 @@ bool GnssAbility::IsGnssEnabled()
 
 void GnssAbility::StartGnss()
 {
+    if (CommonUtils::QuerySwitchState() == DISABLED) {
+        LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
+        return;
+    }
     if (gnssInterface_ == nullptr) {
         LBSLOGE(GNSS, "gnssInterface_ is nullptr");
         return;
@@ -469,9 +467,6 @@ void GnssAbility::StopGnss()
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "gnss has been disabled");
-        return;
-    }
-    if (GetRequestNum() != 0) {
         return;
     }
     WriteLocationInnerEvent(STOP_GNSS, {});
@@ -505,13 +500,13 @@ bool GnssAbility::ConnectHdi()
         gnssInterface_ = IGnssInterface::Get();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
         agnssInterface_ = IAGnssInterface::Get();
-#endif
         if (gnssInterface_ != nullptr && agnssInterface_ != nullptr) {
+            agnssCallback_ = new (std::nothrow) AGnssEventCallback();
+#else
+        if (gnssInterface_ != nullptr) {
+#endif
             LBSLOGI(GNSS, "connect v1_0 hdi success.");
             gnssCallback_ = new (std::nothrow) GnssEventCallback();
-#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-            agnssCallback_ = new (std::nothrow) AGnssEventCallback();
-#endif
             RegisterLocationHdiDeathRecipient();
             lock.unlock();
             return true;
