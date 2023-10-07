@@ -52,6 +52,7 @@ void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport");
     std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
     DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
+    DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
 }
 
 void NetworkCallbackHost::OnLocatingStatusChange(const int status)
