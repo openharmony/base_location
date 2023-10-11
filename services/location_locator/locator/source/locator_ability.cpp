@@ -62,6 +62,7 @@ const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
 const float_t PRECISION = 0.000001;
 const std::string UNLOAD_TASK = "locatior_sa_unload";
 const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
+const uint32_t SET_ENABLE = 3;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
@@ -69,6 +70,7 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
+    loadedSaMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     permissionMap_ = std::make_shared<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>>();
     InitRequestManagerMap();
     reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
@@ -331,15 +333,35 @@ LocationErrCode LocatorAbility::UpdateSaAbility()
 
 void LocatorAbility::UpdateSaAbilityHandler()
 {
-    int state = QuerySwitchState();
+    int state = CommonUtils::QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
+    bool isEnabled = (state == ENABLED);
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
         return;
     }
-    locatorBackgroundProxy.get()->OnSaStateChange(state == ENABLED);
+    locatorBackgroundProxy.get()->OnSaStateChange(isEnabled);
+    UpdateLoadedSaMap();
+    std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
+    for (auto iter = loadedSaMap_->begin(); iter != loadedSaMap_->end(); iter++) {
+        sptr<IRemoteObject> remoteObject = iter->second;
+        MessageParcel data;
+        if (iter->first == GNSS_ABILITY) {
+            data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+        } else if (iter->first == NETWORK_ABILITY) {
+            data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
+        } else if (iter->first == PASSIVE_ABILITY) {
+            data.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
+        }
+        data.WriteBool(isEnabled);
+
+        MessageParcel reply;
+        MessageOption option;
+        int error = remoteObject->SendRequest(SET_ENABLE, data, reply, option);
+        LBSLOGI(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
+    }
 }
 
 void LocatorAbility::UnloadSaAbility()
@@ -374,7 +396,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
-    if (modeValue == QuerySwitchState()) {
+    if (modeValue == CommonUtils::QuerySwitchState()) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
@@ -393,22 +415,8 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    state = QuerySwitchState();
+    state = CommonUtils::QuerySwitchState();
     return ERRCODE_SUCCESS;
-}
-
-int LocatorAbility::QuerySwitchState()
-{
-    int32_t state = DISABLED;
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
-        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s: can not query state, reset state.", __func__);
-        DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
-            SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    }
-    return state;
 }
 
 LocationErrCode LocatorAbility::IsLocationPrivacyConfirmed(const int type, bool& isConfirmed)
@@ -744,6 +752,27 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     return ERRCODE_SUCCESS;
 }
 
+void LocatorAbility::UpdateLoadedSaMap()
+{
+    std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
+    loadedSaMap_->clear();
+    if (CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_GNSS_SA_ID)) {
+        sptr<IRemoteObject> objectGnss =
+            CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
+        loadedSaMap_->insert(make_pair(GNSS_ABILITY, objectGnss));
+    }
+    if (CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_NETWORK_LOCATING_SA_ID)) {
+        sptr<IRemoteObject> objectNetwork =
+            CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID, CommonUtils::InitDeviceId());
+        loadedSaMap_->insert(make_pair(NETWORK_ABILITY, objectNetwork));
+    }
+    if (CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_NOPOWER_LOCATING_SA_ID)) {
+        sptr<IRemoteObject> objectPassive =
+            CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID, CommonUtils::InitDeviceId());
+        loadedSaMap_->insert(make_pair(PASSIVE_ABILITY, objectPassive));
+    }
+}
+
 void LocatorAbility::UpdateProxyMap()
 {
     std::unique_lock<std::mutex> lock(proxyMapMutex_);
@@ -815,7 +844,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return ERRCODE_NOT_SUPPORTED;
 #endif
-    if (QuerySwitchState() == DISABLED) {
+    if (CommonUtils::QuerySwitchState() == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     if (!CheckSaValid()) {

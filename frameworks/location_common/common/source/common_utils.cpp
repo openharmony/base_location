@@ -27,6 +27,9 @@
 
 #include "common_utils.h"
 
+#include "uri.h"
+#include "constant_definition.h"
+#include "location_data_rdb_helper.h"
 namespace OHOS {
 namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
@@ -381,6 +384,20 @@ bool CommonUtils::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
         return false;
     }
     return (samgr->CheckSystemAbility(systemAbilityId) != nullptr);
+}
+
+int CommonUtils::QuerySwitchState()
+{
+    int32_t state = DISABLED;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not query state, reset state.", __func__);
+        DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+            SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    }
+    return state;
 }
 } // namespace Location
 } // namespace OHOS

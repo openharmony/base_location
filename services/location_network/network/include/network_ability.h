@@ -20,6 +20,7 @@
 #include <string>
 #include <singleton.h>
 
+#include "ability_connect_callback_interface.h"
 #include "event_handler.h"
 #include "event_runner.h"
 #include "system_ability.h"
@@ -69,6 +70,7 @@ public:
     void ProcessReportLocationMock();
     bool ConnectNlpService();
     bool ReConnectNlpService();
+    bool DisconnectNlpService();
     void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
     void NotifyDisConnected();
     bool IsMockEnabled();
@@ -87,6 +89,7 @@ private:
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
+    sptr<AAFwk::IAbilityConnection> conn_;
 };
 } // namespace Location
 } // namespace OHOS
