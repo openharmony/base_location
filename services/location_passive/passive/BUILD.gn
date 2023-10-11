@@ -37,7 +37,7 @@ if (location_feature_with_passive) {
       "c_utils:utils",
       "eventhandler:libeventhandler",
       "hilog:libhilog",
-      "ipc:ipc_core",
+      "ipc:ipc_single",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
     ]
