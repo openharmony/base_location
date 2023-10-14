@@ -41,7 +41,7 @@ class LocatorWifiScanEventCallback : public Wifi::IWifiScanCallback {
 public:
     explicit LocatorWifiScanEventCallback() {}
     ~LocatorWifiScanEventCallback() {}
-    void OnWifiScanStateChanged(int state) override;
+    __attribute__((no_sanitize("cfi"))) void OnWifiScanStateChanged(int state) override;
     sptr<IRemoteObject> AsObject() override
     {
         return nullptr;
@@ -173,11 +173,11 @@ class LocatorRequiredDataManager : public DelayedSingleton<LocatorRequiredDataMa
 public:
     LocatorRequiredDataManager();
     ~LocatorRequiredDataManager();
-    LocationErrCode RegisterCallback(std::shared_ptr<LocatingRequiredDataConfig>& config,
-        const sptr<IRemoteObject>& callback);
+    __attribute__((no_sanitize("cfi"))) LocationErrCode RegisterCallback(
+        std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
-    void StartWifiScan(bool flag);
+    __attribute__((no_sanitize("cfi"))) void StartWifiScan(bool flag);
     bool IsConnecting();
 private:
     int timeInterval_ = 0;
