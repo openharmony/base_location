@@ -36,9 +36,8 @@ ohos_shared_library("geolocation") {
   external_deps = [
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
@@ -74,9 +73,8 @@ ohos_static_library("geolocation_static") {
   external_deps = [
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
@@ -109,9 +107,8 @@ ohos_shared_library("geolocationmanager") {
   external_deps = [
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 

@@ -44,9 +44,8 @@ if (location_feature_with_geocode) {
       "c_utils:utils",
       "hilog:libhilog",
       "init:libbegetutil",
-      "ipc:ipc_core",
+      "ipc:ipc_single",
       "safwk:system_ability_fwk",
-      "samgr:samgr_proxy",
     ]
 
     part_name = "location"

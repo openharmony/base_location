@@ -18,9 +18,10 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "location_sa_load_manager.h"
-#include "rdb_errno.h"
 #include "system_ability_definition.h"
 
+#include "datashare_predicates.h"
+#include "datashare_values_bucket.h"
 #include "common_utils.h"
 #include "i_locator.h"
 #include "location_log.h"
@@ -109,7 +110,7 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
     rows->GetColumnIndex(LOCATION_DATA_COLUMN_VALUE, columnIndex);
     std::string valueStr;
     int32_t ret = rows->GetString(columnIndex, valueStr);
-    if (ret != NativeRdb::E_OK) {
+    if (ret != 0) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get value", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }

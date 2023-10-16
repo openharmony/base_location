@@ -16,17 +16,10 @@
 #ifndef LOCATION_DATA_RDB_HELPER_H
 #define LOCATION_DATA_RDB_HELPER_H
 #include <memory>
-#include <utility>
 #include <singleton.h>
-
 #include "datashare_helper.h"
-#include "datashare_predicates.h"
-#include "datashare_result_set.h"
-#include "datashare_values_bucket.h"
 #include "iremote_object.h"
-#include "result_set.h"
 #include "uri.h"
-
 #include "constant_definition.h"
 
 namespace OHOS {
