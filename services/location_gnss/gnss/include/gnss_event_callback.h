@@ -18,6 +18,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 
 #include <v1_0/ignss_callback.h>
+#include "satellite_status.h"
 
 namespace OHOS {
 namespace Location {
@@ -27,6 +28,8 @@ using HDI::Location::Gnss::V1_0::GnssWorkingStatus;
 using HDI::Location::Gnss::V1_0::GnssCapabilities;
 using HDI::Location::Gnss::V1_0::SatelliteStatusInfo;
 using HDI::Location::Gnss::V1_0::GnssRefInfoType;
+using HDI::Location::Gnss::V1_0::GNSS_CONSTELLATION_GPS;
+using HDI::Location::Gnss::V1_0::SATELLITES_STATUS_USED_IN_FIX;
 
 class GnssEventCallback : public IGnssCallback {
 public:
@@ -39,6 +42,13 @@ public:
     int32_t RequestGnssReferenceInfo(GnssRefInfoType type) override;
     int32_t RequestPredictGnssData() override;
     int32_t ReportCachedLocation(const std::vector<LocationInfo>& gnssLocations) override;
+private:
+    void SendDummySvInfo();
+    bool IsNeedSvIncrease();
+    bool IsSvTypeGps(const std::unique_ptr<SatelliteStatus> &sv, int index);
+    bool IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int index);
+    void AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svid, int cN0Dbhz);
+    void ReportDummySv(const std::unique_ptr<SatelliteStatus> &sv);
 };
 }  // namespace Location
 }  // namespace OHOS

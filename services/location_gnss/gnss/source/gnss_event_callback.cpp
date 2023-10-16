@@ -26,6 +26,14 @@
 namespace OHOS {
 namespace Location {
 using namespace OHOS::HiviewDFX;
+const int SVID_SHIFT_WIDTH = 8;
+const int CONSTELLATION_TYPE_SHIFT_WIDTH = 4;
+const int WEAK_GPS_SIGNAL_SCENARIO_COUNT = 3;
+const int MAX_SV_COUNT = 64;
+const int GPS_DUMMY_SV_COUNT = 5;
+bool g_hasLocation = false;
+bool g_svIncrease = false;
+std::unique_ptr<SatelliteStatus> g_svInfo = nullptr;
 
 int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 {
@@ -50,6 +58,8 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
         IPCSkeleton::SetCallingIdentity(identity);
         return ERR_OK;
     }
+    // add dummy sv if needed
+    SendDummySvInfo();
     WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {"speed", std::to_string(location.speed)});
     gnssAbility->ReportLocationInfo(GNSS_ABILITY, locationNew);
 #ifdef FEATURE_PASSIVE_SUPPORT
@@ -120,10 +130,104 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         names.push_back(std::to_string(i));
         satelliteStatusInfos.push_back(str_info);
     }
-
+    // save sv info
+    g_svInfo = nullptr;
+    g_svInfo = std::make_unique<SatelliteStatus>(*svStatus);
     WriteLocationInnerEvent(RECEIVE_SATELLITESTATUSINFO, names, satelliteStatusInfos);
     gnssAbility.get()->ReportSv(svStatus);
     return ERR_OK;
+}
+
+void GnssEventCallback::SendDummySvInfo()
+{
+    if (g_svInfo == nullptr) {
+        LBSLOGE(GNSS, "%{public}s: sv is nullptr.", __func__);
+        return;
+    }
+    // indicates location is coming
+    g_hasLocation = true;
+    int usedSvCount = 0;
+    int svListSize = g_svInfo->GetSatellitesNumber();
+    // calculate the num of used GPS satellites
+    for (int svSize = 0; svSize < svListSize; svSize++) {
+        if (IsSvTypeGps(g_svInfo, svSize) && IsSvUsed(g_svInfo, svSize)) {
+            usedSvCount++;
+        }
+    }
+    LBSLOGI(GNSS, "%{public}s: the USED GPS SV Count is %{public}d", __func__, usedSvCount);
+    // weak gps signal scenario
+    if (usedSvCount <= WEAK_GPS_SIGNAL_SCENARIO_COUNT) {
+        // indicates the need for dummy satellites
+        g_svIncrease = true;
+        LBSLOGI(GNSS, "%{public}s: the USED GPS SV Count is %{public}d", __func__, usedSvCount);
+        LBSLOGI(GNSS, "%{public}s: start increase dummy sv", __func__);
+
+        if (MAX_SV_COUNT - svListSize >= GPS_DUMMY_SV_COUNT) {
+            AddDummySv(g_svInfo, 4, 6); // sv1: svid = 4, cN0Dbhz = 6
+            AddDummySv(g_svInfo, 7, 15); // sv2: svid = 7, cN0Dbhz = 15
+            AddDummySv(g_svInfo, 1, 2); // sv3: svid = 1, cN0Dbhz = 2
+            AddDummySv(g_svInfo, 11, 10); // sv4: svid = 11, cN0Dbhz = 10
+            AddDummySv(g_svInfo, 17, 5); // sv5: svid = 17, cN0Dbhz = 5
+            g_svInfo->
+                SetSatellitesNumber(g_svInfo->GetSatellitesNumber() + GPS_DUMMY_SV_COUNT);
+            ReportDummySv(g_svInfo);
+        } else {
+            LBSLOGD(GNSS, "%{public}s: sv number > 58, no need send dummy satellites", __func__);
+        }
+        LBSLOGI(GNSS, "%{public}s: increase sv finished", __func__);
+    } else {
+        // indicates no need for dummy satellites
+        g_svIncrease = false;
+    }
+}
+
+void GnssEventCallback::ReportDummySv(const std::unique_ptr<SatelliteStatus> &sv)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr || sv == nullptr) {
+        LBSLOGE(GNSS, "%{public}s gnss ability or sv is nullptr.", __func__);
+        return;
+    }
+    gnssAbility->ReportSv(sv);
+}
+
+bool GnssEventCallback::IsNeedSvIncrease()
+{
+    if (g_hasLocation && g_svIncrease) {
+        return true;
+    }
+    return false;
+}
+
+bool GnssEventCallback::IsSvTypeGps(const std::unique_ptr<SatelliteStatus> &sv, int index)
+{
+    if (sv == nullptr) {
+        return false;
+    }
+    return sv->GetConstellationTypes()[index] == GNSS_CONSTELLATION_GPS;
+}
+
+bool GnssEventCallback::IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int index)
+{
+    if (sv == nullptr) {
+        return false;
+    }
+    return (((static_cast<uint32_t>(sv->GetSatelliteIds()[index]) << SVID_SHIFT_WIDTH) |
+        (static_cast<uint32_t>(sv->GetConstellationTypes()[index]) << CONSTELLATION_TYPE_SHIFT_WIDTH)) &
+        (static_cast<uint8_t>(SATELLITES_STATUS_USED_IN_FIX))) != 0;
+}
+
+void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svid, int cN0Dbhz)
+{
+    if (sv == nullptr) {
+        return;
+    }
+    sv->SetSatelliteId(svid);
+    sv->SetConstellationType(GNSS_CONSTELLATION_GPS);
+    sv->SetCarrierToNoiseDensity(cN0Dbhz);
+    sv->SetAltitude(60); // elevationDegrees
+    sv->SetAzimuth(90); // azimuthDegrees
+    sv->SetCarrierFrequencie(0); // carrierFrequencyHz
 }
 
 int32_t GnssEventCallback::RequestGnssReferenceInfo(GnssRefInfoType type)
