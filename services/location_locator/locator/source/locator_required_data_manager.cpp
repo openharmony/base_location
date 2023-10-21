@@ -39,8 +39,8 @@ LocatorRequiredDataManager::~LocatorRequiredDataManager()
 {
 }
 
-LocationErrCode LocatorRequiredDataManager::RegisterCallback(std::shared_ptr<LocatingRequiredDataConfig>& config,
-    const sptr<IRemoteObject>& callback)
+__attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::RegisterCallback(
+    std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
 {
     LBSLOGI(LOCATOR, "%{public}s enter", __func__);
     sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
@@ -177,7 +177,7 @@ void LocatorBleCallbackWapper::OnNotifyMsgReportFromLpDevice(const Bluetooth::UU
     const std::vector<uint8_t> &value) {}
 
 #ifdef WIFI_ENABLE
-void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
+__attribute__((no_sanitize("cfi"))) void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
 {
     LBSLOGE(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
     if (state == 0) {
@@ -233,7 +233,7 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
     }
 }
 
-void LocatorRequiredDataManager::StartWifiScan(bool flag)
+__attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiScan(bool flag)
 {
     if (!flag) {
         LBSLOGI(LOCATOR, "%{public}s stop WifiScan.", __func__);
