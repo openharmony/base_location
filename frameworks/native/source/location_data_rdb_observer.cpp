@@ -39,14 +39,7 @@ void LocationDataRdbObserver::OnChange()
         LBSLOGI(LOCATOR, "LocationDataRdbObserver::%{public}s handler is nullptr", __func__);
         return;
     }
-    int32_t state = DISABLED;
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
-        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        return;
-    }
-    locationDataHandler_->SendEvent(SWITCH_STATE_CHANGED, state, 0);
+    locationDataHandler_->SendEvent(SWITCH_STATE_CHANGED, 0, 0);
 }
 } // namespace Location
 } // namespace OHOS

@@ -50,7 +50,8 @@ void LocationDataHandler::HandleSwitchStateChanged(const AppExecFwk::InnerEvent:
 {
     auto rdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
     auto locationDataManager = DelayedSingleton<LocationDataManager>::GetInstance();
-    if (event == nullptr || rdbHelper == nullptr || locationDataManager == nullptr) {
+    if (event == nullptr || rdbHelper == nullptr || locationDataManager == nullptr ||
+        !locationDataManager->IsSwitchStateReg()) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: param is nullptr", __func__);
         return;
     }
@@ -60,12 +61,8 @@ void LocationDataHandler::HandleSwitchStateChanged(const AppExecFwk::InnerEvent:
     LocationErrCode errCode = rdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
+        return;
     }
-    int64_t value = event->GetParam();
-    if (state != value) {
-        rdbHelper->SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    }
-    // cache the value
     locationDataManager->SetCachedSwitchState(state);
     locationDataManager->ReportSwitchState(state);
 }

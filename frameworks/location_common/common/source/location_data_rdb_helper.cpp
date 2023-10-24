@@ -112,6 +112,7 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
     int32_t ret = rows->GetString(columnIndex, valueStr);
     if (ret != 0) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get value", __func__);
+        rows->Close();
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     rows->Close();

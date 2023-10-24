@@ -34,6 +34,7 @@ public:
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode QuerySwitchState(bool &isEnabled);
     void SetCachedSwitchState(int32_t state);
+    bool IsSwitchStateReg();
 private:
     std::mutex mutex_;
     std::mutex switchStateMutex_;

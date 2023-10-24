@@ -158,6 +158,7 @@ private:
     static std::mutex locatorMutex_;
     static std::shared_ptr<LocatorImpl> instance_;
     std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
+    bool isObserverReg_ = false;
 };
 }  // namespace Location
 }  // namespace OHOS

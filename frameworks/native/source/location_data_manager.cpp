@@ -129,5 +129,11 @@ void LocationDataManager::SetCachedSwitchState(int state)
     isStateCached_ = true;
     cachedSwitchState_ = state;
 }
+
+bool LocationDataManager::IsSwitchStateReg()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    return (switchCallbacks_->size() > 0);
+}
 }  // namespace Location
 }  // namespace OHOS
