@@ -30,6 +30,11 @@ ohos_shared_library("locator_sdk") {
   public_configs = [ ":locator_sdk_config" ]
 
   sources = [
+    "$LOCATION_COMMON_DIR/source/geo_address.cpp",
+    "$LOCATION_COMMON_DIR/source/geo_coding_mock_info.cpp",
+    "$LOCATION_COMMON_DIR/source/location.cpp",
+    "$LOCATION_COMMON_DIR/source/request_config.cpp",
+    "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
     "$LOCATION_NATIVE_DIR/source/cached_locations_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/country_code_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/country_code_manager.cpp",
