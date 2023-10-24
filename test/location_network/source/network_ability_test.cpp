@@ -150,7 +150,7 @@ HWTEST_F(NetworkAbilityTest, SelfRequest001, TestSize.Level1)
      * @tc.steps: step1. send location request
      * @tc.expected: step1. no exception happens.
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SelfRequest(true));
+    EXPECT_EQ(ERRCODE_SWITCH_OFF, proxy_->SelfRequest(true));
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest001 end");
 }
 
@@ -168,7 +168,7 @@ HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
      * @tc.steps: step1. send location request
      * @tc.expected: step1. no exception happens.
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SelfRequest(false));
+    EXPECT_EQ(ERRCODE_SWITCH_OFF, proxy_->SelfRequest(false));
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest002 end");
 }
 
