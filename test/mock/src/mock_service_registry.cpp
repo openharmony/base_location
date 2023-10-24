@@ -175,5 +175,17 @@ int32_t SystemAbilityManagerProxy::AddSystemProcess(
     LBSLOGI(Location::LOCATOR, "%{public}s return ERR_OK", __func__);
     return ERR_OK;
 }
+
+int32_t SystemAbilityManagerProxy::GetOnDemandSystemAbilityIds(std::vector<int32_t>& systemAbilityIds)
+{
+    LBSLOGI(Location::LOCATOR, "%{public}s return ERR_OK", __func__);
+    return ERR_OK;
+}
+
+sptr<IRemoteObject> SystemAbilityManagerProxy::Recompute(int32_t systemAbilityId, int32_t code)
+{
+    LBSLOGI(Location::LOCATOR, "%{public}s return nullptr", __func__);
+    return nullptr;
+}
 } // namespace OHOS
 #endif
