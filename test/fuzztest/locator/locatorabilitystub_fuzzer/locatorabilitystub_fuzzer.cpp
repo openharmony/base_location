@@ -556,7 +556,7 @@ bool LocatorAbilityStub030FuzzTest(const char* data, size_t size)
     MessageOption option;
 
     auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
-    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_v9),
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_V9),
         requestParcel, reply, option);
 
     return true;
@@ -657,7 +657,7 @@ bool LocatorAbilityStub036FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
-    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_v9),
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9),
         requestParcel, reply, option);
 
     return true;

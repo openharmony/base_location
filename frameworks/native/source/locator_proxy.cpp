@@ -632,7 +632,7 @@ LocationErrCode LocatorProxy::RegisterNmeaMessageCallbackV9(const sptr<IRemoteOb
     }
     data.WriteObject<IRemoteObject>(callback);
     LocationErrCode errorCode =
-        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_v9), data, reply);
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_V9), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterNmeaMessageCallbackV9 Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
@@ -651,7 +651,7 @@ LocationErrCode LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemote
     }
     data.WriteObject<IRemoteObject>(callback);
     LocationErrCode errorCode =
-        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_v9), data, reply);
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterNmeaMessageCallbackV9 Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
