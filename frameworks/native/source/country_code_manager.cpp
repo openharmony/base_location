@@ -193,7 +193,34 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
         LBSLOGE(COUNTRY_CODE, "GetCountryCodeByLocation location is nullptr");
         return "";
     }
-    return "";
+    auto locatorImpl = LocatorImpl::GetInstance();
+    if (locatorImpl == nullptr) {
+        LBSLOGE(COUNTRY_CODE, "locatorImpl is nullptr");
+        return "";
+    }
+    MessageParcel dataParcel;
+    std::list<std::shared_ptr<GeoAddress>> replyList;
+    if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
+        LBSLOGE(COUNTRY_CODE, "write interfaceToken fail!");
+        return "";
+    }
+    dataParcel.WriteString16(Str8ToStr16("en")); // locale
+    dataParcel.WriteDouble(location->GetLatitude()); // latitude
+    dataParcel.WriteDouble(location->GetLongitude()); // longitude
+    dataParcel.WriteInt32(1); // maxItems
+
+    bool isAvailable = false;
+    LocationErrCode errorCode = locatorImpl->IsGeoServiceAvailableV9(isAvailable);
+    if (errorCode != ERRCODE_SUCCESS || !isAvailable) {
+        LBSLOGE(COUNTRY_CODE, "geocode service is not available.");
+        return "";
+    }
+    errorCode = locatorImpl->GetAddressByCoordinateV9(dataParcel, replyList);
+    if (replyList.empty() || errorCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COUNTRY_CODE, "geocode fail.");
+        return "";
+    }
+    return replyList.front()->countryCode_;
 }
 
 std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
