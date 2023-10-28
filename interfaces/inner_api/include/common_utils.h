@@ -182,6 +182,7 @@ public:
     static bool CheckAppInstalled(const std::string& bundleName);
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
     static int QuerySwitchState();
+    static int64_t GetCurrentTime();
 };
 
 class CountDownLatch {

@@ -399,5 +399,13 @@ int CommonUtils::QuerySwitchState()
     }
     return state;
 }
+
+int64_t CommonUtils::GetCurrentTime()
+{
+    struct timespec times = {0, 0};
+    clock_gettime(CLOCK_MONOTONIC, &times);
+    int64_t second = static_cast<int64_t>(times.tv_sec);
+    return second;
+}
 } // namespace Location
 } // namespace OHOS

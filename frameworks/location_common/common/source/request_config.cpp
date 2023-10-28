@@ -30,6 +30,7 @@ RequestConfig::RequestConfig()
     maxAccuracy_ = 0.0; // no accuracy limit for reporting location
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = DEFAULT_TIMEOUT_30S;
+    timestamp_ = 0;
 }
 
 RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
@@ -40,6 +41,7 @@ RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
     maxAccuracy_ = 0.0; // no accuracy limit for reporting location
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = DEFAULT_TIMEOUT_30S;
+    timestamp_ = 0;
 }
 
 void RequestConfig::Set(RequestConfig& requestConfig)
@@ -50,6 +52,8 @@ void RequestConfig::Set(RequestConfig& requestConfig)
     distanceInterval_ = requestConfig.GetDistanceInterval();
     maxAccuracy_ = requestConfig.GetMaxAccuracy();
     fixNumber_ = requestConfig.GetFixNumber();
+    timeOut_ = requestConfig.GetTimeOut();
+    timestamp_ = requestConfig.GetTimeStamp();
 }
 
 bool RequestConfig::IsSame(RequestConfig& requestConfig)
@@ -71,6 +75,7 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
     distanceInterval_ = parcel.ReadDouble();
     maxAccuracy_ = parcel.ReadFloat();
     fixNumber_ = parcel.ReadInt32();
+    timeOut_ = parcel.ReadInt32();
 }
 
 std::unique_ptr<RequestConfig> RequestConfig::Unmarshalling(Parcel& parcel)
@@ -87,7 +92,8 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
            parcel.WriteInt32(timeInterval_) &&
            parcel.WriteDouble(distanceInterval_) &&
            parcel.WriteFloat(maxAccuracy_) &&
-           parcel.WriteInt32(fixNumber_);
+           parcel.WriteInt32(fixNumber_) &&
+           parcel.WriteInt32(timeOut_);
 }
 
 std::string RequestConfig::ToString() const
@@ -97,7 +103,8 @@ std::string RequestConfig::ToString() const
         ", timeInterval : " + std::to_string(timeInterval_) +
         ", distanceInterval : " + std::to_string(distanceInterval_) +
         ", maxAccuracy : " + std::to_string(maxAccuracy_) +
-        ", fixNumber : " + std::to_string(fixNumber_);
+        ", fixNumber : " + std::to_string(fixNumber_) + 
+        ", timeOut : " + std::to_string(timeOut_);
     return str;
 }
 } // namespace Location

@@ -127,7 +127,7 @@ public:
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> GetProxyMap();
     void UpdateSaAbilityHandler();
-    void ApplyRequests();
+    void ApplyRequests(int delay);
     void RegisterAction();
     LocationErrCode ProxyUidForFreeze(int32_t uid, bool isProxy);
     LocationErrCode ResetAllProxy();
@@ -136,6 +136,7 @@ public:
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
     void UnloadSaAbility();
+    std::set<int32_t> GetProxyUid();
 
 private:
     bool Init();
