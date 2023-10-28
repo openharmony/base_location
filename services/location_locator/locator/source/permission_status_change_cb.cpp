@@ -31,7 +31,7 @@ void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& resu
     }
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
     requestManager.get()->HandlePermissionChanged(result.tokenID);
-    locatorAbility.get()->ApplyRequests();
+    locatorAbility.get()->ApplyRequests(1);
 }
 } // namespace Location
 } // namespace OHOS

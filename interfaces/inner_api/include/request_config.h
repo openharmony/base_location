@@ -97,6 +97,16 @@ public:
         return timeOut_;
     }
 
+    inline void SetTimeStamp(int64_t time)
+    {
+        timestamp_ = time;
+    }
+
+    inline int64_t GetTimeStamp()
+    {
+        return timestamp_;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -111,6 +121,7 @@ private:
     int fixNumber_;
     int priority_;
     int timeOut_;
+    int64_t timestamp_;
 };
 } // namespace Location
 } // namespace OHOS

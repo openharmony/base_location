@@ -402,6 +402,31 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
     return true;
 }
 
+/**
+ * determine whether the request is valid.
+ */
+bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
+{
+    std::set<int32_t> proxyUids = DelayedSingleton<LocatorAbility>::GetInstance()->GetProxyUid();
+    for (auto iter = proxyUids.begin(); iter != proxyUids.end(); iter++) {
+        int32_t uid = *iter;
+        // for frozen app, do not add to workRecord
+        if (uid == request->GetUid()) {
+            LBSLOGE(LOCATOR, "%{public}d is freezed.", uid);
+            return false;
+        }
+        // for once_request app, if it has timed out, do not add to workRecord
+        int64_t curTime = CommonUtils::GetCurrentTime();
+        if (request->GetRequestConfig()->GetFixNumber() == 1 &&
+            fabs(curTime - request->GetRequestConfig()->GetTimeStamp()) >
+            (request->GetRequestConfig()->GetTimeOut() / SEC_TO_MILLI_SEC)) {
+            LBSLOGE(LOCATOR, "%{public}d has timed out.", request->GetUid());
+            return false;
+        }
+    }
+    return true;
+}
+
 bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     std::shared_ptr<WorkRecord>& workRecord)
 {
@@ -410,6 +435,9 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     }
     UpdateUsingPermission(request);
     if (!request->GetIsRequesting()) {
+        return false;
+    }
+    if (!IsRequestAvailable(request)) {
         return false;
     }
     uint32_t tokenId = request->GetTokenId();
@@ -524,7 +552,7 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         }
     }
     if (DelayedSingleton<LocatorAbility>::GetInstance() != nullptr) {
-        DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests();
+        DelayedSingleton<LocatorAbility>::GetInstance().get()->ApplyRequests(1);
     }
 }
 

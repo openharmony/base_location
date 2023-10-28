@@ -279,10 +279,10 @@ std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> LocatorAbility::GetP
     return proxyMap_;
 }
 
-void LocatorAbility::ApplyRequests()
+void LocatorAbility::ApplyRequests(int delay)
 {
     if (locatorHandler_ != nullptr) {
-        locatorHandler_->SendHighPriorityEvent(EVENT_APPLY_REQUIREMENTS, 0, RETRY_INTERVAL_UNITE);
+        locatorHandler_->SendHighPriorityEvent(EVENT_APPLY_REQUIREMENTS, 0, delay * RETRY_INTERVAL_UNITE);
     }
 }
 
@@ -857,6 +857,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     reportManager_->UpdateRandom();
     // generate request object according to input params
     std::shared_ptr<Request> request = std::make_shared<Request>();
+    requestConfig->SetTimeStamp(CommonUtils::GetCurrentTime());
     request->SetUid(identity.GetUid());
     request->SetPid(identity.GetPid());
     request->SetTokenId(identity.GetTokenId());
@@ -1113,6 +1114,8 @@ LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
     } else {
         proxyUids_.erase(uid);
     }
+    // for proxy uid update, should send message to refresh requests
+    ApplyRequests(0);
     return ERRCODE_SUCCESS;
 }
 
@@ -1121,6 +1124,8 @@ LocationErrCode LocatorAbility::ResetAllProxy()
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
     std::unique_lock<std::mutex> lock(proxyUidsMutex_);
     proxyUids_.clear();
+    // for proxy uid update, should send message to refresh requests
+    ApplyRequests(0);
     return ERRCODE_SUCCESS;
 }
 
@@ -1128,6 +1133,12 @@ bool LocatorAbility::IsProxyUid(int32_t uid)
 {
     std::unique_lock<std::mutex> lock(proxyUidsMutex_);
     return proxyUids_.find(uid) != proxyUids_.end();
+}
+
+std::set<int32_t> LocatorAbility::GetProxyUid()
+{
+    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
+    return proxyUids_;
 }
 
 void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
