@@ -688,7 +688,7 @@ LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
 {
     if (!CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
         LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need GetCachedLocationV9", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_LOCATING_FAIL;
     }
     if (!Init()) {
         return ERRCODE_SERVICE_UNAVAILABLE;

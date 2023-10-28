@@ -103,7 +103,7 @@ std::string RequestConfig::ToString() const
         ", timeInterval : " + std::to_string(timeInterval_) +
         ", distanceInterval : " + std::to_string(distanceInterval_) +
         ", maxAccuracy : " + std::to_string(maxAccuracy_) +
-        ", fixNumber : " + std::to_string(fixNumber_) + 
+        ", fixNumber : " + std::to_string(fixNumber_) +
         ", timeOut : " + std::to_string(timeOut_);
     return str;
 }
