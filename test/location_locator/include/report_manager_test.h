@@ -28,7 +28,7 @@ public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
-
+    std::unique_ptr<Location> MockLocation();
     std::shared_ptr<ReportManager> reportManager_;
     uint64_t tokenId_;
 };

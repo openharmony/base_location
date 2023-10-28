@@ -43,6 +43,7 @@ using HDI::Location::Agnss::V1_0::IAGnssCallback;
 using HDI::Location::Agnss::V1_0::AGnssRefInfo;
 using HDI::Location::Gnss::V1_0::IGnssCallback;
 using HDI::Location::Gnss::V1_0::LocationInfo;
+using HDI::Location::Gnss::V1_0::GnssConstellationType;
 const int32_t LOCATION_PERM_NUM = 4;
 const std::string ARGS_HELP = "-h";
 void GnssAbilityTest::SetUp()
@@ -918,7 +919,7 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssCapabilities001, TestSize.L
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     GnssCapabilities capabilities = HDI::Location::Gnss::V1_0::GNSS_CAP_SUPPORT_MSB;
-    gnssCallback->ReportGnssCapabilities(capabilities);
+    EXPECT_EQ(ERR_OK, gnssCallback->ReportGnssCapabilities(capabilities));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssCapabilities001 end");
 }
 
@@ -933,8 +934,29 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo002, TestSiz
     statusInfo.satellitesNumber = 0;
     statusInfo.flags =
         HDI::Location::Gnss::V1_0::SATELLITES_STATUS_HAS_EPHEMERIS_DATA;
-    gnssCallback->ReportSatelliteStatusInfo(statusInfo);
+    EXPECT_EQ(ERR_INVALID_VALUE, gnssCallback->ReportSatelliteStatusInfo(statusInfo));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportSatelliteStatusInfo002 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportSatelliteStatusInfo003 begin");
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    SatelliteStatusInfo statusInfo;
+    statusInfo.satellitesNumber = 1;
+    statusInfo.flags =
+        HDI::Location::Gnss::V1_0::SATELLITES_STATUS_HAS_EPHEMERIS_DATA;
+    statusInfo.elevation.push_back(12);
+    statusInfo.azimuths.push_back(30);
+    statusInfo.carrierFrequencies.push_back(40);
+    statusInfo.carrierToNoiseDensitys.push_back(40);
+    statusInfo.satelliteIds.push_back(1);
+    statusInfo.constellation.push_back(static_cast<GnssConstellationType>(1));
+    EXPECT_EQ(ERR_OK, gnssCallback->ReportSatelliteStatusInfo(statusInfo));
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportSatelliteStatusInfo003 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssEventCallbackRequestGnssReferenceInfo001, TestSize.Level1)
