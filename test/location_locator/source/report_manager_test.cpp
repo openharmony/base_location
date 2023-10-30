@@ -70,6 +70,28 @@ void ReportManagerTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
+std::unique_ptr<Location> ReportManagerTest::MockLocation()
+{
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0); // latitude
+    parcel.WriteDouble(13.0); // longitude
+    parcel.WriteDouble(14.0); // altitude
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
+    parcel.WriteDouble(90.0); // direction
+    parcel.WriteInt64(1000000000); // timeStamp
+    parcel.WriteInt64(1000000100); // timeSinceBoot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteBool(true); // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
+    location->ReadFromParcel(parcel);
+    return location;
+}
+
 HWTEST_F(ReportManagerTest, ReportRemoteCallbackTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -100,23 +122,8 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     request->SetTokenId(tokenId_);
     request->SetFirstTokenId(0);
     request->SetPackageName("ReportManagerTest");
-    std::unique_ptr<Location> location = std::make_unique<Location>();
-    MessageParcel parcel;
-    parcel.WriteDouble(12.0); // latitude
-    parcel.WriteDouble(13.0); // longitude
-    parcel.WriteDouble(14.0); // altitude
-    parcel.WriteDouble(1000.0); // accuracy
-    parcel.WriteDouble(10.0); // speed
-    parcel.WriteDouble(90.0); // direction
-    parcel.WriteInt64(1000000000); // timeStamp
-    parcel.WriteInt64(1000000100); // timeSinceBoot
-    parcel.WriteString16(u"additions"); // additions
-    parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(true); // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
-    location->ReadFromParcel(parcel);
+    auto location = MockLocation();
+    
     EXPECT_EQ(true, reportManager_->ResultCheck(location, request));
     EXPECT_EQ(false, reportManager_->ResultCheck(nullptr, request)); // no location
     EXPECT_EQ(false, reportManager_->ResultCheck(location, nullptr)); // no request
@@ -153,7 +160,28 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     request->SetRequestConfig(*requestConfig);
     request->SetLastLocation(lastLocation4);
     EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // acc check failed
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest001 end");
+}
 
+HWTEST_F(ReportManagerTest, ResultCheckTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ResultCheckTest002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest002 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    request->SetUid(1000);
+    request->SetPid(0);
+    request->SetTokenId(tokenId_);
+    request->SetFirstTokenId(0);
+    request->SetPackageName("ReportManagerTest");
+    auto requestConfig = std::make_unique<RequestConfig>();
+    EXPECT_NE(nullptr, requestConfig);
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetMaxAccuracy(1000.0);
+    requestConfig->SetFixNumber(1);
+    request->SetRequestConfig(*requestConfig);
+    auto location = MockLocation();
+    
     std::unique_ptr<Location> lastLocation5 = std::make_unique<Location>(*location);
     lastLocation5->SetTimeSinceBoot(1000000000);
     requestConfig->SetDistanceInterval(0.0);
@@ -161,7 +189,7 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     request->SetRequestConfig(*requestConfig);
     request->SetLastLocation(lastLocation5);
     EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // check pass
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest001 end");
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest002 end");
 }
 
 HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
@@ -246,7 +274,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
 
-    EXPECT_EQ(false, reportManager_->OnReportLocation(location, UNKNOWN_ABILITY));
+    EXPECT_EQ(true, reportManager_->OnReportLocation(location, NETWORK_ABILITY));
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest001 end");
 }
 
@@ -368,6 +396,23 @@ HWTEST_F(ReportManagerTest, UpdateRandomTest004, TestSize.Level1)
     locatorAbility->requests_->clear();
     reportManager_->UpdateRandom();
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest004 end");
+}
+
+HWTEST_F(ReportManagerTest, IsRequestFuseTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, IsRequestFuseTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest001 begin");
+    EXPECT_EQ(false, reportManager_->IsRequestFuse(nullptr));
+    
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetScenario(SCENE_UNSET);
+    request->SetRequestConfig(*requestConfig);
+    EXPECT_EQ(true, reportManager_->IsRequestFuse(request));
+
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

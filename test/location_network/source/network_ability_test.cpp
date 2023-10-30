@@ -488,6 +488,28 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendMessage001, TestSize.Level1)
     ability_->SendMessage(0, requestParcel, reply);
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilitySendMessage001 end");
 }
+
+HWTEST_F(NetworkAbilityTest, DisconnectNlpService001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, DisconnectNlpService001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService001 begin");
+    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
+    ability->nlpServiceReady_ = false;
+    EXPECT_EQ(true, ability->DisconnectNlpService()); // Connect success
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, DisconnectNlpService002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, DisconnectNlpService002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService002 begin");
+    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
+    ability->nlpServiceReady_ = true;
+    EXPECT_EQ(false, ability->DisconnectNlpService()); // Connect success
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService002 end");
+}
 } // namespace Location
 } // namespace OHOS
 #endif // FEATURE_NETWORK_SUPPORT
