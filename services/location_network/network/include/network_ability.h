@@ -70,7 +70,7 @@ public:
     void ProcessReportLocationMock();
     bool ConnectNlpService();
     bool ReConnectNlpService();
-    bool DisconnectNlpService();
+    bool ResetServiceProxy();
     void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
     void NotifyDisConnected();
     bool IsMockEnabled();
@@ -80,8 +80,11 @@ private:
     static void SaDumpInfo(std::string& result);
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
     bool CheckIfNetworkConnecting();
-
-    bool nlpServiceReady_ = false;
+    bool RequestNetworkLocation(WorkRecord &workRecord);
+    bool RemoveNetworkLocation(WorkRecord &workRecord);
+    void RegisterNLPServiceDeathRecipient();
+    bool IsConnect();
+    
     std::mutex mutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
     std::condition_variable connectCondition_;
@@ -90,6 +93,13 @@ private:
     bool registerToAbility_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     sptr<AAFwk::IAbilityConnection> conn_;
+};
+
+class NLPServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    NLPServiceDeathRecipient();
+    ~NLPServiceDeathRecipient() override;
 };
 } // namespace Location
 } // namespace OHOS
