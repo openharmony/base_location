@@ -26,6 +26,9 @@ enum {
     STOP_GNSS,
     RECEIVE_NETWORK_LOCATION,
     NLP_SERVICE_TIMEOUT,
+    NETWORK_CALLBACK_LOCATION,
+    LOCATION_REQUEST_DENY,
+    HDI_EVENT,
 };
 } // namespace Location
 } // namespace OHOS

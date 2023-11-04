@@ -19,6 +19,7 @@
 #include "ipc_skeleton.h"
 #include "common_utils.h"
 #include "i_locator_callback.h"
+#include "common_hisysevent.h"
 #include "location.h"
 #include "locator_ability.h"
 #include "location_dumper.h"
@@ -28,6 +29,7 @@
 #include "locationhub_ipc_interface_code.h"
 #include "locating_required_data_config.h"
 #include "locator_required_data_manager.h"
+#include "location_log_event_ids.h"
 
 namespace OHOS {
 namespace Location {
@@ -1013,6 +1015,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
+    WriteLocationDenyReportEvent(code, ret, data, identity);
     UnloadLocatorSa();
     return ret;
 }
@@ -1060,6 +1063,18 @@ bool LocatorAbilityStub::UnloadLocatorSa()
     }
     locatorAbility->UnloadSaAbility();
     return true;
+}
+
+void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode,
+    MessageParcel &data, AppIdentity &identity)
+{
+    if (code == static_cast<int>(LocatorInterfaceCode::START_LOCATING) && errCode != ERRCODE_SUCCESS) {
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->ReadFromParcel(data);
+        auto requestInfo = requestConfig->ToString();
+        WriteLocationInnerEvent(LOCATION_REQUEST_DENY, {"errorCode", std::to_string(errCode),
+            "requestAppName", identity.GetBundleName(), "requestInfo", requestInfo});
+    }
 }
 
 LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient()

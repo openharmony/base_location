@@ -16,6 +16,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_event_callback.h"
 #include <singleton.h>
+#include <sys/time.h>
 #include "ipc_skeleton.h"
 #include "common_utils.h"
 #include "gnss_ability.h"
@@ -60,7 +61,13 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     }
     // add dummy sv if needed
     SendDummySvInfo();
-    WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {"speed", std::to_string(location.speed)});
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    auto receiveTimestamp = now.tv_sec * SEC_TO_MILLI_SEC + now.tv_usec / MICRO_PER_MILLI;
+    WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {"speed", std::to_string(location.speed),
+        "accuracy", std::to_string(location.accuracy),
+        "locationTimestamp", std::to_string(location.timeStamp),
+        "receiveTimestamp", std::to_string(receiveTimestamp)});
     gnssAbility->ReportLocationInfo(GNSS_ABILITY, locationNew);
 #ifdef FEATURE_PASSIVE_SUPPORT
     gnssAbility->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
