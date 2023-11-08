@@ -1114,6 +1114,10 @@ LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
     } else {
         proxyUids_.erase(uid);
     }
+    if (GetActiveRequestNum() <= 0) {
+        LBSLOGI(LOCATOR, "no active request, do not refresh.");
+        return ERRCODE_SUCCESS;
+    }
     // for proxy uid update, should send message to refresh requests
     ApplyRequests(0);
     return ERRCODE_SUCCESS;
@@ -1124,6 +1128,10 @@ LocationErrCode LocatorAbility::ResetAllProxy()
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
     std::unique_lock<std::mutex> lock(proxyUidsMutex_);
     proxyUids_.clear();
+    if (GetActiveRequestNum() <= 0) {
+        LBSLOGI(LOCATOR, "no active request, do not refresh.");
+        return ERRCODE_SUCCESS;
+    }
     // for proxy uid update, should send message to refresh requests
     ApplyRequests(0);
     return ERRCODE_SUCCESS;
