@@ -109,9 +109,9 @@ void LocatorAbilityStub::InitLocatorHandleMap()
         &LocatorAbilityStub::PreAddFence;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE)] =
         &LocatorAbilityStub::PreRemoveFence;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_v9)] =
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_V9)] =
         &LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_v9)] =
+    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9)] =
         &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
 #endif
 }
