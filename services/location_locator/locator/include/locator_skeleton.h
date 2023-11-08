@@ -93,6 +93,7 @@ private:
     bool CheckLocationSwitchState(MessageParcel &reply);
     static void SaDumpInfo(std::string& result);
     bool UnloadLocatorSa();
+    void WriteLocationDenyReportEvent(uint32_t code, int errCode, MessageParcel &data, AppIdentity &identity);
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

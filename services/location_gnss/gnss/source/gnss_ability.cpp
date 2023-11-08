@@ -405,7 +405,13 @@ bool GnssAbility::EnableGnss()
     }
     int32_t ret = gnssInterface_->EnableGnss(gnssCallback_);
     LBSLOGI(GNSS, "Successfully enable_gnss!, %{public}d", ret);
-    gnssWorkingStatus_ = (ret == 0) ? GNSS_STATUS_ENGINE_ON : GNSS_STATUS_NONE;
+    if (ret == 0) {
+        gnssWorkingStatus_ = GNSS_STATUS_ENGINE_ON;
+    } else {
+        gnssWorkingStatus_ = GNSS_STATUS_NONE;
+        WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),
+            "hdiName", "EnableGnss", "hdiType", "gnss"});
+    }
     return true;
 }
 
@@ -422,6 +428,9 @@ void GnssAbility::DisableGnss()
     int ret = gnssInterface_->DisableGnss();
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_STATUS_ENGINE_OFF;
+    } else {
+        WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),
+            "hdiName", "DisableGnss", "hdiType", "gnss"});
     }
 }
 
@@ -452,10 +461,13 @@ void GnssAbility::StartGnss()
     if (GetRequestNum() == 0) {
         return;
     }
-    WriteLocationInnerEvent(START_GNSS, {});
+    
     int ret = gnssInterface_->StartGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_STATUS_SESSION_BEGIN;
+        WriteLocationInnerEvent(START_GNSS, {});
+    } else {
+        WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StartGnss", "hdiType", "gnss"});
     }
 }
 
@@ -469,10 +481,13 @@ void GnssAbility::StopGnss()
         LBSLOGE(GNSS, "gnss has been disabled");
         return;
     }
-    WriteLocationInnerEvent(STOP_GNSS, {});
+    
     int ret = gnssInterface_->StopGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_STATUS_SESSION_END;
+        WriteLocationInnerEvent(STOP_GNSS, {});
+    } else {
+        WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StopGnss", "hdiType", "gnss"});
     }
 }
 
