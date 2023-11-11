@@ -60,7 +60,7 @@ void SatelliteStatusToJs(const napi_env& env,
         uint32_t idx1 = 0;
         for (int index = 0; index < statusInfo->GetSatellitesNumber(); index++) {
             napi_value value = nullptr;
-            NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetSatelliteIds()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, statusInfo->GetSatelliteIds()[index], &value));
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, satelliteIdsArray, idx1, value));
             NAPI_CALL_RETURN_VOID(env,
                 napi_create_double(env, statusInfo->GetCarrierToNoiseDensitys()[index], &value));

@@ -52,6 +52,9 @@ using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_BEGIN;
 using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_END;
 using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_ON;
 using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_OFF;
+using HDI::Location::Gnss::V1_0::GnssAuxiliaryData;
+using HDI::Location::Gnss::V1_0::GnssWorkingMode;
+using HDI::Location::Gnss::V1_0::GnssConfigPara;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 using HDI::Location::Agnss::V1_0::IAGnssInterface;
 using HDI::Location::Agnss::V1_0::IAGnssCallback;
@@ -128,6 +131,8 @@ private:
     bool CheckIfGnssConnecting();
     bool IsMockProcessing();
     void RegisterLocationHdiDeathRecipient();
+    bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryData& flags);
+    LocationErrCode SetPositionMode();
 
     bool isHdiConnected_;
     size_t mockLocationIndex_ = 0;

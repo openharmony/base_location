@@ -89,11 +89,19 @@ public:
      * @return bool - true success
      */
     bool GetGeocodeAbilityName(std::string& name);
+
+    /*
+     * @Description get  supl mode
+     *
+     * @return int - supl mode
+     */
+    int GetSuplMode();
 private:
     LocationConfigManager();
     std::string GetLocationSwitchConfigPath();
 
     bool GetStringParameter(const std::string& type, std::string& value);
+    int GetIntParameter(const std::string& type);
 private:
     std::atomic<int> mPrivacyTypeState[3];
     std::atomic<int> mLocationSwitchState;         /* location switch state */

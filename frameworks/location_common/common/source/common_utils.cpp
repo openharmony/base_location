@@ -407,5 +407,53 @@ int64_t CommonUtils::GetCurrentTime()
     int64_t second = static_cast<int64_t>(times.tv_sec);
     return second;
 }
+
+std::vector<std::string> CommonUtils::Split(std::string str, std::string pattern)
+{
+    size_t pos;
+    std::vector<std::string> result;
+    str += pattern;
+    size_t size = str.size();
+    size_t i = 0;
+    while (i < size) {
+        pos = str.find(pattern, i);
+        if (pos != std::string::npos && pos < size) {
+            std::string s = str.substr(i, pos - i);
+            result.push_back(s);
+            i = pos + pattern.size() - 1;
+        }
+        i++;
+    }
+    return result;
+}
+
+uint8_t CommonUtils::ConvertStringToDigit(std::string str)
+{
+    uint8_t res = 0;
+    constexpr int bitWidth = 4;
+    constexpr int numDiffForHexAlphabet = 10;
+    for (auto ch : str) {
+        res = res << bitWidth;
+        if (ch >= '0' && ch <= '9') {
+            res += (ch - '0');
+        }
+        if (ch >= 'A' && ch <= 'F') {
+            res += (ch - 'A' + numDiffForHexAlphabet);
+        }
+        if (ch >= 'a' && ch <= 'f') {
+            res += (ch - 'a' + numDiffForHexAlphabet);
+        }
+    }
+    return res;
+}
+
+errno_t CommonUtils::GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN])
+{
+    std::vector<std::string> strVec = Split(strMac, ":");
+    for (size_t i = 0; i < strVec.size() && i < MAC_LEN; i++) {
+        mac[i] = ConvertStringToDigit(strVec[i]);
+    }
+    return EOK;
+}
 } // namespace Location
 } // namespace OHOS
