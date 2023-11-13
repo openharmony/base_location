@@ -201,7 +201,7 @@ int GnssAbilityStub::SendCommandInner(MessageParcel &data, MessageParcel &reply,
     }
     std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
     locationCommand->scenario =  data.ReadInt32();
-    locationCommand->command = data.ReadBool();
+    locationCommand->command = Str16ToStr8(data.ReadString16());
     reply.WriteInt32(SendCommand(locationCommand));
     return ERRCODE_SUCCESS;
 }

@@ -29,6 +29,11 @@
 #include "common_utils.h"
 #include "gnss_ability.h"
 #include "location_log.h"
+#include "securec.h"
+
+#ifdef WIFI_ENABLE
+#include "wifi_scan.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -61,21 +66,51 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
     return ERR_OK;
 }
 
-int32_t AGnssEventCallback::RequestAgnssRefInfo()
+void AGnssEventCallback::GetWiFiRefInfo(AGnssRefInfo& refInfo)
+{
+#ifdef WIFI_ENABLE
+    std::vector<Wifi::WifiScanInfo> wifiScanInfo;
+    std::shared_ptr<Wifi::WifiScan> ptrWifiScan = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
+    if (ptrWifiScan == nullptr) {
+        LBSLOGE(GNSS, "%{public}s WifiScan get instance failed", __func__);
+        return;
+    }
+    int ret = ptrWifiScan->GetScanInfoList(wifiScanInfo);
+    if (ret != Wifi::WIFI_OPT_SUCCESS) {
+        LBSLOGE(GNSS, "GetScanInfoList failed");
+        return;
+    }
+    if (wifiScanInfo.size() <= 0) {
+        LBSLOGE(GNSS, "empty mac.");
+        return;
+    }
+    uint8_t macArray[MAC_LEN];
+    if (CommonUtils::GetMacArray(wifiScanInfo[0].bssid, macArray) != EOK) {
+        LBSLOGE(GNSS, "GetMacArray failed.");
+        return;
+    }
+    for (size_t i = 0; i < MAC_LEN; i++) {
+        refInfo.mac.mac.push_back(macArray[i]);
+    }
+#endif
+}
+
+void AGnssEventCallback::GetCellRefInfo(AGnssRefInfo& refInfo)
 {
 #if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
     std::vector<sptr<CellInformation>> cellInformations;
     DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetCellInfoList(slotId, cellInformations);
-    LBSLOGI(GNSS, "RequestAgnssRefInfo,cellInformations.");
+    if (cellInformations.size() <= 0) {
+        LBSLOGE(GNSS, "empty cell info list.");
+        return;
+    }
     for (sptr<CellInformation> infoItem : cellInformations) {
         if (!infoItem->GetIsCamped()) {
             LBSLOGE(GNSS, "GetIsCamped return false");
             continue;
         }
-        AGnssRefInfo refInfo;
         CellInformation::CellType cellType = infoItem->GetNetworkType();
-        refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
         switch (cellType) {
             case CellInformation::CellType::CELL_TYPE_GSM: {
                 JudgmentDataGsm(refInfo, infoItem);
@@ -98,15 +133,23 @@ int32_t AGnssEventCallback::RequestAgnssRefInfo()
             default:
                 break;
         }
-        auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
-        if (gnssAbility == nullptr) {
-            LBSLOGE(GNSS, "RequestAgnssRefInfo: gnss ability is nullptr");
-            break;
-        }
-        gnssAbility.get()->SetRefInfo(refInfo);
         break;
     }
 #endif
+}
+
+int32_t AGnssEventCallback::RequestAgnssRefInfo()
+{
+    AGnssRefInfo refInfo;
+    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    GetWiFiRefInfo(refInfo);
+    GetCellRefInfo(refInfo);
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "RequestAgnssRefInfo: gnss ability is nullptr");
+        return ERR_OK;
+    }
+    gnssAbility.get()->SetRefInfo(refInfo);
     return ERR_OK;
 }
 

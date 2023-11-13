@@ -23,8 +23,8 @@
 
 #include "constant_definition.h"
 #include "iremote_object.h"
+#include "securec.h"
 #include "string_ex.h"
-
 #include "location_log.h"
 
 namespace OHOS {
@@ -54,6 +54,7 @@ const std::string NLP_SERVICE_NAME = "const.location.nlp_service_name";
 const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
 const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
 const std::string GEOCODE_ABILITY_NAME = "const.location.geocode_ability_name";
+const std::string SUPL_MODE_NAME = "const.location.supl_mode";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
@@ -110,6 +111,7 @@ static constexpr int PERMISSION_INVALID = 0;
 static constexpr int LOCATOR_UID = 1021;
 static constexpr int MAXIMUM_INTERATION = 100;
 static constexpr int MAXIMUM_CACHE_LOCATIONS = 1000;
+static constexpr int MAC_LEN = 6;
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
@@ -184,6 +186,9 @@ public:
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
     static int QuerySwitchState();
     static int64_t GetCurrentTime();
+    static std::vector<std::string> Split(std::string str, std::string pattern);
+    static errno_t GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN]);
+    static unsigned char ConvertStringToDigit(std::string str);
 };
 
 class CountDownLatch {

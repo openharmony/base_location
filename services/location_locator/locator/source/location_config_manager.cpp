@@ -168,6 +168,26 @@ bool LocationConfigManager::GetStringParameter(const std::string& type, std::str
     return true;
 }
 
+int LocationConfigManager::GetIntParameter(const std::string& type)
+{
+    char result[MAX_BUFF_SIZE] = {0};
+    std::string value = "";
+    auto res = GetParameter(type.c_str(), "", result, MAX_BUFF_SIZE);
+    if (res <= 0) {
+        LBSLOGE(LOCATOR, "%{public}s get para value failed, res: %{public}d",
+            __func__, res);
+        return -1;
+    }
+    value = result;
+    for (auto ch : value) {
+        if (std::isdigit(ch) == 0) {
+            LBSLOGE(LOCATOR, "wrong para");
+            return -1;
+        }
+    }
+    return std::stoi(value);
+}
+
 bool LocationConfigManager::GetNlpServiceName(std::string& name)
 {
     return GetStringParameter(NLP_SERVICE_NAME, name);
@@ -186,6 +206,11 @@ bool LocationConfigManager::GetGeocodeServiceName(std::string& name)
 bool LocationConfigManager::GetGeocodeAbilityName(std::string& name)
 {
     return GetStringParameter(GEOCODE_ABILITY_NAME, name);
+}
+
+int LocationConfigManager::GetSuplMode()
+{
+    return GetIntParameter(SUPL_MODE_NAME);
 }
 
 int LocationConfigManager::SetLocationSwitchState(int state)

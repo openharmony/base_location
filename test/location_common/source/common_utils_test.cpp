@@ -394,5 +394,15 @@ HWTEST_F(CommonUtilsTest, CheckCallingPermissionTest001, TestSize.Level1)
     EXPECT_EQ(false, CommonUtils::CheckCallingPermission(uid, pid, reply));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckCallingPermissionTest001 end");
 }
+
+HWTEST_F(CommonUtilsTest, GetMacArrayTest001, TestSize.Level1)
+{
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetMacArrayTest001 begin");
+    uint8_t macArray[MAC_LEN];
+    if (CommonUtils::GetMacArray("20:28:3e:74:34:70", macArray) != EOK) {
+        LBSLOGE(COMMON_UTILS, "GetMacArray failed.");
+    }
+    EXPECT_EQ(32, macArray[0]);
+}
 } // namespace Location
 } // namespace OHOS
