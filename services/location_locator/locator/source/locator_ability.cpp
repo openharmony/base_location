@@ -1019,7 +1019,7 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
     int errorCode = reply.ReadInt32();
-    if (errorCode != ERROR_SUCCESS) {
+    if (errorCode != ERRCODE_SUCCESS) {
         WriteLocationInnerEvent(GEOCODE_ERROR_EVENT, {
             "code", "2",
             "appName", bundleName,
@@ -1049,7 +1049,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
     int errorCode = reply.ReadInt32();
-    if (errorCode != ERROR_SUCCESS) {
+    if (errorCode != ERRCODE_SUCCESS) {
         WriteLocationInnerEvent(GEOCODE_ERROR_EVENT, {
             "code", "1",
             "appName", bundleName,

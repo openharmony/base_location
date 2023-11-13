@@ -248,6 +248,7 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
     auto list = &(mapIter->second);
     LBSLOGD(REQUEST_MANAGER, "%{public}s ability current request size %{public}s",
         abilityName.c_str(), std::to_string(list->size()).c_str());
+    auto requestConfig = request->GetRequestConfig();
     if (shouldInsert) {
         WriteLocationInnerEvent(ADD_REQUEST, {
             "PackageName", request->GetPackageName(),
@@ -256,7 +257,7 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
             "scenario", std::to_string(requestConfig->GetScenario()),
             "priority", std::to_string(requestConfig->GetPriority()),
             "timeInterval", std::to_string(requestConfig->GetTimeInterval()),
-            "maxAccuracy", std::to_string(reuqestConfig->GetMaxAccuracy())});
+            "maxAccuracy", std::to_string(requestConfig->GetMaxAccuracy())});
         list->push_back(request);
         HandleChrEvent(*list);
         runningUids_.push_back(request->GetUid());
@@ -284,7 +285,7 @@ void RequestManager::HandleChrEvent(std::list<std::shared_ptr<Request>> requests
         std::vector<std::string> names;
         std::vector<std::string> values;
         int index = 0;
-        for (auto it = requests.begin(); it < requests.end(); ++it, ++index) {
+        for (auto it = requests.begin(); it != requests.end(); ++it, ++index) {
             auto request = *it;
             if (request == nullptr) {
                 continue;
