@@ -43,6 +43,7 @@ public:
     void HandlePermissionChanged(uint32_t tokenId);
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
+    void HandleChrEvent(std::list<std::shared_ptr<Request>> requests);
     void UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert);
     void DeleteRequestRecord(std::shared_ptr<std::list<std::shared_ptr<Request>>> requests);
     void HandleRequest(std::string abilityName, std::list<std::shared_ptr<Request>> list);

@@ -528,5 +528,16 @@ HWTEST_F(RequestManagerTest, GetRemoteObject001, TestSize.Level1)
     requestManager_->GetRemoteObject("");
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 end");
 }
+
+HWTEST_F(RequestManagerTest, HandleChrEvent001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, HandleChrEvent001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    std::list<std::shared_ptr<Request>> requests;
+    requestManager_->HandleChrEvent(requests);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
