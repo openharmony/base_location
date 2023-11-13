@@ -64,10 +64,13 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     struct timeval now;
     gettimeofday(&now, NULL);
     auto receiveTimestamp = now.tv_sec * SEC_TO_MILLI_SEC + now.tv_usec / MICRO_PER_MILLI;
-    WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {"speed", std::to_string(location.speed),
+    WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {
+        "speed", std::to_string(location.speed),
         "accuracy", std::to_string(location.accuracy),
         "locationTimestamp", std::to_string(location.timeStamp),
-        "receiveTimestamp", std::to_string(receiveTimestamp)});
+        "receiveTimestamp", std::to_string(receiveTimestamp),
+        "latitude", std::to_string(location.latitude),
+        "longitude", std::to_string(location.longitude)});
     gnssAbility->ReportLocationInfo(GNSS_ABILITY, locationNew);
 #ifdef FEATURE_PASSIVE_SUPPORT
     gnssAbility->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
