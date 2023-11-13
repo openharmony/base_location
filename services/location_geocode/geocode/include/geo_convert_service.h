@@ -68,7 +68,7 @@ private:
     int RemoteToService(uint32_t code, MessageParcel &data, MessageParcel &rep);
     void ReportAddressMock(MessageParcel &data, MessageParcel &reply);
     bool CheckIfGeoConvertConnecting();
-    bool WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag);
+    bool WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag, std::string& bundleName);
     bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel &reply, bool flag);
     bool GetService();
     bool IsConnect();

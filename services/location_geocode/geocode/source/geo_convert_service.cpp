@@ -26,6 +26,8 @@
 #include "location_dumper.h"
 #include "location_sa_load_manager.h"
 #include "system_ability_definition.h"
+#include "location_log_event_ids.h"
+#include "common_hisysevent.h"
 
 namespace OHOS {
 namespace Location {
@@ -206,7 +208,8 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
     MessageParcel replyParcel;
     MessageOption option;
 
-    if (!WriteInfoToParcel(data, dataParcel, true)) {
+    std::string bundleName = "";
+    if (!WriteInfoToParcel(data, dataParcel, true, bundleName)) {
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
@@ -225,6 +228,7 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
     }
     int error = serviceProxy_->SendRequest(REQUEST_REVERSE_GEOCODE, dataParcel, replyParcel, option);
     if (error != ERR_OK) {
+        WriteLocationInnerEvent(GEOCODE_ERROR_EVENT, {"code", "2", "appName", bundleName, "subCode", std::to_string(error)});
         LBSLOGE(GEO_CONVERT, "SendRequest to cloud service failed.");
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
         return ERRCODE_REVERSE_GEOCODING_FAIL;
@@ -280,7 +284,8 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
     MessageParcel replyParcel;
     MessageOption option;
 
-    if (!WriteInfoToParcel(data, dataParcel, false)) {
+    std::string bundleName = "";
+    if (!WriteInfoToParcel(data, dataParcel, false, bundleName)) {
         reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return ERRCODE_GEOCODING_FAIL;
     }
@@ -298,6 +303,7 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
     }
     int error = serviceProxy_->SendRequest(REQUEST_GEOCODE, dataParcel, replyParcel, option);
     if (error != ERR_OK) {
+        WriteLocationInnerEvent(GEOCODE_ERROR_EVENT, {"code", "1", "appName", bundleName, "subCode", std::to_string(error)});
         LBSLOGE(GEO_CONVERT, "SendRequest to cloud service failed.");
         reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return ERRCODE_GEOCODING_FAIL;
@@ -313,7 +319,8 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
  * get info from data and write to dataParcel.
  * flag: true for reverse geocoding, false for geocoding.
  */
-bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag)
+bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag,
+    std::string& bundleName)
 {
     if (flag) {
         dataParcel.WriteString16(data.ReadString16()); // locale
@@ -329,7 +336,9 @@ bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &da
         dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
         dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
     }
-    dataParcel.WriteString16(data.ReadString16()); // bundleName
+    auto bundleNameStr = data.ReadString16();
+    dataParcel.WriteString16(bundleNameStr); // bundleName
+    bundleName = Str16ToStr8(bundleNameStr);
     return true;
 }
 
