@@ -29,7 +29,11 @@ enum {
     NETWORK_CALLBACK_LOCATION,
     LOCATION_REQUEST_DENY,
     HDI_EVENT,
+    GEOCODE_ERROR_EVENT,
+    LBS_REQUEST_TOO_MUCH,
 };
+
+constexpr size_t LBS_REQUEST_MAX_SIZE = 20;
 } // namespace Location
 } // namespace OHOS
 #endif

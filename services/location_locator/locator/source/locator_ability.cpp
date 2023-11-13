@@ -22,6 +22,7 @@
 
 #include "common_event_manager.h"
 #include "common_hisysevent.h"
+#include "location_log_event_ids.h"
 #include "common_utils.h"
 #include "constant_definition.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
@@ -1017,6 +1018,15 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
+    int errorCode = reply.ReadInt32();
+    if (errorCode != ERROR_SUCCESS) {
+        WriteLocationInnerEvent(GEOCODE_ERROR_EVENT, {
+            "code", "2",
+            "appName", bundleName,
+            "subCode", std::to_string(errorCode)
+        });
+    }
+    reply.RewindRead(0);
 }
 #endif
 
@@ -1038,6 +1048,15 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
+    int errorCode = reply.ReadInt32();
+    if (errorCode != ERROR_SUCCESS) {
+        WriteLocationInnerEvent(GEOCODE_ERROR_EVENT, {
+            "code", "1",
+            "appName", bundleName,
+            "subCode", std::to_string(errorCode)
+        });
+    }
+    reply.RewindRead(0);
 }
 #endif
 

@@ -66,7 +66,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     auto fuseLocation = fusionController->GetFuseLocation(abilityName, location);
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
-        WriteNetWorkReportEvent(abilityName, request);
+        WriteNetWorkReportEvent(abilityName, request, location);
         bool ret = true;
         if (IsRequestFuse(request)) {
             ret = ProcessRequestForReport(request, deadRequests, fuseLocation);
@@ -303,11 +303,16 @@ bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
     return false;
 }
 
-void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request)
+void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request,
+    const std::unique_ptr<Location>& location)
 {
     if (abilityName == NETWORK_ABILITY && request != nullptr) {
-        WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {"PackageName", request->GetPackageName(),
-            "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
+        WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {
+            "PackageName", request->GetPackageName(),
+            "abilityName", abilityName,
+            "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get())),
+            "latitude", std::to_string(location->GetLatitude()),
+            "longitude", std::to_string(location->GetLongitude())});
     }
 }
 } // namespace OHOS

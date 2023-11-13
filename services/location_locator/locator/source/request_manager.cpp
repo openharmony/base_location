@@ -249,9 +249,16 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
     LBSLOGD(REQUEST_MANAGER, "%{public}s ability current request size %{public}s",
         abilityName.c_str(), std::to_string(list->size()).c_str());
     if (shouldInsert) {
-        WriteLocationInnerEvent(ADD_REQUEST, {"PackageName", request->GetPackageName(),
-            "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
+        WriteLocationInnerEvent(ADD_REQUEST, {
+            "PackageName", request->GetPackageName(),
+            "abilityName", abilityName,
+            "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get())),
+            "scenario", std::to_string(requestConfig->GetScenario()),
+            "priority", std::to_string(requestConfig->GetPriority()),
+            "timeInterval", std::to_string(requestConfig->GetTimeInterval()),
+            "maxAccuracy", std::to_string(reuqestConfig->GetMaxAccuracy())});
         list->push_back(request);
+        HandleChrEvent(*list);
         runningUids_.push_back(request->GetUid());
     } else {
         WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
@@ -269,6 +276,25 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
     }
     LBSLOGD(REQUEST_MANAGER, "%{public}s ability request size %{public}s",
         abilityName.c_str(), std::to_string(list->size()).c_str());
+}
+
+void RequestManager::HandleChrEvent(std::list<std::shared_ptr<Request>> requests)
+{
+    if (requests.size() > LBS_REQUEST_MAX_SIZE) {
+        std::vector<std::string> names;
+        std::vector<std::string> values;
+        int index = 0;
+        for (auto it = requests.begin(); it < requests.end(); ++it, ++index) {
+            auto request = *it;
+            if (request == nullptr) {
+                continue;
+            }
+            names.push_back(std::to_string(index));
+            std::string packageName = request->GetPackageName();
+            values.push_back(packageName);
+        }
+        WriteLocationInnerEvent(LBS_REQUEST_TOO_MUCH, names, values);
+    }
 }
 
 void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
