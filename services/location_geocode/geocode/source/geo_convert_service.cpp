@@ -313,7 +313,8 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
  * get info from data and write to dataParcel.
  * flag: true for reverse geocoding, false for geocoding.
  */
-bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag)
+bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag,
+    std::string& bundleName)
 {
     if (flag) {
         dataParcel.WriteString16(data.ReadString16()); // locale
@@ -329,7 +330,9 @@ bool GeoConvertService::WriteInfoToParcel(MessageParcel &data, MessageParcel &da
         dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
         dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
     }
-    dataParcel.WriteString16(data.ReadString16()); // bundleName
+    auto bundleNameStr = data.ReadString16();
+    dataParcel.WriteString16(bundleNameStr); // bundleName
+    bundleName = Str16ToStr8(bundleNameStr);
     return true;
 }
 
