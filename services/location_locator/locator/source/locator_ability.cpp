@@ -365,10 +365,15 @@ void LocatorAbility::UpdateSaAbilityHandler()
     }
 }
 
-void LocatorAbility::UnloadSaAbility()
+void LocatorAbility::UnloadSaAbility(uint32_t code)
 {
     if (locatorHandler_ == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s locatorHandler is nullptr", __func__);
+        return;
+    }
+    if (code == DEFAULT_CODE ||
+        code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE) ||
+        code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
         return;
     }
     locatorHandler_->RemoveTask(UNLOAD_TASK);

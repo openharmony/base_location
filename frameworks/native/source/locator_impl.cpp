@@ -63,6 +63,10 @@ LocatorImpl::~LocatorImpl()
 
 bool LocatorImpl::Init()
 {
+    if (CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
+        LBSLOGD(LOCATOR_STANDARD, "locator sa has been loaded");
+        return true;
+    }
     auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
     if (instance == nullptr || instance->LoadLocationSa(LOCATION_LOCATOR_SA_ID) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "locator sa load failed.");

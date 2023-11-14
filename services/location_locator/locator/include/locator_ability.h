@@ -135,7 +135,7 @@ public:
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
-    void UnloadSaAbility();
+    void UnloadSaAbility(uint32_t code);
     std::set<int32_t> GetProxyUid();
 
 private:

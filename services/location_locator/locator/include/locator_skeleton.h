@@ -92,7 +92,7 @@ private:
     bool CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity);
     bool CheckLocationSwitchState(MessageParcel &reply);
     static void SaDumpInfo(std::string& result);
-    bool UnloadLocatorSa();
+    bool UnloadLocatorSa(uint32_t code);
     void WriteLocationDenyReportEvent(uint32_t code, int errCode, MessageParcel &data, AppIdentity &identity);
 };
 
