@@ -59,7 +59,6 @@ if (location_feature_with_passive) {
       "hisysevent:libhisysevent",
       "init:libbegetutil",
       "ipc:ipc_core",
-      "safwk:dynamic_cache",
       "safwk:system_ability_fwk",
     ]
 
