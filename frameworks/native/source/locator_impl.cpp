@@ -78,12 +78,15 @@ bool LocatorImpl::Init()
 
 bool LocatorImpl::IsLocationEnabled()
 {
-    bool flag = false;
-    if (locationDataManager_ == nullptr) {
+    int32_t state = DISABLED;
+    auto locationDataRdbHelper =
+        DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    if (locationDataRdbHelper == nullptr) {
         return false;
     }
-    locationDataManager_->QuerySwitchState(flag);
-    return flag;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    return (state == ENABLED);
 }
 
 void LocatorImpl::ShowNotification()
@@ -629,10 +632,15 @@ bool LocatorImpl::ResetAllProxy()
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
-    if (locationDataManager_ == nullptr) {
+    int32_t state = DISABLED;
+    auto locationDataRdbHelper =
+        DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    if (locationDataRdbHelper == nullptr) {
         return ERRCODE_NOT_SUPPORTED;
     }
-    LocationErrCode errCode = locationDataManager_->QuerySwitchState(isEnabled);
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errCode =
+        locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     return errCode;
 }
 
