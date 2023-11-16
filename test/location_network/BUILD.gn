@@ -60,7 +60,6 @@ if (location_feature_with_network) {
       "hilog:libhilog",
       "hisysevent:libhisysevent",
       "init:libbegetutil",
-      "safwk:dynamic_cache",
     ]
 
     defines = []
