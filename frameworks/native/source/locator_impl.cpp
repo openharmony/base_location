@@ -85,7 +85,11 @@ bool LocatorImpl::IsLocationEnabled()
         return false;
     }
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    LocationErrCode errCode =
+        locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabled err = %{public}d", errCode);
+    }
     return (state == ENABLED);
 }
 
@@ -641,7 +645,11 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     Uri locationDataEnableUri(LOCATION_DATA_URI);
     LocationErrCode errCode =
         locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    return errCode;
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabledV9 err = %{public}d", errCode);
+    }
+    isEnabled = (state == ENABLED);
+    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
