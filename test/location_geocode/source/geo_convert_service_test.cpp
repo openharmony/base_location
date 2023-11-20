@@ -301,6 +301,15 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertSaDumpInfo001, TestSize.Level1)
     service_->SaDumpInfo(result);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertSaDumpInfo001 end");
 }
+
+HWTEST_F(GeoConvertServiceTest, GeoConvertResetServiceProxy001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertResetServiceProxy001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertResetServiceProxy001 begin");
+    EXPECT_EQ(true, service_->ResetServiceProxy());
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertResetServiceProxy001 end");
+}
 }  // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GEOCODE_SUPPORT

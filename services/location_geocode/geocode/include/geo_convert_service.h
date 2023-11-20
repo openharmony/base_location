@@ -62,6 +62,7 @@ public:
     bool ReConnectService();
     void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
     void NotifyDisConnected();
+    bool ResetServiceProxy();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -72,6 +73,8 @@ private:
     bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel &reply, bool flag);
     bool GetService();
     bool IsConnect();
+    void RegisterGeoServiceDeathRecipient();
+    bool SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel, MessageOption& option);
 
     bool mockEnabled_ = false;
     bool registerToService_ = false;
@@ -82,6 +85,13 @@ private:
     std::mutex mutex_;
     sptr<IRemoteObject> serviceProxy_ = nullptr;
     std::condition_variable connectCondition_;
+};
+
+class GeoServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    GeoServiceDeathRecipient();
+    ~GeoServiceDeathRecipient() override;
 };
 } // namespace OHOS
 } // namespace Location

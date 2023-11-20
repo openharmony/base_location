@@ -155,6 +155,7 @@ bool GeoConvertService::ConnectService()
             return false;
         }
     }
+    RegisterGeoServiceDeathRecipient();
     return true;
 }
 
@@ -217,15 +218,8 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
     dataParcel.WriteRemoteObject(callback->AsObject());
-
-    if (serviceProxy_ == nullptr) {
-        LBSLOGE(GEO_CONVERT, "serviceProxy is nullptr!");
-        reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
-        return ERRCODE_REVERSE_GEOCODING_FAIL;
-    }
-    int error = serviceProxy_->SendRequest(REQUEST_REVERSE_GEOCODE, dataParcel, replyParcel, option);
-    if (error != ERR_OK) {
-        LBSLOGE(GEO_CONVERT, "SendRequest to cloud service failed.");
+    bool ret = SendGeocodeRequest(REQUEST_REVERSE_GEOCODE, dataParcel, replyParcel, option);
+    if (!ret) {
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
@@ -291,14 +285,8 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
         return ERRCODE_GEOCODING_FAIL;
     }
     dataParcel.WriteRemoteObject(callback->AsObject());
-    if (serviceProxy_ == nullptr) {
-        LBSLOGE(GEO_CONVERT, "serviceProxy is nullptr!");
-        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
-        return ERRCODE_GEOCODING_FAIL;
-    }
-    int error = serviceProxy_->SendRequest(REQUEST_GEOCODE, dataParcel, replyParcel, option);
-    if (error != ERR_OK) {
-        LBSLOGE(GEO_CONVERT, "SendRequest to cloud service failed.");
+    bool ret = SendGeocodeRequest(REQUEST_GEOCODE, dataParcel, replyParcel, option);
+    if (!ret) {
         reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return ERRCODE_GEOCODING_FAIL;
     }
@@ -440,6 +428,57 @@ int32_t GeoConvertService::Dump(int32_t fd, const std::vector<std::u16string>& a
         return ERR_OK;
     }
     return ERR_OK;
+}
+
+bool GeoConvertService::ResetServiceProxy()
+{
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    serviceProxy_ = nullptr;
+    return true;
+}
+
+void GeoConvertService::RegisterGeoServiceDeathRecipient()
+{
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    if (serviceProxy_ == nullptr) {
+        LBSLOGE(GEO_CONVERT, "%{public}s: geoServiceProxy_ is nullptr", __func__);
+        return;
+    }
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GeoServiceDeathRecipient());
+    serviceProxy_->AddDeathRecipient(death);
+}
+
+bool GeoConvertService::SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel,
+    MessageOption& option)
+{
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    if (serviceProxy_ == nullptr) {
+        LBSLOGE(GEO_CONVERT, "serviceProxy is nullptr!");
+        return false;
+    }
+    int error = serviceProxy_->SendRequest(code, dataParcel, replyParcel, option);
+    if (error != ERR_OK) {
+        LBSLOGE(GEO_CONVERT, "SendRequest to cloud service failed. error = %{public}d", error);
+        return false;
+    }
+    return true;
+}
+
+GeoServiceDeathRecipient::GeoServiceDeathRecipient()
+{
+}
+
+GeoServiceDeathRecipient::~GeoServiceDeathRecipient()
+{
+}
+
+void GeoServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto geoConvertService = DelayedSingleton<GeoConvertService>::GetInstance();
+    if (geoConvertService != nullptr) {
+        LBSLOGI(GEO_CONVERT, "geo OnRemoteDied");
+        geoConvertService->ResetServiceProxy();
+    }
 }
 } // namespace Location
 } // namespace OHOS

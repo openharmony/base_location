@@ -316,8 +316,7 @@ HWTEST_F(NetworkAbilityTest, ReConnectNlpService001, TestSize.Level1)
         << "NetworkAbilityTest, ReConnectNlpService001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService001 begin");
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
-    ability->nlpServiceReady_ = true;
-    EXPECT_EQ(true, ability->ReConnectNlpService()); // Connect success
+    EXPECT_EQ(false, ability->ReConnectNlpService()); // Connect success
     LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService001 end");
 }
 
@@ -330,11 +329,9 @@ HWTEST_F(NetworkAbilityTest, NotifyConnected001, TestSize.Level1)
     sptr<IRemoteObject> obj = nullptr;
     ability->NotifyConnected(obj);
     EXPECT_EQ(nullptr, ability->nlpServiceProxy_);
-    EXPECT_EQ(true, ability->nlpServiceReady_);
 
     ability->NotifyDisConnected();
     EXPECT_EQ(nullptr, ability->nlpServiceProxy_);
-    EXPECT_EQ(false, ability->nlpServiceReady_);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NotifyConnected001 end");
 }
 
@@ -356,10 +353,8 @@ HWTEST_F(NetworkAbilityTest, RequestRecord001, TestSize.Level1)
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestRecord001 begin");
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
     WorkRecord workRecord;
-    ability->nlpServiceReady_ = true;
     ability->RequestRecord(workRecord, true);
 
-    ability->nlpServiceReady_ = true;
     ability->RequestRecord(workRecord, false);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestRecord001 end");
 }
@@ -429,9 +424,8 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilityConnectNlpService001, TestSize.Level1
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, NetworkAbilityConnectNlpService001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityConnectNlpService001 begin");
-    ability_->nlpServiceReady_ = true;
     bool ret = ability_->ConnectNlpService();
-    EXPECT_EQ(true, ret);
+    EXPECT_EQ(false, ret);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityConnectNlpService001 end");
 }
 
@@ -440,9 +434,8 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilityReConnectNlpService001, TestSize.Leve
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, NetworkAbilityReConnectNlpService001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityReConnectNlpService001 begin");
-    ability_->nlpServiceReady_ = true;
     bool ret = ability_->ReConnectNlpService();
-    EXPECT_EQ(true, ret);
+    EXPECT_EQ(false, ret);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityReConnectNlpService001 end");
 }
 
@@ -489,26 +482,14 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendMessage001, TestSize.Level1)
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilitySendMessage001 end");
 }
 
-HWTEST_F(NetworkAbilityTest, DisconnectNlpService001, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, ResetServiceProxy001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, DisconnectNlpService001, TestSize.Level1";
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService001 begin");
+        << "NetworkAbilityTest, ResetServiceProxy001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ResetServiceProxy001 begin");
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
-    ability->nlpServiceReady_ = false;
-    EXPECT_EQ(true, ability->DisconnectNlpService()); // Connect success
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService001 end");
-}
-
-HWTEST_F(NetworkAbilityTest, DisconnectNlpService002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, DisconnectNlpService002, TestSize.Level1";
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService002 begin");
-    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
-    ability->nlpServiceReady_ = true;
-    EXPECT_EQ(false, ability->DisconnectNlpService()); // Connect success
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectNlpService002 end");
+    EXPECT_EQ(true, ability->ResetServiceProxy()); // Connect success
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ResetServiceProxy001 end");
 }
 } // namespace Location
 } // namespace OHOS
