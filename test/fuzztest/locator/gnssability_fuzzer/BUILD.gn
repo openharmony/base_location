@@ -86,7 +86,7 @@ if (location_feature_with_gnss) {
     }
   }
 } else {
-  ohos_fuzztest("GnssAbilityTest") {
+  ohos_fuzztest("GnssAbilityFuzzTest") {
     module_out_path = "location/location"
   }
 }

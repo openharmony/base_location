@@ -21,8 +21,10 @@
 #include <singleton.h>
 #include <string>
 
+#ifdef BLUETOOTH_ENABLE
 #include "bluetooth_ble_central_manager.h"
 #include "bluetooth_host.h"
+#endif
 #include "common_event_subscriber.h"
 #include "constant_definition.h"
 #include "event_handler.h"
@@ -51,6 +53,7 @@ public:
 };
 #endif
 
+#ifdef BLUETOOTH_ENABLE
 class LocatorBleCallbackWapper : public Bluetooth::BleCentralManagerCallback {
 public:
     /**
@@ -161,6 +164,7 @@ public:
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByBtHost(
         const Bluetooth::BluetoothRemoteDevice &device);
 };
+#endif
 
 class ScanHandler : public AppExecFwk::EventHandler {
 public:
@@ -182,12 +186,16 @@ public:
 private:
     int timeInterval_ = 0;
 #ifdef WIFI_ENABLE
+    void WifiInfoInit();
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
 #endif
+#ifdef BLUETOOTH_ENABLE
+    void BleInfoInit();
     std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     Bluetooth::BluetoothHost *bluetoothHost_;
     LocatorBluetoothHost locatorBluetoothHost_;
+#endif
     std::mutex mutex_;
     std::vector<sptr<ILocatingRequiredDataCallback>> callbacks_;
     std::shared_ptr<ScanHandler> scanHandler_;
