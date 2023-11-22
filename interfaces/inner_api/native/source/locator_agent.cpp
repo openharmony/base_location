@@ -140,14 +140,18 @@ sptr<LocatorAgent> LocatorAgentManager::GetLocatorAgent()
 
     sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
     if (obj == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
-        return nullptr;
+        // reload sa
+        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+        if (instance == nullptr ||
+            instance->LoadLocationSa(LOCATION_LOCATOR_SA_ID) != ERRCODE_SUCCESS) {
+            LBSLOGE(LOCATOR_STANDARD, "locator sa load failed.");
+            return nullptr;
+        }
     }
 
-    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (instance == nullptr ||
-        instance->LoadLocationSa(LOCATION_LOCATOR_SA_ID) != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "locator sa load failed.");
+    obj = sam->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
+    if (obj == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "get sa obj failed.");
         return nullptr;
     }
 
@@ -162,6 +166,7 @@ sptr<LocatorAgent> LocatorAgentManager::GetLocatorAgent()
 
 void LocatorAgentManager::ResetLocatorAgent(const wptr<IRemoteObject> &remote)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remote is nullptr.", __func__);
         return;
@@ -191,8 +196,8 @@ LocationErrCode LocatorAgent::StartGnssLocating(sptr<ILocatorCallback>& callback
     if (requestConfig == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    requestConfig->SetPriority(PRIORITY_UNSET);
-    requestConfig->SetScenario(SCENE_NAVIGATION);
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetScenario(SCENE_UNSET);
     requestConfig->SetFixNumber(0);
 
     MessageParcel data;
