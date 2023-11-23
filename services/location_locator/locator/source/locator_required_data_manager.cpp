@@ -25,13 +25,11 @@ const uint32_t EVENT_STOP_SCAN = 0x0200;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
 #ifdef WIFI_ENABLE
-    wifiScanPtr_ = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
-    wifiScanEventCallback_ =
-		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
+    WifiInfoInit();
 #endif
-    std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
-    bleCentralManager_ = std::make_shared<Bluetooth::BleCentralManager>(callback);
-    bluetoothHost_ = &Bluetooth::BluetoothHost::GetDefaultHost();
+#ifdef BLUETOOTH_ENABLE
+    BleInfoInit();
+#endif
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true));
 }
 
@@ -102,6 +100,14 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
     }
     LBSLOGI(LOCATOR, "after UnregisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
     return ERRCODE_SUCCESS;
+}
+
+#ifdef BLUETOOTH_ENABLE
+void LocatorRequiredDataManager::BleInfoInit()
+{
+    std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
+    bleCentralManager_ = std::make_shared<Bluetooth::BleCentralManager>(callback);
+    bluetoothHost_ = &Bluetooth::BluetoothHost::GetDefaultHost();
 }
 
 std::vector<std::shared_ptr<LocatingRequiredData>> LocatorBluetoothHost::GetLocatingRequiredDataByBtHost(
@@ -175,8 +181,16 @@ void LocatorBleCallbackWapper::OnStartOrStopScanEvent(int32_t resultCode, bool i
 
 void LocatorBleCallbackWapper::OnNotifyMsgReportFromLpDevice(const Bluetooth::UUID &btUuid, int msgType,
     const std::vector<uint8_t> &value) {}
+#endif
 
 #ifdef WIFI_ENABLE
+void LocatorRequiredDataManager::WifiInfoInit()
+{
+    wifiScanPtr_ = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
+    wifiScanEventCallback_ =
+		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
+}
+
 __attribute__((no_sanitize("cfi"))) void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
 {
     LBSLOGE(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);

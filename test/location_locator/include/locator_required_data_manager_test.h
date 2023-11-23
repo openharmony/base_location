@@ -23,8 +23,10 @@
 #include <singleton.h>
 #include <string>
 
+#ifdef BLUETOOTH_ENABLE
 #include "bluetooth_ble_central_manager.h"
 #include "bluetooth_host.h"
+#endif
 #include "common_event_subscriber.h"
 #include "constant_definition.h"
 #include "event_handler.h"
