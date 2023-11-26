@@ -410,13 +410,12 @@ int64_t CommonUtils::GetCurrentTime()
 
 std::vector<std::string> CommonUtils::Split(std::string str, std::string pattern)
 {
-    size_t pos;
     std::vector<std::string> result;
     str += pattern;
     size_t size = str.size();
     size_t i = 0;
     while (i < size) {
-        pos = str.find(pattern, i);
+        size_t pos = str.find(pattern, i);
         if (pos != std::string::npos && pos < size) {
             std::string s = str.substr(i, pos - i);
             result.push_back(s);

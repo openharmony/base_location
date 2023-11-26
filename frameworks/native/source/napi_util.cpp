@@ -246,22 +246,36 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     double valueDouble = 0.0;
     if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
+    } else {
+        requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     }
+
     if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         requestConfig->SetScenario(value);
+    } else {
+        requestConfig->SetScenario(SCENE_UNSET);
     }
+
     if (JsObjectToInt(env, object, "timeInterval", value) == SUCCESS) {
         if (value >= 0 && value < 1) {
             requestConfig->SetTimeInterval(1);
         } else {
             requestConfig->SetTimeInterval(value);
         }
+    } else {
+        requestConfig->SetTimeInterval(1);
     }
+
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
+    } else {
+        requestConfig->SetMaxAccuracy(0);
     }
+
     if (JsObjectToDouble(env, object, "distanceInterval", valueDouble) == SUCCESS) {
         requestConfig->SetDistanceInterval(valueDouble);
+    } else {
+        requestConfig->SetDistanceInterval(0);
     }
 }
 

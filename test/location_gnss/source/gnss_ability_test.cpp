@@ -1203,6 +1203,214 @@ HWTEST_F(GnssAbilityTest, SubAbilityCommonHandleSelfRequest001, TestSize.Level1)
     gnssAbility->GetTimeIntervalMock();
     LBSLOGI(LOCATOR, "[SubAbilityCommonTest] HandleSelfRequest001 end");
 }
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags001 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_ephemeris";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_EPHEMERIS, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags002 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_almanac";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_ALMANAC, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags002 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags003 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_position";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_POSITION, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags003 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags004 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_time";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_TIME, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags004 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags005, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags005 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_iono";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_IONO, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags005 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags006, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags006, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags006 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_utc";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_UTC, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags006 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags007, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags007, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags007 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_health";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_HEALTH, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags007 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags008, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags008, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags008 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_svdir";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_SVDIR, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags008 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags009, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags009, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags009 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_svsteer";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_SVSTEER, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags009 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags010, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags010, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags010 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_sadata";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_SADATA, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags010 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags011, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags011, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags011 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_rti";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_RTI, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags011 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags012, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags012, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags012 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_celldb_info";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_CELLDB_INFO, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags012 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetCommandFlags013, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags013, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags013 begin");
+    GnssAuxiliaryData flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_all";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(GnssAuxiliaryData::GNSS_AUXILIARY_DATA_ALL, flags);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags013 end");
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT
