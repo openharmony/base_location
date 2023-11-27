@@ -44,6 +44,7 @@ declare_args() {
   hdf_drivers_interface_location_gnss_enable = true
   hdf_drivers_interface_location_agnss_enable = true
   communication_wifi_enable = true
+  communication_bluetooth_enable = true
 
   if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
     i18n_enable = false
@@ -72,5 +73,10 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.communication_wifi)) {
     communication_wifi_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.communication_bluetooth)) {
+    communication_bluetooth_enable = false
   }
 }

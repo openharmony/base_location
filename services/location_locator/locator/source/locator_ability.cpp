@@ -350,11 +350,17 @@ void LocatorAbility::UpdateSaAbilityHandler()
         sptr<IRemoteObject> remoteObject = iter->second;
         MessageParcel data;
         if (iter->first == GNSS_ABILITY) {
+#ifdef FEATURE_GNSS_SUPPORT
             data.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+#endif
         } else if (iter->first == NETWORK_ABILITY) {
+#ifdef FEATURE_NETWORK_SUPPORT
             data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
+#endif
         } else if (iter->first == PASSIVE_ABILITY) {
+#ifdef FEATURE_PASSIVE_SUPPORT
             data.WriteInterfaceToken(PassiveAbilityProxy::GetDescriptor());
+#endif
         }
         data.WriteBool(isEnabled);
 

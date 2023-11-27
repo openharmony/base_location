@@ -653,9 +653,8 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
         auto context = static_cast<CommandAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
         if (context->command != nullptr) {
-            g_locatorClient->SendCommandV9(context->command);
+            context->errCode = g_locatorClient->SendCommandV9(context->command);
         }
-        context->errCode = ERRCODE_NOT_SUPPORTED;
 #else
         if (context->command != nullptr) {
             g_locatorClient->SendCommand(context->command);

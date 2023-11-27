@@ -55,6 +55,7 @@ const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
 const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
 const std::string GEOCODE_ABILITY_NAME = "const.location.geocode_ability_name";
 const std::string SUPL_MODE_NAME = "const.location.supl_mode";
+const std::string POLICY_NAME = "persist.edm.location_policy";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
@@ -190,6 +191,8 @@ public:
     static std::vector<std::string> Split(std::string str, std::string pattern);
     static errno_t GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN]);
     static unsigned char ConvertStringToDigit(std::string str);
+    static bool GetStringParameter(const std::string& type, std::string& value);
+    static bool GetPolicyName(std::string& name);
 };
 
 class CountDownLatch {

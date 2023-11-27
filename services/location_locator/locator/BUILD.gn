@@ -66,7 +66,6 @@ ohos_shared_library("lbsservice_locator") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "bluetooth:btframework",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_consumer",
@@ -83,6 +82,11 @@ ohos_shared_library("lbsservice_locator") {
   if (communication_wifi_enable) {
     external_deps += [ "wifi:wifi_sdk" ]
     defines += [ "WIFI_ENABLE" ]
+  }
+
+  if (communication_bluetooth_enable) {
+    external_deps += [ "bluetooth:btframework" ]
+    defines += [ "BLUETOOTH_ENABLE" ]
   }
 
   if (location_feature_with_geocode) {
