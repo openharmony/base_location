@@ -30,6 +30,7 @@
 #include "uri.h"
 #include "constant_definition.h"
 #include "location_data_rdb_helper.h"
+#include "parameter.h"
 namespace OHOS {
 namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
@@ -454,6 +455,24 @@ errno_t CommonUtils::GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN]
         mac[i] = ConvertStringToDigit(strVec[i]);
     }
     return EOK;
+}
+
+bool CommonUtils::GetStringParameter(const std::string& type, std::string& value)
+{
+    char result[MAX_BUFF_SIZE] = {0};
+    auto res = GetParameter(type.c_str(), "", result, MAX_BUFF_SIZE);
+    if (res <= 0) {
+        LBSLOGE(LOCATOR, "%{public}s get para value failed, res: %{public}d",
+            __func__, res);
+        return false;
+    }
+    value = result;
+    return true;
+}
+
+bool CommonUtils::GetPolicyName(std::string& name)
+{
+    return GetStringParameter(POLICY_NAME, name);
 }
 } // namespace Location
 } // namespace OHOS

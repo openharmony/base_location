@@ -54,6 +54,7 @@ ohos_shared_library("lbsservice_common") {
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "init:libbegetutil",
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
