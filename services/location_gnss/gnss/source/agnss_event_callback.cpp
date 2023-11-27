@@ -80,7 +80,7 @@ void AGnssEventCallback::GetWiFiRefInfo(AGnssRefInfo& refInfo)
         LBSLOGE(GNSS, "GetScanInfoList failed");
         return;
     }
-    if (wifiScanInfo.size() <= 0) {
+    if (wifiScanInfo.size() == 0) {
         LBSLOGE(GNSS, "empty mac.");
         return;
     }
@@ -101,7 +101,7 @@ void AGnssEventCallback::GetCellRefInfo(AGnssRefInfo& refInfo)
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
     std::vector<sptr<CellInformation>> cellInformations;
     DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetCellInfoList(slotId, cellInformations);
-    if (cellInformations.size() <= 0) {
+    if (cellInformations.size() == 0) {
         LBSLOGE(GNSS, "empty cell info list.");
         return;
     }

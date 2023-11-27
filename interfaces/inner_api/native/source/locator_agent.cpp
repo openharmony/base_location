@@ -188,9 +188,6 @@ LocationErrCode LocatorAgent::StartGnssLocating(sptr<ILocatorCallback>& callback
         return ERRCODE_INVALID_PARAM;
     }
     auto requestConfig = std::make_unique<RequestConfig>();
-    if (requestConfig == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     requestConfig->SetPriority(PRIORITY_UNSET);
     requestConfig->SetScenario(SCENE_NAVIGATION);
     requestConfig->SetFixNumber(0);
