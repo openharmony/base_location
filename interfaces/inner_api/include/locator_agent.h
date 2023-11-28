@@ -72,6 +72,9 @@ private:
     };
 
     sptr<LocatorAgent> GetLocatorAgent();
+    sptr<IRemoteObject> CheckLocatorSystemAbilityLoaded();
+    bool TryLoadLocatorSystemAbility();
+    sptr<LocatorAgent> InitLocatorAgent(sptr<IRemoteObject>& saObject);
 
     sptr<LocatorAgent> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };

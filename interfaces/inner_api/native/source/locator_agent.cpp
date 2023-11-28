@@ -125,43 +125,73 @@ void LocatorAgentManager::UnregisterNmeaMessageCallback()
 
 sptr<LocatorAgent> LocatorAgentManager::GetLocatorAgent()
 {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
+    lock.lock();
     if (client_ != nullptr) {
         LBSLOGI(LOCATOR_STANDARD, "get proxy success.");
+        lock.unlock();
         return client_;
     }
+    lock.unlock();
+    sptr<IRemoteObject> saObject = CheckLocatorSystemAbilityLoaded();
+    return InitLocatorAgent(saObject);
+}
 
-    sptr<ISystemAbilityManager> sam =
+bool LocatorAgentManager::TryLoadLocatorSystemAbility()
+{
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get instance failed.", __func__);
+        return false;
+    }
+    if (instance->LoadLocationSa(LOCATION_LOCATOR_SA_ID) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s load sa failed.", __func__);
+        return false;
+    }
+    return true;
+}
+
+sptr<LocatorAgent> LocatorAgentManager::InitLocatorAgent(sptr<IRemoteObject>& saObject)
+{
+    if (saObject == nullptr) {
+        return nullptr;
+    }
+    std::unique_lock<std::mutex> lock(mutex_);
+    recipient_ = sptr<LocatorAgentDeathRecipient>(new (std::nothrow) LocatorAgentDeathRecipient(*this));
+    if ((saObject->IsProxyObject()) && (!saObject->AddDeathRecipient(recipient_))) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: deathRecipient add failed.", __func__);
+        return nullptr;
+    }
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s: client reset success.", __func__);
+    client_ = sptr<LocatorAgent>(new (std::nothrow) LocatorAgent(saObject));
+    return client_;
+}
+
+sptr<IRemoteObject> LocatorAgentManager::CheckLocatorSystemAbilityLoaded()
+{
+    sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
+    if (samgr == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
         return nullptr;
     }
 
-    sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
-    if (obj == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
-        return nullptr;
+    sptr<IRemoteObject> saObject = samgr->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
+    if (saObject == nullptr) {
+        if (!TryLoadLocatorSystemAbility()) {
+            return nullptr;
+        }
+        saObject = samgr->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
+        if (saObject == nullptr) {
+            return nullptr;
+        }
     }
-
-    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (instance == nullptr ||
-        instance->LoadLocationSa(LOCATION_LOCATOR_SA_ID) != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "locator sa load failed.");
-        return nullptr;
-    }
-
-    recipient_ = sptr<LocatorAgentDeathRecipient>(new (std::nothrow) LocatorAgentDeathRecipient(*this));
-    if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(recipient_))) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: deathRecipient add failed.", __func__);
-        return nullptr;
-    }
-    client_ = sptr<LocatorAgent>(new (std::nothrow) LocatorAgent(obj));
-    return client_;
+    return saObject;
 }
 
 void LocatorAgentManager::ResetLocatorAgent(const wptr<IRemoteObject> &remote)
 {
+    std::unique_lock<std::mutex> lock(mutex_);
     if (remote == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remote is nullptr.", __func__);
         return;
@@ -188,8 +218,8 @@ LocationErrCode LocatorAgent::StartGnssLocating(sptr<ILocatorCallback>& callback
         return ERRCODE_INVALID_PARAM;
     }
     auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_UNSET);
-    requestConfig->SetScenario(SCENE_NAVIGATION);
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetScenario(SCENE_UNSET);
     requestConfig->SetFixNumber(0);
 
     MessageParcel data;

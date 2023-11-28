@@ -49,6 +49,8 @@
 #include "request_config.h"
 #include "locating_required_data_callback_host.h"
 
+#include "locator_agent.h"
+
 using namespace testing::ext;
 
 namespace OHOS {
@@ -571,6 +573,53 @@ HWTEST_F(LocatorImplTest, locatorImplUnRegisterLocatingRequiredDataCallback001, 
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
     locatorImpl_->UnRegisterLocatingRequiredDataCallback(callbackPtr);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnRegisterLocatingRequiredDataCallback001 end");
+}
+
+static void TestLocationUpdate(
+    const std::unique_ptr<OHOS::Location::Location>& location)
+{
+    LBSLOGI(LOCATOR, "[LocatorImplTest] LocationUpdate enter");
+    EXPECT_EQ(true, location != nullptr);
+}
+
+static void TestSvStatusCallback(
+    const std::unique_ptr<OHOS::Location::SatelliteStatus>& statusInfo)
+{
+    LBSLOGI(LOCATOR, "[LocatorImplTest] SvStatusCallback enter");
+    EXPECT_EQ(true, statusInfo != nullptr);
+}
+
+static void TestNmeaCallback(int64_t timestamp, const std::string msg)
+{
+    LBSLOGI(LOCATOR, "[LocatorImplTest] NmeaCallback enter");
+    EXPECT_EQ(true, msg != "");
+}
+
+HWTEST_F(LocatorImplTest, locatorAgentTest1, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorAgentTest1, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorAgentTest1 begin");
+    auto locatorAgent =
+        DelayedSingleton<LocatorAgentManager>::GetInstance();
+    ASSERT_TRUE(locatorAgent != nullptr);
+    static OHOS::Location::LocationCallbackIfaces locationCallback;
+    locationCallback.locationUpdate = TestLocationUpdate;
+    locatorAgent->StartGnssLocating(locationCallback);
+    sleep(1);
+    static OHOS::Location::SvStatusCallbackIfaces svCallback;
+    svCallback.svStatusUpdate = TestSvStatusCallback;
+    locatorAgent->RegisterGnssStatusCallback(svCallback);
+    sleep(1);
+    static OHOS::Location::GnssNmeaCallbackIfaces nmeaCallback;
+    nmeaCallback.nmeaUpdate = TestNmeaCallback;
+    locatorAgent->RegisterNmeaMessageCallback(nmeaCallback);
+    sleep(1);
+
+    locatorAgent->UnregisterNmeaMessageCallback();
+    locatorAgent->UnregisterGnssStatusCallback();
+    locatorAgent->StopGnssLocating();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorAgentTest1 end");
 }
 }  // namespace Location
 }  // namespace OHOS
