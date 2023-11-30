@@ -404,5 +404,21 @@ HWTEST_F(CommonUtilsTest, GetMacArrayTest001, TestSize.Level1)
     }
     EXPECT_EQ(32, macArray[0]);
 }
+
+HWTEST_F(CommonUtilsTest, GetStringParameter001, TestSize.Level1)
+{
+    std::string name = "";
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter001 begin");
+    bool ret = CommonUtils::GetStringParameter("test", name);
+    EXPECT_EQ(false, ret);
+}
+
+HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
+{
+    std::string name = "";
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 begin");
+    bool ret = CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
+    EXPECT_EQ(true, ret);
+}
 } // namespace Location
 } // namespace OHOS
