@@ -113,17 +113,8 @@ void LocatorImpl::EnableAbility(bool enable)
     if (!Init()) {
         return;
     }
-    std::string name = "";
-    bool res = CommonUtils::GetPolicyName(name);
-    if (!res || name.empty()) {
-        LBSLOGE(LOCATOR_STANDARD, "get policy name failed!");
-        return;
-    }
-    if (name == "force_open" && enable == false) {
-        LBSLOGE(LOCATOR_STANDARD, "disable location switch is not allowed");
-        return;
-    } else if (name == "disallow" && enable == true) {
-        LBSLOGE(LOCATOR_STANDARD, "enable location switch is not allowed");
+    LocationErrCode errorCode = CheckEdmPolicy(enable);
+    if (errorCode != ERRCODE_SUCCESS) {
         return;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -665,23 +656,33 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     return ERRCODE_SUCCESS;
 }
 
+LocationErrCode LocatorImpl::CheckEdmPolicy(bool enable)
+{
+    std::string policy = "";
+    bool res = CommonUtils::GetEdmPolicy(policy);
+    if (!res || policy.empty()) {
+        LBSLOGE(LOCATOR_STANDARD, "get edm policy failed!");
+        return ERRCODE_SUCCESS;
+    }
+    if (policy == "force_open" && enable == false) {
+        LBSLOGE(LOCATOR_STANDARD, "disable location switch is not allowed");
+        return ERRCODE_EDM_POLICY_ABANDON;
+    } else if (policy == "disallow" && enable == true) {
+        LBSLOGE(LOCATOR_STANDARD, "enable location switch is not allowed");
+        return ERRCODE_EDM_POLICY_ABANDON;
+    }
+    return ERRCODE_SUCCESS;
+}
+
+
 LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
 {
     if (!Init()) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::string name = "";
-    bool res = CommonUtils::GetPolicyName(name);
-    if (!res || name.empty()) {
-        LBSLOGE(LOCATOR_STANDARD, "get policy name failed!");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (name == "force_open" && enable == false) {
-        LBSLOGE(LOCATOR_STANDARD, "disable location switch is not allowed");
-        return ERRCODE_EDM_POLICY_ABANDON;
-    } else if (name == "disallow" && enable == true) {
-        LBSLOGE(LOCATOR_STANDARD, "enable location switch is not allowed");
-        return ERRCODE_EDM_POLICY_ABANDON;
+    LocationErrCode errorCode = CheckEdmPolicy(enable);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableAbilityV9()");
     sptr<LocatorProxy> proxy = GetProxy();

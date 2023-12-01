@@ -469,9 +469,9 @@ bool CommonUtils::GetStringParameter(const std::string& type, std::string& value
     return true;
 }
 
-bool CommonUtils::GetPolicyName(std::string& name)
+bool CommonUtils::GetEdmPolicy(std::string& name)
 {
-    return GetStringParameter(POLICY_NAME, name);
+    return GetStringParameter(EDM_POLICY_NAME, name);
 }
 } // namespace Location
 } // namespace OHOS

@@ -130,6 +130,9 @@ public:
     void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
 
 private:
+    LocationErrCode CheckEdmPolicy(bool enable);
+
+private:
     class LocatorDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         explicit LocatorDeathRecipient(LocatorImpl &impl) : impl_(impl) {}

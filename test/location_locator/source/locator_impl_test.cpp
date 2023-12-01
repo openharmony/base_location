@@ -621,5 +621,23 @@ HWTEST_F(LocatorImplTest, locatorAgentTest1, TestSize.Level1)
     locatorAgent->StopGnssLocating();
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorAgentTest1 end");
 }
+
+HWTEST_F(LocatorImplTest, locatorImplCheckEdmPolicy001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplCheckEdmPolicy001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy001 begin");
+    locatorImpl_->CheckEdmPolicy(true);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplCheckEdmPolicy002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplCheckEdmPolicy002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy002 begin");
+    locatorImpl_->CheckEdmPolicy(false);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy002 end");
+}
 }  // namespace Location
 }  // namespace OHOS
