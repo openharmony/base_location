@@ -16,8 +16,6 @@
 #ifndef LOCATOR_CALLBACK_HOST_H
 #define LOCATOR_CALLBACK_HOST_H
 
-#include <shared_mutex>
-
 #include "iremote_stub.h"
 #include "napi/native_api.h"
 #include "uv.h"
@@ -146,7 +144,7 @@ public:
 
     inline std::shared_ptr<Location> GetSingleLocation()
     {
-        std::shared_lock<std::shared_mutex> guard(mutex_);
+        std::unique_lock<std::mutex> guard(mutex_);
         return singleLocation_;
     }
 
@@ -158,7 +156,7 @@ private:
     napi_ref completeHandlerCb_;
     int fixNumber_;
     napi_deferred deferred_;
-    std::shared_mutex mutex_;
+    std::mutex mutex_;
     CountDownLatch* latch_;
     std::shared_ptr<Location> singleLocation_;
 };

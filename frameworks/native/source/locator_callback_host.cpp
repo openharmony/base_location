@@ -70,7 +70,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
             OnLocationReport(location);
-            std::shared_lock<std::shared_mutex> guard(mutex_);
+            std::unique_lock<std::mutex> guard(mutex_);
             singleLocation_ = std::move(location);
             CountDown();
             break;
@@ -190,7 +190,7 @@ void LocatorCallbackHost::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
 
 bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (!IsSystemGeoLocationApi() && !IsSingleLocationRequest()) {
         LBSLOGE(LOCATOR_CALLBACK, "this is Callback type,cant send error msg.");
         return false;
@@ -227,7 +227,7 @@ bool LocatorCallbackHost::SendErrorCode(const int& errorCode)
 
 void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "env_ is nullptr.");
@@ -274,7 +274,7 @@ void LocatorCallbackHost::DeleteAllCallbacks()
 void LocatorCallbackHost::DeleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (env_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
         return;

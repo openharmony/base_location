@@ -57,12 +57,10 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
-    MessageParcel data;
-    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
-
-    errorCode = locatorDataManager->UnregisterCallback(client);
-
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, nullptr);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, errorCode);
+    errorCode = locatorDataManager->UnregisterCallback(nullptr);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback001 end");
 }
 

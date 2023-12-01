@@ -69,8 +69,7 @@ bool GnssStatusCallbackHost::IsRemoteDied()
 
 bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
-
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -152,7 +151,7 @@ void GnssStatusCallbackHost::OnStatusChange(const std::unique_ptr<SatelliteStatu
 
 void GnssStatusCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
         return;
