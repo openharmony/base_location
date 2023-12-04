@@ -420,5 +420,14 @@ HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
     bool ret = CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
     EXPECT_EQ(true, ret);
 }
+
+HWTEST_F(CommonUtilsTest, GetCurrentTime001, TestSize.Level1)
+{
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetCurrentTime001 begin");
+    int64_t timeStamp = 0;
+    timeStamp = CommonUtils::GetCurrentTime();
+    EXPECT_NE(0, timeStamp);
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetCurrentTime001 end");
+}
 } // namespace Location
 } // namespace OHOS
