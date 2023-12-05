@@ -305,15 +305,23 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     double valueDouble = 0.0;
     if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
+    } else {
+        requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     }
     if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         requestConfig->SetScenario(value);
+    } else {
+        requestConfig->SetScenario(SCENE_UNSET);
     }
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
+    } else {
+        requestConfig->SetMaxAccuracy(0);
     }
     if (JsObjectToInt(env, object, "timeoutMs", value) == SUCCESS) {
         requestConfig->SetTimeOut(value);
+    } else {
+        requestConfig->SetTimeOut(DEFAULT_TIMEOUT_30S);
     }
 }
 

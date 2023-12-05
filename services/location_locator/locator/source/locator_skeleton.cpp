@@ -1002,6 +1002,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    RemoveUnloadTask(code);
 
     auto handleFunc = locatorHandleMap_.find(code);
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
@@ -1016,7 +1017,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
     WriteLocationDenyReportEvent(code, ret, data, identity);
-    UnloadLocatorSa(code);
+    PostUnloadTask(code);
     return ret;
 }
 
@@ -1054,14 +1055,25 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
     return ERR_OK;
 }
 
-bool LocatorAbilityStub::UnloadLocatorSa(uint32_t code)
+bool LocatorAbilityStub::RemoveUnloadTask(uint32_t code)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
         return false;
     }
-    locatorAbility->UnloadSaAbility(code);
+    locatorAbility->RemoveUnloadTask(code);
+    return true;
+}
+
+bool LocatorAbilityStub::PostUnloadTask(uint32_t code)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
+        return false;
+    }
+    locatorAbility->PostUnloadTask(code);
     return true;
 }
 
@@ -1090,8 +1102,9 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
+        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
         locatorAbility->StopLocating(callback);
-        locatorAbility->UnloadSaAbility(DEFAULT_CODE);
+        locatorAbility->PostUnloadTask(DEFAULT_CODE);
         LBSLOGI(LOCATOR, "locator callback OnRemoteDied");
     }
 }
@@ -1108,8 +1121,9 @@ void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remot
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
+        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
         locatorAbility->UnregisterSwitchCallback(remote.promote());
-        locatorAbility->UnloadSaAbility(DEFAULT_CODE);
+        locatorAbility->PostUnloadTask(DEFAULT_CODE);
         LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
     }
 }
