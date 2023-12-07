@@ -66,6 +66,7 @@ const double MOCK_LONGITUDE = 100.0;
 #endif
 const int REQUEST_MAX_NUM = 3;
 const int UNKNOWN_SERVICE_ID = -1;
+const int GET_SWITCH_STATE = 1;
 const std::string ARGS_HELP = "-h";
 void LocatorServiceTest::SetUp()
 {
@@ -2057,6 +2058,50 @@ HWTEST_F(LocatorServiceTest, locatorServiceRegisterPermissionCallback001, TestSi
     locatorAbility->RegisterPermissionCallback(0, permissionNameList);
     locatorAbility->UnregisterPermissionCallback(0);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceReportLocation001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceRemoveUnloadTask001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceRemoveUnloadTask001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceRemoveUnloadTask001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceRemoveUnloadTask001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceRemoveUnloadTask002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceRemoveUnloadTask002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceRemoveUnloadTask002 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->RemoveUnloadTask(GET_SWITCH_STATE);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceRemoveUnloadTask002 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServicePostUnloadTask001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServicePostUnloadTask001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePostUnloadTask001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->PostUnloadTask(DEFAULT_CODE);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePostUnloadTask001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServicePostUnloadTask002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServicePostUnloadTask002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePostUnloadTask002 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->PostUnloadTask(GET_SWITCH_STATE);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePostUnloadTask002 end");
 }
 }  // namespace Location
 }  // namespace OHOS
