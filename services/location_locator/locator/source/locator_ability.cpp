@@ -1028,6 +1028,10 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
+    WriteLocationInnerEvent(GEOCODE_REQUEST, {
+        "code", "2",
+        "appName", bundleName
+    });
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
     int errorCode = reply.ReadInt32();
     if (errorCode != ERRCODE_SUCCESS) {
@@ -1035,6 +1039,11 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
             "code", "2",
             "appName", bundleName,
             "subCode", std::to_string(errorCode)
+        });
+    } else {
+        WriteLocationInnerEvent(GEOCODE_SUCCESS, {
+            "code", "2",
+            "appName", bundleName
         });
     }
     reply.RewindRead(0);
@@ -1058,6 +1067,10 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
+    WriteLocationInnerEvent(GEOCODE_REQUEST, {
+        "code", "1",
+        "appName", bundleName
+    });
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
     int errorCode = reply.ReadInt32();
     if (errorCode != ERRCODE_SUCCESS) {
@@ -1065,6 +1078,11 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
             "code", "1",
             "appName", bundleName,
             "subCode", std::to_string(errorCode)
+        });
+    } else {
+        WriteLocationInnerEvent(GEOCODE_SUCCESS, {
+            "code", "1",
+            "appName", bundleName
         });
     }
     reply.RewindRead(0);

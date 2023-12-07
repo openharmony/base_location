@@ -312,7 +312,9 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
             "abilityName", abilityName,
             "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get())),
             "latitude", std::to_string(location->GetLatitude()),
-            "longitude", std::to_string(location->GetLongitude())});
+            "longitude", std::to_string(location->GetLongitude()),
+            "accuracy", std::to_string(location->GetAccuracy())
+        });
     }
 }
 } // namespace OHOS
