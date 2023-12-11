@@ -51,11 +51,41 @@ class LocatorAgentManager : DelayedSingleton<LocatorAgentManager> {
 public:
     explicit LocatorAgentManager();
     ~LocatorAgentManager();
+
+    /**
+     * @brief Subscribe location changed.
+     *
+     * @param callback Indicates the callback for reporting the location result.
+     */
     void StartGnssLocating(const LocationCallbackIfaces& callback);
+
+    /**
+     * @brief Subscribe satellite status changed.
+     *
+     * @param callback Indicates the callback for reporting the satellite status.
+     */
     void RegisterGnssStatusCallback(const SvStatusCallbackIfaces& callback);
+
+    /**
+     * @brief Subscribe nmea message changed.
+     *
+     * @param callback Indicates the callback for reporting the nmea message.
+     */
     void RegisterNmeaMessageCallback(const GnssNmeaCallbackIfaces& callback);
+    
+    /**
+     * @brief Unsubscribe location changed.
+     */
     void StopGnssLocating();
+
+    /**
+     * @brief Unsubscribe nmea message changed.
+     */
     void UnregisterNmeaMessageCallback();
+
+    /**
+     * @brief Unsubscribe satellite status changed.
+     */
     void UnregisterGnssStatusCallback();
     void ResetLocatorAgent(const wptr<IRemoteObject> &remote);
 private:
