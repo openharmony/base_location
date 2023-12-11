@@ -84,7 +84,7 @@ bool LocatorImpl::IsLocationEnabled()
     if (locationDataRdbHelper == nullptr) {
         return false;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
     LocationErrCode errCode =
         locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -195,7 +195,7 @@ bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pi
         return false;
     }
     if (!isObserverReg_) {
-        Uri locationDataEnableUri(LOCATION_DATA_URI);
+        Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
         locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
         isObserverReg_ = true;
     }
@@ -646,7 +646,7 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     if (locationDataRdbHelper == nullptr) {
         return ERRCODE_NOT_SUPPORTED;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
     LocationErrCode errCode =
         locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -758,7 +758,7 @@ LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>&
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!isObserverReg_) {
-        Uri locationDataEnableUri(LOCATION_DATA_URI);
+        Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
         locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
         isObserverReg_ = true;
     }

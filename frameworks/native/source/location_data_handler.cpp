@@ -56,7 +56,7 @@ void LocationDataHandler::HandleSwitchStateChanged(const AppExecFwk::InnerEvent:
         return;
     }
 
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
     int32_t state = DISABLED;
     LocationErrCode errCode = rdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {

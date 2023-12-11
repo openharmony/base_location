@@ -54,7 +54,7 @@ std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataSha
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remoteObject is nullptr, reInitialize", __func__);
         Initialize();
     }
-    return DataShare::DataShareHelper::Creator(remoteObj_, LOCATION_DATA_URI);
+    return DataShare::DataShareHelper::Creator(remoteObj_, CommonUtils::GetLocationDataUri());
 }
 
 void LocationDataRdbHelper::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper)

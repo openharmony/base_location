@@ -105,7 +105,7 @@ LocationErrCode LocationDataManager::QuerySwitchState(bool &isEnabled)
     int32_t state = isStateCached_ ? cachedSwitchState_ : DISABLED;
     LocationErrCode errCode = ERRCODE_SUCCESS;
     if (!isStateCached_) {
-        Uri locationDataEnableUri(LOCATION_DATA_URI);
+        Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
         errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
             GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
         // At the first time, the key "location_switch_enable" is not in the database

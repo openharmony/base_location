@@ -419,7 +419,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
     LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
     if (errCode != ERRCODE_SUCCESS) {
