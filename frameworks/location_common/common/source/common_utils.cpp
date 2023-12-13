@@ -390,7 +390,7 @@ bool CommonUtils::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
 int CommonUtils::QuerySwitchState()
 {
     int32_t state = DISABLED;
-    Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
     LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -472,22 +472,6 @@ bool CommonUtils::GetStringParameter(const std::string& type, std::string& value
 bool CommonUtils::GetEdmPolicy(std::string& name)
 {
     return GetStringParameter(EDM_POLICY_NAME, name);
-}
-
-std::string CommonUtils::GetLocationDataUri()
-{
-    std::vector<int> tmpId;
-    OHOS::AccountSA::OsAccountManager::QueryActiveOsAccountIds(tmpId);
-    std::string userId = "100";
-    if (tmpId.size() > 0) {
-        userId = std::to_string(tmpId[0]);
-    } else {
-        LBSLOGE(COMMON_UTILS, "userId is invalid, use id 100 instead");
-    }
-    std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_" +
-        userId +
-        "?Proxy=true&key=location_enable";
-    return uri;
 }
 } // namespace Location
 } // namespace OHOS
