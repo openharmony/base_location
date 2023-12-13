@@ -628,7 +628,7 @@ HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LocationDataRdbHelperTest002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest002 begin");
-    Uri locationDataEnableUri(CommonUtils::GetLocationDataUri());
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
     int32_t state = DISABLED;
     EXPECT_EQ(ERRCODE_SUCCESS, DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state));

@@ -43,6 +43,10 @@ const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTIN
 const std::string LOCATION_DIR = "/data/service/el1/public/location/";
 const std::string SWITCH_CONFIG_NAME = "location_switch";
 const std::string PRIVACY_CONFIG_NAME = "location_privacy";
+const std::string LOCATION_DATA_ABILITY_PREFIX = "datashare://";
+const std::string LOCATION_DATA_URI_ID =
+    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=location_enable";
+const std::string LOCATION_DATA_URI = LOCATION_DATA_ABILITY_PREFIX + LOCATION_DATA_URI_ID;
 const std::string LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
 const std::string LOCATION_DATA_COLUMN_VALUE = "VALUE";
 const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
@@ -189,7 +193,6 @@ public:
     static unsigned char ConvertStringToDigit(std::string str);
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
-    static std::string GetLocationDataUri();
 };
 
 class CountDownLatch {
