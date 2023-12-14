@@ -16,13 +16,14 @@
 #include "ipc_skeleton.h"
 
 namespace OHOS {
+const int DEFAULT_CODE = 0;
 pid_t IPCSkeleton::GetCallingUid()
 {
-    return 0;
+    return DEFAULT_CODE;
 }
 
 pid_t IPCSkeleton::GetCallingPid()
 {
-    return 0;
+    return DEFAULT_CODE;
 }
 }  // namespace OHOS
