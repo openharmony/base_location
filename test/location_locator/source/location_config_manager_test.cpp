@@ -145,5 +145,24 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeConfigTest00
     EXPECT_NE("", LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(PRIVACY_TYPE_INVALID_LEFT));
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerCreateFileTest001 end");
 }
+
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerGetAgnssServerAddrTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationConfigManagerTest, LocationConfigManagerGetAgnssServerAddrTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerAddrTest001 begin");
+    std::string addrName;
+    LocationConfigManager::GetInstance().GetAgnssServerAddr(addrName);
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerAddrTest001 end");
+}
+
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerGetAgnssServerPortTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationConfigManagerTest, LocationConfigManagerGetAgnssServerPortTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerPortTest001 begin");
+    LocationConfigManager::GetInstance().GetAgnssServerPort();
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerPortTest001 end");
+}
 }  // namespace Location
 }  // namespace OHOS

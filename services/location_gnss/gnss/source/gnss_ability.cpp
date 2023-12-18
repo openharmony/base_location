@@ -45,10 +45,6 @@ namespace Location {
 namespace {
 constexpr int32_t GET_HDI_SERVICE_COUNT = 30;
 constexpr uint32_t WAIT_MS = 200;
-#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-constexpr int AGNSS_SERVER_PORT = 7275;
-const std::string AGNSS_SERVER_ADDR = "supl.platform.hicloud.com";
-#endif
 const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
@@ -657,10 +653,17 @@ void GnssAbility::SetAgnssServer()
         LBSLOGE(GNSS, "gnss has been disabled");
         return;
     }
+    std::string addrName;
+    bool result = LocationConfigManager::GetInstance().GetAgnssServerAddr(addrName);
+    if (!result || addrName.empty()) {
+        LBSLOGE(GNSS, "get agnss server address failed!");
+        return;
+    }
+    int port = LocationConfigManager::GetInstance().GetAgnssServerPort();
     AGnssServerInfo info;
     info.type = AGNSS_TYPE_SUPL;
-    info.server = AGNSS_SERVER_ADDR;
-    info.port = AGNSS_SERVER_PORT;
+    info.server = addrName;
+    info.port = port;
     agnssInterface_->SetAgnssServer(info);
 }
 
