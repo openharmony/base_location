@@ -96,6 +96,21 @@ public:
      * @return int - supl mode
      */
     int GetSuplMode();
+
+    /*
+     * @Description get agnss server address
+     *
+     * @param name - agnss server address
+     * @return bool - true success
+     */
+    bool GetAgnssServerAddr(std::string& name);
+
+    /*
+     * @Description get agnss server port
+     *
+     * @return int - agnss server port
+     */
+    int GetAgnssServerPort();
 private:
     LocationConfigManager();
     std::string GetLocationSwitchConfigPath();

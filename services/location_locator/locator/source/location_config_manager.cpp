@@ -213,6 +213,16 @@ int LocationConfigManager::GetSuplMode()
     return GetIntParameter(SUPL_MODE_NAME);
 }
 
+bool LocationConfigManager::GetAgnssServerAddr(std::string& name)
+{
+    return GetStringParameter(AGNSS_SERVER_ADDR, name);
+}
+
+int LocationConfigManager::GetAgnssServerPort()
+{
+    return GetIntParameter(AGNSS_SERVER_PORT);
+}
+
 int LocationConfigManager::SetLocationSwitchState(int state)
 {
     std::unique_lock<std::mutex> lock(mutex_);

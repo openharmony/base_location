@@ -55,6 +55,8 @@ const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
 const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
 const std::string GEOCODE_ABILITY_NAME = "const.location.geocode_ability_name";
 const std::string SUPL_MODE_NAME = "const.location.supl_mode";
+const std::string AGNSS_SERVER_ADDR = "const.location.agnss_server_addr";
+const std::string AGNSS_SERVER_PORT = "const.location.agnss_server_port";
 const std::string EDM_POLICY_NAME = "persist.edm.location_policy";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
