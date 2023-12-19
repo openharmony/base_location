@@ -22,19 +22,19 @@
 #include "fence_impl.h"
 namespace OHOS {
 namespace Location {
-const int LOCATION_EXT_SA_ID = 4353;
+const int FENCE_SA_ID = 4353;
 const std::u16string FENCE_DESCRIPTION = u"location.IHifenceAbility";
 const int REGISTER_GEOFENCE_CALLBACK = 21;
 const int UNREGISTER_GEOFENCE_CALLBACK = 22;
 
 bool FenceImpl::InitLocationExt()
 {
-    if (CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_EXT_SA_ID)) {
+    if (CommonUtils::CheckIfSystemAbilityAvailable(FENCE_SA_ID)) {
         LBSLOGD(LOCATOR_STANDARD, "locator sa has been loaded");
         return true;
     }
     auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (instance == nullptr || instance->LoadLocationSa(LOCATION_EXT_SA_ID) != ERRCODE_SUCCESS) {
+    if (instance == nullptr || instance->LoadLocationSa(FENCE_SA_ID) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "locator sa load failed.");
         return false;
     }
@@ -62,7 +62,7 @@ LocationErrCode FenceImpl::AddFenceExt(
     data.WriteDouble(request->geofence.radius);
     data.WriteDouble(request->geofence.expiration);
     data.WriteParcelable(&wantAgent);
-    sptr<IRemoteObject> proxyExt = CommonUtils::GetRemoteObject(LOCATION_EXT_SA_ID, CommonUtils::InitDeviceId());
+    sptr<IRemoteObject> proxyExt = CommonUtils::GetRemoteObject(FENCE_SA_ID, CommonUtils::InitDeviceId());
     if (proxyExt == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -90,7 +90,7 @@ LocationErrCode FenceImpl::RemoveFenceExt(
     data.WriteDouble(request->geofence.radius);
     data.WriteDouble(request->geofence.expiration);
     data.WriteParcelable(&wantAgent);
-    sptr<IRemoteObject> proxyExt = CommonUtils::GetRemoteObject(LOCATION_EXT_SA_ID, CommonUtils::InitDeviceId());
+    sptr<IRemoteObject> proxyExt = CommonUtils::GetRemoteObject(FENCE_SA_ID, CommonUtils::InitDeviceId());
     if (proxyExt == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }

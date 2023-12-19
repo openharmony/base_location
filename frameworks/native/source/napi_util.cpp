@@ -225,16 +225,21 @@ void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
     if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         request->scenario = value;
     }
-    if (JsObjectToDouble(env, object, "latitude", doubleValue) == SUCCESS) {
+    napi_value geofence = GetNapiValueByKey(env, "geofence", object);
+    if (geofence == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "parse geofence failed");
+        return;
+    }
+    if (JsObjectToDouble(env, geofence, "latitude", doubleValue) == SUCCESS) {
         request->geofence.latitude = doubleValue;
     }
-    if (JsObjectToDouble(env, object, "longitude", doubleValue) == SUCCESS) {
+    if (JsObjectToDouble(env, geofence, "longitude", doubleValue) == SUCCESS) {
         request->geofence.longitude = doubleValue;
     }
-    if (JsObjectToDouble(env, object, "radius", doubleValue) == SUCCESS) {
+    if (JsObjectToDouble(env, geofence, "radius", doubleValue) == SUCCESS) {
         request->geofence.radius = doubleValue;
     }
-    if (JsObjectToDouble(env, object, "expiration", doubleValue) == SUCCESS) {
+    if (JsObjectToDouble(env, geofence, "expiration", doubleValue) == SUCCESS) {
         request->geofence.expiration = doubleValue;
     }
 }

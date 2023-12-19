@@ -123,7 +123,6 @@ private:
     void ResumeNmeaMessageCallback();
     void ResumeCountryCodeCallback();
     void ResumeCachedLocationCallback();
-    void ResumeFence();
     void ResumeLocating();
 };
 }  // namespace Location

@@ -39,7 +39,6 @@ CallbackManager<LocatingRequiredDataCallbackHost> g_locatingRequiredDataCallback
 std::vector<GeoFenceState*> mFences;
 
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
-std::unique_ptr<GeofenceRequest> g_fenceRequest = std::make_unique<GeofenceRequest>();
 std::unique_ptr<RequestConfig> g_requestConfig = std::make_unique<RequestConfig>();
 std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
 auto g_locatorProxy = Locator::GetInstance();
@@ -326,7 +325,11 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
 void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
     AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
+    napi_unwrap(env, handler, (void **)&wantAgent);
+    if (wantAgent == nullptr) {
+        LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
+        return;
+    }
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     g_fenceImpl->AddFenceExt(fenceRequest, *wantAgent);
@@ -335,13 +338,12 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
-    LocationErrCode errorCode = CheckLocationSwitchEnable();
-    if (errorCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s switch state is off", __func__);
-        return errorCode;
-    }
     AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
-    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
+    napi_unwrap(env, handler, (void **)&wantAgent);
+    if (wantAgent == nullptr) {
+        LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
+        return ERRCODE_NOT_SUPPORTED;
+    }
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     LocationErrCode errCode = g_fenceImpl->AddFenceExt(fenceRequest, *wantAgent);
@@ -352,7 +354,11 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
 void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
     AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
+    napi_unwrap(env, handler, (void **)&wantAgent);
+    if (wantAgent == nullptr) {
+        LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
+        return;
+    }
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     g_fenceImpl->RemoveFenceExt(fenceRequest, *wantAgent);
@@ -361,12 +367,12 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
-    LocationErrCode errorCode = CheckLocationSwitchEnable();
-    if (errorCode != ERRCODE_SUCCESS) {
-        return errorCode;
-    }
     AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
-    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
+    napi_unwrap(env, handler, (void **)&wantAgent);
+    if (wantAgent == nullptr) {
+        LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
+        return ERRCODE_NOT_SUPPORTED;
+    }
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     return g_fenceImpl->RemoveFenceExt(fenceRequest, *wantAgent);
@@ -1543,18 +1549,6 @@ void CallbackResumeManager::ResumeCachedLocationCallback()
         }
         LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
     }
-}
-
-void CallbackResumeManager::ResumeFence()
-{
-    if (mFences.size() == 0) {
-        LBSLOGE(LOCATION_NAPI, "%{public}s, no fence need add", __func__);
-        return;
-    }
-#ifdef ENABLE_NAPI_MANAGER
-    g_locatorProxy->AddFenceV9(g_fenceRequest);
-#endif
-    LBSLOGI(LOCATION_NAPI, "%{public}s success", __func__);
 }
 
 void CallbackResumeManager::ResumeLocating()

@@ -49,7 +49,6 @@
 #include "request_config.h"
 #include "locating_required_data_callback_host.h"
 #include "locator_agent.h"
-#include "want_agent_helper.h"
 
 using namespace testing::ext;
 
@@ -64,15 +63,12 @@ const int INVALID_CACHED_SIZE = 0;
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
 #endif
-const int LOCATION_EXT_SA_ID = 4353;
 void LocatorImplTest::SetUp()
 {
     MockNativePermission();
     LoadSystemAbility();
     locatorImpl_ = Locator::GetInstance();
     ASSERT_TRUE(locatorImpl_ != nullptr);
-    fenceImpl_ = DelayedSingleton<FenceImpl>::GetInstance();
-    ASSERT_TRUE(fenceImpl_ != nullptr);
     callbackStub_ = new (std::nothrow) LocatorCallbackStub();
     ASSERT_TRUE(callbackStub_ != nullptr);
 }
@@ -642,34 +638,5 @@ HWTEST_F(LocatorImplTest, locatorImplCheckEdmPolicy002, TestSize.Level1)
     locatorImpl_->CheckEdmPolicy(false);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy002 end");
 }
-
-HWTEST_F(LocatorImplTest, fenceImplAddFenceExt001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FenceImplTest, fenceImplAddFenceExt001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[FenceImplTest] fenceImplAddFenceExt001 begin");
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    AbilityRuntime::WantAgent::WantAgent wantAgent;
-    if (CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_EXT_SA_ID)) {
-        EXPECT_TRUE(fenceImpl_->AddFenceExt(request, wantAgent) == ERRCODE_SUCCESS);
-    } else {
-        EXPECT_TRUE(fenceImpl_->AddFenceExt(request, wantAgent) == ERRCODE_NOT_SUPPORTED);
-    }
-    LBSLOGI(LOCATOR, "[FenceImplTest] fenceImplAddFenceExt001 end");
-}
-
-HWTEST_F(LocatorImplTest, fenceImplRemoveFenceExt001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FenceImplTest, fenceImplRemoveFenceExt001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[FenceImplTest] fenceImplRemoveFenceExt001 begin");
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    AbilityRuntime::WantAgent::WantAgent wantAgent;
-    if (CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_EXT_SA_ID)) {
-        EXPECT_TRUE(fenceImpl_->RemoveFenceExt(request, wantAgent) == ERRCODE_SUCCESS);
-    } else {
-        EXPECT_TRUE(fenceImpl_->RemoveFenceExt(request, wantAgent) == ERRCODE_NOT_SUPPORTED);
-    }
-    LBSLOGI(LOCATOR, "[FenceImplTest] fenceImplRemoveFenceExt001 end");
-    }
-
 }  // namespace Location
 }  // namespace OHOS
