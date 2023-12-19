@@ -38,6 +38,7 @@ ohos_shared_library("locator_sdk") {
     "$LOCATION_NATIVE_DIR/source/cached_locations_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/country_code_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/country_code_manager.cpp",
+    "$LOCATION_NATIVE_DIR/source/fence_impl.cpp",
     "$LOCATION_NATIVE_DIR/source/gnss_status_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/locating_required_data_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_handler.cpp",
@@ -61,6 +62,7 @@ ohos_shared_library("locator_sdk") {
   external_deps = [
     "ability_base:zuri",
     "ability_runtime:dataobs_manager",
+    "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_consumer",

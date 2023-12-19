@@ -25,6 +25,7 @@
 #include "locator_impl.h"
 #undef protected
 #undef private
+#include "fence_impl.h"
 
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_coding_mock_info.h"
@@ -43,6 +44,7 @@ public:
 
     sptr<ILocatorCallback> callbackStub_;
     std::shared_ptr<LocatorImpl> locatorImpl_;
+    std::shared_ptr<FenceImpl> fenceImpl_;
     uint64_t tokenId_;
 };
 

@@ -24,6 +24,8 @@
 #ifdef SUPPORT_JSSTACK
 #include "xpower_event_js.h"
 #endif
+#include "want_agent_helper.h"
+#include "fence_impl.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,6 +43,7 @@ std::unique_ptr<GeofenceRequest> g_fenceRequest = std::make_unique<GeofenceReque
 std::unique_ptr<RequestConfig> g_requestConfig = std::make_unique<RequestConfig>();
 std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
 auto g_locatorProxy = Locator::GetInstance();
+auto g_fenceImpl = DelayedSingleton<FenceImpl>::GetInstance();
 
 std::mutex g_FuncMapMutex;
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
@@ -322,14 +325,11 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
 
 void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
-    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
+    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
-    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
-    auto state = new (std::nothrow) GeoFenceState(g_fenceRequest->geofence, wantAgent);
-    if (state != nullptr) {
-        mFences.push_back(state);
-        g_locatorProxy->AddFence(g_fenceRequest);
-    }
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    JsObjToGeoFenceRequest(env, object, fenceRequest);
+    g_fenceImpl->AddFenceExt(fenceRequest, *wantAgent);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -337,42 +337,39 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
 {
     LocationErrCode errorCode = CheckLocationSwitchEnable();
     if (errorCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s switch state is off", __func__);
         return errorCode;
     }
-    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
+    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
     NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
-    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
-    auto state = new (std::nothrow) GeoFenceState(g_fenceRequest->geofence, wantAgent);
-    if (state != nullptr) {
-        mFences.push_back(state);
-        g_locatorProxy->AddFenceV9(g_fenceRequest);
-    }
-    return ERRCODE_NOT_SUPPORTED;
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    JsObjToGeoFenceRequest(env, object, fenceRequest);
+    LocationErrCode errCode = g_fenceImpl->AddFenceExt(fenceRequest, *wantAgent);
+    return errCode;
 }
 #endif
 
 void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
-    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
+    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_unwrap(env, handler, (void **)&wantAgent));
-    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
-    if (mFences.size() > 0) {
-        mFences.erase(mFences.begin());
-        g_locatorProxy->RemoveFence(g_fenceRequest);
-    }
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    JsObjToGeoFenceRequest(env, object, fenceRequest);
+    g_fenceImpl->RemoveFenceExt(fenceRequest, *wantAgent);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
-    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
-    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
-    JsObjToGeoFenceRequest(env, object, g_fenceRequest);
-    if (mFences.size() > 0) {
-        mFences.erase(mFences.begin());
-        g_locatorProxy->RemoveFenceV9(g_fenceRequest);
+    LocationErrCode errorCode = CheckLocationSwitchEnable();
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
     }
-    return ERRCODE_NOT_SUPPORTED;
+    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
+    NAPI_CALL_BASE(env, napi_unwrap(env, handler, (void **)&wantAgent), ERRCODE_NOT_SUPPORTED);
+    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    JsObjToGeoFenceRequest(env, object, fenceRequest);
+    return g_fenceImpl->RemoveFenceExt(fenceRequest, *wantAgent);
 }
 #endif
 
