@@ -48,6 +48,7 @@ private:
         std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location);
     void WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request,
         const std::unique_ptr<Location>& location);
+    bool IsAppInLocationContinuousTasks(pid_t uid);
 };
 } // namespace OHOS
 } // namespace Location

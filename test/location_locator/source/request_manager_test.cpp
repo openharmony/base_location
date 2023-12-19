@@ -488,21 +488,22 @@ HWTEST_F(RequestManagerTest, UpdateUsingLocationPermission001, TestSize.Level1)
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingLocationPermission001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
-    requestManager_->runningUids_.push_back(0);
+    requestManager_->UpdateRunningUids(request1, "gps", true);
     requestManager_->UpdateUsingLocationPermission(request1);
-
-    std::shared_ptr<Request> request2 = std::make_shared<Request>();
-    requestManager_->UpdateUsingLocationPermission(request2);
-
-    std::shared_ptr<Request> request3 = std::make_shared<Request>();
-    request3->SetLocationPermState(true);
-    requestManager_->runningUids_.push_back(0);
-    requestManager_->UpdateUsingLocationPermission(request3);
-
-    std::shared_ptr<Request> request4 = std::make_shared<Request>();
-    request3->SetLocationPermState(true);
-    requestManager_->UpdateUsingLocationPermission(request4);
+    EXPECT_EQ(false, request1->GetLocationPermState());
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingLocationPermission001 end");
+}
+
+HWTEST_F(RequestManagerTest, UpdateUsingLocationPermission002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, UpdateUsingLocationPermission002, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingLocationPermission002 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    requestManager_->UpdateUsingLocationPermission(request1);
+    EXPECT_EQ(false, request1->GetLocationPermState());
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingLocationPermission002 end");
 }
 
 HWTEST_F(RequestManagerTest, UpdateUsingBackgroundPermission001, TestSize.Level1)
@@ -512,9 +513,22 @@ HWTEST_F(RequestManagerTest, UpdateUsingBackgroundPermission001, TestSize.Level1
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingBackgroundPermission001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
-    requestManager_->runningUids_.push_back(0);
+    requestManager_->UpdateRunningUids(request1, "gps", true);
     requestManager_->UpdateUsingBackgroundPermission(request1);
+    EXPECT_EQ(false, request1->GetBackgroundPermState());
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingBackgroundPermission001 end");
+}
+
+HWTEST_F(RequestManagerTest, UpdateUsingBackgroundPermission002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, UpdateUsingBackgroundPermission002, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingBackgroundPermission002 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    std::shared_ptr<Request> request1 = std::make_shared<Request>();
+    requestManager_->UpdateUsingBackgroundPermission(request1);
+    EXPECT_EQ(false, request1->GetBackgroundPermState());
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingBackgroundPermission002 end");
 }
 
 HWTEST_F(RequestManagerTest, GetRemoteObject001, TestSize.Level1)
@@ -538,6 +552,17 @@ HWTEST_F(RequestManagerTest, HandleChrEvent001, TestSize.Level1)
     std::list<std::shared_ptr<Request>> requests;
     requestManager_->HandleChrEvent(requests);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 end");
+}
+
+HWTEST_F(RequestManagerTest, IsUidInProcessing001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, IsUidInProcessing001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    bool ret = requestManager_->IsUidInProcessing(0);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
