@@ -61,7 +61,7 @@ void CommonUtilsTest::MockNativePermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "CommonTest",
+        .processName = "CommonTest1",
         .aplStr = "system_basic",
     };
     tokenId_ = GetAccessTokenId(&infoInstance);
@@ -82,7 +82,7 @@ void CommonUtilsTest::MockNativeApproxiPermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "CommonTest",
+        .processName = "CommonTest2",
         .aplStr = "system_basic",
     };
     tokenIdForApproxi_ = GetAccessTokenId(&infoInstance);
@@ -103,7 +103,7 @@ void CommonUtilsTest::MockNativeAccurateLocation()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "CommonTest",
+        .processName = "CommonTest3",
         .aplStr = "system_basic",
     };
     tokenIdForAcc_ = GetAccessTokenId(&infoInstance);

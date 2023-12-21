@@ -128,7 +128,7 @@ sptr<LocatorAgent> LocatorAgentManager::GetLocatorAgent()
     std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
     lock.lock();
     if (client_ != nullptr) {
-        LBSLOGI(LOCATOR_STANDARD, "get proxy success.");
+        LBSLOGI(LOCATOR_STANDARD, "%{public}s get proxy success.", __func__);
         lock.unlock();
         return client_;
     }

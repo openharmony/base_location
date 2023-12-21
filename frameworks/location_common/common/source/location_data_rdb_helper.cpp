@@ -117,7 +117,7 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
     }
     rows->Close();
     value = atoi(valueStr.c_str());
-    LBSLOGI(LOCATOR_STANDARD, "LocationDataRdbHelper:%{public}s success, value = %{public}d", __func__, value);
+    LBSLOGD(LOCATOR_STANDARD, "LocationDataRdbHelper:%{public}s success, value = %{public}d", __func__, value);
     return ERRCODE_SUCCESS;
 }
 
