@@ -602,7 +602,6 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
 bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
     if (!CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
-        LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need freeze", __func__);
         return true;
     }
     if (!Init()) {
@@ -1144,7 +1143,6 @@ LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shar
 LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
 {
     if (!CommonUtils::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
-        LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need freeze", __func__);
         return ERRCODE_SUCCESS;
     }
     if (!Init()) {
@@ -1236,7 +1234,6 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     if (client_ != nullptr && isServerExist_) {
-        LBSLOGI(LOCATOR_STANDARD, "get proxy success.");
         return client_;
     }
 
