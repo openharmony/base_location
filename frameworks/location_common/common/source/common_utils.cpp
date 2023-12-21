@@ -332,8 +332,6 @@ bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
     }
     int32_t error = bundleMgrProxy->GetNameForUid(uid, bundleName);
     if (error != ERR_OK) {
-        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get bundle name, uid = %{public}d, errcode = %{public}d.",
-            __func__, uid, error);
         return false;
     }
     return true;
