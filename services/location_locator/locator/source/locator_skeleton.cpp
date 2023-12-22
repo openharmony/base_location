@@ -787,7 +787,7 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
 
 int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckLocationPermission(reply, identity)) {
+    if (!CheckRssProcessName(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -795,12 +795,6 @@ int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel 
         LBSLOGE(LOCATOR, "PreProxyUidForFreeze: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (identity.GetUid() != ROOT_UID) {
-        LBSLOGE(LOCATOR, "check root permission failed, [%{public}s]",
-            identity.ToString().c_str());
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return ERRCODE_PERMISSION_DENIED;
     }
     int32_t uid = data.ReadInt32();
     bool isProxy = data.ReadBool();
@@ -810,7 +804,7 @@ int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel 
 
 int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckLocationPermission(reply, identity)) {
+    if (!CheckRssProcessName(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -818,12 +812,6 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
         LBSLOGE(LOCATOR, "PreResetAllProxy: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (identity.GetUid() != ROOT_UID) {
-        LBSLOGE(LOCATOR, "check root permission failed, [%{public}s]",
-            identity.ToString().c_str());
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(locatorAbility->ResetAllProxy());
     return ERRCODE_SUCCESS;
@@ -917,6 +905,17 @@ bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdenti
     if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid) &&
         !CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         LBSLOGE(LOCATOR, "CheckLocationPermission return false.");
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return false;
+    } else {
+        return true;
+    }
+}
+
+bool LocatorAbilityStub::CheckRssProcessName(MessageParcel &reply, AppIdentity &identity)
+{
+    uint32_t callingTokenId = identity.GetTokenId();
+    if (!CommonUtils::CheckRssProcessName(callingTokenId)) {
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     } else {

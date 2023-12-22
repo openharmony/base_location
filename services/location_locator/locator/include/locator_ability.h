@@ -151,6 +151,11 @@ private:
     void UpdateProxyMap();
     bool CheckIfLocatorConnecting();
     void UpdateLoadedSaMap();
+    bool NeedReportCacheLocation(std::unique_ptr<RequestConfig>& requestConfig,
+        sptr<ILocatorCallback>& callback);
+    void HandleStartLocating(std::unique_ptr<RequestConfig>& requestConfig,
+        sptr<ILocatorCallback>& callback, AppIdentity &identity);
+    bool IsCacheVaildScenario(std::unique_ptr<RequestConfig>& requestConfig);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

@@ -15,6 +15,7 @@
 
 #include <map>
 #include <random>
+#include <sys/time.h>
 
 #include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
@@ -62,6 +63,17 @@ bool CommonUtils::CheckPermission(const std::string &permission, uint32_t caller
         LBSLOGE(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
         return false;
     }
+}
+
+bool CommonUtils::CheckRssProcessName(uint32_t tokenId)
+{
+    Security::AccessToken::NativeTokenInfo callingTokenInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(tokenId, callingTokenInfo);
+    if (callingTokenInfo.processName != RSS_PROCESS_NAME) {
+        LBSLOGE(COMMON_UTILS, "CheckProcess failed, processName=%{public}s", callingTokenInfo.processName.c_str());
+        return false;
+    }
+    return true;
 }
 
 bool CommonUtils::CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId)
@@ -405,6 +417,13 @@ int64_t CommonUtils::GetCurrentTime()
     clock_gettime(CLOCK_MONOTONIC, &times);
     int64_t second = static_cast<int64_t>(times.tv_sec);
     return second;
+}
+
+int64_t CommonUtils::GetCurrentTimeStamp()
+{
+    struct timeval currentTime;
+    gettimeofday(&currentTime, nullptr);
+    return static_cast<int64_t>(currentTime.tv_sec);
 }
 
 std::vector<std::string> CommonUtils::Split(std::string str, std::string pattern)

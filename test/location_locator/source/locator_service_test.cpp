@@ -1370,7 +1370,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
 #endif
     EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
 
-    EXPECT_EQ(true, locatorImpl->ProxyUidForFreeze(1000, false));
+    EXPECT_EQ(false, locatorImpl->ProxyUidForFreeze(1000, false));
 
     int timeInterval = 2;
     EXPECT_EQ(true, locatorImpl->EnableLocationMock());

@@ -347,7 +347,7 @@ HWTEST_F(LocatorImplTest, locatorImplProxyUidForFreezeV9, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorImplTest, locatorImplProxyUidForFreezeV9, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreezeV9 begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->ProxyUidForFreezeV9(SYSTEM_UID, false));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl_->ProxyUidForFreezeV9(SYSTEM_UID, false));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreezeV9 end");
 }
 
