@@ -18,8 +18,6 @@
 
 #include "data_ability_observer_stub.h"
 
-#include "location_data_handler.h"
-
 namespace OHOS {
 namespace Location {
 class LocationDataRdbObserver : public AAFwk::DataAbilityObserverStub {
@@ -28,7 +26,7 @@ public:
     ~LocationDataRdbObserver();
     void OnChange() override;
 private:
-    std::shared_ptr<LocationDataHandler> locationDataHandler_;
+    void HandleSwitchStateChanged();
 };
 } // namespace Location
 } // namespace OHOS
