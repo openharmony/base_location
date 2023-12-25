@@ -87,6 +87,7 @@ napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string
 bool CheckIfParamIsFunctionType(napi_env env, napi_value param);
 napi_value SetEnumPropertyByInteger(napi_env env, napi_value dstObj, int32_t enumValue, const char *enumName);
 bool CheckIfParamIsObjectType(napi_env env, napi_value param);
+napi_value GetNapiValueByKey(napi_env env, const std::string& keyChar, napi_value object);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

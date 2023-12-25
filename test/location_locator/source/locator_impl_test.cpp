@@ -48,7 +48,6 @@
 #endif
 #include "request_config.h"
 #include "locating_required_data_callback_host.h"
-
 #include "locator_agent.h"
 
 using namespace testing::ext;
