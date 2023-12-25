@@ -248,27 +248,16 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
     auto list = &(mapIter->second);
     LBSLOGD(REQUEST_MANAGER, "%{public}s ability current request size %{public}s",
         abilityName.c_str(), std::to_string(list->size()).c_str());
-    auto requestConfig = request->GetRequestConfig();
     if (shouldInsert) {
-        WriteLocationInnerEvent(ADD_REQUEST, {
-            "PackageName", request->GetPackageName(),
-            "abilityName", abilityName,
-            "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get())),
-            "scenario", std::to_string(requestConfig->GetScenario()),
-            "priority", std::to_string(requestConfig->GetPriority()),
-            "timeInterval", std::to_string(requestConfig->GetTimeInterval()),
-            "maxAccuracy", std::to_string(requestConfig->GetMaxAccuracy())});
         list->push_back(request);
         HandleChrEvent(*list);
-        runningUids_.push_back(request->GetUid());
+        UpdateRunningUids(request, abilityName, true);
     } else {
-        WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
-            "abilityName", abilityName, "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get()))});
         for (auto iter = list->begin(); iter != list->end();) {
             auto findRequest = *iter;
             if (request == findRequest) {
                 iter = list->erase(iter);
-                runningUids_.remove(findRequest->GetUid());
+                UpdateRunningUids(findRequest, abilityName, false);
                 LBSLOGD(REQUEST_MANAGER, "find request");
             } else {
                 ++iter;
@@ -611,14 +600,50 @@ void RequestManager::HandlePermissionChanged(uint32_t tokenId)
 
 bool RequestManager::IsUidInProcessing(int32_t uid)
 {
-    if (runningUids_.size() == 0) {
+    std::unique_lock<std::mutex> lock(runningUidsMutex_);
+    auto iter = runningUidMap_.find(uid);
+    if (iter == runningUidMap_.end()) {
         return false;
     }
+    return true;
+}
 
-    bool isFound = std::any_of(runningUids_.begin(), runningUids_.end(), [uid](int32_t i) {
-        return i == uid;
-    });
-    return isFound;
+void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd)
+{
+    std::unique_lock<std::mutex> lock(runningUidsMutex_);
+    auto uid = request->GetUid();
+    auto pid = request->GetPid();
+    int32_t uidCount = 0;
+    auto iter = runningUidMap_.find(uid);
+    if (iter != runningUidMap_.end()) {
+        uidCount = iter->second;
+        runningUidMap_.erase(uid);
+    }
+    if (isAdd) {
+        auto requestConfig = request->GetRequestConfig();
+        WriteLocationInnerEvent(ADD_REQUEST, {
+            "PackageName", request->GetPackageName(),
+            "abilityName", abilityName,
+            "requestAddress", request->GetUuid(),
+            "scenario", std::to_string(requestConfig->GetScenario()),
+            "priority", std::to_string(requestConfig->GetPriority()),
+            "timeInterval", std::to_string(requestConfig->GetTimeInterval()),
+            "maxAccuracy", std::to_string(requestConfig->GetMaxAccuracy())});
+        uidCount += 1;
+        if (uidCount == 1) {
+            WriteAppLocatingStateEvent("start", pid, uid);
+        }
+    } else {
+        WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
+                    "abilityName", abilityName, "requestAddress", request->GetUuid()});
+        uidCount -= 1;
+        if (uidCount == 0) {
+            WriteAppLocatingStateEvent("stop", pid, uid);
+        }
+    }
+    if (uidCount > 0) {
+        runningUidMap_.insert(std::make_pair(uid, uidCount));
+    }
 }
 } // namespace Location
 } // namespace OHOS

@@ -40,6 +40,11 @@ void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t 
     WriteEvent("GNSS_STATE", "STATE", state, "PID", pid, "UID", uid);
 }
 
+void WriteAppLocatingStateEvent(const std::string& state, const pid_t pid, const pid_t uid)
+{
+    WriteEvent("APP_LOCATING_STATE", "STATE", state, "PID", pid, "UID", uid);
+}
+
 void WriteLocationSwitchStateEvent(const std::string& state)
 {
     WriteEvent("SWITCH_STATE", "STATE", state);

@@ -17,6 +17,7 @@
 #define REQUEST_MANAGER_H
 
 #include <list>
+#include <map>
 #include <mutex>
 #include <singleton.h>
 #include <string>
@@ -56,9 +57,11 @@ private:
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
     bool AddRequestToWorkRecord(std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord);
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
+    void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
 
-    std::list<int32_t> runningUids_;
+    std::map<int32_t, int32_t> runningUidMap_;
     static std::mutex requestMutex_;
+    std::mutex runningUidsMutex_;
     std::mutex permissionRecordMutex_;
 };
 } // namespace Location

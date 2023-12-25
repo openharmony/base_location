@@ -26,6 +26,9 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 
+#include "background_mode.h"
+#include "background_task_mgr_helper.h"
+
 namespace OHOS {
 namespace Location {
 const long NANOS_PER_MILLI = 1000000L;
@@ -128,16 +131,21 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGE(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
+    if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
+        !IsAppInLocationContinuousTasks(uid) &&
+        !CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId)) {
+        //app background, no background permission, not ContinuousTasks
+        return nullptr;
+    }
+    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
+        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        return nullptr;
+    }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
         CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         finalLocation = ApproximatelyLocation(location);
-    } else if ((!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) ||
-        (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
-        !CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId))) {
-        return nullptr;
     }
     return finalLocation;
 }
@@ -310,12 +318,29 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
         WriteLocationInnerEvent(RECEIVE_NETWORK_LOCATION, {
             "PackageName", request->GetPackageName(),
             "abilityName", abilityName,
-            "requestAddress", std::to_string(reinterpret_cast<int64_t>(request.get())),
+            "requestAddress", request->GetUuid(),
             "latitude", std::to_string(location->GetLatitude()),
             "longitude", std::to_string(location->GetLongitude()),
             "accuracy", std::to_string(location->GetAccuracy())
         });
     }
+}
+
+bool ReportManager::IsAppInLocationContinuousTasks(pid_t uid)
+{
+    std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
+    ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
+    if (result != ERR_OK) {
+        return false;
+    }
+    for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
+        auto continuousTask = *iter;
+        if (continuousTask->GetCreatorUid() == uid &&
+            continuousTask->GetTypeId() == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
+            return true;
+        }
+    }
+    return false;
 }
 } // namespace OHOS
 } // namespace Location
