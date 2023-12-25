@@ -420,7 +420,14 @@ HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
     std::string name = "";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 begin");
     CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 end");
+}
+
+HWTEST_F(CommonUtilsTest, CheckRssProcessName001, TestSize.Level1)
+{
+    uint32_t invalidTokenId = 0;
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckRssProcessName001 begin");
+    EXPECT_EQ(false, CommonUtils::CheckRssProcessName(invalidTokenId));
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckRssProcessName001 end");
 }
 } // namespace Location
 } // namespace OHOS

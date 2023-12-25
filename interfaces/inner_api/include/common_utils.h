@@ -55,15 +55,15 @@ const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
 const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
 const std::string GEOCODE_ABILITY_NAME = "const.location.geocode_ability_name";
 const std::string SUPL_MODE_NAME = "const.location.supl_mode";
+const std::string EDM_POLICY_NAME = "persist.edm.location_policy";
 const std::string AGNSS_SERVER_ADDR = "const.location.agnss_server_addr";
 const std::string AGNSS_SERVER_PORT = "const.location.agnss_server_port";
-const std::string EDM_POLICY_NAME = "persist.edm.location_policy";
+const std::string RSS_PROCESS_NAME = "resource_schedule_service";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
 const int DEFAULT_UID = 10001;
 const int SYSTEM_UID = 1000;
-const int ROOT_UID = 0;
 static constexpr int MIN_INT_RANDOM = 10000;
 static constexpr int MAX_INT_RANDOM = 99999;
 
@@ -177,6 +177,7 @@ public:
     static bool CheckPermission(const std::string &permission, uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply);
+    static bool CheckRssProcessName(uint32_t tokenId);
     static bool GetCurrentUserId(int &userId);
     static std::string Str16ToStr8(std::u16string str);
     static bool DoubleEqual(double a, double b);
@@ -190,6 +191,7 @@ public:
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
     static int QuerySwitchState();
     static int64_t GetCurrentTime();
+    static int64_t GetCurrentTimeStamp();
     static std::vector<std::string> Split(std::string str, std::string pattern);
     static errno_t GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN]);
     static unsigned char ConvertStringToDigit(std::string str);

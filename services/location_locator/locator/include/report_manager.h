@@ -33,8 +33,9 @@ public:
     bool ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result);
     bool OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     bool ResultCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
-    void SetLastLocation(const std::unique_ptr<Location>& location);
+    void UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     std::unique_ptr<Location> GetLastLocation();
+    std::unique_ptr<Location> GetCacheLocation();
     std::unique_ptr<Location> GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
         const std::unique_ptr<Location>& location);
     void UpdateRandom();
@@ -43,6 +44,8 @@ private:
     struct timespec lastUpdateTime_;
     double offsetRandom_;
     Location lastLocation_;
+    Location cacheGnssLocation_;
+    Location cacheNlpLocation_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
         std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location);

@@ -198,6 +198,7 @@ HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
         << "ReportManagerTest, SetLastLocationTest001, TestSize.Level1";
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] SetLastLocationTest001 begin");
     EXPECT_EQ(nullptr, reportManager_->GetLastLocation());
+    EXPECT_EQ(nullptr, reportManager_->GetCacheLocation());
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
@@ -215,8 +216,11 @@ HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
     parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    reportManager_->SetLastLocation(location);
+    reportManager_->UpdateCacheLocation(location, GNSS_ABILITY);
     EXPECT_NE(nullptr, reportManager_->GetLastLocation());
+    EXPECT_EQ(nullptr, reportManager_->GetCacheLocation());
+    reportManager_->UpdateCacheLocation(location, NETWORK_ABILITY);
+    EXPECT_EQ(nullptr, reportManager_->GetCacheLocation());
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] SetLastLocationTest001 end");
 }
 

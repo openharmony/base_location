@@ -46,7 +46,7 @@ namespace OHOS {
         reportManager->ReportRemoteCallback(locatorCallback, type, result);
         std::shared_ptr<Request> request = std::make_shared<Request>();
         reportManager->ResultCheck(location, request);
-        reportManager->SetLastLocation(location);
+        reportManager->UpdateCacheLocation(location, "gps");
         reportManager->GetLastLocation();
         pid_t uid = data[index++];
         uint32_t tokenId = data[index++];

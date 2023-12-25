@@ -874,6 +874,48 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reportManager_->UpdateRandom();
+    if (NeedReportCacheLocation(requestConfig, callback)) {
+        LBSLOGI(LOCATOR, "report cache location.");
+    } else {
+        HandleStartLocating(requestConfig, callback, identity);
+    }
+    return ERRCODE_SUCCESS;
+}
+
+bool LocatorAbility::IsCacheVaildScenario(std::unique_ptr<RequestConfig>& requestConfig)
+{
+    if (requestConfig->GetFixNumber() == 1 &&
+        ((requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
+        ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_FAST_FIRST_FIX)) ||
+        ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_LOW_POWER)))) {
+        return true;
+    }
+    return false;
+}
+
+bool LocatorAbility::NeedReportCacheLocation(std::unique_ptr<RequestConfig>& requestConfig,
+    sptr<ILocatorCallback>& callback)
+{
+    if (reportManager_ == nullptr) {
+        return false;
+    }
+    // report cache location in single location request
+    if (IsCacheVaildScenario(requestConfig)) {
+        auto cacheLocation = reportManager_->GetCacheLocation();
+        if (cacheLocation != nullptr && callback != nullptr) {
+            callback->OnLocationReport(cacheLocation);
+            return true;
+        }
+    }
+    return false;
+}
+
+void LocatorAbility::HandleStartLocating(std::unique_ptr<RequestConfig>& requestConfig,
+    sptr<ILocatorCallback>& callback, AppIdentity &identity)
+{
+    if (requestManager_ == nullptr) {
+        return;
+    }
     // generate request object according to input params
     std::shared_ptr<Request> request = std::make_shared<Request>();
     requestConfig->SetTimeStamp(CommonUtils::GetCurrentTime());
@@ -888,7 +930,6 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
-    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)

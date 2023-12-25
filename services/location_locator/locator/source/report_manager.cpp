@@ -35,6 +35,8 @@ const long NANOS_PER_MILLI = 1000000L;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
+static constexpr int GNSS_FIX_CACHED_TIME = 60;
+static constexpr int NLP_FIX_CACHED_TIME = 45;
 ReportManager::ReportManager()
 {
     clock_gettime(CLOCK_REALTIME, &lastUpdateTime_);
@@ -51,7 +53,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         return false;
     }
     fusionController->FuseResult(abilityName, location);
-    SetLastLocation(location);
+    UpdateCacheLocation(location, abilityName);
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
@@ -220,16 +222,14 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     return true;
 }
 
-void ReportManager::SetLastLocation(const std::unique_ptr<Location>& location)
+void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    lastLocation_.SetLatitude(location->GetLatitude());
-    lastLocation_.SetLongitude(location->GetLongitude());
-    lastLocation_.SetAltitude(location->GetAltitude());
-    lastLocation_.SetAccuracy(location->GetAccuracy());
-    lastLocation_.SetSpeed(location->GetSpeed());
-    lastLocation_.SetDirection(location->GetDirection());
-    lastLocation_.SetTimeStamp(location->GetTimeStamp());
-    lastLocation_.SetTimeSinceBoot(location->GetTimeSinceBoot());
+    lastLocation_ = *location;
+    if (abilityName == GNSS_ABILITY) {
+        cacheGnssLocation_ = *location;
+    } else if (abilityName == NETWORK_ABILITY) {
+        cacheNlpLocation_ = *location;
+    }
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
@@ -240,6 +240,21 @@ std::unique_ptr<Location> ReportManager::GetLastLocation()
         return nullptr;
     }
     return lastLocation;
+}
+
+std::unique_ptr<Location> ReportManager::GetCacheLocation()
+{
+    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheGnssLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= GNSS_FIX_CACHED_TIME) {
+        auto cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
+        return cacheLocation;
+    } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheNlpLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= NLP_FIX_CACHED_TIME) {
+        auto cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
+        return cacheLocation;
+    }
+    return nullptr;
 }
 
 void ReportManager::UpdateRandom()

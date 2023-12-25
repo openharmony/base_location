@@ -339,7 +339,7 @@ int JsObjToCommand(const napi_env& env, const napi_value& object,
 int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
     std::string description = "";
-    int maxItems = 0;
+    int maxItems = 1;
     double minLatitude = 0.0;
     double minLongitude = 0.0;
     double maxLatitude = 0.0;
@@ -387,7 +387,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
 {
     double latitude = 0;
     double longitude = 0;
-    int maxItems = 0;
+    int maxItems = 1;
     std::string locale = "";
 
     CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
