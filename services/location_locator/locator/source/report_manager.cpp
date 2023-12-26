@@ -26,8 +26,10 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 
+#ifdef BGTASKMGR_SUPPORT
 #include "background_mode.h"
 #include "background_task_mgr_helper.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -343,6 +345,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 
 bool ReportManager::IsAppInLocationContinuousTasks(pid_t uid)
 {
+#ifdef BGTASKMGR_SUPPORT
     std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
     ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
     if (result != ERR_OK) {
@@ -355,6 +358,7 @@ bool ReportManager::IsAppInLocationContinuousTasks(pid_t uid)
             return true;
         }
     }
+#endif
     return false;
 }
 } // namespace OHOS
