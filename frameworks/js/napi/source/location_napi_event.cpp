@@ -338,11 +338,15 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler)
 {
+    LocationErrCode errorCode = CheckLocationSwitchEnable();
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
     AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
     napi_unwrap(env, handler, (void **)&wantAgent);
     if (wantAgent == nullptr) {
         LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
-        return ERRCODE_NOT_SUPPORTED;
+        return ERRCODE_INVALID_PARAM;
     }
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -371,7 +375,7 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
     napi_unwrap(env, handler, (void **)&wantAgent);
     if (wantAgent == nullptr) {
         LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
-        return ERRCODE_NOT_SUPPORTED;
+        return ERRCODE_INVALID_PARAM;
     }
     std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
     JsObjToGeoFenceRequest(env, object, fenceRequest);
