@@ -15,19 +15,20 @@
 
 #include "location_data_rdb_observer.h"
 
+#include <singleton.h>
 #include "common_utils.h"
 #include "location_data_rdb_helper.h"
 #include "location_log.h"
+#include "uri.h"
+#include "common_utils.h"
+#include "location_data_manager.h"
 
 namespace OHOS {
 namespace Location {
 using namespace AppExecFwk;
-const uint32_t SWITCH_STATE_CHANGED = 1;
 
 LocationDataRdbObserver::LocationDataRdbObserver()
 {
-    locationDataHandler_ =
-        std::make_shared<LocationDataHandler>(AppExecFwk::EventRunner::Create(true));
 }
 
 LocationDataRdbObserver::~LocationDataRdbObserver() = default;
@@ -35,11 +36,28 @@ LocationDataRdbObserver::~LocationDataRdbObserver() = default;
 void LocationDataRdbObserver::OnChange()
 {
     LBSLOGI(LOCATOR, "LocationDataRdbObserver::%{public}s enter", __func__);
-    if (locationDataHandler_ == nullptr) {
-        LBSLOGI(LOCATOR, "LocationDataRdbObserver::%{public}s handler is nullptr", __func__);
+    HandleSwitchStateChanged();
+}
+
+void LocationDataRdbObserver::HandleSwitchStateChanged()
+{
+    auto rdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    auto locationDataManager = DelayedSingleton<LocationDataManager>::GetInstance();
+    if (rdbHelper == nullptr || locationDataManager == nullptr ||
+        !locationDataManager->IsSwitchStateReg()) {
+        LBSLOGE(LOCATOR, "%{public}s: param is nullptr", __func__);
         return;
     }
-    locationDataHandler_->SendEvent(SWITCH_STATE_CHANGED, 0, 0);
+
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    int32_t state = DISABLED;
+    LocationErrCode errCode = rdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
+        return;
+    }
+    locationDataManager->SetCachedSwitchState(state);
+    locationDataManager->ReportSwitchState(state);
 }
 } // namespace Location
 } // namespace OHOS
