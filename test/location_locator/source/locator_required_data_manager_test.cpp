@@ -14,6 +14,7 @@
  */
 #include "locator_required_data_manager_test.h"
 #include "locator_required_data_manager.h"
+#include "locating_required_data_callback_host.h"
 #include "location_log.h"
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
@@ -60,9 +61,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     MessageParcel data;
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
-
     errorCode = locatorDataManager->UnregisterCallback(client);
-
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback001 end");
 }
 
@@ -78,12 +77,30 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
-    MessageParcel data;
-    sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
-
-    errorCode = locatorDataManager->UnregisterCallback(client);
+    auto callback =
+        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback002 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CallbackTest, RegisterCallback003, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback003 begin");
+    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    
+    std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
+    dataConfig->SetType(1);
+    dataConfig->SetNeedStartScan(false);
+    dataConfig->SetScanIntervalMs(1);
+    dataConfig->SetScanTimeoutMs(1);
+    auto callback =
+        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback);
+    EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
+    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback003 end");
 }
 }  // namespace Location
 }  // namespace OHOS
