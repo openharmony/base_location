@@ -61,6 +61,9 @@ const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
 const float_t PRECISION = 0.000001;
+const int COMMON_SA_ID = 4353;
+const int COMMON_SWITCH_STATE_ID = 30;
+const std::u16string COMMON_DESCRIPTION = u"location.IHifenceAbility";
 const std::string UNLOAD_TASK = "locatior_sa_unload";
 const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
 const uint32_t SET_ENABLE = 3;
@@ -343,6 +346,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
         LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
         return;
     }
+    SendSwitchState(state);
     locatorBackgroundProxy.get()->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
     std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
@@ -404,6 +408,41 @@ void LocatorAbility::PostUnloadTask(uint32_t code)
     if (locatorHandler_ != nullptr) {
         locatorHandler_->PostTask(task, UNLOAD_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
     }
+}
+
+bool LocatorAbility::InitLocationExt()
+{
+    if (CommonUtils::CheckIfSystemAbilityAvailable(COMMON_SA_ID)) {
+        LBSLOGD(LOCATOR, "sa has been loaded");
+        return true;
+    }
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr || instance->LoadLocationSa(COMMON_SA_ID) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "sa load failed.");
+        return false;
+    }
+    return true;
+}
+
+LocationErrCode LocatorAbility::SendSwitchState(const int state)
+{
+    if (!InitLocationExt()) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(COMMON_DESCRIPTION)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    data.WriteInt32(state);
+    sptr<IRemoteObject> object =
+            CommonUtils::GetRemoteObject(COMMON_SA_ID, CommonUtils::InitDeviceId());
+    if (object == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    object->SendRequest(COMMON_SWITCH_STATE_ID, data, reply, option);
+    return LocationErrCode(reply.ReadInt32());
 }
 
 bool LocatorAbility::CheckIfLocatorConnecting()
