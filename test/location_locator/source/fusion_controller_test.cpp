@@ -175,6 +175,36 @@ HWTEST_F(FusionControllerTest, ChooseBestLocation001, TestSize.Level1)
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ChooseBestLocation001 end");
 }
 
+HWTEST_F(FusionControllerTest, ChooseBestLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "FusionControllerTest, ChooseBestLocation002, TestSize.Level1";
+    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ChooseBestLocation002 begin");
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0);         // latitude
+    parcel.WriteDouble(13.0);         // longitude
+    parcel.WriteDouble(14.0);         // altitude
+    parcel.WriteDouble(1000.0);       // accuracy
+    parcel.WriteDouble(10.0);         // speed
+    parcel.WriteDouble(90.0);         // direction
+    parcel.WriteInt64(1000000000);    // timeStamp
+    parcel.WriteInt64(1000000000);    // timeSinceBoot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1);             // additionSize
+    parcel.WriteBool(false);          // isFromMock
+    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(0); // floor no.
+    parcel.WriteDouble(1000.0); // floor acc
+
+    std::unique_ptr<Location> location_gnss = std::make_unique<Location>();
+    location_gnss->ReadFromParcel(parcel);
+    std::unique_ptr<Location> location_network = std::make_unique<Location>(*location_gnss);
+    auto bestLocation = fusionController_->chooseBestLocation(location_gnss, location_network);
+    location_gnss->SetAccuracy(20.0);
+    EXPECT_EQ(20.0, location_gnss->GetAccuracy());
+    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ChooseBestLocation002 end");
+}
+
 HWTEST_F(FusionControllerTest, GetFuseLocation001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

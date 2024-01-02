@@ -143,8 +143,8 @@ private:
     std::mutex gnssMutex_;
     std::mutex nmeaMutex_;
     std::mutex hdiMutex_;
-    std::unique_ptr<std::map<pid_t, sptr<IGnssStatusCallback>>> gnssStatusCallback_;
-    std::unique_ptr<std::map<pid_t, sptr<INmeaMessageCallback>>> nmeaCallback_;
+    std::vector<sptr<IGnssStatusCallback>> gnssStatusCallback_;
+    std::vector<sptr<INmeaMessageCallback>> nmeaCallback_;
     sptr<IGnssInterface> gnssInterface_;
     sptr<IGnssCallback> gnssCallback_;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
