@@ -16,7 +16,6 @@
 #ifndef NMEA_MESSAGE_CALLBACK_HOST_H
 #define NMEA_MESSAGE_CALLBACK_HOST_H
 
-#include <shared_mutex>
 #include <string>
 
 #include "iremote_stub.h"
@@ -77,7 +76,7 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
-    std::shared_mutex mutex_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

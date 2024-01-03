@@ -15,8 +15,6 @@
 
 #ifndef LOCATION_SWITCH_CALLBACK_HOST_H
 #define LOCATION_SWITCH_CALLBACK_HOST_H
-
-#include <shared_mutex>
 #include "i_switch_callback.h"
 
 #include "iremote_stub.h"
@@ -75,7 +73,7 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
-    std::shared_mutex mutex_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

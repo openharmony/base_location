@@ -58,7 +58,7 @@ int CountryCodeCallbackHost::OnRemoteRequest(
 
 bool CountryCodeCallbackHost::Send(const std::shared_ptr<CountryCode>& country)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "env_ == nullptr.");
@@ -151,19 +151,19 @@ void CountryCodeCallbackHost::OnCountryCodeChange(const std::shared_ptr<CountryC
 
 void CountryCodeCallbackHost::SetEnv(napi_env env)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     env_ = env;
 }
 
 void CountryCodeCallbackHost::SetCallback(napi_ref cb)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     handlerCb_ = cb;
 }
 
 void CountryCodeCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "handler or env is nullptr.");
         return;

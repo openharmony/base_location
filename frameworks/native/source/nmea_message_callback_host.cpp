@@ -76,8 +76,7 @@ napi_value NmeaMessageCallbackHost::PackResult(const std::string msg)
 
 bool NmeaMessageCallbackHost::Send(const std::string msg)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
-
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -160,7 +159,7 @@ void NmeaMessageCallbackHost::OnMessageChange(int64_t timestamp, const std::stri
 
 void NmeaMessageCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "handler or env is nullptr.");
         return;

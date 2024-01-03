@@ -16,8 +16,6 @@
 #ifndef GNSS_STATUS_CALLBACK_HOST_H
 #define GNSS_STATUS_CALLBACK_HOST_H
 
-#include <shared_mutex>
-
 #include "iremote_stub.h"
 #include "message_option.h"
 #include "message_parcel.h"
@@ -76,7 +74,7 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
-    std::shared_mutex mutex_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

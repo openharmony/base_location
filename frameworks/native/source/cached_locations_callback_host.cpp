@@ -74,8 +74,7 @@ bool CachedLocationsCallbackHost::IsRemoteDied()
 
 bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& locations)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
-
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -155,7 +154,7 @@ void CachedLocationsCallbackHost::OnCacheLocationsReport(const std::vector<std::
 
 void CachedLocationsCallbackHost::DeleteHandler()
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "handler or env is nullptr.");
         return;
