@@ -2103,5 +2103,16 @@ HWTEST_F(LocatorServiceTest, locatorServicePostUnloadTask002, TestSize.Level1)
     locatorAbility->PostUnloadTask(GET_SWITCH_STATE);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePostUnloadTask002 end");
 }
+
+HWTEST_F(LocatorServiceTest, locatorServiceSendSwitchState001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceSendSwitchState001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendSwitchState001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->SendSwitchState(0);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendSwitchState001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
