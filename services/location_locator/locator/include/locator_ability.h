@@ -156,6 +156,8 @@ private:
     void HandleStartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
     bool IsCacheVaildScenario(std::unique_ptr<RequestConfig>& requestConfig);
+    bool InitLocationExt();
+    LocationErrCode SendSwitchState(const int state);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
