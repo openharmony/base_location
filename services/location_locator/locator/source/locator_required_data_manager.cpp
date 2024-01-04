@@ -48,15 +48,12 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
     }
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
 #ifdef WIFI_ENABLE
-        if (wifiScanPtr_ == nullptr || wifiScanEventCallback_ == nullptr) {
-            LBSLOGE(LOCATOR, "%{public}s param unexpected.", __func__);
-            return ERRCODE_SERVICE_UNAVAILABLE;
-        }
-        std::vector<std::string> events = {EVENT_STA_SCAN_STATE_CHANGE};
-        int ret = wifiScanPtr_->RegisterCallBack(wifiScanEventCallback_, events);
-        if (ret != Wifi::WIFI_OPT_SUCCESS) {
-            LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
-            return ERRCODE_SERVICE_UNAVAILABLE;
+        if (!isWifiCallbackRegistered()) {
+            bool ret = RegisterWifiCallBack();
+            if (!ret) {
+                LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
+                return ERRCODE_SERVICE_UNAVAILABLE;
+            }
         }
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
@@ -189,6 +186,34 @@ void LocatorRequiredDataManager::WifiInfoInit()
     wifiScanPtr_ = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     wifiScanEventCallback_ =
 		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
+    bool ret = RegisterWifiCallBack();
+    if (!ret) {
+        LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
+    }
+}
+
+bool LocatorRequiredDataManager::isWifiCallbackRegistered()
+{
+    std::unique_lock<std::mutex> lock(wifiRegisteredMutex_);
+    return isWifiCallbackRegistered_;
+}
+
+__attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::RegisterWifiCallBack()
+{
+    LBSLOGI(LOCATOR, "%{public}s, enter", __func__);
+    if (wifiScanPtr_ == nullptr || wifiScanEventCallback_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s param unexpected.", __func__);
+        return false;
+    }
+    std::vector<std::string> events = {EVENT_STA_SCAN_STATE_CHANGE};
+    std::unique_lock<std::mutex> lock(wifiRegisteredMutex_);
+    int ret = wifiScanPtr_->RegisterCallBack(wifiScanEventCallback_, events);
+    if (ret != Wifi::WIFI_OPT_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
+        return false;
+    }
+    isWifiCallbackRegistered_ = true;
+    return true;
 }
 
 __attribute__((no_sanitize("cfi"))) void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)

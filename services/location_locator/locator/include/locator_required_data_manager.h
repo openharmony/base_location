@@ -187,8 +187,12 @@ private:
     int timeInterval_ = 0;
 #ifdef WIFI_ENABLE
     void WifiInfoInit();
+    __attribute__((no_sanitize("cfi"))) bool RegisterWifiCallBack();
+    bool isWifiCallbackRegistered();
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
+    bool isWifiCallbackRegistered_ = false;
+    std::mutex wifiRegisteredMutex_;
 #endif
 #ifdef BLUETOOTH_ENABLE
     void BleInfoInit();
