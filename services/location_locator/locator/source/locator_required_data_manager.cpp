@@ -186,7 +186,7 @@ void LocatorRequiredDataManager::WifiInfoInit()
     wifiScanPtr_ = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     wifiScanEventCallback_ =
 		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
-    int ret = RegisterWifiCallBack();
+    bool ret = RegisterWifiCallBack();
     if (!ret) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
     }

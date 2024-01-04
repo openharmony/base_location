@@ -79,7 +79,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     dataConfig->SetScanTimeoutMs(1);
     auto callback =
         sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback);
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback002 end");
 }
@@ -98,7 +98,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
     dataConfig->SetScanTimeoutMs(1);
     auto callback =
         sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback);
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback003 end");
 }
