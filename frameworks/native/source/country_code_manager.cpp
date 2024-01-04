@@ -255,6 +255,8 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
         type = COUNTRY_CODE_FROM_LOCALE;
     }
 #endif
+    // transfer to uppercase
+    transform(countryCodeStr8.begin(), countryCodeStr8.end(), countryCodeStr8.begin(), ::toupper);
     CountryCode country;
     country.SetCountryCodeStr(countryCodeStr8);
     country.SetCountryCodeType(type);
