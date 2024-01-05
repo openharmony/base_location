@@ -490,7 +490,7 @@ HWTEST_F(GnssAbilityTest, SendCommand001, TestSize.Level1)
      * @tc.steps: step2. test send command.
      * @tc.expected: current function is empty, nothing happens
      */
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, proxy_->SendCommand(locationCommand));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SendCommand(locationCommand));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand001 end");
 }
 
@@ -1082,7 +1082,6 @@ HWTEST_F(GnssAbilityTest, GnssRequestRecord001, TestSize.Level1)
     sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
     ASSERT_TRUE(gnssAbility != nullptr);
     std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-    gnssAbility->isHdiConnected_ = false;
     gnssAbility->RequestRecord(*workRecord, false);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRequestRecord001 end");
 }
@@ -1094,8 +1093,6 @@ HWTEST_F(GnssAbilityTest, GnssReConnectHdi001, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssReConnectHdi001 begin");
     sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
     ASSERT_TRUE(gnssAbility != nullptr);
-
-    gnssAbility->isHdiConnected_ = true;
     gnssAbility->ReConnectHdi();
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssReConnectHdi001 end");
 }

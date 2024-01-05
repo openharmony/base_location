@@ -64,7 +64,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level1)
         << "GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level1";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest002 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
-    EXPECT_CALL(*gnssAbilityStub, SetEnable(_)).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
+    EXPECT_CALL(*gnssAbilityStub, SendMessage(_, _, _)).WillOnce(DoAll(Return()));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;
@@ -183,7 +183,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest009, TestSize.Level1)
         << "GnssAbilityStubTest, GnssAbilityStubTest009, TestSize.Level1";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest009 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
-    EXPECT_CALL(*gnssAbilityStub, SendCommand(_)).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
+    EXPECT_CALL(*gnssAbilityStub, SendMessage(_, _, _)).WillOnce(DoAll(Return()));
     MessageParcel parcel;
     parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
     MessageParcel reply;

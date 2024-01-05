@@ -96,7 +96,8 @@ int GnssAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, A
     if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    reply.WriteInt32(SetEnable(data.ReadBool()));
+    SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE), data, reply);
+    isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }
 
@@ -199,10 +200,8 @@ int GnssAbilityStub::SendCommandInner(MessageParcel &data, MessageParcel &reply,
     if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
-    locationCommand->scenario =  data.ReadInt32();
-    locationCommand->command = Str16ToStr8(data.ReadString16());
-    reply.WriteInt32(SendCommand(locationCommand));
+    SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS), data, reply);
+    isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }
 

@@ -118,11 +118,15 @@ public:
     void SetAgnssServer();
     void SetAgnssCallback();
     void SetSetId(const SubscriberSetId& id);
+    void SetSetIdImpl(const SubscriberSetId &id);
     void SetRefInfo(const AGnssRefInfo& refInfo);
+    void SetRefInfoImpl(const AGnssRefInfo &refInfo);
 #endif
+    void ReConnectHdiImpl();
     bool IsMockEnabled();
     void ProcessReportLocationMock();
     void ReConnectHdi();
+    bool CheckIfHdiConnected();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -134,7 +138,6 @@ private:
     bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryData& flags);
     LocationErrCode SetPositionMode();
 
-    bool isHdiConnected_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
@@ -159,6 +162,17 @@ public:
     LocationHdiDeathRecipient();
     ~LocationHdiDeathRecipient() override;
 };
+
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+class AgnssRefInfoMessage {
+public:
+    void SetAgnssRefInfo(const AGnssRefInfo &refInfo);
+    AGnssRefInfo GetAgnssRefInfo();
+
+private:
+    AGnssRefInfo agnssRefInfo_;
+};
+#endif
 } // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT
