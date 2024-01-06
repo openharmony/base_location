@@ -114,6 +114,7 @@ static constexpr int PERMISSION_INVALID = 0;
 static constexpr int LOCATOR_UID = 1021;
 static constexpr int MAXIMUM_INTERATION = 100;
 static constexpr int MAXIMUM_CACHE_LOCATIONS = 1000;
+static constexpr int MAXIMUM_LOCATING_REQUIRED_DATAS = 200;
 static constexpr int MAC_LEN = 6;
 static constexpr int DEFAULT_CODE = 0;
 

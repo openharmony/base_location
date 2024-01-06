@@ -418,5 +418,22 @@ HWTEST_F(ReportManagerTest, IsRequestFuseTest001, TestSize.Level1)
 
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest001 end");
 }
+
+HWTEST_F(ReportManagerTest, IsRequestFuseTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, IsRequestFuseTest002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest002 begin");
+    EXPECT_EQ(false, reportManager_->IsRequestFuse(nullptr));
+    
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_UNSET);
+    requestConfig->SetScenario(SCENE_UNSET);
+    request->SetRequestConfig(*requestConfig);
+    EXPECT_EQ(false, reportManager_->IsRequestFuse(request));
+
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest002 end");
+}
 }  // namespace Location
 }  // namespace OHOS

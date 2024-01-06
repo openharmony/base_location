@@ -61,18 +61,19 @@ int LocatingRequiredDataCallbackHost::OnRemoteRequest(
 
     switch (code) {
         case RECEIVE_INFO_EVENT: {
-            // 最大值保护
             int cnt = data.ReadInt32();
-            std::vector<std::shared_ptr<LocatingRequiredData>> res;
-            for (int i = 0; i < cnt; i++) {
-                res.push_back(LocatingRequiredData::Unmarshalling(data));
+            if (cnt > 0 && cnt <= MAXIMUM_LOCATING_REQUIRED_DATAS) {
+                std::vector<std::shared_ptr<LocatingRequiredData>> res;
+                for (int i = 0; i < cnt; i++) {
+                    res.push_back(LocatingRequiredData::Unmarshalling(data));
+                }
+                // update wifi info
+                if (res[0]->GetType() == LocatingRequiredDataType::WIFI) {
+                    SetSingleResult(res);
+                }
+                OnLocatingDataChange(res);
+                CountDown();
             }
-            // update wifi info
-            if (res[0]->GetType() == LocatingRequiredDataType::WIFI) {
-                singleResult_.assign(res.begin(), res.end());
-            }
-            OnLocatingDataChange(res);
-            CountDown();
             break;
         }
         default: {
@@ -226,6 +227,19 @@ void LocatingRequiredDataCallbackHost::SetCount(int count)
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         return latch_->SetCount(count);
     }
+}
+
+void LocatingRequiredDataCallbackHost::ClearSingleResult()
+{
+    std::unique_lock<std::mutex> guard(singleResultMutex_);
+    singleResult_.clear();
+}
+
+void LocatingRequiredDataCallbackHost::SetSingleResult(
+    std::vector<std::shared_ptr<LocatingRequiredData>> singleResult)
+{
+    std::unique_lock<std::mutex> guard(singleResultMutex_);
+    singleResult_.assign(singleResult.begin(), singleResult.end());
 }
 }  // namespace Location
 }  // namespace OHOS
