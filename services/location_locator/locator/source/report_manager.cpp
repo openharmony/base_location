@@ -244,19 +244,45 @@ std::unique_ptr<Location> ReportManager::GetLastLocation()
     return lastLocation;
 }
 
-std::unique_ptr<Location> ReportManager::GetCacheLocation()
+std::unique_ptr<Location> ReportManager::GetCacheLocation(std::unique_ptr<RequestConfig>& requestConfig, pid_t uid,
+    uint32_t tokenId, uint32_t firstTokenId)
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheGnssLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= GNSS_FIX_CACHED_TIME) {
         auto cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
-        return cacheLocation;
+        std::unique_ptr<Location> finalLocation = GetPermittedLocation(uid, tokenId, firstTokenId, cacheLocation);
+        if (!CacheResultCheck(finalLocation, requestConfig, tokenId, firstTokenId)) {
+            return nullptr;
+        }
+        return finalLocation;
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheNlpLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= NLP_FIX_CACHED_TIME) {
         auto cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
-        return cacheLocation;
+        std::unique_ptr<Location> finalLocation = GetPermittedLocation(uid, tokenId, firstTokenId, cacheLocation);
+        if (!CacheResultCheck(finalLocation, requestConfig, tokenId, firstTokenId)) {
+            return nullptr;
+        }
+        return finalLocation;
     }
     return nullptr;
+}
+
+bool ReportManager::CacheResultCheck(const std::unique_ptr<Location>& location,
+    const std::unique_ptr<RequestConfig>& requestConfig, uint32_t tokenId, uint32_t firstTokenId)
+{
+    if (location == nullptr || requestConfig == nullptr) {
+        return false;
+    }
+    int permissionLevel = CommonUtils::GetPermissionLevel(tokenId, firstTokenId);
+    float maxAcc = requestConfig->GetMaxAccuracy();
+    LBSLOGD(REPORT_MANAGER, "acc ResultCheck :  %{public}f - %{public}f", maxAcc, location->GetAccuracy());
+    if ((permissionLevel == PERMISSION_ACCURATE) &&
+        (maxAcc > 0) && (location->GetAccuracy() > maxAcc)) {
+        LBSLOGE(REPORT_MANAGER, "accuracy check fail, do not report location");
+        return false;
+    }
+    return true;
 }
 
 void ReportManager::UpdateRandom()
