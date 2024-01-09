@@ -43,6 +43,9 @@ public:
     int GetCount();
     void SetCount(int count);
     void InitLatch();
+    void ClearSingleResult();
+    void SetSingleResult(
+        std::vector<std::shared_ptr<LocatingRequiredData>> singleResult);
 
     inline napi_env GetEnv() const
     {
@@ -76,6 +79,7 @@ public:
 
     inline std::vector<std::shared_ptr<LocatingRequiredData>> GetSingleResult()
     {
+        std::unique_lock<std::mutex> guard(singleResultMutex_);
         return singleResult_;
     }
 
@@ -94,6 +98,7 @@ private:
     napi_ref handlerCb_;
     bool remoteDied_;
     std::mutex mutex_;
+    std::mutex singleResultMutex_;
     CountDownLatch* latch_;
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult_;
 };
