@@ -32,6 +32,7 @@
 #include "iremote_stub.h"
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
+#include "system_ability_status_change_stub.h"
 #ifdef WIFI_ENABLE
 #include "wifi_scan.h"
 #endif
@@ -173,6 +174,12 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
+class WifiServiceStatusChange : public SystemAbilityStatusChangeStub {
+public:
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+};
+
 class LocatorRequiredDataManager : public DelayedSingleton<LocatorRequiredDataManager> {
 public:
     LocatorRequiredDataManager();
@@ -186,13 +193,18 @@ public:
 private:
     int timeInterval_ = 0;
 #ifdef WIFI_ENABLE
-    void WifiInfoInit();
+public:
+    void ResetCallbackRegisteredStatus();
     __attribute__((no_sanitize("cfi"))) bool RegisterWifiCallBack();
+private:
+    void WifiInfoInit();
     bool isWifiCallbackRegistered();
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
     bool isWifiCallbackRegistered_ = false;
     std::mutex wifiRegisteredMutex_;
+    sptr<ISystemAbilityStatusChange> saStatusListener_ =
+        sptr<WifiServiceStatusChange>(new WifiServiceStatusChange());
 #endif
 #ifdef BLUETOOTH_ENABLE
     void BleInfoInit();
