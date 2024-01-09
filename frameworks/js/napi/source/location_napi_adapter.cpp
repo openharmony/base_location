@@ -987,6 +987,7 @@ SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
             std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
             napi_create_array_with_length(context->env, res.size(), &context->result[PARAM1]);
             LocatingRequiredDataToJsObj(context->env, res, context->result[PARAM1]);
+            callbackHost->ClearSingleResult();
         } else {
             LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
         }
