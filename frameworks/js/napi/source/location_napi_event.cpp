@@ -401,6 +401,7 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
         NAPI_AUTO_LENGTH, &asyncContext->resourceName));
     asyncContext->timeout_ = config->GetTimeOut();
     asyncContext->callbackHost_ = callback;
+    asyncContext->request_ = std::move(config);
     asyncContext->executeFunc = [&](void* data) -> void {
         if (data == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
@@ -409,8 +410,14 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
         auto context = static_cast<SingleLocationAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
         if (g_locatorProxy->IsLocationEnabled() && callbackHost != nullptr) {
-            callbackHost->Wait(context->timeout_);
             auto callbackPtr = sptr<ILocatorCallback>(callbackHost);
+#ifdef ENABLE_NAPI_MANAGER
+            LocationErrCode errorCode = g_locatorProxy->StartLocatingV9(context->request_, callbackPtr);
+            context->errCode = errorCode;
+#else
+            g_locatorProxy->StartLocating(context->request_, callbackPtr);
+#endif
+            callbackHost->Wait(context->timeout_);
             g_locatorProxy->StopLocating(callbackPtr);
             if (callbackHost->GetCount() != 0) {
                 context->errCode = ERRCODE_LOCATING_FAIL;
@@ -498,11 +505,6 @@ napi_value RequestLocationOnce(const napi_env& env, const size_t argc, const nap
     auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();
     NAPI_ASSERT(env, singleLocatorCallbackHost != nullptr, "callbackHost is null.");
 
-    if (g_locatorProxy->IsLocationEnabled()) {
-        auto callbackPtr = sptr<ILocatorCallback>(singleLocatorCallbackHost);
-        g_locatorProxy->StartLocating(requestConfig, callbackPtr);
-    }
-
     auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
@@ -524,12 +526,6 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         return UndefinedNapiValue(env);
     }
     LocationErrCode errorCode = CheckLocationSwitchEnable();
-    if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
-        return UndefinedNapiValue(env);
-    }
-    auto callbackPtr = sptr<ILocatorCallback>(singleLocatorCallbackHost);
-    errorCode = g_locatorProxy->StartLocatingV9(requestConfig, callbackPtr);
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);

@@ -913,7 +913,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reportManager_->UpdateRandom();
-    if (NeedReportCacheLocation(requestConfig, callback)) {
+    if (NeedReportCacheLocation(requestConfig, callback, identity)) {
         LBSLOGI(LOCATOR, "report cache location.");
     } else {
         HandleStartLocating(requestConfig, callback, identity);
@@ -933,14 +933,15 @@ bool LocatorAbility::IsCacheVaildScenario(std::unique_ptr<RequestConfig>& reques
 }
 
 bool LocatorAbility::NeedReportCacheLocation(std::unique_ptr<RequestConfig>& requestConfig,
-    sptr<ILocatorCallback>& callback)
+    sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     if (reportManager_ == nullptr) {
         return false;
     }
     // report cache location in single location request
     if (IsCacheVaildScenario(requestConfig)) {
-        auto cacheLocation = reportManager_->GetCacheLocation();
+        auto cacheLocation = reportManager_->GetCacheLocation(requestConfig, identity.GetUid(),
+            identity.GetTokenId(), identity.GetFirstTokenId());
         if (cacheLocation != nullptr && callback != nullptr) {
             callback->OnLocationReport(cacheLocation);
             return true;

@@ -219,9 +219,10 @@ class SingleLocationAsyncContext : public AsyncContext {
 public:
     int timeout_;
     sptr<LocatorCallbackHost> callbackHost_;
+    std::unique_ptr<RequestConfig> request_;
 
     explicit SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(0) {}
+        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(nullptr), request_(nullptr) {}
 
     SingleLocationAsyncContext() = delete;
 
