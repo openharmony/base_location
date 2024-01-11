@@ -99,6 +99,20 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     return true;
 }
 
+void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint32_t tokenIdEx,
+    std::unique_ptr<Location>& location)
+{
+    if (location == nullptr) {
+        LBSLOGI(REPORT_MANAGER, "location == nullptr");
+        return;
+    }
+    if (!CommonUtils::CheckSystemPermission(tokenId, tokenIdEx)) {
+        location->SetSourceType(0);
+    } else {
+        location->SetSourceType(1);
+    }
+}
+
 bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location)
 {
@@ -111,6 +125,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     if (!ResultCheck(finalLocation, request)) {
         return false;
     }
+    UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
@@ -244,45 +259,24 @@ std::unique_ptr<Location> ReportManager::GetLastLocation()
     return lastLocation;
 }
 
-std::unique_ptr<Location> ReportManager::GetCacheLocation(std::unique_ptr<RequestConfig>& requestConfig, pid_t uid,
-    uint32_t tokenId, uint32_t firstTokenId)
+std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<Request>& request)
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    std::unique_ptr<Location> cacheLocation = nullptr;
     if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheGnssLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= GNSS_FIX_CACHED_TIME) {
-        auto cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
-        std::unique_ptr<Location> finalLocation = GetPermittedLocation(uid, tokenId, firstTokenId, cacheLocation);
-        if (!CacheResultCheck(finalLocation, requestConfig, tokenId, firstTokenId)) {
-            return nullptr;
-        }
-        return finalLocation;
+        cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheNlpLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= NLP_FIX_CACHED_TIME) {
-        auto cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
-        std::unique_ptr<Location> finalLocation = GetPermittedLocation(uid, tokenId, firstTokenId, cacheLocation);
-        if (!CacheResultCheck(finalLocation, requestConfig, tokenId, firstTokenId)) {
-            return nullptr;
-        }
-        return finalLocation;
+        cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
-    return nullptr;
-}
-
-bool ReportManager::CacheResultCheck(const std::unique_ptr<Location>& location,
-    const std::unique_ptr<RequestConfig>& requestConfig, uint32_t tokenId, uint32_t firstTokenId)
-{
-    if (location == nullptr || requestConfig == nullptr) {
-        return false;
+    std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
+        request->GetTokenId(), request->GetFirstTokenId(), cacheLocation);
+    if (!ResultCheck(finalLocation, request)) {
+        return nullptr;
     }
-    int permissionLevel = CommonUtils::GetPermissionLevel(tokenId, firstTokenId);
-    float maxAcc = requestConfig->GetMaxAccuracy();
-    LBSLOGD(REPORT_MANAGER, "acc ResultCheck :  %{public}f - %{public}f", maxAcc, location->GetAccuracy());
-    if ((permissionLevel == PERMISSION_ACCURATE) &&
-        (maxAcc > 0) && (location->GetAccuracy() > maxAcc)) {
-        LBSLOGE(REPORT_MANAGER, "accuracy check fail, do not report location");
-        return false;
-    }
-    return true;
+    UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
+    return finalLocation;
 }
 
 void ReportManager::UpdateRandom()

@@ -48,8 +48,10 @@ public:
     void SetLastLocation(const std::unique_ptr<Location>& location);
     uint32_t GetTokenId();
     uint32_t GetFirstTokenId();
+    uint64_t GetTokenIdEx();
     void SetTokenId(uint32_t tokenId);
     void SetFirstTokenId(uint32_t firstTokenId);
+    void SetTokenIdEx(uint64_t tokenIdEx);
     bool GetLocationPermState();
     bool GetBackgroundPermState();
     bool GetApproximatelyPermState();
@@ -62,6 +64,7 @@ private:
     pid_t uid_;
     pid_t pid_;
     uint32_t tokenId_;
+    uint64_t tokenIdEx_;
     uint32_t firstTokenId_;
     sptr<Location> lastLocation_;
     std::string packageName_;

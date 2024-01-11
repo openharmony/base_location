@@ -151,11 +151,9 @@ private:
     void UpdateProxyMap();
     bool CheckIfLocatorConnecting();
     void UpdateLoadedSaMap();
-    bool NeedReportCacheLocation(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    void HandleStartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    bool IsCacheVaildScenario(std::unique_ptr<RequestConfig>& requestConfig);
+    bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
+    void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
+    bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool InitLocationExt();
     LocationErrCode SendSwitchState(const int state);
 

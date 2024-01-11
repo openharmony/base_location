@@ -96,7 +96,9 @@ void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Locati
             SetValueInt64(env, "timeSinceBoot", locations[index]->GetTimeSinceBoot(), value);
             SetValueUtf8String(env, "additions", locations[index]->GetAdditions().c_str(), value);
             SetValueInt64(env, "additionSize", locations[index]->GetAdditionSize(), value);
-            SetValueBool(env, "isFromMock", locations[index]->GetIsFromMock(), value);
+            if (locations[index]->GetSourceType() != 0) {
+                SetValueBool(env, "isFromMock", locations[index]->GetIsFromMock(), value);
+            }
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, value));
         }
     }
@@ -114,7 +116,9 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt64(env, "timeSinceBoot", locationInfo->GetTimeSinceBoot(), result);
     SetValueUtf8String(env, "additions", locationInfo->GetAdditions().c_str(), result);
     SetValueInt64(env, "additionSize", locationInfo->GetAdditionSize(), result);
-    SetValueBool(env, "isFromMock", locationInfo->GetIsFromMock(), result);
+    if (locationInfo->GetSourceType() != 0) {
+        SetValueBool(env, "isFromMock", locationInfo->GetIsFromMock(), result);
+    }
 }
 
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result)

@@ -89,6 +89,16 @@ uint32_t Request::GetTokenId()
     return tokenId_;
 }
 
+void Request::SetTokenIdEx(uint64_t tokenIdEx)
+{
+    this->tokenIdEx_ = tokenIdEx;
+}
+
+uint64_t Request::GetTokenIdEx()
+{
+    return tokenIdEx_;
+}
+
 void Request::SetFirstTokenId(uint32_t firstTokenId)
 {
     this->firstTokenId_ = firstTokenId;
@@ -238,6 +248,7 @@ std::string Request::ToString() const
         "] from pid:" + std::to_string(pid_) +
         ", uid:" + std::to_string(uid_) +
         ", tokenId:" + std::to_string(tokenId_) +
+        ", tokenIdEx:" + std::to_string(tokenIdEx_) +
         ", firstTokenId:" + std::to_string(firstTokenId_) +
         ", uuid:" + uuid_ + ", packageName:" + packageName_;
     return str;
