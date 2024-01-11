@@ -913,15 +913,28 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reportManager_->UpdateRandom();
-    if (NeedReportCacheLocation(requestConfig, callback, identity)) {
+    // generate request object according to input params
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    requestConfig->SetTimeStamp(CommonUtils::GetCurrentTime());
+    request->SetUid(identity.GetUid());
+    request->SetPid(identity.GetPid());
+    request->SetTokenId(identity.GetTokenId());
+    request->SetTokenIdEx(identity.GetTokenIdEx());
+    request->SetFirstTokenId(identity.GetFirstTokenId());
+    request->SetPackageName(identity.GetBundleName());
+    request->SetRequestConfig(*requestConfig);
+    request->SetLocatorCallBack(callback);
+    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+    LBSLOGI(LOCATOR, "start locating");
+    if (NeedReportCacheLocation(request, callback)) {
         LBSLOGI(LOCATOR, "report cache location.");
     } else {
-        HandleStartLocating(requestConfig, callback, identity);
+        HandleStartLocating(request, callback);
     }
     return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::IsCacheVaildScenario(std::unique_ptr<RequestConfig>& requestConfig)
+bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
 {
     if (requestConfig->GetFixNumber() == 1 &&
         ((requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
@@ -932,16 +945,14 @@ bool LocatorAbility::IsCacheVaildScenario(std::unique_ptr<RequestConfig>& reques
     return false;
 }
 
-bool LocatorAbility::NeedReportCacheLocation(std::unique_ptr<RequestConfig>& requestConfig,
-    sptr<ILocatorCallback>& callback, AppIdentity &identity)
+bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
 {
-    if (reportManager_ == nullptr) {
+    if (reportManager_ == nullptr || request == nullptr) {
         return false;
     }
     // report cache location in single location request
-    if (IsCacheVaildScenario(requestConfig)) {
-        auto cacheLocation = reportManager_->GetCacheLocation(requestConfig, identity.GetUid(),
-            identity.GetTokenId(), identity.GetFirstTokenId());
+    if (IsCacheVaildScenario(request->GetRequestConfig())) {
+        auto cacheLocation = reportManager_->GetCacheLocation(request);
         if (cacheLocation != nullptr && callback != nullptr) {
             callback->OnLocationReport(cacheLocation);
             return true;
@@ -950,24 +961,8 @@ bool LocatorAbility::NeedReportCacheLocation(std::unique_ptr<RequestConfig>& req
     return false;
 }
 
-void LocatorAbility::HandleStartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-    sptr<ILocatorCallback>& callback, AppIdentity &identity)
+void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
 {
-    if (requestManager_ == nullptr) {
-        return;
-    }
-    // generate request object according to input params
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    requestConfig->SetTimeStamp(CommonUtils::GetCurrentTime());
-    request->SetUid(identity.GetUid());
-    request->SetPid(identity.GetPid());
-    request->SetTokenId(identity.GetTokenId());
-    request->SetFirstTokenId(identity.GetFirstTokenId());
-    request->SetPackageName(identity.GetBundleName());
-    request->SetRequestConfig(*requestConfig);
-    request->SetLocatorCallBack(callback);
-    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
-    LBSLOGI(LOCATOR, "start locating");
     requestManager_->HandleStartLocating(request);
     ReportLocationStatus(callback, SESSION_START);
 }
@@ -992,6 +987,7 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     auto lastLocation = reportManager_->GetLastLocation();
     loc = reportManager_->GetPermittedLocation(identity.GetUid(), identity.GetTokenId(),
         identity.GetFirstTokenId(), lastLocation);
+    reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     if (loc == nullptr) {
         return ERRCODE_LOCATING_FAIL;
     }

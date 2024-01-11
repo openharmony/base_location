@@ -216,13 +216,16 @@ HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     reportManager_->UpdateCacheLocation(location, GNSS_ABILITY);
-    auto requestConfig = std::make_unique<RequestConfig>();
-    EXPECT_NE(nullptr, requestConfig);
-    requestConfig->SetMaxAccuracy(2000); // mock acc
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    request->SetUid(1000);
+    request->SetPid(0);
+    request->SetTokenId(tokenId_);
+    request->SetFirstTokenId(0);
+    request->SetPackageName("ReportManagerTest");
     EXPECT_NE(nullptr, reportManager_->GetLastLocation());
-    EXPECT_EQ(nullptr, reportManager_->GetCacheLocation(requestConfig, 1000, tokenId_, 0));
+    EXPECT_EQ(nullptr, reportManager_->GetCacheLocation(request));
     reportManager_->UpdateCacheLocation(location, NETWORK_ABILITY);
-    EXPECT_EQ(nullptr, reportManager_->GetCacheLocation(requestConfig, 1000, tokenId_, 0));
+    EXPECT_EQ(nullptr, reportManager_->GetCacheLocation(request));
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] SetLastLocationTest001 end");
 }
 
@@ -438,19 +441,14 @@ HWTEST_F(ReportManagerTest, IsRequestFuseTest002, TestSize.Level1)
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest002 end");
 }
 
-HWTEST_F(ReportManagerTest, CacheResultCheckTest001, TestSize.Level1)
+HWTEST_F(ReportManagerTest, UpdateLocationByRequestTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "ReportManagerTest, CacheResultCheckTest001, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] CacheResultCheckTest001 begin");
+        << "ReportManagerTest, UpdateLocationByRequestTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateLocationByRequestTest001 begin");
     auto location = MockLocation();
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    auto requestConfig = std::make_unique<RequestConfig>();
-    EXPECT_NE(nullptr, requestConfig);
-    requestConfig->SetMaxAccuracy(2000); // mock acc
-    EXPECT_EQ(true, reportManager_->CacheResultCheck(location, requestConfig, tokenId_, 0));
-
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] CacheResultCheckTest001 end");
+    reportManager_->UpdateLocationByRequest(tokenId_, tokenId_, location);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateLocationByRequestTest001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
