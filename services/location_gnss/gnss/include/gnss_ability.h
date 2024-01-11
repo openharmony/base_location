@@ -67,6 +67,24 @@ public:
     explicit GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~GnssHandler() override;
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+
+private:
+    void InitGnssEventProcessMap();
+    void HandleEventReportLocation(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleSetMockedLocations(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleSendCommands(const AppExecFwk::InnerEvent::Pointer& event);
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+    void HandleSetSubscriberSetId(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleSetAgnssRefInfo(const AppExecFwk::InnerEvent::Pointer& event);
+#endif
+    void HandleReconnectHdi(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event);
+
+    using GnssEventProcessHandle = void (GnssHandler::*)(const AppExecFwk::InnerEvent::Pointer& event);
+    using GnssEventProcessMap = std::map<uint32_t, GnssEventProcessHandle>;
+    GnssEventProcessMap gnssEventProcessMap_;
 };
 
 class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility, DelayedSingleton<GnssAbility> {
@@ -137,6 +155,7 @@ private:
     void RegisterLocationHdiDeathRecipient();
     bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryData& flags);
     LocationErrCode SetPositionMode();
+    void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
 
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
