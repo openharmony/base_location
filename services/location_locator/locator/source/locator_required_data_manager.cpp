@@ -17,6 +17,7 @@
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
 #endif
+#include "iservice_registry.h"
 
 namespace OHOS {
 namespace Location {
@@ -58,14 +59,14 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
         callbacks_.push_back(dataCallback);
-        lock.unlock();
         LBSLOGI(LOCATOR, "after RegisterCallback, callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
-        if (config->GetNeedStartScan()) {
+        if (config->GetNeedStartScan() && callbacks_.size() == 1) {
             timeInterval_ = config->GetScanIntervalMs();
             if (scanHandler_ != nullptr) {
                 scanHandler_->SendEvent(EVENT_START_SCAN, 0, 0);
             }
         }
+        lock.unlock();
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return ERRCODE_NOT_SUPPORTED;
@@ -81,9 +82,6 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
         LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (scanHandler_ != nullptr) {
-        scanHandler_->SendEvent(EVENT_STOP_SCAN, 0, 0);
-    }
     std::unique_lock<std::mutex> lock(mutex_);
     size_t i = 0;
     for (; i < callbacks_.size(); i++) {
@@ -96,6 +94,9 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
         callbacks_.erase(callbacks_.begin() + i);
     }
     LBSLOGI(LOCATOR, "after UnregisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
+    if (scanHandler_ != nullptr && callbacks_.size() == 0) {
+        scanHandler_->SendEvent(EVENT_STOP_SCAN, 0, 0);
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -190,12 +191,29 @@ void LocatorRequiredDataManager::WifiInfoInit()
     if (!ret) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
     }
+    int32_t result;
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s samgrProxy is nullptr!", __func__);
+    }
+    saStatusListener_ = sptr<WifiServiceStatusChange>(new WifiServiceStatusChange());
+    if (saStatusListener_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s saStatusListener_ is nullptr!", __func__);
+    }
+    result = samgrProxy->SubscribeSystemAbility(static_cast<int32_t>(WIFI_SCAN_ABILITY_ID), saStatusListener_);
+    LBSLOGI(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
 }
 
 bool LocatorRequiredDataManager::isWifiCallbackRegistered()
 {
     std::unique_lock<std::mutex> lock(wifiRegisteredMutex_);
     return isWifiCallbackRegistered_;
+}
+
+void LocatorRequiredDataManager::ResetCallbackRegisteredStatus()
+{
+    std::unique_lock<std::mutex> lock(wifiRegisteredMutex_);
+    isWifiCallbackRegistered_ = false;
 }
 
 __attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::RegisterWifiCallBack()
@@ -331,6 +349,18 @@ void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         default:
             break;
     }
+}
+
+void WifiServiceStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGI(LOCATOR, "WifiServiceStatusChange::OnAddSystemAbility systemAbilityId :%{public}d", systemAbilityId);
+    DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->RegisterWifiCallBack();
+}
+
+void WifiServiceStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGI(LOCATOR, "WifiServiceStatusChange::OnRemoveSystemAbility systemAbilityId :%{public}d", systemAbilityId);
+    DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->ResetCallbackRegisteredStatus();
 }
 } // namespace Location
 } // namespace OHOS
