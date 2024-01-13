@@ -35,7 +35,7 @@ LocationDataRdbObserver::~LocationDataRdbObserver() = default;
 
 void LocationDataRdbObserver::OnChange()
 {
-    LBSLOGI(LOCATOR, "LocationDataRdbObserver::%{public}s enter", __func__);
+    LBSLOGD(LOCATOR, "LocationDataRdbObserver::%{public}s enter", __func__);
     HandleSwitchStateChanged();
 }
 

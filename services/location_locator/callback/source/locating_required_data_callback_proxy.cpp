@@ -38,7 +38,7 @@ void LocatingRequiredDataCallbackProxy::OnLocatingDataChange(
     }
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_INFO_EVENT, dataParcel, reply, option);
-    LBSLOGI(LOCATING_DATA_CALLBACK,
+    LBSLOGD(LOCATING_DATA_CALLBACK,
         "LocatingRequiredDataCallbackProxy::OnLocatingDataChange Transact ErrCode = %{public}d", error);
 }
 } // namespace Location

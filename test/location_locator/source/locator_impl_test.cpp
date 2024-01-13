@@ -590,8 +590,9 @@ static void TestSvStatusCallback(
 
 static void TestNmeaCallback(int64_t timestamp, const std::string msg)
 {
-    LBSLOGI(LOCATOR, "[LocatorImplTest] NmeaCallback enter");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] NmeaCallback begin");
     EXPECT_EQ(true, msg != "");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] NmeaCallback end");
 }
 
 HWTEST_F(LocatorImplTest, locatorAgentTest1, TestSize.Level1)

@@ -148,7 +148,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_
     }
     std::string bundleName = "";
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-        LBSLOGE(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+        LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
     if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
         !IsAppInLocationContinuousTasks(uid) &&

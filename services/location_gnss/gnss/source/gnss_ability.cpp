@@ -711,7 +711,7 @@ void GnssAbility::SetSetIdImpl(const SubscriberSetId& id)
 void GnssAbility::SetRefInfo(const AGnssRefInfo& refInfo)
 {
     std::unique_ptr<AgnssRefInfoMessage> agnssRefInfoMessage = std::make_unique<AgnssRefInfoMessage>();
-    if (gnssHandler_ != nullptr && agnssRefInfoMessage != nullptr) {
+    if (gnssHandler_ != nullptr) {
         agnssRefInfoMessage->SetAgnssRefInfo(refInfo);
         AppExecFwk::InnerEvent::Pointer event =
             AppExecFwk::InnerEvent::Get(SET_AGNSS_REF_INFO, agnssRefInfoMessage);

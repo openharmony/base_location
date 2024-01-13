@@ -68,7 +68,7 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
         lock.unlock();
         return;
     }
-    LBSLOGI(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
+    LBSLOGD(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
         request->GetTokenId(), request->GetFirstTokenId());
     UpdateUsingApproximatelyPermission(request);
     lock.unlock();
