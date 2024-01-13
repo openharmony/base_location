@@ -47,7 +47,6 @@ void FusionController::ActiveFusionStrategies(int type)
             break;
         case PRIORITY_FAST_FIRST_FIX:
             fusedFlag_ = fusedFlag_ | REPORT_FUSED_LOCATION_FLAG;
-            LBSLOGI(FUSION_CONTROLLER, "enable basic fused report");
             break;
         default:
             break;
@@ -124,7 +123,7 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
 std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityName,
     const std::unique_ptr<Location>& location)
 {
-    LBSLOGI(FUSION_CONTROLLER, " GetFuseLocation enter");
+    LBSLOGD(FUSION_CONTROLLER, " GetFuseLocation enter");
     if (GNSS_ABILITY.compare(abilityName) == 0) {
         gnssLocation_ = std::make_unique<Location>(*location);
     }
@@ -133,7 +132,6 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityN
     }
     auto bestLocation = chooseBestLocation(gnssLocation_, networkLocation_);
     if (LocationEqual(bestLocation, fuseLocation_)) {
-        LBSLOGE(FUSION_CONTROLLER, "bestLocation is same to fuseLocation, return nullptr");
         return nullptr;
     }
     if (bestLocation != nullptr) {

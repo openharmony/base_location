@@ -92,7 +92,7 @@ bool LocatingRequiredDataCallbackHost::IsRemoteDied()
 bool LocatingRequiredDataCallbackHost::Send(const std::vector<std::shared_ptr<LocatingRequiredData>>& data)
 {
     if (IsSingleLocationRequest()) {
-        LBSLOGE(LOCATING_DATA_CALLBACK, "single request,do not report info.");
+        LBSLOGD(LOCATING_DATA_CALLBACK, "single request,do not report info.");
         return false;
     }
     std::unique_lock<std::mutex> guard(mutex_);

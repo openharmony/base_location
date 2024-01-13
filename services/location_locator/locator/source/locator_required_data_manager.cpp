@@ -41,7 +41,6 @@ LocatorRequiredDataManager::~LocatorRequiredDataManager()
 __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::RegisterCallback(
     std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
 {
-    LBSLOGI(LOCATOR, "%{public}s enter", __func__);
     sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
     if (dataCallback == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
@@ -76,7 +75,6 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 
 LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemoteObject>& callback)
 {
-    LBSLOGI(LOCATOR, "%{public}s enter", __func__);
     sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
     if (dataCallback == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
@@ -218,7 +216,6 @@ void LocatorRequiredDataManager::ResetCallbackRegisteredStatus()
 
 __attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::RegisterWifiCallBack()
 {
-    LBSLOGI(LOCATOR, "%{public}s, enter", __func__);
     if (wifiScanPtr_ == nullptr || wifiScanEventCallback_ == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s param unexpected.", __func__);
         return false;

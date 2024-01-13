@@ -164,12 +164,11 @@ void GnssEventCallback::SendDummySvInfo()
             usedSvCount++;
         }
     }
-    LBSLOGI(GNSS, "%{public}s: the USED GPS SV Count is %{public}d", __func__, usedSvCount);
+    LBSLOGD(GNSS, "%{public}s: the USED GPS SV Count is %{public}d", __func__, usedSvCount);
     // weak gps signal scenario
     if (usedSvCount <= WEAK_GPS_SIGNAL_SCENARIO_COUNT) {
         // indicates the need for dummy satellites
         g_svIncrease = true;
-        LBSLOGI(GNSS, "%{public}s: the USED GPS SV Count is %{public}d", __func__, usedSvCount);
         LBSLOGI(GNSS, "%{public}s: start increase dummy sv", __func__);
 
         if (MAX_SV_COUNT - svListSize >= GPS_DUMMY_SV_COUNT) {

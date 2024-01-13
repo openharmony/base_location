@@ -34,7 +34,7 @@ LocationSaLoadManager::~LocationSaLoadManager()
 
 LocationErrCode LocationSaLoadManager::LoadLocationSa(int32_t systemAbilityId)
 {
-    LBSLOGI(LOCATOR, "%{public}s enter, systemAbilityId = [%{public}d] loading", __func__, systemAbilityId);
+    LBSLOGD(LOCATOR, "%{public}s enter, systemAbilityId = [%{public}d] loading", __func__, systemAbilityId);
     InitLoadState();
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -74,7 +74,7 @@ LocationErrCode LocationSaLoadManager::WaitLoadStateChange(int32_t systemAbility
 
 LocationErrCode LocationSaLoadManager::UnloadLocationSa(int32_t systemAbilityId)
 {
-    LBSLOGI(LOCATOR, "%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, systemAbilityId);
+    LBSLOGD(LOCATOR, "%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, systemAbilityId);
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
@@ -107,7 +107,7 @@ void LocationSaLoadManager::LoadSystemAbilityFail()
 void LocationSaLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
-    LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
+    LBSLOGD(LOCATOR, "LocationSaLoadManager Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
     auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
     if (instance == nullptr) {
         LBSLOGE(LOCATOR, "LocationSaLoadManager GetInstance return null");
@@ -118,7 +118,7 @@ void LocationSaLoadCallback::OnLoadSystemAbilitySuccess(
 
 void LocationSaLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
-    LBSLOGI(LOCATOR, "LocationSaLoadManager Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
+    LBSLOGD(LOCATOR, "LocationSaLoadManager Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
     auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
     if (instance == nullptr) {
         LBSLOGE(LOCATOR, "LocationSaLoadManager GetInstance return null");

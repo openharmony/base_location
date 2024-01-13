@@ -70,7 +70,7 @@ void SubAbility::LocationRequest(WorkRecord &workRecord)
 
 void SubAbility::HandleRefrashRequirements()
 {
-    LBSLOGI(label_, "refrash requirements");
+    LBSLOGD(label_, "refrash requirements");
 
     // send local request
     HandleLocalRequest(*newRecord_);
