@@ -230,14 +230,22 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate001, TestSi
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
     proxy_->GetAddressByCoordinate(parcel1, reply1);
     EXPECT_EQ(ERRCODE_SUCCESS, reply1.ReadInt32());
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
+}
 
+HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate002, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate002 begin");
     MessageParcel parcel2;
     MessageParcel reply2;
     EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
     proxy_->GetAddressByCoordinate(parcel2, reply2);
     EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, reply2.ReadInt32());
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate001 end");
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate002 end");
 }
+
 HWTEST_F(GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

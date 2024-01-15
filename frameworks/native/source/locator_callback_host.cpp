@@ -68,7 +68,8 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
-            LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT.");
+            LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive LOCATION_EVENT, TimeSinceBoot = %{public}lld.",
+                location->GetTimeSinceBoot());
             OnLocationReport(location);
             std::unique_lock<std::mutex> guard(mutex_);
             singleLocation_ = std::move(location);
@@ -77,7 +78,6 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
         }
         case RECEIVE_LOCATION_STATUS_EVENT: {
             int status = data.ReadInt32();
-            LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive STATUS_EVENT. status:%{public}d", status);
             OnLocatingStatusChange(status);
             break;
         }
@@ -316,7 +316,6 @@ void LocatorCallbackHost::CountDown()
 
 void LocatorCallbackHost::Wait(int time)
 {
-    LBSLOGI(LOCATOR_CALLBACK, "Wait time:%{public}d", time);
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         latch_->Wait(time);
     }
