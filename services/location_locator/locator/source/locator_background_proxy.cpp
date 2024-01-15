@@ -491,7 +491,7 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
         return bundleName.compare(foregroundApp.bundleName) == 0;
     });
     if (it != foregroundAppList.end()) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "app : %{public}s is foreground.", bundleName.c_str());
+        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "app : %{public}s is foreground.", bundleName.c_str());
         return false;
     }
     return true;
@@ -554,7 +554,7 @@ void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::Ap
     int32_t pid = appStateData.pid;
     int32_t uid = appStateData.uid;
     int32_t state = appStateData.state;
-    LBSLOGI(REQUEST_MANAGER,
+    LBSLOGD(REQUEST_MANAGER,
         "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     requestManager->HandlePowerSuspendChanged(pid, uid, state);
 }

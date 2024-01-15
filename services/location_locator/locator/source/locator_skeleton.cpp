@@ -904,7 +904,6 @@ bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdenti
     uint32_t callingFirstTokenid = identity.GetFirstTokenId();
     if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid) &&
         !CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        LBSLOGE(LOCATOR, "CheckLocationPermission return false.");
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     } else {

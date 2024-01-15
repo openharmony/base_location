@@ -323,7 +323,7 @@ LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>&
 
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGI(GNSS, "enter RequestRecord");
+    LBSLOGD(GNSS, "enter RequestRecord");
     if (isAdded) {
         if (!CheckIfHdiConnected()) {
             ConnectHdi();
@@ -354,7 +354,7 @@ void GnssAbility::ReConnectHdi()
 
 void GnssAbility::ReConnectHdiImpl()
 {
-    LBSLOGI(GNSS, "%{public}s called", __func__);
+    LBSLOGD(GNSS, "%{public}s called", __func__);
     ConnectHdi();
     EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
@@ -495,7 +495,7 @@ bool GnssAbility::EnableGnss()
         return false;
     }
     int32_t ret = gnssInterface_->EnableGnss(gnssCallback_);
-    LBSLOGI(GNSS, "Successfully enable_gnss!, %{public}d", ret);
+    LBSLOGD(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_STATUS_ENGINE_ON;
     } else {
@@ -513,7 +513,7 @@ void GnssAbility::DisableGnss()
         return;
     }
     if (!IsGnssEnabled()) {
-        LBSLOGE(GNSS, "gnss has been disabled");
+        LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
     int ret = gnssInterface_->DisableGnss();
@@ -542,7 +542,7 @@ void GnssAbility::StartGnss()
         return;
     }
     if (!IsGnssEnabled()) {
-        LBSLOGE(GNSS, "gnss has been disabled");
+        LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
     if (gnssWorkingStatus_ == GNSS_STATUS_SESSION_BEGIN) {
@@ -569,7 +569,7 @@ void GnssAbility::StopGnss()
         return;
     }
     if (!IsGnssEnabled()) {
-        LBSLOGE(GNSS, "gnss has been disabled");
+        LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
     
@@ -609,7 +609,7 @@ bool GnssAbility::ConnectHdi()
 #else
     if (gnssInterface_ != nullptr) {
 #endif
-        LBSLOGI(GNSS, "connect v1_0 hdi success.");
+        LBSLOGD(GNSS, "connect v1_0 hdi success.");
         gnssCallback_ = new (std::nothrow) GnssEventCallback();
         RegisterLocationHdiDeathRecipient();
         lock.unlock();
@@ -652,7 +652,7 @@ void GnssAbility::SetAgnssServer()
         return;
     }
     if (!IsGnssEnabled()) {
-        LBSLOGE(GNSS, "gnss has been disabled");
+        LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
     std::string addrName;
@@ -671,13 +671,13 @@ void GnssAbility::SetAgnssServer()
 
 void GnssAbility::SetAgnssCallback()
 {
-    LBSLOGI(GNSS, "enter SetAgnssCallback");
+    LBSLOGD(GNSS, "enter SetAgnssCallback");
     if (agnssInterface_ == nullptr || agnssCallback_ == nullptr) {
         LBSLOGE(GNSS, "agnssInterface_ or agnssCallback_ is nullptr");
         return;
     }
     if (!IsGnssEnabled()) {
-        LBSLOGE(GNSS, "gnss has been disabled");
+        LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
     agnssInterface_->SetAgnssCallback(agnssCallback_);
@@ -702,7 +702,7 @@ void GnssAbility::SetSetIdImpl(const SubscriberSetId& id)
         return;
     }
     if (!IsGnssEnabled()) {
-        LBSLOGE(GNSS, "gnss has been disabled");
+        LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
     agnssInterface_->SetSubscriberSetId(id);
@@ -726,7 +726,7 @@ void GnssAbility::SetRefInfoImpl(const AGnssRefInfo &refInfo)
         return;
     }
     if (!IsGnssEnabled()) {
-        LBSLOGE(GNSS, "gnss has been disabled");
+        LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
     agnssInterface_->SetAgnssRefInfo(refInfo);
@@ -934,7 +934,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         return;
     }
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
+    LBSLOGD(GNSS, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
             gnssAbility->ProcessReportLocationMock();
@@ -976,10 +976,8 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case SET_AGNSS_REF_INFO: {
             std::unique_ptr<AgnssRefInfoMessage> agnssRefInfoMessage = event->GetUniqueObject<AgnssRefInfoMessage>();
-            if (agnssRefInfoMessage != nullptr) {
-                AGnssRefInfo refInfo = agnssRefInfoMessage->GetAgnssRefInfo();
-                gnssAbility->SetRefInfoImpl(refInfo);
-            }
+            AGnssRefInfo refInfo = agnssRefInfoMessage->GetAgnssRefInfo();
+            gnssAbility->SetRefInfoImpl(refInfo);
             break;
         }
 #endif

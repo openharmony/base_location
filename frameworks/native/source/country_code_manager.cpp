@@ -225,7 +225,7 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
 
 std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 {
-    LBSLOGI(COUNTRY_CODE, "CountryCodeManager::GetIsoCountryCode");
+    LBSLOGD(COUNTRY_CODE, "CountryCodeManager::GetIsoCountryCode");
     int type = COUNTRY_CODE_FROM_LOCALE;
     std::string countryCodeStr8;
 #if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
@@ -414,7 +414,7 @@ void CountryCodeManager::ReSubscribeEvent()
     std::unique_lock<std::mutex> lock(countryCodeCallbackMutex_, std::defer_lock);
     lock.lock();
     if (countryCodeCallback_->size() <= 0) {
-        LBSLOGE(COUNTRY_CODE, "no valid callback registed, no need to subscribe");
+        LBSLOGD(COUNTRY_CODE, "no valid callback registed, no need to subscribe");
         lock.unlock();
         return;
     }
