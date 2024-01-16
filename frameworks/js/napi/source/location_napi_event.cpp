@@ -392,6 +392,54 @@ LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataC
 }
 #endif
 
+void GenerateExecuteContext(SingleLocationAsyncContext* context)
+{
+    if (context == nullptr) {
+        return;
+    }
+    auto callbackHost = context->callbackHost_;
+    if (g_locatorProxy->IsLocationEnabled() && callbackHost != nullptr) {
+        auto callbackPtr = sptr<ILocatorCallback>(callbackHost);
+#ifdef ENABLE_NAPI_MANAGER
+        LocationErrCode errorCode = g_locatorProxy->StartLocatingV9(context->request_, callbackPtr);
+        context->errCode = errorCode;
+        if (errorCode != ERRCODE_SUCCESS) {
+            callbackHost->SetCount(0);
+        }
+#else
+        g_locatorProxy->StartLocating(context->request_, callbackPtr);
+#endif
+        callbackHost->Wait(context->timeout_);
+        g_locatorProxy->StopLocating(callbackPtr);
+        if (callbackHost->GetCount() != 0) {
+            context->errCode = ERRCODE_LOCATING_FAIL;
+        }
+        callbackHost->SetCount(1);
+#ifndef ENABLE_NAPI_MANAGER
+    } else {
+        context->errCode = LOCATION_SWITCH_ERROR;
+#endif
+    }
+}
+
+void GenerateCompleteContext(SingleLocationAsyncContext* context)
+{
+    if (context == nullptr) {
+        return;
+    }
+    NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
+    auto callbackHost = context->callbackHost_;
+    if (callbackHost != nullptr && callbackHost->GetSingleLocation() != nullptr) {
+        std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
+        LocationToJs(context->env, location, context->result[PARAM1]);
+    } else {
+        LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
+    }
+    if (context->callbackHost_) {
+        context->callbackHost_ = nullptr;
+    }
+}
+
 SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env,
     std::unique_ptr<RequestConfig>& config, sptr<LocatorCallbackHost> callback)
 {
@@ -408,26 +456,7 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
             return;
         }
         auto context = static_cast<SingleLocationAsyncContext*>(data);
-        auto callbackHost = context->callbackHost_;
-        if (g_locatorProxy->IsLocationEnabled() && callbackHost != nullptr) {
-            auto callbackPtr = sptr<ILocatorCallback>(callbackHost);
-#ifdef ENABLE_NAPI_MANAGER
-            LocationErrCode errorCode = g_locatorProxy->StartLocatingV9(context->request_, callbackPtr);
-            context->errCode = errorCode;
-#else
-            g_locatorProxy->StartLocating(context->request_, callbackPtr);
-#endif
-            callbackHost->Wait(context->timeout_);
-            g_locatorProxy->StopLocating(callbackPtr);
-            if (callbackHost->GetCount() != 0) {
-                context->errCode = ERRCODE_LOCATING_FAIL;
-            }
-            callbackHost->SetCount(1);
-#ifndef ENABLE_NAPI_MANAGER
-        } else {
-            context->errCode = LOCATION_SWITCH_ERROR;
-#endif
-        }
+        GenerateExecuteContext(context);
     };
     asyncContext->completeFunc = [&](void* data) -> void {
         if (data == nullptr) {
@@ -435,17 +464,7 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
             return;
         }
         auto context = static_cast<SingleLocationAsyncContext*>(data);
-        NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
-        auto callbackHost = context->callbackHost_;
-        if (callbackHost != nullptr && callbackHost->GetSingleLocation() != nullptr) {
-            std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
-            LocationToJs(context->env, location, context->result[PARAM1]);
-        } else {
-            LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
-        }
-        if (context->callbackHost_) {
-            context->callbackHost_ = nullptr;
-        }
+        GenerateCompleteContext(context);
         LBSLOGI(LOCATOR_STANDARD, "Push single location to client");
     };
     return asyncContext;
