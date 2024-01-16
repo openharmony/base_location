@@ -208,7 +208,6 @@ void LocatingRequiredDataCallbackHost::CountDown()
 
 void LocatingRequiredDataCallbackHost::Wait(int time)
 {
-    LBSLOGI(LOCATOR_CALLBACK, "Wait time:%{public}d", time);
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         latch_->Wait(time);
     }

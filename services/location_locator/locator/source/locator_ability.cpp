@@ -176,7 +176,8 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         return;
     }
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d", eventId);
+    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}lld",
+        eventId, CommonUtils::GetCurrentTimeStamp());
     switch (eventId) {
         case EVENT_UPDATE_SA: {
             if (locatorAbility != nullptr) {
@@ -371,7 +372,9 @@ void LocatorAbility::UpdateSaAbilityHandler()
         MessageParcel reply;
         MessageOption option;
         int error = remoteObject->SendRequest(SET_ENABLE, data, reply, option);
-        LBSLOGI(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
+        if (error != ERR_OK) {
+            LBSLOGI(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
+        }
     }
 }
 
@@ -973,7 +976,6 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return ERRCODE_NOT_SUPPORTED;
 #endif
-    LBSLOGI(LOCATOR, "stop locating");
     if (requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1239,7 +1241,8 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
 
 LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
-    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d", uid, isProxy);
+    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d, timestamp = %{public}lld",
+        uid, isProxy, CommonUtils::GetCurrentTimeStamp());
     std::unique_lock<std::mutex> lock(proxyUidsMutex_);
     if (isProxy) {
         proxyUids_.insert(uid);

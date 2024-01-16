@@ -58,7 +58,7 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
         callbacks_.push_back(dataCallback);
-        LBSLOGI(LOCATOR, "after RegisterCallback, callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
+        LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
         if (config->GetNeedStartScan() && callbacks_.size() == 1) {
             timeInterval_ = config->GetScanIntervalMs();
             if (scanHandler_ != nullptr) {
@@ -91,7 +91,7 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
     if (callbacks_.size() > 0) {
         callbacks_.erase(callbacks_.begin() + i);
     }
-    LBSLOGI(LOCATOR, "after UnregisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
+    LBSLOGD(LOCATOR, "after UnregisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
     if (scanHandler_ != nullptr && callbacks_.size() == 0) {
         scanHandler_->SendEvent(EVENT_STOP_SCAN, 0, 0);
     }
@@ -216,6 +216,7 @@ void LocatorRequiredDataManager::ResetCallbackRegisteredStatus()
 
 __attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::RegisterWifiCallBack()
 {
+    LBSLOGD(LOCATOR, "%{public}s enter", __func__);
     if (wifiScanPtr_ == nullptr || wifiScanEventCallback_ == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s param unexpected.", __func__);
         return false;
@@ -290,7 +291,6 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
 __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiScan(bool flag)
 {
     if (!flag) {
-        LBSLOGI(LOCATOR, "%{public}s stop WifiScan.", __func__);
         if (scanHandler_ != nullptr) {
             scanHandler_->RemoveEvent(EVENT_START_SCAN);
         }
@@ -306,7 +306,7 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
         return;
     }
 #endif
-    LBSLOGI(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
+    LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
     if (scanHandler_ != nullptr) {
         scanHandler_->SendHighPriorityEvent(EVENT_START_SCAN, 0, timeInterval_);
     }

@@ -991,8 +991,8 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", callingUid);
     }
     identity.SetBundleName(bundleName);
-    LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s]",
-        code, option.GetFlags(), identity.ToString().c_str());
+    LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}lld",
+        code, option.GetFlags(), identity.ToString().c_str(), CommonUtils::GetCurrentTimeStamp());
     std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
