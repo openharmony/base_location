@@ -935,8 +935,10 @@ void GnssHandler::InitGnssEventProcessMap()
         &GnssHandler::HandleSetMockedLocations;
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
         &GnssHandler::HandleSendCommands;
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     gnssEventProcessMap_[SET_SUBSCRIBER_SET_ID] = &GnssHandler::HandleSetSubscriberSetId;
     gnssEventProcessMap_[SET_AGNSS_REF_INFO] = &GnssHandler::HandleSetAgnssRefInfo;
+#endif
     gnssEventProcessMap_[RECONNECT_HDI] = &GnssHandler::HandleReconnectHdi;
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] = &GnssHandler::HandleSetEnable;
     gnssEventProcessMap_[INIT_HDI] = &GnssHandler::HandleInitHdi;
