@@ -47,7 +47,6 @@ constexpr uint32_t WAIT_MS = 200;
 const uint32_t EVENT_REPORT_LOCATION = 0x0100;
 const uint32_t RECONNECT_HDI = 0x0103;
 const uint32_t INIT_HDI = 0x0104;
-const uint32_t RELEASE_HDI = 0x0105;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 const uint32_t SET_SUBSCRIBER_SET_ID = 0x0101;
@@ -166,9 +165,9 @@ void GnssAbility::UnloadGnssSystemAbility()
             LBSLOGE(GNSS, "%{public}s instance is nullptr", __func__);
             return;
         }
-        if (gnssHandler_ != nullptr) {
-            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(RELEASE_HDI, 0);
-            gnssHandler_->SendEvent(event);
+        if (CheckIfHdiConnected()) {
+            DisableGnss();
+            RemoveHdi();
         }
         instance->UnloadLocationSa(LOCATION_GNSS_SA_ID);
     };
@@ -849,11 +848,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
                 Get(code, workrecord);
-            if (gnssHandler_->SendEvent(event)) {
-                reply.WriteInt32(ERRCODE_SUCCESS);
-            } else {
-                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-            }
+            SendEvent(event, reply);
             break;
         }
         case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
@@ -873,11 +868,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             }
             AppExecFwk::InnerEvent::Pointer event =
                 AppExecFwk::InnerEvent::Get(code, vcLoc, timeInterval);
-            if (gnssHandler_->SendEvent(event)) {
-                reply.WriteInt32(ERRCODE_SUCCESS);
-            } else {
-                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-            }
+            SendEvent(event, reply);
             break;
         }
         case static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS): {
@@ -885,25 +876,30 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             locationCommand->scenario = data.ReadInt32();
             locationCommand->command = Str16ToStr8(data.ReadString16());
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, locationCommand);
-            if (gnssHandler_->SendEvent(event)) {
-                reply.WriteInt32(ERRCODE_SUCCESS);
-            } else {
-                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-            }
+            SendEvent(event, reply);
             break;
         }
         case static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE): {
             AppExecFwk::InnerEvent::Pointer event =
                 AppExecFwk::InnerEvent::Get(code, static_cast<int>(data.ReadBool()));
-            if (gnssHandler_->SendEvent(event)) {
-                reply.WriteInt32(ERRCODE_SUCCESS);
-            } else {
-                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-            }
+            SendEvent(event, reply);
             break;
         }
         default:
             break;
+    }
+}
+
+void GnssAbility::SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply)
+{
+    if (gnssHandler_ == nullptr) {
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return;
+    }
+    if (gnssHandler_->SendEvent(event)) {
+        reply.WriteInt32(ERRCODE_SUCCESS);
+    } else {
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
     }
 }
 
@@ -922,7 +918,29 @@ void GnssAbility::RegisterLocationHdiDeathRecipient()
     obj->AddDeathRecipient(death);
 }
 
-GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
+{
+    InitGnssEventProcessMap();
+}
+
+void GnssHandler::InitGnssEventProcessMap()
+{
+    if (gnssEventProcessMap_.size() != 0) {
+        return;
+    }
+    gnssEventProcessMap_[EVENT_REPORT_LOCATION] = &GnssHandler::HandleEventReportLocation;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST)] =
+        &GnssHandler::HandleSendLocationRequest;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
+        &GnssHandler::HandleSetMockedLocations;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
+        &GnssHandler::HandleSendCommands;
+    gnssEventProcessMap_[SET_SUBSCRIBER_SET_ID] = &GnssHandler::HandleSetSubscriberSetId;
+    gnssEventProcessMap_[SET_AGNSS_REF_INFO] = &GnssHandler::HandleSetAgnssRefInfo;
+    gnssEventProcessMap_[RECONNECT_HDI] = &GnssHandler::HandleReconnectHdi;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] = &GnssHandler::HandleSetEnable;
+    gnssEventProcessMap_[INIT_HDI] = &GnssHandler::HandleInitHdi;
+}
 
 GnssHandler::~GnssHandler() {}
 
@@ -935,81 +953,129 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGI(GNSS, "ProcessEvent event:%{public}d", eventId);
-    switch (eventId) {
-        case EVENT_REPORT_LOCATION: {
-            gnssAbility->ProcessReportLocationMock();
-            break;
-        }
-        case static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST): {
-            std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
-            if (workrecord != nullptr) {
-                gnssAbility->LocationRequest(*workrecord);
-            }
-            break;
-        }
-        case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
-            int timeInterval = event->GetParam();
-            auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
-            if (vcLoc != nullptr) {
-                std::vector<std::shared_ptr<Location>> mockLocations;
-                for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
-                    mockLocations.push_back(*it);
-                }
-                gnssAbility->SetMocked(timeInterval, mockLocations);
-            }
-            break;
-        }
-        case static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS): {
-            std::unique_ptr<LocationCommand> locationCommand = event->GetUniqueObject<LocationCommand>();
-            if (locationCommand != nullptr) {
-                gnssAbility->SendCommand(locationCommand);
-            }
-            break;
-        }
-#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-        case SET_SUBSCRIBER_SET_ID: {
-            std::unique_ptr<SubscriberSetId> subscriberSetId = event->GetUniqueObject<SubscriberSetId>();
-            if (subscriberSetId != nullptr) {
-                gnssAbility->SetSetIdImpl(*subscriberSetId);
-            }
-            break;
-        }
-        case SET_AGNSS_REF_INFO: {
-            std::unique_ptr<AgnssRefInfoMessage> agnssRefInfoMessage = event->GetUniqueObject<AgnssRefInfoMessage>();
-            if (agnssRefInfoMessage != nullptr) {
-                AGnssRefInfo refInfo = agnssRefInfoMessage->GetAgnssRefInfo();
-                gnssAbility->SetRefInfoImpl(refInfo);
-            }
-            break;
-        }
-#endif
-        case RECONNECT_HDI: {
-            gnssAbility->ReConnectHdiImpl();
-            break;
-        }
-        case static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE): {
-            int state = event->GetParam();
-            gnssAbility->SetEnable(state != 0);
-            break;
-        }
-        case INIT_HDI: {
-            if (!gnssAbility->CheckIfHdiConnected()) {
-                gnssAbility->ConnectHdi();
-                gnssAbility->EnableGnss();
-            }
-            break;
-        }
-        case RELEASE_HDI: {
-            if (gnssAbility->CheckIfHdiConnected()) {
-                gnssAbility->DisableGnss();
-                gnssAbility->RemoveHdi();
-            }
-            break;
-        }
-        default:
-            break;
+    auto handleFunc = gnssEventProcessMap_.find(eventId);
+    if (handleFunc != gnssEventProcessMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+        (this->*memberFunc)(event);
     }
     gnssAbility->UnloadGnssSystemAbility();
+}
+
+void GnssHandler::HandleEventReportLocation(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    gnssAbility->ProcessReportLocationMock();
+}
+
+void GnssHandler::HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
+    if (workrecord != nullptr) {
+        gnssAbility->LocationRequest(*workrecord);
+    }
+}
+
+void GnssHandler::HandleSetMockedLocations(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    int timeInterval = event->GetParam();
+    auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
+    if (vcLoc != nullptr) {
+        std::vector<std::shared_ptr<Location>> mockLocations;
+        for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
+            mockLocations.push_back(*it);
+        }
+        gnssAbility->SetMocked(timeInterval, mockLocations);
+    }
+}
+
+void GnssHandler::HandleSendCommands(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::unique_ptr<LocationCommand> locationCommand = event->GetUniqueObject<LocationCommand>();
+    if (locationCommand != nullptr) {
+        gnssAbility->SendCommand(locationCommand);
+    }
+}
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+void GnssHandler::HandleSetSubscriberSetId(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::unique_ptr<SubscriberSetId> subscriberSetId = event->GetUniqueObject<SubscriberSetId>();
+    if (subscriberSetId != nullptr) {
+        gnssAbility->SetSetIdImpl(*subscriberSetId);
+    }
+}
+
+void GnssHandler::HandleSetAgnssRefInfo(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::unique_ptr<AgnssRefInfoMessage> agnssRefInfoMessage = event->GetUniqueObject<AgnssRefInfoMessage>();
+    if (agnssRefInfoMessage != nullptr) {
+        AGnssRefInfo refInfo = agnssRefInfoMessage->GetAgnssRefInfo();
+        LBSLOGI(GNSS, "AGnssRefInfo ref info: %{public}d", refInfo.type);
+        gnssAbility->SetRefInfoImpl(refInfo);
+    }
+}
+#endif
+
+void GnssHandler::HandleReconnectHdi(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    gnssAbility->ReConnectHdiImpl();
+}
+
+void GnssHandler::HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    int state = event->GetParam();
+    gnssAbility->SetEnable(state != 0);
+}
+
+void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    if (!gnssAbility->CheckIfHdiConnected()) {
+        gnssAbility->ConnectHdi();
+        gnssAbility->EnableGnss();
+    }
 }
 
 LocationHdiDeathRecipient::LocationHdiDeathRecipient()
