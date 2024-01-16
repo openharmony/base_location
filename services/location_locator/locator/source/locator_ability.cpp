@@ -898,6 +898,24 @@ LocationErrCode LocatorAbility::SetMockedLocations(
         static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS));
 }
 
+std::shared_ptr<Request> LocatorAbility::InitRequest(std::unique_ptr<RequestConfig>& requestConfig,
+    sptr<ILocatorCallback>& callback, AppIdentity &identity)
+{
+    // generate request object according to input params
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    requestConfig->SetTimeStamp(CommonUtils::GetCurrentTime());
+    request->SetUid(identity.GetUid());
+    request->SetPid(identity.GetPid());
+    request->SetTokenId(identity.GetTokenId());
+    request->SetTokenIdEx(identity.GetTokenIdEx());
+    request->SetFirstTokenId(identity.GetFirstTokenId());
+    request->SetPackageName(identity.GetBundleName());
+    request->SetRequestConfig(*requestConfig);
+    request->SetLocatorCallBack(callback);
+    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+    return request;
+}
+
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
@@ -916,18 +934,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reportManager_->UpdateRandom();
-    // generate request object according to input params
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    requestConfig->SetTimeStamp(CommonUtils::GetCurrentTime());
-    request->SetUid(identity.GetUid());
-    request->SetPid(identity.GetPid());
-    request->SetTokenId(identity.GetTokenId());
-    request->SetTokenIdEx(identity.GetTokenIdEx());
-    request->SetFirstTokenId(identity.GetFirstTokenId());
-    request->SetPackageName(identity.GetBundleName());
-    request->SetRequestConfig(*requestConfig);
-    request->SetLocatorCallBack(callback);
-    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+    auto request = InitRequest(requestConfig, callback, identity);
     LBSLOGI(LOCATOR, "start locating");
     if (NeedReportCacheLocation(request, callback)) {
         LBSLOGI(LOCATOR, "report cache location.");
