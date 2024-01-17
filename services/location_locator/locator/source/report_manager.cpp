@@ -129,8 +129,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
-        LBSLOGI(REPORT_MANAGER, "report location to %{public}s, TimeSinceBoot : %{public}lld",
-            request->GetPackageName().c_str(), finalLocation->GetTimeSinceBoot());
+        LBSLOGI(REPORT_MANAGER, "report location to %{public}s, TimeSinceBoot : %{public}s",
+            request->GetPackageName().c_str(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
     }
 
