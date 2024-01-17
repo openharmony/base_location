@@ -920,7 +920,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS] = {0};
     napi_value thisVar = nullptr;
-    LBSLOGI(LOCATION_NAPI, "On function entry");
+    LBSLOGD(LOCATION_NAPI, "On function entry");
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     napi_valuetype eventName = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &eventName));
@@ -938,7 +938,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     size_t typeLen = 0;
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
-    LBSLOGI(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
+    LBSLOGD(LOCATION_NAPI, "Subscribe event: %{public}s", event.c_str());
     g_locatorProxy->SetResumer(g_callbackResumer);
 
     std::unique_lock<std::mutex> lock(g_FuncMapMutex);
@@ -1403,7 +1403,7 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
-    LBSLOGI(LOCATION_NAPI, "GetCurrentLocation enter");
+    LBSLOGD(LOCATION_NAPI, "GetCurrentLocation enter");
 #ifdef SUPPORT_JSSTACK
     HiviewDFX::ReportXPowerJsStackSysEvent(env, "GNSS_STATE");
 #endif

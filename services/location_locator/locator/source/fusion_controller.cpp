@@ -59,7 +59,7 @@ void FusionController::Process(std::string abilityName)
     if (GNSS_ABILITY.compare(abilityName) != 0) {
         return;
     }
-    LBSLOGI(FUSION_CONTROLLER, "fused flag:%{public}u", fusedFlag_);
+    LBSLOGD(FUSION_CONTROLLER, "fused flag:%{public}u", fusedFlag_);
 #ifdef FEATURE_NETWORK_SUPPORT
     RequestQuickFix(fusedFlag_ & QUICK_FIX_FLAG);
 #endif
