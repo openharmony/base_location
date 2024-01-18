@@ -41,12 +41,16 @@
 namespace OHOS {
 namespace Location {
 std::mutex RequestManager::requestMutex_;
+const uint32_t EVENT_PROXY_SEND_GNSS_LOCATION_REQUEST = 0x0001;
+const uint32_t EVENT_PROXY_SEND_NETWORK_LOCATION_REQUEST = 0x0002;
+const uint32_t EVENT_PROXY_SEND_PASSIVE_LOCATION_REQUEST = 0x0003;
 RequestManager::RequestManager()
 {
     auto locatorDftManager = DelayedSingleton<LocatorDftManager>::GetInstance();
     if (locatorDftManager != nullptr) {
         locatorDftManager->Init();
     }
+    requestManagerHandler_ = std::make_shared<RequestManagerHandler>(AppExecFwk::EventRunner::Create(true));
 }
 
 RequestManager::~RequestManager()
@@ -478,37 +482,23 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
 
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (locationSaLoadManager == nullptr) {
-        return;
-    }
-    int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
-    locationSaLoadManager->LoadLocationSa(systemAbilityId);
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
-    if (remoteObject == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
-        return;
-    }
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
+    uint32_t eventId = 0;
     if (abilityName == GNSS_ABILITY) {
-#ifdef FEATURE_GNSS_SUPPORT
-        std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(remoteObject);
-        gnssProxy->SendLocationRequest(workRecord);
-#endif
+        eventId = EVENT_PROXY_SEND_GNSS_LOCATION_REQUEST;
     } else if (abilityName == NETWORK_ABILITY) {
-#ifdef FEATURE_NETWORK_SUPPORT
-        std::unique_ptr<NetworkAbilityProxy> networkProxy = std::make_unique<NetworkAbilityProxy>(remoteObject);
-        networkProxy->SendLocationRequest(workRecord);
-#endif
+        eventId = EVENT_PROXY_SEND_NETWORK_LOCATION_REQUEST;
     } else if (abilityName == PASSIVE_ABILITY) {
-#ifdef FEATURE_PASSIVE_SUPPORT
-        std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
-        passiveProxy->SendLocationRequest(workRecord);
-#endif
+        eventId = EVENT_PROXY_SEND_PASSIVE_LOCATION_REQUEST;
     }
-    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
-    if (fusionController != nullptr) {
-        fusionController->Process(abilityName);
+    LBSLOGE(NETWORK, "workRecord size %{public}d", workRecord.Size());
+    
+    MessageParcel parcel;
+    workRecord.Marshalling(parcel);
+    std::unique_ptr<WorkRecord> workrecordPtr = WorkRecord::Unmarshalling(parcel);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(eventId, workrecordPtr);
+    if (requestManagerHandler_ != nullptr && requestManagerHandler_->SendEvent(event)) {
+        LBSLOGD(REQUEST_MANAGER, "%{public}s: %{public}d Send Success", __func__, eventId);
     }
 }
 
@@ -644,6 +634,99 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
     if (uidCount > 0) {
         runningUidMap_.insert(std::make_pair(uid, uidCount));
     }
+}
+
+void RequestManagerHandler::InitRequestManagerHandleMap()
+{
+    if (requestManagerHandleMap_.size() != 0) {
+        return;
+    }
+    requestManagerHandleMap_[EVENT_PROXY_SEND_GNSS_LOCATION_REQUEST] =
+        &RequestManagerHandler::ProxySendGnssLocationRequestEvent;
+    requestManagerHandleMap_[EVENT_PROXY_SEND_NETWORK_LOCATION_REQUEST] =
+        &RequestManagerHandler::ProxySendNetworkLocationRequestEvent;
+    requestManagerHandleMap_[EVENT_PROXY_SEND_PASSIVE_LOCATION_REQUEST] =
+        &RequestManagerHandler::ProxySendPassiveLocationRequestEvent;
+}
+
+RequestManagerHandler::RequestManagerHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) :
+    EventHandler(runner)
+{
+    InitRequestManagerHandleMap();
+}
+
+RequestManagerHandler::~RequestManagerHandler() {}
+
+void RequestManagerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    uint32_t eventId = event->GetInnerEventId();
+    LBSLOGI(REQUEST_MANAGER, "ProcessEvent event:%{public}d, timestamp = %{public}s",
+        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    auto handleFunc = requestManagerHandleMap_.find(eventId);
+    if (handleFunc != requestManagerHandleMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+        (this->*memberFunc)(event);
+    } else {
+        LBSLOGE(REQUEST_MANAGER, "ProcessEvent event:%{public}d, unsupport service.", eventId);
+    }
+}
+
+void RequestManagerHandler::ProxySendGnssLocationRequestEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    int systemAbilityId = CommonUtils::AbilityConvertToId(GNSS_ABILITY);
+    if (!CommonUtils::InitLocationSa(systemAbilityId)) {
+        return ;
+    }
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "%{public}s: remote obj is nullptr", __func__);
+        return;
+    }
+    auto workRecord = event->GetUniqueObject<WorkRecord>();
+#ifdef FEATURE_GNSS_SUPPORT
+    std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(remoteObject);
+    gnssProxy->SendLocationRequest(*workRecord);
+#endif
+    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    if (fusionController != nullptr) {
+        fusionController->Process(GNSS_ABILITY);
+    }
+}
+
+void RequestManagerHandler::ProxySendNetworkLocationRequestEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    int systemAbilityId = CommonUtils::AbilityConvertToId(NETWORK_ABILITY);
+    if (!CommonUtils::InitLocationSa(systemAbilityId)) {
+        return ;
+    }
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "%{public}s: remote obj is nullptr", __func__);
+        return;
+    }
+    auto workRecord = event->GetUniqueObject<WorkRecord>();
+#ifdef FEATURE_NETWORK_SUPPORT
+    std::unique_ptr<NetworkAbilityProxy> networkProxy = std::make_unique<NetworkAbilityProxy>(remoteObject);
+    networkProxy->SendLocationRequest(*workRecord);
+#endif
+}
+
+void RequestManagerHandler::ProxySendPassiveLocationRequestEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    int systemAbilityId = CommonUtils::AbilityConvertToId(PASSIVE_ABILITY);
+    if (!CommonUtils::InitLocationSa(systemAbilityId)) {
+        return ;
+    }
+    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
+    if (remoteObject == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "%{public}s: remote obj is nullptr", __func__);
+        return;
+    }
+    auto workRecord = event->GetUniqueObject<WorkRecord>();
+#ifdef FEATURE_PASSIVE_SUPPORT
+    std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
+    passiveProxy->SendLocationRequest(*workRecord);
+#endif
 }
 } // namespace Location
 } // namespace OHOS

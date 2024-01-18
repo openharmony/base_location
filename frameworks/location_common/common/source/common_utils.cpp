@@ -32,6 +32,8 @@
 #include "constant_definition.h"
 #include "location_data_rdb_helper.h"
 #include "parameter.h"
+#include "location_sa_load_manager.h"
+
 namespace OHOS {
 namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
@@ -489,6 +491,19 @@ bool CommonUtils::GetStringParameter(const std::string& type, std::string& value
 bool CommonUtils::GetEdmPolicy(std::string& name)
 {
     return GetStringParameter(EDM_POLICY_NAME, name);
+}
+bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
+{
+    if (CommonUtils::CheckIfSystemAbilityAvailable(systemAbilityId)) {
+        LBSLOGD(LOCATOR, "sa has been loaded");
+        return true;
+    }
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr || instance->LoadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "sa load failed.");
+        return false;
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

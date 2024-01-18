@@ -198,6 +198,7 @@ public:
     static unsigned char ConvertStringToDigit(std::string str);
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
+    static bool InitLocationSa(int32_t systemAbilityId);
 };
 
 class CountDownLatch {

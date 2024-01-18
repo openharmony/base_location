@@ -39,9 +39,25 @@ namespace OHOS {
 namespace Location {
 class LocatorHandler : public AppExecFwk::EventHandler {
 public:
+    using LocatorEventHandle = void (LocatorHandler::*)(
+        const AppExecFwk::InnerEvent::Pointer& event);
+    using LocatorEventHandleMap = std::map<int, LocatorEventHandle>;
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
+    void InitLocatorHandlerEventMap();
+private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitRequestManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void ApplyRequirementsEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UpdateGnssProxyMapEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UpdateNetworkProxyMapEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UpdatePassiveProxyMapEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
 class LocatorAbility : public SystemAbility, public LocatorAbilityStub, DelayedSingleton<LocatorAbility> {
@@ -138,6 +154,10 @@ public:
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
     std::set<int32_t> GetProxyUid();
+    LocationErrCode SendSwitchState(const int state);
+    void UpdateGnssProxyMap();
+    void UpdateNetworkProxyMap();
+    void UpdatePassiveProxyMap();
 
 private:
     bool Init();
@@ -154,8 +174,6 @@ private:
     bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
-    bool InitLocationExt();
-    LocationErrCode SendSwitchState(const int state);
     std::shared_ptr<Request> InitRequest(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
 
