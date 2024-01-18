@@ -44,6 +44,7 @@ namespace Location {
 using Want = OHOS::AAFwk::Want;
 const int32_t LOCATION_PERM_NUM = 4;
 const int VAL_UID = 20010044;
+const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 void LocatorBackgroundProxyTest::SetUp()
 {
     MockNativePermission();
@@ -58,6 +59,7 @@ void LocatorBackgroundProxyTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        RUNNING_STATE_OBSERVER.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,

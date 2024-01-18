@@ -90,6 +90,7 @@ bool LocatorImpl::IsLocationEnabled()
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabled err = %{public}d", errCode);
     }
+    LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabled switch state = %{public}d", state);
     return (state == ENABLED);
 }
 
@@ -648,6 +649,7 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
         LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabledV9 err = %{public}d", errCode);
     }
     isEnabled = (state == ENABLED);
+    LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabledV9 switch state = %{public}d", state);
     return ERRCODE_SUCCESS;
 }
 

@@ -33,7 +33,7 @@ const uint32_t QUICK_FIX_FLAG = FUSION_BASE_FLAG << 1;
 const uint32_t NETWORK_SELF_REQUEST = 4;
 #endif
 const long NANOS_PER_MILLI = 1000000L;
-const long MAX_LOCATION_COMPARISON_MS = 3 * SEC_TO_MILLI_SEC;
+const long MAX_LOCATION_COMPARISON_MS = 20 * SEC_TO_MILLI_SEC;
 
 void FusionController::ActiveFusionStrategies(int type)
 {
@@ -109,15 +109,7 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
         MAX_LOCATION_COMPARISON_MS < networkLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) {
         return std::make_unique<Location>(*networkLocation);
     }
-    if (networkLocation->GetTimeSinceBoot() / NANOS_PER_MILLI + MAX_LOCATION_COMPARISON_MS <
-        gnssLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) {
-        return std::make_unique<Location>(*gnssLocation);
-    }
-    if (gnssLocation->GetAccuracy() < networkLocation->GetAccuracy()) {
-        return std::make_unique<Location>(*gnssLocation);
-    } else {
-        return std::make_unique<Location>(*networkLocation);
-    }
+    return std::make_unique<Location>(*gnssLocation);
 }
 
 std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityName,
