@@ -584,8 +584,9 @@ static void TestLocationUpdate(
 static void TestSvStatusCallback(
     const std::unique_ptr<OHOS::Location::SatelliteStatus>& statusInfo)
 {
-    LBSLOGI(LOCATOR, "[LocatorImplTest] SvStatusCallback enter");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] SvStatusCallback begin");
     EXPECT_EQ(true, statusInfo != nullptr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] SvStatusCallback end");
 }
 
 static void TestNmeaCallback(int64_t timestamp, const std::string msg)

@@ -166,7 +166,6 @@ void GnssAbility::UnloadGnssSystemAbility()
             return;
         }
         if (CheckIfHdiConnected()) {
-            DisableGnss();
             RemoveHdi();
         }
         instance->UnloadLocationSa(LOCATION_GNSS_SA_ID);
