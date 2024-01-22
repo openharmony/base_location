@@ -217,6 +217,12 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
                 }
                 std::unique_ptr<Location> location = locationMessage->GetLocation();
                 std::string abilityName = locationMessage->GetAbilityName();
+                int64_t time = location->GetTimeStamp();
+                int64_t timeSinceBoot = location->GetTimeSinceBoot();
+                double acc = location->GetAccuracy();
+                LBSLOGI(REPORT_MANAGER,
+                    "receive location: [%{public}s time=%{public}lld timeSinceBoot=%{public}lld acc=%{public}f]",
+                    abilityName.c_str(), time, timeSinceBoot, acc);
                 reportManager->OnReportLocation(location, abilityName);
             }
             break;
@@ -1018,7 +1024,8 @@ LocationErrCode LocatorAbility::ReportLocation(const std::unique_ptr<Location>& 
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "location switch is off");
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
+            __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<LocationMessage> locationMessage = std::make_unique<LocationMessage>();
@@ -1040,7 +1047,8 @@ LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& cal
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "location switch is off");
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
+            __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
@@ -1057,7 +1065,8 @@ LocationErrCode LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callba
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "location switch is off");
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
+            __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {

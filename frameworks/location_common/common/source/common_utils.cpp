@@ -49,7 +49,8 @@ bool CommonUtils::CheckPermission(const std::string &permission, uint32_t caller
     int result = Security::AccessToken::PERMISSION_DENIED;
     if (tokenFirstCaller == 0) {
         if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
-            LBSLOGE(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
+            LBSLOGE(COMMON_UTILS, "tokenid = %{public}d has no permission.permission name=%{public}s",
+                callerToken, permission.c_str());
             return false;
         } else {
             result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
@@ -60,7 +61,8 @@ bool CommonUtils::CheckPermission(const std::string &permission, uint32_t caller
     if (result == Security::AccessToken::PERMISSION_GRANTED) {
         return true;
     } else {
-        LBSLOGE(COMMON_UTILS, "has no permission.permission name=%{public}s", permission.c_str());
+        LBSLOGE(COMMON_UTILS, "tokenid = %{public}d has no permission.permission name=%{public}s",
+            callerToken, permission.c_str());
         return false;
     }
 }

@@ -92,7 +92,7 @@ std::string LocationConfigManager::GetLocationSwitchConfigPath()
     int userId = 0;
     bool ret = CommonUtils::GetCurrentUserId(userId);
     if (!ret) {
-        LBSLOGE(LOCATOR, "GetCurrentUserId failed");
+        LBSLOGE(LOCATOR, "%{public}s GetCurrentUserId failed", __func__);
     }
     std::string filePath = LOCATION_DIR + SWITCH_CONFIG_NAME + "_" + std::to_string(userId) + ".conf";
     return filePath;
@@ -103,7 +103,7 @@ std::string LocationConfigManager::GetPrivacyTypeConfigPath(const int type)
     int userId = 0;
     bool ret = CommonUtils::GetCurrentUserId(userId);
     if (!ret) {
-        LBSLOGE(LOCATOR, "GetCurrentUserId failed");
+        LBSLOGE(LOCATOR, "%{public}s GetCurrentUserId failed", __func__);
     }
     std::string filePath;
     switch (type) {

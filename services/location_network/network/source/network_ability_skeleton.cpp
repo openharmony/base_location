@@ -122,7 +122,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     AppIdentity identity;
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
-    LBSLOGI(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
+    LBSLOGD(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
@@ -150,7 +150,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 bool NetworkAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
 {
     if (CommonUtils::QuerySwitchState() == DISABLED) {
-        LBSLOGE(NETWORK, "switch state is off.");
+        LBSLOGE(NETWORK, "%{public}s: %{public}d switch state is off.", __func__, __LINE__);
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return false;
     }

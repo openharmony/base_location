@@ -38,7 +38,7 @@ void GnssStatusCallbackProxy::OnStatusChange(const std::unique_ptr<SatelliteStat
     }
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_STATUS_INFO_EVENT, data, reply, option);
-    LBSLOGI(SWITCH_CALLBACK, "GnssStatusCallbackProxy::OnStatusChange Transact ErrCode = %{public}d", error);
+    LBSLOGD(GNSS_STATUS_CALLBACK, "GnssStatusCallbackProxy::OnStatusChange Transact ErrCode = %{public}d", error);
 }
 } // namespace Location
 } // namespace OHOS

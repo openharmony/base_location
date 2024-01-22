@@ -169,7 +169,7 @@ void GnssEventCallback::SendDummySvInfo()
     if (usedSvCount <= WEAK_GPS_SIGNAL_SCENARIO_COUNT) {
         // indicates the need for dummy satellites
         g_svIncrease = true;
-        LBSLOGI(GNSS, "%{public}s: start increase dummy sv", __func__);
+        LBSLOGD(GNSS, "%{public}s: start increase dummy sv", __func__);
 
         if (MAX_SV_COUNT - svListSize >= GPS_DUMMY_SV_COUNT) {
             AddDummySv(g_svInfo, 4, 6); // sv1: svid = 4, cN0Dbhz = 6
@@ -183,7 +183,7 @@ void GnssEventCallback::SendDummySvInfo()
         } else {
             LBSLOGD(GNSS, "%{public}s: sv number > 58, no need send dummy satellites", __func__);
         }
-        LBSLOGI(GNSS, "%{public}s: increase sv finished", __func__);
+        LBSLOGD(GNSS, "%{public}s: increase sv finished", __func__);
     } else {
         // indicates no need for dummy satellites
         g_svIncrease = false;
