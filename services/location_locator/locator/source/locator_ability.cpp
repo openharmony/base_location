@@ -979,7 +979,8 @@ LocationErrCode LocatorAbility::ReportLocation(const std::unique_ptr<Location>& 
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "location switch is off");
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
+            __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<LocationMessage> locationMessage = std::make_unique<LocationMessage>();
@@ -1001,7 +1002,8 @@ LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& cal
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "location switch is off");
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
+            __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
@@ -1018,7 +1020,8 @@ LocationErrCode LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callba
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "location switch is off");
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
+            __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {
@@ -1432,8 +1435,9 @@ void LocatorHandler::UpdatePassiveProxyMapEvent(const AppExecFwk::InnerEvent::Po
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}s",
-        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    LBSLOGI(REPORT_MANAGER,
+        "receive location: [%{public}s time=%{public}lld timeSinceBoot=%{public}lld acc=%{public}f]",
+        abilityName.c_str(), time, timeSinceBoot, acc);
     auto handleFunc = locatorHandlerEventMap_.find(eventId);
     if (handleFunc != locatorHandlerEventMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;

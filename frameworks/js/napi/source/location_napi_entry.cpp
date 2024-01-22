@@ -148,7 +148,7 @@ static napi_module g_locationModule = {
  */
 static napi_value InitManager(napi_env env, napi_value exports)
 {
-    LBSLOGI(LOCATION_NAPI, "Init, location_napi_manager_entry");
+    LBSLOGD(LOCATION_NAPI, "Init, location_napi_manager_entry");
 
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("on", On),

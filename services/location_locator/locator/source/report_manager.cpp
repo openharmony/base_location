@@ -49,7 +49,6 @@ ReportManager::~ReportManager() {}
 
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    LBSLOGI(REPORT_MANAGER, "receive location : %{public}s", abilityName.c_str());
     auto fusionController = DelayedSingleton<FusionController>::GetInstance();
     if (fusionController == nullptr) {
         return false;
@@ -195,7 +194,6 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         return false;
     }
     if (location == nullptr) {
-        LBSLOGE(REPORT_MANAGER, "%{public}s has no access permission", request->GetPackageName().c_str());
         return false;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -218,7 +216,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         return false;
     }
     if (CommonUtils::DoubleEqual(request->GetLastLocation()->GetLatitude(), MIN_LATITUDE - 1)) {
-        LBSLOGE(REPORT_MANAGER, "no valid cache location, no need to check");
+        LBSLOGD(REPORT_MANAGER, "no valid cache location, no need to check");
         return true;
     }
     int minTime = request->GetRequestConfig()->GetTimeInterval();
@@ -226,7 +224,8 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     LBSLOGD(REPORT_MANAGER, "timeInterval ResultCheck : %{public}s %{public}d - %{public}ld",
         request->GetPackageName().c_str(), minTime, deltaMs);
     if (deltaMs < (minTime * SEC_TO_MILLI_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
-        LBSLOGE(REPORT_MANAGER, "timeInterval check fail, do not report location");
+        LBSLOGE(REPORT_MANAGER, "timeInterval check fail, do not report location, current deltaMs = %{public}ld",
+            deltaMs);
         return false;
     }
 
@@ -255,7 +254,7 @@ std::unique_ptr<Location> ReportManager::GetLastLocation()
 {
     auto lastLocation = std::make_unique<Location>(lastLocation_);
     if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
-        LBSLOGE(REPORT_MANAGER, "no valid cache location");
+        LBSLOGE(REPORT_MANAGER, "%{public}s no valid cache location", __func__);
         return nullptr;
     }
     return lastLocation;
@@ -289,7 +288,7 @@ void ReportManager::UpdateRandom()
     }
     int num = locatorAbility->GetActiveRequestNum();
     if (num > 0) {
-        LBSLOGE(REPORT_MANAGER, "Exists %{public}d active request, cannot refresh offset", num);
+        LBSLOGD(REPORT_MANAGER, "Exists %{public}d active request, cannot refresh offset", num);
         return;
     }
     struct timespec now;

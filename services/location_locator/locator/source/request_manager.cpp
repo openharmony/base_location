@@ -432,7 +432,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
         int32_t uid = *iter;
         // for frozen app, do not add to workRecord
         if (uid == request->GetUid()) {
-            LBSLOGE(LOCATOR, "%{public}d is freezed.", uid);
+            LBSLOGD(LOCATOR, "%{public}d is freezed.", uid);
             return false;
         }
         // for once_request app, if it has timed out, do not add to workRecord
@@ -527,7 +527,7 @@ sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
 void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t state)
 {
     if (!IsUidInProcessing(uid)) {
-        LBSLOGE(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
+        LBSLOGD(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
         return;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();

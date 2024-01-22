@@ -230,7 +230,7 @@ void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
     std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "env_ is nullptr.");
+        LBSLOGD(LOCATOR_CALLBACK, "env_ is nullptr.");
         return;
     }
     NAPI_CALL_RETURN_VOID(env_, napi_get_uv_event_loop(env_, &loop));

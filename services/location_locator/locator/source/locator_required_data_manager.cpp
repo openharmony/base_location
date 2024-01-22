@@ -234,7 +234,7 @@ __attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::RegisterWif
 
 __attribute__((no_sanitize("cfi"))) void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
 {
-    LBSLOGE(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
+    LBSLOGD(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
     if (state == 0) {
         LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
         return;

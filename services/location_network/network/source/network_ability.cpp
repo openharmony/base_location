@@ -203,7 +203,7 @@ LocationErrCode NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode NetworkAbility::SetEnable(bool state)
 {
-    LBSLOGI(NETWORK, "SetEnable: %{public}d", state);
+    LBSLOGD(NETWORK, "SetEnable: %{public}d", state);
     if (networkHandler_ == nullptr) {
         LBSLOGE(NETWORK, "%{public}s networkHandler is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -244,7 +244,7 @@ bool NetworkAbility::CheckIfNetworkConnecting()
 
 LocationErrCode NetworkAbility::SelfRequest(bool state)
 {
-    LBSLOGI(NETWORK, "SelfRequest %{public}d", state);
+    LBSLOGD(NETWORK, "SelfRequest %{public}d", state);
     HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
     return ERRCODE_SUCCESS;
 }
@@ -497,7 +497,7 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         return;
     }
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(NETWORK, "ProcessEvent event:%{public}d", eventId);
+    LBSLOGD(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_REPORT_LOCATION: {
             networkAbility->ProcessReportLocationMock();
