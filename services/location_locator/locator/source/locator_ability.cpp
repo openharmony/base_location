@@ -165,6 +165,77 @@ bool LocatorAbility::Init()
     return registerToAbility_;
 }
 
+LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+
+LocatorHandler::~LocatorHandler() {}
+
+void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    if (locatorAbility == nullptr || requestManager == nullptr || locationSaLoadManager == nullptr) {
+        LBSLOGE(LOCATOR, "GetInstance return null");
+        return;
+    }
+    uint32_t eventId = event->GetInnerEventId();
+    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}s",
+        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    switch (eventId) {
+        case EVENT_UPDATE_SA: {
+            if (locatorAbility != nullptr) {
+                locatorAbility->UpdateSaAbilityHandler();
+            }
+            break;
+        }
+        case EVENT_RETRY_REGISTER_ACTION: {
+            if (locatorAbility != nullptr) {
+                locatorAbility->RegisterAction();
+            }
+            break;
+        }
+        case EVENT_INIT_REQUEST_MANAGER: {
+            if (requestManager == nullptr || !requestManager->InitSystemListeners()) {
+                LBSLOGE(LOCATOR, "InitSystemListeners failed");
+            }
+            break;
+        }
+        case EVENT_APPLY_REQUIREMENTS: {
+            if (requestManager != nullptr) {
+                requestManager->HandleRequest();
+            }
+            break;
+        }
+        case EVENT_UNLOAD_SA: {
+            if (locationSaLoadManager != nullptr) {
+                locationSaLoadManager->UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+            }
+            break;
+        }
+        case EVENT_REPORT_LOCATION_MESSAGE: {
+            if (reportManager != nullptr) {
+                std::unique_ptr<LocationMessage> locationMessage = event->GetUniqueObject<LocationMessage>();
+                if (locationMessage == nullptr) {
+                    return;
+                }
+                std::unique_ptr<Location> location = locationMessage->GetLocation();
+                std::string abilityName = locationMessage->GetAbilityName();
+                int64_t time = location->GetTimeStamp();
+                int64_t timeSinceBoot = location->GetTimeSinceBoot();
+                double acc = location->GetAccuracy();
+                LBSLOGI(REPORT_MANAGER,
+                    "receive location: [%{public}s time=%{public}lld timeSinceBoot=%{public}lld acc=%{public}f]",
+                    abilityName.c_str(), time, timeSinceBoot, acc);
+                reportManager->OnReportLocation(location, abilityName);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void LocatorAbility::InitRequestManagerMap()
 {
     std::unique_lock<std::mutex> lock(requestsMutex_);
@@ -1209,8 +1280,8 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
 
 LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
-    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d, timestamp = %{public}lld",
-        uid, isProxy, CommonUtils::GetCurrentTimeStamp());
+    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
+        uid, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     std::unique_lock<std::mutex> lock(proxyUidsMutex_);
     if (isProxy) {
         proxyUids_.insert(uid);
@@ -1386,6 +1457,12 @@ void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Po
         }
         std::unique_ptr<Location> location = locationMessage->GetLocation();
         std::string abilityName = locationMessage->GetAbilityName();
+        int64_t time = location->GetTimeStamp();
+        int64_t timeSinceBoot = location->GetTimeSinceBoot();
+        double acc = location->GetAccuracy();
+        LBSLOGI(REPORT_MANAGER,
+            "receive location: [%{public}s time=%{public}lld timeSinceBoot=%{public}lld acc=%{public}f]",
+            abilityName.c_str(), time, timeSinceBoot, acc);
         reportManager->OnReportLocation(location, abilityName);
     }
 }
@@ -1435,9 +1512,8 @@ void LocatorHandler::UpdatePassiveProxyMapEvent(const AppExecFwk::InnerEvent::Po
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR,
-        "receive location: [%{public}s time=%{public}lld timeSinceBoot=%{public}lld acc=%{public}f]",
-        abilityName.c_str(), time, timeSinceBoot, acc);
+    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}s",
+        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     auto handleFunc = locatorHandlerEventMap_.find(eventId);
     if (handleFunc != locatorHandlerEventMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
