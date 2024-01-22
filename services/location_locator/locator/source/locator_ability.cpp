@@ -765,21 +765,21 @@ void LocatorAbility::UpdateProxyMap()
 {
 #ifdef FEATURE_GNSS_SUPPORT
     AppExecFwk::InnerEvent::Pointer gnssEvent = AppExecFwk::InnerEvent::
-        Get(EVENT_UPDATE_GNSS_PROXY_MAP, locationMessage);
+        Get(EVENT_UPDATE_GNSS_PROXY_MAP);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(gnssEvent)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_GNSS_PROXY_MAP Send Success", __func__);
     }
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
     AppExecFwk::InnerEvent::Pointer networkEvent = AppExecFwk::InnerEvent::
-        Get(EVENT_UPDATE_NETWORK_PROXY_MAP, locationMessage);
+        Get(EVENT_UPDATE_NETWORK_PROXY_MAP);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(networkEvent)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_NETWORK_PROXY_MAP Send Success", __func__);
     }
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
     AppExecFwk::InnerEvent::Pointer passiveEvent = AppExecFwk::InnerEvent::
-        Get(EVENT_UPDATE_PASSIVE_PROXY_MAP, locationMessage);
+        Get(EVENT_UPDATE_PASSIVE_PROXY_MAP);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(passiveEvent)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_PASSIVE_PROXY_MAP Send Success", __func__);
     }
@@ -1435,7 +1435,7 @@ void LocatorHandler::UpdatePassiveProxyMapEvent(const AppExecFwk::InnerEvent::Po
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(REPORT_MANAGER,
+    LBSLOGI(LOCATOR,
         "receive location: [%{public}s time=%{public}lld timeSinceBoot=%{public}lld acc=%{public}f]",
         abilityName.c_str(), time, timeSinceBoot, acc);
     auto handleFunc = locatorHandlerEventMap_.find(eventId);

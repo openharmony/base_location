@@ -649,8 +649,8 @@ void RequestManagerHandler::InitRequestManagerHandleMap()
         &RequestManagerHandler::ProxySendPassiveLocationRequestEvent;
 }
 
-RequestManagerHandler::RequestManagerHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) :
-    EventHandler(runner)
+RequestManagerHandler::RequestManagerHandler(
+    const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
 {
     InitRequestManagerHandleMap();
 }
