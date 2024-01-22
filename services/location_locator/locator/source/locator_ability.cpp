@@ -176,8 +176,8 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         return;
     }
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}lld",
-        eventId, CommonUtils::GetCurrentTimeStamp());
+    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}s",
+        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     switch (eventId) {
         case EVENT_UPDATE_SA: {
             if (locatorAbility != nullptr) {
@@ -1257,8 +1257,8 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
 
 LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 {
-    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d, timestamp = %{public}lld",
-        uid, isProxy, CommonUtils::GetCurrentTimeStamp());
+    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
+        uid, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     std::unique_lock<std::mutex> lock(proxyUidsMutex_);
     if (isProxy) {
         proxyUids_.insert(uid);
