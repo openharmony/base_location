@@ -491,8 +491,6 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
     } else if (abilityName == PASSIVE_ABILITY) {
         eventId = EVENT_PROXY_SEND_PASSIVE_LOCATION_REQUEST;
     }
-    LBSLOGE(NETWORK, "workRecord size %{public}d", workRecord.Size());
-    
     MessageParcel parcel;
     workRecord.Marshalling(parcel);
     std::unique_ptr<WorkRecord> workrecordPtr = WorkRecord::Unmarshalling(parcel);
