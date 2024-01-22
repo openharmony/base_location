@@ -57,10 +57,9 @@ const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t EVENT_REPORT_LOCATION_MESSAGE = 0x0005;
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
+const uint32_t EVENT_UPDATE_PROXY_MAP = 0x0007;
 const uint32_t EVENT_UNLOAD_SA = 0x0010;
-const uint32_t EVENT_UPDATE_GNSS_PROXY_MAP = 0x0011;
-const uint32_t EVENT_UPDATE_NETWORK_PROXY_MAP = 0x0012;
-const uint32_t EVENT_UPDATE_PASSIVE_PROXY_MAP = 0x0013;
+
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
@@ -163,77 +162,6 @@ bool LocatorAbility::Init()
     RegisterAction();
     registerToAbility_ = true;
     return registerToAbility_;
-}
-
-LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
-
-LocatorHandler::~LocatorHandler() {}
-
-void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
-{
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
-    if (locatorAbility == nullptr || requestManager == nullptr || locationSaLoadManager == nullptr) {
-        LBSLOGE(LOCATOR, "GetInstance return null");
-        return;
-    }
-    uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}s",
-        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
-    switch (eventId) {
-        case EVENT_UPDATE_SA: {
-            if (locatorAbility != nullptr) {
-                locatorAbility->UpdateSaAbilityHandler();
-            }
-            break;
-        }
-        case EVENT_RETRY_REGISTER_ACTION: {
-            if (locatorAbility != nullptr) {
-                locatorAbility->RegisterAction();
-            }
-            break;
-        }
-        case EVENT_INIT_REQUEST_MANAGER: {
-            if (requestManager == nullptr || !requestManager->InitSystemListeners()) {
-                LBSLOGE(LOCATOR, "InitSystemListeners failed");
-            }
-            break;
-        }
-        case EVENT_APPLY_REQUIREMENTS: {
-            if (requestManager != nullptr) {
-                requestManager->HandleRequest();
-            }
-            break;
-        }
-        case EVENT_UNLOAD_SA: {
-            if (locationSaLoadManager != nullptr) {
-                locationSaLoadManager->UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
-            }
-            break;
-        }
-        case EVENT_REPORT_LOCATION_MESSAGE: {
-            if (reportManager != nullptr) {
-                std::unique_ptr<LocationMessage> locationMessage = event->GetUniqueObject<LocationMessage>();
-                if (locationMessage == nullptr) {
-                    return;
-                }
-                std::unique_ptr<Location> location = locationMessage->GetLocation();
-                std::string abilityName = locationMessage->GetAbilityName();
-                int64_t time = location->GetTimeStamp();
-                int64_t timeSinceBoot = location->GetTimeSinceBoot();
-                double acc = location->GetAccuracy();
-                LBSLOGI(REPORT_MANAGER,
-                    "receive location: [%{public}s time=%{public}lld timeSinceBoot=%{public}lld acc=%{public}f]",
-                    abilityName.c_str(), time, timeSinceBoot, acc);
-                reportManager->OnReportLocation(location, abilityName);
-            }
-            break;
-        }
-        default:
-            break;
-    }
 }
 
 void LocatorAbility::InitRequestManagerMap()
@@ -357,11 +285,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
         LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
         return;
     }
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_SEND_SWITCHSTATE_TO_HIFENCE Send Success", __func__);
-    }
+    
     locatorBackgroundProxy.get()->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
     std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
@@ -390,6 +314,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
             LBSLOGI(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
         }
     }
+	SendSwitchState(state);
 }
 
 void LocatorAbility::RemoveUnloadTask(uint32_t code)
@@ -427,25 +352,13 @@ void LocatorAbility::PostUnloadTask(uint32_t code)
     }
 }
 
-LocationErrCode LocatorAbility::SendSwitchState(const int state)
+void LocatorAbility::SendSwitchState(const int state)
 {
-    if (!CommonUtils::InitLocationSa(COMMON_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SEND_SWITCHSTATE_TO_HIFENCE Send Success", __func__);
     }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(COMMON_DESCRIPTION)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    data.WriteInt32(state);
-    sptr<IRemoteObject> object =
-            CommonUtils::GetRemoteObject(COMMON_SA_ID, CommonUtils::InitDeviceId());
-    if (object == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    object->SendRequest(COMMON_SWITCH_STATE_ID, data, reply, option);
-    return LocationErrCode(reply.ReadInt32());
 }
 
 bool LocatorAbility::CheckIfLocatorConnecting()
@@ -788,7 +701,11 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     return ERRCODE_NOT_SUPPORTED;
 #endif
     if (!CheckSaValid()) {
-        UpdateProxyMap();
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+	        Get(EVENT_UPDATE_PROXY_MAP, state);
+	    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+	        LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_PROXY_MAP Send Success", __func__);
+	    }
     }
 
     std::unique_lock<std::mutex> lock(proxyMapMutex_);
@@ -834,35 +751,11 @@ void LocatorAbility::UpdateLoadedSaMap()
 
 void LocatorAbility::UpdateProxyMap()
 {
-#ifdef FEATURE_GNSS_SUPPORT
-    AppExecFwk::InnerEvent::Pointer gnssEvent = AppExecFwk::InnerEvent::
-        Get(EVENT_UPDATE_GNSS_PROXY_MAP);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(gnssEvent)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_GNSS_PROXY_MAP Send Success", __func__);
-    }
-#endif
-#ifdef FEATURE_NETWORK_SUPPORT
-    AppExecFwk::InnerEvent::Pointer networkEvent = AppExecFwk::InnerEvent::
-        Get(EVENT_UPDATE_NETWORK_PROXY_MAP);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(networkEvent)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_NETWORK_PROXY_MAP Send Success", __func__);
-    }
-#endif
-#ifdef FEATURE_PASSIVE_SUPPORT
-    AppExecFwk::InnerEvent::Pointer passiveEvent = AppExecFwk::InnerEvent::
-        Get(EVENT_UPDATE_PASSIVE_PROXY_MAP);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(passiveEvent)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_PASSIVE_PROXY_MAP Send Success", __func__);
-    }
-#endif
-}
-
-void LocatorAbility::UpdateGnssProxyMap()
-{
+    std::unique_lock<std::mutex> lock(proxyMapMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
     // init gnss ability sa
-    if (!CommonUtils::InitLocationSa(LOCATION_GNSS_SA_ID)) {
-        return ;
+	if (!CommonUtils::InitLocationSa(LOCATION_GNSS_SA_ID)) {
+        return;
     }
     sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
     if (objectGnss != nullptr) {
@@ -871,14 +764,10 @@ void LocatorAbility::UpdateGnssProxyMap()
         LBSLOGE(LOCATOR, "GetRemoteObject gnss sa is null");
     }
 #endif
-}
-
-void LocatorAbility::UpdateNetworkProxyMap()
-{
 #ifdef FEATURE_NETWORK_SUPPORT
     // init network ability sa
-    if (!CommonUtils::InitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID)) {
-        return ;
+	if (!CommonUtils::InitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID)) {
+        return;
     }
     sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,
         CommonUtils::InitDeviceId());
@@ -888,14 +777,10 @@ void LocatorAbility::UpdateNetworkProxyMap()
         LBSLOGE(LOCATOR, "GetRemoteObject network sa is null");
     }
 #endif
-}
-
-void LocatorAbility::UpdatePassiveProxyMap()
-{
 #ifdef FEATURE_PASSIVE_SUPPORT
     // init passive ability sa
-    if (!CommonUtils::InitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID)) {
-        return ;
+	if (!CommonUtils::InitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID)) {
+        return;
     }
     sptr<IRemoteObject> objectPassive = CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID,
         CommonUtils::InitDeviceId());
@@ -1409,10 +1294,8 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     locatorHandlerEventMap_[EVENT_RETRY_REGISTER_ACTION] = &LocatorHandler::RetryRegisterActionEvent;
     locatorHandlerEventMap_[EVENT_REPORT_LOCATION_MESSAGE] = &LocatorHandler::ReportLocationMessageEvent;
     locatorHandlerEventMap_[EVENT_SEND_SWITCHSTATE_TO_HIFENCE] = &LocatorHandler::SendSwitchStateToHifenceEvent;
+	locatorHandlerEventMap_[EVENT_UPDATE_PROXY_MAP] = &LocatorHandler::UpdateProxyMapEvent;
     locatorHandlerEventMap_[EVENT_UNLOAD_SA] = &LocatorHandler::UnloadSaEvent;
-    locatorHandlerEventMap_[EVENT_UPDATE_GNSS_PROXY_MAP] = &LocatorHandler::UpdateGnssProxyMapEvent;
-    locatorHandlerEventMap_[EVENT_UPDATE_NETWORK_PROXY_MAP] = &LocatorHandler::UpdateNetworkProxyMapEvent;
-    locatorHandlerEventMap_[EVENT_UPDATE_PASSIVE_PROXY_MAP] = &LocatorHandler::UpdatePassiveProxyMapEvent;
 }
 
 void LocatorHandler::UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
@@ -1472,7 +1355,23 @@ void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent:
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
         int state = event->GetParam();
-        locatorAbility->SendSwitchState(state);
+        if (!CommonUtils::InitLocationSa(COMMON_SA_ID)) {
+	        return ERRCODE_SERVICE_UNAVAILABLE;
+	    }
+	    MessageParcel data;
+	    MessageParcel reply;
+	    MessageOption option;
+	    if (!data.WriteInterfaceToken(COMMON_DESCRIPTION)) {
+	        return ERRCODE_SERVICE_UNAVAILABLE;
+	    }
+	    data.WriteInt32(state);
+	    sptr<IRemoteObject> object =
+	            CommonUtils::GetRemoteObject(COMMON_SA_ID, CommonUtils::InitDeviceId());
+	    if (object == nullptr) {
+	        return ERRCODE_SERVICE_UNAVAILABLE;
+	    }
+	    object->SendRequest(COMMON_SWITCH_STATE_ID, data, reply, option);
+	    return LocationErrCode(reply.ReadInt32());
     }
 }
 
@@ -1485,27 +1384,11 @@ void LocatorHandler::UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
     }
 }
 
-void LocatorHandler::UpdateGnssProxyMapEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void LocatorHandler::UpdateProxyMapEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility != nullptr) {
-        locatorAbility->UpdateGnssProxyMap();
-    }
-}
-
-void LocatorHandler::UpdateNetworkProxyMapEvent(const AppExecFwk::InnerEvent::Pointer& event)
-{
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility != nullptr) {
-        locatorAbility->UpdateNetworkProxyMap();
-    }
-}
-
-void LocatorHandler::UpdatePassiveProxyMapEvent(const AppExecFwk::InnerEvent::Pointer& event)
-{
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility != nullptr) {
-        locatorAbility->UpdatePassiveProxyMap();
+        locatorAbility->UpdateProxyMap();
     }
 }
 
