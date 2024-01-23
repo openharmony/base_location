@@ -1062,6 +1062,32 @@ HWTEST_F(GnssAbilityTest, GnssStartGnss001, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssStartGnss001 end");
 }
 
+HWTEST_F(GnssAbilityTest, GnssEnableGnss001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEnableGnss001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEnableGnss001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    gnssAbility->gnssWorkingStatus_ = GNSS_STATUS_NONE;
+    bool ret = gnssAbility->EnableGnss();
+    EXPECT_EQ(false, ret);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEnableGnss001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssEnableGnss002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEnableGnss002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEnableGnss002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    gnssAbility->gnssWorkingStatus_ = GNSS_STATUS_ENGINE_ON;
+    bool ret = gnssAbility->EnableGnss();
+    EXPECT_EQ(false, ret);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEnableGnss002 end");
+}
+
 HWTEST_F(GnssAbilityTest, GnssInit001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
