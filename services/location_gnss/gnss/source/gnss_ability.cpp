@@ -492,6 +492,10 @@ bool GnssAbility::EnableGnss()
         LBSLOGE(GNSS, "gnssInterface_ or gnssCallback_ is nullptr");
         return false;
     }
+    if (IsGnssEnabled()) {
+        LBSLOGE(GNSS, "gnss has been enabled");
+        return false;
+    }
     int32_t ret = gnssInterface_->EnableGnss(gnssCallback_);
     LBSLOGD(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     if (ret == 0) {

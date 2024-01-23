@@ -932,9 +932,6 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     if (CommonUtils::QuerySwitchState() == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
-    if (!CheckSaValid()) {
-        UpdateSaAbilityHandler();
-    }
     // update offset before add request
     if (reportManager_ == nullptr || requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
