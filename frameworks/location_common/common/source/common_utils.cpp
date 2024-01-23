@@ -494,6 +494,7 @@ bool CommonUtils::GetEdmPolicy(std::string& name)
 {
     return GetStringParameter(EDM_POLICY_NAME, name);
 }
+
 bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
 {
     if (CommonUtils::CheckIfSystemAbilityAvailable(systemAbilityId)) {

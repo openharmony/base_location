@@ -27,26 +27,9 @@
 #include "i_locator_callback.h"
 #include "request.h"
 #include "work_record.h"
-#include "event_handler.h"
 
 namespace OHOS {
 namespace Location {
-class RequestManagerHandler : public AppExecFwk::EventHandler {
-public:
-    using RequestEventHandle = void (RequestManagerHandler::*)(
-        const AppExecFwk::InnerEvent::Pointer& event);
-    using RequestManagerHandleMap = std::map<int, RequestEventHandle>;
-    explicit RequestManagerHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
-    ~RequestManagerHandler() override;
-    void InitRequestManagerHandleMap();
-private:
-    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
-    void ProxySendGnssLocationRequestEvent(const AppExecFwk::InnerEvent::Pointer& event);
-    void ProxySendNetworkLocationRequestEvent(const AppExecFwk::InnerEvent::Pointer& event);
-    void ProxySendPassiveLocationRequestEvent(const AppExecFwk::InnerEvent::Pointer& event);
-    RequestManagerHandleMap requestManagerHandleMap_;
-};
-
 class RequestManager : public DelayedSingleton<RequestManager> {
 public:
     RequestManager();
@@ -80,7 +63,6 @@ private:
     static std::mutex requestMutex_;
     std::mutex runningUidsMutex_;
     std::mutex permissionRecordMutex_;
-    std::shared_ptr<RequestManagerHandler> requestManagerHandler_;
 };
 } // namespace Location
 } // namespace OHOS
