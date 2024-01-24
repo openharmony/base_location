@@ -193,10 +193,12 @@ void LocatorRequiredDataManager::WifiInfoInit()
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrProxy == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s samgrProxy is nullptr!", __func__);
+        return;
     }
     saStatusListener_ = sptr<WifiServiceStatusChange>(new WifiServiceStatusChange());
     if (saStatusListener_ == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s saStatusListener_ is nullptr!", __func__);
+        return;
     }
     result = samgrProxy->SubscribeSystemAbility(static_cast<int32_t>(WIFI_SCAN_ABILITY_ID), saStatusListener_);
     LBSLOGI(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
