@@ -88,6 +88,10 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
             break;
         }
     }
+    if (callbacks_.size() <= i) {
+        LBSLOGD(GNSS, "scan callback is not in vector");
+        return ERRCODE_SUCCESS;
+    }
     if (callbacks_.size() > 0) {
         callbacks_.erase(callbacks_.begin() + i);
     }
@@ -303,7 +307,6 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
     int ret = wifiScanPtr_->Scan();
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
-        return;
     }
 #endif
     LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
