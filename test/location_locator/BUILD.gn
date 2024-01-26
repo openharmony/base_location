@@ -105,6 +105,10 @@ ohos_unittest("LocatorServiceAbilityTest") {
     defines += [ "FEATURE_PASSIVE_SUPPORT" ]
   }
 
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
   module_out_path = module_output_path
 }
 

@@ -17,6 +17,7 @@
 
 #include "accesstoken_kit.h"
 #include "event_runner.h"
+#include "privacy_kit.h"
 #include "system_ability_definition.h"
 #include "uri.h"
 
@@ -844,11 +845,16 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     reportManager_->UpdateRandom();
     auto request = InitRequest(requestConfig, callback, identity);
     LBSLOGI(LOCATOR, "start locating");
+#ifdef EMULATOR_ENABLED
+    // for emulator, report cache location is unnecessary
+    HandleStartLocating(request, callback);
+#else
     if (NeedReportCacheLocation(request, callback)) {
         LBSLOGI(LOCATOR, "report cache location.");
     } else {
         HandleStartLocating(request, callback);
     }
+#endif
     return ERRCODE_SUCCESS;
 }
 
@@ -872,7 +878,9 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
     if (IsCacheVaildScenario(request->GetRequestConfig())) {
         auto cacheLocation = reportManager_->GetCacheLocation(request);
         if (cacheLocation != nullptr && callback != nullptr) {
+            PrivacyKit::StartUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
             callback->OnLocationReport(cacheLocation);
+            PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
             return true;
         }
     }
@@ -901,10 +909,12 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity)
 {
+    PrivacyKit::StartUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
     auto lastLocation = reportManager_->GetLastLocation();
     loc = reportManager_->GetPermittedLocation(identity.GetUid(), identity.GetTokenId(),
         identity.GetFirstTokenId(), lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
+    PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
     if (loc == nullptr) {
         return ERRCODE_LOCATING_FAIL;
     }
