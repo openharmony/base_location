@@ -32,7 +32,6 @@ public:
     LocationErrCode ReportSwitchState(bool isEnabled);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
-    LocationErrCode QuerySwitchState(bool &isEnabled);
     void SetCachedSwitchState(int32_t state);
     bool IsSwitchStateReg();
 private:

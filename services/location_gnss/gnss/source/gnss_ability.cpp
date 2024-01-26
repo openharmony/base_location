@@ -229,6 +229,10 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
             break;
         }
     }
+    if (gnssStatusCallback_.size() <= i) {
+        LBSLOGD(GNSS, "gnssStatus callback is not in vector");
+        return ERRCODE_SUCCESS;
+    }
     if (gnssStatusCallback_.size() > 0) {
         gnssStatusCallback_.erase(gnssStatusCallback_.begin() + i);
     }
@@ -276,6 +280,10 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         if (remoteObject == callback) {
             break;
         }
+    }
+    if (nmeaCallback_.size() <= i) {
+        LBSLOGD(GNSS, "nmea callback is not in vector");
+        return ERRCODE_SUCCESS;
     }
     if (nmeaCallback_.size() > 0) {
         nmeaCallback_.erase(nmeaCallback_.begin() + i);
