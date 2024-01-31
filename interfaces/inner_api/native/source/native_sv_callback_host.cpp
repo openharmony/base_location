@@ -49,7 +49,9 @@ void NativeSvCallbackHost::OnStatusChange(const std::unique_ptr<SatelliteStatus>
 {
     LBSLOGD(GNSS_STATUS_CALLBACK, "NativeSvCallbackHost::OnStatusChange");
     SvStatusCallbackIfaces svCallback = GetCallback();
-    svCallback.svStatusUpdate(statusInfo);
+    if (svCallback.svStatusUpdate != nullptr) {
+        svCallback.svStatusUpdate(statusInfo);
+    }
 }
 }  // namespace Location
 }  // namespace OHOS

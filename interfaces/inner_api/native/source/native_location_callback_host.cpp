@@ -49,7 +49,9 @@ void NativeLocationCallbackHost::OnLocationReport(const std::unique_ptr<Location
 {
     LBSLOGD(LOCATOR_CALLBACK, "NativeLocationCallbackHost::OnLocationReport");
     LocationCallbackIfaces locationCallback = GetCallback();
-    locationCallback.locationUpdate(location);
+    if (locationCallback.locationUpdate != nullptr) {
+        locationCallback.locationUpdate(location);
+    }
 }
 
 void NativeLocationCallbackHost::OnLocatingStatusChange(const int status)
