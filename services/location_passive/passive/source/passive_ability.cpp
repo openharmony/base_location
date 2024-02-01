@@ -33,6 +33,9 @@
 
 namespace OHOS {
 namespace Location {
+const uint32_t EVENT_INTERVAL_UNITE = 1000;
+const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
+const std::string UNLOAD_PASSIVE_TASK = "passive_sa_unload";
 const bool REGISTER_RESULT = PassiveAbility::MakeAndRegisterAbility(
     DelayedSingleton<PassiveAbility>::GetInstance().get());
 
@@ -93,13 +96,24 @@ LocationErrCode PassiveAbility::SetEnable(bool state)
 
 void PassiveAbility::UnloadPassiveSystemAbility()
 {
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (locationSaLoadManager == nullptr) {
+    if (passiveHandler_ == nullptr) {
+        LBSLOGE(PASSIVE, "%{public}s passiveHandler is nullptr", __func__);
         return;
     }
-
-    if (!CheckIfPassiveConnecting()) {
-        locationSaLoadManager->UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    passiveHandler_->RemoveTask(UNLOAD_PASSIVE_TASK);
+    if (CheckIfPassiveConnecting()) {
+        return;
+    }
+    auto task = [this]() {
+        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+        if (instance == nullptr) {
+            LBSLOGE(PASSIVE, "%{public}s instance is nullptr", __func__);
+            return;
+        }
+        instance->UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    };
+    if (passiveHandler_ != nullptr) {
+        passiveHandler_->PostTask(task, UNLOAD_PASSIVE_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
     }
 }
 
