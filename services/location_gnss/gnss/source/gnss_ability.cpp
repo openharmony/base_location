@@ -40,6 +40,8 @@
 #include "locationhub_ipc_interface_code.h"
 #include "location_log_event_ids.h"
 
+#include "hook_utils.h"
+
 namespace OHOS {
 namespace Location {
 namespace {
@@ -569,6 +571,11 @@ void GnssAbility::StartGnss()
         WriteLocationInnerEvent(START_GNSS, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StartGnss", "hdiType", "gnss"});
+    }
+    LocationErrCode errCode =
+        HookUtils::ExecuteHook(LocationProcessStage::GNSS_SA_REQUEST_PROCESS, nullptr, nullptr);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
 }
 

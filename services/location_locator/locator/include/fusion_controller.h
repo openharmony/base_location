@@ -35,6 +35,8 @@ public:
         const std::unique_ptr<Location>& location);
     bool LocationEqual(const std::unique_ptr<Location>& bestLocation,
         const std::unique_ptr<Location>& fuseLocation);
+    bool AdditionEqual(const std::unique_ptr<Location>& bestLocation,
+        const std::unique_ptr<Location>& fuseLocation);
 private:
 #ifdef FEATURE_NETWORK_SUPPORT
     void RequestQuickFix(bool state);

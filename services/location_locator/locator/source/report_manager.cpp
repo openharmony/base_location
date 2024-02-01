@@ -30,6 +30,7 @@
 #include "background_mode.h"
 #include "background_task_mgr_helper.h"
 #endif
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -75,9 +76,9 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         WriteNetWorkReportEvent(abilityName, request, location);
         bool ret = true;
         if (IsRequestFuse(request)) {
-            ret = ProcessRequestForReport(request, deadRequests, fuseLocation);
+            ret = ProcessRequestForReport(request, deadRequests, fuseLocation, abilityName);
         } else {
-            ret = ProcessRequestForReport(request, deadRequests, location);
+            ret = ProcessRequestForReport(request, deadRequests, location, abilityName);
         }
         if (!ret) {
             continue;
@@ -113,7 +114,8 @@ void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint32
 }
 
 bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
-    std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location)
+    std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
+    const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (request == nullptr || request->GetRequestConfig() == nullptr ||
         !request->GetIsRequesting()) {
@@ -127,6 +129,11 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
+    finalLocation = ExecuteReportProcess(request, finalLocation, abilityName);
+    if (finalLocation == nullptr) {
+        LBSLOGE(REPORT_MANAGER, "%{public}s no need report location", __func__);
+        return false;
+    }
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
@@ -143,6 +150,22 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     return true;
+}
+
+std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Request>& request,
+    std::unique_ptr<Location>& location, std::string abilityName)
+{
+    LocationSupplicantInfo reportStruct;
+    reportStruct.request = *request;
+    reportStruct.location = *location;
+    reportStruct.abilityName = abilityName;
+    reportStruct.retCode = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_LOCATION_REPORT_PROCESS, (void *)&reportStruct, nullptr);
+    if (!reportStruct.retCode) {
+        return nullptr;
+    }
+    return std::make_unique<Location>(reportStruct.location);
 }
 
 std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
@@ -336,7 +359,8 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
     coarseLocation->SetLatitude(lat);
     coarseLocation->SetLongitude(lon);
     coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
-    coarseLocation->SetAdditions("");
+    std::vector<std::string> emptyAdds;
+    coarseLocation->SetAdditions(emptyAdds, false);
     coarseLocation->SetAdditionSize(0);
     return coarseLocation;
 }

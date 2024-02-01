@@ -62,6 +62,7 @@ ohos_fuzztest("NetworkAbilityFuzzTest") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
     "safwk:system_ability_fwk",

@@ -151,7 +151,7 @@ bool FusionController::LocationEqual(const std::unique_ptr<Location>& bestLocati
         bestLocation->GetDirection() == fuseLocation->GetDirection() &&
         bestLocation->GetTimeStamp() == fuseLocation->GetTimeStamp() &&
         bestLocation->GetTimeSinceBoot() == fuseLocation->GetTimeSinceBoot() &&
-        bestLocation->GetAdditions() == fuseLocation->GetAdditions() &&
+        AdditionEqual(bestLocation, fuseLocation) &&
         bestLocation->GetAdditionSize() == fuseLocation->GetAdditionSize() &&
         bestLocation->GetIsFromMock() == fuseLocation->GetIsFromMock() &&
         bestLocation->GetSourceType() == fuseLocation->GetSourceType() &&
@@ -160,6 +160,22 @@ bool FusionController::LocationEqual(const std::unique_ptr<Location>& bestLocati
         return true;
     }
     return false;
+}
+
+bool FusionController::AdditionEqual(const std::unique_ptr<Location>& bestLocation,
+    const std::unique_ptr<Location>& fuseLocation)
+{
+    std::vector<std::string> bestAdditions = bestLocation->GetAdditions();
+    std::vector<std::string> fuseAdditions = fuseLocation->GetAdditions();
+    if (bestAdditions.size() != fuseAdditions.size()) {
+        return false;
+    }
+    for (int i = 0; i < bestAdditions.size(); i++) {
+        if (bestAdditions[i].compare(fuseAdditions[i]) != 0) {
+            return false;
+        }
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

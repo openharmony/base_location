@@ -280,8 +280,8 @@ HWTEST_F(FusionControllerTest, LocationEqual002, TestSize.Level1)
     parcel.WriteDouble(90.0);         // direction
     parcel.WriteInt64(1000000000);    // timeStamp
     parcel.WriteInt64(1000000000);    // timeSinceBoot
-    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
+    parcel.WriteString16(u"additions"); // additions
     parcel.WriteBool(false);          // isFromMock
     parcel.WriteInt32(1); // source type
     parcel.WriteInt32(0); // floor no.
@@ -307,10 +307,12 @@ HWTEST_F(FusionControllerTest, LocationEqual002, TestSize.Level1)
     EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
 
     fuseLocation->SetTimeSinceBoot(1000000002);
-    bestLocation->SetAdditions("addition");
+    std::vector<std::string> addition;
+    addition.push_back("addition");
+    bestLocation->SetAdditions(addition, false);
     EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
 
-    fuseLocation->SetAdditions("addition");
+    fuseLocation->SetAdditions(addition, false);
     bestLocation->SetAdditionSize(2);
     EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
 

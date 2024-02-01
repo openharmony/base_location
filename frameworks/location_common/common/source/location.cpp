@@ -23,6 +23,7 @@ namespace OHOS {
 namespace Location {
 static constexpr double MIN_LATITUDE = -90.0;
 static constexpr double MIN_LONGITUDE = -180.0;
+const int MAX_ADDITION_SIZE = 100;
 
 Location::Location()
 {
@@ -34,12 +35,11 @@ Location::Location()
     direction_ = 0.0;
     timeStamp_ = 0;
     timeSinceBoot_ = 0;
-    additions_ = "";
-    additionSize_ = 0;
     isFromMock_ = false;
     sourceType_ = 0;
     floorNo_ = 0;
     floorAccuracy_ = 0.0;
+    additionSize_ = 0;
 }
 
 Location::Location(Location& location)
@@ -52,12 +52,12 @@ Location::Location(Location& location)
     direction_ = location.GetDirection();
     timeStamp_ = location.GetTimeStamp();
     timeSinceBoot_ = location.GetTimeSinceBoot();
-    additions_ = location.GetAdditions();
-    additionSize_ = location.GetAdditionSize();
     isFromMock_ = location.GetIsFromMock();
     sourceType_ = location.GetSourceType();
     floorNo_ = location.GetFloorNo();
     floorAccuracy_ = location.GetFloorAccuracy();
+    additions_ = location.GetAdditions();
+    additionSize_ = location.GetAdditionSize();
 }
 
 void Location::ReadFromParcel(Parcel& parcel)
@@ -70,8 +70,27 @@ void Location::ReadFromParcel(Parcel& parcel)
     direction_ = parcel.ReadDouble();
     timeStamp_ = parcel.ReadInt64();
     timeSinceBoot_ = parcel.ReadInt64();
-    additions_ = Str16ToStr8(parcel.ReadString16());
     additionSize_ = parcel.ReadInt64();
+    int64_t len = additionSize_ > MAX_ADDITION_SIZE ? MAX_ADDITION_SIZE : additionSize_;
+    for (int64_t i = 0; i < len; i++) {
+        additions_.push_back(Str16ToStr8(parcel.ReadString16()));
+    }
+    isFromMock_ = parcel.ReadBool();
+    sourceType_ = parcel.ReadInt32();
+}
+
+void Location::ReadFromParcelV9(Parcel& parcel)
+{
+    latitude_ = parcel.ReadDouble();
+    longitude_ = parcel.ReadDouble();
+    altitude_ = parcel.ReadDouble();
+    accuracy_ = parcel.ReadDouble();
+    speed_ = parcel.ReadDouble();
+    direction_ = parcel.ReadDouble();
+    timeStamp_ = parcel.ReadInt64();
+    timeSinceBoot_ = parcel.ReadInt64();
+    additions_.push_back(Str16ToStr8(parcel.ReadString16()));
+    additionSize_ = parcel.ReadInt64() >= 1 ? 1 : 0;
     isFromMock_ = parcel.ReadBool();
     sourceType_ = parcel.ReadInt32();
     floorNo_ = parcel.ReadInt32();
@@ -85,6 +104,13 @@ std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
     return location;
 }
 
+std::shared_ptr<Location> Location::UnmarshallingSharedV9(Parcel& parcel)
+{
+    std::shared_ptr<Location> location = std::make_shared<Location>();
+    location->ReadFromParcelV9(parcel);
+    return location;
+}
+
 std::unique_ptr<Location> Location::Unmarshalling(Parcel& parcel)
 {
     std::unique_ptr<Location> location = std::make_unique<Location>();
@@ -92,8 +118,36 @@ std::unique_ptr<Location> Location::Unmarshalling(Parcel& parcel)
     return location;
 }
 
+std::unique_ptr<Location> Location::UnmarshallingV9(Parcel& parcel)
+{
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcelV9(parcel);
+    return location;
+}
+
 bool Location::Marshalling(Parcel& parcel) const
 {
+    parcel.WriteDouble(latitude_);
+    parcel.WriteDouble(longitude_);
+    parcel.WriteDouble(altitude_);
+    parcel.WriteDouble(accuracy_);
+    parcel.WriteDouble(speed_);
+    parcel.WriteDouble(direction_);
+    parcel.WriteInt64(timeStamp_);
+    parcel.WriteInt64(timeSinceBoot_);
+    additionSize_ = (additionSize_ > MAX_ADDITION_SIZE) ? MAX_ADDITION_SIZE : additionSize_;
+    parcel.WriteInt64(additionSize_);
+    for (int64_t i = 0; i < additionSize_; i++) {
+        parcel.WriteString16(Str8ToStr16(additions_[i]));
+    }
+    parcel.WriteBool(isFromMock_);
+    parcel.WriteInt32(sourceType_);
+    return true;
+}
+
+bool Location::MarshallingV9(Parcel& parcel)
+{
+    std::string addition = additionSize_ > 0 ? additions_[0] : "";
     return parcel.WriteDouble(latitude_) &&
            parcel.WriteDouble(longitude_) &&
            parcel.WriteDouble(altitude_) &&
@@ -102,7 +156,7 @@ bool Location::Marshalling(Parcel& parcel) const
            parcel.WriteDouble(direction_) &&
            parcel.WriteInt64(timeStamp_) &&
            parcel.WriteInt64(timeSinceBoot_) &&
-           parcel.WriteString16(Str8ToStr16(additions_)) &&
+           parcel.WriteString16(Str8ToStr16(addition)) &&
            parcel.WriteInt64(additionSize_) &&
            parcel.WriteBool(isFromMock_) &&
            parcel.WriteInt32(sourceType_) &&
@@ -120,12 +174,15 @@ std::string Location::ToString() const
         ", direction : " + std::to_string(direction_) +
         ", timeStamp : " + std::to_string(timeStamp_) +
         ", timeSinceBoot : " + std::to_string(timeSinceBoot_) +
-        ", additions : " + additions_ +
-        ", additionSize : " + std::to_string(additionSize_) +
         ", isFromMock : " + std::to_string(isFromMock_) +
         ", sourceType : " + std::to_string(sourceType_) +
-        ", floorNo : " + std::to_string(floorNo_) +
-        ", floorAccuracy : " + std::to_string(floorAccuracy_);
+        ", additionSize : " + std::to_string(additionSize_) +
+        ", additions : [ ";
+    int64_t len = (additionSize_ > MAX_ADDITION_SIZE) ? MAX_ADDITION_SIZE : additionSize_;
+    for (int64_t i = 0; i < len; i++) {
+        str = str + additions_[i] + " ";
+    }
+    str = str + "]";
     return str;
 }
 } // namespace Location

@@ -106,14 +106,20 @@ public:
     {
         timeSinceBoot_ = timeStamp;
     }
-    inline std::string GetAdditions() const
+
+    inline std::vector<std::string> GetAdditions() const
     {
         return additions_;
     }
 
-    inline void SetAdditions(const std::string &additions)
+    inline void SetAdditions(std::vector<std::string> additions, bool ifAppend)
     {
-        additions_ = additions;
+        if (!ifAppend) {
+            additions_.clear();
+        }
+        for (auto it = additions.begin(); it != additions.end(); ++it) {
+            additions_.push_back(*it);
+        }
     }
 
     inline int64_t GetAdditionSize() const
@@ -168,9 +174,13 @@ public:
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
+    void ReadFromParcelV9(Parcel& parcel);
+    bool MarshallingV9(Parcel& parcel);
     std::string ToString() const;
     static std::unique_ptr<Location> Unmarshalling(Parcel& parcel);
     static std::shared_ptr<Location> UnmarshallingShared(Parcel& parcel);
+    static std::unique_ptr<Location> UnmarshallingV9(Parcel& parcel);
+    static std::shared_ptr<Location> UnmarshallingSharedV9(Parcel& parcel);
 private:
     double latitude_;
     double longitude_;
@@ -180,12 +190,12 @@ private:
     double direction_;
     int64_t timeStamp_;
     int64_t timeSinceBoot_;
-    std::string additions_;
-    int64_t additionSize_;
     bool isFromMock_;
     int32_t sourceType_;
     int32_t floorNo_;
     double floorAccuracy_;
+    std::vector<std::string> additions_;
+    mutable int64_t additionSize_;
 };
 } // namespace Location
 } // namespace OHOS

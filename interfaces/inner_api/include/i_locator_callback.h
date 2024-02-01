@@ -28,6 +28,7 @@ public:
         RECEIVE_LOCATION_INFO_EVENT = 1,
         RECEIVE_LOCATION_STATUS_EVENT = 2,
         RECEIVE_ERROR_INFO_EVENT = 3,
+        RECEIVE_LOCATION_INFO_EVENT_NEW = 4,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocatorCallback");
     virtual void OnLocationReport(const std::unique_ptr<Location>& location) = 0;
