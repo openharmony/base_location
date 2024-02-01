@@ -51,9 +51,7 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
-    void UpdateUsingLocationPermission(std::shared_ptr<Request> request);
     void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
-    void UpdateUsingBackgroundPermission(std::shared_ptr<Request> request);
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
     bool AddRequestToWorkRecord(std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord);
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
