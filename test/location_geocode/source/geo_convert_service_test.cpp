@@ -253,6 +253,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStart001 begin");
     service_->state_  = ServiceRunningState::STATE_NOT_START;
     service_->OnStart();
+    service_->state_  = ServiceRunningState::STATE_NOT_START;
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStart001 end");
 }
 
