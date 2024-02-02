@@ -42,7 +42,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 using Want = OHOS::AAFwk::Want;
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const int VAL_UID = 20010044;
 const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 void LocatorBackgroundProxyTest::SetUp()
@@ -68,7 +68,7 @@ void LocatorBackgroundProxyTest::MockNativePermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "LocatorTest",
+        .processName = "LocatorBackgroundProxyTest",
         .aplStr = "system_basic",
     };
     tokenId_ = GetAccessTokenId(&infoInstance);
@@ -288,6 +288,7 @@ HWTEST_F(LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.L
     GTEST_LOG_(INFO)
         << "LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.Level1";
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] RegisterAppStateObserverTest001 begin");
+    MockNativePermission();
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver()); // unreg first

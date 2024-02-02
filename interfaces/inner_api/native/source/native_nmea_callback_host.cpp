@@ -49,7 +49,9 @@ void NativeNmeaCallbackHost::OnMessageChange(int64_t timestamp, const std::strin
 {
     LBSLOGD(NMEA_MESSAGE_CALLBACK, "NativeNmeaCallbackHost::OnMessageChange");
     GnssNmeaCallbackIfaces nmeaCallback = GetCallback();
-    nmeaCallback.nmeaUpdate(timestamp, msg);
+    if (nmeaCallback.nmeaUpdate != nullptr) {
+        nmeaCallback.nmeaUpdate(timestamp, msg);
+    }
 }
 }  // namespace Location
 }  // namespace OHOS
