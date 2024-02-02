@@ -16,7 +16,7 @@
 #include "report_manager.h"
 
 #include <cmath>
-
+#include "privacy_kit.h"
 #include "common_utils.h"
 #include "fusion_controller.h"
 #include "i_locator_callback.h"
@@ -122,6 +122,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
         request->GetTokenId(), request->GetFirstTokenId(), location);
     if (!ResultCheck(finalLocation, request)) {
+        // add location permission using record
+        PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
         return false;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
@@ -131,6 +133,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         LBSLOGI(REPORT_MANAGER, "report location to %{public}s, TimeSinceBoot : %{public}s",
             request->GetPackageName().c_str(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
+        // add location permission using record
+        PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();

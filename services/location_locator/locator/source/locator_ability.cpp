@@ -880,6 +880,8 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
         if (cacheLocation != nullptr && callback != nullptr) {
             PrivacyKit::StartUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
             callback->OnLocationReport(cacheLocation);
+            // add location permission using record
+            PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
             PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
             return true;
         }
@@ -914,14 +916,20 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     loc = reportManager_->GetPermittedLocation(identity.GetUid(), identity.GetTokenId(),
         identity.GetFirstTokenId(), lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
-    PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
     if (loc == nullptr) {
+        PrivacyKit::AddPermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
+        PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
         return ERRCODE_LOCATING_FAIL;
     }
     if (fabs(loc->GetLatitude() - 0.0) > PRECISION
         && fabs(loc->GetLongitude() - 0.0) > PRECISION) {
+        // add location permission using record
+        PrivacyKit::AddPermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
+        PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
         return ERRCODE_SUCCESS;
     }
+    PrivacyKit::AddPermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
+    PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
     return ERRCODE_LOCATING_FAIL;
 }
 

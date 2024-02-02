@@ -450,5 +450,15 @@ HWTEST_F(ReportManagerTest, UpdateLocationByRequestTest001, TestSize.Level1)
     reportManager_->UpdateLocationByRequest(tokenId_, tokenId_, location);
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateLocationByRequestTest001 end");
 }
+
+HWTEST_F(ReportManagerTest, UpdateLocationByRequestTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, UpdateLocationByRequestTest002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateLocationByRequestTest002 begin");
+    std::unique_ptr<Location> location = nullptr;
+    reportManager_->UpdateLocationByRequest(tokenId_, tokenId_, location);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateLocationByRequestTest002 end");
+}
 }  // namespace Location
 }  // namespace OHOS
