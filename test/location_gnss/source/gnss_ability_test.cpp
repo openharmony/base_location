@@ -888,6 +888,29 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportLocation001, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportLocation001 end");
 }
 
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportLocation002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportLocation002 begin");
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    LocationInfo locationInfo;
+    locationInfo.latitude = 1.0;
+    locationInfo.longitude = 2.0;
+    locationInfo.altitude = 1.0;
+    locationInfo.accuracy = 1.0;
+    locationInfo.speed = 1.0;
+    locationInfo.direction= 1.0;
+    locationInfo.timeStamp = 1000000000;
+    locationInfo.timeSinceBoot = 1000000000;
+    proxy_->EnableMock();
+    auto ret = gnssCallback->ReportLocation(locationInfo);
+    EXPECT_EQ(ERR_OK, ret);
+    proxy_->DisableMock();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportLocation002 end");
+}
+
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -956,6 +979,16 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo003, TestSiz
     statusInfo.satelliteIds.push_back(1);
     statusInfo.constellation.push_back(static_cast<GnssConstellationType>(1));
     EXPECT_EQ(ERR_OK, gnssCallback->ReportSatelliteStatusInfo(statusInfo));
+    LocationInfo locationInfo;
+    locationInfo.latitude = 1.0;
+    locationInfo.longitude = 2.0;
+    locationInfo.altitude = 1.0;
+    locationInfo.accuracy = 1.0;
+    locationInfo.speed = 1.0;
+    locationInfo.direction= 1.0;
+    locationInfo.timeStamp = 1000000000;
+    locationInfo.timeSinceBoot = 1000000000;
+    EXPECT_EQ(ERR_OK, gnssCallback->ReportLocation(locationInfo));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportSatelliteStatusInfo003 end");
 }
 
