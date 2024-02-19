@@ -54,6 +54,8 @@ private:
     void ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -204,6 +206,15 @@ public:
 private:
     std::string abilityName_;
     std::unique_ptr<Location> location_;
+};
+
+class LocatorCallbackMessage {
+public:
+    void SetCallback(const sptr<ILocatorCallback>& callback);
+    sptr<ILocatorCallback> GetCallback();
+private:
+    std::string abilityName_;
+    sptr<ILocatorCallback> callback_;
 };
 } // namespace Location
 } // namespace OHOS

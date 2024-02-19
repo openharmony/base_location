@@ -58,6 +58,8 @@ const uint32_t EVENT_APPLY_REQUIREMENTS = 0x0003;
 const uint32_t EVENT_RETRY_REGISTER_ACTION = 0x0004;
 const uint32_t EVENT_REPORT_LOCATION_MESSAGE = 0x0005;
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
+const uint32_t EVENT_START_LOCATING = 0x0007;
+const uint32_t EVENT_STOP_LOCATING = 0x0008;
 const uint32_t EVENT_UNLOAD_SA = 0x0010;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
@@ -891,7 +893,11 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
 
 void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
 {
-    requestManager_->HandleStartLocating(request);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_START_LOCATING, request);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
     ReportLocationStatus(callback, SESSION_START);
 }
 
@@ -904,7 +910,13 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     if (requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    requestManager_->HandleStopLocating(callback);
+    std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
+    callbackMessage->SetCallback(callback);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_STOP_LOCATING, callbackMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
     ReportLocationStatus(callback, SESSION_STOP);
     return ERRCODE_SUCCESS;
 }
@@ -1286,6 +1298,16 @@ std::unique_ptr<Location> LocationMessage::GetLocation()
     }
 }
 
+void LocatorCallbackMessage::SetCallback(const sptr<ILocatorCallback>& callback)
+{
+    callback_ = callback;
+}
+
+sptr<ILocatorCallback> LocatorCallbackMessage::GetCallback()
+{
+    return callback_;
+}
+
 LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
 {
     InitLocatorHandlerEventMap();
@@ -1304,6 +1326,8 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     locatorHandlerEventMap_[EVENT_RETRY_REGISTER_ACTION] = &LocatorHandler::RetryRegisterActionEvent;
     locatorHandlerEventMap_[EVENT_REPORT_LOCATION_MESSAGE] = &LocatorHandler::ReportLocationMessageEvent;
     locatorHandlerEventMap_[EVENT_SEND_SWITCHSTATE_TO_HIFENCE] = &LocatorHandler::SendSwitchStateToHifenceEvent;
+    locatorHandlerEventMap_[EVENT_START_LOCATING] = &LocatorHandler::StartLocatingEvent;
+    locatorHandlerEventMap_[EVENT_STOP_LOCATING] = &LocatorHandler::StopLocatingEvent;
     locatorHandlerEventMap_[EVENT_UNLOAD_SA] = &LocatorHandler::UnloadSaEvent;
 }
 
@@ -1380,6 +1404,30 @@ void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent:
             return;
         }
         object->SendRequest(COMMON_SWITCH_STATE_ID, data, reply, option);
+    }
+}
+
+void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    std::shared_ptr<Request> request = event->GetSharedObject<Request>();
+    if (request == nullptr) {
+        return;
+    }
+    if (requestManager != nullptr) {
+        requestManager->HandleStartLocating(request);
+    }
+}
+
+void LocatorHandler::StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    std::unique_ptr<LocatorCallbackMessage> callbackMessage = event->GetUniqueObject<LocatorCallbackMessage>();
+    if (callbackMessage == nullptr) {
+        return;
+    }
+    if (requestManager != nullptr) {
+        requestManager->HandleStopLocating(callbackMessage->GetCallback());
     }
 }
 
