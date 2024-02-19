@@ -26,11 +26,6 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 
-#ifdef BGTASKMGR_SUPPORT
-#include "background_mode.h"
-#include "background_task_mgr_helper.h"
-#endif
-
 namespace OHOS {
 namespace Location {
 const long NANOS_PER_MILLI = 1000000L;
@@ -120,7 +115,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
-        request->GetTokenId(), request->GetFirstTokenId(), location);
+        request->GetTokenId(), request->GetFirstTokenId(), request->GetTokenIdEx(), location);
     if (!ResultCheck(finalLocation, request)) {
         // add location permission using record
         PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
@@ -146,7 +141,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
 }
 
 std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
-    const std::unique_ptr<Location>& location)
+    uint32_t tokenIdEx, const std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {
         return nullptr;
@@ -155,8 +150,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
-    if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
-        !IsAppInLocationContinuousTasks(uid) &&
+    if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
         !CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
         return nullptr;
@@ -276,7 +270,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
-        request->GetTokenId(), request->GetFirstTokenId(), cacheLocation);
+        request->GetTokenId(), request->GetFirstTokenId(), request->GetTokenIdEx(), cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
         return nullptr;
     }
@@ -368,23 +362,22 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
     }
 }
 
-bool ReportManager::IsAppInLocationContinuousTasks(pid_t uid)
+bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint32_t tokenIdEx, int32_t uid)
 {
-#ifdef BGTASKMGR_SUPPORT
-    std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
-    ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
-    if (result != ERR_OK) {
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    if (locatorBackgroundProxy == nullptr) {
         return false;
     }
-    for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
-        auto continuousTask = *iter;
-        if (continuousTask->GetCreatorUid() == uid &&
-            continuousTask->GetTypeId() == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
-            return true;
-        }
+    if (!locatorBackgroundProxy->IsAppBackground(bundleName)) {
+        return false;
     }
-#endif
-    return false;
+    if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
+        return false;
+    }
+    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid)) {
+        return false;
+    }
+    return true;
 }
 } // namespace OHOS
 } // namespace Location

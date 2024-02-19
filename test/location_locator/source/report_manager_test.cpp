@@ -234,7 +234,7 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1";
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] GetPermittedLocationTest001 begin");
-    EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(0, tokenId_, 0, nullptr));
+    EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(0, tokenId_, 0, 0, nullptr));
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
     parcel.WriteDouble(13.0); // longitude
@@ -252,7 +252,7 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     parcel.WriteDouble(1000.0); // floor acc
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    auto newLocation = reportManager_->GetPermittedLocation(0, tokenId_, 0, location);
+    auto newLocation = reportManager_->GetPermittedLocation(0, tokenId_, 0, 0, location);
     EXPECT_NE(nullptr, newLocation);
     EXPECT_EQ(12.0, newLocation->GetLatitude());
     EXPECT_EQ(13.0, newLocation->GetLongitude());
