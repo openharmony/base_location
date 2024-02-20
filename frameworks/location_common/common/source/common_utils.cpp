@@ -341,12 +341,12 @@ bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
         LBSLOGE(COMMON_UTILS, "%{public}s Fail to get sa obj.", __func__);
         return false;
     }
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy(new AppExecFwk::BundleMgrProxy(remoteObject));
-    if (bundleMgrProxy == nullptr) {
+    sptr<AppExecFwk::IBundleMgr> bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (bundleMgr == nullptr) {
         LBSLOGE(COMMON_UTILS, "%{public}s Bundle mgr proxy is nullptr.", __func__);
         return false;
     }
-    int32_t error = bundleMgrProxy->GetNameForUid(uid, bundleName);
+    int32_t error = bundleMgr->GetNameForUid(uid, bundleName);
     if (error != ERR_OK) {
         return false;
     }
