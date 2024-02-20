@@ -121,9 +121,13 @@ public:
      * @brief Discovery result observer.
      *
      * @param device Remote device.
+     * @param rssi Rssi of remote device.
+     * @param deviceName Name of remote device.
+     * @param deviceClass Class of remote device.
      * @since 6
      */
-    void OnDiscoveryResult(const Bluetooth::BluetoothRemoteDevice &device) override;
+    void OnDiscoveryResult(const Bluetooth::BluetoothRemoteDevice &device, int rssi,
+        const std::string deviceName, int deviceClass) override;
     /**
      * @brief Pair request observer.
      *
