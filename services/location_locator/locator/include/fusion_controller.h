@@ -33,10 +33,6 @@ public:
         const std::unique_ptr<Location>& networkLocation);
     std::unique_ptr<Location> GetFuseLocation(std::string abilityName,
         const std::unique_ptr<Location>& location);
-    bool LocationEqual(const std::unique_ptr<Location>& bestLocation,
-        const std::unique_ptr<Location>& fuseLocation);
-    bool AdditionEqual(const std::unique_ptr<Location>& bestLocation,
-        const std::unique_ptr<Location>& fuseLocation);
 private:
 #ifdef FEATURE_NETWORK_SUPPORT
     void RequestQuickFix(bool state);

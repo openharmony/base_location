@@ -46,7 +46,8 @@ void HookUtils::UnregisterHook(LocationProcessStage stage, OhosHook hook)
     HookMgrDel(GetLocationExtHookMgr(), static_cast<int>(stage), hook);
 }
 
-LocationErrCode HookUtils::ExecuteHook(LocationProcessStage stage, void *executionContext, const HOOK_EXEC_OPTIONS *options)
+LocationErrCode HookUtils::ExecuteHook(
+    LocationProcessStage stage, void *executionContext, const HOOK_EXEC_OPTIONS *options)
 {
     auto ret = HookMgrExecute(GetLocationExtHookMgr(), static_cast<int>(stage), executionContext, options);
     if (ret == 0) {

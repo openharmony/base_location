@@ -35,8 +35,7 @@ Location::Location()
     direction_ = 0.0;
     timeStamp_ = 0;
     timeSinceBoot_ = 0;
-    isFromMock_ = false;
-    sourceType_ = 0;
+    isFromMock_ = -1;
     floorNo_ = 0;
     floorAccuracy_ = 0.0;
     additionSize_ = 0;
@@ -53,7 +52,6 @@ Location::Location(Location& location)
     timeStamp_ = location.GetTimeStamp();
     timeSinceBoot_ = location.GetTimeSinceBoot();
     isFromMock_ = location.GetIsFromMock();
-    sourceType_ = location.GetSourceType();
     floorNo_ = location.GetFloorNo();
     floorAccuracy_ = location.GetFloorAccuracy();
     additions_ = location.GetAdditions();
@@ -75,8 +73,7 @@ void Location::ReadFromParcel(Parcel& parcel)
     for (int64_t i = 0; i < len; i++) {
         additions_.push_back(Str16ToStr8(parcel.ReadString16()));
     }
-    isFromMock_ = parcel.ReadBool();
-    sourceType_ = parcel.ReadInt32();
+    isFromMock_ = parcel.ReadInt32();
 }
 
 void Location::ReadFromParcelV9(Parcel& parcel)
@@ -91,8 +88,8 @@ void Location::ReadFromParcelV9(Parcel& parcel)
     timeSinceBoot_ = parcel.ReadInt64();
     additions_.push_back(Str16ToStr8(parcel.ReadString16()));
     additionSize_ = parcel.ReadInt64() >= 1 ? 1 : 0;
-    isFromMock_ = parcel.ReadBool();
-    sourceType_ = parcel.ReadInt32();
+    isFromMock_ = parcel.ReadBool() ? 1 : 0;
+    parcel.ReadInt32(); // empty value
     floorNo_ = parcel.ReadInt32();
     floorAccuracy_ = parcel.ReadDouble();
 }
@@ -140,14 +137,14 @@ bool Location::Marshalling(Parcel& parcel) const
     for (int64_t i = 0; i < additionSize_; i++) {
         parcel.WriteString16(Str8ToStr16(additions_[i]));
     }
-    parcel.WriteBool(isFromMock_);
-    parcel.WriteInt32(sourceType_);
+    parcel.WriteInt32(isFromMock_);
     return true;
 }
 
 bool Location::MarshallingV9(Parcel& parcel)
 {
     std::string addition = additionSize_ > 0 ? additions_[0] : "";
+    int tmpSourceType = 0;
     return parcel.WriteDouble(latitude_) &&
            parcel.WriteDouble(longitude_) &&
            parcel.WriteDouble(altitude_) &&
@@ -158,8 +155,8 @@ bool Location::MarshallingV9(Parcel& parcel)
            parcel.WriteInt64(timeSinceBoot_) &&
            parcel.WriteString16(Str8ToStr16(addition)) &&
            parcel.WriteInt64(additionSize_) &&
-           parcel.WriteBool(isFromMock_) &&
-           parcel.WriteInt32(sourceType_) &&
+           parcel.WriteBool(isFromMock_ == 1 ? true : false) &&
+           parcel.WriteInt32(tmpSourceType) &&
            parcel.WriteInt32(floorNo_) &&
            parcel.WriteDouble(floorAccuracy_);
 }
@@ -175,7 +172,6 @@ std::string Location::ToString() const
         ", timeStamp : " + std::to_string(timeStamp_) +
         ", timeSinceBoot : " + std::to_string(timeSinceBoot_) +
         ", isFromMock : " + std::to_string(isFromMock_) +
-        ", sourceType : " + std::to_string(sourceType_) +
         ", additionSize : " + std::to_string(additionSize_) +
         ", additions : [ ";
     int64_t len = (additionSize_ > MAX_ADDITION_SIZE) ? MAX_ADDITION_SIZE : additionSize_;
@@ -184,6 +180,45 @@ std::string Location::ToString() const
     }
     str = str + "]";
     return str;
+}
+
+bool Location::LocationEqual(const std::unique_ptr<Location>& location)
+{
+    if (location == nullptr) {
+        return false;
+    }
+    if (this->GetLatitude() == location->GetLatitude() &&
+        this->GetLongitude() == location->GetLongitude() &&
+        this->GetAltitude() == location->GetAltitude() &&
+        this->GetAccuracy() == location->GetAccuracy() &&
+        this->GetSpeed() == location->GetSpeed() &&
+        this->GetDirection() == location->GetDirection() &&
+        this->GetTimeStamp() == location->GetTimeStamp() &&
+        this->GetTimeSinceBoot() == location->GetTimeSinceBoot() &&
+        this->AdditionEqual(location) &&
+        this->GetAdditionSize() == location->GetAdditionSize() &&
+        this->GetIsFromMock() == location->GetIsFromMock()) {
+        return true;
+    }
+    return false;
+}
+
+bool Location::AdditionEqual(const std::unique_ptr<Location>& location)
+{
+    if (location == nullptr) {
+        return false;
+    }
+    std::vector<std::string> additionA = this->GetAdditions();
+    std::vector<std::string> additionB = location->GetAdditions();
+    if (additionA.size() != additionB.size()) {
+        return false;
+    }
+    for (int i = 0; i < additionA.size(); i++) {
+        if (additionA[i].compare(additionB[i]) != 0) {
+            return false;
+        }
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

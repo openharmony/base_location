@@ -107,9 +107,7 @@ void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint32
         return;
     }
     if (!CommonUtils::CheckSystemPermission(tokenId, tokenIdEx)) {
-        location->SetSourceType(0);
-    } else {
-        location->SetSourceType(1);
+        location->SetIsFromMock(-1);
     }
 }
 

@@ -40,7 +40,7 @@ int NetworkCallbackHost::OnRemoteRequest(
             OnLocationReport(location);
             break;
         }
-        case RECEIVE_LOCATION_INFO_EVENT_NEW: {
+        case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             OnLocationReport(location);
             break;

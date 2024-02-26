@@ -152,10 +152,7 @@ HWTEST_F(FusionControllerTest, ChooseBestLocation001, TestSize.Level1)
     parcel.WriteInt64(1000000000);    // timeSinceBoot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
-    parcel.WriteBool(false);          // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     EXPECT_NE(nullptr, fusionController_->chooseBestLocation(nullptr, location));
@@ -191,10 +188,7 @@ HWTEST_F(FusionControllerTest, ChooseBestLocation002, TestSize.Level1)
     parcel.WriteInt64(1000000000);    // timeSinceBoot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
-    parcel.WriteBool(false);          // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(0);          // isFromMock
 
     std::unique_ptr<Location> location_gnss = std::make_unique<Location>();
     location_gnss->ReadFromParcel(parcel);
@@ -232,10 +226,7 @@ HWTEST_F(FusionControllerTest, LocationEqual001, TestSize.Level1)
     parcel.WriteInt64(1000000000);    // timeSinceBoot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
-    parcel.WriteBool(false);          // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(0);          // isFromMock
 
     std::unique_ptr<Location> bestLocation = std::make_unique<Location>();
     std::unique_ptr<Location> fuseLocation = std::make_unique<Location>();
@@ -243,26 +234,26 @@ HWTEST_F(FusionControllerTest, LocationEqual001, TestSize.Level1)
     bestLocation->ReadFromParcel(parcel);
     fuseLocation = std::make_unique<Location>(*bestLocation);
 
-    EXPECT_EQ(true, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(true, bestLocation->LocationEqual(fuseLocation));
 
     bestLocation->SetLatitude(12.1);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetLatitude(12.1);
     bestLocation->SetLongitude(13.1);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetLongitude(13.1);
     bestLocation->SetAltitude(14.1);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetAltitude(14.1);
     bestLocation->SetAccuracy(20.0);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetAccuracy(20.0);
     bestLocation->SetSpeed(10.1);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] LocationEqual001 end");
 }
 
@@ -282,10 +273,7 @@ HWTEST_F(FusionControllerTest, LocationEqual002, TestSize.Level1)
     parcel.WriteInt64(1000000000);    // timeSinceBoot
     parcel.WriteInt64(1);             // additionSize
     parcel.WriteString16(u"additions"); // additions
-    parcel.WriteBool(false);          // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(0);          // isFromMock
 
     std::unique_ptr<Location> bestLocation = std::make_unique<Location>();
     std::unique_ptr<Location> fuseLocation = std::make_unique<Location>();
@@ -293,102 +281,33 @@ HWTEST_F(FusionControllerTest, LocationEqual002, TestSize.Level1)
     bestLocation->ReadFromParcel(parcel);
     fuseLocation = std::make_unique<Location>(*bestLocation);
 
-    EXPECT_EQ(true, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(true, bestLocation->LocationEqual(fuseLocation));
 
     bestLocation->SetDirection(80.0);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetDirection(80.0);
     bestLocation->SetTimeStamp(1000000002);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetTimeStamp(1000000002);
     bestLocation->SetTimeSinceBoot(1000000002);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetTimeSinceBoot(1000000002);
     std::vector<std::string> addition;
     addition.push_back("addition");
     bestLocation->SetAdditions(addition, false);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetAdditions(addition, false);
     bestLocation->SetAdditionSize(2);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
 
     fuseLocation->SetAdditionSize(2);
-    bestLocation->SetIsFromMock(true);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
+    bestLocation->SetIsFromMock(1);
+    EXPECT_EQ(false, bestLocation->LocationEqual(fuseLocation));
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] LocationEqual002 end");
-}
-
-HWTEST_F(FusionControllerTest, LocationEqual003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "FusionControllerTest, LocationEqual003, TestSize.Level1";
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] LocationEqual003 begin");
-    MessageParcel parcel;
-    parcel.WriteDouble(12.0);         // latitude
-    parcel.WriteDouble(13.0);         // longitude
-    parcel.WriteDouble(14.0);         // altitude
-    parcel.WriteDouble(1000.0);       // accuracy
-    parcel.WriteDouble(10.0);         // speed
-    parcel.WriteDouble(90.0);         // direction
-    parcel.WriteInt64(1000000000);    // timeStamp
-    parcel.WriteInt64(1000000000);    // timeSinceBoot
-    parcel.WriteString16(u"additions"); // additions
-    parcel.WriteInt64(1);             // additionSize
-    parcel.WriteBool(false);          // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
-
-    std::unique_ptr<Location> bestLocation = std::make_unique<Location>();
-    std::unique_ptr<Location> fuseLocation = std::make_unique<Location>();
-    EXPECT_NE(nullptr, fusionController_->GetFuseLocation(GNSS_ABILITY, bestLocation));
-    bestLocation->ReadFromParcel(parcel);
-    fuseLocation = std::make_unique<Location>(*bestLocation);
-
-    EXPECT_EQ(true, fusionController_->LocationEqual(bestLocation, fuseLocation));
-
-    bestLocation->SetSourceType(2);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
-
-    fuseLocation->SetSourceType(2);
-    bestLocation->SetFloorNo(1);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] LocationEqual003 end");
-}
-
-HWTEST_F(FusionControllerTest, LocationEqual004, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "FusionControllerTest, LocationEqual004, TestSize.Level1";
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] LocationEqual004 begin");
-    MessageParcel parcel;
-    parcel.WriteDouble(12.0);         // latitude
-    parcel.WriteDouble(13.0);         // longitude
-    parcel.WriteDouble(14.0);         // altitude
-    parcel.WriteDouble(1000.0);       // accuracy
-    parcel.WriteDouble(10.0);         // speed
-    parcel.WriteDouble(90.0);         // direction
-    parcel.WriteInt64(1000000000);    // timeStamp
-    parcel.WriteInt64(1000000000);    // timeSinceBoot
-    parcel.WriteString16(u"additions"); // additions
-    parcel.WriteInt64(1);             // additionSize
-    parcel.WriteBool(false);          // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
-
-    std::unique_ptr<Location> bestLocation = std::make_unique<Location>();
-    std::unique_ptr<Location> fuseLocation = std::make_unique<Location>();
-    EXPECT_NE(nullptr, fusionController_->GetFuseLocation(GNSS_ABILITY, bestLocation));
-    bestLocation->ReadFromParcel(parcel);
-    fuseLocation = std::make_unique<Location>(*bestLocation);
-    bestLocation->SetFloorAccuracy(500.0);
-    EXPECT_EQ(false, fusionController_->LocationEqual(bestLocation, fuseLocation));
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] LocationEqual004 end");
 }
 } // namespace Location
 } // namespace OHOS

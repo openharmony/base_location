@@ -132,24 +132,14 @@ public:
         additionSize_ = size;
     }
 
-    inline bool GetIsFromMock() const
+    inline int GetIsFromMock() const
     {
         return isFromMock_;
     }
 
-    inline void SetIsFromMock(bool fromMock)
+    inline void SetIsFromMock(int fromMock)
     {
         isFromMock_ = fromMock;
-    }
-
-    inline int32_t GetSourceType() const
-    {
-        return sourceType_;
-    }
-
-    inline void SetSourceType(int32_t sourceType)
-    {
-        sourceType_ = sourceType;
     }
 
     inline int32_t GetFloorNo() const
@@ -181,6 +171,8 @@ public:
     static std::shared_ptr<Location> UnmarshallingShared(Parcel& parcel);
     static std::unique_ptr<Location> UnmarshallingV9(Parcel& parcel);
     static std::shared_ptr<Location> UnmarshallingSharedV9(Parcel& parcel);
+    bool LocationEqual(const std::unique_ptr<Location>& location);
+    bool AdditionEqual(const std::unique_ptr<Location>& location);
 private:
     double latitude_;
     double longitude_;
@@ -190,8 +182,7 @@ private:
     double direction_;
     int64_t timeStamp_;
     int64_t timeSinceBoot_;
-    bool isFromMock_;
-    int32_t sourceType_;
+    int isFromMock_;
     int32_t floorNo_;
     double floorAccuracy_;
     std::vector<std::string> additions_;

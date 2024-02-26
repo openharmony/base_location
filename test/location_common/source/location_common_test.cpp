@@ -175,8 +175,7 @@ void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
     EXPECT_EQ(VERIFY_LOCATION_TIMESINCEBOOT, newParcel.ReadInt64()); // timeSinceBoot
     EXPECT_EQ(1, newParcel.ReadInt64()); // additionSize
     EXPECT_EQ("additions", Str16ToStr8(newParcel.ReadString16())); // additions
-    EXPECT_EQ(true, newParcel.ReadBool()); // isFromMock
-    EXPECT_EQ(1, newParcel.ReadInt32()); // sourceType
+    EXPECT_EQ(1, newParcel.ReadInt32()); // isFromMock
 }
 
 /*
@@ -241,8 +240,7 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     parcel.WriteInt64(VERIFY_LOCATION_TIMESINCEBOOT); // timeSinceBoot
     parcel.WriteInt64(1); // additionSize
     parcel.WriteString16(u"additions"); // additions
-    parcel.WriteBool(true); // isFromMock
-    parcel.WriteInt32(1); // source type
+    parcel.WriteInt32(1); // isFromMock
     location->ReadFromParcel(parcel);
     EXPECT_EQ(VERIFY_LOCATION_LATITUDE, location->GetLatitude());
     EXPECT_EQ(VERIFY_LOCATION_LONGITUDE, location->GetLongitude());
@@ -256,8 +254,7 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     if (location->GetAdditions().size() == 1) {
         EXPECT_EQ("additions", location->GetAdditions()[0]);
     }
-    EXPECT_EQ(true, location->GetIsFromMock());
-    EXPECT_EQ(1, location->GetSourceType());
+    EXPECT_EQ(1, location->GetIsFromMock());
 
     MessageParcel newParcel;
     location->Marshalling(newParcel);
@@ -692,8 +689,7 @@ HWTEST_F(LocationCommonTest, LocationTest002, TestSize.Level1)
     additions.push_back("additions");
     location->SetAdditions(additions, false);
     location->SetAdditionSize(1);
-    location->SetIsFromMock(true);
-    location->SetSourceType(1);
+    location->SetIsFromMock(1);
     location->ToString();
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest002 end");
 }

@@ -213,10 +213,7 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent001, TestSize.Lev
     parcel.WriteInt64(1611000000); // time since boot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(true); // isFromMock is true
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(1); // isFromMock is true
     locations.push_back(Location::UnmarshallingShared(parcel));
     EXPECT_EQ(ERRCODE_SUCCESS, ability_->EnableMock());
     EXPECT_EQ(ERRCODE_SUCCESS, ability_->SetMocked(timeInterval, locations));
@@ -244,10 +241,7 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent002, TestSize.Lev
     parcel.WriteInt64(1611000000); // time since boot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(false); // isFromMock is true
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(1); // isFromMock is true
     locations.push_back(Location::UnmarshallingShared(parcel));
     EXPECT_EQ(ERRCODE_SUCCESS, ability_->EnableMock());
     EXPECT_EQ(ERRCODE_SUCCESS, ability_->SetMocked(timeInterval, locations));

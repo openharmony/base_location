@@ -82,7 +82,7 @@ void SatelliteStatusToJs(const napi_env& env,
     }
 }
 
-void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result)
+void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Location>>& locations, napi_value& result)
 {
     if (locations.size() > 0) {
         for (unsigned int index = 0; index < locations.size(); index++) {
@@ -117,8 +117,9 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
         NAPI_CALL_RETURN_VOID(env, napi_set_element(env, additionArray, index, value));
     }
     SetValueStringArray(env, "additions", additionArray, result);
-    if (locationInfo->GetSourceType() != 0) {
-        SetValueBool(env, "isFromMock", locationInfo->GetIsFromMock(), result);
+    int isFromMock = locationInfo->GetIsFromMock();
+    if (isFromMock != -1) {
+        SetValueBool(env, "isFromMock", (locationInfo->GetIsFromMock() == 1), result);
     }
 }
 
@@ -610,7 +611,7 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         locationAdapter->SetAdditionSize(static_cast<int64_t>(additionSize));
         bool isFromMock = false;
         JsObjectToBool(env, elementValue, "isFromMock", isFromMock);
-        locationAdapter->SetIsFromMock(isFromMock);
+        locationAdapter->SetIsFromMock(isFromMock ? 1 : 0);
         std::vector<std::string> additions;
         GetStringArrayValueByKey(env, elementValue, "additions", additions);
         locationAdapter->SetAdditions(additions, false);

@@ -123,7 +123,8 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityN
         networkLocation_ = std::make_unique<Location>(*location);
     }
     auto bestLocation = chooseBestLocation(gnssLocation_, networkLocation_);
-    if (LocationEqual(bestLocation, fuseLocation_)) {
+    if (bestLocation != nullptr &&
+        bestLocation->LocationEqual(fuseLocation_)) {
         return nullptr;
     }
     if (bestLocation != nullptr) {
@@ -134,48 +135,6 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityN
     } else {
         return std::make_unique<Location>(*fuseLocation_);
     }
-}
-
-bool FusionController::LocationEqual(const std::unique_ptr<Location>& bestLocation,
-    const std::unique_ptr<Location>& fuseLocation)
-{
-    if (fuseLocation_ == nullptr || bestLocation == nullptr) {
-        LBSLOGE(FUSION_CONTROLLER, "fuseLocation_ or fuseLocation is nullptr");
-        return false;
-    }
-    if (bestLocation->GetLatitude() == fuseLocation->GetLatitude() &&
-        bestLocation->GetLongitude() == fuseLocation->GetLongitude() &&
-        bestLocation->GetAltitude() == fuseLocation->GetAltitude() &&
-        bestLocation->GetAccuracy() == fuseLocation->GetAccuracy() &&
-        bestLocation->GetSpeed() == fuseLocation->GetSpeed() &&
-        bestLocation->GetDirection() == fuseLocation->GetDirection() &&
-        bestLocation->GetTimeStamp() == fuseLocation->GetTimeStamp() &&
-        bestLocation->GetTimeSinceBoot() == fuseLocation->GetTimeSinceBoot() &&
-        AdditionEqual(bestLocation, fuseLocation) &&
-        bestLocation->GetAdditionSize() == fuseLocation->GetAdditionSize() &&
-        bestLocation->GetIsFromMock() == fuseLocation->GetIsFromMock() &&
-        bestLocation->GetSourceType() == fuseLocation->GetSourceType() &&
-        bestLocation->GetFloorNo() == fuseLocation->GetFloorNo() &&
-        bestLocation->GetFloorAccuracy() == fuseLocation->GetFloorAccuracy()) {
-        return true;
-    }
-    return false;
-}
-
-bool FusionController::AdditionEqual(const std::unique_ptr<Location>& bestLocation,
-    const std::unique_ptr<Location>& fuseLocation)
-{
-    std::vector<std::string> bestAdditions = bestLocation->GetAdditions();
-    std::vector<std::string> fuseAdditions = fuseLocation->GetAdditions();
-    if (bestAdditions.size() != fuseAdditions.size()) {
-        return false;
-    }
-    for (int i = 0; i < bestAdditions.size(); i++) {
-        if (bestAdditions[i].compare(fuseAdditions[i]) != 0) {
-            return false;
-        }
-    }
-    return true;
 }
 } // namespace Location
 } // namespace OHOS

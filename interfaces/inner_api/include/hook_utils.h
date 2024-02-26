@@ -33,7 +33,7 @@ enum class LocationProcessStage {
     LOCATOR_SA_LOCATION_REPORT_PROCESS,
 };
 
-typedef struct LocationSupplicantInfo {
+typedef struct {
     Location location;
     Request request;
     std::string abilityName;

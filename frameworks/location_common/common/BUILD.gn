@@ -27,6 +27,7 @@ ohos_shared_library("lbsservice_common") {
     "$LOCATION_COMMON_DIR/source/location_data_rdb_helper.cpp",
     "$LOCATION_COMMON_DIR/source/location_dumper.cpp",
     "$LOCATION_COMMON_DIR/source/location_sa_load_manager.cpp",
+    "$LOCATION_COMMON_DIR/source/request.cpp",
     "$LOCATION_COMMON_DIR/source/request_config.cpp",
     "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
   ]
