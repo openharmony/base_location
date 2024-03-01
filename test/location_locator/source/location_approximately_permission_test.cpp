@@ -64,7 +64,7 @@ void LocationApproximatelyPermissionTest::MockNativePermission()
 
 HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocationTest001, TestSize.Level1)
 {
-    EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(0, tokenId_, 0, nullptr));
+    EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(0, tokenId_, 0, 0, nullptr));
     MessageParcel parcel;
     parcel.WriteDouble(MAX_LATITUDE + 1.0);  // latitude is out of range
     parcel.WriteDouble(MAX_LONGITUDE + 1.0);  // longitude is out of range
@@ -79,7 +79,7 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    auto newLocation = reportManager_->GetPermittedLocation(0, tokenId_, 0, location);
+    auto newLocation = reportManager_->GetPermittedLocation(0, tokenId_, 0, 0, location);
     EXPECT_NE(nullptr, newLocation);
     EXPECT_EQ(MAX_LATITUDE, newLocation->GetLatitude());
     EXPECT_EQ(MAX_LONGITUDE, newLocation->GetLongitude());
@@ -88,7 +88,7 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
 
 HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocationTest002, TestSize.Level1)
 {
-    EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(0, tokenId_, 0, nullptr));
+    EXPECT_EQ(nullptr, reportManager_->GetPermittedLocation(0, tokenId_, 0, 0, nullptr));
     MessageParcel parcel;
     parcel.WriteDouble(-MAX_LATITUDE - 1.0);  // latitude
     parcel.WriteDouble(-MAX_LONGITUDE - 1.0);  // longitude
@@ -103,7 +103,7 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    auto newLocation = reportManager_->GetPermittedLocation(0, tokenId_, 0, location);
+    auto newLocation = reportManager_->GetPermittedLocation(0, tokenId_, 0, 0, location);
     EXPECT_NE(nullptr, newLocation);
     EXPECT_EQ(-MAX_LATITUDE, newLocation->GetLatitude());
     EXPECT_EQ(-MAX_LONGITUDE, newLocation->GetLongitude());

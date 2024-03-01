@@ -114,6 +114,11 @@ ohos_shared_library("lbsservice_locator") {
     defines += [ "EMULATOR_ENABLED" ]
   }
 
+  if (ability_form_fwk_enable) {
+    external_deps += [ "form_fwk:fmskit_native" ]
+    defines += [ "FMSKIT_NATIVE_SUPPORT" ]
+  }
+
   part_name = "location"
   subsystem_name = "location"
 }

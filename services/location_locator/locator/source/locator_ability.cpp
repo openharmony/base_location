@@ -926,7 +926,7 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     PrivacyKit::StartUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
     auto lastLocation = reportManager_->GetLastLocation();
     loc = reportManager_->GetPermittedLocation(identity.GetUid(), identity.GetTokenId(),
-        identity.GetFirstTokenId(), lastLocation);
+        identity.GetFirstTokenId(), identity.GetTokenIdEx(), lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     if (loc == nullptr) {
         PrivacyKit::AddPermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
