@@ -19,6 +19,7 @@
 #include <singleton.h>
 #include <string>
 #include <time.h>
+#include <map>
 
 #include "i_locator_callback.h"
 #include "location.h"
@@ -51,9 +52,12 @@ private:
     Location cacheNlpLocation_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
-        std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location);
+        std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
+        const std::unique_ptr<Location>& location, std::string abilityName);
     void WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request,
         const std::unique_ptr<Location>& location);
+    std::unique_ptr<Location> ExecuteReportProcess(std::shared_ptr<Request>& request,
+        std::unique_ptr<Location>& location, std::string abilityName);
 };
 } // namespace OHOS
 } // namespace Location
