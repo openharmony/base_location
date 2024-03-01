@@ -71,10 +71,7 @@ HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
     parcel.WriteInt64(1000000000); // timeSinceBoot
     parcel.WriteString("additions"); // additions
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(true); // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(1); // isFromMock
     EXPECT_NE(nullptr, location);
     location->ReadFromParcel(parcel);
     locations.emplace_back(std::move(location));

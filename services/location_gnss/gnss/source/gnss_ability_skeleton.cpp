@@ -261,8 +261,9 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     AppIdentity identity;
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
-    LBSLOGI(GNSS, "%{public}s cmd = %{public}u, flags= %{public}d, identity = %{public}s, timestamp = %{public}lld",
-        __func__, code, option.GetFlags(), identity.ToString().c_str(), CommonUtils::GetCurrentTimeStamp());
+    std::string currentTime = std::to_string(CommonUtils::GetCurrentTimeStamp());
+    LBSLOGI(GNSS, "%{public}s cmd = %{public}u, flags= %{public}d, identity = %{public}s, timestamp = %{public}s",
+        __func__, code, option.GetFlags(), identity.ToString().c_str(), currentTime.c_str());
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");

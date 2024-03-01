@@ -29,6 +29,7 @@ namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
 static constexpr int MIN_WIFI_SCAN_TIME = 3000;
+const uint32_t MAX_ADDITION_SIZE = 100;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -81,24 +82,12 @@ void SatelliteStatusToJs(const napi_env& env,
     }
 }
 
-void LocationsToJs(const napi_env& env, const std::vector<std::shared_ptr<Location>>& locations, napi_value& result)
+void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Location>>& locations, napi_value& result)
 {
     if (locations.size() > 0) {
         for (unsigned int index = 0; index < locations.size(); index++) {
             napi_value value;
-            SetValueDouble(env, "latitude", locations[index]->GetLatitude(), value);
-            SetValueDouble(env, "longitude", locations[index]->GetLongitude(), value);
-            SetValueDouble(env, "altitude", locations[index]->GetAltitude(), value);
-            SetValueDouble(env, "accuracy", locations[index]->GetAccuracy(), value);
-            SetValueDouble(env, "speed", locations[index]->GetSpeed(), value);
-            SetValueInt64(env, "timeStamp", locations[index]->GetTimeStamp(), value);
-            SetValueDouble(env, "direction", locations[index]->GetDirection(), value);
-            SetValueInt64(env, "timeSinceBoot", locations[index]->GetTimeSinceBoot(), value);
-            SetValueUtf8String(env, "additions", locations[index]->GetAdditions().c_str(), value);
-            SetValueInt64(env, "additionSize", locations[index]->GetAdditionSize(), value);
-            if (locations[index]->GetSourceType() != 0) {
-                SetValueBool(env, "isFromMock", locations[index]->GetIsFromMock(), value);
-            }
+            LocationToJs(env, locations[index], value);
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, value));
         }
     }
@@ -114,10 +103,23 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt64(env, "timeStamp", locationInfo->GetTimeStamp(), result);
     SetValueDouble(env, "direction", locationInfo->GetDirection(), result);
     SetValueInt64(env, "timeSinceBoot", locationInfo->GetTimeSinceBoot(), result);
-    SetValueUtf8String(env, "additions", locationInfo->GetAdditions().c_str(), result);
-    SetValueInt64(env, "additionSize", locationInfo->GetAdditionSize(), result);
-    if (locationInfo->GetSourceType() != 0) {
-        SetValueBool(env, "isFromMock", locationInfo->GetIsFromMock(), result);
+    napi_value additionArray;
+    uint32_t additionSize = static_cast<uint32_t>(locationInfo->GetAdditionSize());
+    additionSize = additionSize > MAX_ADDITION_SIZE ? MAX_ADDITION_SIZE : additionSize;
+    std::vector<std::string> additions = locationInfo->GetAdditions();
+    SetValueInt64(env, "additionSize", additionSize, result);
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_array_with_length(env, additionSize, &additionArray));
+    for (uint32_t index = 0; index < additionSize; index++) {
+        napi_value value;
+        NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, additions[index].c_str(),
+            NAPI_AUTO_LENGTH, &value));
+        NAPI_CALL_RETURN_VOID(env, napi_set_element(env, additionArray, index, value));
+    }
+    SetValueStringArray(env, "additions", additionArray, result);
+    int isFromMock = locationInfo->GetIsFromMock();
+    if (isFromMock != -1) {
+        SetValueBool(env, "isFromMock", (locationInfo->GetIsFromMock() == 1), result);
     }
 }
 
@@ -604,16 +606,15 @@ void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContex
         int64_t timeSinceBoot = 0;
         JsObjectToInt64(env, elementValue, "timeSinceBoot", timeSinceBoot);
         locationAdapter->SetTimeSinceBoot(timeSinceBoot);
-        std::string additions = " ";
-        int buffLen = 100;
-        JsObjectToString(env, elementValue, "additions", buffLen, additions);
-        locationAdapter->SetAdditions(additions);
         int32_t additionSize = 0;
         JsObjectToInt(env, elementValue, "additionSize", additionSize);
         locationAdapter->SetAdditionSize(static_cast<int64_t>(additionSize));
         bool isFromMock = false;
         JsObjectToBool(env, elementValue, "isFromMock", isFromMock);
-        locationAdapter->SetIsFromMock(isFromMock);
+        locationAdapter->SetIsFromMock(isFromMock ? 1 : 0);
+        std::vector<std::string> additions;
+        GetStringArrayValueByKey(env, elementValue, "additions", additions);
+        locationAdapter->SetAdditions(additions, false);
         asyncContext->LocationNapi.push_back(locationAdapter);
     }
 }

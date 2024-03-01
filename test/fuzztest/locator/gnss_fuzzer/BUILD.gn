@@ -51,6 +51,7 @@ if (location_feature_with_gnss) {
       "eventhandler:libeventhandler",
       "hilog:libhilog",
       "hisysevent:libhisysevent",
+      "init:libbegetutil",
       "ipc:ipc_core",
       "samgr:samgr_proxy",
     ]

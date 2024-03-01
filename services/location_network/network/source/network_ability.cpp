@@ -383,7 +383,7 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
 {
     if ((IsLocationMocked() && !location->GetIsFromMock()) ||
         (!IsLocationMocked() && location->GetIsFromMock())) {
-        LBSLOGE(NETWORK, "location mock is enabled, do not report gnss location!");
+        LBSLOGE(NETWORK, "location mock is enabled, do not report network location!");
         return ERR_OK;
     }
     ReportLocationInfo(NETWORK_ABILITY, location);
