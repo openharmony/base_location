@@ -175,6 +175,8 @@ void LocatorBleCallbackWapper::OnScanCallback(const Bluetooth::BleScanResult &re
     dataManager->ReportData(res);
 }
 
+void LocatorBleCallbackWapper::OnFoundOrLostCallback(const Bluetooth::BleScanResult &result, uint8_t callbackType) {}
+
 void LocatorBleCallbackWapper::OnBleBatchScanResultsEvent(const std::vector<Bluetooth::BleScanResult> &results) {}
 
 void LocatorBleCallbackWapper::OnStartOrStopScanEvent(int32_t resultCode, bool isStartScan) {}

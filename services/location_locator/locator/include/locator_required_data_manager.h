@@ -64,6 +64,16 @@ public:
      * @since 6
      */
     void OnScanCallback(const Bluetooth::BleScanResult &result) override;
+
+    /**
+     * @brief Scan result for found or lost callback type.
+     *
+     * @param result Scan result.
+     * @param callbackType callback Type.
+     * @since 12
+     */
+    void OnFoundOrLostCallback(const Bluetooth::BleScanResult &result, uint8_t callbackType) override;
+
     /**
      * @brief Batch scan results event callback.
      *
