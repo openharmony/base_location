@@ -143,7 +143,8 @@ void LocatorBluetoothHost::OnStateChanged(const int transport, const int status)
 
 void LocatorBluetoothHost::OnDiscoveryStateChanged(int status) {}
 
-void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDevice &device)
+void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDevice &device, int rssi,
+    const std::string deviceName, int deviceClass)
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByBtHost(device);
     auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
