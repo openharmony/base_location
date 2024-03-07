@@ -14,7 +14,14 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
+config("location_common_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "$LOCATION_ROOT_DIR/interfaces/inner_api/include" ]
+}
+
 ohos_shared_library("lbsservice_common") {
+  public_configs = [ ":location_common_config" ]
+
   sources = [
     "$LOCATION_COMMON_DIR/source/app_identity.cpp",
     "$LOCATION_COMMON_DIR/source/common_hisysevent.cpp",
@@ -30,17 +37,6 @@ ohos_shared_library("lbsservice_common") {
     "$LOCATION_COMMON_DIR/source/request.cpp",
     "$LOCATION_COMMON_DIR/source/request_config.cpp",
     "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
-  ]
-
-  include_dirs = [
-    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
-    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
-    "$SUBSYSTEM_DIR/location_gnss/gnss/include",
-    "$SUBSYSTEM_DIR/location_locator/callback/include",
-    "$SUBSYSTEM_DIR/location_locator/distribute/include",
-    "$SUBSYSTEM_DIR/location_locator/locator/include",
-    "$SUBSYSTEM_DIR/location_network/network/include",
-    "$SUBSYSTEM_DIR/location_passive/passive/include",
   ]
 
   deps = []

@@ -46,7 +46,7 @@ namespace OHOS {
 namespace Location {
 namespace {
 constexpr uint32_t WAIT_MS = 200;
-const uint32_t EVENT_REPORT_LOCATION = 0x0100;
+const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
 const uint32_t RECONNECT_HDI = 0x0103;
 const uint32_t INIT_HDI = 0x0104;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
@@ -573,7 +573,7 @@ void GnssAbility::StartGnss()
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StartGnss", "hdiType", "gnss"});
     }
     LocationErrCode errCode =
-        HookUtils::ExecuteHook(LocationProcessStage::GNSS_SA_REQUEST_PROCESS, nullptr, nullptr);
+        HookUtils::ExecuteHook(LocationProcessStage::START_GNSS_PROCESS, nullptr, nullptr);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
@@ -596,6 +596,11 @@ void GnssAbility::StopGnss()
         WriteLocationInnerEvent(STOP_GNSS, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StopGnss", "hdiType", "gnss"});
+    }
+    LocationErrCode errCode =
+        HookUtils::ExecuteHook(LocationProcessStage::STOP_GNSS_PROCESS, nullptr, nullptr);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
 }
 
@@ -788,6 +793,9 @@ LocationErrCode GnssAbility::EnableMock()
     if (!EnableLocationMock()) {
         return ERRCODE_NOT_SUPPORTED;
     }
+    MockLocationStruct mockLocationStruct;
+    mockLocationStruct.enableMock = true;
+    HookUtils::ExecuteHook(LocationProcessStage::MOCK_LOCATION_PROCESS, (void *)&mockLocationStruct, nullptr);
     return ERRCODE_SUCCESS;
 }
 
@@ -796,6 +804,9 @@ LocationErrCode GnssAbility::DisableMock()
     if (!DisableLocationMock()) {
         return ERRCODE_NOT_SUPPORTED;
     }
+    MockLocationStruct mockLocationStruct;
+    mockLocationStruct.enableMock = false;
+    HookUtils::ExecuteHook(LocationProcessStage::MOCK_LOCATION_PROCESS, (void *)&mockLocationStruct, nullptr);
     return ERRCODE_SUCCESS;
 }
 
@@ -825,7 +836,7 @@ void GnssAbility::ProcessReportLocationMock()
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
         if (gnssHandler_ != nullptr) {
-            gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+            gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION,
                 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
         }
     } else {
@@ -837,7 +848,7 @@ void GnssAbility::ProcessReportLocationMock()
 void GnssAbility::SendReportMockLocationEvent()
 {
     if (gnssHandler_ != nullptr) {
-        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
+        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION, 0, 0);
     }
 }
 
@@ -946,7 +957,7 @@ void GnssHandler::InitGnssEventProcessMap()
     if (gnssEventProcessMap_.size() != 0) {
         return;
     }
-    gnssEventProcessMap_[EVENT_REPORT_LOCATION] = &GnssHandler::HandleEventReportLocation;
+    gnssEventProcessMap_[EVENT_REPORT_MOCK_LOCATION] = &GnssHandler::HandleReportMockLocation;
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST)] =
         &GnssHandler::HandleSendLocationRequest;
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
@@ -981,7 +992,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     gnssAbility->UnloadGnssSystemAbility();
 }
 
-void GnssHandler::HandleEventReportLocation(const AppExecFwk::InnerEvent::Pointer& event)
+void GnssHandler::HandleReportMockLocation(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
     if (gnssAbility == nullptr) {
