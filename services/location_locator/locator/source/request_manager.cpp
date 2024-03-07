@@ -380,11 +380,12 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
  */
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
+    int32_t requestUid = request->GetUid();
     std::set<int32_t> proxyUids = DelayedSingleton<LocatorAbility>::GetInstance()->GetProxyUid();
     for (auto iter = proxyUids.begin(); iter != proxyUids.end(); iter++) {
         int32_t uid = *iter;
         // for frozen app, do not add to workRecord
-        if (uid == request->GetUid()) {
+        if (uid == requestUid) {
             LBSLOGD(LOCATOR, "%{public}d is freezed.", uid);
             return false;
         }
@@ -394,6 +395,17 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
             fabs(curTime - request->GetRequestConfig()->GetTimeStamp()) >
             (request->GetRequestConfig()->GetTimeOut() / SEC_TO_MILLI_SEC)) {
             LBSLOGE(LOCATOR, "%{public}d has timed out.", request->GetUid());
+            return false;
+        }
+    }
+    std::string bundleName = "";
+    if (!CommonUtils::GetBundleNameByUid(requestUid, bundleName)) {
+        LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", requestUid);
+    }
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(bundleName, request->GetTokenId(),
+            request->GetTokenIdEx(), requestUid)) {
             return false;
         }
     }

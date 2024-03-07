@@ -39,6 +39,7 @@ namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
+std::mutex g_locationWorkingState;
 
 bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
@@ -395,7 +396,7 @@ bool CommonUtils::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
+        LBSLOGE(COMMON_UTILS, "%{public}s: get system ability manager failed!", __func__);
         return false;
     }
     return (samgr->CheckSystemAbility(systemAbilityId) != nullptr);
@@ -408,7 +409,7 @@ int CommonUtils::QuerySwitchState()
     LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
+        LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
     }
     return state;
 }
@@ -480,7 +481,7 @@ bool CommonUtils::GetStringParameter(const std::string& type, std::string& value
     char result[MAX_BUFF_SIZE] = {0};
     auto res = GetParameter(type.c_str(), "", result, MAX_BUFF_SIZE);
     if (res <= 0) {
-        LBSLOGE(LOCATOR, "%{public}s get para value failed, res: %{public}d",
+        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d",
             __func__, res);
         return false;
     }
@@ -496,12 +497,32 @@ bool CommonUtils::GetEdmPolicy(std::string& name)
 bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
 {
     if (CommonUtils::CheckIfSystemAbilityAvailable(systemAbilityId)) {
-        LBSLOGD(LOCATOR, "sa has been loaded");
+        LBSLOGD(COMMON_UTILS, "sa has been loaded");
         return true;
     }
     auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
     if (instance == nullptr || instance->LoadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "sa load failed.");
+        LBSLOGE(COMMON_UTILS, "sa load failed.");
+        return false;
+    }
+    return true;
+}
+
+bool CommonUtils::SetLocationWorkingState(int32_t state)
+{
+    std::unique_lock<std::mutex> lock(g_locationWorkingState);
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_" +
+        std::to_string(userId) +
+        "?Proxy=true&key=location_working_state";
+    Uri locationWorkingStateUri(uri);
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        SetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: can not set value to db, errcode = %{public}d", __func__, errCode);
         return false;
     }
     return true;

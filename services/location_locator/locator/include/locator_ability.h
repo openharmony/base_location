@@ -53,6 +53,7 @@ private:
     void RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UpdateLastLocationRequestNum(const AppExecFwk::InnerEvent::Pointer& event);
     void UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);

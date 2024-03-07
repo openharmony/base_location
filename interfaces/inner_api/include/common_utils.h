@@ -50,6 +50,7 @@ const std::string LOCATION_DATA_URI = LOCATION_DATA_ABILITY_PREFIX + LOCATION_DA
 const std::string LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
 const std::string LOCATION_DATA_COLUMN_VALUE = "VALUE";
 const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
+const std::string LOCATION_WORKING_STATE = "location_working_state";
 const std::string NLP_SERVICE_NAME = "const.location.nlp_service_name";
 const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
 const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
@@ -117,6 +118,7 @@ static constexpr int MAXIMUM_CACHE_LOCATIONS = 1000;
 static constexpr int MAXIMUM_LOCATING_REQUIRED_DATAS = 200;
 static constexpr int MAC_LEN = 6;
 static constexpr int DEFAULT_CODE = 0;
+static constexpr int DEFAULT_USERID = 100;
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
@@ -199,6 +201,7 @@ public:
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
     static bool InitLocationSa(int32_t systemAbilityId);
+    static bool SetLocationWorkingState(int32_t state);
 };
 
 class CountDownLatch {

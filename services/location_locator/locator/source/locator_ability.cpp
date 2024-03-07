@@ -46,6 +46,7 @@
 #include "passive_ability_proxy.h"
 #endif
 #include "permission_status_change_cb.h"
+#include "work_record_statistic.h"
 
 namespace OHOS {
 namespace Location {
@@ -60,6 +61,7 @@ const uint32_t EVENT_REPORT_LOCATION_MESSAGE = 0x0005;
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
 const uint32_t EVENT_START_LOCATING = 0x0007;
 const uint32_t EVENT_STOP_LOCATING = 0x0008;
+const uint32_t EVENT_UPDATE_LASTLOCATION_REQUESTNUM = 0x0009;
 const uint32_t EVENT_UNLOAD_SA = 0x0010;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
@@ -101,6 +103,9 @@ void LocatorAbility::OnStart()
     }
     state_ = ServiceRunningState::STATE_RUNNING;
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
+    if (!CommonUtils::SetLocationWorkingState(0)) {
+        LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
+    }
     LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
 }
 
@@ -108,24 +113,17 @@ void LocatorAbility::OnStop()
 {
     state_ = ServiceRunningState::STATE_NOT_START;
     registerToAbility_ = false;
+    if (!CommonUtils::SetLocationWorkingState(0)) {
+        LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
+    }
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
 }
 
 void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
-    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
-        LBSLOGE(LOCATOR, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
-        return;
+    if (systemAbilityId == COMMON_EVENT_SERVICE_ID) {
+        RegisterAction();
     }
-    if (locatorEventSubscriber_ == nullptr) {
-        LBSLOGE(LOCATOR, "OnAddSystemAbility subscribeer is nullptr");
-        return;
-    }
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
-    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locatorEventSubscriber_);
-    LBSLOGI(LOCATOR, "SubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
 }
 
 void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
@@ -161,7 +159,6 @@ bool LocatorAbility::Init()
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
     }
-    RegisterAction();
     registerToAbility_ = true;
     return registerToAbility_;
 }
@@ -880,11 +877,19 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
     if (IsCacheVaildScenario(request->GetRequestConfig())) {
         auto cacheLocation = reportManager_->GetCacheLocation(request);
         if (cacheLocation != nullptr && callback != nullptr) {
+            auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+            if (workRecordStatistic->Update("CacheLocation", 1)) {
+                LBSLOGD(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
+            }
             PrivacyKit::StartUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
             callback->OnLocationReport(cacheLocation);
             // add location permission using record
             PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
             PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
+            if (locatorHandler_ != nullptr &&
+                locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
+                LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
+            }
             return true;
         }
     }
@@ -924,7 +929,15 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity)
 {
     PrivacyKit::StartUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    if (workRecordStatistic->Update("CacheLocation", 1)) {
+        LBSLOGD(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
+    }
     auto lastLocation = reportManager_->GetLastLocation();
+    if (locatorHandler_ != nullptr &&
+        locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
+    }
     loc = reportManager_->GetPermittedLocation(identity.GetUid(), identity.GetTokenId(),
         identity.GetFirstTokenId(), identity.GetTokenIdEx(), lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
@@ -1328,6 +1341,7 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     locatorHandlerEventMap_[EVENT_SEND_SWITCHSTATE_TO_HIFENCE] = &LocatorHandler::SendSwitchStateToHifenceEvent;
     locatorHandlerEventMap_[EVENT_START_LOCATING] = &LocatorHandler::StartLocatingEvent;
     locatorHandlerEventMap_[EVENT_STOP_LOCATING] = &LocatorHandler::StopLocatingEvent;
+    locatorHandlerEventMap_[EVENT_UPDATE_LASTLOCATION_REQUESTNUM] = &LocatorHandler::UpdateLastLocationRequestNum;
     locatorHandlerEventMap_[EVENT_UNLOAD_SA] = &LocatorHandler::UnloadSaEvent;
 }
 
@@ -1428,6 +1442,14 @@ void LocatorHandler::StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& ev
     }
     if (requestManager != nullptr) {
         requestManager->HandleStopLocating(callbackMessage->GetCallback());
+    }
+}
+
+void LocatorHandler::UpdateLastLocationRequestNum(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    if (workRecordStatistic->Update("CacheLocation", -1)) {
+        LBSLOGD(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
     }
 }
 

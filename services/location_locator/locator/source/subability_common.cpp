@@ -23,6 +23,8 @@
 #include "common_utils.h"
 #include "locationhub_ipc_interface_code.h"
 
+#include "work_record_statistic.h"
+
 namespace OHOS {
 namespace Location {
 SubAbility::SubAbility()
@@ -76,6 +78,10 @@ void SubAbility::HandleRefrashRequirements()
     HandleLocalRequest(*newRecord_);
     lastRecord_->Clear();
     lastRecord_->Set(*newRecord_);
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    if (!workRecordStatistic->Update(name_, GetRequestNum())) {
+        LBSLOGI(label_, "workRecordStatistic::Update failed");
+    }
 }
 
 int SubAbility::GetRequestNum()
