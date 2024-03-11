@@ -565,7 +565,7 @@ bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
     return false;
 }
 
-bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint32_t tokenIdEx)
+bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
 {
     bool ret = false;
     if (!CommonUtils::CheckSystemPermission(tokenId, tokenIdEx)) {

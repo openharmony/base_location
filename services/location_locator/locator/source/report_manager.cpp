@@ -163,7 +163,7 @@ std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Re
 }
 
 std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
-    uint32_t tokenIdEx, const std::unique_ptr<Location>& location)
+    uint64_t tokenIdEx, const std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {
         return nullptr;
@@ -385,7 +385,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
     }
 }
 
-bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint32_t tokenIdEx, int32_t uid)
+bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
     if (locatorBackgroundProxy == nullptr) {
