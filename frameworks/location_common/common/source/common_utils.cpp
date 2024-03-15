@@ -33,6 +33,7 @@
 #include "location_data_rdb_helper.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -166,7 +167,7 @@ OHOS::HiviewDFX::HiLogLabel CommonUtils::GetLabel(std::string name)
     if (GEO_ABILITY.compare(name) == 0) {
         return GEO_CONVERT;
     }
-    OHOS::HiviewDFX::HiLogLabel label = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
+    OHOS::HiviewDFX::HiLogLabel label = { LOG_CORE, LOCATION_LOG_DOMAIN, "unknown" };
     return label;
 }
 
@@ -505,6 +506,16 @@ bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
         return false;
     }
     return true;
+}
+
+bool CommonUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
+{
+    GnssLocationValidStruct gnssLocationValidStruct;
+    gnssLocationValidStruct.location = *location;
+    gnssLocationValidStruct.result = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
+    return gnssLocationValidStruct.result;
 }
 } // namespace Location
 } // namespace OHOS

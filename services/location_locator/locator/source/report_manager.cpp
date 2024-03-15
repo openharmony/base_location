@@ -262,11 +262,16 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
 
 void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    lastLocation_ = *location;
     if (abilityName == GNSS_ABILITY) {
-        cacheGnssLocation_ = *location;
+        if (CommonUtils::CheckGnssLocationValidity(location)) {
+            cacheGnssLocation_ = *location;
+            lastLocation_ = *location;
+        }
     } else if (abilityName == NETWORK_ABILITY) {
         cacheNlpLocation_ = *location;
+        lastLocation_ = *location;
+    } else {
+        lastLocation_ = *location;
     }
 }
 

@@ -31,6 +31,10 @@ enum class LocationProcessStage {
     GNSS_SA_LOCATION_REPORT_PROCESS,
     NETWORK_SA_LOCATION_REPORT_PROCESS,
     LOCATOR_SA_LOCATION_REPORT_PROCESS,
+    START_GNSS_PROCESS,
+    STOP_GNSS_PROCESS,
+    CHECK_GNSS_LOCATION_VALIDITY,
+    MOCK_LOCATION_PROCESS,
 };
 
 typedef struct {
@@ -39,6 +43,15 @@ typedef struct {
     std::string abilityName;
     int retCode;
 } LocationSupplicantInfo;
+
+typedef struct {
+    Location location;
+    bool result;
+} GnssLocationValidStruct;
+
+typedef struct {
+    bool enableMock;
+} MockLocationStruct;
 
 class HookUtils {
 public:

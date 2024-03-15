@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COMMON_UTILS_H
-#define COMMON_UTILS_H
+#ifndef LOCATION_COMMON_UTILS_H
+#define LOCATION_COMMON_UTILS_H
 
 #include <atomic>
 #include <condition_variable>
@@ -26,6 +26,7 @@
 #include "securec.h"
 #include "string_ex.h"
 #include "location_log.h"
+#include "location.h"
 
 namespace OHOS {
 namespace Location {
@@ -199,6 +200,7 @@ public:
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
     static bool InitLocationSa(int32_t systemAbilityId);
+    static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
 };
 
 class CountDownLatch {

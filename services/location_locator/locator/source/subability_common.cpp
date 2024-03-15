@@ -27,7 +27,7 @@ namespace OHOS {
 namespace Location {
 SubAbility::SubAbility()
 {
-    label_ = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
+    label_ = { LOG_CORE, LOCATION_LOG_DOMAIN, "unknown" };
     newRecord_ = std::make_unique<WorkRecord>();
     lastRecord_ = std::make_unique<WorkRecord>();
 }

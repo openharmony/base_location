@@ -36,7 +36,7 @@
 
 namespace OHOS {
 namespace Location {
-const uint32_t EVENT_REPORT_LOCATION = 0x0100;
+const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
 const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
@@ -362,7 +362,7 @@ void NetworkAbility::ProcessReportLocationMock()
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
         if (networkHandler_ != nullptr) {
-            networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+            networkHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION,
                 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
         }
     } else {
@@ -376,7 +376,7 @@ void NetworkAbility::SendReportMockLocationEvent()
     if (networkHandler_ == nullptr) {
         return;
     }
-    networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
+    networkHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION, 0, 0);
 }
 
 int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> location)
@@ -499,7 +499,7 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
-        case EVENT_REPORT_LOCATION: {
+        case EVENT_REPORT_MOCK_LOCATION: {
             networkAbility->ProcessReportLocationMock();
             break;
         }
