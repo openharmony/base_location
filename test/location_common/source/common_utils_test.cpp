@@ -429,5 +429,13 @@ HWTEST_F(CommonUtilsTest, CheckRssProcessName001, TestSize.Level1)
     EXPECT_EQ(false, CommonUtils::CheckRssProcessName(invalidTokenId));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckRssProcessName001 end");
 }
+
+HWTEST_F(CommonUtilsTest, GenerateUuid001, TestSize.Level1)
+{
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GenerateUuid001 begin");
+    std::string uuid = CommonUtils::GenerateUuid();
+    EXPECT_LT(0, uuid.size());
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GenerateUuid001 end");
+}
 } // namespace Location
 } // namespace OHOS

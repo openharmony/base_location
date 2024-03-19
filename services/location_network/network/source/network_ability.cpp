@@ -297,7 +297,11 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
     data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
     data.WriteInt32(LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
     data.WriteRemoteObject(callback->AsObject());
-    data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
+    if (workRecord.GetName(0).size() == 0) {
+        data.WriteString16(Str8ToStr16(std::to_string(workRecord.GetUid(0)))); // uid
+    } else {
+        data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
+    }
     int error = nlpServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
     if (error != ERR_OK) {
         LBSLOGE(NETWORK, "SendRequest to cloud service failed. error = %{public}d", error);
