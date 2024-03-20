@@ -16,6 +16,7 @@
 #include <map>
 #include <random>
 #include <sys/time.h>
+#include <sstream>
 
 #include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
@@ -40,6 +41,10 @@ namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
+static std::random_device g_randomDevice;
+static std::mt19937 g_gen(g_randomDevice());
+static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
+static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
 
 bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
@@ -516,6 +521,34 @@ bool CommonUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& loc
     HookUtils::ExecuteHook(
         LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
     return gnssLocationValidStruct.result;
+}
+
+std::string CommonUtils::GenerateUuid()
+{
+    std::stringstream ss;
+    int i;
+    ss << std::hex;
+    for (i = 0; i < 8; i++) {  // first group 8 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-";
+    for (i = 0; i < 4; i++) {  // second group 4 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-4";
+    for (i = 0; i < 3; i++) {  // third group 3 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-";
+    ss << g_dis2(g_gen);
+    for (i = 0; i < 3; i++) {  // fourth group 3 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-";
+    for (i = 0; i < 12; i++) {  // fifth group 12 bit for UUID
+        ss << g_dis(g_gen);
+    };
+    return ss.str();
 }
 } // namespace Location
 } // namespace OHOS
