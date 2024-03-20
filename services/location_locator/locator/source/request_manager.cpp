@@ -405,7 +405,8 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
     if (reportManager != nullptr) {
         if (reportManager->IsAppBackground(bundleName, request->GetTokenId(),
-            request->GetTokenIdEx(), requestUid)) {
+            request->GetTokenIdEx(), requestUid)&&
+            !CommonUtils::CheckBackgroundPermission(request->GetTokenId(), request->GetFirstTokenId())) {
             return false;
         }
     }

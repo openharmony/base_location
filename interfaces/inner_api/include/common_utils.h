@@ -203,7 +203,10 @@ public:
     static bool GetEdmPolicy(std::string& name);
     static bool InitLocationSa(int32_t systemAbilityId);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
+    static std::string GenerateUuid();
+    static std::string GetLocationDataUri(std::string key);
     static bool SetLocationWorkingState(int32_t state);
+    static bool GetLocationWorkingState(int32_t& state);
 };
 
 class CountDownLatch {

@@ -16,6 +16,7 @@
 #include <map>
 #include <random>
 #include <sys/time.h>
+#include <sstream>
 
 #include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
@@ -40,6 +41,10 @@ namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
+static std::random_device g_randomDevice;
+static std::mt19937 g_gen(g_randomDevice());
+static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
+static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
 std::mutex g_locationWorkingState;
 
 bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
@@ -509,17 +514,60 @@ bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
     return true;
 }
 
-bool CommonUtils::SetLocationWorkingState(int32_t state)
+bool CommonUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
 {
-    std::unique_lock<std::mutex> lock(g_locationWorkingState);
+    GnssLocationValidStruct gnssLocationValidStruct;
+    gnssLocationValidStruct.location = *location;
+    gnssLocationValidStruct.result = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
+    return gnssLocationValidStruct.result;
+}
+
+std::string CommonUtils::GenerateUuid()
+{
+    std::stringstream ss;
+    int i;
+    ss << std::hex;
+    for (i = 0; i < 8; i++) {  // first group 8 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-";
+    for (i = 0; i < 4; i++) {  // second group 4 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-4";
+    for (i = 0; i < 3; i++) {  // third group 3 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-";
+    ss << g_dis2(g_gen);
+    for (i = 0; i < 3; i++) {  // fourth group 3 bit for UUID
+        ss << g_dis(g_gen);
+    }
+    ss << "-";
+    for (i = 0; i < 12; i++) {  // fifth group 12 bit for UUID
+        ss << g_dis(g_gen);
+    };
+    return ss.str();
+}
+
+std::string CommonUtils::GetLocationDataUri(std::string key)
+{
     int userId = 0;
     if (!CommonUtils::GetCurrentUserId(userId)) {
         userId = DEFAULT_USERID;
     }
     std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_" +
         std::to_string(userId) +
-        "?Proxy=true&key=location_working_state";
-    Uri locationWorkingStateUri(uri);
+        "?Proxy=true&key=" + key;
+    return uri;
+}
+
+bool CommonUtils::SetLocationWorkingState(int32_t state)
+{
+    std::unique_lock<std::mutex> lock(g_locationWorkingState);
+    Uri locationWorkingStateUri(CommonUtils::GetLocationDataUri(LOCATION_WORKING_STATE));
     LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
         SetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -529,14 +577,16 @@ bool CommonUtils::SetLocationWorkingState(int32_t state)
     return true;
 }
 
-bool CommonUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
+bool CommonUtils::GetLocationWorkingState(int32_t& state)
 {
-    GnssLocationValidStruct gnssLocationValidStruct;
-    gnssLocationValidStruct.location = *location;
-    gnssLocationValidStruct.result = true;
-    HookUtils::ExecuteHook(
-        LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
-    return gnssLocationValidStruct.result;
+    Uri locationWorkingStateUri(CommonUtils::GetLocationDataUri(LOCATION_WORKING_STATE));
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: can not get value, errcode = %{public}d", __func__, errCode);
+        return false;
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

@@ -37,7 +37,6 @@ ohos_shared_library("lbsservice_common") {
     "$LOCATION_COMMON_DIR/source/request.cpp",
     "$LOCATION_COMMON_DIR/source/request_config.cpp",
     "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
-    "$LOCATION_COMMON_DIR/source/work_record_statistic.cpp",
   ]
 
   deps = []

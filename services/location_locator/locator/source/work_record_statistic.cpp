@@ -57,7 +57,7 @@ bool WorkRecordStatistic::UpdateLocationWorkingState()
         requestNum += pair.second;
     }
 
-    if (requestNum > 0 && location_working_state_ != WORKING_STATE) {
+    if (requestNum == 1 && location_working_state_ != WORKING_STATE) {
         if (!CommonUtils::SetLocationWorkingState(WORKING_STATE)) {
             return false;
         }

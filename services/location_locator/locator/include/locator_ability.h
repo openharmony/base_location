@@ -154,6 +154,7 @@ public:
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
     std::set<int32_t> GetProxyUid();
+    void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt);
 
 private:
     bool Init();

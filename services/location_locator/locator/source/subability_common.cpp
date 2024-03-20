@@ -80,7 +80,7 @@ void SubAbility::HandleRefrashRequirements()
     lastRecord_->Set(*newRecord_);
     auto workRecordStatistic = WorkRecordStatistic::GetInstance();
     if (!workRecordStatistic->Update(name_, GetRequestNum())) {
-        LBSLOGI(label_, "workRecordStatistic::Update failed");
+        LBSLOGE(label_, "workRecordStatistic::Update failed");
     }
 }
 

@@ -115,11 +115,15 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         !request->GetIsRequesting()) {
         return false;
     }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        return false;
+    }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
         request->GetTokenId(), request->GetFirstTokenId(), request->GetTokenIdEx(), location);
     if (!ResultCheck(finalLocation, request)) {
         // add location permission using record
-        PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
         return false;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
@@ -135,7 +139,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             request->GetPackageName().c_str(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
         // add location permission using record
-        PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();
