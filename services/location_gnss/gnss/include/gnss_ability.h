@@ -70,7 +70,7 @@ public:
 
 private:
     void InitGnssEventProcessMap();
-    void HandleEventReportLocation(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleReportMockLocation(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSetMockedLocations(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSendCommands(const AppExecFwk::InnerEvent::Pointer& event);

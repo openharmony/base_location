@@ -52,7 +52,7 @@ public:
     bool RegisterAppStateObserver();
     bool UnregisterAppStateObserver();
     bool IsAppInLocationContinuousTasks(pid_t uid);
-    bool IsAppHasFormVisible(uint32_t tokenId, uint32_t tokenIdEx);
+    bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
 private:
     void StartLocator();
     void StopLocator();

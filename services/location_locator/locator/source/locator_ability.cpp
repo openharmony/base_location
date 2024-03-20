@@ -32,6 +32,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_proxy.h"
 #endif
+#include "hook_utils.h"
 #include "locator_background_proxy.h"
 #include "location_config_manager.h"
 #include "location_data_rdb_helper.h"
@@ -74,6 +75,7 @@ const std::u16string COMMON_DESCRIPTION = u"location.IHifenceAbility";
 const std::string UNLOAD_TASK = "locatior_sa_unload";
 const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
 const uint32_t SET_ENABLE = 3;
+const int NETWORK_MODE = 0;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
@@ -827,6 +829,27 @@ std::shared_ptr<Request> LocatorAbility::InitRequest(std::unique_ptr<RequestConf
     return request;
 }
 
+void LocatorAbility::MatchAppStrategy(AppIdentity &identity, std::unique_ptr<RequestConfig>& requestConfig)
+{
+    if (requestConfig != nullptr &&
+        (requestConfig->GetScenario() == SCENE_NO_POWER ||
+        requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE)) {
+        return;
+    }
+    AppStrategyInfo info;
+    info.bundleName = identity.GetBundleName();
+    info.uid = identity.GetUid();
+    LocationErrCode ret = HookUtils::ExecuteHook(
+        LocationProcessStage::QUERY_APP_STRATEGY_PROCESS, (void *)&info, nullptr);
+    if (ret != ERRCODE_SUCCESS) {
+        return;
+    }
+    if (info.retCode && info.foregroundMode == NETWORK_MODE) {
+        LBSLOGI(LOCATOR, "network strategy, cconvert to network request");
+        requestConfig->SetScenario(SCENE_DAILY_LIFE_SERVICE);
+    }
+}
+
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
@@ -841,6 +864,8 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     if (reportManager_ == nullptr || requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    // update request type by app strategy
+    MatchAppStrategy(identity, requestConfig);
     reportManager_->UpdateRandom();
     auto request = InitRequest(requestConfig, callback, identity);
     LBSLOGI(LOCATOR, "start locating");

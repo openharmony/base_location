@@ -117,7 +117,9 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityN
 {
     LBSLOGD(FUSION_CONTROLLER, " GetFuseLocation enter");
     if (GNSS_ABILITY.compare(abilityName) == 0) {
-        gnssLocation_ = std::make_unique<Location>(*location);
+        if (CommonUtils::CheckGnssLocationValidity(location)) {
+            gnssLocation_ = std::make_unique<Location>(*location);
+        }
     }
     if (NETWORK_ABILITY.compare(abilityName) == 0) {
         networkLocation_ = std::make_unique<Location>(*location);

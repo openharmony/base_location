@@ -163,7 +163,7 @@ std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Re
 }
 
 std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
-    uint32_t tokenIdEx, const std::unique_ptr<Location>& location)
+    uint64_t tokenIdEx, const std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {
         return nullptr;
@@ -262,11 +262,16 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
 
 void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    lastLocation_ = *location;
     if (abilityName == GNSS_ABILITY) {
-        cacheGnssLocation_ = *location;
+        if (CommonUtils::CheckGnssLocationValidity(location)) {
+            cacheGnssLocation_ = *location;
+            lastLocation_ = *location;
+        }
     } else if (abilityName == NETWORK_ABILITY) {
         cacheNlpLocation_ = *location;
+        lastLocation_ = *location;
+    } else {
+        lastLocation_ = *location;
     }
 }
 
@@ -385,7 +390,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
     }
 }
 
-bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint32_t tokenIdEx, int32_t uid)
+bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
 {
     auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
     if (locatorBackgroundProxy == nullptr) {
