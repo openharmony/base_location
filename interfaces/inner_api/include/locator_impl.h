@@ -29,12 +29,23 @@
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
 #include "location_data_manager.h"
+#include "system_ability_status_change_stub.h"
+
 namespace OHOS {
 namespace Location {
 class ICallbackResumeManager {
 public:
     virtual ~ICallbackResumeManager() = default;
     virtual void ResumeCallback() = 0;
+};
+
+class LocatorSystemAbilityListener : public SystemAbilityStatusChangeStub {
+public:
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+private:
+    bool needResume_ = false;
+    std::mutex mutex_;
 };
 
 class LocatorImpl {
@@ -618,7 +629,13 @@ public:
      */
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
+    sptr<LocatorProxy> GetProxy();
     void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
+    std::shared_ptr<ICallbackResumeManager> GetResumer();
+    LocationErrCode IsAppLocating(int32_t uid, bool &isLocating);
+    bool IsCallbackRegistered(std::string name, const sptr<ILocatorCallback>& callback);
+    bool IsCallbackRegistered(std::string name, const sptr<IRemoteObject>& callback);
+    bool IsValidCallbackInMap();
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);
@@ -637,13 +654,11 @@ private:
     };
 
 private:
-    sptr<LocatorProxy> GetProxy();
     bool IsCallbackResuming();
     void UpdateCallbackResumingState(bool state);
 
     sptr<LocatorProxy> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
-    std::shared_ptr<ICallbackResumeManager> resumer_ { nullptr };
     std::shared_ptr<LocationDataManager> locationDataManager_ { nullptr };
     bool isServerExist_ = false;
     bool isCallbackResuming_ = false;
@@ -653,6 +668,20 @@ private:
     static std::shared_ptr<LocatorImpl> instance_;
     std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
     bool isObserverReg_ = false;
+    sptr<ISystemAbilityStatusChange> saStatusListener_ =
+        sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+};
+
+class CallbackResumeManager : public ICallbackResumeManager {
+public:
+    CallbackResumeManager() = default;
+    ~CallbackResumeManager() = default;
+    void ResumeCallback() override;
+private:
+    void InitResumeCallbackFuncMap();
+    void ResumeGnssStatusCallback();
+    void ResumeNmeaMessageCallback();
+    void ResumeLocating();
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -26,12 +26,23 @@
 #include "location_data_rdb_helper.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
+#include "locator.h"
 
 namespace OHOS {
 namespace Location {
 constexpr uint32_t WAIT_MS = 1000;
 std::shared_ptr<LocatorImpl> LocatorImpl::instance_ = nullptr;
 std::mutex LocatorImpl::locatorMutex_;
+auto g_locatorImpl = Locator::GetInstance();
+std::mutex g_resumeFuncMapMutex;
+std::mutex g_locationCallbackMapMutex;
+std::mutex g_gnssStatusInfoCallbacksMutex;
+std::mutex g_nmeaCallbacksMutex;
+std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
+std::map<std::string, void(CallbackResumeManager::*)()> g_resumeFuncMap;
+std::map<sptr<ILocatorCallback>, RequestConfig> g_locationCallbackMap;
+std::set<sptr<IRemoteObject>> g_gnssStatusInfoCallbacks;
+std::set<sptr<IRemoteObject>> g_nmeaCallbacks;
 
 std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
 {
@@ -128,7 +139,19 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    proxy->StartLocating(requestConfig, callback, "location.ILocator", 0, 0);
+    if (IsCallbackRegistered("locationChange", callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s locatorCallback has registered", __func__);
+        return;
+    }
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    g_locationCallbackMap.insert(std::make_pair(callback, *requestConfig));
+    int errCode = proxy->StartLocating(requestConfig, callback, "location.ILocator", 0, 0);
+    if (errCode == ERRCODE_SUCCESS) {
+        auto iter = g_locationCallbackMap.find(callback);
+        if (iter != g_locationCallbackMap.end()) {
+            g_locationCallbackMap.erase(iter);
+        }
+    }
 }
 
 void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
@@ -142,6 +165,11 @@ void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
         return;
     }
     proxy->StopLocating(callback);
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    auto iter = g_locationCallbackMap.find(callback);
+    if (iter != g_locationCallbackMap.end()) {
+        g_locationCallbackMap.erase(iter);
+    }
 }
 
 std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
@@ -202,6 +230,12 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
+    if (IsCallbackRegistered("satelliteStatusChange", callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return false;
+    }
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    g_gnssStatusInfoCallbacks.insert(callback);
     proxy->RegisterGnssStatusCallback(callback, DEFAULT_UID);
     return true;
 }
@@ -217,6 +251,8 @@ bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callba
         return false;
     }
     proxy->UnregisterGnssStatusCallback(callback);
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    g_gnssStatusInfoCallbacks.erase(callback);
     return true;
 }
 
@@ -230,6 +266,12 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
+    if (IsCallbackRegistered("nmeaMessage", callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return false;
+    }
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    g_nmeaCallbacks.insert(callback);
     proxy->RegisterNmeaMessageCallback(callback, DEFAULT_UID);
     return true;
 }
@@ -245,6 +287,8 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
         return false;
     }
     proxy->UnregisterNmeaMessageCallback(callback);
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    g_nmeaCallbacks.erase(callback);
     return true;
 }
 
@@ -694,7 +738,19 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsCallbackRegistered("locationChange", callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s locatorCallback has registered", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    g_locationCallbackMap.insert(std::make_pair(callback, *requestConfig));
     LocationErrCode errCode = proxy->StartLocatingV9(requestConfig, callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        auto iter = g_locationCallbackMap.find(callback);
+        if (iter != g_locationCallbackMap.end()) {
+            g_locationCallbackMap.erase(iter);
+        }
+    }
     return errCode;
 }
 
@@ -710,6 +766,11 @@ LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->StopLocatingV9(callback);
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    auto iter = g_locationCallbackMap.find(callback);
+    if (iter != g_locationCallbackMap.end()) {
+        g_locationCallbackMap.erase(iter);
+    }
     return errCode;
 }
 
@@ -763,7 +824,16 @@ LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObje
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsCallbackRegistered("satelliteStatusChange", callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    g_gnssStatusInfoCallbacks.insert(callback);
     LocationErrCode errCode = proxy->RegisterGnssStatusCallbackV9(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        g_gnssStatusInfoCallbacks.erase(callback);
+    }
     return errCode;
 }
 
@@ -779,6 +849,8 @@ LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteOb
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->UnregisterGnssStatusCallbackV9(callback);
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    g_gnssStatusInfoCallbacks.erase(callback);
     return errCode;
 }
 
@@ -793,7 +865,16 @@ LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObj
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsCallbackRegistered("nmeaMessage", callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    g_nmeaCallbacks.insert(callback);
     LocationErrCode errCode = proxy->RegisterNmeaMessageCallbackV9(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        g_nmeaCallbacks.erase(callback);
+    }
     return errCode;
 }
 
@@ -809,6 +890,8 @@ LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteO
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->UnregisterNmeaMessageCallbackV9(callback);
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    g_nmeaCallbacks.erase(callback);
     return errCode;
 }
 
@@ -1199,12 +1282,14 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         remote.promote()->RemoveDeathRecipient(recipient_);
     }
     isServerExist_ = false;
-    if (resumer_ != nullptr && !IsCallbackResuming()) {
+    if (g_callbackResumer != nullptr && !IsCallbackResuming()) {
         // only the first request will be handled
         UpdateCallbackResumingState(true);
         // wait for remote died finished
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
-        resumer_->ResumeCallback();
+        if (IsValidCallbackInMap() && CommonUtils::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+            g_callbackResumer->ResumeCallback();
+        }
         UpdateCallbackResumingState(false);
     }
 }
@@ -1233,14 +1318,13 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
     }
     isServerExist_ = true;
     client_ = sptr<LocatorProxy>(new (std::nothrow) LocatorProxy(obj));
-    return client_;
-}
-
-void LocatorImpl::SetResumer(std::shared_ptr<ICallbackResumeManager> resumer)
-{
-    if (resumer_ == nullptr) {
-        resumer_ = resumer;
+    saStatusListener_ = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+    if (saStatusListener_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s saStatusListener_ is nullptr!", __func__);
     }
+    int32_t result = sam->SubscribeSystemAbility(static_cast<int32_t>(LOCATION_LOCATOR_SA_ID), saStatusListener_);
+    LBSLOGI(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
+    return client_;
 }
 
 void LocatorImpl::UpdateCallbackResumingState(bool state)
@@ -1253,6 +1337,159 @@ bool LocatorImpl::IsCallbackResuming()
 {
     std::unique_lock<std::mutex> lock(resumeMutex_);
     return isCallbackResuming_;
+}
+
+bool LocatorImpl::IsCallbackRegistered(std::string name, const sptr<ILocatorCallback>& callback)
+{
+    if (callback == nullptr) {
+        return true;
+    }
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
+        auto locatorCallback = iter->first;
+        if (locatorCallback == nullptr) {
+            continue;
+        }
+        if (locatorCallback == callback) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LocatorImpl::IsCallbackRegistered(std::string name, const sptr<IRemoteObject>& callback)
+{
+    if (callback == nullptr) {
+        return true;
+    }
+    if (name == "satelliteStatusChange") {
+        std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+        for (auto gnssStatusCallback : g_gnssStatusInfoCallbacks) {
+            if (gnssStatusCallback == callback) {
+                return true;
+            }
+        }
+    } else if (name == "nmeaMessage") {
+        std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+        for (auto nmeaCallback : g_nmeaCallbacks) {
+            if (nmeaCallback == callback) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool LocatorImpl::IsValidCallbackInMap()
+{
+    bool ret = false;
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
+        auto locatorCallback = iter->first;
+        if (locatorCallback == nullptr || iter->first == nullptr) {
+            continue;
+        }
+        auto requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->Set(iter->second);
+        if (requestConfig->GetScenario() != SCENE_NO_POWER &&
+            (requestConfig->GetScenario() != SCENE_UNSET ||
+            requestConfig->GetPriority() != PRIORITY_UNSET)) {
+            ret = true;
+            break;
+        }
+    }
+    return ret;
+}
+
+void CallbackResumeManager::InitResumeCallbackFuncMap()
+{
+    std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
+    if (g_resumeFuncMap.size() != 0) {
+        return;
+    }
+    g_resumeFuncMap.insert(std::make_pair("satelliteStatusChange", &CallbackResumeManager::ResumeGnssStatusCallback));
+    g_resumeFuncMap.insert(std::make_pair("nmeaMessage", &CallbackResumeManager::ResumeNmeaMessageCallback));
+    g_resumeFuncMap.insert(std::make_pair("locationChange", &CallbackResumeManager::ResumeLocating));
+}
+
+void CallbackResumeManager::ResumeCallback()
+{
+    InitResumeCallbackFuncMap();
+    std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
+    for (auto iter = g_resumeFuncMap.begin(); iter != g_resumeFuncMap.end(); iter++) {
+        auto resumeFunc = iter->second;
+        (this->*resumeFunc)();
+    }
+}
+
+void CallbackResumeManager::ResumeGnssStatusCallback()
+{
+    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ;
+    }
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    for (auto gnssStatusCallback : g_gnssStatusInfoCallbacks) {
+        if (gnssStatusCallback == nullptr) {
+            continue;
+        }
+        proxy->RegisterGnssStatusCallbackV9(gnssStatusCallback);
+    }
+}
+
+void CallbackResumeManager::ResumeNmeaMessageCallback()
+{
+    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return;
+    }
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    for (auto nmeaCallback : g_nmeaCallbacks) {
+        if (nmeaCallback == nullptr) {
+            continue;
+        }
+        proxy->RegisterNmeaMessageCallbackV9(nmeaCallback);
+    }
+}
+
+void CallbackResumeManager::ResumeLocating()
+{
+    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return;
+    }
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
+        auto locatorCallback = iter->first;
+        if (locatorCallback == nullptr || iter->first == nullptr) {
+            continue;
+        }
+        auto requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->Set(iter->second);
+        proxy->StartLocatingV9(requestConfig, locatorCallback);
+    }
+}
+
+void LocatorSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s enter", __func__);
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (needResume_) {
+        if (g_callbackResumer != nullptr && !g_locatorImpl->IsValidCallbackInMap()) {
+            g_callbackResumer->ResumeCallback();
+        }
+        needResume_ = false;
+    }
+}
+
+void LocatorSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s enter", __func__);
+    std::unique_lock<std::mutex> lock(mutex_);
+    needResume_ = true;
 }
 }  // namespace Location
 }  // namespace OHOS
