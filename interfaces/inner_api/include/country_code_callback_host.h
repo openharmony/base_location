@@ -16,8 +16,6 @@
 #ifndef COUNTRY_CODE_CALLBACK_HOST_H
 #define COUNTRY_CODE_CALLBACK_HOST_H
 
-#include <shared_mutex>
-
 #include "i_country_code_callback.h"
 #include "iremote_stub.h"
 #include "napi/native_api.h"
@@ -41,7 +39,7 @@ public:
 private:
     napi_env env_;
     napi_ref handlerCb_;
-    std::shared_mutex mutex_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS
