@@ -22,6 +22,9 @@
 #include "system_ability_definition.h"
 #include "locator_ability.h"
 #include "locationhub_ipc_interface_code.h"
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability.h"
@@ -31,6 +34,27 @@ namespace OHOS {
 using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t SLEEP_TIMES = 1000;
+const int32_t LOCATION_PERM_NUM = 4;
+void MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "GnssAbility_FuzzTest",
+        .aplStr = "system_basic",
+    };
+    auto tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
 
 char* ParseData(const uint8_t* data, size_t size)
 {
@@ -66,34 +90,9 @@ bool GnssAbility001FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability1 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability1->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS),
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
-    auto ability2 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability2->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST),
-        requestParcel, reply, option);
-    auto ability3 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability3->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE),
-        requestParcel, reply, option);
-    auto ability4 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability4->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REFRESH_REQUESTS),
-        requestParcel, reply, option);
-    auto ability5 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability5->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS),
-        requestParcel, reply, option);
-    auto ability6 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability6->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_GNSS_STATUS),
-        requestParcel, reply, option);
-    auto ability7 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability7->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA),
-        requestParcel, reply, option);
-    auto ability8 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability8->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_NMEA),
-        requestParcel, reply, option);
-    auto ability9 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability9->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_CACHED),
-        requestParcel, reply, option);
-    
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
 
     return true;
@@ -108,29 +107,274 @@ bool GnssAbility002FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability10 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability10->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_CACHED),
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST),
         requestParcel, reply, option);
-    auto ability11 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability11->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_CACHED_SIZE),
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility003FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE),
         requestParcel, reply, option);
-    auto ability12 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability12->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::FLUSH_CACHED),
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility004FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REFRESH_REQUESTS),
         requestParcel, reply, option);
-    auto ability13 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability13->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS),
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility005FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS),
         requestParcel, reply, option);
-    auto ability14 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability14->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ENABLE_LOCATION_MOCK),
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility006FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_GNSS_STATUS),
         requestParcel, reply, option);
-    auto ability15 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability15->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK),
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility007FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA),
         requestParcel, reply, option);
-    auto ability16 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability16->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO),
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    return true;
+}
+
+bool GnssAbility008FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_NMEA),
         requestParcel, reply, option);
-    auto ability17 = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    ability17->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO),
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    return true;
+}
+
+bool GnssAbility009FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_CACHED),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    return true;
+}
+
+bool GnssAbility010FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_CACHED),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility011FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_CACHED_SIZE),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility012FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::FLUSH_CACHED),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility013FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility014FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ENABLE_LOCATION_MOCK),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility015FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility016FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+
+    return true;
+}
+
+bool GnssAbility017FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO),
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
@@ -143,11 +387,27 @@ bool GnssAbility002FuzzTest(const char* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    OHOS::MockNativePermission();
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
 #ifdef FEATURE_GNSS_SUPPORT
-        OHOS::GnssAbility001FuzzTest(ch, size);
-        OHOS::GnssAbility002FuzzTest(ch, size);
+    OHOS::GnssAbility001FuzzTest(ch, size);
+    OHOS::GnssAbility002FuzzTest(ch, size);
+    OHOS::GnssAbility003FuzzTest(ch, size);
+    OHOS::GnssAbility004FuzzTest(ch, size);
+    OHOS::GnssAbility005FuzzTest(ch, size);
+    OHOS::GnssAbility006FuzzTest(ch, size);
+    OHOS::GnssAbility007FuzzTest(ch, size);
+    OHOS::GnssAbility008FuzzTest(ch, size);
+    OHOS::GnssAbility009FuzzTest(ch, size);
+    OHOS::GnssAbility010FuzzTest(ch, size);
+    OHOS::GnssAbility011FuzzTest(ch, size);
+    OHOS::GnssAbility012FuzzTest(ch, size);
+    OHOS::GnssAbility013FuzzTest(ch, size);
+    OHOS::GnssAbility014FuzzTest(ch, size);
+    OHOS::GnssAbility015FuzzTest(ch, size);
+    OHOS::GnssAbility016FuzzTest(ch, size);
+    OHOS::GnssAbility017FuzzTest(ch, size);
 #endif
         free(ch);
         ch = nullptr;
