@@ -95,7 +95,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     return true;
 }
 
-void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint32_t tokenIdEx,
+void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint64_t tokenIdEx,
     std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {

@@ -817,5 +817,27 @@ HWTEST_F(LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UnregisterAppStateObserverTest001 end");
 }
+
+HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, IsAppHasFormVisible001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible001 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    auto ret = locatorBackgroundProxy->IsAppHasFormVisible(tokenId_, 0);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible002 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    auto ret = locatorBackgroundProxy->IsAppHasFormVisible(0, 0);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible002 end");
+}
 }  // namespace Location
 }  // namespace OHOS
