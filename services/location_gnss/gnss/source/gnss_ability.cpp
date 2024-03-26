@@ -71,7 +71,7 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     agnssCallback_ = nullptr;
     agnssInterface_ = nullptr;
 #endif
-    gnssWorkingStatus_ = GNSS_STATUS_NONE;
+    gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
     gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
     if (gnssHandler_ != nullptr) {
@@ -369,7 +369,7 @@ void GnssAbility::ReConnectHdiImpl()
     SetAgnssCallback();
     SetAgnssServer();
 #endif
-    if (gnssWorkingStatus_ == GNSS_STATUS_SESSION_BEGIN) {
+    if (gnssWorkingStatus_ == GNSS_WORKING_STATUS_SESSION_BEGIN) {
         StartGnss();
     }
 }
@@ -386,35 +386,35 @@ LocationErrCode GnssAbility::FlushCachedGnssLocations()
     return ERRCODE_NOT_SUPPORTED;
 }
 
-bool GnssAbility::GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryData& flags)
+bool GnssAbility::GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryDataType& flags)
 {
     std::string cmd = commands->command;
     if (cmd == "delete_auxiliary_data_ephemeris") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_EPHEMERIS;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_EPHEMERIS;
     } else if (cmd == "delete_auxiliary_data_almanac") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_ALMANAC;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_ALMANAC;
     } else if (cmd == "delete_auxiliary_data_position") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_POSITION;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_POSITION;
     } else if (cmd == "delete_auxiliary_data_time") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_TIME;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_TIME;
     } else if (cmd == "delete_auxiliary_data_iono") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_IONO;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_IONO;
     } else if (cmd == "delete_auxiliary_data_utc") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_UTC;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_UTC;
     } else if (cmd == "delete_auxiliary_data_health") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_HEALTH;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_HEALTH;
     } else if (cmd == "delete_auxiliary_data_svdir") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_SVDIR;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_SVDIR;
     } else if (cmd == "delete_auxiliary_data_svsteer") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_SVSTEER;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_SVSTEER;
     } else if (cmd == "delete_auxiliary_data_sadata") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_SADATA;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_SADATA;
     } else if (cmd == "delete_auxiliary_data_rti") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_RTI;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_RTI;
     } else if (cmd == "delete_auxiliary_data_celldb_info") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_CELLDB_INFO;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_CELLDB_INFO;
     } else if (cmd == "delete_auxiliary_data_all") {
-        flags = GnssAuxiliaryData::GNSS_AUXILIARY_DATA_ALL;
+        flags = GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_ALL;
     } else {
         LBSLOGE(GNSS, "unknow command %{public}s", cmd.c_str());
         return false;
@@ -428,7 +428,7 @@ LocationErrCode GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& comma
         LBSLOGE(GNSS, "gnssInterface_ is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    GnssAuxiliaryData flags;
+    GnssAuxiliaryDataType flags;
     bool result = GetCommandFlags(commands, flags);
     LBSLOGE(GNSS, "GetCommandFlags,flags = %{public}d", flags);
     if (result) {
@@ -509,9 +509,9 @@ bool GnssAbility::EnableGnss()
     int32_t ret = gnssInterface_->EnableGnss(gnssCallback_);
     LBSLOGD(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_STATUS_ENGINE_ON;
+        gnssWorkingStatus_ = GNSS_WORKING_STATUS_ENGINE_ON;
     } else {
-        gnssWorkingStatus_ = GNSS_STATUS_NONE;
+        gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),
             "hdiName", "EnableGnss", "hdiType", "gnss"});
     }
@@ -530,7 +530,7 @@ void GnssAbility::DisableGnss()
     }
     int ret = gnssInterface_->DisableGnss();
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_STATUS_ENGINE_OFF;
+        gnssWorkingStatus_ = GNSS_WORKING_STATUS_ENGINE_OFF;
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),
             "hdiName", "DisableGnss", "hdiType", "gnss"});
@@ -539,8 +539,8 @@ void GnssAbility::DisableGnss()
 
 bool GnssAbility::IsGnssEnabled()
 {
-    return (gnssWorkingStatus_ != GNSS_STATUS_ENGINE_OFF &&
-        gnssWorkingStatus_ != GNSS_STATUS_NONE);
+    return (gnssWorkingStatus_ != GNSS_WORKING_STATUS_ENGINE_OFF &&
+        gnssWorkingStatus_ != GNSS_WORKING_STATUS_NONE);
 }
 
 void GnssAbility::StartGnss()
@@ -557,7 +557,7 @@ void GnssAbility::StartGnss()
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    if (gnssWorkingStatus_ == GNSS_STATUS_SESSION_BEGIN) {
+    if (gnssWorkingStatus_ == GNSS_WORKING_STATUS_SESSION_BEGIN) {
         LBSLOGD(GNSS, "GNSS navigation started");
         return;
     }
@@ -567,7 +567,7 @@ void GnssAbility::StartGnss()
     SetPositionMode();
     int ret = gnssInterface_->StartGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_STATUS_SESSION_BEGIN;
+        gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_BEGIN;
         WriteLocationInnerEvent(START_GNSS, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StartGnss", "hdiType", "gnss"});
@@ -592,7 +592,7 @@ void GnssAbility::StopGnss()
     
     int ret = gnssInterface_->StopGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_STATUS_SESSION_END;
+        gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_END;
         WriteLocationInnerEvent(STOP_GNSS, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StopGnss", "hdiType", "gnss"});
@@ -631,14 +631,14 @@ bool GnssAbility::ConnectHdi()
 #else
     if (gnssInterface_ != nullptr) {
 #endif
-        LBSLOGD(GNSS, "connect v1_0 hdi success.");
+        LBSLOGD(GNSS, "connect v2_0 hdi success.");
         gnssCallback_ = new (std::nothrow) GnssEventCallback();
         RegisterLocationHdiDeathRecipient();
         lock.unlock();
         return true;
     }
     lock.unlock();
-    LBSLOGE(GNSS, "connect v1_0 hdi failed.");
+    LBSLOGE(GNSS, "connect v2_0 hdi failed.");
     return false;
 }
 

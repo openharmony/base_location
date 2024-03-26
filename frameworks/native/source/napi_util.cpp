@@ -46,6 +46,8 @@ void SatelliteStatusToJs(const napi_env& env,
     napi_value altitudesArray;
     napi_value azimuthsArray;
     napi_value carrierFrequenciesArray;
+    napi_value additionalInfoArray;
+    napi_value satelliteConstellationArray;
     SetValueDouble(env, "satellitesNumber", statusInfo->GetSatellitesNumber(), result);
     if (statusInfo->GetSatellitesNumber() > 0) {
         NAPI_CALL_RETURN_VOID(env,
@@ -58,6 +60,10 @@ void SatelliteStatusToJs(const napi_env& env,
             napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &azimuthsArray));
         NAPI_CALL_RETURN_VOID(env,
             napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &carrierFrequenciesArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &satelliteConstellationArray));
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_array_with_length(env, statusInfo->GetSatellitesNumber(), &additionalInfoArray));
         uint32_t idx1 = 0;
         for (int index = 0; index < statusInfo->GetSatellitesNumber(); index++) {
             napi_value value = nullptr;
@@ -72,6 +78,12 @@ void SatelliteStatusToJs(const napi_env& env,
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, azimuthsArray, idx1, value));
             NAPI_CALL_RETURN_VOID(env, napi_create_double(env, statusInfo->GetCarrierFrequencies()[index], &value));
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, carrierFrequenciesArray, idx1, value));
+            NAPI_CALL_RETURN_VOID(env,
+                napi_create_int32(env, statusInfo->GetSatelliteAdditionalInfoList()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, additionalInfoArray, idx1, value));
+            NAPI_CALL_RETURN_VOID(env,
+                napi_create_int32(env, statusInfo->GetConstellationTypes()[index], &value));
+            NAPI_CALL_RETURN_VOID(env, napi_set_element(env, satelliteConstellationArray, idx1, value));
             idx1++;
         }
         SetValueStringArray(env, "satelliteIds", satelliteIdsArray, result);
@@ -79,6 +91,8 @@ void SatelliteStatusToJs(const napi_env& env,
         SetValueStringArray(env, "altitudes", altitudesArray, result);
         SetValueStringArray(env, "azimuths", azimuthsArray, result);
         SetValueStringArray(env, "carrierFrequencies", carrierFrequenciesArray, result);
+        SetValueStringArray(env, "satelliteConstellation", satelliteConstellationArray, result);
+        SetValueStringArray(env, "additionalInfo", additionalInfoArray, result);
     }
 }
 
