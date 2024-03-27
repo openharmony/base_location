@@ -163,6 +163,15 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
+            identity.GetTokenIdEx(), identity.GetUid()) &&
+            !CommonUtils::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+            return ERRCODE_PERMISSION_DENIED;
+        }
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartLocating: LocatorAbility is nullptr.");
