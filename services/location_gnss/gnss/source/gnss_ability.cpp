@@ -179,10 +179,7 @@ void GnssAbility::UnloadGnssSystemAbility()
 
 bool GnssAbility::CheckIfGnssConnecting()
 {
-    std::unique_lock<std::mutex> gnssLock(gnssMutex_);
-    std::unique_lock<std::mutex> nmeaLock(nmeaMutex_);
-    return IsMockEnabled() || !gnssStatusCallback_.empty()
-        || !nmeaCallback_.empty() || GetRequestNum() != 0 || IsMockProcessing();
+    return IsMockEnabled() || GetRequestNum() != 0 || IsMockProcessing();
 }
 
 LocationErrCode GnssAbility::RefrashRequirements()

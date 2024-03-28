@@ -512,20 +512,6 @@ HWTEST_F(LocatorImplTest, locatorImplResetLocatorProxy001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResetLocatorProxy001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplSetResumer001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplSetResumer001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSetResumer001 begin");
-    std::shared_ptr<MockCallbackResumeManager> callbackResumer = std::make_shared<MockCallbackResumeManager>();
-    locatorImpl_->SetResumer(callbackResumer); //resumer isn't nullptr
-    EXPECT_NE(nullptr, locatorImpl_->resumer_);
-
-    callbackResumer = nullptr;
-    locatorImpl_->SetResumer(callbackResumer); //resumer is nullptr
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSetResumer001 end");
-}
-
 HWTEST_F(LocatorImplTest, locatorImplOnRemoteDied001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -636,6 +622,16 @@ HWTEST_F(LocatorImplTest, locatorImplCheckEdmPolicy002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy002 begin");
     locatorImpl_->CheckEdmPolicy(false);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy002 end");
+}
+
+HWTEST_F(LocatorImplTest, CallbackResumeManager001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, CallbackResumeManager001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] CallbackResumeManager001 begin");
+    std::shared_ptr<CallbackResumeManager> callbackResumer = std::make_shared<CallbackResumeManager>();
+    callbackResumer->ResumeCallback();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] CallbackResumeManager001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

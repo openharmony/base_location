@@ -119,7 +119,7 @@ void PassiveAbility::UnloadPassiveSystemAbility()
 
 bool PassiveAbility::CheckIfPassiveConnecting()
 {
-    return IsMockEnabled() || !GetLocationMock().empty() || GetRequestNum() != 0;
+    return IsMockEnabled() || !GetLocationMock().empty();
 }
 
 void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
