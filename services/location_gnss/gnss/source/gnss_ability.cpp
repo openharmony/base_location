@@ -543,6 +543,12 @@ bool GnssAbility::IsGnssEnabled()
         gnssWorkingStatus_ != GNSS_STATUS_NONE);
 }
 
+void GnssAbility::RestGnssWorkStatus()
+{
+    std::unique_lock<std::mutex> uniqueLock(statusMutex_);
+    gnssWorkingStatus_ = GNSS_STATUS_NONE;
+}
+
 void GnssAbility::StartGnss()
 {
     if (CommonUtils::QuerySwitchState() == DISABLED) {
@@ -1123,6 +1129,7 @@ void LocationHdiDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
         LBSLOGI(LOCATOR, "hdi reconnecting");
         // wait for device unloaded
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
+        gnssAbility->RestGnssWorkStatus();
         gnssAbility->ReConnectHdi();
         LBSLOGI(LOCATOR, "hdi connected finish");
     }
