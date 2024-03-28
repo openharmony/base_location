@@ -37,6 +37,7 @@
 #include "request_config.h"
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -279,6 +280,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         auto request = *iter;
         locatorAbility->UnregisterPermissionCallback(request->GetTokenId());
         deadRequests->push_back(request);
+        HookUtils::ExecuteStopLocationProcess(request);
         LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "get %{public}s dead request", std::to_string(deadRequests->size()).c_str());

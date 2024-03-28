@@ -35,7 +35,9 @@ enum class LocationProcessStage {
     STOP_GNSS_PROCESS,
     CHECK_GNSS_LOCATION_VALIDITY,
     MOCK_LOCATION_PROCESS,
-    QUERY_APP_STRATEGY_PROCESS,
+    LOCATOR_SA_STOP_LOCATING,
+    LOCATOR_SA_GETADDRESS_FROM_LOCATION_PROCESS,
+    LOCATOR_SA_GETADDRESS_FROM_LOCATIONNAME_PROCESS,
 };
 
 typedef struct {
@@ -68,6 +70,10 @@ public:
     static void UnregisterHook(LocationProcessStage stage, OhosHook hook);
     static LocationErrCode ExecuteHook(LocationProcessStage stage, void *executionContext,
         const HOOK_EXEC_OPTIONS *options);
+    static void ExecuteStartLocationProcess(std::shared_ptr<Request> request);
+    static void ExecuteStopLocationProcess(std::shared_ptr<Request> request);
+    static void ExecuteGetAddressFromLocationProcess(std::string packageName);
+    static void ExecuteGetAddressFromLocationNameProcess(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS

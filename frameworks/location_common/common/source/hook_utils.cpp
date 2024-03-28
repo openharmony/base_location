@@ -57,5 +57,37 @@ LocationErrCode HookUtils::ExecuteHook(
         __func__, static_cast<int>(stage), ret);
     return ERRCODE_SERVICE_UNAVAILABLE;
 }
+
+void HookUtils::ExecuteStartLocationProcess(std::shared_ptr<Request> request)
+{
+    LocationSupplicantInfo reportStruct;
+    reportStruct.request = *request;
+    reportStruct.retCode = true;
+    ExecuteHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, (void *)&reportStruct, nullptr);
+}
+
+void HookUtils::ExecuteStopLocationProcess(std::shared_ptr<Request> request)
+{
+    LocationSupplicantInfo reportStruct;
+    reportStruct.request = *request;
+    reportStruct.retCode = true;
+    ExecuteHook(LocationProcessStage::LOCATOR_SA_STOP_LOCATING, (void *)&reportStruct, nullptr);
+}
+
+void HookUtils::ExecuteGetAddressFromLocationProcess(std::string packageName)
+{
+    LocationSupplicantInfo reportStruct;
+    reportStruct.abilityName = packageName;
+    reportStruct.retCode = true;
+    ExecuteHook(LocationProcessStage::LOCATOR_SA_GETADDRESS_FROM_LOCATION_PROCESS, (void *)&reportStruct, nullptr);
+}
+
+void HookUtils::ExecuteGetAddressFromLocationNameProcess(std::string packageName)
+{
+    LocationSupplicantInfo reportStruct;
+    reportStruct.abilityName = packageName;
+    reportStruct.retCode = true;
+    ExecuteHook(LocationProcessStage::LOCATOR_SA_GETADDRESS_FROM_LOCATIONNAME_PROCESS, (void *)&reportStruct, nullptr);
+}
 } // namespace Location
 } // namespace OHOS

@@ -47,6 +47,7 @@
 #include "passive_ability_proxy.h"
 #endif
 #include "permission_status_change_cb.h"
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -871,6 +872,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     MatchAppStrategy(identity, requestConfig);
     reportManager_->UpdateRandom();
     auto request = InitRequest(requestConfig, callback, identity);
+    HookUtils::ExecuteStartLocationProcess(request);
     LBSLOGI(LOCATOR, "start locating");
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
@@ -1118,6 +1120,7 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
             "appName", bundleName
         });
     }
+    HookUtils::ExecuteGetAddressFromLocationProcess(bundleName);
     reply.RewindRead(0);
 }
 #endif
@@ -1157,6 +1160,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
             "appName", bundleName
         });
     }
+    HookUtils::ExecuteGetAddressFromLocationNameProcess(bundleName);
     reply.RewindRead(0);
 }
 #endif
