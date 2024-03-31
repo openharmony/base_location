@@ -27,21 +27,21 @@ napi_value SvConstellationTypeConstructor(napi_env env)
     napi_value satelliteConstellationCategory = nullptr;
     NAPI_CALL(env, napi_create_object(env, &satelliteConstellationCategory));
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_UNKNOWN, "CONSTELLATION_CATEGORY_UNKNOWN");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_UNKNOWN, "CONSTELLATION_CATEGORY_UNKNOWN");
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_GPS, "CONSTELLATION_CATEGORY_GPS");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_GPS, "CONSTELLATION_CATEGORY_GPS");
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_SBAS, "CONSTELLATION_CATEGORY_SBAS");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_SBAS, "CONSTELLATION_CATEGORY_SBAS");
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_GLONASS, "CONSTELLATION_CATEGORY_GLONASS");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_GLONASS, "CONSTELLATION_CATEGORY_GLONASS");
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_QZSS, "CONSTELLATION_CATEGORY_QZSS");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_QZSS, "CONSTELLATION_CATEGORY_QZSS");
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_BEIDOU, "CONSTELLATION_CATEGORY_BEIDOU");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_BEIDOU, "CONSTELLATION_CATEGORY_BEIDOU");
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_GALILEO, "CONSTELLATION_CATEGORY_GALILEO");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_GALILEO, "CONSTELLATION_CATEGORY_GALILEO");
     SetEnumPropertyByInteger(env, satelliteConstellationCategory,
-        SatelliteConstellation::CONSTELLATION_CATEGORY_IRNSS, "CONSTELLATION_CATEGORY_IRNSS");
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_IRNSS, "CONSTELLATION_CATEGORY_IRNSS");
     return satelliteConstellationCategory;
 }
 
@@ -50,18 +50,18 @@ napi_value SatelliteAdditionalInfoTypeConstructor(napi_env env)
     napi_value satelliteAdditionalInfo = nullptr;
     NAPI_CALL(env, napi_create_object(env, &satelliteAdditionalInfo));
     SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
-        SatelliteAdditionalInfo::SATELLITES_ADDITIONAL_INFO_NULL, "SATELLITES_ADDITIONAL_INFO_NULL");
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_NULL, "SATELLITES_ADDITIONAL_INFO_NULL");
     SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
-        SatelliteAdditionalInfo::SATELLITES_ADDITIONAL_INFO_EPHEMERIS_DATA_EXIST,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_EPHEMERIS_DATA_EXIST,
         "SATELLITES_ADDITIONAL_INFO_EPHEMERIS_DATA_EXIST");
     SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
-        SatelliteAdditionalInfo::SATELLITES_ADDITIONAL_INFO_ALMANAC_DATA_EXIST,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_ALMANAC_DATA_EXIST,
         "SATELLITES_ADDITIONAL_INFO_ALMANAC_DATA_EXIST");
     SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
-        SatelliteAdditionalInfo::SATELLITES_ADDITIONAL_INFO_USED_IN_FIX,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_USED_IN_FIX,
         "SATELLITES_ADDITIONAL_INFO_USED_IN_FIX");
     SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
-        SatelliteAdditionalInfo::SATELLITES_ADDITIONAL_INFO_CARRIER_FREQUENCY_EXIST,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_CARRIER_FREQUENCY_EXIST,
         "SATELLITES_ADDITIONAL_INFO_CARRIER_FREQUENCY_EXIST");
     return satelliteAdditionalInfo;
 }

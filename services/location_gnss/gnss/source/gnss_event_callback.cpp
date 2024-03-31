@@ -214,7 +214,7 @@ bool GnssEventCallback::IsSvTypeGps(const std::unique_ptr<SatelliteStatus> &sv, 
     if (sv == nullptr) {
         return false;
     }
-    return sv->GetConstellationTypes()[index] == CONSTELLATION_CATEGORY_GPS;
+    return sv->GetConstellationTypes()[index] == HDI::Location::Gnss::V2_0::CONSTELLATION_CATEGORY_GPS;
 }
 
 bool GnssEventCallback::IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int index)
@@ -224,7 +224,7 @@ bool GnssEventCallback::IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int
     }
     return (((static_cast<uint32_t>(sv->GetSatelliteIds()[index]) << SVID_SHIFT_WIDTH) |
         (static_cast<uint32_t>(sv->GetConstellationTypes()[index]) << CONSTELLATION_TYPE_SHIFT_WIDTH)) &
-        (static_cast<uint8_t>(SATELLITES_ADDITIONAL_INFO_USED_IN_FIX))) != 0;
+        (static_cast<uint8_t>(HDI::Location::Gnss::V2_0::SATELLITES_ADDITIONAL_INFO_USED_IN_FIX))) != 0;
 }
 
 void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svid, int cN0Dbhz)
@@ -233,7 +233,7 @@ void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svi
         return;
     }
     sv->SetSatelliteId(svid);
-    sv->SetConstellationType(CONSTELLATION_CATEGORY_GPS);
+    sv->SetConstellationType(HDI::Location::Gnss::V2_0::CONSTELLATION_CATEGORY_GPS);
     sv->SetCarrierToNoiseDensity(cN0Dbhz);
     sv->SetAltitude(60); // elevationDegrees
     sv->SetAzimuth(90); // azimuthDegrees
