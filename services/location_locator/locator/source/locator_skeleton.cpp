@@ -337,6 +337,9 @@ int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, Message
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -375,6 +378,9 @@ int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
 int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -413,6 +419,9 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
 int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -494,6 +503,9 @@ int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
