@@ -145,6 +145,7 @@ public:
     void ProcessReportLocationMock();
     void ReConnectHdi();
     bool CheckIfHdiConnected();
+    void RestGnssWorkStatus();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -165,6 +166,7 @@ private:
     std::mutex gnssMutex_;
     std::mutex nmeaMutex_;
     std::mutex hdiMutex_;
+    std::mutex statusMutex_;
     std::vector<sptr<IGnssStatusCallback>> gnssStatusCallback_;
     std::vector<sptr<INmeaMessageCallback>> nmeaCallback_;
     sptr<IGnssInterface> gnssInterface_;

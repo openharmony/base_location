@@ -970,6 +970,8 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo003, TestSiz
     statusInfo.carrierToNoiseDensitys.push_back(40);
     statusInfo.satelliteIds.push_back(1);
     statusInfo.constellation.push_back(static_cast<ConstellationCategory>(1));
+    statusInfo.additionalInfo.push_back(
+        HDI::Location::Gnss::V2_0::SATELLITES_ADDITIONAL_INFO_EPHEMERIS_DATA_EXIST);
     EXPECT_EQ(ERR_OK, gnssCallback->ReportSatelliteStatusInfo(statusInfo));
     LocationInfo locationInfo;
     locationInfo.latitude = 1.0;
