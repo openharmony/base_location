@@ -332,8 +332,8 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     if (isAdded) {
         if (!CheckIfHdiConnected()) {
             ConnectHdi();
-            EnableGnss();
         }
+        EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
         SetAgnssCallback();
         SetAgnssServer();
@@ -1107,8 +1107,8 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
     }
     if (!gnssAbility->CheckIfHdiConnected()) {
         gnssAbility->ConnectHdi();
-        gnssAbility->EnableGnss();
     }
+    gnssAbility->EnableGnss();
 }
 
 LocationHdiDeathRecipient::LocationHdiDeathRecipient()
