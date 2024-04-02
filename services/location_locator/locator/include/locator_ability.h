@@ -173,7 +173,6 @@ private:
     void SendSwitchState(const int state);
     std::shared_ptr<Request> InitRequest(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    void ExecuteLocatingProcess(std::shared_ptr<Request> request);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
