@@ -110,21 +110,6 @@ LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataC
 napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const napi_value* argv);
 LocationErrCode CheckLocationSwitchEnable();
 #endif
-
-class CallbackResumeManager : public ICallbackResumeManager {
-public:
-    CallbackResumeManager() = default;
-    ~CallbackResumeManager() = default;
-    void ResumeCallback() override;
-private:
-    void InitResumeCallbackFuncMap();
-    void ResumeSwitchCallback();
-    void ResumeGnssStatusCallback();
-    void ResumeNmeaMessageCallback();
-    void ResumeCountryCodeCallback();
-    void ResumeCachedLocationCallback();
-    void ResumeLocating();
-};
 }  // namespace Location
 }  // namespace OHOS
 #endif // LOCATION_NAPI_EVENT_H

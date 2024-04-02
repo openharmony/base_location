@@ -74,7 +74,6 @@ const std::u16string COMMON_DESCRIPTION = u"location.IHifenceAbility";
 const std::string UNLOAD_TASK = "locatior_sa_unload";
 const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
 const uint32_t SET_ENABLE = 3;
-const int NETWORK_MODE = 0;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
@@ -833,25 +832,11 @@ std::shared_ptr<Request> LocatorAbility::InitRequest(std::unique_ptr<RequestConf
     return request;
 }
 
-void LocatorAbility::MatchAppStrategy(AppIdentity &identity, std::unique_ptr<RequestConfig>& requestConfig)
+void LocatorAbility::ExecuteLocatingProcess(std::shared_ptr<Request> request)
 {
-    if (requestConfig != nullptr &&
-        (requestConfig->GetScenario() == SCENE_NO_POWER ||
-        requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE)) {
-        return;
-    }
-    AppStrategyInfo info;
-    info.bundleName = identity.GetBundleName();
-    info.uid = identity.GetUid();
-    LocationErrCode ret = HookUtils::ExecuteHook(
-        LocationProcessStage::QUERY_APP_STRATEGY_PROCESS, (void *)&info, nullptr);
-    if (ret != ERRCODE_SUCCESS) {
-        return;
-    }
-    if (info.retCode && info.foregroundMode == NETWORK_MODE) {
-        LBSLOGI(LOCATOR, "network strategy, cconvert to network request");
-        requestConfig->SetScenario(SCENE_DAILY_LIFE_SERVICE);
-    }
+    LocationSupplicantInfo info;
+    info.request = *request;
+    HookUtils::ExecuteHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, (void *)&info, nullptr);
 }
 
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -868,11 +853,10 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     if (reportManager_ == nullptr || requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    // update request type by app strategy
-    MatchAppStrategy(identity, requestConfig);
     reportManager_->UpdateRandom();
     auto request = InitRequest(requestConfig, callback, identity);
     HookUtils::ExecuteStartLocationProcess(request);
+    ExecuteLocatingProcess(request);
     LBSLOGI(LOCATOR, "start locating");
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary

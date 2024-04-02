@@ -56,13 +56,6 @@ typedef struct {
     bool enableMock;
 } MockLocationStruct;
 
-typedef struct {
-    std::string bundleName;
-    int uid;
-    bool retCode;
-    int foregroundMode;
-} AppStrategyInfo;
-
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
