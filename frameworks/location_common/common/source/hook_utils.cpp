@@ -58,7 +58,7 @@ LocationErrCode HookUtils::ExecuteHook(
     return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-void HookUtils::ExecuteStartLocationProcess(std::shared_ptr<Request> request)
+void HookUtils::ExecuteHookWhenStartLocation(std::shared_ptr<Request> request)
 {
     LocationSupplicantInfo reportStruct;
     reportStruct.request = *request;
@@ -66,28 +66,30 @@ void HookUtils::ExecuteStartLocationProcess(std::shared_ptr<Request> request)
     ExecuteHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, (void *)&reportStruct, nullptr);
 }
 
-void HookUtils::ExecuteStopLocationProcess(std::shared_ptr<Request> request)
+void HookUtils::ExecuteHookWhenStopLocation(std::shared_ptr<Request> request)
 {
     LocationSupplicantInfo reportStruct;
     reportStruct.request = *request;
     reportStruct.retCode = true;
-    ExecuteHook(LocationProcessStage::LOCATOR_SA_STOP_LOCATING, (void *)&reportStruct, nullptr);
+    ExecuteHook(LocationProcessStage::REQUEST_MANAGER_HANDLE_STOP, (void *)&reportStruct, nullptr);
 }
 
-void HookUtils::ExecuteGetAddressFromLocationProcess(std::string packageName)
+void HookUtils::ExecuteHookWhenGetAddressFromLocation(std::string packageName)
 {
     LocationSupplicantInfo reportStruct;
     reportStruct.abilityName = packageName;
     reportStruct.retCode = true;
-    ExecuteHook(LocationProcessStage::LOCATOR_SA_GETADDRESS_FROM_LOCATION_PROCESS, (void *)&reportStruct, nullptr);
+    ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_GET_ADDRESSES_FROM_LOCATION_PROCESS, (void *)&reportStruct, nullptr);
 }
 
-void HookUtils::ExecuteGetAddressFromLocationNameProcess(std::string packageName)
+void HookUtils::ExecuteHookWhenGetAddressFromLocationName(std::string packageName)
 {
     LocationSupplicantInfo reportStruct;
     reportStruct.abilityName = packageName;
     reportStruct.retCode = true;
-    ExecuteHook(LocationProcessStage::LOCATOR_SA_GETADDRESS_FROM_LOCATIONNAME_PROCESS, (void *)&reportStruct, nullptr);
+    ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_GET_ADDRESSES_FROM_LOCATIONNAME_PROCESS, (void *)&reportStruct, nullptr);
 }
 } // namespace Location
 } // namespace OHOS

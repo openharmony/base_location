@@ -832,13 +832,6 @@ std::shared_ptr<Request> LocatorAbility::InitRequest(std::unique_ptr<RequestConf
     return request;
 }
 
-void LocatorAbility::ExecuteLocatingProcess(std::shared_ptr<Request> request)
-{
-    LocationSupplicantInfo info;
-    info.request = *request;
-    HookUtils::ExecuteHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, (void *)&info, nullptr);
-}
-
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
@@ -855,8 +848,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     }
     reportManager_->UpdateRandom();
     auto request = InitRequest(requestConfig, callback, identity);
-    HookUtils::ExecuteStartLocationProcess(request);
-    ExecuteLocatingProcess(request);
+    HookUtils::ExecuteHookWhenStartLocation(request);
     LBSLOGI(LOCATOR, "start locating");
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
@@ -1104,7 +1096,7 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
             "appName", bundleName
         });
     }
-    HookUtils::ExecuteGetAddressFromLocationProcess(bundleName);
+    HookUtils::ExecuteHookWhenGetAddressFromLocation(bundleName);
     reply.RewindRead(0);
 }
 #endif
@@ -1144,7 +1136,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
             "appName", bundleName
         });
     }
-    HookUtils::ExecuteGetAddressFromLocationNameProcess(bundleName);
+    HookUtils::ExecuteHookWhenGetAddressFromLocationName(bundleName);
     reply.RewindRead(0);
 }
 #endif

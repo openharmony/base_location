@@ -280,7 +280,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         auto request = *iter;
         locatorAbility->UnregisterPermissionCallback(request->GetTokenId());
         deadRequests->push_back(request);
-        HookUtils::ExecuteStopLocationProcess(request);
+        HookUtils::ExecuteHookWhenStopLocation(request);
         LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "get %{public}s dead request", std::to_string(deadRequests->size()).c_str());
