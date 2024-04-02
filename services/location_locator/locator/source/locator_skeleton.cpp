@@ -608,6 +608,9 @@ int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, Message
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSendCommand: LocatorAbility is nullptr.");
