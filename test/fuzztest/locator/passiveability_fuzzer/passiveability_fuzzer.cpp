@@ -34,6 +34,28 @@ namespace OHOS {
 using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t SLEEP_TIMES = 1000;
+const int32_t LOCATION_PERM_NUM = 4;
+
+void MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "GnssAbility_FuzzTest",
+        .aplStr = "system_basic",
+    };
+    auto tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
 
 char* ParseData(const uint8_t* data, size_t size)
 {
@@ -60,7 +82,7 @@ char* ParseData(const uint8_t* data, size_t size)
 }
 
 #ifdef FEATURE_PASSIVE_SUPPORT
-bool PassiveAbilityFuzzTest(const char* data, size_t size)
+bool PassiveAbility001FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"location.IPassiveAbility");
@@ -70,20 +92,80 @@ bool PassiveAbilityFuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability1 = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
-    ability1->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST),
+    auto ability = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST),
         requestParcel, reply, option);
-    auto ability2 = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
-    ability2->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE),
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    
+    return true;
+}
+
+bool PassiveAbility002FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IPassiveAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE),
         requestParcel, reply, option);
-    auto ability3 = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
-    ability3->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK),
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    
+    return true;
+}
+
+bool PassiveAbility003FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IPassiveAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK),
         requestParcel, reply, option);
-    auto ability4 = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
-    ability4->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK),
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    
+    return true;
+}
+
+bool PassiveAbility004FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IPassiveAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK),
         requestParcel, reply, option);
-    auto ability5 = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
-    ability5->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS),
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    
+    return true;
+}
+
+bool PassiveAbility005FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IPassiveAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     
@@ -95,10 +177,15 @@ bool PassiveAbilityFuzzTest(const char* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    OHOS::MockNativePermission();
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
 #ifdef FEATURE_PASSIVE_SUPPORT
-        OHOS::PassiveAbilityFuzzTest(ch, size);
+        OHOS::PassiveAbility001FuzzTest(ch, size);
+        OHOS::PassiveAbility002FuzzTest(ch, size);
+        OHOS::PassiveAbility003FuzzTest(ch, size);
+        OHOS::PassiveAbility004FuzzTest(ch, size);
+        OHOS::PassiveAbility005FuzzTest(ch, size);
 #endif
         free(ch);
         ch = nullptr;

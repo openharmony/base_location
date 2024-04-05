@@ -35,6 +35,27 @@ const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t CODE_MAX = 50;
 const int32_t CODE_MIN = 1;
 const int32_t MIN_SIZE_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 4;
+void MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "GnssAbility_FuzzTest",
+        .aplStr = "system_basic",
+    };
+    auto tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -86,6 +107,7 @@ bool NetworkCallbackHostFuzzTest(const char* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    OHOS::MockNativePermission();
     if (size < OHOS::MIN_SIZE_NUM) {
         return 0;
     }

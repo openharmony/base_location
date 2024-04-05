@@ -20,26 +20,6 @@
 
 namespace OHOS {
 namespace Location {
-#ifdef HILOG_FATAL
-#undef HILOG_FATAL
-#endif
-
-#ifdef HILOG_ERROR
-#undef HILOG_ERROR
-#endif
-
-#ifdef HILOG_WARN
-#undef HILOG_WARN
-#endif
-
-#ifdef HILOG_INFO
-#undef HILOG_INFO
-#endif
-
-#ifdef HILOG_DEBUG
-#undef HILOG_DEBUG
-#endif
-
 #ifndef LOCATION_LOG_DOMAIN
 #define LOCATION_LOG_DOMAIN 0xD002300
 #endif
@@ -82,11 +62,6 @@ namespace Location {
 #define LBSLOGF(label, fmt, ...) do { \
     (void)HILOG_IMPL(LOG_CORE, HILOG_FATAL, LOCATION_LOG_DOMAIN, label.tag, \
     LOCATION_FUNC_FMT fmt, LOCATION_FUNC_INFO, ##__VA_ARGS__);              \
-} while (0)
-
-#define HILOG_ERROR(label, fmt, ...) do { \
-    (void)HILOG_IMPL(LOG_CORE, LOG_ERROR, LOCATION_LOG_DOMAIN, label.tag, \
-    LOCATION_FUNC_FMT fmt, LOCATION_FUNC_INFO, ##__VA_ARGS__);            \
 } while (0)
 
 static constexpr OHOS::HiviewDFX::HiLogLabel GEO_CONVERT = {LOG_CORE, LOCATION_LOG_DOMAIN, "GeoConvert"};

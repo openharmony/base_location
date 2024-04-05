@@ -163,6 +163,15 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
+            identity.GetTokenIdEx(), identity.GetUid()) &&
+            !CommonUtils::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+            return ERRCODE_PERMISSION_DENIED;
+        }
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartLocating: LocatorAbility is nullptr.");
@@ -328,6 +337,9 @@ int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, Message
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -366,6 +378,9 @@ int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
 int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -404,6 +419,9 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
 int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -485,6 +503,9 @@ int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -587,6 +608,9 @@ int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, Message
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSendCommand: LocatorAbility is nullptr.");

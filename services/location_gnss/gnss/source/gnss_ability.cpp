@@ -179,10 +179,7 @@ void GnssAbility::UnloadGnssSystemAbility()
 
 bool GnssAbility::CheckIfGnssConnecting()
 {
-    std::unique_lock<std::mutex> gnssLock(gnssMutex_);
-    std::unique_lock<std::mutex> nmeaLock(nmeaMutex_);
-    return IsMockEnabled() || !gnssStatusCallback_.empty()
-        || !nmeaCallback_.empty() || GetRequestNum() != 0 || IsMockProcessing();
+    return IsMockEnabled() || GetRequestNum() != 0 || IsMockProcessing();
 }
 
 LocationErrCode GnssAbility::RefrashRequirements()
@@ -335,8 +332,8 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     if (isAdded) {
         if (!CheckIfHdiConnected()) {
             ConnectHdi();
-            EnableGnss();
         }
+        EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
         SetAgnssCallback();
         SetAgnssServer();
@@ -541,6 +538,12 @@ bool GnssAbility::IsGnssEnabled()
 {
     return (gnssWorkingStatus_ != GNSS_STATUS_ENGINE_OFF &&
         gnssWorkingStatus_ != GNSS_STATUS_NONE);
+}
+
+void GnssAbility::RestGnssWorkStatus()
+{
+    std::unique_lock<std::mutex> uniqueLock(statusMutex_);
+    gnssWorkingStatus_ = GNSS_STATUS_NONE;
 }
 
 void GnssAbility::StartGnss()
@@ -1104,8 +1107,8 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
     }
     if (!gnssAbility->CheckIfHdiConnected()) {
         gnssAbility->ConnectHdi();
-        gnssAbility->EnableGnss();
     }
+    gnssAbility->EnableGnss();
 }
 
 LocationHdiDeathRecipient::LocationHdiDeathRecipient()
@@ -1123,6 +1126,7 @@ void LocationHdiDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
         LBSLOGI(LOCATOR, "hdi reconnecting");
         // wait for device unloaded
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
+        gnssAbility->RestGnssWorkStatus();
         gnssAbility->ReConnectHdi();
         LBSLOGI(LOCATOR, "hdi connected finish");
     }
