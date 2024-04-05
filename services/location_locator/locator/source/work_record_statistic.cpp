@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-#include "common_utils.h"
 #include "work_record_statistic.h"
+#include "common_utils.h"
+#include "location_data_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -58,12 +59,12 @@ bool WorkRecordStatistic::UpdateLocationWorkingState()
     }
 
     if (requestNum == 1 && location_working_state_ != WORKING_STATE) {
-        if (!CommonUtils::SetLocationWorkingState(WORKING_STATE)) {
+        if (!LocationDataManager::SetLocationWorkingState(WORKING_STATE)) {
             return false;
         }
         location_working_state_ = WORKING_STATE;
     } else if (requestNum == 0 && location_working_state_ != NO_WORKING_STATE) {
-        if (!CommonUtils::SetLocationWorkingState(NO_WORKING_STATE)) {
+        if (!LocationDataManager::SetLocationWorkingState(NO_WORKING_STATE)) {
             return false;
         }
         location_working_state_ = NO_WORKING_STATE;

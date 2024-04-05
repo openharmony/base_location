@@ -39,6 +39,8 @@
 #include "location_sa_load_manager.h"
 #include "locationhub_ipc_interface_code.h"
 #include "location_log_event_ids.h"
+#include "location_data_manager.h"
+#include "location_data_manager.h"
 
 #include "hook_utils.h"
 
@@ -491,7 +493,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 
 bool GnssAbility::EnableGnss()
 {
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
@@ -548,7 +550,7 @@ void GnssAbility::RestGnssWorkStatus()
 
 void GnssAbility::StartGnss()
 {
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return;
     }

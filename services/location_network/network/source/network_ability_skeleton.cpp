@@ -27,6 +27,7 @@
 #include "subability_common.h"
 #include "work_record.h"
 #include "locationhub_ipc_interface_code.h"
+#include "location_data_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -149,7 +150,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 
 bool NetworkAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
 {
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(NETWORK, "%{public}s: %{public}d switch state is off.", __func__, __LINE__);
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return false;

@@ -110,5 +110,63 @@ bool LocationDataManager::IsSwitchStateReg()
     std::unique_lock<std::mutex> lock(mutex_);
     return (switchCallbacks_->size() > 0);
 }
+
+int LocationDataManager::QuerySwitchState()
+{
+    int32_t state = DISABLED;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
+    }
+    return state;
+}
+
+LocationErrCode LocationDataManager::SetSwitchState(int modeValue)
+{
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    return DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
+}
+
+
+std::string LocationDataManager::GetLocationDataUri(std::string key)
+{
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_" +
+        std::to_string(userId) +
+        "?Proxy=true&key=" + key;
+    return uri;
+}
+
+bool LocationDataManager::SetLocationWorkingState(int32_t state)
+{
+    std::unique_lock<std::mutex> lock(locationWorkingState_);
+    Uri locationWorkingStateUri(LocationDataManager::GetLocationDataUri(LOCATION_WORKING_STATE));
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        SetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: can not set value to db, errcode = %{public}d", __func__, errCode);
+        return false;
+    }
+    return true;
+}
+
+bool LocationDataManager::GetLocationWorkingState(int32_t& state)
+{
+    std::unique_lock<std::mutex> lock(locationWorkingState_);
+    Uri locationWorkingStateUri(LocationDataManager::GetLocationDataUri(LOCATION_WORKING_STATE));
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: can not get value, errcode = %{public}d", __func__, errCode);
+        return false;
+    }
+    return true;
+}
 }  // namespace Location
 }  // namespace OHOS

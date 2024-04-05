@@ -40,6 +40,7 @@
 #include "location_sa_load_manager.h"
 #include "locationhub_ipc_interface_code.h"
 #include "locator_required_data_manager.h"
+#include "location_data_manager.h"
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
 #endif
@@ -105,7 +106,7 @@ void LocatorAbility::OnStart()
     }
     state_ = ServiceRunningState::STATE_RUNNING;
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
-    if (!CommonUtils::SetLocationWorkingState(0)) {
+    if (!LocationDataManager::SetLocationWorkingState(0)) {
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
     LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
@@ -115,7 +116,7 @@ void LocatorAbility::OnStop()
 {
     state_ = ServiceRunningState::STATE_NOT_START;
     registerToAbility_ = false;
-    if (!CommonUtils::SetLocationWorkingState(0)) {
+    if (!LocationDataManager::SetLocationWorkingState(0)) {
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
@@ -277,7 +278,7 @@ LocationErrCode LocatorAbility::UpdateSaAbility()
 
 void LocatorAbility::UpdateSaAbilityHandler()
 {
-    int state = CommonUtils::QuerySwitchState();
+    int state = LocationDataManager::QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
     bool isEnabled = (state == ENABLED);
@@ -370,14 +371,11 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
-    if (modeValue == CommonUtils::QuerySwitchState()) {
+    if (modeValue == LocationDataManager::QuerySwitchState()) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
-        SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
-    if (errCode != ERRCODE_SUCCESS) {
+    if (LocationDataManager::SetSwitchState(modeValue) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -389,7 +387,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    state = CommonUtils::QuerySwitchState();
+    state = LocationDataManager::QuerySwitchState();
     return ERRCODE_SUCCESS;
 }
 
@@ -836,7 +834,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return ERRCODE_NOT_SUPPORTED;
 #endif
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataManager::QuerySwitchState() == DISABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     // update offset before add request

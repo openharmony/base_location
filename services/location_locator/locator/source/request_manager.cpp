@@ -38,6 +38,7 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 #include "hook_utils.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -81,7 +82,7 @@ void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     uint32_t callingFirstTokenid = request->GetFirstTokenId();
     int32_t uid = request->GetUid();
     if (IsUidInProcessing(uid) &&
-        CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetApproximatelyPermState()) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
             request->SetApproximatelyPermState(true);
@@ -408,7 +409,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     if (reportManager != nullptr) {
         if (reportManager->IsAppBackground(bundleName, request->GetTokenId(),
             request->GetTokenIdEx(), requestUid)&&
-            !CommonUtils::CheckBackgroundPermission(request->GetTokenId(), request->GetFirstTokenId())) {
+            !PermissionManager::CheckBackgroundPermission(request->GetTokenId(), request->GetFirstTokenId())) {
             return false;
         }
     }
@@ -431,8 +432,8 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     uint32_t tokenId = request->GetTokenId();
     uint32_t firstTokenId = request->GetFirstTokenId();
     // if location access permission granted, add request info to work record
-    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
