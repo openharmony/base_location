@@ -491,7 +491,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 
 bool GnssAbility::EnableGnss()
 {
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
@@ -548,7 +548,7 @@ void GnssAbility::RestGnssWorkStatus()
 
 void GnssAbility::StartGnss()
 {
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return;
     }

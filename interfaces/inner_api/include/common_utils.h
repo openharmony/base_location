@@ -44,14 +44,6 @@ const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTIN
 const std::string LOCATION_DIR = "/data/service/el1/public/location/";
 const std::string SWITCH_CONFIG_NAME = "location_switch";
 const std::string PRIVACY_CONFIG_NAME = "location_privacy";
-const std::string LOCATION_DATA_ABILITY_PREFIX = "datashare://";
-const std::string LOCATION_DATA_URI_ID =
-    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=location_enable";
-const std::string LOCATION_DATA_URI = LOCATION_DATA_ABILITY_PREFIX + LOCATION_DATA_URI_ID;
-const std::string LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
-const std::string LOCATION_DATA_COLUMN_VALUE = "VALUE";
-const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
-const std::string LOCATION_WORKING_STATE = "location_working_state";
 const std::string NLP_SERVICE_NAME = "const.location.nlp_service_name";
 const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
 const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
@@ -193,7 +185,6 @@ public:
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool CheckAppInstalled(const std::string& bundleName);
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
-    static int QuerySwitchState();
     static int64_t GetCurrentTime();
     static int64_t GetCurrentTimeStamp();
     static std::vector<std::string> Split(std::string str, std::string pattern);
@@ -204,9 +195,6 @@ public:
     static bool InitLocationSa(int32_t systemAbilityId);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static std::string GenerateUuid();
-    static std::string GetLocationDataUri(std::string key);
-    static bool SetLocationWorkingState(int32_t state);
-    static bool GetLocationWorkingState(int32_t& state);
 };
 
 class CountDownLatch {

@@ -255,9 +255,9 @@ bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& req
 {
     uint32_t tokenId = request->GetTokenId();
     uint32_t firstTokenId = request->GetFirstTokenId();
-    return ((CommonUtils::CheckLocationPermission(tokenId, firstTokenId) ||
-            CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) &&
-            CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId));
+    return ((PermissionManager::CheckLocationPermission(tokenId, firstTokenId) ||
+            PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) &&
+            PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId));
 }
 
 void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active)
@@ -568,7 +568,7 @@ bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
 bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
 {
     bool ret = false;
-    if (!CommonUtils::CheckSystemPermission(tokenId, tokenIdEx)) {
+    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
         return ret;
     }
 #ifdef FMSKIT_NATIVE_SUPPORT

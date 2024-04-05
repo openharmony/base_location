@@ -181,14 +181,14 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_
         //app background, no background permission, not ContinuousTasks
         return nullptr;
     }
-    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
-    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         finalLocation = ApproximatelyLocation(location);
     }
     return finalLocation;
@@ -228,7 +228,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         LBSLOGE(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());
         return false;
     }
-    int permissionLevel = CommonUtils::GetPermissionLevel(request->GetTokenId(), request->GetFirstTokenId());
+    int permissionLevel = PermissionManager::GetPermissionLevel(request->GetTokenId(), request->GetFirstTokenId());
     if (request->GetLastLocation() == nullptr || request->GetRequestConfig() == nullptr) {
         return true;
     }

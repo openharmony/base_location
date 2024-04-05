@@ -198,48 +198,6 @@ HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest001 end");
 }
 
-HWTEST_F(CommonUtilsTest, GetRemoteObjectTest002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CommonUtilsTest, GetRemoteObjectTest002, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest002 begin");
-    uint32_t invalidTokenId = 0;
-    uint32_t firstTokenId = 0;
-    // invalid type
-    EXPECT_EQ(false, CommonUtils::CheckLocationPermission(invalidTokenId, firstTokenId));
-    EXPECT_EQ(false, CommonUtils::CheckApproximatelyPermission(invalidTokenId, firstTokenId));
-    EXPECT_EQ(false, CommonUtils::CheckBackgroundPermission(invalidTokenId, firstTokenId));
-    EXPECT_EQ(false, CommonUtils::CheckSecureSettings(invalidTokenId, firstTokenId));
-
-    // shell type
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    EXPECT_EQ(false, CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, CommonUtils::CheckBackgroundPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, CommonUtils::CheckSecureSettings(callingTokenId, callingFirstTokenid));
-
-    MockNativePermission(); // grant the location permissions
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
-    EXPECT_EQ(true, CommonUtils::CheckLocationPermission(tokenId, 0));
-    EXPECT_EQ(true, CommonUtils::CheckApproximatelyPermission(tokenId, 0));
-    EXPECT_EQ(true, CommonUtils::CheckBackgroundPermission(tokenId, 0));
-    EXPECT_EQ(true, CommonUtils::CheckSecureSettings(tokenId, 0));
-
-    // invalid first token id
-    EXPECT_EQ(false, CommonUtils::CheckLocationPermission(tokenId, 1));
-    EXPECT_EQ(false, CommonUtils::CheckApproximatelyPermission(tokenId, 1));
-    EXPECT_EQ(false, CommonUtils::CheckBackgroundPermission(tokenId, 1));
-    EXPECT_EQ(false, CommonUtils::CheckSecureSettings(tokenId, 1));
-
-    // valid token id and first token id
-    EXPECT_EQ(true, CommonUtils::CheckLocationPermission(tokenId, tokenId));
-    EXPECT_EQ(true, CommonUtils::CheckApproximatelyPermission(tokenId, tokenId));
-    EXPECT_EQ(true, CommonUtils::CheckBackgroundPermission(tokenId, tokenId));
-    EXPECT_EQ(true, CommonUtils::CheckSecureSettings(tokenId, tokenId));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest002 end");
-}
-
 HWTEST_F(CommonUtilsTest, GetCurrentUserIdTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -282,56 +240,6 @@ HWTEST_F(CommonUtilsTest, CalculationTest001, TestSize.Level1)
     EXPECT_NE(0, CommonUtils::CalDistance(1.0, 1.0, NUM_ACC_E6, 1.0));
     EXPECT_NE(-1, CommonUtils::DoubleRandom(0.0, 1.0));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CalculationTest001 end");
-}
-
-HWTEST_F(CommonUtilsTest, GetPermissionLevelTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CommonUtilsTest, GetPermissionLevelTest001, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest001 begin");
-    EXPECT_EQ(PERMISSION_INVALID, CommonUtils::GetPermissionLevel(0, 0));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest001 end");
-}
-
-HWTEST_F(CommonUtilsTest, GetPermissionLevelTest002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CommonUtilsTest, GetPermissionLevelTest002, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest002 begin");
-    MockNativePermission();
-    EXPECT_EQ(PERMISSION_ACCURATE, CommonUtils::GetPermissionLevel(tokenId_, 0));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest002 end");
-}
-
-HWTEST_F(CommonUtilsTest, GetPermissionLevelTest003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CommonUtilsTest, GetPermissionLevelTest003, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest003 begin");
-    MockNativeAccurateLocation();
-    EXPECT_EQ(PERMISSION_ACCURATE, CommonUtils::GetPermissionLevel(tokenIdForAcc_, 0));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest003 end");
-}
-
-HWTEST_F(CommonUtilsTest, GetPermissionLevelTest004, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CommonUtilsTest, GetPermissionLevelTest004, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest004 begin");
-    MockNativeApproxiPermission();
-    EXPECT_EQ(PERMISSION_APPROXIMATELY, CommonUtils::GetPermissionLevel(tokenIdForApproxi_, 0));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetPermissionLevelTest004 end");
-}
-
-HWTEST_F(CommonUtilsTest, CheckSystemPermissionTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CommonUtilsTest, CheckSystemPermissionTest001, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckSystemPermissionTest001 begin");
-    EXPECT_EQ(false, CommonUtils::CheckSystemPermission(0, 1));
-    MockNativePermission();
-    EXPECT_EQ(true, CommonUtils::CheckSystemPermission(tokenId_, 1));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckSystemPermissionTest001 end");
 }
 
 HWTEST_F(CommonUtilsTest, GetBundleNameByUidTest001, TestSize.Level1)
@@ -381,18 +289,6 @@ HWTEST_F(CommonUtilsTest, CountDownLatchCountDownTest003, TestSize.Level1)
     latch->SetCount(5);
     latch->CountDown();
     EXPECT_EQ(4, latch->GetCount());
-}
-
-HWTEST_F(CommonUtilsTest, CheckCallingPermissionTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "CommonUtilsTest, CheckCallingPermissionTest001, TestSize.Level1";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckCallingPermissionTest001 begin");
-    pid_t uid = 8888;
-    pid_t pid = 8888;
-    MessageParcel reply;
-    EXPECT_EQ(false, CommonUtils::CheckCallingPermission(uid, pid, reply));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckCallingPermissionTest001 end");
 }
 
 HWTEST_F(CommonUtilsTest, GetMacArrayTest001, TestSize.Level1)
