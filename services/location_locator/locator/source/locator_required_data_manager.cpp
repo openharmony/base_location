@@ -28,9 +28,6 @@ LocatorRequiredDataManager::LocatorRequiredDataManager()
 #ifdef WIFI_ENABLE
     WifiInfoInit();
 #endif
-#ifdef BLUETOOTH_ENABLE
-    BleInfoInit();
-#endif
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true));
 }
 
