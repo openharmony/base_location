@@ -28,6 +28,7 @@
 #include "common_utils.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -42,6 +43,7 @@ const double NUM_ACC_E7 = 1.0000001;
 void CommonUtilsTest::SetUp()
 {
     LoadSystemAbility();
+    MockNativeAccurateLocation();
 }
 
 void CommonUtilsTest::TearDown()
@@ -316,14 +318,6 @@ HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
     std::string name = "";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 begin");
     CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
-}
-
-HWTEST_F(CommonUtilsTest, CheckRssProcessName001, TestSize.Level1)
-{
-    uint32_t invalidTokenId = 0;
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckRssProcessName001 begin");
-    EXPECT_EQ(false, CommonUtils::CheckRssProcessName(invalidTokenId));
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] CheckRssProcessName001 end");
 }
 
 HWTEST_F(CommonUtilsTest, GenerateUuid001, TestSize.Level1)

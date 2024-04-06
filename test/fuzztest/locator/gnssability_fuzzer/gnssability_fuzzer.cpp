@@ -29,6 +29,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability.h"
 #endif
+#include "permission_manager.h"
 
 namespace OHOS {
 using namespace OHOS::Location;

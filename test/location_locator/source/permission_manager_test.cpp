@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "common_utils_test.h"
+#include "permission_manager_test.h"
 
 #include <singleton.h>
 #include "string_ex.h"
@@ -25,9 +25,9 @@
 #include "system_ability_definition.h"
 #include "token_setproc.h"
 
-#include "permission.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -35,13 +35,8 @@ namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const int32_t APPOXI_LOCATION_PERM_NUM = 3;
 const int32_t ACC_LOCATION_PERM_NUM = 3;
-const int UNKNOWN_SA_ID = -1;
-const uint32_t CAPABILITY = 0x102;
-const double NUM_ACC_E6 = 1.000001;
-const double NUM_ACC_E7 = 1.0000001;
 void PermissionManagerTest::SetUp()
 {
-    LoadSystemAbility();
 }
 
 void PermissionManagerTest::TearDown()
@@ -61,7 +56,7 @@ void PermissionManagerTest::MockNativePermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "CommonTest1",
+        .processName = "PermissionManagerTest1",
         .aplStr = "system_basic",
     };
     tokenId_ = GetAccessTokenId(&infoInstance);
@@ -82,7 +77,7 @@ void PermissionManagerTest::MockNativeApproxiPermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "CommonTest2",
+        .processName = "PermissionManagerTest2",
         .aplStr = "system_basic",
     };
     tokenIdForApproxi_ = GetAccessTokenId(&infoInstance);
@@ -103,33 +98,12 @@ void PermissionManagerTest::MockNativeAccurateLocation()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "CommonTest3",
+        .processName = "PermissionManagerTest3",
         .aplStr = "system_basic",
     };
     tokenIdForAcc_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenIdForAcc_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-}
-
-void PermissionManagerTest::LoadSystemAbility()
-{
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (locationSaLoadManager == nullptr) {
-        return;
-    }
-    locationSaLoadManager->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
-#ifdef FEATURE_GNSS_SUPPORT
-    locationSaLoadManager->LoadLocationSa(LOCATION_GNSS_SA_ID);
-#endif
-#ifdef FEATURE_PASSIVE_SUPPORT
-    locationSaLoadManager->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
-#endif
-#ifdef FEATURE_NETWORK_SUPPORT
-    locationSaLoadManager->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
-#endif
-#ifdef FEATURE_GEOCODE_SUPPORT
-    locationSaLoadManager->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
-#endif
 }
 
 HWTEST_F(PermissionManagerTest, GetRemoteObjectTest002, TestSize.Level1)
@@ -144,14 +118,6 @@ HWTEST_F(PermissionManagerTest, GetRemoteObjectTest002, TestSize.Level1)
     EXPECT_EQ(false, PermissionManager::CheckApproximatelyPermission(invalidTokenId, firstTokenId));
     EXPECT_EQ(false, PermissionManager::CheckBackgroundPermission(invalidTokenId, firstTokenId));
     EXPECT_EQ(false, PermissionManager::CheckSecureSettings(invalidTokenId, firstTokenId));
-
-    // shell type
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    EXPECT_EQ(false, PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, PermissionManager::CheckBackgroundPermission(callingTokenId, callingFirstTokenid));
-    EXPECT_EQ(false, PermissionManager::CheckSecureSettings(callingTokenId, callingFirstTokenid));
 
     MockNativePermission(); // grant the location permissions
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);

@@ -18,14 +18,18 @@
 
 #include <gtest/gtest.h>
 
-#include "permission_manager.h"
-
 namespace OHOS {
 namespace Location {
 class PermissionManagerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    void MockNativePermission();
+    void MockNativeApproxiPermission();
+    void MockNativeAccurateLocation();
+    uint64_t tokenId_;
+    uint64_t tokenIdForApproxi_;
+    uint64_t tokenIdForAcc_;
 };
 } // namespace Location
 } // namespace OHOS

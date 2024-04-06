@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,8 @@
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "tokenid_kit.h"
+#include "location_log.h"
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -35,7 +37,7 @@ bool PermissionManager::CheckPermission(const std::string &permission, uint32_t 
     int result = Security::AccessToken::PERMISSION_DENIED;
     if (tokenFirstCaller == 0) {
         if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
-            LBSLOGE(COMMON_UTILS, "tokenid = %{public}d has no permission.permission name=%{public}s",
+            LBSLOGE(LOCATOR, "tokenid = %{public}d has no permission.permission name=%{public}s",
                 callerToken, permission.c_str());
             return false;
         } else {
@@ -47,7 +49,7 @@ bool PermissionManager::CheckPermission(const std::string &permission, uint32_t 
     if (result == Security::AccessToken::PERMISSION_GRANTED) {
         return true;
     } else {
-        LBSLOGE(COMMON_UTILS, "tokenid = %{public}d has no permission.permission name=%{public}s",
+        LBSLOGE(LOCATOR, "tokenid = %{public}d has no permission.permission name=%{public}s",
             callerToken, permission.c_str());
         return false;
     }
@@ -58,7 +60,7 @@ bool PermissionManager::CheckRssProcessName(uint32_t tokenId)
     Security::AccessToken::NativeTokenInfo callingTokenInfo;
     Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(tokenId, callingTokenInfo);
     if (callingTokenInfo.processName != RSS_PROCESS_NAME) {
-        LBSLOGE(COMMON_UTILS, "CheckProcess failed, processName=%{public}s", callingTokenInfo.processName.c_str());
+        LBSLOGE(LOCATOR, "CheckProcess failed, processName=%{public}s", callingTokenInfo.processName.c_str());
         return false;
     }
     return true;
@@ -82,7 +84,7 @@ bool PermissionManager::CheckSecureSettings(uint32_t tokenId, uint32_t firstToke
 bool PermissionManager::CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply)
 {
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(COMMON_UTILS, "uid pid not match locationhub process.");
+        LBSLOGE(LOCATOR, "uid pid not match locationhub process.");
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     }

@@ -27,6 +27,8 @@
 #include "subability_common.h"
 #include "work_record.h"
 #include "locationhub_ipc_interface_code.h"
+#include "location_data_rdb_manager.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -56,7 +58,7 @@ NetworkAbilityStub::NetworkAbilityStub()
 
 int NetworkAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST), data, reply);
@@ -66,7 +68,7 @@ int NetworkAbilityStub::SendLocationRequestInner(MessageParcel &data, MessagePar
 
 int NetworkAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
@@ -76,7 +78,7 @@ int NetworkAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel
 
 int NetworkAbilityStub::SelfRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     if (CheckLocationSwitchState(reply)) {
@@ -89,7 +91,7 @@ int NetworkAbilityStub::SelfRequestInner(MessageParcel &data, MessageParcel &rep
 
 int NetworkAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(SetEnable(data.ReadBool()));
@@ -98,7 +100,7 @@ int NetworkAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply
 
 int NetworkAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(EnableMock());
@@ -107,7 +109,7 @@ int NetworkAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &repl
 
 int NetworkAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(DisableMock());
@@ -149,7 +151,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 
 bool NetworkAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
 {
-    if (LocationDataManager::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(NETWORK, "%{public}s: %{public}d switch state is off.", __func__, __LINE__);
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return false;

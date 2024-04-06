@@ -29,6 +29,7 @@
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability.h"
 #endif
+#include "permission_manager.h"
 
 
 namespace OHOS {

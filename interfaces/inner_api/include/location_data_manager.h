@@ -34,14 +34,9 @@ public:
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     void SetCachedSwitchState(int32_t state);
     bool IsSwitchStateReg();
-    static int QuerySwitchState();
-    static std::string GetLocationDataUri(std::string key);
-    static bool SetLocationWorkingState(int32_t state);
-    static bool GetLocationWorkingState(int32_t& state);
 private:
     std::mutex mutex_;
     std::mutex switchStateMutex_;
-    std::mutex locationWorkingState_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
     int32_t cachedSwitchState_ = DISABLED;
     bool isStateCached_ = false;

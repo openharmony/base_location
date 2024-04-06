@@ -25,6 +25,7 @@
 #include "locator_background_proxy.h"
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
+#include "permission_manager.h"
 
 #include "hook_utils.h"
 
@@ -102,7 +103,7 @@ void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint64
         LBSLOGI(REPORT_MANAGER, "location == nullptr");
         return;
     }
-    if (!CommonUtils::CheckSystemPermission(tokenId, tokenIdEx)) {
+    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
         location->SetIsFromMock(-1);
     }
 }
@@ -177,7 +178,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
     if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
-        !CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId)) {
+        !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
         return nullptr;
     }

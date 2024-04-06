@@ -37,10 +37,6 @@ const std::string FUSED_ABILITY = "fused";
 const std::string GEO_ABILITY = "geo";
 const std::string DEFAULT_ABILITY = "default";
 
-const std::string ACCESS_LOCATION = "ohos.permission.LOCATION";
-const std::string ACCESS_APPROXIMATELY_LOCATION = "ohos.permission.APPROXIMATELY_LOCATION";
-const std::string ACCESS_BACKGROUND_LOCATION = "ohos.permission.LOCATION_IN_BACKGROUND";
-const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTINGS";
 const std::string LOCATION_DIR = "/data/service/el1/public/location/";
 const std::string SWITCH_CONFIG_NAME = "location_switch";
 const std::string PRIVACY_CONFIG_NAME = "location_privacy";
@@ -52,7 +48,6 @@ const std::string SUPL_MODE_NAME = "const.location.supl_mode";
 const std::string EDM_POLICY_NAME = "persist.edm.location_policy";
 const std::string AGNSS_SERVER_ADDR = "const.location.agnss_server_addr";
 const std::string AGNSS_SERVER_PORT = "const.location.agnss_server_port";
-const std::string RSS_PROCESS_NAME = "resource_schedule_service";
 
 const std::string BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
@@ -102,16 +97,12 @@ static constexpr double DEGREE_DOUBLE_PI = 360.0;
 static constexpr long LONG_TIME_INTERVAL = 24 * 60 * 60;
 static constexpr int32_t LOCATION_LOADSA_TIMEOUT_MS = 5000;
 
-static constexpr int PERMISSION_ACCURATE = 2;
-static constexpr int PERMISSION_APPROXIMATELY = 1;
-static constexpr int PERMISSION_INVALID = 0;
 static constexpr int LOCATOR_UID = 1021;
 static constexpr int MAXIMUM_INTERATION = 100;
 static constexpr int MAXIMUM_CACHE_LOCATIONS = 1000;
 static constexpr int MAXIMUM_LOCATING_REQUIRED_DATAS = 200;
 static constexpr int MAC_LEN = 6;
 static constexpr int DEFAULT_CODE = 0;
-static constexpr int DEFAULT_USERID = 100;
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
@@ -167,21 +158,12 @@ public:
     static sptr<IRemoteObject> GetRemoteObject(int abilityId);
     static sptr<IRemoteObject> GetRemoteObject(int abilityId, std::string deviceId);
     static std::string InitDeviceId();
-    static bool CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckApproximatelyPermission(uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckPermission(const std::string &permission, uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply);
-    static bool CheckRssProcessName(uint32_t tokenId);
     static bool GetCurrentUserId(int &userId);
     static std::string Str16ToStr8(std::u16string str);
     static bool DoubleEqual(double a, double b);
     static double CalDistance(const double lat1, const double lon1, const double lat2, const double lon2);
     static double DoubleRandom(double min, double max);
     static int IntRandom(int min, int max);
-    static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
-    static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool CheckAppInstalled(const std::string& bundleName);
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);

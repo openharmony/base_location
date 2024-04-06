@@ -16,8 +16,22 @@
 #ifndef PERMISSION_MANAGER_H
 #define PERMISSION_MANAGER_H
 
+#include <unistd.h>
+#include <string>
+
+#include "message_parcel.h"
 namespace OHOS {
 namespace Location {
+const std::string ACCESS_LOCATION = "ohos.permission.LOCATION";
+const std::string ACCESS_APPROXIMATELY_LOCATION = "ohos.permission.APPROXIMATELY_LOCATION";
+const std::string ACCESS_BACKGROUND_LOCATION = "ohos.permission.LOCATION_IN_BACKGROUND";
+const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTINGS";
+const std::string RSS_PROCESS_NAME = "resource_schedule_service";
+
+static constexpr int PERMISSION_ACCURATE = 2;
+static constexpr int PERMISSION_APPROXIMATELY = 1;
+static constexpr int PERMISSION_INVALID = 0;
+
 class PermissionManager {
 public:
     static bool CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId);
@@ -27,6 +41,8 @@ public:
     static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply);
     static bool CheckRssProcessName(uint32_t tokenId);
+    static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
+    static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
 };
 } // namespace Location
 } // namespace OHOS

@@ -30,6 +30,7 @@
 #include "locating_required_data_config.h"
 #include "locator_required_data_manager.h"
 #include "location_log_event_ids.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {

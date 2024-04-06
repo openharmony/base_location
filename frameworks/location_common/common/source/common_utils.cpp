@@ -18,17 +18,19 @@
 #include <sys/time.h>
 #include <sstream>
 
+#include "common_utils.h"
+
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-
-#include "common_utils.h"
 #include "constant_definition.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
 #include "hook_utils.h"
+#include "accesstoken_kit.h"
+#include "os_account_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -39,8 +41,6 @@ static std::random_device g_randomDevice;
 static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
-
-
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {

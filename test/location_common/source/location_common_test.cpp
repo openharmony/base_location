@@ -42,6 +42,7 @@
 #endif
 #include "location.h"
 #include "location_data_rdb_helper.h"
+#include "location_data_rdb_manager.h"
 #include "location_log.h"
 #define private public
 #include "location_data_rdb_observer.h"
@@ -55,6 +56,7 @@
 #include "hook_utils.h"
 #include "hookmgr.h"
 #include "work_record_statistic.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {

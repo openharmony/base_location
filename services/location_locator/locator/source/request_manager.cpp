@@ -38,6 +38,7 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 #include "hook_utils.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -400,18 +401,6 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
             return false;
         }
     }
-    std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(requestUid, bundleName)) {
-        LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", requestUid);
-    }
-    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
-    if (reportManager != nullptr) {
-        if (reportManager->IsAppBackground(bundleName, request->GetTokenId(),
-            request->GetTokenIdEx(), requestUid)&&
-            !PermissionManager::CheckBackgroundPermission(request->GetTokenId(), request->GetFirstTokenId())) {
-            return false;
-        }
-    }
     return true;
 }
 
@@ -435,6 +424,19 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
         !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
         return false;
+    }
+    std::string bundleName = "";
+    pid_t uid = request->GetUid();
+    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+    }
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(bundleName, tokenId,
+            request->GetTokenIdEx(), uid)&&
+            !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+            return false;
+        }
     }
     auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {

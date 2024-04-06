@@ -30,6 +30,7 @@
 #include "locator_callback_proxy.h"
 #include "request.h"
 #include "request_manager.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {

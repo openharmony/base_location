@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 
 #include "work_record.h"
+#include "work_record_statistic.h"
 
 namespace OHOS {
 namespace Location {

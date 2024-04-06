@@ -33,6 +33,7 @@
 #include "location_dumper.h"
 
 #include "mock_i_cellular_data_manager.h"
+#include "permission_manager.h"
 
 using namespace testing;
 using namespace testing::ext;

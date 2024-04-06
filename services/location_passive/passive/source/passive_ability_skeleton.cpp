@@ -26,6 +26,7 @@
 #include "location_log.h"
 #include "work_record.h"
 #include "locationhub_ipc_interface_code.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -53,7 +54,7 @@ PassiveAbilityStub::PassiveAbilityStub()
 
 int PassiveAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(data);
@@ -63,7 +64,7 @@ int PassiveAbilityStub::SendLocationRequestInner(MessageParcel &data, MessagePar
 
 int PassiveAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(SetEnable(data.ReadBool()));
@@ -72,7 +73,7 @@ int PassiveAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply
 
 int PassiveAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(EnableMock());
@@ -81,7 +82,7 @@ int PassiveAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &repl
 
 int PassiveAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(DisableMock());
@@ -90,7 +91,7 @@ int PassiveAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &rep
 
 int PassiveAbilityStub::SetMockedLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);

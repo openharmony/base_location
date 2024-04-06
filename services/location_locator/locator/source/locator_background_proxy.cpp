@@ -29,6 +29,7 @@
 #include "location_log.h"
 #include "locator_ability.h"
 #include "request_manager.h"
+#include "permission_manager.h"
 
 #ifdef BGTASKMGR_SUPPORT
 #include "background_mode.h"
