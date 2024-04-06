@@ -22,6 +22,50 @@
 
 namespace OHOS {
 namespace Location {
+napi_value SvConstellationTypeConstructor(napi_env env)
+{
+    napi_value satelliteConstellationCategory = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &satelliteConstellationCategory));
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_UNKNOWN, "CONSTELLATION_CATEGORY_UNKNOWN");
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_GPS, "CONSTELLATION_CATEGORY_GPS");
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_SBAS, "CONSTELLATION_CATEGORY_SBAS");
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_GLONASS, "CONSTELLATION_CATEGORY_GLONASS");
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_QZSS, "CONSTELLATION_CATEGORY_QZSS");
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_BEIDOU, "CONSTELLATION_CATEGORY_BEIDOU");
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_GALILEO, "CONSTELLATION_CATEGORY_GALILEO");
+    SetEnumPropertyByInteger(env, satelliteConstellationCategory,
+        SatelliteConstellation::SV_CONSTELLATION_CATEGORY_IRNSS, "CONSTELLATION_CATEGORY_IRNSS");
+    return satelliteConstellationCategory;
+}
+
+napi_value SatelliteAdditionalInfoTypeConstructor(napi_env env)
+{
+    napi_value satelliteAdditionalInfo = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &satelliteAdditionalInfo));
+    SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_NULL, "SATELLITES_ADDITIONAL_INFO_NULL");
+    SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_EPHEMERIS_DATA_EXIST,
+        "SATELLITES_ADDITIONAL_INFO_EPHEMERIS_DATA_EXIST");
+    SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_ALMANAC_DATA_EXIST,
+        "SATELLITES_ADDITIONAL_INFO_ALMANAC_DATA_EXIST");
+    SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_USED_IN_FIX,
+        "SATELLITES_ADDITIONAL_INFO_USED_IN_FIX");
+    SetEnumPropertyByInteger(env, satelliteAdditionalInfo,
+        SatelliteAdditionalInfo::SV_ADDITIONAL_INFO_CARRIER_FREQUENCY_EXIST,
+        "SATELLITES_ADDITIONAL_INFO_CARRIER_FREQUENCY_EXIST");
+    return satelliteAdditionalInfo;
+}
+
 napi_value LocationRequestPriorityTypeConstructor(napi_env env)
 {
     napi_value locationRequestPriority = nullptr;
@@ -180,7 +224,9 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationPrivacyType", LocationPrivacyTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("CountryCodeType", CountryCodeTypeConstructor(env)),
-        DECLARE_NAPI_PROPERTY("LocatingRequiredDataType ", LocatingRequiredDataTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocatingRequiredDataType", LocatingRequiredDataTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("SatelliteConstellationCategory", SvConstellationTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("SatelliteAdditionalInfo", SatelliteAdditionalInfoTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

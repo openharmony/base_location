@@ -19,9 +19,9 @@
 
 #include <mutex>
 #include <singleton.h>
-#include <v1_0/ignss_interface.h>
+#include <v2_0/ignss_interface.h>
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-#include <v1_0/ia_gnss_interface.h>
+#include <v2_0/ia_gnss_interface.h>
 #endif
 
 #include "event_handler.h"
@@ -44,22 +44,22 @@ namespace Location {
 #define VENDOR_GNSS_ADAPTER_SO_PATH "/system/lib/vendorGnssAdapter.so"
 #endif
 
-using HDI::Location::Gnss::V1_0::IGnssInterface;
-using HDI::Location::Gnss::V1_0::IGnssCallback;
-using HDI::Location::Gnss::V1_0::GNSS_START_TYPE_NORMAL;
-using HDI::Location::Gnss::V1_0::GNSS_STATUS_NONE;
-using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_BEGIN;
-using HDI::Location::Gnss::V1_0::GNSS_STATUS_SESSION_END;
-using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_ON;
-using HDI::Location::Gnss::V1_0::GNSS_STATUS_ENGINE_OFF;
-using HDI::Location::Gnss::V1_0::GnssAuxiliaryData;
-using HDI::Location::Gnss::V1_0::GnssWorkingMode;
-using HDI::Location::Gnss::V1_0::GnssConfigPara;
+using HDI::Location::Gnss::V2_0::IGnssInterface;
+using HDI::Location::Gnss::V2_0::IGnssCallback;
+using HDI::Location::Gnss::V2_0::GNSS_START_TYPE_NORMAL;
+using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_NONE;
+using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_SESSION_BEGIN;
+using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_SESSION_END;
+using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_ENGINE_ON;
+using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_ENGINE_OFF;
+using HDI::Location::Gnss::V2_0::GnssAuxiliaryDataType;
+using HDI::Location::Gnss::V2_0::GnssWorkingMode;
+using HDI::Location::Gnss::V2_0::GnssConfigPara;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-using HDI::Location::Agnss::V1_0::IAGnssInterface;
-using HDI::Location::Agnss::V1_0::IAGnssCallback;
-using HDI::Location::Agnss::V1_0::AGNSS_TYPE_SUPL;
-using HDI::Location::Agnss::V1_0::AGnssServerInfo;
+using HDI::Location::Agnss::V2_0::IAGnssInterface;
+using HDI::Location::Agnss::V2_0::IAGnssCallback;
+using HDI::Location::Agnss::V2_0::AGNSS_TYPE_SUPL;
+using HDI::Location::Agnss::V2_0::AGnssServerInfo;
 #endif
 
 class GnssHandler : public AppExecFwk::EventHandler {
@@ -154,7 +154,7 @@ private:
     bool CheckIfGnssConnecting();
     bool IsMockProcessing();
     void RegisterLocationHdiDeathRecipient();
-    bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryData& flags);
+    bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryDataType& flags);
     LocationErrCode SetPositionMode();
     void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
 

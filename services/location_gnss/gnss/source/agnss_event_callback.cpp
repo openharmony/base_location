@@ -55,7 +55,7 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
     imsi = CommonUtils::Str16ToStr8(tempImsi);
 #endif
     SubscriberSetId setId;
-    setId.type = HDI::Location::Agnss::V1_0::SETID_TYPE_IMSI;
+    setId.type = HDI::Location::Agnss::V2_0::AGNSS_SETID_TYPE_IMSI;
     setId.id = imsi;
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
     if (gnssAbility == nullptr) {
@@ -138,10 +138,10 @@ void AGnssEventCallback::GetCellRefInfo(AGnssRefInfo& refInfo)
 #endif
 }
 
-int32_t AGnssEventCallback::RequestAgnssRefInfo()
+int32_t AGnssEventCallback::RequestAgnssRefInfo(AGnssRefInfoType type)
 {
     AGnssRefInfo refInfo;
-    refInfo.type = HDI::Location::Agnss::V1_0::ANSS_REF_INFO_TYPE_CELLID;
+    refInfo.type = type;
     GetWiFiRefInfo(refInfo);
     GetCellRefInfo(refInfo);
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
@@ -157,7 +157,7 @@ void AGnssEventCallback::JudgmentDataGsm(AGnssRefInfo& refInfo, sptr<CellInforma
 {
     auto gsmCellInfo = static_cast<Telephony::GsmCellInformation *>(infoItem.GetRefPtr());
     if (gsmCellInfo != nullptr) {
-        refInfo.cellId.type = HDI::Location::Agnss::V1_0::CELLID_TYPE_GSM;
+        refInfo.cellId.type = HDI::Location::Agnss::V2_0::CELLID_TYPE_GSM;
         refInfo.cellId.mcc = static_cast<unsigned short>(std::stoi(gsmCellInfo->GetMcc()));
         refInfo.cellId.mnc = static_cast<unsigned short>(std::stoi(gsmCellInfo->GetMnc()));
         refInfo.cellId.lac = static_cast<unsigned short>(gsmCellInfo->GetLac());
@@ -169,7 +169,7 @@ void AGnssEventCallback::JudgmentDataLte(AGnssRefInfo& refInfo, sptr<CellInforma
 {
     auto lteCellInfo = static_cast<Telephony::LteCellInformation *>(infoItem.GetRefPtr());
     if (lteCellInfo != nullptr) {
-        refInfo.cellId.type = HDI::Location::Agnss::V1_0::CELLID_TYPE_LTE;
+        refInfo.cellId.type = HDI::Location::Agnss::V2_0::CELLID_TYPE_LTE;
         refInfo.cellId.mcc = static_cast<unsigned short>(std::stoi(lteCellInfo->GetMcc()));
         refInfo.cellId.mnc = static_cast<unsigned short>(std::stoi(lteCellInfo->GetMnc()));
         refInfo.cellId.tac = static_cast<unsigned short>(lteCellInfo->GetTac());
@@ -182,7 +182,7 @@ void AGnssEventCallback::JudgmentDataNr(AGnssRefInfo& refInfo, sptr<CellInformat
 {
     auto nrCellInfo = static_cast<Telephony::NrCellInformation *>(infoItem.GetRefPtr());
     if (nrCellInfo != nullptr) {
-        refInfo.cellId.type = HDI::Location::Agnss::V1_0::CELLID_TYPE_NR;
+        refInfo.cellId.type = HDI::Location::Agnss::V2_0::CELLID_TYPE_NR;
         refInfo.cellId.mcc = static_cast<unsigned short>(std::stoi(nrCellInfo->GetMcc()));
         refInfo.cellId.mnc = static_cast<unsigned short>(std::stoi(nrCellInfo->GetMnc()));
         refInfo.cellId.tac = static_cast<unsigned short>(nrCellInfo->GetTac());
@@ -196,7 +196,7 @@ void AGnssEventCallback::JudgmentDataUmts(AGnssRefInfo& refInfo, sptr<CellInform
 {
     auto wcdmaCellInfo = static_cast<Telephony::WcdmaCellInformation *>(infoItem.GetRefPtr());
     if (wcdmaCellInfo != nullptr) {
-        refInfo.cellId.type = HDI::Location::Agnss::V1_0::CELLID_TYPE_UMTS;
+        refInfo.cellId.type = HDI::Location::Agnss::V2_0::CELLID_TYPE_UMTS;
         refInfo.cellId.mcc = static_cast<unsigned short>(std::stoi(wcdmaCellInfo->GetMcc()));
         refInfo.cellId.mnc = static_cast<unsigned short>(std::stoi(wcdmaCellInfo->GetMnc()));
         refInfo.cellId.lac = static_cast<unsigned short>(wcdmaCellInfo->GetLac());
