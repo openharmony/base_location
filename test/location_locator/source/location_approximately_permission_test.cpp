@@ -23,6 +23,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {

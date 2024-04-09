@@ -29,6 +29,7 @@
 #ifdef FEATURE_PASSIVE_SUPPORT
 #include "passive_ability.h"
 #endif
+#include "permission_manager.h"
 
 namespace OHOS {
 using namespace OHOS::Location;

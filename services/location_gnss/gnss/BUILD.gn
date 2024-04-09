@@ -24,6 +24,7 @@ if (location_feature_with_gnss) {
       "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
       "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
       "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
     ]
 
     include_dirs = [

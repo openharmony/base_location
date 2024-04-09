@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,22 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef WORK_RECORD_TEST_H
-#define WORK_RECORD_TEST_H
+#ifndef PERMISSION_MANAGER_TEST_H
+#define PERMISSION_MANAGER_TEST_H
 
 #include <gtest/gtest.h>
 
-#include "work_record.h"
-#include "work_record_statistic.h"
-
 namespace OHOS {
 namespace Location {
-class WorkRecordTest : public testing::Test {
+class PermissionManagerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    void VerifyMarshalling(std::unique_ptr<WorkRecord>& workrecord);
+    void MockNativePermission();
+    void MockNativeApproxiPermission();
+    void MockNativeAccurateLocation();
+    uint64_t tokenId_;
+    uint64_t tokenIdForApproxi_;
+    uint64_t tokenIdForAcc_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // WORK_RECORD_TEST_H
+#endif // PERMISSION_MANAGER_TEST_H

@@ -18,23 +18,19 @@
 #include <sys/time.h>
 #include <sstream>
 
-#include "accesstoken_kit.h"
+#include "common_utils.h"
+
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "os_account_manager.h"
 #include "system_ability_definition.h"
-#include "tokenid_kit.h"
-
-#include "common_utils.h"
-
-#include "uri.h"
 #include "constant_definition.h"
-#include "location_data_rdb_helper.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
 #include "hook_utils.h"
+#include "accesstoken_kit.h"
+#include "os_account_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -45,89 +41,6 @@ static std::random_device g_randomDevice;
 static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
-
-bool CommonUtils::CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
-{
-    return CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId);
-}
-
-bool CommonUtils::CheckPermission(const std::string &permission, uint32_t callerToken, uint32_t tokenFirstCaller)
-{
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
-    int result = Security::AccessToken::PERMISSION_DENIED;
-    if (tokenFirstCaller == 0) {
-        if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
-            LBSLOGE(COMMON_UTILS, "tokenid = %{public}d has no permission.permission name=%{public}s",
-                callerToken, permission.c_str());
-            return false;
-        } else {
-            result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
-        }
-    } else {
-        result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, tokenFirstCaller, permission);
-    }
-    if (result == Security::AccessToken::PERMISSION_GRANTED) {
-        return true;
-    } else {
-        LBSLOGE(COMMON_UTILS, "tokenid = %{public}d has no permission.permission name=%{public}s",
-            callerToken, permission.c_str());
-        return false;
-    }
-}
-
-bool CommonUtils::CheckRssProcessName(uint32_t tokenId)
-{
-    Security::AccessToken::NativeTokenInfo callingTokenInfo;
-    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(tokenId, callingTokenInfo);
-    if (callingTokenInfo.processName != RSS_PROCESS_NAME) {
-        LBSLOGE(COMMON_UTILS, "CheckProcess failed, processName=%{public}s", callingTokenInfo.processName.c_str());
-        return false;
-    }
-    return true;
-}
-
-bool CommonUtils::CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId)
-{
-    return CheckPermission(ACCESS_BACKGROUND_LOCATION, tokenId, firstTokenId);
-}
-
-bool CommonUtils::CheckApproximatelyPermission(uint32_t tokenId, uint32_t firstTokenId)
-{
-    return CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId);
-}
-
-bool CommonUtils::CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId)
-{
-    return CheckPermission(MANAGE_SECURE_SETTINGS, tokenId, firstTokenId);
-}
-
-bool CommonUtils::CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply)
-{
-    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(COMMON_UTILS, "uid pid not match locationhub process.");
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return false;
-    }
-    return true;
-}
-
-int CommonUtils::GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId)
-{
-    int ret = PERMISSION_INVALID;
-    if (CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId) &&
-        CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId)) {
-        ret = PERMISSION_ACCURATE;
-    } else if (CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId) &&
-        !CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId)) {
-        ret = PERMISSION_APPROXIMATELY;
-    } else if (!CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId) &&
-        CheckPermission(ACCESS_LOCATION, tokenId, firstTokenId)) {
-        ret = PERMISSION_ACCURATE;
-    }  else {
-        ret = PERMISSION_INVALID;
-    }
-    return ret;
-}
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {
@@ -321,20 +234,6 @@ int CommonUtils::IntRandom(int min, int max)
     return param;
 }
 
-bool CommonUtils::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx)
-{
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
-    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-        return true;
-    }
-    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL ||
-        tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
-        return false;
-    }
-    bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
-    return isSysApp;
-}
-
 bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
 {
     sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -401,22 +300,10 @@ bool CommonUtils::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
+        LBSLOGE(COMMON_UTILS, "%{public}s: get system ability manager failed!", __func__);
         return false;
     }
     return (samgr->CheckSystemAbility(systemAbilityId) != nullptr);
-}
-
-int CommonUtils::QuerySwitchState()
-{
-    int32_t state = DISABLED;
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
-        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
-    }
-    return state;
 }
 
 int64_t CommonUtils::GetCurrentTime()
@@ -486,7 +373,7 @@ bool CommonUtils::GetStringParameter(const std::string& type, std::string& value
     char result[MAX_BUFF_SIZE] = {0};
     auto res = GetParameter(type.c_str(), "", result, MAX_BUFF_SIZE);
     if (res <= 0) {
-        LBSLOGE(LOCATOR, "%{public}s get para value failed, res: %{public}d",
+        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d",
             __func__, res);
         return false;
     }
@@ -502,12 +389,12 @@ bool CommonUtils::GetEdmPolicy(std::string& name)
 bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
 {
     if (CommonUtils::CheckIfSystemAbilityAvailable(systemAbilityId)) {
-        LBSLOGD(LOCATOR, "sa has been loaded");
+        LBSLOGD(COMMON_UTILS, "sa has been loaded");
         return true;
     }
     auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
     if (instance == nullptr || instance->LoadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "sa load failed.");
+        LBSLOGE(COMMON_UTILS, "sa load failed.");
         return false;
     }
     return true;

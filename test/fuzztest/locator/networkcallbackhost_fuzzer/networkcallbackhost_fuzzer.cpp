@@ -28,6 +28,7 @@
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_callback_host.h"
 #endif
+#include "permission_manager.h"
 
 namespace OHOS {
 using namespace OHOS::Location;

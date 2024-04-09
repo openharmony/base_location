@@ -45,6 +45,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/work_record_statistic.cpp",
   ]
 
   include_dirs = [

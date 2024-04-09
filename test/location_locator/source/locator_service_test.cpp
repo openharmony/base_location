@@ -54,6 +54,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
 #endif
+#include "permission_manager.h"
 
 using namespace testing::ext;
 
@@ -1214,7 +1215,7 @@ HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckPermission001 begin");
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    int permissionLevel = CommonUtils::GetPermissionLevel(callingTokenId, callingFirstTokenid);
+    int permissionLevel = PermissionManager::GetPermissionLevel(callingTokenId, callingFirstTokenid);
     EXPECT_EQ(PERMISSION_ACCURATE, permissionLevel);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckPermission001 end");
 }

@@ -25,6 +25,7 @@
 #include "locator_callback_host.h"
 #include "request.h"
 #include "request_config.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 

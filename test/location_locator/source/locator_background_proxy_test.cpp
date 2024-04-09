@@ -37,6 +37,7 @@
 #include "location_log.h"
 #include "locator_callback_host.h"
 #include "locator_callback_proxy.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {

@@ -24,6 +24,7 @@
 
 #include "location_data_rdb_observer.h"
 #include "location_data_rdb_helper.h"
+#include "location_data_rdb_manager.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "locator.h"
@@ -73,12 +74,7 @@ bool LocatorImpl::IsLocationEnabled()
     if (locationDataRdbHelper == nullptr) {
         return false;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabled err = %{public}d", errCode);
-    }
+    state = LocationDataRdbManager::QuerySwitchState();
     LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabled switch state = %{public}d", state);
     return (state == ENABLED);
 }
@@ -667,12 +663,7 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     if (locationDataRdbHelper == nullptr) {
         return ERRCODE_NOT_SUPPORTED;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabledV9 err = %{public}d", errCode);
-    }
+    state = LocationDataRdbManager::QuerySwitchState();
     isEnabled = (state == ENABLED);
     LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabledV9 switch state = %{public}d", state);
     return ERRCODE_SUCCESS;

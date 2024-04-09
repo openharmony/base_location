@@ -33,6 +33,7 @@
 #include "locationhub_ipc_interface_code.h"
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -280,7 +281,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return false;
     }
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
         return false;
     }

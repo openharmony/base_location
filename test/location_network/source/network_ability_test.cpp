@@ -34,6 +34,7 @@
 #include "network_ability_skeleton.h"
 
 #include "network_callback_host.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {

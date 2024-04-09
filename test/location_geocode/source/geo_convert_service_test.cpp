@@ -37,6 +37,7 @@
 #include "geo_convert_skeleton.h"
 #include "location_dumper.h"
 #include "location_log.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 
