@@ -27,8 +27,6 @@
 namespace OHOS {
 namespace Location {
 using namespace OHOS::HiviewDFX;
-const int SVID_SHIFT_WIDTH = 8;
-const int CONSTELLATION_TYPE_SHIFT_WIDTH = 4;
 const int WEAK_GPS_SIGNAL_SCENARIO_COUNT = 3;
 const int MAX_SV_COUNT = 64;
 const int GPS_DUMMY_SV_COUNT = 5;
@@ -115,8 +113,8 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         return ERR_OK;
     }
     std::unique_ptr<SatelliteStatus> svStatus = std::make_unique<SatelliteStatus>();
-    if (info.satellitesNumber <= 0) {
-        LBSLOGD(GNSS, "SvStatusCallback, satellites_num <= 0!");
+    if (info.satellitesNumber < 0) {
+        LBSLOGD(GNSS, "SvStatusCallback, satellites_num < 0!");
         return ERR_INVALID_VALUE;
     }
     std::vector<std::string> names;
@@ -222,9 +220,8 @@ bool GnssEventCallback::IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int
     if (sv == nullptr) {
         return false;
     }
-    return (((static_cast<uint32_t>(sv->GetSatelliteIds()[index]) << SVID_SHIFT_WIDTH) |
-        (static_cast<uint32_t>(sv->GetConstellationTypes()[index]) << CONSTELLATION_TYPE_SHIFT_WIDTH)) &
-        (static_cast<uint8_t>(HDI::Location::Gnss::V2_0::SATELLITES_ADDITIONAL_INFO_USED_IN_FIX))) != 0;
+    return sv->GetSatelliteAdditionalInfoList()[index] &
+        static_cast<int>(HDI::Location::Gnss::V2_0::SATELLITES_ADDITIONAL_INFO_USED_IN_FIX);
 }
 
 void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svid, int cN0Dbhz)
