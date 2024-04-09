@@ -31,6 +31,8 @@
 #include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
+#include "common_hisysevent.h"
+#include "location_log_event_ids.h"
 
 namespace OHOS {
 namespace Location {

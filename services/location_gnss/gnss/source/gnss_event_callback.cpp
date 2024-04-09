@@ -65,7 +65,6 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     SendDummySvInfo();
     struct timeval now;
     gettimeofday(&now, NULL);
-    auto receiveTimestamp = now.tv_sec * MILLI_PER_SEC + now.tv_usec / MICRO_PER_MILLI;
     WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {
         "speed", std::to_string(location.speed),
         "accuracy", std::to_string(location.horizontalAccuracy),

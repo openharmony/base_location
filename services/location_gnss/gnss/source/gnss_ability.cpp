@@ -948,7 +948,6 @@ void GnssAbility::ConnectHdi()
     auto endTime = CommonUtils::GetCurrentTimeStamp();
     WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "ConnectHdi",
             "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
-    }
 }
 
 void GnssAbility::DisConnectHdi()
@@ -961,7 +960,6 @@ void GnssAbility::DisConnectHdi()
     auto endTime = CommonUtils::GetCurrentTimeStamp();
     WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "DisConnectHdi",
             "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
-    }
 }
 
 GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
