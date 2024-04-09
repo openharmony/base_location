@@ -394,7 +394,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
         int64_t curTime = CommonUtils::GetCurrentTime();
         if (request->GetRequestConfig()->GetFixNumber() == 1 &&
             fabs(curTime - request->GetRequestConfig()->GetTimeStamp()) >
-            (request->GetRequestConfig()->GetTimeOut() / SEC_TO_MILLI_SEC)) {
+            (request->GetRequestConfig()->GetTimeOut() / MILLI_PER_SEC)) {
             LBSLOGE(LOCATOR, "%{public}d has timed out.", request->GetUid());
             return false;
         }

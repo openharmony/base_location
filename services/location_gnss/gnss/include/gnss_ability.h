@@ -126,11 +126,11 @@ public:
     void SendReportMockLocationEvent() override;
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
     void UnloadGnssSystemAbility() override;
-    void StartGnss();
-    void StopGnss();
+    bool StartGnss();
+    bool StopGnss();
     bool EnableGnss();
-    void DisableGnss();
-    bool ConnectHdi();
+    bool DisableGnss();
+    bool AddHdi();
     bool RemoveHdi();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     void SetAgnssServer();
@@ -144,6 +144,8 @@ public:
     bool IsMockEnabled();
     void ProcessReportLocationMock();
     void ReConnectHdi();
+    void ConnectHdi();
+    void DisConnectHdi();
     bool CheckIfHdiConnected();
     void RestGnssWorkStatus();
 private:

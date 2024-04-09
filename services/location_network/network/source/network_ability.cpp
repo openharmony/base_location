@@ -225,12 +225,7 @@ void NetworkAbility::UnloadNetworkSystemAbility()
         return;
     }
     auto task = [this]() {
-        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-        if (instance == nullptr) {
-            LBSLOGE(NETWORK, "%{public}s instance is nullptr", __func__);
-            return;
-        }
-        instance->UnloadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+        CommonUtils::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     };
     if (networkHandler_ != nullptr) {
         networkHandler_->PostTask(task, UNLOAD_NETWORK_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -294,7 +289,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
     MessageParcel reply;
     MessageOption option;
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
-    data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
+    data.WriteInt64(workRecord.GetTimeInterval(0) * MILLI_PER_SEC);
     data.WriteInt32(LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
     data.WriteRemoteObject(callback->AsObject());
     if (workRecord.GetName(0).size() == 0) {

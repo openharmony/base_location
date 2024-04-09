@@ -247,7 +247,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
     LBSLOGD(REPORT_MANAGER, "timeInterval ResultCheck : %{public}s %{public}d - %{public}ld",
         request->GetPackageName().c_str(), minTime, deltaMs);
-    if (deltaMs < (minTime * SEC_TO_MILLI_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
+    if (deltaMs < (minTime * MILLI_PER_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
         LBSLOGE(REPORT_MANAGER, "timeInterval check fail, do not report location, current deltaMs = %{public}ld",
             deltaMs);
         return false;
@@ -294,10 +294,10 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     std::unique_ptr<Location> cacheLocation = nullptr;
     if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheGnssLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= GNSS_FIX_CACHED_TIME) {
+        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= GNSS_FIX_CACHED_TIME) {
         cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheNlpLocation_.GetTimeStamp() / SEC_TO_MILLI_SEC) <= NLP_FIX_CACHED_TIME) {
+        (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= NLP_FIX_CACHED_TIME) {
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),

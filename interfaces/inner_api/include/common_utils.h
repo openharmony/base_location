@@ -86,7 +86,7 @@ const std::string DFT_EXCEPTION_EVENT = "GnssException";
 const int DFT_IPC_CALLING_ERROR = 201;
 const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
-const int SEC_TO_MILLI_SEC = 1000;
+const int MILLI_PER_SEC = 1000;
 const int MICRO_PER_MILLI = 1000;
 const int CONNECT_TIME_OUT = 10;
 const int DISCONNECT_TIME_OUT = 10;
@@ -202,6 +202,7 @@ public:
     static bool InitLocationSa(int32_t systemAbilityId);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static std::string GenerateUuid();
+    static bool UnInitLocationSa(int32_t systemAbilityId);
 };
 
 class CountDownLatch {

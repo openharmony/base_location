@@ -137,16 +137,10 @@ LocationErrCode GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode GnssAbility::SetEnable(bool state)
 {
-    if (!CheckIfHdiConnected()) {
-        LBSLOGE(GNSS, "no need start or stop gnss");
-        return ERRCODE_SUCCESS;
-    }
     if (state) {
-        EnableGnss();
-        StartGnss();
+        ConnectHdi();
     } else {
-        StopGnss();
-        DisableGnss();
+        DisConnectHdi();
     }
     return ERRCODE_SUCCESS;
 }
@@ -170,7 +164,7 @@ void GnssAbility::UnloadGnssSystemAbility()
         if (CheckIfHdiConnected()) {
             RemoveHdi();
         }
-        instance->UnloadLocationSa(LOCATION_GNSS_SA_ID);
+        CommonUtils::UnInitLocationSa(LOCATION_GNSS_SA_ID);
     };
     if (gnssHandler_ != nullptr) {
         gnssHandler_->PostTask(task, UNLOAD_GNSS_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -330,23 +324,13 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGD(GNSS, "enter RequestRecord");
     if (isAdded) {
-        if (!CheckIfHdiConnected()) {
-            ConnectHdi();
-        }
-        EnableGnss();
-#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-        SetAgnssCallback();
-        SetAgnssServer();
-#endif
-        StartGnss();
+        ConnectHdi();
     } else {
         // GNSS will stop only if all requests have stopped
-        if (CheckIfHdiConnected() && GetRequestNum() == 0) {
-            StopGnss();
+        if (GetRequestNum() == 0) {
+            DisConnectHdi();
         }
     }
-    std::string state = isAdded ? "start" : "stop";
-    WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
 void GnssAbility::ReConnectHdi()
@@ -361,14 +345,6 @@ void GnssAbility::ReConnectHdiImpl()
 {
     LBSLOGD(GNSS, "%{public}s called", __func__);
     ConnectHdi();
-    EnableGnss();
-#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-    SetAgnssCallback();
-    SetAgnssServer();
-#endif
-    if (gnssWorkingStatus_ == GNSS_WORKING_STATUS_SESSION_BEGIN) {
-        StartGnss();
-    }
 }
 
 LocationErrCode GnssAbility::GetCachedGnssLocationsSize(int& size)
@@ -515,15 +491,15 @@ bool GnssAbility::EnableGnss()
     return true;
 }
 
-void GnssAbility::DisableGnss()
+bool GnssAbility::DisableGnss()
 {
     if (gnssInterface_ == nullptr) {
         LBSLOGE(GNSS, "gnssInterface_ is nullptr");
-        return;
+        return false;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
-        return;
+        return true;
     }
     int ret = gnssInterface_->DisableGnss();
     if (ret == 0) {
@@ -532,6 +508,7 @@ void GnssAbility::DisableGnss()
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),
             "hdiName", "DisableGnss", "hdiType", "gnss"});
     }
+    return true;
 }
 
 bool GnssAbility::IsGnssEnabled()
@@ -546,26 +523,26 @@ void GnssAbility::RestGnssWorkStatus()
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
 }
 
-void GnssAbility::StartGnss()
+bool GnssAbility::StartGnss()
 {
     if (CommonUtils::QuerySwitchState() == DISABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
-        return;
+        return false;
     }
     if (gnssInterface_ == nullptr) {
         LBSLOGE(GNSS, "gnssInterface_ is nullptr");
-        return;
+        return false;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
-        return;
+        return false;
     }
     if (gnssWorkingStatus_ == GNSS_WORKING_STATUS_SESSION_BEGIN) {
         LBSLOGD(GNSS, "GNSS navigation started");
-        return;
+        return true;
     }
     if (GetRequestNum() == 0) {
-        return;
+        return true;
     }
     SetPositionMode();
     int ret = gnssInterface_->StartGnss(GNSS_START_TYPE_NORMAL);
@@ -580,17 +557,18 @@ void GnssAbility::StartGnss()
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
+    return ret == 0;
 }
 
-void GnssAbility::StopGnss()
+bool GnssAbility::StopGnss()
 {
     if (gnssInterface_ == nullptr) {
         LBSLOGE(GNSS, "gnssInterface_ is nullptr");
-        return;
+        return false;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
-        return;
+        return true;
     }
     
     int ret = gnssInterface_->StopGnss(GNSS_START_TYPE_NORMAL);
@@ -605,9 +583,10 @@ void GnssAbility::StopGnss()
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
+    return ret == 0;
 }
 
-bool GnssAbility::ConnectHdi()
+bool GnssAbility::AddHdi()
 {
     auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
     if (devmgr == nullptr) {
@@ -647,6 +626,10 @@ bool GnssAbility::ConnectHdi()
 
 bool GnssAbility::RemoveHdi()
 {
+    if (!CheckIfHdiConnected()) {
+        LBSLOGE(GNSS, "hdi is not connected.");
+        return false;
+    }
     auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
     if (devmgr == nullptr) {
         LBSLOGE(GNSS, "fail to get devmgr.");
@@ -950,6 +933,36 @@ void GnssAbility::RegisterLocationHdiDeathRecipient()
     obj->AddDeathRecipient(death);
 }
 
+void GnssAbility::ConnectHdi()
+{
+    bool ret = true;
+    auto startTime = CommonUtils::GetCurrentTimeStamp();
+    ret = AddHdi();
+    ret = EnableGnss();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+    SetAgnssCallback();
+    SetAgnssServer();
+#endif
+    ret = StartGnss();
+    auto endTime = CommonUtils::GetCurrentTimeStamp();
+    WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "ConnectHdi",
+            "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
+    }
+}
+
+void GnssAbility::DisConnectHdi()
+{
+    bool ret = true;
+    auto startTime = CommonUtils::GetCurrentTimeStamp();
+    ret = StopGnss();
+    ret = EnableGnss();
+    ret = RemoveHdi();
+    auto endTime = CommonUtils::GetCurrentTimeStamp();
+    WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "DisConnectHdi",
+            "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
+    }
+}
+
 GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
 {
     InitGnssEventProcessMap();
@@ -1105,9 +1118,7 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
     }
-    if (!gnssAbility->CheckIfHdiConnected()) {
-        gnssAbility->ConnectHdi();
-    }
+    gnssAbility->AddHdi();
     gnssAbility->EnableGnss();
 }
 

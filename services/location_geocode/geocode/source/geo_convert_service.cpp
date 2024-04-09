@@ -397,8 +397,8 @@ LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
 void GeoConvertService::UnloadGeoConvertSystemAbility()
 {
     auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (!CheckIfGeoConvertConnecting() && locationSaLoadManager != nullptr) {
-        locationSaLoadManager->UnloadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    if (!CheckIfGeoConvertConnecting()) {
+        CommonUtils::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
     }
 }
 

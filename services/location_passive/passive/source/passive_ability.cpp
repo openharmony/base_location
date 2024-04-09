@@ -105,12 +105,7 @@ void PassiveAbility::UnloadPassiveSystemAbility()
         return;
     }
     auto task = [this]() {
-        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-        if (instance == nullptr) {
-            LBSLOGE(PASSIVE, "%{public}s instance is nullptr", __func__);
-            return;
-        }
-        instance->UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+        CommonUtils::UnInitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     };
     if (passiveHandler_ != nullptr) {
         passiveHandler_->PostTask(task, UNLOAD_PASSIVE_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);

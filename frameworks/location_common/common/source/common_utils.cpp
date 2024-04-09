@@ -234,7 +234,7 @@ void CountDownLatch::Wait(int time)
         LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
         return;
     }
-    condition_.wait_for(lock, std::chrono::seconds(time / SEC_TO_MILLI_SEC), [&]() {return count_ == 0;});
+    condition_.wait_for(lock, std::chrono::seconds(time / MILLI_PER_SEC), [&]() {return count_ == 0;});
 }
 
 void CountDownLatch::CountDown()
@@ -505,11 +505,35 @@ bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
         LBSLOGD(LOCATOR, "sa has been loaded");
         return true;
     }
+    bool ret = true;
+    auto startTime = CommonUtils::GetCurrentTimeStamp();
     auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
     if (instance == nullptr || instance->LoadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "sa load failed.");
-        return false;
+        ret = false;
     }
+    auto endTime = CommonUtils::GetCurrentTimeStamp();
+    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "laod",
+        "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
+    return true;
+}
+
+bool CommonUtils::UnInitLocationSa(int32_t systemAbilityId)
+{
+    if (!CommonUtils::CheckIfSystemAbilityAvailable(systemAbilityId)) {
+        LBSLOGD(LOCATOR, "sa has been unloaded");
+        return true;
+    }
+    bool ret = true;
+    auto startTime = CommonUtils::GetCurrentTimeStamp();
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr || instance->UnloadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "sa unload failed.");
+        ret = false;
+    }
+    auto endTime = CommonUtils::GetCurrentTimeStamp();
+    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "unlaod",
+        "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
     return true;
 }
 
