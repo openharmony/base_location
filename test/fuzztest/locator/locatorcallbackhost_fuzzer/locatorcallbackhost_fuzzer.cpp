@@ -26,6 +26,7 @@
 #include "locator_ability.h"
 
 #include "locator_callback_host.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 using namespace OHOS::Location;

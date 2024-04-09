@@ -41,6 +41,7 @@
 #include "nmea_message_callback_host.h"
 #endif
 #include "request_config.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {

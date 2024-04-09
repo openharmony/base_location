@@ -18,6 +18,7 @@
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 #include "locator.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {

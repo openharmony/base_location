@@ -25,6 +25,7 @@
 #include "common_utils.h"
 #include "i_locator.h"
 #include "location_log.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -151,6 +152,5 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
     ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
-
 } // namespace Location
 } // namespace OHOS
