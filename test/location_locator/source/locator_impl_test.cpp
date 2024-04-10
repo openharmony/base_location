@@ -634,5 +634,25 @@ HWTEST_F(LocatorImplTest, CallbackResumeManager001, TestSize.Level1)
     callbackResumer->ResumeCallback();
     LBSLOGI(LOCATOR, "[LocatorImplTest] CallbackResumeManager001 end");
 }
+
+HWTEST_F(LocatorImplTest, OnAddSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, OnAddSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnAddSystemAbility001 begin");
+    auto saStatusListener = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+    saStatusListener->OnAddSystemAbility(0, "deviceId");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnAddSystemAbility001 end");
+}
+
+HWTEST_F(LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnRemoveSystemAbility001 begin");
+    auto saStatusListener = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+    saStatusListener->OnRemoveSystemAbility(0, "deviceId");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnRemoveSystemAbility001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
