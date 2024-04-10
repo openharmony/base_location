@@ -634,5 +634,18 @@ HWTEST_F(LocatorImplTest, CallbackResumeManager001, TestSize.Level1)
     callbackResumer->ResumeCallback();
     LBSLOGI(LOCATOR, "[LocatorImplTest] CallbackResumeManager001 end");
 }
+
+HWTEST_F(LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnRemoveSystemAbility001 begin");
+    std::shared_ptr<LocatorSystemAbilityListener> locatorSystemAbilityListener =
+        std::make_shared<LocatorSystemAbilityListener>();
+    locatorSystemAbilityListener->OnRemoveSystemAbility(COMMON_EVENT_SERVICE_ID);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnRemoveSystemAbility001 end");
+}
+
+
 }  // namespace Location
 }  // namespace OHOS

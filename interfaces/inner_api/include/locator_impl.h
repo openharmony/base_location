@@ -53,7 +53,6 @@ public:
     static std::shared_ptr<LocatorImpl> GetInstance();
     explicit LocatorImpl();
     ~LocatorImpl();
-    bool Init();
 
     /**
      * @brief Obtain current location switch status.
@@ -630,9 +629,6 @@ public:
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<LocatorProxy> GetProxy();
-    void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
-    std::shared_ptr<ICallbackResumeManager> GetResumer();
-    LocationErrCode IsAppLocating(int32_t uid, bool &isLocating);
     bool IsCallbackRegistered(std::string name, const sptr<ILocatorCallback>& callback);
     bool IsCallbackRegistered(std::string name, const sptr<IRemoteObject>& callback);
     bool IsValidCallbackInMap();

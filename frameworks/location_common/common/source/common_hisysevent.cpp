@@ -31,7 +31,7 @@ static void WriteEvent(const std::string& eventType, Types... args)
     int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::LOCATION, eventType,
         HiviewDFX::HiSysEvent::EventType::STATISTIC, args...);
     if (ret != 0) {
-        LBSLOGE(COMMON_UTILS, "Write event fail: %{public}s", eventType.c_str());
+        LBSLOGi(COMMON_UTILS, "Write event fail: %{public}s", eventType.c_str());
     }
 }
 

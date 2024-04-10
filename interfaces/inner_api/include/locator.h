@@ -117,7 +117,6 @@ public:
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
     virtual LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) = 0;
     virtual LocationErrCode ResetAllProxyV9() = 0;
-    virtual void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer) = 0;
 private:
     static std::shared_ptr<LocatorImpl> instance_;
     static std::mutex mutex_;

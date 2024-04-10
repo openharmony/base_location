@@ -41,8 +41,10 @@ void CountryCodeCallbackProxy::OnCountryCodeChange(const std::shared_ptr<Country
     country->Marshalling(data);
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(COUNTRY_CODE_CHANGE_EVENT, data, reply, option);
-    LBSLOGI(COUNTRY_CODE_CALLBACK,
-        "CountryCodeCallbackProxy::OnCountryCodeChange Transact ErrCode = %{public}d", error);
+    if (error != ERR_OK) {
+        LBSLOGI(COUNTRY_CODE_CALLBACK,
+            "CountryCodeCallbackProxy::OnCountryCodeChange Transact ErrCode = %{public}d", error);
+    }
 }
 } // namespace Location
 } // namespace OHOS

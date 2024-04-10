@@ -189,6 +189,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
 
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
     remoteObject->AddDeathRecipient(death);
+    death->SetTokenId(identity.GetTokenId());
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->StartLocating(requestConfig, callback, identity));
     return ERRCODE_SUCCESS;
@@ -929,6 +930,7 @@ bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdenti
     uint32_t callingFirstTokenid = identity.GetFirstTokenId();
     if (!PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid) &&
         !PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        LBSLOGE(LOCATOR, "%{public}d %{public}s failed", callingTokenId, __func__);
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     } else {
@@ -953,7 +955,7 @@ bool LocatorAbilityStub::CheckPreciseLocationPermissions(MessageParcel &reply, A
     uint32_t callingFirstTokenid = identity.GetFirstTokenId();
     if (!PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid) ||
         !PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        LBSLOGE(LOCATOR, "CheckPreciseLocationPermissions return false.");
+        LBSLOGE(LOCATOR, "%{public}d %{public}s failed", callingTokenId, __func__);
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     } else {
@@ -1015,9 +1017,12 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", callingUid);
     }
     identity.SetBundleName(bundleName);
-    LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
-        code, option.GetFlags(), identity.ToString().c_str(),
-        std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    if (code != PROXY_UID_FOR_FREEZE) {
+        LBSLOGI(LOCATOR,
+            "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
+            code, option.GetFlags(), identity.ToString().c_str(),
+            std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    }
     std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
@@ -1129,8 +1134,13 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
         locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
         locatorAbility->StopLocating(callback);
         locatorAbility->PostUnloadTask(DEFAULT_CODE);
-        LBSLOGI(LOCATOR, "locator callback OnRemoteDied");
+        LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
+}
+
+void LocatorCallbackDeathRecipient::SetTokenId(int32_t tokenId)
+{
+    tokenId_ = tokenId;
 }
 
 SwitchCallbackDeathRecipient::SwitchCallbackDeathRecipient()
