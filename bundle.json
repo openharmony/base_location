@@ -52,6 +52,7 @@
                 "drivers_interface_location_agnss",
                 "drivers_interface_location_gnss",
                 "eventhandler",
+                "form_fwk",
                 "hdf_core",
                 "hisysevent",
                 "hiview",

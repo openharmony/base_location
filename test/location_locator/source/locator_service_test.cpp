@@ -54,6 +54,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
 #endif
+#include "permission_manager.h"
 
 using namespace testing::ext;
 
@@ -1112,10 +1113,7 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
         parcel.WriteInt64(1611000000); // time since boot
         parcel.WriteString16(u"additions"); // additions
         parcel.WriteInt64(1); // additionSize
-        parcel.WriteBool(true); // isFromMock
-        parcel.WriteInt32(1); // source type
-        parcel.WriteInt32(0); // floor no.
-        parcel.WriteDouble(1000.0); // floor acc
+        parcel.WriteInt32(1); // isFromMock
         mockLocationArray.push_back(Location::UnmarshallingShared(parcel));
     }
 
@@ -1217,7 +1215,7 @@ HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckPermission001 begin");
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    int permissionLevel = CommonUtils::GetPermissionLevel(callingTokenId, callingFirstTokenid);
+    int permissionLevel = PermissionManager::GetPermissionLevel(callingTokenId, callingFirstTokenid);
     EXPECT_EQ(PERMISSION_ACCURATE, permissionLevel);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckPermission001 end");
 }
@@ -2024,10 +2022,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceGetCacheLocation001, TestSize.Level1)
     parcel.WriteInt64(1000000000);    // timeSinceBoot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1);             // additionSize
-    parcel.WriteBool(false);          // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(1);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
     EXPECT_EQ(ERRCODE_LOCATING_FAIL, locatorAbility->GetCacheLocation(location, identity));

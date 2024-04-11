@@ -29,6 +29,16 @@
 #include "location_log.h"
 #include "locator_ability.h"
 #include "request_manager.h"
+#include "permission_manager.h"
+
+#ifdef BGTASKMGR_SUPPORT
+#include "background_mode.h"
+#include "background_task_mgr_helper.h"
+#endif
+
+#ifdef FMSKIT_NATIVE_SUPPORT
+#include "form_mgr.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -246,9 +256,9 @@ bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& req
 {
     uint32_t tokenId = request->GetTokenId();
     uint32_t firstTokenId = request->GetFirstTokenId();
-    return ((CommonUtils::CheckLocationPermission(tokenId, firstTokenId) ||
-            CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) &&
-            CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId));
+    return ((PermissionManager::CheckLocationPermission(tokenId, firstTokenId) ||
+            PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) &&
+            PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId));
 }
 
 void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active)
@@ -280,6 +290,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
         if (request->GetRequestConfig() == nullptr) {
             return;
         }
+        //App in Location ContinuousTasks or app has visible cards are not add to requestList of LocatorBackgroundProxy
         if (!active && CheckPermission(request) && request->GetRequestConfig()->GetFixNumber() == 0
             && CheckMaxRequestNum(request->GetUid(), request->GetPackageName())) {
             LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",
@@ -534,6 +545,37 @@ bool LocatorBackgroundProxy::UnregisterAppStateObserver()
     iAppMgr_ = nullptr;
     appStateObserver_ = nullptr;
     return true;
+}
+
+bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
+{
+#ifdef BGTASKMGR_SUPPORT
+    std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
+    ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
+    if (result != ERR_OK) {
+        return false;
+    }
+    for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
+        auto continuousTask = *iter;
+        if (continuousTask->GetCreatorUid() == uid &&
+            continuousTask->GetTypeId() == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
+            return true;
+        }
+    }
+#endif
+    return false;
+}
+
+bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
+{
+    bool ret = false;
+    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        return ret;
+    }
+#ifdef FMSKIT_NATIVE_SUPPORT
+    ret = OHOS::AppExecFwk::FormMgr::GetInstance().HasFormVisible(tokenId);
+#endif
+    return ret;
 }
 
 AppStateChangeCallback::AppStateChangeCallback()

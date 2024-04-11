@@ -42,6 +42,7 @@
 #endif
 #include "location.h"
 #include "location_data_rdb_helper.h"
+#include "location_data_rdb_manager.h"
 #include "location_log.h"
 #define private public
 #include "location_data_rdb_observer.h"
@@ -52,6 +53,10 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "satellite_status.h"
 #endif
+#include "hook_utils.h"
+#include "hookmgr.h"
+#include "work_record_statistic.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -69,7 +74,6 @@ const double VERIFY_LOCATION_SPEED = 10.0;
 const double VERIFY_LOCATION_DIRECTION = 90.0;
 const double VERIFY_LOCATION_TIME = 1000000000;
 const double VERIFY_LOCATION_TIMESINCEBOOT = 1000000000;
-const double VERIFY_LOCATION_FLOOR_ACC = 1000.0;
 const int32_t UN_SAID = 999999;
 const std::string UN_URI = "unknown_uri";
 void LocationCommonTest::SetUp()
@@ -172,12 +176,9 @@ void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
     EXPECT_EQ(VERIFY_LOCATION_DIRECTION, newParcel.ReadDouble()); // direction
     EXPECT_EQ(VERIFY_LOCATION_TIME, newParcel.ReadInt64()); // timeStamp
     EXPECT_EQ(VERIFY_LOCATION_TIMESINCEBOOT, newParcel.ReadInt64()); // timeSinceBoot
-    EXPECT_EQ("additions", Str16ToStr8(newParcel.ReadString16())); // additions
     EXPECT_EQ(1, newParcel.ReadInt64()); // additionSize
-    EXPECT_EQ(true, newParcel.ReadBool()); // isFromMock
-    EXPECT_EQ(1, newParcel.ReadInt32()); // sourceType
-    EXPECT_EQ(0, newParcel.ReadInt32()); // floorNo
-    EXPECT_EQ(VERIFY_LOCATION_FLOOR_ACC, newParcel.ReadDouble()); // floorAccuracy
+    EXPECT_EQ("additions", Str16ToStr8(newParcel.ReadString16())); // additions
+    EXPECT_EQ(1, newParcel.ReadInt32()); // isFromMock
 }
 
 /*
@@ -240,12 +241,9 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     parcel.WriteDouble(VERIFY_LOCATION_DIRECTION); // direction
     parcel.WriteInt64(VERIFY_LOCATION_TIME); // timeStamp
     parcel.WriteInt64(VERIFY_LOCATION_TIMESINCEBOOT); // timeSinceBoot
-    parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(true); // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(VERIFY_LOCATION_FLOOR_ACC); // floor acc
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt32(1); // isFromMock
     location->ReadFromParcel(parcel);
     EXPECT_EQ(VERIFY_LOCATION_LATITUDE, location->GetLatitude());
     EXPECT_EQ(VERIFY_LOCATION_LONGITUDE, location->GetLongitude());
@@ -255,12 +253,11 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     EXPECT_EQ(VERIFY_LOCATION_DIRECTION, location->GetDirection());
     EXPECT_EQ(VERIFY_LOCATION_TIME, location->GetTimeStamp());
     EXPECT_EQ(VERIFY_LOCATION_TIMESINCEBOOT, location->GetTimeSinceBoot());
-    EXPECT_EQ("additions", location->GetAdditions());
     EXPECT_EQ(1, location->GetAdditionSize());
-    EXPECT_EQ(true, location->GetIsFromMock());
-    EXPECT_EQ(1, location->GetSourceType());
-    EXPECT_EQ(0, location->GetFloorNo());
-    EXPECT_EQ(VERIFY_LOCATION_FLOOR_ACC, location->GetFloorAccuracy());
+    if (location->GetAdditions().size() == 1) {
+        EXPECT_EQ("additions", location->GetAdditions()[0]);
+    }
+    EXPECT_EQ(1, location->GetIsFromMock());
 
     MessageParcel newParcel;
     location->Marshalling(newParcel);
@@ -291,6 +288,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
         parcel.WriteDouble(i + 3.0); // azimuth
         parcel.WriteDouble(i + 4.0); // carrierFrequency
         parcel.WriteInt64(i + 5.0); // constellation type
+        parcel.WriteInt64(i + 6.0); // additionalInfoList
     }
     status->ReadFromParcel(parcel);
     EXPECT_EQ(2, status->GetSatellitesNumber());
@@ -301,6 +299,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
         EXPECT_EQ(i + 3.0, status->GetAzimuths()[i]);
         EXPECT_EQ(i + 4.0, status->GetCarrierFrequencies()[i]);
         EXPECT_EQ(i + 5.0, status->GetConstellationTypes()[i]);
+        EXPECT_EQ(i + 6.0, status->GetSatelliteAdditionalInfoList()[i]);
     }
 
     MessageParcel newParcel;
@@ -313,6 +312,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
         EXPECT_EQ(i + 3.0, newParcel.ReadDouble());
         EXPECT_EQ(i + 4.0, newParcel.ReadDouble());
         EXPECT_EQ(i + 5.0, newParcel.ReadInt64());
+        EXPECT_EQ(i + 6.0, newParcel.ReadInt64());
     }
     LBSLOGI(LOCATOR, "[LocationCommonTest] SateLLiteStatusTest001 end");
 }
@@ -691,12 +691,11 @@ HWTEST_F(LocationCommonTest, LocationTest002, TestSize.Level1)
     location->SetDirection(VERIFY_LOCATION_DIRECTION);
     location->SetTimeStamp(VERIFY_LOCATION_TIME);
     location->SetTimeSinceBoot(VERIFY_LOCATION_TIMESINCEBOOT);
-    location->SetAdditions("additions");
+    std::vector<std::string> additions;
+    additions.push_back("additions");
+    location->SetAdditions(additions, false);
     location->SetAdditionSize(1);
-    location->SetIsFromMock(true);
-    location->SetSourceType(1);
-    location->SetFloorNo(0);
-    location->SetFloorAccuracy(VERIFY_LOCATION_FLOOR_ACC);
+    location->SetIsFromMock(1);
     location->ToString();
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationTest002 end");
 }
@@ -734,5 +733,121 @@ HWTEST_F(LocationCommonTest, LoadLocationSaTest003, TestSize.Level1)
 }
 #undef LOCATION_LOADSA_TIMEOUT_MS
 #undef LOCATION_LOADSA_TIMEOUT_MS_FOR_TEST
+
+static int OhosHookTest01(const HOOK_INFO *hookInfo, void *executionContext)
+{
+    LBSLOGI(LOCATOR, "[LocationCommonTest] %{public}s enter", __func__);
+    EXPECT_NE(hookInfo, nullptr);
+    EXPECT_EQ(hookInfo->prio, 0);
+    EXPECT_EQ(executionContext, nullptr);
+    return 0;
+}
+
+static int OhosHookTest02(const HOOK_INFO *hookInfo, void *executionContext)
+{
+    LBSLOGI(LOCATOR, "[LocationCommonTest] %{public}s enter", __func__);
+    EXPECT_NE(hookInfo, nullptr);
+    EXPECT_EQ(hookInfo->prio, 1);
+    EXPECT_EQ(executionContext, nullptr);
+    return 0;
+}
+
+typedef struct hookTestStruct {
+    const char *hookTestName;
+    LocationProcessStage state;
+} HOOK_TEST;
+
+static int OhosHookTest03(const HOOK_INFO *hookInfo, void *executionContext)
+{
+    LBSLOGI(LOCATOR, "[LocationCommonTest] %{public}s enter", __func__);
+    EXPECT_NE(hookInfo, nullptr);
+    EXPECT_EQ(hookInfo->prio, 0);
+
+    EXPECT_NE(executionContext, nullptr);
+    HOOK_TEST* hookTest = (HOOK_TEST*)executionContext;
+    EXPECT_NE(hookTest, nullptr);
+    LocationProcessStage state = hookTest->state;
+    const char *hookTestName = hookTest->hookTestName;
+    EXPECT_EQ(state, LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS);
+    EXPECT_EQ(hookTestName, "HookUtils002");
+    return 0;
+}
+
+static int OhosHookTest04(const HOOK_INFO *hookInfo, void *executionContext)
+{
+    LBSLOGI(LOCATOR, "[LocationCommonTest] %{public}s enter", __func__);
+    EXPECT_NE(hookInfo, nullptr);
+    EXPECT_EQ(hookInfo->prio, 1);
+
+    EXPECT_NE(executionContext, nullptr);
+    HOOK_TEST* hookTest = (HOOK_TEST*)executionContext;
+    EXPECT_NE(hookTest, nullptr);
+    LocationProcessStage state = hookTest->state;
+    const char *hookTestName = hookTest->hookTestName;
+    EXPECT_EQ(state, LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS);
+    EXPECT_EQ(hookTestName, "HookUtils002");
+    return 0;
+}
+
+HWTEST_F(LocationCommonTest, HookUtils001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, HookUtils001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] HookUtils001 begin");
+    ASSERT_TRUE(HookUtils::GetLocationExtHookMgr() != nullptr);
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        HookUtils::RegisterHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, 0, OhosHookTest01));
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        HookUtils::RegisterHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, 1, OhosHookTest02));
+
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        HookUtils::ExecuteHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, nullptr, nullptr));
+    
+    HookUtils::UnregisterHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, OhosHookTest01);
+    HookUtils::UnregisterHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, OhosHookTest02);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] HookUtils001 end");
+}
+
+HWTEST_F(LocationCommonTest, HookUtils002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, HookUtils002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] HookUtils002 begin");
+    ASSERT_TRUE(HookUtils::GetLocationExtHookMgr() != nullptr);
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        HookUtils::RegisterHook(LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS, 0, OhosHookTest03));
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        HookUtils::RegisterHook(LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS, 1, OhosHookTest04));
+
+    HOOK_TEST hookTestStruct;
+    hookTestStruct.hookTestName = "HookUtils002";
+    hookTestStruct.state = LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS;
+
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        HookUtils::ExecuteHook(LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS, (void *)(&hookTestStruct), nullptr));
+    HookUtils::UnregisterHook(LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS, OhosHookTest03);
+    HookUtils::UnregisterHook(LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS, OhosHookTest04);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] HookUtils002 end");
+}
+
+HWTEST_F(LocationCommonTest, WorkRecordStatistic001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WorkRecordStatistic001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic001 begin");
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    workRecordStatistic->Update("network", 1);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic001 end");
+}
+
+HWTEST_F(LocationCommonTest, WorkRecordStatistic002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WorkRecordStatistic002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic002 begin");
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    workRecordStatistic->Update("network", 0);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic002 end");
+}
 } // namespace Location
 } // namespace OHOS

@@ -29,6 +29,8 @@
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
 #include "location_data_manager.h"
+#include "system_ability_status_change_stub.h"
+
 namespace OHOS {
 namespace Location {
 class ICallbackResumeManager {
@@ -37,12 +39,20 @@ public:
     virtual void ResumeCallback() = 0;
 };
 
+class LocatorSystemAbilityListener : public SystemAbilityStatusChangeStub {
+public:
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+private:
+    bool needResume_ = false;
+    std::mutex mutex_;
+};
+
 class LocatorImpl {
 public:
     static std::shared_ptr<LocatorImpl> GetInstance();
     explicit LocatorImpl();
     ~LocatorImpl();
-    bool Init();
 
     /**
      * @brief Obtain current location switch status.
@@ -618,7 +628,17 @@ public:
      */
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
-    void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
+    sptr<LocatorProxy> GetProxy();
+    bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);
+    bool IsSatelliteStatusChangeCallbackRegistered(const sptr<IRemoteObject>& callback);
+    bool IsNmeaCallbackRegistered(const sptr<IRemoteObject>& callback);
+    bool HasGnssNetworkRequest();
+    void AddLocationCallBack(std::unique_ptr<RequestConfig>& requestConfig, sptr<ILocatorCallback>& callback);
+    void RemoveLocationCallBack(sptr<ILocatorCallback>& callback);
+    void AddSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
+    void RemoveSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
+    void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
+    void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);
@@ -637,13 +657,11 @@ private:
     };
 
 private:
-    sptr<LocatorProxy> GetProxy();
     bool IsCallbackResuming();
     void UpdateCallbackResumingState(bool state);
 
     sptr<LocatorProxy> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
-    std::shared_ptr<ICallbackResumeManager> resumer_ { nullptr };
     std::shared_ptr<LocationDataManager> locationDataManager_ { nullptr };
     bool isServerExist_ = false;
     bool isCallbackResuming_ = false;
@@ -651,8 +669,21 @@ private:
     std::mutex resumeMutex_;
     static std::mutex locatorMutex_;
     static std::shared_ptr<LocatorImpl> instance_;
-    std::shared_ptr<CountryCodeManager> countryCodeManager_ = nullptr;
     bool isObserverReg_ = false;
+    sptr<ISystemAbilityStatusChange> saStatusListener_ =
+        sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+};
+
+class CallbackResumeManager : public ICallbackResumeManager {
+public:
+    CallbackResumeManager() = default;
+    ~CallbackResumeManager() = default;
+    void ResumeCallback() override;
+private:
+    void InitResumeCallbackFuncMap();
+    void ResumeGnssStatusCallback();
+    void ResumeNmeaMessageCallback();
+    void ResumeLocating();
 };
 }  // namespace Location
 }  // namespace OHOS

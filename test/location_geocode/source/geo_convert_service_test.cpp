@@ -37,6 +37,7 @@
 #include "geo_convert_skeleton.h"
 #include "location_dumper.h"
 #include "location_log.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 
@@ -244,17 +245,6 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate002, TestSi
     proxy_->GetAddressByCoordinate(parcel2, reply2);
     EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, reply2.ReadInt32());
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate002 end");
-}
-
-HWTEST_F(GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertOnStart001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStart001 begin");
-    service_->state_  = ServiceRunningState::STATE_NOT_START;
-    service_->OnStart();
-    service_->state_  = ServiceRunningState::STATE_NOT_START;
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertOnStart001 end");
 }
 
 HWTEST_F(GeoConvertServiceTest, GeoConvertInit001, TestSize.Level1)

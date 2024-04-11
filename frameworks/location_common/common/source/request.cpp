@@ -164,11 +164,15 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
     if (requestConfig_ == nullptr || proxys == nullptr) {
         return;
     }
+#ifdef EMULATOR_ENABLED
+    proxys->push_back(GNSS_ABILITY);
+#else
     switch (requestConfig_->GetScenario()) {
         case SCENE_NAVIGATION:
         case SCENE_TRAJECTORY_TRACKING:
         case SCENE_CAR_HAILING: {
             proxys->push_back(GNSS_ABILITY);
+            proxys->push_back(NETWORK_ABILITY);
             break;
         }
         case SCENE_DAILY_LIFE_SERVICE: {
@@ -186,6 +190,7 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
         default:
             break;
     }
+#endif
 }
 
 void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys)
@@ -193,13 +198,14 @@ void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> pro
     if (requestConfig_ == nullptr || proxys == nullptr) {
         return;
     }
+#ifdef EMULATOR_ENABLED
+    proxys->push_back(GNSS_ABILITY);
+#else
     switch (requestConfig_->GetPriority()) {
-        case PRIORITY_ACCURACY:
-            proxys->push_back(GNSS_ABILITY);
-            break;
         case PRIORITY_LOW_POWER:
             proxys->push_back(NETWORK_ABILITY);
             break;
+        case PRIORITY_ACCURACY:
         case PRIORITY_FAST_FIRST_FIX:
             proxys->push_back(GNSS_ABILITY);
             proxys->push_back(NETWORK_ABILITY);
@@ -207,6 +213,7 @@ void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> pro
         default:
             break;
     }
+#endif
 }
 
 bool Request::GetLocationPermState()

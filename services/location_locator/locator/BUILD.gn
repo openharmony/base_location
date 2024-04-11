@@ -42,10 +42,10 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/request.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/work_record_statistic.cpp",
   ]
 
   include_dirs = [
@@ -113,6 +113,11 @@ ohos_shared_library("lbsservice_locator") {
 
   if (is_emulator) {
     defines += [ "EMULATOR_ENABLED" ]
+  }
+
+  if (ability_form_fwk_enable) {
+    external_deps += [ "form_fwk:fmskit_native" ]
+    defines += [ "FMSKIT_NATIVE_SUPPORT" ]
   }
 
   if (resourceschedule_resource_schedule_service_endable) {

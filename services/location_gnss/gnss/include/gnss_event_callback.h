@@ -17,19 +17,18 @@
 #define GNSS_EVENT_CALLBACK_H
 #ifdef FEATURE_GNSS_SUPPORT
 
-#include <v1_0/ignss_callback.h>
+#include <v2_0/ignss_callback.h>
 #include "satellite_status.h"
 
 namespace OHOS {
 namespace Location {
-using HDI::Location::Gnss::V1_0::IGnssCallback;
-using HDI::Location::Gnss::V1_0::LocationInfo;
-using HDI::Location::Gnss::V1_0::GnssWorkingStatus;
-using HDI::Location::Gnss::V1_0::GnssCapabilities;
-using HDI::Location::Gnss::V1_0::SatelliteStatusInfo;
-using HDI::Location::Gnss::V1_0::GnssRefInfoType;
-using HDI::Location::Gnss::V1_0::GNSS_CONSTELLATION_GPS;
-using HDI::Location::Gnss::V1_0::SATELLITES_STATUS_USED_IN_FIX;
+using HDI::Location::Gnss::V2_0::IGnssCallback;
+using HDI::Location::Gnss::V2_0::LocationInfo;
+using HDI::Location::Gnss::V2_0::GnssWorkingStatus;
+using HDI::Location::Gnss::V2_0::GnssCapabilities;
+using HDI::Location::Gnss::V2_0::SatelliteStatusInfo;
+using HDI::Location::Gnss::V2_0::GnssRefInfoType;
+using HDI::Location::Gnss::V2_0::GnssNiNotificationRequest;
 
 class GnssEventCallback : public IGnssCallback {
 public:
@@ -42,6 +41,7 @@ public:
     int32_t RequestGnssReferenceInfo(GnssRefInfoType type) override;
     int32_t RequestPredictGnssData() override;
     int32_t ReportCachedLocation(const std::vector<LocationInfo>& gnssLocations) override;
+    int32_t ReportGnssNiNotification(const GnssNiNotificationRequest& notification) override;
 private:
     void SendDummySvInfo();
     bool IsNeedSvIncrease();

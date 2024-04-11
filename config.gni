@@ -47,6 +47,7 @@ declare_args() {
   communication_bluetooth_enable = true
   resourceschedule_background_task_mgr_enable = true
   resourceschedule_schedule_service_enable = true
+  ability_form_fwk_enable = true
 
   if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
     i18n_enable = false
@@ -85,6 +86,11 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_background_task_mgr)) {
     resourceschedule_background_task_mgr_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.ability_form_fwk)) {
+    ability_form_fwk_enable = false
   }
 
   if (defined(global_parts_info) &&

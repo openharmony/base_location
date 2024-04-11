@@ -51,6 +51,8 @@ public:
     bool IsAppBackground(std::string bundleName);
     bool RegisterAppStateObserver();
     bool UnregisterAppStateObserver();
+    bool IsAppInLocationContinuousTasks(pid_t uid);
+    bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
 private:
     void StartLocator();
     void StopLocator();

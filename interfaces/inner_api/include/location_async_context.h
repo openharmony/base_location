@@ -140,7 +140,7 @@ public:
 
 class CachedLocationAsyncContext : public AsyncContext {
 public:
-    std::vector<std::shared_ptr<Location>> locationList;
+    std::vector<std::unique_ptr<Location>> locationList;
 
     explicit CachedLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred) {}

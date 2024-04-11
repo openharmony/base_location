@@ -119,7 +119,7 @@ void PassiveAbility::UnloadPassiveSystemAbility()
 
 bool PassiveAbility::CheckIfPassiveConnecting()
 {
-    return IsMockEnabled() || !GetLocationMock().empty() || GetRequestNum() != 0;
+    return IsMockEnabled() || !GetLocationMock().empty();
 }
 
 void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
@@ -232,7 +232,7 @@ void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         return;
     }
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(PASSIVE, "ProcessEvent event:%{public}d", eventId);
+    LBSLOGD(PASSIVE, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS): {
             int timeInterval = event->GetParam();

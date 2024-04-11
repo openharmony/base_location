@@ -24,14 +24,26 @@
 
 #include "location_data_rdb_observer.h"
 #include "location_data_rdb_helper.h"
+#include "location_data_rdb_manager.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
+#include "locator.h"
 
 namespace OHOS {
 namespace Location {
 constexpr uint32_t WAIT_MS = 1000;
 std::shared_ptr<LocatorImpl> LocatorImpl::instance_ = nullptr;
 std::mutex LocatorImpl::locatorMutex_;
+auto g_locatorImpl = Locator::GetInstance();
+std::mutex g_resumeFuncMapMutex;
+std::mutex g_locationCallbackMapMutex;
+std::mutex g_gnssStatusInfoCallbacksMutex;
+std::mutex g_nmeaCallbacksMutex;
+std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
+std::map<std::string, void(CallbackResumeManager::*)()> g_resumeFuncMap;
+std::map<sptr<ILocatorCallback>, RequestConfig> g_locationCallbackMap;
+std::set<sptr<IRemoteObject>> g_gnssStatusInfoCallbacks;
+std::set<sptr<IRemoteObject>> g_nmeaCallbacks;
 
 std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
 {
@@ -48,17 +60,10 @@ std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
 LocatorImpl::LocatorImpl()
 {
     locationDataManager_ = DelayedSingleton<LocationDataManager>::GetInstance();
-    countryCodeManager_ = DelayedSingleton<CountryCodeManager>::GetInstance();
-    if (countryCodeManager_ != nullptr) {
-        countryCodeManager_->ReSubscribeEvent();
-    }
 }
 
 LocatorImpl::~LocatorImpl()
 {
-    if (countryCodeManager_ != nullptr) {
-        countryCodeManager_->ReUnsubscribeEvent();
-    }
 }
 
 bool LocatorImpl::IsLocationEnabled()
@@ -69,13 +74,7 @@ bool LocatorImpl::IsLocationEnabled()
     if (locationDataRdbHelper == nullptr) {
         return false;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabled err = %{public}d", errCode);
-    }
-    LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabled switch state = %{public}d", state);
+    state = LocationDataRdbManager::QuerySwitchState();
     return (state == ENABLED);
 }
 
@@ -128,7 +127,15 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    proxy->StartLocating(requestConfig, callback, "location.ILocator", 0, 0);
+    if (IsLocationCallbackRegistered(callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s locatorCallback has registered", __func__);
+        return;
+    }
+    AddLocationCallBack(requestConfig, callback);
+    int errCode = proxy->StartLocating(requestConfig, callback, "location.ILocator", 0, 0);
+    if (errCode != ERRCODE_SUCCESS) {
+        RemoveLocationCallBack(callback);
+    }
 }
 
 void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
@@ -142,6 +149,11 @@ void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
         return;
     }
     proxy->StopLocating(callback);
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    auto iter = g_locationCallbackMap.find(callback);
+    if (iter != g_locationCallbackMap.end()) {
+        g_locationCallbackMap.erase(iter);
+    }
 }
 
 std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
@@ -202,6 +214,11 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
+    if (IsSatelliteStatusChangeCallbackRegistered(callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return false;
+    }
+    AddSatelliteStatusChangeCallBack(callback);
     proxy->RegisterGnssStatusCallback(callback, DEFAULT_UID);
     return true;
 }
@@ -217,6 +234,7 @@ bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callba
         return false;
     }
     proxy->UnregisterGnssStatusCallback(callback);
+    RemoveSatelliteStatusChangeCallBack(callback);
     return true;
 }
 
@@ -230,6 +248,11 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
+    if (IsNmeaCallbackRegistered(callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return false;
+    }
+    AddNmeaCallBack(callback);
     proxy->RegisterNmeaMessageCallback(callback, DEFAULT_UID);
     return true;
 }
@@ -245,26 +268,29 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
         return false;
     }
     proxy->UnregisterNmeaMessageCallback(callback);
+    RemoveNmeaCallBack(callback);
     return true;
 }
 
 bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return false;
     }
-    countryCodeManager_->RegisterCountryCodeCallback(callback, uid);
+    countryCodeManager->RegisterCountryCodeCallback(callback, uid);
     return true;
 }
 
 bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
 {
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return false;
     }
-    countryCodeManager_->UnregisterCountryCodeCallback(callback);
+    countryCodeManager->UnregisterCountryCodeCallback(callback);
     return true;
 }
 
@@ -483,11 +509,12 @@ bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
 std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return nullptr;
     }
-    return countryCodeManager_->GetIsoCountryCode();
+    return countryCodeManager->GetIsoCountryCode();
 }
 
 bool LocatorImpl::EnableLocationMock()
@@ -627,14 +654,8 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     if (locationDataRdbHelper == nullptr) {
         return ERRCODE_NOT_SUPPORTED;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode =
-        locationDataRdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "IsLocationEnabledV9 err = %{public}d", errCode);
-    }
+    state = LocationDataRdbManager::QuerySwitchState();
     isEnabled = (state == ENABLED);
-    LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabledV9 switch state = %{public}d", state);
     return ERRCODE_SUCCESS;
 }
 
@@ -694,7 +715,15 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsLocationCallbackRegistered(callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s locatorCallback has registered", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    AddLocationCallBack(requestConfig, callback);
     LocationErrCode errCode = proxy->StartLocatingV9(requestConfig, callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        RemoveLocationCallBack(callback);
+    }
     return errCode;
 }
 
@@ -710,6 +739,7 @@ LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->StopLocatingV9(callback);
+    RemoveLocationCallBack(callback);
     return errCode;
 }
 
@@ -763,7 +793,15 @@ LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObje
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsSatelliteStatusChangeCallbackRegistered(callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    AddSatelliteStatusChangeCallBack(callback);
     LocationErrCode errCode = proxy->RegisterGnssStatusCallbackV9(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        RemoveSatelliteStatusChangeCallBack(callback);
+    }
     return errCode;
 }
 
@@ -779,6 +817,7 @@ LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteOb
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->UnregisterGnssStatusCallbackV9(callback);
+    RemoveSatelliteStatusChangeCallBack(callback);
     return errCode;
 }
 
@@ -793,7 +832,15 @@ LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObj
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsNmeaCallbackRegistered(callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    AddNmeaCallBack(callback);
     LocationErrCode errCode = proxy->RegisterNmeaMessageCallbackV9(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        RemoveNmeaCallBack(callback);
+    }
     return errCode;
 }
 
@@ -809,28 +856,31 @@ LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteO
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->UnregisterNmeaMessageCallbackV9(callback);
+    RemoveNmeaCallBack(callback);
     return errCode;
 }
 
 LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCountryCodeCallbackV9()");
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    countryCodeManager_->RegisterCountryCodeCallback(callback, 0);
+    countryCodeManager->RegisterCountryCodeCallback(callback, 0);
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorImpl::UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCountryCodeCallbackV9()");
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    countryCodeManager_->UnregisterCountryCodeCallback(callback);
+    countryCodeManager->UnregisterCountryCodeCallback(callback);
     return ERRCODE_SUCCESS;
 }
 
@@ -1020,11 +1070,12 @@ LocationErrCode LocatorImpl::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& req
 LocationErrCode LocatorImpl::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCodeV9()");
-    if (countryCodeManager_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s countryCodeManager_ is nullptr", __func__);
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    if (countryCodeManager == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    countryCode = countryCodeManager_->GetIsoCountryCode();
+    countryCode = countryCodeManager->GetIsoCountryCode();
     return ERRCODE_SUCCESS;
 }
 
@@ -1199,12 +1250,14 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         remote.promote()->RemoveDeathRecipient(recipient_);
     }
     isServerExist_ = false;
-    if (resumer_ != nullptr && !IsCallbackResuming()) {
+    if (g_callbackResumer != nullptr && !IsCallbackResuming()) {
         // only the first request will be handled
         UpdateCallbackResumingState(true);
         // wait for remote died finished
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
-        resumer_->ResumeCallback();
+        if (HasGnssNetworkRequest() && CommonUtils::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+            g_callbackResumer->ResumeCallback();
+        }
         UpdateCallbackResumingState(false);
     }
 }
@@ -1233,14 +1286,15 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
     }
     isServerExist_ = true;
     client_ = sptr<LocatorProxy>(new (std::nothrow) LocatorProxy(obj));
-    return client_;
-}
-
-void LocatorImpl::SetResumer(std::shared_ptr<ICallbackResumeManager> resumer)
-{
-    if (resumer_ == nullptr) {
-        resumer_ = resumer;
+    saStatusListener_ = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+    if (saStatusListener_ == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s saStatusListener_ is nullptr!", __func__);
     }
+    int32_t result = sam->SubscribeSystemAbility(static_cast<int32_t>(LOCATION_LOCATOR_SA_ID), saStatusListener_);
+    if (result != ERR_OK) {
+        LBSLOGE(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
+    }
+    return client_;
 }
 
 void LocatorImpl::UpdateCallbackResumingState(bool state)
@@ -1253,6 +1307,214 @@ bool LocatorImpl::IsCallbackResuming()
 {
     std::unique_lock<std::mutex> lock(resumeMutex_);
     return isCallbackResuming_;
+}
+
+bool LocatorImpl::IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback)
+{
+    if (callback == nullptr) {
+        return true;
+    }
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
+        auto locatorCallback = iter->first;
+        if (locatorCallback == nullptr) {
+            continue;
+        }
+        if (locatorCallback == callback) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LocatorImpl::IsSatelliteStatusChangeCallbackRegistered(const sptr<IRemoteObject>& callback)
+{
+    if (callback == nullptr) {
+        return true;
+    }
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    for (auto gnssStatusCallback : g_gnssStatusInfoCallbacks) {
+        if (gnssStatusCallback == callback) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LocatorImpl::IsNmeaCallbackRegistered(const sptr<IRemoteObject>& callback)
+{
+    if (callback == nullptr) {
+        return true;
+    }
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    for (auto nmeaCallback : g_nmeaCallbacks) {
+        if (nmeaCallback == callback) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void LocatorImpl::AddLocationCallBack(std::unique_ptr<RequestConfig>& requestConfig,
+    sptr<ILocatorCallback>& callback)
+{
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    g_locationCallbackMap.insert(std::make_pair(callback, *requestConfig));
+}
+
+void LocatorImpl::RemoveLocationCallBack(sptr<ILocatorCallback>& callback)
+{
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    auto iter = g_locationCallbackMap.find(callback);
+    if (iter != g_locationCallbackMap.end()) {
+        g_locationCallbackMap.erase(iter);
+    }
+}
+
+void LocatorImpl::AddSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback)
+{
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    g_gnssStatusInfoCallbacks.insert(callback);
+}
+
+void LocatorImpl::RemoveSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback)
+{
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    for (auto iter = g_gnssStatusInfoCallbacks.begin(); iter != g_gnssStatusInfoCallbacks.end(); iter++) {
+        if (callback == *iter) {
+            g_gnssStatusInfoCallbacks.erase(callback);
+            break;
+        }
+    }
+}
+
+void LocatorImpl::AddNmeaCallBack(const sptr<IRemoteObject>& callback)
+{
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    g_nmeaCallbacks.insert(callback);
+}
+
+void LocatorImpl::RemoveNmeaCallBack(const sptr<IRemoteObject>& callback)
+{
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    for (auto iter = g_nmeaCallbacks.begin(); iter != g_nmeaCallbacks.end(); iter++) {
+        if (callback == *iter) {
+            g_nmeaCallbacks.erase(callback);
+            break;
+        }
+    }
+}
+
+bool LocatorImpl::HasGnssNetworkRequest()
+{
+    bool ret = false;
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
+        auto locatorCallback = iter->first;
+        if (locatorCallback == nullptr || iter->first == nullptr) {
+            continue;
+        }
+        auto requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->Set(iter->second);
+        if (requestConfig->GetScenario() != SCENE_NO_POWER &&
+            (requestConfig->GetScenario() != SCENE_UNSET ||
+            requestConfig->GetPriority() != PRIORITY_UNSET)) {
+            ret = true;
+            break;
+        }
+    }
+    return ret;
+}
+
+void CallbackResumeManager::InitResumeCallbackFuncMap()
+{
+    std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
+    if (g_resumeFuncMap.size() != 0) {
+        return;
+    }
+    g_resumeFuncMap.insert(std::make_pair("satelliteStatusChange", &CallbackResumeManager::ResumeGnssStatusCallback));
+    g_resumeFuncMap.insert(std::make_pair("nmeaMessage", &CallbackResumeManager::ResumeNmeaMessageCallback));
+    g_resumeFuncMap.insert(std::make_pair("locationChange", &CallbackResumeManager::ResumeLocating));
+}
+
+void CallbackResumeManager::ResumeCallback()
+{
+    InitResumeCallbackFuncMap();
+    std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
+    for (auto iter = g_resumeFuncMap.begin(); iter != g_resumeFuncMap.end(); iter++) {
+        auto resumeFunc = iter->second;
+        (this->*resumeFunc)();
+    }
+}
+
+void CallbackResumeManager::ResumeGnssStatusCallback()
+{
+    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ;
+    }
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    for (auto gnssStatusCallback : g_gnssStatusInfoCallbacks) {
+        if (gnssStatusCallback == nullptr) {
+            continue;
+        }
+        proxy->RegisterGnssStatusCallbackV9(gnssStatusCallback);
+    }
+}
+
+void CallbackResumeManager::ResumeNmeaMessageCallback()
+{
+    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return;
+    }
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    for (auto nmeaCallback : g_nmeaCallbacks) {
+        if (nmeaCallback == nullptr) {
+            continue;
+        }
+        proxy->RegisterNmeaMessageCallbackV9(nmeaCallback);
+    }
+}
+
+void CallbackResumeManager::ResumeLocating()
+{
+    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return;
+    }
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
+        auto locatorCallback = iter->first;
+        if (locatorCallback == nullptr || iter->first == nullptr) {
+            continue;
+        }
+        auto requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->Set(iter->second);
+        proxy->StartLocatingV9(requestConfig, locatorCallback);
+    }
+}
+
+void LocatorSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s enter", __func__);
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (needResume_) {
+        if (g_callbackResumer != nullptr && !g_locatorImpl->HasGnssNetworkRequest()) {
+            g_callbackResumer->ResumeCallback();
+        }
+        needResume_ = false;
+    }
+}
+
+void LocatorSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s enter", __func__);
+    std::unique_lock<std::mutex> lock(mutex_);
+    needResume_ = true;
 }
 }  // namespace Location
 }  // namespace OHOS

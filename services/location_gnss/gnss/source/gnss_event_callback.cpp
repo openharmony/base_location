@@ -27,8 +27,6 @@
 namespace OHOS {
 namespace Location {
 using namespace OHOS::HiviewDFX;
-const int SVID_SHIFT_WIDTH = 8;
-const int CONSTELLATION_TYPE_SHIFT_WIDTH = 4;
 const int WEAK_GPS_SIGNAL_SCENARIO_COUNT = 3;
 const int MAX_SV_COUNT = 64;
 const int GPS_DUMMY_SV_COUNT = 5;
@@ -48,10 +46,10 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     locationNew->SetLatitude(location.latitude);
     locationNew->SetLongitude(location.longitude);
     locationNew->SetAltitude(location.altitude);
-    locationNew->SetAccuracy(location.accuracy);
+    locationNew->SetAccuracy(location.horizontalAccuracy);
     locationNew->SetSpeed(location.speed);
-    locationNew->SetDirection(location.direction);
-    locationNew->SetTimeStamp(location.timeStamp);
+    locationNew->SetDirection(location.bearing);
+    locationNew->SetTimeStamp(location.timeForFix);
     locationNew->SetTimeSinceBoot(location.timeSinceBoot);
     locationNew->SetIsFromMock(false);
     if (gnssAbility->IsMockEnabled()) {
@@ -66,8 +64,8 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     auto receiveTimestamp = now.tv_sec * SEC_TO_MILLI_SEC + now.tv_usec / MICRO_PER_MILLI;
     WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {
         "speed", std::to_string(location.speed),
-        "accuracy", std::to_string(location.accuracy),
-        "locationTimestamp", std::to_string(location.timeStamp),
+        "accuracy", std::to_string(location.horizontalAccuracy),
+        "locationTimestamp", std::to_string(location.timeForFix),
         "receiveTimestamp", std::to_string(receiveTimestamp),
         "latitude", std::to_string(location.latitude),
         "longitude", std::to_string(location.longitude)});
@@ -115,8 +113,8 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         return ERR_OK;
     }
     std::unique_ptr<SatelliteStatus> svStatus = std::make_unique<SatelliteStatus>();
-    if (info.satellitesNumber <= 0) {
-        LBSLOGD(GNSS, "SvStatusCallback, satellites_num <= 0!");
+    if (info.satellitesNumber < 0) {
+        LBSLOGD(GNSS, "SvStatusCallback, satellites_num < 0!");
         return ERR_INVALID_VALUE;
     }
     std::vector<std::string> names;
@@ -132,6 +130,7 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         svStatus->SetCarrierToNoiseDensity(info.carrierToNoiseDensitys[i]);
         svStatus->SetSatelliteId(info.satelliteIds[i]);
         svStatus->SetConstellationType(info.constellation[i]);
+        svStatus->SetSatelliteAdditionalInfo(info.additionalInfo[i]);
         std::string str_info = "satelliteId : " + std::to_string(info.satelliteIds[i]) +
             ", carrierToNoiseDensity : " + std::to_string(info.carrierToNoiseDensitys[i]) +
             ", elevation : " + std::to_string(info.elevation[i]) +
@@ -213,7 +212,7 @@ bool GnssEventCallback::IsSvTypeGps(const std::unique_ptr<SatelliteStatus> &sv, 
     if (sv == nullptr) {
         return false;
     }
-    return sv->GetConstellationTypes()[index] == GNSS_CONSTELLATION_GPS;
+    return sv->GetConstellationTypes()[index] == HDI::Location::Gnss::V2_0::CONSTELLATION_CATEGORY_GPS;
 }
 
 bool GnssEventCallback::IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int index)
@@ -221,9 +220,8 @@ bool GnssEventCallback::IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int
     if (sv == nullptr) {
         return false;
     }
-    return (((static_cast<uint32_t>(sv->GetSatelliteIds()[index]) << SVID_SHIFT_WIDTH) |
-        (static_cast<uint32_t>(sv->GetConstellationTypes()[index]) << CONSTELLATION_TYPE_SHIFT_WIDTH)) &
-        (static_cast<uint8_t>(SATELLITES_STATUS_USED_IN_FIX))) != 0;
+    return sv->GetSatelliteAdditionalInfoList()[index] &
+        static_cast<int>(HDI::Location::Gnss::V2_0::SATELLITES_ADDITIONAL_INFO_USED_IN_FIX);
 }
 
 void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svid, int cN0Dbhz)
@@ -232,7 +230,7 @@ void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svi
         return;
     }
     sv->SetSatelliteId(svid);
-    sv->SetConstellationType(GNSS_CONSTELLATION_GPS);
+    sv->SetConstellationType(HDI::Location::Gnss::V2_0::CONSTELLATION_CATEGORY_GPS);
     sv->SetCarrierToNoiseDensity(cN0Dbhz);
     sv->SetAltitude(60); // elevationDegrees
     sv->SetAzimuth(90); // azimuthDegrees
@@ -250,6 +248,11 @@ int32_t GnssEventCallback::RequestPredictGnssData()
 }
 
 int32_t GnssEventCallback::ReportCachedLocation(const std::vector<LocationInfo>& gnssLocations)
+{
+    return ERR_OK;
+}
+
+int32_t GnssEventCallback::ReportGnssNiNotification(const GnssNiNotificationRequest& notification)
 {
     return ERR_OK;
 }

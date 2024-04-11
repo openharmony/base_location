@@ -33,10 +33,11 @@
 #include "locationhub_ipc_interface_code.h"
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
-const uint32_t EVENT_REPORT_LOCATION = 0x0100;
+const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
 const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
@@ -280,7 +281,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return false;
     }
-    if (CommonUtils::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
         LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
         return false;
     }
@@ -297,7 +298,11 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
     data.WriteInt64(workRecord.GetTimeInterval(0) * SEC_TO_MILLI_SEC);
     data.WriteInt32(LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
     data.WriteRemoteObject(callback->AsObject());
-    data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
+    if (workRecord.GetName(0).size() == 0) {
+        data.WriteString16(Str8ToStr16(std::to_string(workRecord.GetUid(0)))); // uid
+    } else {
+        data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
+    }
     int error = nlpServiceProxy_->SendRequest(REQUEST_NETWORK_LOCATION, data, reply, option);
     if (error != ERR_OK) {
         LBSLOGE(NETWORK, "SendRequest to cloud service failed. error = %{public}d", error);
@@ -362,7 +367,7 @@ void NetworkAbility::ProcessReportLocationMock()
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
         if (networkHandler_ != nullptr) {
-            networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION,
+            networkHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION,
                 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
         }
     } else {
@@ -376,14 +381,14 @@ void NetworkAbility::SendReportMockLocationEvent()
     if (networkHandler_ == nullptr) {
         return;
     }
-    networkHandler_->SendHighPriorityEvent(EVENT_REPORT_LOCATION, 0, 0);
+    networkHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION, 0, 0);
 }
 
 int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> location)
 {
     if ((IsLocationMocked() && !location->GetIsFromMock()) ||
         (!IsLocationMocked() && location->GetIsFromMock())) {
-        LBSLOGE(NETWORK, "location mock is enabled, do not report gnss location!");
+        LBSLOGE(NETWORK, "location mock is enabled, do not report network location!");
         return ERR_OK;
     }
     ReportLocationInfo(NETWORK_ABILITY, location);
@@ -499,7 +504,7 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
-        case EVENT_REPORT_LOCATION: {
+        case EVENT_REPORT_MOCK_LOCATION: {
             networkAbility->ProcessReportLocationMock();
             break;
         }

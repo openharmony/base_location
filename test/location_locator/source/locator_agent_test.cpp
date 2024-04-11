@@ -17,6 +17,8 @@
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
+#include "locator.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -192,6 +194,9 @@ HWTEST_F(LocatorAgentTest, StartGnssLocatingTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorAgentTest, StartGnssLocatingTest001, TestSize.Level1";
     LBSLOGI(LOCATOR_STANDARD, "[LocatorAgentTest] StartGnssLocatingTest001 begin");
+    auto locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    locatorImpl->EnableAbility(true);
     auto locatorAgentManager = std::make_shared<LocatorAgentManager>();
     sptr<IRemoteObject> saObject = locatorAgentManager->CheckLocatorSystemAbilityLoaded();
     auto locatorAgent =

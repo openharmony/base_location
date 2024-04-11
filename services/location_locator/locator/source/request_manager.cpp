@@ -37,6 +37,8 @@
 #include "request_config.h"
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
+#include "hook_utils.h"
+#include "permission_manager.h"
 
 #ifdef RES_SCHED_SUPPROT
 #include "res_type.h"
@@ -85,7 +87,7 @@ void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     uint32_t callingFirstTokenid = request->GetFirstTokenId();
     int32_t uid = request->GetUid();
     if (IsUidInProcessing(uid) &&
-        CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetApproximatelyPermState()) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
             request->SetApproximatelyPermState(true);
@@ -284,6 +286,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         auto request = *iter;
         locatorAbility->UnregisterPermissionCallback(request->GetTokenId());
         deadRequests->push_back(request);
+        HookUtils::ExecuteHookWhenStopLocation(request);
         LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "get %{public}s dead request", std::to_string(deadRequests->size()).c_str());
@@ -385,11 +388,12 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
  */
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
+    int32_t requestUid = request->GetUid();
     std::set<int32_t> proxyUids = DelayedSingleton<LocatorAbility>::GetInstance()->GetProxyUid();
     for (auto iter = proxyUids.begin(); iter != proxyUids.end(); iter++) {
         int32_t uid = *iter;
         // for frozen app, do not add to workRecord
-        if (uid == request->GetUid()) {
+        if (uid == requestUid) {
             LBSLOGD(LOCATOR, "%{public}d is freezed.", uid);
             return false;
         }
@@ -421,10 +425,23 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     uint32_t tokenId = request->GetTokenId();
     uint32_t firstTokenId = request->GetFirstTokenId();
     // if location access permission granted, add request info to work record
-    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
         return false;
+    }
+    std::string bundleName = "";
+    pid_t uid = request->GetUid();
+    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+    }
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(bundleName, tokenId,
+            request->GetTokenIdEx(), uid)&&
+            !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+            return false;
+        }
     }
     auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {

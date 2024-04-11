@@ -17,6 +17,7 @@
 #include "gnss_fuzzer.h"
 
 #include <vector>
+#include <thread>
 
 #include "ipc_skeleton.h"
 #include "iremote_object.h"
@@ -37,8 +38,8 @@
 namespace OHOS {
     using namespace OHOS::Location;
     const int32_t MIN_DATA_LEN = 4;
-
-    bool GnssProxyFuzzTest(const uint8_t* data, size_t size)
+    const int32_t SLEEP_TIMES = 1000;
+    bool GnssProxyFuzzTest001(const uint8_t* data, size_t size)
     {
         if (size < MIN_DATA_LEN) {
             return true;
@@ -48,33 +49,62 @@ namespace OHOS {
         sptr<OHOS::Location::GnssAbilityProxy> proxy =
             new (std::nothrow) GnssAbilityProxy(ability);
         proxy->SetEnable(true);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->SetEnable(false);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->RefrashRequirements();
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         auto gnssCallbackHost =
             sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
         proxy->RegisterGnssStatusCallback(gnssCallbackHost, data[index++]);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterGnssStatusCallback(gnssCallbackHost);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         auto nmeaCallbackHost =
             sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
         proxy->RegisterNmeaMessageCallback(nmeaCallbackHost, data[index++]);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterNmeaMessageCallback(nmeaCallbackHost);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+        return true;
+    }
+
+    bool GnssProxyFuzzTest002(const uint8_t* data, size_t size)
+    {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
+        int index = 0;
+        sptr<OHOS::Location::GnssAbility> ability = new (std::nothrow) GnssAbility();
+        sptr<OHOS::Location::GnssAbilityProxy> proxy =
+            new (std::nothrow) GnssAbilityProxy(ability);
         auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
         auto cachedLocationsCallbackHost =
             sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
         proxy->RegisterCachedCallback(cachedRequest, cachedLocationsCallbackHost);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterCachedCallback(cachedLocationsCallbackHost);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         int locSize;
         proxy->GetCachedGnssLocationsSize(locSize);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->FlushCachedGnssLocations();
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
         proxy->SendCommand(command);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
         proxy->AddFence(fence);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->RemoveFence(fence);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
         proxy->EnableMock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->DisableMock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->SetMocked(data[index++], locations);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         return true;
     }
 }
@@ -83,7 +113,8 @@ namespace OHOS {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::GnssProxyFuzzTest(data, size);
+    OHOS::GnssProxyFuzzTest001(data, size);
+    OHOS::GnssProxyFuzzTest002(data, size);
     return 0;
 }
 #endif // FEATURE_GNSS_SUPPORT

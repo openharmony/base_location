@@ -38,8 +38,10 @@ void CachedLocationsCallbackProxy::OnCacheLocationsReport(const std::vector<std:
     }
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_CACHED_LOCATIONS_EVENT, data, reply, option);
-    LBSLOGI(CACHED_LOCATIONS_CALLBACK,
-        "CachedLocationsCallbackProxy::OnCacheLocationsReport Transact ErrCode = %{public}d", error);
+    if (error != ERR_OK) {
+        LBSLOGI(CACHED_LOCATIONS_CALLBACK,
+            "CachedLocationsCallbackProxy::OnCacheLocationsReport Transact ErrCode = %{public}d", error);
+    }
 }
 } // namespace Location
 } // namespace OHOS

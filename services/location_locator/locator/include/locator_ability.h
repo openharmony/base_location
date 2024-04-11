@@ -53,6 +53,7 @@ private:
     void RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UpdateLastLocationRequestNum(const AppExecFwk::InnerEvent::Pointer& event);
     void UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -153,6 +154,7 @@ public:
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
     std::set<int32_t> GetProxyUid();
+    void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt);
 
 private:
     bool Init();

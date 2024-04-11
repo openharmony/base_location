@@ -35,6 +35,11 @@ int NetworkCallbackHost::OnRemoteRequest(
         return -1;
     }
     switch (code) {
+        case RECEIVE_LOCATION_INFO_EVENT_V9: {
+            std::unique_ptr<Location> location = Location::UnmarshallingV9(data);
+            OnLocationReport(location);
+            break;
+        }
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             OnLocationReport(location);

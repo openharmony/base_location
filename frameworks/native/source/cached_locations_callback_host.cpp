@@ -51,9 +51,9 @@ int CachedLocationsCallbackHost::OnRemoteRequest(
         case RECEIVE_CACHED_LOCATIONS_EVENT: {
             int size = data.ReadInt32();
             if (size > 0 && size < MAXIMUM_CACHE_LOCATIONS) {
-                std::vector<std::shared_ptr<Location>> locations(size);
+                std::vector<std::unique_ptr<Location>> locations(size);
                 for (int i = 0; i < size; i++) {
-                    locations.push_back(Location::UnmarshallingShared(data));
+                    locations.push_back(Location::Unmarshalling(data));
                 }
                 Send(locations);
             }
@@ -72,7 +72,7 @@ bool CachedLocationsCallbackHost::IsRemoteDied()
     return remoteDied_;
 }
 
-bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& locations)
+bool CachedLocationsCallbackHost::Send(std::vector<std::unique_ptr<Location>>& locations)
 {
     std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
@@ -93,7 +93,9 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::shared_ptr<Location>>& l
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    context->locationList = locations;
+    for (std::unique_ptr<Location>& location : locations) {
+        context->locationList.emplace_back(std::move(location));
+    }
     work->data = context;
     UvQueueWork(loop, work);
     return true;

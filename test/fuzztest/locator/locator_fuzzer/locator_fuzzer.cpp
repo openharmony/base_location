@@ -49,6 +49,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "satellite_status.h"
 #endif
+#include "permission_manager.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -133,7 +134,7 @@ bool CachedLocationsCallbackHostFuzzerTest(const uint8_t* data, size_t size)
     cachedCallbackHost->OnRemoteRequest(data[index++], request, reply, option);
     cachedCallbackHost->IsRemoteDied();
 
-    std::vector<std::shared_ptr<OHOS::Location::Location>> locationsForSend;
+    std::vector<std::unique_ptr<OHOS::Location::Location>> locationsForSend;
     cachedCallbackHost->Send(locationsForSend);
     std::vector<std::unique_ptr<OHOS::Location::Location>> locationsForReport;
     cachedCallbackHost->OnCacheLocationsReport(locationsForReport);

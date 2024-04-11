@@ -19,6 +19,7 @@
 #include <singleton.h>
 #include <string>
 #include <time.h>
+#include <map>
 
 #include "i_locator_callback.h"
 #include "location.h"
@@ -37,11 +38,12 @@ public:
     std::unique_ptr<Location> GetLastLocation();
     std::unique_ptr<Location> GetCacheLocation(const std::shared_ptr<Request>& request);
     std::unique_ptr<Location> GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
-        const std::unique_ptr<Location>& location);
+        uint64_t tokenIdEx, const std::unique_ptr<Location>& location);
     void UpdateRandom();
     bool IsRequestFuse(const std::shared_ptr<Request>& request);
-    void UpdateLocationByRequest(const uint32_t tokenId, const uint32_t tokenIdEx,
+    void UpdateLocationByRequest(const uint32_t tokenId, const uint64_t tokenIdEx,
         std::unique_ptr<Location>& location);
+    bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid);
 private:
     struct timespec lastUpdateTime_;
     double offsetRandom_;
@@ -50,10 +52,12 @@ private:
     Location cacheNlpLocation_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
-        std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location);
+        std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
+        const std::unique_ptr<Location>& location, std::string abilityName);
     void WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request,
         const std::unique_ptr<Location>& location);
-    bool IsAppInLocationContinuousTasks(pid_t uid);
+    std::unique_ptr<Location> ExecuteReportProcess(std::shared_ptr<Request>& request,
+        std::unique_ptr<Location>& location, std::string abilityName);
 };
 } // namespace OHOS
 } // namespace Location

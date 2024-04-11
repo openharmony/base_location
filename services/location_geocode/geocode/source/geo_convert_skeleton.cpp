@@ -19,6 +19,7 @@
 #include "ipc_skeleton.h"
 #include "location_log.h"
 #include "locationhub_ipc_interface_code.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -65,7 +66,7 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeoc
 
 int GeoConvertServiceStub::IsGeoConvertAvailableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     IsGeoConvertAvailable(reply);
@@ -74,7 +75,7 @@ int GeoConvertServiceStub::IsGeoConvertAvailableInner(MessageParcel &data, Messa
 
 int GeoConvertServiceStub::GetAddressByCoordinateInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     GetAddressByCoordinate(data, reply);
@@ -84,7 +85,7 @@ int GeoConvertServiceStub::GetAddressByCoordinateInner(MessageParcel &data, Mess
 int GeoConvertServiceStub::GetAddressByLocationNameInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     GetAddressByLocationName(data, reply);
@@ -94,7 +95,7 @@ int GeoConvertServiceStub::GetAddressByLocationNameInner(
 int GeoConvertServiceStub::EnableReverseGeocodingMockInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     EnableReverseGeocodingMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
@@ -105,7 +106,7 @@ int GeoConvertServiceStub::EnableReverseGeocodingMockInner(
 int GeoConvertServiceStub::DisableReverseGeocodingMockInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     DisableReverseGeocodingMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
@@ -116,7 +117,7 @@ int GeoConvertServiceStub::DisableReverseGeocodingMockInner(
 int GeoConvertServiceStub::SetGeocodingMockInfoInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo = ParseGeocodingMockInfos(data);
@@ -132,8 +133,9 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     AppIdentity identity;
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
-    LBSLOGI(GEO_CONVERT, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
-        code, option.GetFlags(), callingPid, callingUid);
+    LBSLOGI(GEO_CONVERT,
+        "cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid = %{public}d, timestamp = %{public}s",
+        code, option.GetFlags(), callingPid, callingUid, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GEO_CONVERT, "invalid token.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);

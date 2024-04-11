@@ -54,7 +54,9 @@ void LocatorCallbackProxy::OnLocationReport(const std::unique_ptr<Location>& loc
         option = { MessageOption::TF_ASYNC };
     }
     int error = Remote()->SendRequest(ILocatorCallback::RECEIVE_LOCATION_INFO_EVENT, data, reply, option);
-    LBSLOGD(LOCATOR_CALLBACK, "OnLocationReport Transact ErrCode = %{public}d", error);
+    if (error != ERR_OK) {
+        LBSLOGI(LOCATOR_CALLBACK, "OnLocationReport Transact ErrCode = %{public}d", error);
+    }
 }
 
 void LocatorCallbackProxy::OnLocatingStatusChange(const int status)
@@ -67,7 +69,9 @@ void LocatorCallbackProxy::OnLocatingStatusChange(const int status)
     data.WriteInt32(status);
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_LOCATION_STATUS_EVENT, data, reply, option);
-    LBSLOGD(LOCATOR_CALLBACK, "OnLocatingStatusChange Transact ErrCode = %{public}d", error);
+    if (error != ERR_OK) {
+        LBSLOGI(LOCATOR_CALLBACK, "OnLocatingStatusChange Transact ErrCode = %{public}d", error);
+    }
 }
 
 void LocatorCallbackProxy::OnErrorReport(const int errorCode)
@@ -80,7 +84,9 @@ void LocatorCallbackProxy::OnErrorReport(const int errorCode)
     data.WriteInt32(errorCode);
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_ERROR_INFO_EVENT, data, reply, option);
-    LBSLOGD(LOCATOR_CALLBACK, "OnErrorReport:%{public}d, Transact ErrCode = %{public}d", errorCode, error);
+    if (error != ERR_OK) {
+        LBSLOGI(LOCATOR_CALLBACK, "OnErrorReport:%{public}d, Transact ErrCode = %{public}d", errorCode, error);
+    }
 }
 
 

@@ -64,6 +64,16 @@ public:
      * @since 6
      */
     void OnScanCallback(const Bluetooth::BleScanResult &result) override;
+
+    /**
+     * @brief Scan result for found or lost callback type.
+     *
+     * @param result Scan result.
+     * @param callbackType callback Type.
+     * @since 12
+     */
+    void OnFoundOrLostCallback(const Bluetooth::BleScanResult &result, uint8_t callbackType) override;
+
     /**
      * @brief Batch scan results event callback.
      *
@@ -121,9 +131,13 @@ public:
      * @brief Discovery result observer.
      *
      * @param device Remote device.
+     * @param rssi Rssi of remote device.
+     * @param deviceName Name of remote device.
+     * @param deviceClass Class of remote device.
      * @since 6
      */
-    void OnDiscoveryResult(const Bluetooth::BluetoothRemoteDevice &device) override;
+    void OnDiscoveryResult(const Bluetooth::BluetoothRemoteDevice &device, int rssi,
+        const std::string deviceName, int deviceClass) override;
     /**
      * @brief Pair request observer.
      *
@@ -208,7 +222,6 @@ private:
 #endif
 #ifdef BLUETOOTH_ENABLE
     void BleInfoInit();
-    std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     Bluetooth::BluetoothHost *bluetoothHost_;
     LocatorBluetoothHost locatorBluetoothHost_;
 #endif

@@ -24,7 +24,6 @@ auto g_locatorClient = Locator::GetInstance();
 
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
 {
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
@@ -244,7 +243,6 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 
 napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 {
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;

@@ -25,11 +25,9 @@
 #include "locator_background_proxy.h"
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
+#include "permission_manager.h"
 
-#ifdef BGTASKMGR_SUPPORT
-#include "background_mode.h"
-#include "background_task_mgr_helper.h"
-#endif
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -75,9 +73,9 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         WriteNetWorkReportEvent(abilityName, request, location);
         bool ret = true;
         if (IsRequestFuse(request)) {
-            ret = ProcessRequestForReport(request, deadRequests, fuseLocation);
+            ret = ProcessRequestForReport(request, deadRequests, fuseLocation, abilityName);
         } else {
-            ret = ProcessRequestForReport(request, deadRequests, location);
+            ret = ProcessRequestForReport(request, deadRequests, location, abilityName);
         }
         if (!ret) {
             continue;
@@ -98,35 +96,42 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     return true;
 }
 
-void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint32_t tokenIdEx,
+void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint64_t tokenIdEx,
     std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {
-        LBSLOGI(REPORT_MANAGER, "location == nullptr");
         return;
     }
-    if (!CommonUtils::CheckSystemPermission(tokenId, tokenIdEx)) {
-        location->SetSourceType(0);
-    } else {
-        location->SetSourceType(1);
+    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        location->SetIsFromMock(-1);
     }
 }
 
 bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
-    std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests, const std::unique_ptr<Location>& location)
+    std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
+    const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (request == nullptr || request->GetRequestConfig() == nullptr ||
         !request->GetIsRequesting()) {
         return false;
     }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        return false;
+    }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
-        request->GetTokenId(), request->GetFirstTokenId(), location);
+        request->GetTokenId(), request->GetFirstTokenId(), request->GetTokenIdEx(), location);
     if (!ResultCheck(finalLocation, request)) {
         // add location permission using record
-        PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
         return false;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
+    finalLocation = ExecuteReportProcess(request, finalLocation, abilityName);
+    if (finalLocation == nullptr) {
+        LBSLOGE(REPORT_MANAGER, "%{public}s no need report location", __func__);
+        return false;
+    }
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
@@ -134,7 +139,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             request->GetPackageName().c_str(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
         // add location permission using record
-        PrivacyKit::AddPermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();
@@ -145,8 +150,24 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     return true;
 }
 
+std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Request>& request,
+    std::unique_ptr<Location>& location, std::string abilityName)
+{
+    LocationSupplicantInfo reportStruct;
+    reportStruct.request = *request;
+    reportStruct.location = *location;
+    reportStruct.abilityName = abilityName;
+    reportStruct.retCode = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_LOCATION_REPORT_PROCESS, (void *)&reportStruct, nullptr);
+    if (!reportStruct.retCode) {
+        return nullptr;
+    }
+    return std::make_unique<Location>(reportStruct.location);
+}
+
 std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
-    const std::unique_ptr<Location>& location)
+    uint64_t tokenIdEx, const std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {
         return nullptr;
@@ -155,20 +176,21 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
-    if (DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get()->IsAppBackground(bundleName) &&
-        !IsAppInLocationContinuousTasks(uid) &&
-        !CommonUtils::CheckBackgroundPermission(tokenId, firstTokenId)) {
+    if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
+        !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
         return nullptr;
     }
-    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        !CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
-    if (!CommonUtils::CheckLocationPermission(tokenId, firstTokenId) &&
-        CommonUtils::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
         finalLocation = ApproximatelyLocation(location);
     }
     return finalLocation;
@@ -208,7 +230,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         LBSLOGE(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());
         return false;
     }
-    int permissionLevel = CommonUtils::GetPermissionLevel(request->GetTokenId(), request->GetFirstTokenId());
+    int permissionLevel = PermissionManager::GetPermissionLevel(request->GetTokenId(), request->GetFirstTokenId());
     if (request->GetLastLocation() == nullptr || request->GetRequestConfig() == nullptr) {
         return true;
     }
@@ -225,20 +247,19 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     }
     int minTime = request->GetRequestConfig()->GetTimeInterval();
     long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
-    LBSLOGD(REPORT_MANAGER, "timeInterval ResultCheck : %{public}s %{public}d - %{public}ld",
-        request->GetPackageName().c_str(), minTime, deltaMs);
     if (deltaMs < (minTime * SEC_TO_MILLI_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
-        LBSLOGE(REPORT_MANAGER, "timeInterval check fail, do not report location, current deltaMs = %{public}ld",
-            deltaMs);
+        LBSLOGE(REPORT_MANAGER,
+            "%{public}d timeInterval check fail, do not report location, current deltaMs = %{public}ld",
+            request->GetTokenId(), deltaMs);
         return false;
     }
 
     double distanceInterval = request->GetRequestConfig()->GetDistanceInterval();
     double deltaDis = CommonUtils::CalDistance(location->GetLatitude(), location->GetLongitude(),
         request->GetLastLocation()->GetLatitude(), request->GetLastLocation()->GetLongitude());
-    LBSLOGD(REPORT_MANAGER, "distanceInterval ResultCheck :  %{public}lf - %{public}f", deltaDis, distanceInterval);
     if (deltaDis - distanceInterval < 0) {
-        LBSLOGE(REPORT_MANAGER, "distanceInterval check fail, do not report location");
+        LBSLOGE(REPORT_MANAGER, "%{public}d distanceInterval check fail, do not report location",
+            request->GetTokenId());
         return false;
     }
     return true;
@@ -246,11 +267,16 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
 
 void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    lastLocation_ = *location;
     if (abilityName == GNSS_ABILITY) {
-        cacheGnssLocation_ = *location;
+        if (CommonUtils::CheckGnssLocationValidity(location)) {
+            cacheGnssLocation_ = *location;
+            lastLocation_ = *location;
+        }
     } else if (abilityName == NETWORK_ABILITY) {
         cacheNlpLocation_ = *location;
+        lastLocation_ = *location;
+    } else {
+        lastLocation_ = *location;
     }
 }
 
@@ -276,7 +302,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
-        request->GetTokenId(), request->GetFirstTokenId(), cacheLocation);
+        request->GetTokenId(), request->GetFirstTokenId(), request->GetTokenIdEx(), cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
         return nullptr;
     }
@@ -336,7 +362,8 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
     coarseLocation->SetLatitude(lat);
     coarseLocation->SetLongitude(lon);
     coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
-    coarseLocation->SetAdditions("");
+    std::vector<std::string> emptyAdds;
+    coarseLocation->SetAdditions(emptyAdds, false);
     coarseLocation->SetAdditionSize(0);
     return coarseLocation;
 }
@@ -368,23 +395,22 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
     }
 }
 
-bool ReportManager::IsAppInLocationContinuousTasks(pid_t uid)
+bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
 {
-#ifdef BGTASKMGR_SUPPORT
-    std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
-    ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
-    if (result != ERR_OK) {
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    if (locatorBackgroundProxy == nullptr) {
         return false;
     }
-    for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
-        auto continuousTask = *iter;
-        if (continuousTask->GetCreatorUid() == uid &&
-            continuousTask->GetTypeId() == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
-            return true;
-        }
+    if (!locatorBackgroundProxy->IsAppBackground(bundleName)) {
+        return false;
     }
-#endif
-    return false;
+    if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
+        return false;
+    }
+    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid)) {
+        return false;
+    }
+    return true;
 }
 } // namespace OHOS
 } // namespace Location

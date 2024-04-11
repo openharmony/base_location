@@ -18,18 +18,19 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 
-#include <v1_0/ia_gnss_callback.h>
+#include <v2_0/ia_gnss_callback.h>
 #include "core_service_client.h"
 #include "cell_information.h"
 
 namespace OHOS {
 namespace Location {
-using HDI::Location::Agnss::V1_0::IAGnssCallback;
-using HDI::Location::Agnss::V1_0::AGnssDataLinkRequest;
-using HDI::Location::Agnss::V1_0::SubscriberSetId;
-using HDI::Location::Agnss::V1_0::SubscriberSetIdType;
-using HDI::Location::Agnss::V1_0::AGnssRefInfo;
-using HDI::Location::Agnss::V1_0::AGnssUserPlaneProtocol;
+using HDI::Location::Agnss::V2_0::IAGnssCallback;
+using HDI::Location::Agnss::V2_0::AGnssDataLinkRequest;
+using HDI::Location::Agnss::V2_0::SubscriberSetId;
+using HDI::Location::Agnss::V2_0::SubscriberSetIdType;
+using HDI::Location::Agnss::V2_0::AGnssRefInfo;
+using HDI::Location::Agnss::V2_0::AGnssRefInfoType;
+using HDI::Location::Agnss::V2_0::AGnssUserPlaneProtocol;
 using OHOS::Telephony::CellInformation;
 
 class AGnssEventCallback : public IAGnssCallback {
@@ -37,7 +38,7 @@ public:
     ~AGnssEventCallback() override {}
     int32_t RequestSetUpAgnssDataLink(const AGnssDataLinkRequest& request) override;
     int32_t RequestSubscriberSetId(SubscriberSetIdType type) override;
-    int32_t RequestAgnssRefInfo() override;
+    int32_t RequestAgnssRefInfo(AGnssRefInfoType type) override;
 private:
     void JudgmentDataGsm(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
     void JudgmentDataUmts(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);

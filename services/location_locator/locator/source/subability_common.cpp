@@ -23,11 +23,13 @@
 #include "common_utils.h"
 #include "locationhub_ipc_interface_code.h"
 
+#include "work_record_statistic.h"
+
 namespace OHOS {
 namespace Location {
 SubAbility::SubAbility()
 {
-    label_ = { LOG_CORE, LOCATOR_LOG_ID, "unknown" };
+    label_ = { LOG_CORE, LOCATION_LOG_DOMAIN, "unknown" };
     newRecord_ = std::make_unique<WorkRecord>();
     lastRecord_ = std::make_unique<WorkRecord>();
 }
@@ -76,6 +78,10 @@ void SubAbility::HandleRefrashRequirements()
     HandleLocalRequest(*newRecord_);
     lastRecord_->Clear();
     lastRecord_->Set(*newRecord_);
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    if (!workRecordStatistic->Update(name_, GetRequestNum())) {
+        LBSLOGE(label_, "workRecordStatistic::Update failed");
+    }
 }
 
 int SubAbility::GetRequestNum()

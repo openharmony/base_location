@@ -152,6 +152,27 @@ public:
         constellationTypes_.push_back(type);
     }
 
+    inline std::vector<int> GetSatelliteAdditionalInfoList()
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        return additionalInfoList_;
+    }
+
+    inline void SetSatelliteAdditionalInfo(int additionalInfo)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        additionalInfoList_.push_back(additionalInfo);
+    }
+
+    inline void SetSatelliteAdditionalInfoList(std::vector<int> additionalInfo)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        for (std::vector<int>::iterator it = additionalInfo.begin();
+            it != additionalInfo.end(); ++it) {
+            additionalInfoList_.push_back(*it);
+        }
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<SatelliteStatus> Unmarshalling(Parcel& parcel);
@@ -163,6 +184,7 @@ private:
     std::vector<double> azimuths_;
     std::vector<double> carrierFrequencies_;
     std::vector<int> constellationTypes_;
+    std::vector<int> additionalInfoList_;
     std::mutex mutex_;
 };
 } // namespace Location

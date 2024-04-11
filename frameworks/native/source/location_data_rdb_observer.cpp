@@ -22,6 +22,7 @@
 #include "uri.h"
 #include "common_utils.h"
 #include "location_data_manager.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -49,13 +50,8 @@ void LocationDataRdbObserver::HandleSwitchStateChanged()
         return;
     }
 
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
     int32_t state = DISABLED;
-    LocationErrCode errCode = rdbHelper->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
-    if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
-        return;
-    }
+    state = LocationDataRdbManager::QuerySwitchState();
     locationDataManager->SetCachedSwitchState(state);
     locationDataManager->ReportSwitchState(state);
 }

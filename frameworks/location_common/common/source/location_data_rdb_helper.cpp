@@ -25,6 +25,7 @@
 #include "common_utils.h"
 #include "i_locator.h"
 #include "location_log.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -104,7 +105,6 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
         ReleaseDataShareHelper(dataShareHelper);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    ReleaseDataShareHelper(dataShareHelper);
     rows->GoToFirstRow();
     int32_t columnIndex;
     rows->GetColumnIndex(LOCATION_DATA_COLUMN_VALUE, columnIndex);
@@ -113,9 +113,11 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
     if (ret != 0) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get value", __func__);
         rows->Close();
+        ReleaseDataShareHelper(dataShareHelper);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     rows->Close();
+    ReleaseDataShareHelper(dataShareHelper);
     value = atoi(valueStr.c_str());
     LBSLOGD(LOCATOR_STANDARD, "LocationDataRdbHelper:%{public}s success, value = %{public}d", __func__, value);
     return ERRCODE_SUCCESS;
@@ -151,6 +153,5 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
     ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
-
 } // namespace Location
 } // namespace OHOS

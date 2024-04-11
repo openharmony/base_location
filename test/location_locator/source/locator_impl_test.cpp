@@ -49,6 +49,7 @@
 #include "request_config.h"
 #include "locating_required_data_callback_host.h"
 #include "locator_agent.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 
@@ -221,10 +222,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
     parcel.WriteInt64(1611000000); // time since boot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(true); // isFromMock is false
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(0); // isFromMock is false
     locations.push_back(Location::UnmarshallingShared(parcel));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetMockedLocationsV9(timeInterval, locations)); // set fake locations
     sleep(1);
@@ -515,20 +513,6 @@ HWTEST_F(LocatorImplTest, locatorImplResetLocatorProxy001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResetLocatorProxy001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplSetResumer001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplSetResumer001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSetResumer001 begin");
-    std::shared_ptr<MockCallbackResumeManager> callbackResumer = std::make_shared<MockCallbackResumeManager>();
-    locatorImpl_->SetResumer(callbackResumer); //resumer isn't nullptr
-    EXPECT_NE(nullptr, locatorImpl_->resumer_);
-
-    callbackResumer = nullptr;
-    locatorImpl_->SetResumer(callbackResumer); //resumer is nullptr
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSetResumer001 end");
-}
-
 HWTEST_F(LocatorImplTest, locatorImplOnRemoteDied001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -639,6 +623,36 @@ HWTEST_F(LocatorImplTest, locatorImplCheckEdmPolicy002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy002 begin");
     locatorImpl_->CheckEdmPolicy(false);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplCheckEdmPolicy002 end");
+}
+
+HWTEST_F(LocatorImplTest, CallbackResumeManager001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, CallbackResumeManager001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] CallbackResumeManager001 begin");
+    std::shared_ptr<CallbackResumeManager> callbackResumer = std::make_shared<CallbackResumeManager>();
+    callbackResumer->ResumeCallback();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] CallbackResumeManager001 end");
+}
+
+HWTEST_F(LocatorImplTest, OnAddSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, OnAddSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnAddSystemAbility001 begin");
+    auto saStatusListener = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+    saStatusListener->OnAddSystemAbility(0, "deviceId");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnAddSystemAbility001 end");
+}
+
+HWTEST_F(LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnRemoveSystemAbility001 begin");
+    auto saStatusListener = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+    saStatusListener->OnRemoveSystemAbility(0, "deviceId");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnRemoveSystemAbility001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

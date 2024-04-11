@@ -43,7 +43,9 @@ LocationErrCode GnssAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
                                       data,
                                       reply,
                                       option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -59,7 +61,9 @@ LocationErrCode GnssAbilityProxy::SetEnable(bool state)
     MessageParcel reply;
     MessageOption option;
     int error = Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -74,7 +78,9 @@ LocationErrCode GnssAbilityProxy::RefrashRequirements()
     }
     int error =
         Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::REFRESH_REQUESTS), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -90,7 +96,9 @@ LocationErrCode GnssAbilityProxy::RegisterGnssStatusCallback(const sptr<IRemoteO
     data.WriteRemoteObject(callback);
     int error =
         Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -106,7 +114,9 @@ LocationErrCode GnssAbilityProxy::UnregisterGnssStatusCallback(const sptr<IRemot
     data.WriteRemoteObject(callback);
     int error =
         Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_GNSS_STATUS), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -121,7 +131,7 @@ LocationErrCode GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemote
     }
     data.WriteRemoteObject(callback);
     int error = Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -136,7 +146,9 @@ LocationErrCode GnssAbilityProxy::UnregisterNmeaMessageCallback(const sptr<IRemo
     }
     data.WriteRemoteObject(callback);
     int error = Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_NMEA), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -154,7 +166,9 @@ LocationErrCode GnssAbilityProxy::RegisterCachedCallback(const std::unique_ptr<C
     data.WriteBool(request->wakeUpCacheQueueFull);
     data.WriteRemoteObject(callback);
     int error = Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_CACHED), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -170,7 +184,9 @@ LocationErrCode GnssAbilityProxy::UnregisterCachedCallback(const sptr<IRemoteObj
     data.WriteRemoteObject(callback);
     int error =
         Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_CACHED), data, reply, option);
-    LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 

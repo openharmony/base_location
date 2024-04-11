@@ -117,13 +117,16 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityN
 {
     LBSLOGD(FUSION_CONTROLLER, " GetFuseLocation enter");
     if (GNSS_ABILITY.compare(abilityName) == 0) {
-        gnssLocation_ = std::make_unique<Location>(*location);
+        if (CommonUtils::CheckGnssLocationValidity(location)) {
+            gnssLocation_ = std::make_unique<Location>(*location);
+        }
     }
     if (NETWORK_ABILITY.compare(abilityName) == 0) {
         networkLocation_ = std::make_unique<Location>(*location);
     }
     auto bestLocation = chooseBestLocation(gnssLocation_, networkLocation_);
-    if (LocationEqual(bestLocation, fuseLocation_)) {
+    if (bestLocation != nullptr &&
+        bestLocation->LocationEqual(fuseLocation_)) {
         return nullptr;
     }
     if (bestLocation != nullptr) {
@@ -134,32 +137,6 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(std::string abilityN
     } else {
         return std::make_unique<Location>(*fuseLocation_);
     }
-}
-
-bool FusionController::LocationEqual(const std::unique_ptr<Location>& bestLocation,
-    const std::unique_ptr<Location>& fuseLocation)
-{
-    if (fuseLocation_ == nullptr || bestLocation == nullptr) {
-        LBSLOGE(FUSION_CONTROLLER, "fuseLocation_ or fuseLocation is nullptr");
-        return false;
-    }
-    if (bestLocation->GetLatitude() == fuseLocation->GetLatitude() &&
-        bestLocation->GetLongitude() == fuseLocation->GetLongitude() &&
-        bestLocation->GetAltitude() == fuseLocation->GetAltitude() &&
-        bestLocation->GetAccuracy() == fuseLocation->GetAccuracy() &&
-        bestLocation->GetSpeed() == fuseLocation->GetSpeed() &&
-        bestLocation->GetDirection() == fuseLocation->GetDirection() &&
-        bestLocation->GetTimeStamp() == fuseLocation->GetTimeStamp() &&
-        bestLocation->GetTimeSinceBoot() == fuseLocation->GetTimeSinceBoot() &&
-        bestLocation->GetAdditions() == fuseLocation->GetAdditions() &&
-        bestLocation->GetAdditionSize() == fuseLocation->GetAdditionSize() &&
-        bestLocation->GetIsFromMock() == fuseLocation->GetIsFromMock() &&
-        bestLocation->GetSourceType() == fuseLocation->GetSourceType() &&
-        bestLocation->GetFloorNo() == fuseLocation->GetFloorNo() &&
-        bestLocation->GetFloorAccuracy() == fuseLocation->GetFloorAccuracy()) {
-        return true;
-    }
-    return false;
 }
 } // namespace Location
 } // namespace OHOS

@@ -37,6 +37,7 @@
 #include "location_log.h"
 #include "locator_callback_host.h"
 #include "locator_callback_proxy.h"
+#include "permission_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -486,10 +487,7 @@ HWTEST_F(LocatorBackgroundProxyTest, MLocatorCallbackTest001, TestSize.Level1)
     parcel.WriteInt64(1000000000); // timeSinceBoot
     parcel.WriteString16(u"additions"); // additions
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteBool(true); // isFromMock
-    parcel.WriteInt32(1); // source type
-    parcel.WriteInt32(0); // floor no.
-    parcel.WriteDouble(1000.0); // floor acc
+    parcel.WriteInt32(1); // isFromMock
     EXPECT_NE(nullptr, location);
     location->ReadFromParcel(parcel);
     callback->OnLocationReport(location);
@@ -819,6 +817,28 @@ HWTEST_F(LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize
     EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UnregisterAppStateObserverTest001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, IsAppHasFormVisible001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible001 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    auto ret = locatorBackgroundProxy->IsAppHasFormVisible(tokenId_, 0);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible002 begin");
+    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    auto ret = locatorBackgroundProxy->IsAppHasFormVisible(0, 0);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible002 end");
 }
 }  // namespace Location
 }  // namespace OHOS

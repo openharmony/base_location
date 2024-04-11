@@ -30,6 +30,7 @@
 #include "locating_required_data_config.h"
 #include "locator_required_data_manager.h"
 #include "location_log_event_ids.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -163,6 +164,15 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
+            identity.GetTokenIdEx(), identity.GetUid()) &&
+            !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+            return ERRCODE_PERMISSION_DENIED;
+        }
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartLocating: LocatorAbility is nullptr.");
@@ -177,7 +187,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
     remoteObject->AddDeathRecipient(death);
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->StartLocating(requestConfig, callback, identity));
@@ -230,7 +240,7 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
 
 int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -252,7 +262,7 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -328,6 +338,9 @@ int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, Message
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -366,6 +379,9 @@ int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
 int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -404,6 +420,9 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
 int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -440,7 +459,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
 
 int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -461,7 +480,7 @@ int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, Messa
 int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -485,6 +504,9 @@ int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
@@ -587,6 +609,9 @@ int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, Message
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSendCommand: LocatorAbility is nullptr.");
@@ -655,7 +680,7 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
 
 int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -673,7 +698,7 @@ int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel
 
 int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -691,7 +716,7 @@ int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParce
 
 int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -718,7 +743,7 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
 #ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -739,7 +764,7 @@ int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, Messa
 int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -760,7 +785,7 @@ int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
 int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -843,7 +868,7 @@ int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &d
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -874,7 +899,7 @@ int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel 
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    if (!CommonUtils::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
@@ -902,8 +927,9 @@ bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdenti
 {
     uint32_t callingTokenId = identity.GetTokenId();
     uint32_t callingFirstTokenid = identity.GetFirstTokenId();
-    if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid) &&
-        !CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+    if (!PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid) &&
+        !PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        LBSLOGE(LOCATOR, "%{public}d %{public}s failed", callingTokenId, __func__);
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     } else {
@@ -914,7 +940,7 @@ bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdenti
 bool LocatorAbilityStub::CheckRssProcessName(MessageParcel &reply, AppIdentity &identity)
 {
     uint32_t callingTokenId = identity.GetTokenId();
-    if (!CommonUtils::CheckRssProcessName(callingTokenId)) {
+    if (!PermissionManager::CheckRssProcessName(callingTokenId)) {
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     } else {
@@ -926,9 +952,9 @@ bool LocatorAbilityStub::CheckPreciseLocationPermissions(MessageParcel &reply, A
 {
     uint32_t callingTokenId = identity.GetTokenId();
     uint32_t callingFirstTokenid = identity.GetFirstTokenId();
-    if (!CommonUtils::CheckLocationPermission(callingTokenId, callingFirstTokenid) ||
-        !CommonUtils::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        LBSLOGE(LOCATOR, "CheckPreciseLocationPermissions return false.");
+    if (!PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid) ||
+        !PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        LBSLOGE(LOCATOR, "%{public}d %{public}s failed", callingTokenId, __func__);
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
     } else {
@@ -940,7 +966,7 @@ bool LocatorAbilityStub::CheckSettingsPermission(MessageParcel &reply, AppIdenti
 {
     uint32_t callingTokenId = identity.GetTokenId();
     uint32_t callingFirstTokenid = identity.GetFirstTokenId();
-    if (!CommonUtils::CheckSecureSettings(callingTokenId, callingFirstTokenid)) {
+    if (!PermissionManager::CheckSecureSettings(callingTokenId, callingFirstTokenid)) {
         LBSLOGE(LOCATOR, "has no access permission, CheckSecureSettings return false");
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return false;
@@ -990,9 +1016,12 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", callingUid);
     }
     identity.SetBundleName(bundleName);
-    LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
-        code, option.GetFlags(), identity.ToString().c_str(),
-        std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    if (code != static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE)) {
+        LBSLOGI(LOCATOR,
+            "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
+            code, option.GetFlags(), identity.ToString().c_str(),
+            std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    }
     std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
@@ -1088,8 +1117,9 @@ void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode
     }
 }
 
-LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient()
+LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)
 {
+    tokenId_ = tokenId;
 }
 
 LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
@@ -1104,7 +1134,7 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
         locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
         locatorAbility->StopLocating(callback);
         locatorAbility->PostUnloadTask(DEFAULT_CODE);
-        LBSLOGI(LOCATOR, "locator callback OnRemoteDied");
+        LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
 }
 
