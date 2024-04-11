@@ -130,8 +130,8 @@ public:
     bool StopGnss();
     bool EnableGnss();
     bool DisableGnss();
-    bool AddHdi();
-    bool RemoveHdi();
+    bool ConnectHdi();
+    bool DisConnectHdi();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     void SetAgnssServer();
     void SetAgnssCallback();
@@ -144,8 +144,8 @@ public:
     bool IsMockEnabled();
     void ProcessReportLocationMock();
     void ReConnectHdi();
-    void ConnectHdi();
-    void DisConnectHdi();
+    void InitGnssHdf();
+    void DeinitGnssHdf();
     bool CheckIfHdiConnected();
     void RestGnssWorkStatus();
 private:

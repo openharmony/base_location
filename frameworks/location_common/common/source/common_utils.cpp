@@ -402,7 +402,7 @@ bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
         ret = false;
     }
     auto endTime = CommonUtils::GetCurrentTimeStamp();
-    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "laod",
+    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "load",
         "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
     return true;
 }
@@ -421,7 +421,7 @@ bool CommonUtils::UnInitLocationSa(int32_t systemAbilityId)
         ret = false;
     }
     auto endTime = CommonUtils::GetCurrentTimeStamp();
-    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "unlaod",
+    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "unload",
         "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
     return true;
 }
