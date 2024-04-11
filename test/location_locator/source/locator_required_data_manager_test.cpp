@@ -35,22 +35,22 @@ void LocatorRequiredDataManagerTest::TearDown()
 HWTEST_F(LocatorRequiredDataManagerTest, OnWifiScanStateChanged001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, OnWifiScanStateChanged001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnWifiScanStateChanged001 begin");
+        << "LocatorRequiredDataManagerTest, OnWifiScanStateChanged001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] OnWifiScanStateChanged001 begin");
 #ifdef WIFI_ENABLE
     auto wifiScanEventCallback =
 		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
     wifiScanEventCallback->OnWifiScanStateChanged(0);
     wifiScanEventCallback->OnWifiScanStateChanged(1);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnWifiScanStateChanged001 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] OnWifiScanStateChanged001 end");
 #endif
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, RegisterCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback001 begin");
+        << "LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback001 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
@@ -62,14 +62,14 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_INVALID_PARAM, errorCode);
     errorCode = locatorDataManager->UnregisterCallback(nullptr);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, errorCode);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback001 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback001 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, RegisterCallback002, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback002 begin");
+        << "LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
@@ -81,14 +81,14 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
         sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback002 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, RegisterCallback003, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback003 begin");
+        << "LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback003 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
@@ -100,163 +100,173 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
         sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] RegisterCallback003 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback003 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost001 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost001 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     auto ret = locatorBluetoothHost->GetLocatingRequiredDataByBtHost(device);
     EXPECT_EQ(1, ret.size());
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost001 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost001 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost002, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost002 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost002, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost002 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     locatorBluetoothHost->OnStateChanged(0, 0);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost002 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost002 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost003, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost003, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost003 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost003, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost003 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnDiscoveryStateChanged(0);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost003 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost003 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost005, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost005, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost005 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost005, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost005 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnPairRequested(device);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost005 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost005 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost006, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost006, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost006 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost006, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost006 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnScanModeChanged(0);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost006 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost006 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost007, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost007, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost007 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost007, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost007 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnDeviceNameChanged("device");
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost007 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost007 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost008, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost008, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost008 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost008, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost008 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     locatorBluetoothHost->OnDeviceAddrChanged("device");
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost008 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost008 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost009, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBluetoothHost009, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost009 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBluetoothHost009, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost009 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnPairConfirmed(device, 0, 0);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBluetoothHost009 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost009 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBleCallbackWapper001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper001 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBleCallbackWapper001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper001 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
 
     std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
     Bluetooth::BleScanResult result;
     auto ret = callback->GetLocatingRequiredDataByBle(result);
     EXPECT_EQ(1, ret.size());
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper001 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper001 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper003, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBleCallbackWapper003, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper003 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBleCallbackWapper003, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper003 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
 
     std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
     std::vector<Bluetooth::BleScanResult> results;
     callback->OnBleBatchScanResultsEvent(results);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper003 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper003 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper004, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBleCallbackWapper004, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper004 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBleCallbackWapper004, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper004 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
 
     std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
     callback->OnStartOrStopScanEvent(0, true);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper004 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper004 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper005, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocatorBleCallbackWapper005, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper005 begin");
+        << "LocatorRequiredDataManagerTest, LocatorBleCallbackWapper005, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper005 begin");
     auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
 
     std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
     std::vector<uint8_t> vecs;
     Bluetooth::UUID uuid;
     callback->OnNotifyMsgReportFromLpDevice(uuid, 0, vecs);
-    LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocatorBleCallbackWapper005 end");
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper005 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, StartWifiScan001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, StartWifiScan001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartWifiScan001 begin");
+    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    locatorDataManager->StartWifiScan(true);
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartWifiScan001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

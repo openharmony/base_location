@@ -44,7 +44,9 @@ LocationErrCode NetworkAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
                                       data,
                                       reply,
                                       option);
-    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -60,7 +62,9 @@ LocationErrCode NetworkAbilityProxy::SetEnable(bool state)
     MessageParcel reply;
     MessageOption option;
     int error = Remote()->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE), data, reply, option);
-    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -76,7 +80,9 @@ LocationErrCode NetworkAbilityProxy::SelfRequest(bool state)
     data.WriteBool(state);
     int error =
         Remote()->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST), data, reply, option);
-    LBSLOGD(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 

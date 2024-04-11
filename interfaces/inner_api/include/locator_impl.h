@@ -53,7 +53,6 @@ public:
     static std::shared_ptr<LocatorImpl> GetInstance();
     explicit LocatorImpl();
     ~LocatorImpl();
-    bool Init();
 
     /**
      * @brief Obtain current location switch status.
@@ -630,12 +629,16 @@ public:
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<LocatorProxy> GetProxy();
-    void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
-    std::shared_ptr<ICallbackResumeManager> GetResumer();
-    LocationErrCode IsAppLocating(int32_t uid, bool &isLocating);
-    bool IsCallbackRegistered(std::string name, const sptr<ILocatorCallback>& callback);
-    bool IsCallbackRegistered(std::string name, const sptr<IRemoteObject>& callback);
-    bool IsValidCallbackInMap();
+    bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);
+    bool IsSatelliteStatusChangeCallbackRegistered(const sptr<IRemoteObject>& callback);
+    bool IsNmeaCallbackRegistered(const sptr<IRemoteObject>& callback);
+    bool HasGnssNetworkRequest();
+    void AddLocationCallBack(std::unique_ptr<RequestConfig>& requestConfig, sptr<ILocatorCallback>& callback);
+    void RemoveLocationCallBack(sptr<ILocatorCallback>& callback);
+    void AddSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
+    void RemoveSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
+    void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
+    void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);

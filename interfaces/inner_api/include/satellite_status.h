@@ -152,8 +152,9 @@ public:
         constellationTypes_.push_back(type);
     }
 
-    inline std::vector<int> GetSatelliteAdditionalInfoList() const
+    inline std::vector<int> GetSatelliteAdditionalInfoList()
     {
+        std::unique_lock<std::mutex> lock(mutex_);
         return additionalInfoList_;
     }
 

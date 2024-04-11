@@ -103,7 +103,7 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
 void LocatorRequiredDataManager::BleInfoInit()
 {
     std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
-    bleCentralManager_ = std::make_shared<Bluetooth::BleCentralManager>(callback);
+    auto bleCentralManager = std::make_shared<Bluetooth::BleCentralManager>(callback);
     bluetoothHost_ = &Bluetooth::BluetoothHost::GetDefaultHost();
 }
 
@@ -146,7 +146,7 @@ void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDev
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByBtHost(device);
     auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     if (dataManager == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: dataManager is nullptr");
+        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
     }
     dataManager->ReportData(result);
@@ -167,7 +167,7 @@ void LocatorBleCallbackWapper::OnScanCallback(const Bluetooth::BleScanResult &re
     std::vector<std::shared_ptr<LocatingRequiredData>> res = GetLocatingRequiredDataByBle(result);
     auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     if (dataManager == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: dataManager is nullptr");
+        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
     }
     dataManager->ReportData(res);
@@ -259,7 +259,7 @@ __attribute__((no_sanitize("cfi"))) void LocatorWifiScanEventCallback::OnWifiSca
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByWifi(wifiScanInfo);
     auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     if (dataManager == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: dataManager is nullptr");
+        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
     }
     dataManager->ReportData(result);
@@ -334,11 +334,11 @@ void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
     if (dataManager == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: dataManager is nullptr");
+        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
     }
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ScanHandler ProcessEvent event:%{public}d", eventId);
+    LBSLOGD(LOCATOR, "ScanHandler ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_START_SCAN: {
             dataManager->StartWifiScan(true);

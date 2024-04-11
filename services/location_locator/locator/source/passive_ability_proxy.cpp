@@ -44,7 +44,9 @@ LocationErrCode PassiveAbilityProxy::SendLocationRequest(WorkRecord &workrecord)
                                       data,
                                       reply,
                                       option);
-    LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
@@ -60,7 +62,9 @@ LocationErrCode PassiveAbilityProxy::SetEnable(bool state)
     MessageParcel reply;
     MessageOption option;
     int error = Remote()->SendRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE), data, reply, option);
-    LBSLOGD(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    if (error != ERR_OK) {
+        LBSLOGI(PASSIVE, "%{public}s Transact Error = %{public}d", __func__, error);
+    }
     return LocationErrCode(reply.ReadInt32());
 }
 
