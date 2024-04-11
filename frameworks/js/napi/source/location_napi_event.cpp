@@ -175,42 +175,42 @@ LocationErrCode SubscribeNmeaMessageV9(const napi_env& env, const napi_ref& hand
 
 void UnSubscribeLocationServiceState(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeLocationServiceState");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeLocationServiceState");
     g_locatorProxy->UnregisterSwitchCallback(switchCallbackHost->AsObject());
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeLocationServiceStateV9(sptr<LocationSwitchCallbackHost>& switchCallbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeLocationServiceStateV9");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeLocationServiceStateV9");
     return g_locatorProxy->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject());
 }
 #endif
 
 void UnSubscribeGnssStatus(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeGnssStatus");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeGnssStatus");
     g_locatorProxy->UnregisterGnssStatusCallback(gnssStatusCallbackHost->AsObject());
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeGnssStatusV9(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeGnssStatusV9");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeGnssStatusV9");
     return g_locatorProxy->UnregisterGnssStatusCallbackV9(gnssStatusCallbackHost->AsObject());
 }
 #endif
 
 void UnSubscribeNmeaMessage(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeNmeaMessage");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeNmeaMessage");
     g_locatorProxy->UnregisterNmeaMessageCallback(nmeaMessageCallbackHost->AsObject());
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeNmeaMessageV9");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeNmeaMessageV9");
     return g_locatorProxy->UnregisterNmeaMessageCallbackV9(nmeaMessageCallbackHost->AsObject());
 }
 #endif
@@ -283,14 +283,14 @@ LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const n
 
 void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& callbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnsubscribeCountryCodeChange");
+    LBSLOGD(LOCATION_NAPI, "UnsubscribeCountryCodeChange");
     g_locatorProxy->UnregisterCountryCodeCallback(callbackHost->AsObject());
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnsubscribeCountryCodeChangeV9(sptr<CountryCodeCallbackHost>& callbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "UnsubscribeCountryCodeChangeV9");
+    LBSLOGD(LOCATION_NAPI, "UnsubscribeCountryCodeChangeV9");
     return g_locatorProxy->UnregisterCountryCodeCallbackV9(callbackHost->AsObject());
 }
 #endif
@@ -386,7 +386,7 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataCallbackHost>& callbackHost)
 {
-    LBSLOGI(LOCATION_NAPI, "%{public}s start", __func__);
+    LBSLOGD(LOCATION_NAPI, "%{public}s start", __func__);
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
     return g_locatorProxy->UnRegisterLocatingRequiredDataCallback(callbackPtr);
 }
@@ -465,7 +465,7 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
         }
         auto context = static_cast<SingleLocationAsyncContext*>(data);
         GenerateCompleteContext(context);
-        LBSLOGI(LOCATOR_STANDARD, "Push single location to client");
+        LBSLOGD(LOCATOR_STANDARD, "Push single location to client");
     };
     return asyncContext;
 }
@@ -486,7 +486,7 @@ int GetObjectArgsNum(const napi_env& env, const size_t argc, const napi_value* a
     } else if (argc == PARAM2) {
         objectArgsNum = PARAM1;
     } else {
-        LBSLOGI(LOCATION_NAPI, "argc of GetCurrentLocation is wrong.");
+        LBSLOGD(LOCATION_NAPI, "argc of GetCurrentLocation is wrong.");
     }
     return objectArgsNum;
 }
@@ -561,28 +561,28 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
 
 void UnSubscribeLocationChange(sptr<ILocatorCallback>& callback)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeLocationChange");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeLocationChange");
     g_locatorProxy->StopLocating(callback);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeLocationChangeV9(sptr<ILocatorCallback>& callback)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeLocationChangeV9");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeLocationChangeV9");
     return g_locatorProxy->StopLocatingV9(callback);
 }
 #endif
 
 void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeCacheLocationChange");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeCacheLocationChange");
     g_locatorProxy->UnregisterCachedLocationCallback(callback);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>& callback)
 {
-    LBSLOGI(LOCATION_NAPI, "UnSubscribeCacheLocationChangeV9");
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeCacheLocationChangeV9");
     g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
     return ERRCODE_NOT_SUPPORTED;
 }
@@ -1345,7 +1345,7 @@ bool VerifyOffFuncParam(napi_env env, napi_callback_info cbinfo, size_t& argc)
 
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
-    LBSLOGI(LOCATION_NAPI, "Off function entry");
+    LBSLOGD(LOCATION_NAPI, "Off function entry");
     InitOffFuncMap();
 
     size_t argc = MAXIMUM_JS_PARAMS;
@@ -1354,7 +1354,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
 
     if (!VerifyOffFuncParam(env, cbinfo, argc)) {
-        LBSLOGI(LOCATION_NAPI, "VerifyOffFuncParam fail");
+        LBSLOGE(LOCATION_NAPI, "VerifyOffFuncParam fail");
         return UndefinedNapiValue(env);
     }
 
@@ -1362,7 +1362,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     size_t typeLen = 0;
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
     std::string event = type;
-    LBSLOGI(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
+    LBSLOGD(LOCATION_NAPI, "Unsubscribe event: %{public}s", event.c_str());
     if (argc == PARAM1) {
         std::unique_lock<std::mutex> lock(g_FuncMapMutex);
         auto offAllCallbackFunc = g_offAllFuncMap.find(event);

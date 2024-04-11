@@ -75,7 +75,6 @@ bool LocatorImpl::IsLocationEnabled()
         return false;
     }
     state = LocationDataRdbManager::QuerySwitchState();
-    LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabled switch state = %{public}d", state);
     return (state == ENABLED);
 }
 
@@ -657,7 +656,6 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     }
     state = LocationDataRdbManager::QuerySwitchState();
     isEnabled = (state == ENABLED);
-    LBSLOGI(LOCATOR_STANDARD, "IsLocationEnabledV9 switch state = %{public}d", state);
     return ERRCODE_SUCCESS;
 }
 
@@ -1293,7 +1291,9 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
         LBSLOGE(LOCATOR, "%{public}s saStatusListener_ is nullptr!", __func__);
     }
     int32_t result = sam->SubscribeSystemAbility(static_cast<int32_t>(LOCATION_LOCATOR_SA_ID), saStatusListener_);
-    LBSLOGI(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
+    if (result != ERR_OK) {
+        LBSLOGE(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
+    }
     return client_;
 }
 

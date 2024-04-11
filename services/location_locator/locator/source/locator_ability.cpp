@@ -844,13 +844,12 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     reportManager_->UpdateRandom();
     auto request = InitRequest(requestConfig, callback, identity);
     HookUtils::ExecuteHookWhenStartLocation(request);
-    LBSLOGI(LOCATOR, "start locating");
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
     HandleStartLocating(request, callback);
 #else
     if (NeedReportCacheLocation(request, callback)) {
-        LBSLOGI(LOCATOR, "report cache location.");
+        LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
     } else {
         HandleStartLocating(request, callback);
     }
@@ -1078,7 +1077,6 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
 #ifdef FEATURE_GEOCODE_SUPPORT
 void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
-    LBSLOGI(LOCATOR, "locator_ability GetAddressByCoordinate");
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -1115,7 +1113,6 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
 #ifdef FEATURE_GEOCODE_SUPPORT
 void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
-    LBSLOGI(LOCATOR, "locator_ability GetAddressByLocationName");
     MessageParcel dataParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -1481,7 +1478,7 @@ void LocatorHandler::UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGI(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}s",
+    LBSLOGD(LOCATOR, "ProcessEvent event:%{public}d, timestamp = %{public}s",
         eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     auto handleFunc = locatorHandlerEventMap_.find(eventId);
     if (handleFunc != locatorHandlerEventMap_.end() && handleFunc->second != nullptr) {

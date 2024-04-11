@@ -951,7 +951,7 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportSatelliteStatusInfo002, TestSiz
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
     SatelliteStatusInfo statusInfo;
-    statusInfo.satellitesNumber = 0;
+    statusInfo.satellitesNumber = -1;
     EXPECT_EQ(ERR_INVALID_VALUE, gnssCallback->ReportSatelliteStatusInfo(statusInfo));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportSatelliteStatusInfo002 end");
 }

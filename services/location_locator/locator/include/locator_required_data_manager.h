@@ -222,7 +222,6 @@ private:
 #endif
 #ifdef BLUETOOTH_ENABLE
     void BleInfoInit();
-    std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     Bluetooth::BluetoothHost *bluetoothHost_;
     LocatorBluetoothHost locatorBluetoothHost_;
 #endif

@@ -629,9 +629,6 @@ public:
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<LocatorProxy> GetProxy();
-    void SetResumer(std::shared_ptr<ICallbackResumeManager> resumer);
-    std::shared_ptr<ICallbackResumeManager> GetResumer();
-    LocationErrCode IsAppLocating(int32_t uid, bool &isLocating);
     bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);
     bool IsSatelliteStatusChangeCallbackRegistered(const sptr<IRemoteObject>& callback);
     bool IsNmeaCallbackRegistered(const sptr<IRemoteObject>& callback);
