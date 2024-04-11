@@ -115,6 +115,11 @@ ohos_shared_library("lbsservice_locator") {
     defines += [ "EMULATOR_ENABLED" ]
   }
 
+  if (resourceschedule_resource_schedule_service_endable) {
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+    defines += [ "RES_SCHED_SUPPROT" ]
+  }
+
   part_name = "location"
   subsystem_name = "location"
 }

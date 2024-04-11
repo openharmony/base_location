@@ -62,6 +62,7 @@
                 "napi",
                 "os_account",
                 "relational_store",
+                "resource_schedule_service",
                 "safwk",
                 "samgr",
                 "wifi",
