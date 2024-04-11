@@ -187,9 +187,8 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient());
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
     remoteObject->AddDeathRecipient(death);
-    death->SetTokenId(identity.GetTokenId());
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->StartLocating(requestConfig, callback, identity));
     return ERRCODE_SUCCESS;
@@ -1017,7 +1016,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", callingUid);
     }
     identity.SetBundleName(bundleName);
-    if (code != PROXY_UID_FOR_FREEZE) {
+    if (code != static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE)) {
         LBSLOGI(LOCATOR,
             "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
             code, option.GetFlags(), identity.ToString().c_str(),
@@ -1118,8 +1117,9 @@ void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode
     }
 }
 
-LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient()
+LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)
 {
+    tokenId_ = tokenId;
 }
 
 LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
@@ -1136,11 +1136,6 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
         locatorAbility->PostUnloadTask(DEFAULT_CODE);
         LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
-}
-
-void LocatorCallbackDeathRecipient::SetTokenId(int32_t tokenId)
-{
-    tokenId_ = tokenId;
 }
 
 SwitchCallbackDeathRecipient::SwitchCallbackDeathRecipient()

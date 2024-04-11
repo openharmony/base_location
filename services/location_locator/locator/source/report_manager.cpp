@@ -183,14 +183,14 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_
     }
     if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
         !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-        LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", callingTokenId);
+        LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
         PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-        LBSLOGI(REPORT_MANAGER, "%{public}d  has ApproximatelyLocation permission", callingTokenId);
+        LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
         finalLocation = ApproximatelyLocation(location);
     }
     return finalLocation;
@@ -247,8 +247,6 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     }
     int minTime = request->GetRequestConfig()->GetTimeInterval();
     long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
-    LBSLOGD(REPORT_MANAGER, "timeInterval ResultCheck : %{public}s %{public}d - %{public}ld",
-        request->GetPackageName().c_str(), minTime, deltaMs);
     if (deltaMs < (minTime * SEC_TO_MILLI_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
         LBSLOGE(REPORT_MANAGER,
             "%{public}d timeInterval check fail, do not report location, current deltaMs = %{public}ld",
@@ -259,7 +257,6 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     double distanceInterval = request->GetRequestConfig()->GetDistanceInterval();
     double deltaDis = CommonUtils::CalDistance(location->GetLatitude(), location->GetLongitude(),
         request->GetLastLocation()->GetLatitude(), request->GetLastLocation()->GetLongitude());
-    LBSLOGD(REPORT_MANAGER, "distanceInterval ResultCheck :  %{public}lf - %{public}f", deltaDis, distanceInterval);
     if (deltaDis - distanceInterval < 0) {
         LBSLOGE(REPORT_MANAGER, "%{public}d distanceInterval check fail, do not report location",
             request->GetTokenId());

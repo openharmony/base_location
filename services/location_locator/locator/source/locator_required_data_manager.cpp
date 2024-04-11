@@ -103,7 +103,7 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
 void LocatorRequiredDataManager::BleInfoInit()
 {
     std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
-    bleCentralManager_ = std::make_shared<Bluetooth::BleCentralManager>(callback);
+    auto bleCentralManager = std::make_shared<Bluetooth::BleCentralManager>(callback);
     bluetoothHost_ = &Bluetooth::BluetoothHost::GetDefaultHost();
 }
 

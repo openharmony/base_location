@@ -101,9 +101,8 @@ private:
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-    LocatorCallbackDeathRecipient();
+    LocatorCallbackDeathRecipient(int32_t tokenId);
     ~LocatorCallbackDeathRecipient() override;
-    void SetTokenId(int32_t tokenId);
 private:
     int32_t tokenId_;
 };

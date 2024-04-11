@@ -134,9 +134,8 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
     LBSLOGI(GEO_CONVERT,
-        "OnRemoteRequest cmd = " \
-        "%{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d, timestamp = %{public}s",
-        code, option.GetFlags(), callingPid, callingUid ,std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+        "cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid = %{public}d, timestamp = %{public}s",
+        code, option.GetFlags(), callingPid, callingUid, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GEO_CONVERT, "invalid token.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
