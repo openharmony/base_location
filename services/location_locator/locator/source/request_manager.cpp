@@ -609,7 +609,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount += 1;
         if (uidCount == 1) {
             WriteAppLocatingStateEvent("start", pid, uid);
-            ReportDataToResSched("start", pid, uid);
+            ReportDataToResSched("start", uid);
         }
     } else {
         WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
@@ -617,7 +617,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount -= 1;
         if (uidCount == 0) {
             WriteAppLocatingStateEvent("stop", pid, uid);
-            ReportDataToResSched("stop", pid, uid);
+            ReportDataToResSched("stop", uid);
         }
     }
     if (uidCount > 0) {
@@ -625,17 +625,15 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
     }
 }
 
-void RequestManager::ReportDataToResSched(std::string state, const pid_t pid, const pid_t uid)
+void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
 {
 #ifdef RES_SCHED_SUPPROT
-    std::unordered_map<std::string, std::string> payload {
-        { "state", state },
-        { "pid", std::to_string(pid) },
-        { "uid", std::to_string(uid) },
-    };
-    uint32_t type = OHOS::ResourceSchedule::ResType::RES_TYPE_REPORT_SCREEN_CAPTURE;
-    int64_t value = 0;
-    OHOS::ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
+    std::unordered_map<std::string, std::string> payload;
+    payload['uid'] = std::to_string(uid);
+    payload['state'] = state;
+    uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS;
+    int64_t value =  ResourceSchedule::ResType::LocationStatus::APP_LOCATION_STATE_CHANGE;
+    ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
 #endif
 }
 } // namespace Location

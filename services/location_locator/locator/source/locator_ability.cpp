@@ -50,6 +50,10 @@
 #include "permission_status_change_cb.h"
 #include "work_record_statistic.h"
 #include "permission_manager.h"
+#ifdef RES_SCHED_SUPPROT
+#include "res_type.h"
+#include "res_sched_client.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -381,6 +385,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
     }
     UpdateSaAbility();
     std::string state = isEnabled ? "enable" : "disable";
+    ReportDataToResSched(state);
     WriteLocationSwitchStateEvent(state);
     return ERRCODE_SUCCESS;
 }
@@ -1296,6 +1301,18 @@ void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
     permissionMap_->erase(callingTokenId);
     LBSLOGD(LOCATOR, "after tokenId:%{public}d unregister, permission callback size:%{public}s",
         callingTokenId, std::to_string(permissionMap_->size()).c_str());
+}
+
+void LocatorAbility::ReportDataToResSched(std::string state)
+{
+#ifdef RES_SCHED_SUPPROT
+    std::unordered_map<std::string, std::string> payload;
+    payload['uid'] = std::to_string(uid);
+    payload['state'] = state;
+    uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS;
+    int64_t value =  ResourceSchedule::ResType::LocationStatus::LOCATION_SWITCH_CHANGE;
+    ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
+#endif
 }
 
 void LocationMessage::SetAbilityName(std::string abilityName)

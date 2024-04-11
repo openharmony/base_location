@@ -56,7 +56,7 @@ private:
     bool AddRequestToWorkRecord(std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord);
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
-    void ReportDataToResSched(std::string state, const pid_t pid, const pid_t uid);
+    void ReportDataToResSched(std::string state, const pid_t uid);
 
     std::map<int32_t, int32_t> runningUidMap_;
     static std::mutex requestMutex_;
