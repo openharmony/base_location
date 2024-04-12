@@ -174,6 +174,7 @@ private:
     void SendSwitchState(const int state);
     std::shared_ptr<Request> InitRequest(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
+    void ReportDataToResSched(std::string state);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

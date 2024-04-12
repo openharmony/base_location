@@ -120,6 +120,11 @@ ohos_shared_library("lbsservice_locator") {
     defines += [ "FMSKIT_NATIVE_SUPPORT" ]
   }
 
+  if (resourceschedule_schedule_service_enable) {
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+    defines += [ "RES_SCHED_SUPPROT" ]
+  }
+
   part_name = "location"
   subsystem_name = "location"
 }
