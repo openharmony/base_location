@@ -138,10 +138,16 @@ LocationErrCode GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode GnssAbility::SetEnable(bool state)
 {
+    if (!CheckIfHdiConnected()) {
+        LBSLOGE(GNSS, "no need start or stop gnss");
+        return ERRCODE_SUCCESS;
+    }
     if (state) {
-        InitGnssHdf();
+        EnableGnss();
+        StartGnss();
     } else {
-        DeinitGnssHdf();
+        StopGnss();
+        DisableGnss();
     }
     return ERRCODE_SUCCESS;
 }
@@ -163,7 +169,7 @@ void GnssAbility::UnloadGnssSystemAbility()
             return;
         }
         DisConnectHdi();
-        CommonUtils::UnInitLocationSa(LOCATION_GNSS_SA_ID);
+        LocationSaLoadManager::UnInitLocationSa(LOCATION_GNSS_SA_ID);
     };
     if (gnssHandler_ != nullptr) {
         gnssHandler_->PostTask(task, UNLOAD_GNSS_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);

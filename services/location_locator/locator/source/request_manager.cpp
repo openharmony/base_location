@@ -453,7 +453,7 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
     int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
-    if (!CommonUtils::InitLocationSa(systemAbilityId)) {
+    if (!LocationSaLoadManager::InitLocationSa(systemAbilityId)) {
         return ;
     }
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());

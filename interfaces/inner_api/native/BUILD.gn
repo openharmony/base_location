@@ -27,7 +27,6 @@ ohos_shared_library("locator_agent") {
 
   sources = [
     "$LOCATION_COMMON_DIR/source/location.cpp",
-    "$LOCATION_COMMON_DIR/source/location_sa_load_manager.cpp",
     "$LOCATION_COMMON_DIR/source/request_config.cpp",
     "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/native/source/locator_agent.cpp",
@@ -36,7 +35,7 @@ ohos_shared_library("locator_agent") {
     "$LOCATION_ROOT_DIR/interfaces/inner_api/native/source/native_sv_callback_host.cpp",
   ]
 
-  deps = []
+  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
 
   external_deps = [
     "c_utils:utils",

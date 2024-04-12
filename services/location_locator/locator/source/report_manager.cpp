@@ -247,7 +247,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     }
     int minTime = request->GetRequestConfig()->GetTimeInterval();
     long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
-    if (deltaMs < (minTime * SEC_TO_MILLI_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
+    if (deltaMs < (minTime * MILLI_PER_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
         LBSLOGE(REPORT_MANAGER,
             "%{public}d timeInterval check fail, do not report location, current deltaMs = %{public}ld",
             request->GetTokenId(), deltaMs);

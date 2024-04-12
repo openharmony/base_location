@@ -21,6 +21,8 @@
 
 #include "common_utils.h"
 #include "location_log.h"
+#include "common_hisysevent.h"
+#include "location_log_event_ids.h"
 
 namespace OHOS {
 namespace Location {
@@ -102,6 +104,56 @@ void LocationSaLoadManager::LoadSystemAbilityFail()
     std::unique_lock<std::mutex> lock(locatorMutex_);
     state_ = false;
     locatorCon_.notify_one();
+}
+
+
+bool LocationSaLoadManager::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
+{
+    sptr<ISystemAbilityManager> samgr =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: get system ability manager failed!", __func__);
+        return false;
+    }
+    return (samgr->CheckSystemAbility(systemAbilityId) != nullptr);
+}
+
+bool LocationSaLoadManager::InitLocationSa(int32_t systemAbilityId)
+{
+    if (LocationSaLoadManager::CheckIfSystemAbilityAvailable(systemAbilityId)) {
+        LBSLOGD(COMMON_UTILS, "sa has been loaded");
+        return true;
+    }
+    bool ret = true;
+    auto startTime = CommonUtils::GetCurrentTimeStamp();
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr || instance->LoadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "sa load failed.");
+        ret = false;
+    }
+    auto endTime = CommonUtils::GetCurrentTimeStamp();
+    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "load",
+        "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
+    return true;
+}
+
+bool LocationSaLoadManager::UnInitLocationSa(int32_t systemAbilityId)
+{
+    if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(systemAbilityId)) {
+        LBSLOGD(LOCATOR, "sa has been unloaded");
+        return true;
+    }
+    bool ret = true;
+    auto startTime = CommonUtils::GetCurrentTimeStamp();
+    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    if (instance == nullptr || instance->UnloadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "sa unload failed.");
+        ret = false;
+    }
+    auto endTime = CommonUtils::GetCurrentTimeStamp();
+    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "unload",
+        "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
+    return true;
 }
 
 void LocationSaLoadCallback::OnLoadSystemAbilitySuccess(

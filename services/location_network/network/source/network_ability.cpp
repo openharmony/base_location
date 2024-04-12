@@ -226,7 +226,7 @@ void NetworkAbility::UnloadNetworkSystemAbility()
         return;
     }
     auto task = [this]() {
-        CommonUtils::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+        LocationSaLoadManager::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     };
     if (networkHandler_ != nullptr) {
         networkHandler_->PostTask(task, UNLOAD_NETWORK_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);

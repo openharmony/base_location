@@ -105,7 +105,7 @@ void PassiveAbility::UnloadPassiveSystemAbility()
         return;
     }
     auto task = [this]() {
-        CommonUtils::UnInitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+        LocationSaLoadManager::UnInitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     };
     if (passiveHandler_ != nullptr) {
         passiveHandler_->PostTask(task, UNLOAD_PASSIVE_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);

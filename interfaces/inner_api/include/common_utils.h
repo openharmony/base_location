@@ -166,7 +166,6 @@ public:
     static int IntRandom(int min, int max);
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool CheckAppInstalled(const std::string& bundleName);
-    static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
     static int64_t GetCurrentTime();
     static int64_t GetCurrentTimeStamp();
     static std::vector<std::string> Split(std::string str, std::string pattern);
@@ -174,10 +173,8 @@ public:
     static unsigned char ConvertStringToDigit(std::string str);
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
-    static bool InitLocationSa(int32_t systemAbilityId);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static std::string GenerateUuid();
-    static bool UnInitLocationSa(int32_t systemAbilityId);
 };
 
 class CountDownLatch {

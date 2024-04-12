@@ -398,7 +398,7 @@ void GeoConvertService::UnloadGeoConvertSystemAbility()
 {
     auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
     if (!CheckIfGeoConvertConnecting()) {
-        CommonUtils::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+        LocationSaLoadManager::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
     }
 }
 
