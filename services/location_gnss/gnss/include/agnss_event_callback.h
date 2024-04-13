@@ -44,7 +44,7 @@ private:
     void JudgmentDataUmts(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
     void JudgmentDataLte(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
     void JudgmentDataNr(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
-    void GetWiFiRefInfo(AGnssRefInfo& refInfo);
+    __attribute__((no_sanitize("cfi"))) void GetWiFiRefInfo(AGnssRefInfo& refInfo);
     void GetCellRefInfo(AGnssRefInfo& refInfo);
 };
 }  // namespace Location

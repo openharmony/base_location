@@ -28,6 +28,13 @@ ohos_unittest("LocationFenceTest") {
     "$LOCATION_ROOT_DIR/test/mock/include",
   ]
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
   deps = [
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

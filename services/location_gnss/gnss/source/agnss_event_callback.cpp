@@ -66,7 +66,7 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
     return ERR_OK;
 }
 
-void AGnssEventCallback::GetWiFiRefInfo(AGnssRefInfo& refInfo)
+__attribute__((no_sanitize("cfi"))) void AGnssEventCallback::GetWiFiRefInfo(AGnssRefInfo& refInfo)
 {
 #ifdef WIFI_ENABLE
     std::vector<Wifi::WifiScanInfo> wifiScanInfo;

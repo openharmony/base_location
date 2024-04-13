@@ -29,6 +29,13 @@ ohos_unittest("LocationCommonTest") {
     "$LOCATION_ROOT_DIR/test/location_common/include",
   ]
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
