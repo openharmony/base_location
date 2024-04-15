@@ -30,6 +30,13 @@ if (location_feature_with_passive) {
       "$LOCATION_PASSIVE_ROOT/include",
     ]
 
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+    branch_protector_ret = "pac_ret"
+
     deps = [
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     ]

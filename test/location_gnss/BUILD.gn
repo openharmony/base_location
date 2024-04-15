@@ -36,6 +36,13 @@ if (location_feature_with_gnss) {
       "$LOCATION_ROOT_DIR/test/mock/include",
     ]
 
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+    branch_protector_ret = "pac_ret"
+
     deps = [
       "$ARKUI_ROOT_DIR/napi:ace_napi",
       "$GOOGLE_TEST_DIR:gmock_main",

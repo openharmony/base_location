@@ -15,6 +15,12 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 ohos_shared_library("geolocation") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   install_enable = true
   include_dirs = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
@@ -53,6 +59,12 @@ ohos_shared_library("geolocation") {
 }
 
 ohos_static_library("geolocation_static") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
@@ -84,6 +96,12 @@ ohos_static_library("geolocation_static") {
 
 ohos_shared_library("geolocationmanager") {
   install_enable = true
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",

@@ -498,12 +498,26 @@ HWTEST_F(RequestManagerTest, HandleChrEvent001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "RequestManagerTest, HandleChrEvent001, TestSize.Level1";
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 begin");
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
     std::list<std::shared_ptr<Request>> requests;
     requestManager_->HandleChrEvent(requests);
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 end");
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent001 end");
 }
+
+HWTEST_F(RequestManagerTest, HandleChrEvent002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, HandleChrEvent002, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent002 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    std::list<std::shared_ptr<Request>> requests;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    requests.push_back(request);
+    requestManager_->HandleChrEvent(requests);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent002 end");
+}
+
 
 HWTEST_F(RequestManagerTest, IsUidInProcessing001, TestSize.Level1)
 {

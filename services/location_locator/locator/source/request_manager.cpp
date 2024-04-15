@@ -40,6 +40,11 @@
 #include "hook_utils.h"
 #include "permission_manager.h"
 
+#ifdef RES_SCHED_SUPPROT
+#include "res_type.h"
+#include "res_sched_client.h"
+#endif
+
 namespace OHOS {
 namespace Location {
 std::mutex RequestManager::requestMutex_;
@@ -604,6 +609,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount += 1;
         if (uidCount == 1) {
             WriteAppLocatingStateEvent("start", pid, uid);
+            ReportDataToResSched("start", uid);
         }
     } else {
         WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
@@ -611,11 +617,24 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount -= 1;
         if (uidCount == 0) {
             WriteAppLocatingStateEvent("stop", pid, uid);
+            ReportDataToResSched("stop", uid);
         }
     }
     if (uidCount > 0) {
         runningUidMap_.insert(std::make_pair(uid, uidCount));
     }
+}
+
+void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
+{
+#ifdef RES_SCHED_SUPPROT
+    std::unordered_map<std::string, std::string> payload;
+    payload['uid'] = std::to_string(uid);
+    payload['state'] = state;
+    uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS;
+    int64_t value =  ResourceSchedule::ResType::LocationStatus::APP_LOCATION_STATE_CHANGE;
+    ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
+#endif
 }
 } // namespace Location
 } // namespace OHOS
