@@ -38,6 +38,9 @@ public:
     LocationErrCode UnloadLocationSa(int32_t systemAbilityId);
     void LoadSystemAbilitySuccess();
     void LoadSystemAbilityFail();
+    static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
+    static bool InitLocationSa(int32_t systemAbilityId);
+    static bool UnInitLocationSa(int32_t systemAbilityId);
 private:
     void InitLoadState();
     LocationErrCode WaitLoadStateChange(int32_t systemAbilityId);

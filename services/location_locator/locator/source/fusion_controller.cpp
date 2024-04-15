@@ -33,7 +33,7 @@ const uint32_t QUICK_FIX_FLAG = FUSION_BASE_FLAG << 1;
 const uint32_t NETWORK_SELF_REQUEST = 4;
 #endif
 const long NANOS_PER_MILLI = 1000000L;
-const long MAX_LOCATION_COMPARISON_MS = 20 * SEC_TO_MILLI_SEC;
+const long MAX_LOCATION_COMPARISON_MS = 20 * MILLI_PER_SEC;
 
 void FusionController::ActiveFusionStrategies(int type)
 {

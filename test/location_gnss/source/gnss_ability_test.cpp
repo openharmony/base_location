@@ -1462,6 +1462,17 @@ HWTEST_F(GnssAbilityTest, GetCommandFlags013, TestSize.Level1)
     EXPECT_EQ(GnssAuxiliaryDataType::GNSS_AUXILIARY_DATA_ALL, flags);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags013 end");
 }
+
+HWTEST_F(GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->ReConnectHdiImpl();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT

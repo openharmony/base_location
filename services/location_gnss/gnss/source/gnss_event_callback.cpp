@@ -30,6 +30,8 @@ using namespace OHOS::HiviewDFX;
 const int WEAK_GPS_SIGNAL_SCENARIO_COUNT = 3;
 const int MAX_SV_COUNT = 64;
 const int GPS_DUMMY_SV_COUNT = 5;
+const int AZIMUTH_DEGREES = 60;
+const int ELEVATION_DEGREES = 90;
 bool g_hasLocation = false;
 bool g_svIncrease = false;
 std::unique_ptr<SatelliteStatus> g_svInfo = nullptr;
@@ -61,12 +63,11 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     SendDummySvInfo();
     struct timeval now;
     gettimeofday(&now, NULL);
-    auto receiveTimestamp = now.tv_sec * SEC_TO_MILLI_SEC + now.tv_usec / MICRO_PER_MILLI;
     WriteLocationInnerEvent(RECEIVE_GNSS_LOCATION, {
         "speed", std::to_string(location.speed),
         "accuracy", std::to_string(location.horizontalAccuracy),
-        "locationTimestamp", std::to_string(location.timeForFix),
-        "receiveTimestamp", std::to_string(receiveTimestamp),
+        "locationTimestamp", std::to_string(location.timeForFix / MILLI_PER_SEC),
+        "receiveTimestamp", std::to_string(CommonUtils::GetCurrentTimeStamp()),
         "latitude", std::to_string(location.latitude),
         "longitude", std::to_string(location.longitude)});
     gnssAbility->ReportLocationInfo(GNSS_ABILITY, locationNew);
@@ -232,8 +233,8 @@ void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svi
     sv->SetSatelliteId(svid);
     sv->SetConstellationType(HDI::Location::Gnss::V2_0::CONSTELLATION_CATEGORY_GPS);
     sv->SetCarrierToNoiseDensity(cN0Dbhz);
-    sv->SetAltitude(60); // elevationDegrees
-    sv->SetAzimuth(90); // azimuthDegrees
+    sv->SetAltitude(ELEVATION_DEGREES); // elevationDegrees
+    sv->SetAzimuth(AZIMUTH_DEGREES); // azimuthDegrees
     sv->SetCarrierFrequencie(0); // carrierFrequencyHz
 }
 

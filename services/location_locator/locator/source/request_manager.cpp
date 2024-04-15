@@ -401,7 +401,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
         int64_t curTime = CommonUtils::GetCurrentTime();
         if (request->GetRequestConfig()->GetFixNumber() == 1 &&
             fabs(curTime - request->GetRequestConfig()->GetTimeStamp()) >
-            (request->GetRequestConfig()->GetTimeOut() / SEC_TO_MILLI_SEC)) {
+            (request->GetRequestConfig()->GetTimeOut() / MILLI_PER_SEC)) {
             LBSLOGE(LOCATOR, "%{public}d has timed out.", request->GetUid());
             return false;
         }
@@ -458,7 +458,7 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
     int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
-    if (!CommonUtils::InitLocationSa(systemAbilityId)) {
+    if (!LocationSaLoadManager::InitLocationSa(systemAbilityId)) {
         return ;
     }
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());

@@ -29,7 +29,7 @@ const int UNREGISTER_GEOFENCE_CALLBACK = 22;
 
 bool FenceImpl::InitLocationExt()
 {
-    if (CommonUtils::CheckIfSystemAbilityAvailable(FENCE_SA_ID)) {
+    if (LocationSaLoadManager::CheckIfSystemAbilityAvailable(FENCE_SA_ID)) {
         LBSLOGD(LOCATOR_STANDARD, "locator sa has been loaded");
         return true;
     }

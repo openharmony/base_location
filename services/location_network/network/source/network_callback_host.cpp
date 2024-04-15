@@ -59,13 +59,10 @@ void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
     std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
     DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
     DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    auto receiveTimestamp = now.tv_sec * SEC_TO_MILLI_SEC + now.tv_usec / MICRO_PER_MILLI;
     WriteLocationInnerEvent(NETWORK_CALLBACK_LOCATION, {"speed", std::to_string(location->GetSpeed()),
         "accuracy", std::to_string(location->GetAccuracy()),
-        "locationTimestamp", std::to_string(location->GetTimeStamp()),
-        "receiveTimestamp", std::to_string(receiveTimestamp)});
+        "locationTimestamp", std::to_string(location->GetTimeStamp() / MILLI_PER_SEC),
+        "receiveTimestamp", std::to_string(CommonUtils::GetCurrentTimeStamp())});
 }
 
 void NetworkCallbackHost::OnLocatingStatusChange(const int status)

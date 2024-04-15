@@ -147,7 +147,7 @@ void CountDownLatch::Wait(int time)
         LBSLOGE(LOCATOR_STANDARD, "count_ = 0");
         return;
     }
-    condition_.wait_for(lock, std::chrono::seconds(time / SEC_TO_MILLI_SEC), [&]() {return count_ == 0;});
+    condition_.wait_for(lock, std::chrono::seconds(time / MILLI_PER_SEC), [&]() {return count_ == 0;});
 }
 
 void CountDownLatch::CountDown()
@@ -295,17 +295,6 @@ bool CommonUtils::CheckAppInstalled(const std::string& bundleName)
     return true;
 }
 
-bool CommonUtils::CheckIfSystemAbilityAvailable(int32_t systemAbilityId)
-{
-    sptr<ISystemAbilityManager> samgr =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr == nullptr) {
-        LBSLOGE(COMMON_UTILS, "%{public}s: get system ability manager failed!", __func__);
-        return false;
-    }
-    return (samgr->CheckSystemAbility(systemAbilityId) != nullptr);
-}
-
 int64_t CommonUtils::GetCurrentTime()
 {
     struct timespec times = {0, 0};
@@ -384,20 +373,6 @@ bool CommonUtils::GetStringParameter(const std::string& type, std::string& value
 bool CommonUtils::GetEdmPolicy(std::string& name)
 {
     return GetStringParameter(EDM_POLICY_NAME, name);
-}
-
-bool CommonUtils::InitLocationSa(int32_t systemAbilityId)
-{
-    if (CommonUtils::CheckIfSystemAbilityAvailable(systemAbilityId)) {
-        LBSLOGD(COMMON_UTILS, "sa has been loaded");
-        return true;
-    }
-    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    if (instance == nullptr || instance->LoadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
-        LBSLOGE(COMMON_UTILS, "sa load failed.");
-        return false;
-    }
-    return true;
 }
 
 bool CommonUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)

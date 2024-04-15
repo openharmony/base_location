@@ -169,9 +169,13 @@ void GnssAbility::UnloadGnssSystemAbility()
             return;
         }
         if (CheckIfHdiConnected()) {
-            RemoveHdi();
+            auto startTime = CommonUtils::GetCurrentTimeStamp();
+            auto ret = RemoveHdi();
+            auto endTime = CommonUtils::GetCurrentTimeStamp();
+            WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "DisConnectHdi",
+                    "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
         }
-        instance->UnloadLocationSa(LOCATION_GNSS_SA_ID);
+        LocationSaLoadManager::UnInitLocationSa(LOCATION_GNSS_SA_ID);
     };
     if (gnssHandler_ != nullptr) {
         gnssHandler_->PostTask(task, UNLOAD_GNSS_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -332,7 +336,11 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGD(GNSS, "enter RequestRecord");
     if (isAdded) {
         if (!CheckIfHdiConnected()) {
-            ConnectHdi();
+            auto startTime = CommonUtils::GetCurrentTimeStamp();
+            auto ret = ConnectHdi();
+            auto endTime = CommonUtils::GetCurrentTimeStamp();
+            WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "ConnectHdi",
+                    "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
         }
         EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
@@ -346,8 +354,6 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             StopGnss();
         }
     }
-    std::string state = isAdded ? "start" : "stop";
-    WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
 void GnssAbility::ReConnectHdi()
