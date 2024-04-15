@@ -1463,26 +1463,15 @@ HWTEST_F(GnssAbilityTest, GetCommandFlags013, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags013 end");
 }
 
-HWTEST_F(GnssAbilityTest, InitGnssHdf001, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityTest, InitGnssHdf001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] InitGnssHdf001 begin");
+        << "GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl001 begin");
     sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
     EXPECT_NE(nullptr, gnssAbility);
-    gnssAbility->InitGnssHdf();
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] InitGnssHdf001 end");
-}
-
-HWTEST_F(GnssAbilityTest, DeinitGnssHdf001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, DeinitGnssHdf001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] DeinitGnssHdf001 begin");
-    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
-    EXPECT_NE(nullptr, gnssAbility);
-    gnssAbility->DeinitGnssHdf();
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] DeinitGnssHdf001 end");
+    gnssAbility->ReConnectHdiImpl();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
