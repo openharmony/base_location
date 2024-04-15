@@ -36,6 +36,13 @@ ohos_shared_library("locator_agent") {
     "$LOCATION_ROOT_DIR/interfaces/inner_api/native/source/native_sv_callback_host.cpp",
   ]
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
   deps = []
 
   external_deps = [
