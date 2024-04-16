@@ -1286,9 +1286,8 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
     }
     isServerExist_ = true;
     client_ = sptr<LocatorProxy>(new (std::nothrow) LocatorProxy(obj));
-    saStatusListener_ = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
     if (saStatusListener_ == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s saStatusListener_ is nullptr!", __func__);
+        saStatusListener_ = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
     }
     int32_t result = sam->SubscribeSystemAbility(static_cast<int32_t>(LOCATION_LOCATOR_SA_ID), saStatusListener_);
     if (result != ERR_OK) {

@@ -29,6 +29,13 @@
 
 namespace OHOS {
 namespace Location {
+class ScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    ScanCallbackDeathRecipient();
+    ~ScanCallbackDeathRecipient() override;
+};
+
 class LocatorAbilityStub : public IRemoteStub<ILocator> {
 public:
     using LocatorMsgHandle = int (LocatorAbilityStub::*)(
@@ -96,6 +103,7 @@ private:
     bool RemoveUnloadTask(uint32_t code);
     bool PostUnloadTask(uint32_t code);
     void WriteLocationDenyReportEvent(uint32_t code, int errCode, MessageParcel &data, AppIdentity &identity);
+    sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -113,7 +121,6 @@ public:
     SwitchCallbackDeathRecipient();
     ~SwitchCallbackDeathRecipient() override;
 };
-
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_SKELETON_H
