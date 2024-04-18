@@ -887,6 +887,7 @@ int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &d
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    client->AddDeathRecipient(scanRecipient_);
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
 
     reply.WriteInt32(errorCode);
@@ -917,6 +918,7 @@ int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel 
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    client->RemoveDeathRecipient(scanRecipient_);
     LocationErrCode errorCode = locatorDataManager->UnregisterCallback(client);
 
     reply.WriteInt32(errorCode);
@@ -1154,6 +1156,23 @@ void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remot
         locatorAbility->UnregisterSwitchCallback(remote.promote());
         locatorAbility->PostUnloadTask(DEFAULT_CODE);
         LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
+    }
+}
+
+ScanCallbackDeathRecipient::ScanCallbackDeathRecipient()
+{
+}
+
+ScanCallbackDeathRecipient::~ScanCallbackDeathRecipient()
+{
+}
+
+void ScanCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    if (locatorDataManager != nullptr) {
+        locatorDataManager->UnregisterCallback(remote.promote());
+        LBSLOGI(LOCATOR, "scan callback OnRemoteDied");
     }
 }
 } // namespace Location
