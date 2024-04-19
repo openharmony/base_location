@@ -23,6 +23,7 @@
 #include "location_log.h"
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
+#include "agnss_ni_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -255,6 +256,12 @@ int32_t GnssEventCallback::ReportCachedLocation(const std::vector<LocationInfo>&
 
 int32_t GnssEventCallback::ReportGnssNiNotification(const GnssNiNotificationRequest& notification)
 {
+    auto agnssNiManager = DelayedSingleton<AGnssNiManager>::GetInstance();
+    if (agnssNiManager == nullptr) {
+        LBSLOGE(GNSS, "ReportGnssNiNotification: agnssNiManager is nullptr.");
+        return ERR_OK;
+    }
+    agnssNiManager->HandleNiNotification(notification);
     return ERR_OK;
 }
 }  // namespace Location

@@ -1,0 +1,6 @@
+{
+  "src": [
+    "pages/ConfirmDialog",
+    "pages/LocationPrivacyDialog"
+  ]
+}

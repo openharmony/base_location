@@ -19,6 +19,7 @@
 #include <file_ex.h>
 #include <thread>
 
+#include "agnss_ni_manager.h"
 #include "event_runner.h"
 #include "idevmgr_hdi.h"
 #include "ipc_skeleton.h"
@@ -78,6 +79,10 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     if (gnssHandler_ != nullptr) {
         AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(INIT_HDI, 0);
         gnssHandler_->SendEvent(event);
+    }
+    auto agnssNiManager = DelayedSingleton<AGnssNiManager>::GetInstance();
+    if (agnssNiManager != nullptr) {
+        agnssNiManager->SubscribeSaStatusChangeListerner();
     }
     LBSLOGI(GNSS, "ability constructed.");
 }
@@ -344,7 +349,6 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         }
         EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-        SetAgnssCallback();
         SetAgnssServer();
 #endif
         StartGnss();
@@ -1116,6 +1120,9 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
         gnssAbility->ConnectHdi();
     }
     gnssAbility->EnableGnss();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+    gnssAbility->SetAgnssCallback();
+#endif
 }
 
 LocationHdiDeathRecipient::LocationHdiDeathRecipient()
