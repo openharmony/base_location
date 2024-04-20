@@ -18,6 +18,7 @@ if (location_feature_with_gnss) {
   ohos_shared_library("lbsservice_gnss") {
     sources = [
       "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
+      "$LOCATION_GNSS_ROOT/source/geofence_event_callback.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
@@ -45,12 +46,18 @@ if (location_feature_with_gnss) {
     ]
 
     external_deps = [
+      "ability_base:want",
+      "ability_base:zuri",
+      "ability_runtime:wantagent_innerkits",
       "c_utils:utils",
+      "distributed_notification_service:ans_innerkits",
+      "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
       "eventhandler:libeventhandler",
       "hdf_core:libhdi",
       "hilog:libhilog",
       "init:libbegetutil",
       "ipc:ipc_single",
+      "relational_store:native_rdb",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
     ]

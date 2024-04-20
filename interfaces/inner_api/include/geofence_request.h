@@ -1,0 +1,165 @@
+/*
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef GNSS_GEOFENCE_REQUEST_H
+#define GNSS_GEOFENCE_REQUEST_H
+
+#include <mutex>
+#include <vector>
+#include "constant_definition.h"
+#include "notification_request.h"
+#include "want_agent_helper.h"
+
+namespace OHOS {
+namespace Location {
+typedef struct {
+    double latitude;
+    double longitude;
+    double radius;
+    double expiration;
+    CoordinateSystemType coordinateSystemType;
+} GeoFence;
+
+class GeofenceRequest {
+public:
+    GeofenceRequest()
+    {
+        callback_ = nullptr;
+        geofence_ = std::make_shared<GeoFence>();
+        scenario_ = -1;
+        fenceId_ = -1;
+    }
+
+    GeofenceRequest(GeofenceRequest& geofenceRequest)
+    {
+        this->SetGeofence(geofenceRequest.GetGeofence());
+        this->SetScenario(geofenceRequest.GetScenario());
+        this->SetWantAgent(geofenceRequest.GetWantAgent());
+        this->SetGeofenceTransitionEventList(geofenceRequest.GetGeofenceTransitionEventList());
+        this->SetNotificationRequestList(geofenceRequest.GetNotificationRequestList());
+        this->SetCallback(geofenceRequest.GetCallback());
+        this->SetFenceId(geofenceRequest.GetFenceId());
+        this->SetBundleName(geofenceRequest.GetBundleName());
+    }
+
+    ~GeofenceRequest() {}
+
+    inline std::shared_ptr<GeoFence> GetGeofence()
+    {
+        return geofence_;
+    }
+
+    inline void SetGeofence(std::shared_ptr<GeoFence> geofence)
+    {
+        geofence_ = geofence;
+    }
+
+    inline int GetScenario()
+    {
+        return scenario_;
+    }
+
+    inline void SetScenario(int scenario)
+    {
+        scenario_ = scenario;
+    }
+
+    inline void SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent)
+    {
+        wantAgent_ = wantAgent;
+    }
+
+    inline AbilityRuntime::WantAgent::WantAgent GetWantAgent()
+    {
+        return wantAgent_;
+    }
+
+    inline std::vector<GeofenceTransitionEvent> GetGeofenceTransitionEventList()
+    {
+        return transitionStatusList_;
+    }
+
+    inline void SetGeofenceTransitionEvent(GeofenceTransitionEvent status)
+    {
+        transitionStatusList_.push_back(status);
+    }
+
+    inline void SetGeofenceTransitionEventList(std::vector<GeofenceTransitionEvent> statusList)
+    {
+        for (auto it = statusList.begin(); it != statusList.end(); ++it) {
+            transitionStatusList_.push_back(*it);
+        }
+    }
+
+    inline std::vector<std::shared_ptr<Notification::NotificationRequest>> GetNotificationRequestList()
+    {
+        return notificationRequestList_;
+    }
+
+    inline void SetNotificationRequest(std::shared_ptr<Notification::NotificationRequest> request)
+    {
+        notificationRequestList_.push_back(request);
+    }
+
+    inline void SetNotificationRequestList(std::vector<std::shared_ptr<Notification::NotificationRequest>> requestList)
+    {
+        for (auto it = requestList.begin(); it != requestList.end(); ++it) {
+            notificationRequestList_.push_back(*it);
+        }
+    }
+
+    inline void SetGeofenceTransitionCallback(const sptr<IRemoteObject>& callback)
+    {
+        callback_ = callback;
+    }
+
+    inline sptr<IRemoteObject> GetGeofenceTransitionCallback()
+    {
+        return callback_;
+    }
+
+    inline int GetFenceId()
+    {
+        return fenceId_;
+    }
+
+    inline void SetFenceId(int fenceId)
+    {
+        fenceId_ = fenceId;
+    }
+
+    inline std::string GetBundleName()
+    {
+        return bundleName_;
+    }
+
+    inline void SetBundleName(std::string bundleName)
+    {
+        bundleName_ = bundleName;
+    }
+
+private:
+    std::vector<GeofenceTransitionEvent> transitionStatusList_;
+    std::vector<std::shared_ptr<Notification::NotificationRequest>> notificationRequestList_;
+    sptr<IRemoteObject> callback_ = nullptr;
+    std::shared_ptr<GeoFence> geofence_ = nullptr;
+    int scenario_;
+    int fenceId_;
+    AbilityRuntime::WantAgent::WantAgent wantAgent_;
+    std::string bundleName_;
+};
+} // namespace Location
+} // namespace OHOS
+#endif // GNSS_GEOFENCE_REQUEST_H

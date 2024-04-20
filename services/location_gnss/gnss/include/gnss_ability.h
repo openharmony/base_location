@@ -20,6 +20,7 @@
 #include <mutex>
 #include <singleton.h>
 #include <v2_0/ignss_interface.h>
+#include <v2_0/igeofence_interface.h>
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include <v2_0/ia_gnss_interface.h>
 #endif
@@ -35,6 +36,10 @@
 #include "i_gnss_status_callback.h"
 #include "i_nmea_message_callback.h"
 #include "subability_common.h"
+#include "i_gnss_geofence_callback.h"
+#include "geofence_request.h"
+#include "locationhub_ipc_interface_code.h"
+#include "geofence_event_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -61,6 +66,17 @@ using HDI::Location::Agnss::V2_0::IAGnssCallback;
 using HDI::Location::Agnss::V2_0::AGNSS_TYPE_SUPL;
 using HDI::Location::Agnss::V2_0::AGnssServerInfo;
 #endif
+using HDI::Location::Geofence::V2_0::IGeofenceInterface;
+using HDI::Location::Geofence::V2_0::IGeofenceCallback;
+using HDI::Location::Geofence::V2_0::GeofenceEvent;
+using HDI::Location::Geofence::V2_0::GeofenceInfo;
+
+typedef struct {
+    GeofenceRequest request;
+    sptr<IGeofenceCallback> callback;
+    int requestCode;
+    int retCode;
+} FenceStruct;
 
 class GnssHandler : public AppExecFwk::EventHandler {
 public:
@@ -114,8 +130,12 @@ public:
     LocationErrCode GetCachedGnssLocationsSize(int &size) override;
     LocationErrCode FlushCachedGnssLocations() override;
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) override;
-    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) override;
-    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode AddGnssGeofence(
+        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback) override;
+    LocationErrCode RemoveGnssGeofence(
+        std::shared_ptr<GeofenceRequest>& request) override;
     void ReportGnssSessionStatus(int status);
     void ReportNmea(int64_t timestamp, const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
@@ -140,12 +160,18 @@ public:
     void SetRefInfo(const AGnssRefInfo& refInfo);
     void SetRefInfoImpl(const AGnssRefInfo &refInfo);
 #endif
+    bool SetGeofenceCallback();
     void ReConnectHdiImpl();
     bool IsMockEnabled();
     void ProcessReportLocationMock();
     void ReConnectHdi();
     bool CheckIfHdiConnected();
     void RestGnssWorkStatus();
+    bool RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request,
+        const sptr<IRemoteObject>& callback);
+    bool UnregisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request);
+    std::shared_ptr<GeofenceRequest> GetGeofenceRequestByFenceId(int fenceId);
+    sptr<IRemoteObject> GetGnssGeofenceCallbackByFenceId(int fenceId);
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -157,6 +183,9 @@ private:
     bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryDataType& flags);
     LocationErrCode SetPositionMode();
     void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
+    bool ExecuteFenceProcess(
+        GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
+    int32_t GenerateFenceId();
 
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
@@ -175,6 +204,11 @@ private:
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
 #endif
+    sptr<IGeofenceInterface> geofenceInterface_;
+    sptr<IGeofenceCallback> geofenceCallback_;
+    int32_t fenceId_;
+    std::mutex fenceIdMutex_;
+    std::map<std::shared_ptr<GeofenceRequest>, sptr<IRemoteObject>> gnssGeofenceRequestMap_;
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {

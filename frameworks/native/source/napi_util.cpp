@@ -24,12 +24,18 @@
 #include "location_log.h"
 #include "locator_proxy.h"
 #include "request_config.h"
+#include "notification_constant.h"
+#include "reminder_request.h"
+#include "napi_common_want.h"
+#include "notification_request.h"
+#include "common.h"
 
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
 static constexpr int MIN_WIFI_SCAN_TIME = 3000;
 const uint32_t MAX_ADDITION_SIZE = 100;
+const int MAX_TRANSITION_ARRAY_SIZE = 3
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -232,30 +238,37 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
 }
 
 void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
-    const std::unique_ptr<GeofenceRequest>& request)
+    const std::shared_ptr<GeofenceRequest>& request)
 {
     int value = 0;
     double doubleValue = 0.0;
     if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
-        request->scenario = value;
+        request->SetScenario(value);
     }
-    napi_value geofence = GetNapiValueByKey(env, "geofence", object);
-    if (geofence == nullptr) {
+    napi_value geofenceValue = GetNapiValueByKey(env, "geofence", object);
+    if (geofenceValue == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "parse geofence failed");
         return;
     }
-    if (JsObjectToDouble(env, geofence, "latitude", doubleValue) == SUCCESS) {
-        request->geofence.latitude = doubleValue;
+    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    if (JsObjectToDouble(env, geofenceValue, "latitude", doubleValue) == SUCCESS) {
+        geofence->latitude = doubleValue;
     }
-    if (JsObjectToDouble(env, geofence, "longitude", doubleValue) == SUCCESS) {
-        request->geofence.longitude = doubleValue;
+    if (JsObjectToDouble(env, geofenceValue, "longitude", doubleValue) == SUCCESS) {
+        geofence->longitude = doubleValue;
     }
-    if (JsObjectToDouble(env, geofence, "radius", doubleValue) == SUCCESS) {
-        request->geofence.radius = doubleValue;
+    if (JsObjectToInt(env, geofenceValue, "coordinateSystemType", intValue) == SUCCESS) {
+        geofence->coordinateSystemType = static_cast<CoordinateSystemType>(intValue);
+    } else {
+        geofence->coordinateSystemType = CoordinateSystemType::WGS84;
     }
-    if (JsObjectToDouble(env, geofence, "expiration", doubleValue) == SUCCESS) {
-        request->geofence.expiration = doubleValue;
+    if (JsObjectToDouble(env, geofenceValue, "radius", doubleValue) == SUCCESS) {
+        geofence->radius = doubleValue;
     }
+    if (JsObjectToDouble(env, geofenceValue, "expiration", doubleValue) == SUCCESS) {
+        geofence->expiration = doubleValue;
+    }
+    request->SetGeofence(geofence);
 }
 
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
@@ -428,6 +441,166 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     dataParcel.WriteDouble(longitude); // longitude
     dataParcel.WriteInt32(maxItems); // maxItems
     return true;
+}
+
+bool ParseGnssGeofenceRequest(
+    const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& request)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_BASE(env, napi_typeof(env, value, &valueType), false);
+    if (valueType != napi_object) {
+        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
+        return false;
+    }
+    return GenGnssGeofenceRequest(env, value, request);
+}
+
+bool GenGnssGeofenceRequest(
+    const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& geofenceRequest)
+{
+    if (geofenceRequest == nullptr) {
+        LBSLOGE(NAPI_UTILS, "geofenceRequest == nullptr");
+        return false;
+    }
+    std::vector<GeofenceTransitionEvent> geofenceTransitionStatusList;
+    std::vector<std::shared_ptr<NotificationRequest>> notificationRequestList;
+    JsObjToGeoFenceRequest(env, value, geofenceRequest);
+    JsObjToGeofenceTransitionEventList(env, value, geofenceTransitionStatusList);
+    geofenceRequest->SetGeofenceTransitionEventList(geofenceTransitionStatusList);
+    JsObjToNotificationRequestList(env, value, notificationRequestList);
+    geofenceRequest->SetNotificationRequestList(notificationRequestList);
+    auto locationGnssGeofenceCallbackHost =
+        sptr<LocationGnssGeofenceCallbackHost>(new (std::nothrow) LocationGnssGeofenceCallbackHost());
+    JsObjToGeofenceTransitionCallback(env, value, locationGnssGeofenceCallbackHost);
+    auto callbackPtr = sptr<IGnssGeofenceCallback>(locationGnssGeofenceCallbackHost);
+    geofenceRequest->SetGeofenceTransitionCallback(callbackPtr->AsObject());
+    return true;
+}
+
+void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& object,
+    sptr<LocationGnssGeofenceCallbackHost> callbackHost)
+{
+    napi_ref handlerRef = nullptr;
+    napi_value callbackNapiValue = nullptr;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_get_named_property(env, object, "geofenceTransitionCallback", &callbackNapiValue));
+    NAPI_CALL_RETURN_VOID(env, napi_create_reference(env, callbackNapiValue, 1, &handlerRef));
+    callbackHost->SetEnv(env);
+    callbackHost->SetHandleCb(handlerRef);
+}
+
+napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName)
+{
+    if (object == nullptr) {
+        LBSLOGE(NAPI_UTILS, "object is nullptr.");
+        return UndefinedNapiValue(env);
+    }
+    bool hasProperty = false;
+    NAPI_CALL_BASE(env,
+        napi_has_named_property(env, object, propertyName.c_str(), &hasProperty), UndefinedNapiValue(env));
+    if (!hasProperty) {
+        LBSLOGE(NAPI_UTILS, "propertyName is not exist");
+        return UndefinedNapiValue(env);
+    }
+    napi_value property = nullptr;
+    NAPI_CALL_BASE(env,
+        napi_get_named_property(env, object, propertyName.c_str(), &property), UndefinedNapiValue(env));
+    bool isArray = false;
+    NAPI_CALL_BASE(env, napi_is_array(env, property, &isArray), UndefinedNapiValue(env));
+    if (!isArray) {
+        LBSLOGE(NAPI_UTILS, "propertyName is not an array!");
+        return UndefinedNapiValue(env);
+    }
+    return property;
+}
+
+void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
+    std::vector<std::shared_ptr<NotificationRequest>>& notificationRequestList)
+{
+    napi_value notificationRequest = GetArrayProperty(env, object, "notifications");
+    GetNotificationRequestArray(env, notificationRequest, notificationRequestList);
+}
+
+void GetNotificationRequestArray(const napi_env& env, const napi_value& notificationRequestValue,
+    std::vector<std::shared_ptr<NotificationRequest>>& notificationRequestList)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_RETURN_VOID(env, napi_typeof(env, notificationRequestValue, &valueType));
+    if (valueType != napi_object) {
+        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
+        return;
+    }
+    uint32_t arrayLength = 0;
+    NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, notificationRequestValue, &arrayLength));
+    if (arrayLength == 0 || arrayLength > MAX_TRANSITION_ARRAY_SIZE) {
+        LBSLOGE(NAPI_UTILS, "The array is empty or out of range.");
+        return;
+    }
+    for (uint32_t i = 0; i < arrayLength; i++) {
+        napi_value elementValue = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_element(env, notificationRequestValue, i, &elementValue));
+        napi_valuetype napiType;
+        NAPI_CALL_RETURN_VOID(env, napi_typeof(env, elementValue, &napiType));
+        if (napiType != napi_object) {
+            LBSLOGE(NAPI_UTILS, "Wrong argument type.");
+            break;
+        }
+        NotificationRequest notificationRequest;
+        GenNotificationRequest(env, elementValue, notificationRequest);
+        std::shared_ptr<NotificationRequest> request =
+            std::make_shared<NotificationRequest>(notificationRequest);
+        notificationRequestList.push_back(request);
+    }
+}
+
+void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
+    NotificationRequest& notificationRequest)
+{
+    napi_valuetype elementValueType;
+    NAPI_CALL_RETURN_VOID(env, napi_typeof(env, elementValue, &elementValueType));
+    if (elementValueType != napi_object) {
+        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
+        return;
+    }
+    // argv[0] : NotificationRequest
+    Common::GetNotificationRequest(env, elementValue, notificationRequest);
+}
+
+void JsObjToGeofenceTransitionEventList(const napi_env& env, const napi_value& object,
+    std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList)
+{
+    napi_value monitorTransitionEvents = GetArrayProperty(env, object, "monitorTransitionEvents");
+    GetGeofenceTransitionEventArray(env, monitorTransitionEvents, geofenceTransitionStatusList);
+}
+
+void GetGeofenceTransitionEventArray(const napi_env& env, const napi_value& monitorTransitionEvents,
+    std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_RETURN_VOID(env, napi_typeof(env, monitorTransitionEvents, &valueType));
+    if (valueType != napi_object) {
+        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
+        return;
+    }
+    uint32_t arrayLength = 0;
+    NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, monitorTransitionEvents, &arrayLength));
+    if (arrayLength == 0 || arrayLength > MAX_TRANSITION_ARRAY_SIZE) {
+        LBSLOGE(NAPI_UTILS, "The array is empty or out of range.");
+        return;
+    }
+    for (uint32_t i = 0; i < arrayLength; i++) {
+        napi_value elementValue = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_element(env, monitorTransitionEvents, i, &elementValue));
+        napi_valuetype napiType;
+        NAPI_CALL_RETURN_VOID(env, napi_typeof(env, elementValue, &napiType));
+        if (napiType != napi_number) {
+            LBSLOGE(NAPI_UTILS, "Wrong argument type.");
+            break;
+        }
+        int geofenceTransitionStatus = -1;
+        NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, elementValue, &geofenceTransitionStatus));
+        geofenceTransitionStatusList.push_back(static_cast<GeofenceTransitionEvent>(geofenceTransitionStatus));
+    }
 }
 
 bool GetLocationInfo(const napi_env& env, const napi_value& object,
@@ -841,6 +1014,7 @@ std::string GetErrorMsgByCode(int code)
         {LocationErrCode::ERRCODE_COUNTRYCODE_FAIL, "Failed to query the area information."},
         {LocationErrCode::ERRCODE_GEOFENCE_FAIL, "Failed to operate the geofence."},
         {LocationErrCode::ERRCODE_NO_RESPONSE, "No response to the request."},
+        {LocationErrCode::ERRCODE_GEOFENCE_EXCEED_MAXIMUM, "The number of geofences exceeds the maximum."},
     };
 
     auto iter = errorCodeMap.find(code);
@@ -1067,6 +1241,13 @@ bool CheckIfParamIsObjectType(napi_env env, napi_value param)
         return false;
     }
     return true;
+}
+
+void GeofenceTransitionToJs(const napi_env& env,
+    const GeofenceTransition geofenceTransition, napi_value& result)
+{
+    SetValueInt32(env, "geofenceId", geofenceTransition.fenceId, result);
+    SetValueInt32(env, "transitionEvent", static_cast<int>(geofenceTransition.event), result);
 }
 }  // namespace Location
 }  // namespace OHOS

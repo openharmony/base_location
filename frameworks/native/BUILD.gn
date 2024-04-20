@@ -21,6 +21,7 @@ config("locator_sdk_config") {
   include_dirs = [
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/frameworks/native/notification/include",
   ]
 }
 
@@ -42,14 +43,20 @@ ohos_shared_library("locator_sdk") {
     "$LOCATION_COMMON_DIR/source/location.cpp",
     "$LOCATION_COMMON_DIR/source/request_config.cpp",
     "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
+    "$LOCATION_NATIVE_DIR/notification/src/common.cpp",
+    "$LOCATION_NATIVE_DIR/notification/src/common_convert_content.cpp",
+    "$LOCATION_NATIVE_DIR/notification/src/common_convert_liveview.cpp",
+    "$LOCATION_NATIVE_DIR/notification/src/common_convert_notification.cpp",
+    "$LOCATION_NATIVE_DIR/notification/src/common_convert_request.cpp",
+    "$LOCATION_NATIVE_DIR/notification/src/common_utils.cpp",
     "$LOCATION_NATIVE_DIR/source/cached_locations_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/country_code_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/country_code_manager.cpp",
-    "$LOCATION_NATIVE_DIR/source/fence_impl.cpp",
     "$LOCATION_NATIVE_DIR/source/gnss_status_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/locating_required_data_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_manager.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_rdb_observer.cpp",
+    "$LOCATION_NATIVE_DIR/source/location_gnss_geofence_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/location_switch_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/locator.cpp",
     "$LOCATION_NATIVE_DIR/source/locator_callback_host.cpp",
@@ -65,34 +72,42 @@ ohos_shared_library("locator_sdk") {
     "//third_party/libuv:uv",
   ]
 
-  external_deps = [
+  public_external_deps = [
+    "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
     "ability_runtime:dataobs_manager",
+    "ability_runtime:napi_common",
     "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_consumer",
+    "distributed_notification_service:ans_innerkits",
     "hilog:libhilog",
+    "image_framework:image",
     "init:libbeget_proxy",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "relational_store:native_rdb",
     "samgr:samgr_proxy",
   ]
 
   defines = []
 
   if (i18n_enable) {
-    external_deps += [ "i18n:intl_util" ]
+    public_external_deps += [ "i18n:intl_util" ]
     defines += [ "I18N_ENABLE" ]
   }
 
   if (telephony_core_service_enable) {
-    external_deps += [ "core_service:tel_core_service_api" ]
+    public_external_deps += [ "core_service:tel_core_service_api" ]
     defines += [ "TEL_CORE_SERVICE_ENABLE" ]
   }
 
   if (telephony_cellular_data_enable) {
-    external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    public_external_deps += [ "cellular_data:tel_cellular_data_api" ]
     defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
   }
 

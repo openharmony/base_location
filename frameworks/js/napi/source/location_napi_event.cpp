@@ -25,7 +25,6 @@
 #include "xpower_event_js.h"
 #endif
 #include "want_agent_helper.h"
-#include "fence_impl.h"
 
 namespace OHOS {
 namespace Location {
@@ -36,11 +35,9 @@ CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
 CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 CallbackManager<LocatingRequiredDataCallbackHost> g_locatingRequiredDataCallbacks;
-std::vector<GeoFenceState*> mFences;
 
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
 auto g_locatorProxy = Locator::GetInstance();
-auto g_fenceImpl = DelayedSingleton<FenceImpl>::GetInstance();
 
 std::mutex g_FuncMapMutex;
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
@@ -330,9 +327,10 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
         LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
         return;
     }
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
+    fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    g_fenceImpl->AddFenceExt(fenceRequest, *wantAgent);
+    g_locatorProxy->AddFenceV9(fenceRequest);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -348,9 +346,10 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
         LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
+    fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    LocationErrCode errCode = g_fenceImpl->AddFenceExt(fenceRequest, *wantAgent);
+    LocationErrCode errCode = g_locatorProxy->AddFenceV9(fenceRequest);
     return errCode;
 }
 #endif
@@ -363,9 +362,10 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
         LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
         return;
     }
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
+    fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    g_fenceImpl->RemoveFenceExt(fenceRequest, *wantAgent);
+    g_locatorProxy->RemoveFenceV9(fenceRequest);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -377,9 +377,10 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
         LBSLOGE(LOCATION_NAPI, "wantAgent is nullptr");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
+    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
+    fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    return g_fenceImpl->RemoveFenceExt(fenceRequest, *wantAgent);
+    return g_locatorProxy->RemoveFenceV9(fenceRequest);
 }
 #endif
 

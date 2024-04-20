@@ -50,6 +50,7 @@
 #include "locating_required_data_callback_host.h"
 #include "locator_agent.h"
 #include "permission_manager.h"
+#include "geofence_request.h"
 
 using namespace testing::ext;
 
@@ -304,14 +305,13 @@ HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 begin");
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->scenario = SCENE_NAVIGATION;
-    GeoFence geofence;
-    geofence.latitude = 1.0;
-    geofence.longitude = 2.0;
-    geofence.radius = 3.0;
-    geofence.expiration = 4.0;
-    fenceRequest->geofence = geofence;
+    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    geofence->latitude = 35.1;
+    geofence->longitude = 40.2;
+    geofence->radius = 2.2;
+    geofence->expiration = 12.2;
+    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
+    fenceRequest->SetGeofence(geofence);
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->AddFenceV9(fenceRequest));
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->RemoveFenceV9(fenceRequest));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 end");

@@ -107,6 +107,10 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LOCATOR_BACKGROUND_PROXY = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "LocatorBackgroundProxy"
 };
 static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_NAPI = {LOG_CORE, LOCATION_LOG_DOMAIN, "LocationNapi"};
+static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_GNSS_GEOFENCE_CALLBACK = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "LocationGnssGeofenceCallback"
+};
+static constexpr OHOS::HiviewDFX::HiLogLabel NAPI_UTILS = {LOG_CORE, LOCATION_LOG_DOMAIN, "LocationNapiUtils"};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H

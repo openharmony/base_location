@@ -28,6 +28,7 @@
 #include "gnss_ability_skeleton.h"
 #include "location.h"
 #include "work_record.h"
+#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -47,8 +48,8 @@ public:
     MOCK_METHOD(LocationErrCode, GetCachedGnssLocationsSize, (int &size));
     MOCK_METHOD(LocationErrCode, FlushCachedGnssLocations, ());
     MOCK_METHOD(LocationErrCode, SendCommand, (std::unique_ptr<LocationCommand>& commands));
-    MOCK_METHOD(LocationErrCode, AddFence, (std::unique_ptr<GeofenceRequest>& request));
-    MOCK_METHOD(LocationErrCode, RemoveFence, (std::unique_ptr<GeofenceRequest>& request));
+    MOCK_METHOD(LocationErrCode, AddFence, (std::shared_ptr<GeofenceRequest>& request));
+    MOCK_METHOD(LocationErrCode, RemoveFence, (std::shared_ptr<GeofenceRequest>& request));
     MOCK_METHOD(LocationErrCode, SendLocationRequest, (WorkRecord &workrecord));
     MOCK_METHOD(LocationErrCode, SetEnable, (bool state));
     MOCK_METHOD(LocationErrCode, EnableMock, ());
@@ -56,6 +57,9 @@ public:
     MOCK_METHOD(LocationErrCode, SetMocked, (const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location));
     MOCK_METHOD(void, UnloadGnssSystemAbility, ());
+    MOCK_METHOD(LocationErrCode, AddGnssGeofence, (std::shared_ptr<GeofenceRequest>& request,
+        const sptr<IRemoteObject>& callback));
+    MOCK_METHOD(LocationErrCode, RemoveGnssGeofence, (std::shared_ptr<GeofenceRequest>& request));
 };
 } // namespace Location
 } // namespace OHOS

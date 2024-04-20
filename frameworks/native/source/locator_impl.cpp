@@ -476,36 +476,6 @@ bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
     return true;
 }
 
-bool LocatorImpl::AddFence(std::unique_ptr<GeofenceRequest>& request)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return false;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddFence()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    proxy->AddFence(request);
-    return true;
-}
-
-bool LocatorImpl::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return false;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveFence()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    proxy->RemoveFence(request);
-    return true;
-}
-
 std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
@@ -1037,7 +1007,7 @@ LocationErrCode LocatorImpl::SendCommandV9(std::unique_ptr<LocationCommand>& com
     return errCode;
 }
 
-LocationErrCode LocatorImpl::AddFenceV9(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorImpl::AddFenceV9(std::shared_ptr<GeofenceRequest> &request)
 {
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1052,7 +1022,7 @@ LocationErrCode LocatorImpl::AddFenceV9(std::unique_ptr<GeofenceRequest>& reques
     return errCode;
 }
 
-LocationErrCode LocatorImpl::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorImpl::RemoveFenceV9(std::shared_ptr<GeofenceRequest> &request)
 {
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1064,6 +1034,38 @@ LocationErrCode LocatorImpl::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& req
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->RemoveFenceV9(request);
+    return errCode;
+}
+
+LocationErrCode LocatorImpl::AddGnssGeofence(
+    std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback)
+{
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddGnssGeofence()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->AddGnssGeofence(request, callback);
+    return errCode;
+}
+
+LocationErrCode LocatorImpl::RemoveGnssGeofence(
+    std::shared_ptr<GeofenceRequest>& request)
+{
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddGnssGeofence()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->RemoveGnssGeofence(request);
     return errCode;
 }
 

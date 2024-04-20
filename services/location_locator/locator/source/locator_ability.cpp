@@ -593,36 +593,92 @@ LocationErrCode LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& co
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::AddFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(request->scenario);
-    dataToStub.WriteDouble(request->geofence.latitude);
-    dataToStub.WriteDouble(request->geofence.longitude);
-    dataToStub.WriteDouble(request->geofence.radius);
-    dataToStub.WriteDouble(request->geofence.expiration);
-    return SendGnssRequest(static_cast<int>(GnssInterfaceCode::ADD_FENCE_INFO), dataToStub, replyToStub);
+    dataToStub.WriteInt32(request->GetScenario());
+    auto geofence = request->GetGeofence();
+    dataToStub.WriteDouble(geofence->latitude);
+    dataToStub.WriteDouble(geofence->longitude);
+    dataToStub.WriteDouble(geofence->radius);
+    dataToStub.WriteDouble(geofence->expiration);
+    auto wantAgent = request->GetWantAgent();
+    dataToStub.WriteParcelable(&wantAgent);
+    return SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::ADD_FENCE_INFO), dataToStub, replyToStub);
 }
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& request)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(request->scenario);
-    dataToStub.WriteDouble(request->geofence.latitude);
-    dataToStub.WriteDouble(request->geofence.longitude);
-    dataToStub.WriteDouble(request->geofence.radius);
-    dataToStub.WriteDouble(request->geofence.expiration);
-    return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
+    dataToStub.WriteInt32(request->GetScenario());
+    auto geofence = request->GetGeofence();
+    dataToStub.WriteDouble(geofence->latitude);
+    dataToStub.WriteDouble(geofence->longitude);
+    dataToStub.WriteDouble(geofence->radius);
+    dataToStub.WriteDouble(geofence->expiration);
+    auto wantAgent = request->GetWantAgent();
+    dataToStub.WriteParcelable(&wantAgent);
+    return SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
+}
+#endif
+
+#ifdef FEATURE_GNSS_SUPPORT
+LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request,
+    const sptr<IRemoteObject>& callback)
+{
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::shared_ptr<GeoFence> geofence = request->GetGeofence();
+    dataToStub.WriteDouble(geofence->latitude);
+    dataToStub.WriteDouble(geofence->longitude);
+    dataToStub.WriteDouble(geofence->radius);
+    dataToStub.WriteDouble(geofence->expiration);
+    auto statusList = request->GetGeofenceTransitionEventList();
+    dataToStub.WriteInt32(statusList.size());
+    for (int i = 0; i < statusList.size(); i++) {
+        dataToStub.WriteInt32(static_cast<int>(statusList[i]));
+    }
+    auto notificationRequestList = request->GetNotificationRequestList();
+    dataToStub.WriteInt32(notificationRequestList.size());
+    for (int i = 0; i < notificationRequestList.size(); i++) {
+        notificationRequestList[i]->Marshalling(dataToStub);
+    }
+    auto locationGnssGeofenceCallback = request->GetGeofenceTransitionCallback();
+    dataToStub.WriteRemoteObject(locationGnssGeofenceCallback);
+    dataToStub.WriteRemoteObject(callback);
+    dataToStub.WriteString(request->GetBundleName());
+    return SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::ADD_GNSS_GEOFENCE), dataToStub, replyToStub);
+}
+#endif
+
+#ifdef FEATURE_GNSS_SUPPORT
+LocationErrCode LocatorAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
+{
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    dataToStub.WriteInt32(request->GetFenceId());
+    dataToStub.WriteString(request->GetBundleName());
+    return SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE), dataToStub, replyToStub);
 }
 #endif
 
