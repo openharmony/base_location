@@ -17,9 +17,6 @@ import("//build/ohos.gni")
 if (location_feature_with_passive) {
   ohos_shared_library("lbsservice_passive") {
     sources = [
-      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
       "$LOCATION_PASSIVE_ROOT/source/passive_ability.cpp",
       "$LOCATION_PASSIVE_ROOT/source/passive_ability_skeleton.cpp",
     ]
@@ -39,6 +36,7 @@ if (location_feature_with_passive) {
 
     deps = [
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     ]
 
     external_deps = [

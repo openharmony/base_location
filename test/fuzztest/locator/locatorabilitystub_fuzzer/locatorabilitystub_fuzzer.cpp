@@ -678,6 +678,54 @@ bool LocatorAbilityStub037FuzzTest(const char* data, size_t size)
 
     return true;
 }
+
+bool LocatorAbilityStub038FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_LOCATION_ERROR),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub039FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATION_ERROR),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub040FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION_ERROR),
+        requestParcel, reply, option);
+
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -722,6 +770,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub035FuzzTest(ch, size);
         OHOS::LocatorAbilityStub036FuzzTest(ch, size);
         OHOS::LocatorAbilityStub037FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub038FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub039FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub040FuzzTest(ch, size);
         free(ch);
         ch = nullptr;
     }

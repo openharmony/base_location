@@ -27,7 +27,7 @@ class WorkRecord : public Parcelable {
 public:
     WorkRecord();
     ~WorkRecord() override = default;
-    bool Add(int uid, int pid, std::string name, int timeInterval, std::string uuid);
+    bool Add(int uid, int pid, std::string name, int timeInterval, std::string uuid, int locationRequestType);
     bool Remove(int uid, int pid, std::string name, std::string uuid);
     bool Find(int uid, std::string name, std::string uuid);
     void Clear();
@@ -41,6 +41,7 @@ public:
     int GetUid(int index);
     int GetPid(int index);
     int GetTimeInterval(int index);
+    int GetLocationRequestType(int index);
     std::string GetUuid(int index);
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
@@ -54,6 +55,7 @@ private:
     std::vector<std::string> names_;
     std::vector<int> timeInterval_;
     std::vector<std::string> uuid_;
+    std::vector<int> locationRequestType_;
     std::string deviceId_;
     mutable std::mutex workRecordMutex_;
 };

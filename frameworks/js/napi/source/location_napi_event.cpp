@@ -36,6 +36,7 @@ CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
 CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 CallbackManager<LocatingRequiredDataCallbackHost> g_locatingRequiredDataCallbacks;
+CallbackManager<LocationErrorCallbackHost> g_locationErrorCallbackHosts;
 std::vector<GeoFenceState*> mFences;
 
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
@@ -63,6 +64,7 @@ void InitOnFuncMap()
     g_onFuncMap.insert(std::make_pair("gnssFenceStatusChange", &OnFenceStatusChangeCallback));
     g_onFuncMap.insert(std::make_pair("nmeaMessage", &OnNmeaMessageChangeCallback));
     g_onFuncMap.insert(std::make_pair("locatingRequiredDataChange", &OnLocatingRequiredDataChangeCallback));
+    g_onFuncMap.insert(std::make_pair("locationError", &OnLocationErrorCallback));
 #else
     g_onFuncMap.insert(std::make_pair("locationServiceState", &OnLocationServiceStateCallback));
     g_onFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OnCachedGnssLocationsReportingCallback));
@@ -101,6 +103,7 @@ void InitOffFuncMap()
     g_offFuncMap.insert(std::make_pair("satelliteStatusChange", &OffGnssStatusChangeCallback));
     g_offFuncMap.insert(std::make_pair("nmeaMessage", &OffNmeaMessageChangeCallback));
     g_offFuncMap.insert(std::make_pair("locatingRequiredDataChange", &OffLocatingRequiredDataChangeCallback));
+    g_offFuncMap.insert(std::make_pair("locationError", &OffLocationErrorCallback));
 #else
     g_offFuncMap.insert(std::make_pair("locationServiceState", &OffLocationServiceStateCallback));
     g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
@@ -279,6 +282,19 @@ LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const n
     JsObjToLocatingRequiredDataConfig(env, object, dataConfig);
     return g_locatorProxy->RegisterLocatingRequiredDataCallback(dataConfig, callbackPtr);
 }
+
+LocationErrCode SubscribeLocationError(const napi_env& env, const napi_value& object,
+    const napi_ref& handlerRef, sptr<LocationErrorCallbackHost>& locationErrorCallbackHost)
+{
+    LocationErrCode errorCode = CheckLocationSwitchEnable();
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    locationErrorCallbackHost->SetEnv(env);
+    locationErrorCallbackHost->SetHandleCb(handlerRef);
+    auto locationErrorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
+    return g_locatorProxy->SubscribeLocationError(locationErrorCallback);
+}
 #endif
 
 void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& callbackHost)
@@ -411,8 +427,11 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
 #endif
         callbackHost->Wait(context->timeout_);
         g_locatorProxy->StopLocating(callbackPtr);
-        if (callbackHost->GetCount() != 0) {
+        if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() == nullptr) {
             context->errCode = ERRCODE_LOCATING_FAIL;
+        } else if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() != nullptr) {
+            std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
+            callbackHost->OnLocationReport(location);
         }
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
@@ -544,6 +563,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
+    singleLocatorCallbackHost->SetLocationPriority(requestConfig->GetLocationPriority());
     LocationErrCode errorCode = CheckLocationSwitchEnable();
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
@@ -585,6 +605,12 @@ LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>&
     LBSLOGD(LOCATION_NAPI, "UnSubscribeCacheLocationChangeV9");
     g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
     return ERRCODE_NOT_SUPPORTED;
+}
+
+LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
+{
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeLocationError");
+    return g_locatorProxy->UnSubscribeLocationError(callback);
 }
 #endif
 
@@ -1483,5 +1509,58 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
     }
     return true;
 }
+
+#ifdef ENABLE_NAPI_MANAGER
+bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    if (argc != PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        LBSLOGE(LOCATION_NAPI, "ERRCODE_INVALID_PARAM");
+        return false;
+    }
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        LBSLOGE(LOCATION_NAPI, "ERRCODE_INVALID_PARAM");
+        return false;
+    }
+    // the third params should be handler
+    if (g_locationErrorCallbackHosts.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto locationErrorCallbackHost =
+        sptr<LocationErrorCallbackHost>(new (std::nothrow) LocationErrorCallbackHost());
+    if (locationErrorCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
+        // argv[1]:request params, argv[2]:handler
+        LocationErrCode errorCode = SubscribeLocationError(env, argv[PARAM1], handlerRef, locationErrorCallbackHost);
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
+            return false;
+        }
+        g_locationErrorCallbackHosts.AddCallback(env, handlerRef, locationErrorCallbackHost);
+    }
+    return true;
+}
+
+bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
+{
+    auto locationErrorCallbackHost = g_locationCallbacks.GetCallbackPtr(env, handler);
+    if (locationErrorCallbackHost) {
+        auto locatorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
+        LocationErrCode errorCode = UnSubscribeLocationError(locatorCallback);
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
+            return false;
+        }
+        g_locationErrorCallbackHosts.DeleteCallback(env, handler);
+        locationErrorCallbackHost->DeleteAllCallbacks();
+        locationErrorCallbackHost = nullptr;
+        return true;
+    }
+    return false;
+}
+#endif
 }  // namespace Location
 }  // namespace OHOS

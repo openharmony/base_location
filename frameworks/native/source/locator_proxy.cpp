@@ -1038,5 +1038,33 @@ LocationErrCode LocatorProxy::UnRegisterLocatingRequiredDataCallback(sptr<ILocat
     LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
     return errorCode;
 }
+
+LocationErrCode LocatorProxy::SubscribeLocationError(sptr<ILocatorCallback>& callback)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (callback != nullptr) {
+        data.WriteObject<IRemoteObject>(callback->AsObject());
+    }
+    MessageParcel reply;
+    LocationErrCode errorCode =
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::REG_LOCATION_ERROR), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::StartLocating Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
+
+LocationErrCode LocatorProxy::UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
+{
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "StopLocating callback is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errorCode =
+        SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATION_ERROR), callback->AsObject());
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::StopLocatingV9 Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
 } // namespace Location
 } // namespace OHOS

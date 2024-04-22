@@ -157,6 +157,7 @@ void Request::SetLastLocation(const std::unique_ptr<Location>& location)
     this->lastLocation_->SetDirection(location->GetDirection());
     this->lastLocation_->SetTimeStamp(location->GetTimeStamp());
     this->lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
+    this->lastLocation_->SetLocationSourceType(location->GetLocationSourceType());
 }
 
 void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
@@ -167,6 +168,12 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
 #ifdef EMULATOR_ENABLED
     proxys->push_back(GNSS_ABILITY);
 #else
+    if (GetProxyNameByLocationScenario(proxys)) {
+        return;
+    }
+    if (GetProxyNameByLocationPriority(proxys)) {
+        return;
+    }
     switch (requestConfig_->GetScenario()) {
         case SCENE_NAVIGATION:
         case SCENE_TRAJECTORY_TRACKING:
@@ -216,6 +223,59 @@ void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> pro
 #endif
 }
 
+bool Request::GetProxyNameByLocationScenario(std::shared_ptr<std::list<std::string>> proxys)
+{
+    if (requestConfig_ == nullptr || proxys == nullptr) {
+        return false;
+    }
+#ifdef EMULATOR_ENABLED
+    proxys->push_back(GNSS_ABILITY);
+#else
+    switch (requestConfig_->GetLocationScenario()) {
+        case LOCATION_SCENE_UNSET:
+            return false;
+        case LOCATION_SCENE_NAVIGATION:
+        case LOCATION_SCENE_SPORT:
+        case LOCATION_SCENE_TRANSPORT:
+            proxys->push_back(GNSS_ABILITY);
+            proxys->push_back(NETWORK_ABILITY);
+            return true;
+        case LOCATION_SCENE_DAILY_LIFE_SERVICE:
+            proxys->push_back(NETWORK_ABILITY);
+            return true;
+        default:
+            return false;
+    }
+#endif
+}
+
+bool Request::GetProxyNameByLocationPriority(std::shared_ptr<std::list<std::string>> proxys)
+{
+    if (requestConfig_ == nullptr || proxys == nullptr) {
+        return false;
+    }
+#ifdef EMULATOR_ENABLED
+    proxys->push_back(GNSS_ABILITY);
+#else
+    switch (requestConfig_->GetLocationPriority()) {
+        case LOCATION_PRIORITY_UNSET:
+            return false;
+        case LOW_POWER_CONSUMPTION:
+            proxys->push_back(NETWORK_ABILITY);
+            return true;
+        case LOCATION_PRIORITY_ACCURACY:
+        case LOCATION_PRIORITY_LOCATING_SPEED:
+        case HIGH_POWER_CONSUMPTION:
+        case NO_POWER_CONSUMPTION:
+            proxys->push_back(GNSS_ABILITY);
+            proxys->push_back(NETWORK_ABILITY);
+            return true;
+        default:
+            return false;
+    }
+#endif
+}
+
 bool Request::GetLocationPermState()
 {
     return isUsingLocationPerm_;
@@ -246,6 +306,16 @@ void Request::SetApproximatelyPermState(bool state)
     isUsingApproximatelyPerm_ = state;
 }
 
+void Request::SetLocationRequestType(int locationRequestType)
+{
+    locationRequestType_ = locationRequestType;
+}
+
+int Request::GetLocationRequestType(int locationRequestType)
+{
+    return locationRequestType_;
+}
+
 std::string Request::ToString() const
 {
     if (requestConfig_ == nullptr) {
@@ -260,5 +330,16 @@ std::string Request::ToString() const
         ", uuid:" + uuid_ + ", packageName:" + packageName_;
     return str;
 }
+
+void Request::SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback)
+{
+    this->locationErrorcallBack_ = callback;
+}
+
+sptr<ILocatorCallback> Request::GetLocationErrorCallBack()
+{
+    return locationErrorcallBack_;
+}
+
 } // namespace Location
 } // namespace OHOS

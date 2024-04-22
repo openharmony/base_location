@@ -450,7 +450,7 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     // add request info to work record
     if (workRecord != nullptr) {
         workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName(),
-            requestConfig->GetTimeInterval(), request->GetUuid());
+            requestConfig->GetTimeInterval(), request->GetUuid(), GetLocationRequestType(requestConfig));
     }
     return true;
 }
@@ -625,6 +625,20 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
     }
 }
 
+int RequestManager::GetLocationRequestType(const sptr<RequestConfig>& requestConfig)
+{
+    if (requestConfig->GetLocationScenario() == LOCATION_SCENE_NAVIGATION ||
+        requestConfig->GetLocationScenario() == LOCATION_SCENE_SPORT ||
+        requestConfig->GetLocationScenario() == LOCATION_SCENE_TRANSPORT ||
+        requestConfig->GetLocationPriority() == HIGH_POWER_CONSUMPTION ||
+        requestConfig->GetLocationPriority() == LOCATION_PRIORITY_ACCURACY ||
+        requestConfig->GetLocationPriority() == LOCATION_PRIORITY_LOCATING_SPEED) {
+        return LocationRequestType::PRIORITY_TYPE_INDOOR;
+    } else {
+        return LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;
+    }
+}
+
 void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
 {
 #ifdef RES_SCHED_SUPPROT
@@ -635,6 +649,34 @@ void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
     int64_t value =  ResourceSchedule::ResType::LocationStatus::APP_LOCATION_STATE_CHANGE;
     ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
 #endif
+}
+
+void RequestManager::UpdateLocationErrorCallbackToRequest(
+    sptr<ILocatorCallback>& callback, uint32_t tokenId, bool state)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return;
+    }
+    auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr || requests->empty()) {
+        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        return;
+    }
+    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
+        auto list = mapIter->second;
+        for (auto request : list) {
+            if (request == nullptr || tokenId != request->GetTokenId()) {
+                continue;
+            }
+            if (state) {
+                request->SetLocationErrorCallBack(callback);
+            } else {
+                request->SetLocationErrorCallBack(nullptr);
+            }
+        }
+    }
 }
 } // namespace Location
 } // namespace OHOS

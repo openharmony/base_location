@@ -58,19 +58,27 @@ public:
     void SetLocationPermState(bool state);
     void SetBackgroundPermState(bool state);
     void SetApproximatelyPermState(bool state);
+    void SetLocationRequestType(int locationRequestType);
+    int GetLocationRequestType(int locationRequestType);
+    void SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback);
+    sptr<ILocatorCallback> GetLocationErrorCallBack();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
+    bool GetProxyNameByLocationScenario(std::shared_ptr<std::list<std::string>> proxys);
+    bool GetProxyNameByLocationPriority(std::shared_ptr<std::list<std::string>> proxys);
 
     pid_t uid_;
     pid_t pid_;
     uint32_t tokenId_;
     uint64_t tokenIdEx_;
     uint32_t firstTokenId_;
+    int locationRequestType_;
     sptr<Location> lastLocation_;
     std::string packageName_;
     std::string uuid_;
     sptr<RequestConfig> requestConfig_;
     sptr<ILocatorCallback> callBack_;
+    sptr<ILocatorCallback> locationErrorcallBack_;
     bool isRequesting_;
     bool isUsingLocationPerm_;
     bool isUsingBackgroundPerm_;

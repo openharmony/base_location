@@ -25,6 +25,7 @@
 #include "locator_callback_host.h"
 #include "nmea_message_callback_host.h"
 #include "request_config.h"
+#include "location_error_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -38,6 +39,7 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
 bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
 #ifdef ENABLE_NAPI_MANAGER
 bool OnLocatingRequiredDataChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_value* argv);
 #endif
 
 void InitOffFuncMap();
@@ -56,7 +58,7 @@ bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler
 #ifdef ENABLE_NAPI_MANAGER
 bool OffAllLocatingRequiredDataChangeCallback(const napi_env& env);
 bool OffLocatingRequiredDataChangeCallback(const napi_env& env, const napi_value& handler);
-
+bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler);
 #endif
 
 void SubscribeLocationServiceState(const napi_env& env,
@@ -99,6 +101,8 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
 LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler);
 LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<LocatingRequiredDataCallbackHost>& locatingCallbackHost);
+LocationErrCode SubscribeLocationError(const napi_env& env, const napi_value& object,
+    const napi_ref& handlerRef, sptr<LocationErrorCallbackHost>& locationErrorCallbackHost);
 LocationErrCode UnSubscribeLocationChangeV9(sptr<ILocatorCallback>& callback);
 LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env,
     const napi_value& object, const napi_value& handler);
@@ -107,6 +111,7 @@ LocationErrCode UnSubscribeLocationServiceStateV9(sptr<LocationSwitchCallbackHos
 LocationErrCode UnSubscribeGnssStatusV9(sptr<GnssStatusCallbackHost>& gnssStatusCallbackHost);
 LocationErrCode UnSubscribeNmeaMessageV9(sptr<NmeaMessageCallbackHost>& nmeaMessageCallbackHost);
 LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataCallbackHost>& callbackHost);
+LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
 napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const napi_value* argv);
 LocationErrCode CheckLocationSwitchEnable();
 #endif

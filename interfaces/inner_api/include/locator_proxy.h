@@ -124,6 +124,8 @@ public:
     LocationErrCode RegisterLocatingRequiredDataCallback(
         std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
+    LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
+    LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
 private:
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };

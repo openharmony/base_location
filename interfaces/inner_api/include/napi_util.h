@@ -88,6 +88,8 @@ bool CheckIfParamIsFunctionType(napi_env env, napi_value param);
 napi_value SetEnumPropertyByInteger(napi_env env, napi_value dstObj, int32_t enumValue, const char *enumName);
 bool CheckIfParamIsObjectType(napi_env env, napi_value param);
 napi_value GetNapiValueByKey(napi_env env, const std::string& keyChar, napi_value object);
+napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& additionsMap);
+napi_status SetValueStringMap(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

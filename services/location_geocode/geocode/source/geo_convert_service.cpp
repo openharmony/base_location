@@ -218,6 +218,8 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
     dataParcel.WriteRemoteObject(callback->AsObject());
+    dataParcel.WriteString16(data.ReadString16()); // transId
+    dataParcel.WriteString16(data.ReadString16()); // country
     bool ret = SendGeocodeRequest(REQUEST_REVERSE_GEOCODE, dataParcel, replyParcel, option);
     if (!ret) {
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
@@ -285,6 +287,8 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
         return ERRCODE_GEOCODING_FAIL;
     }
     dataParcel.WriteRemoteObject(callback->AsObject());
+    dataParcel.WriteString16(data.ReadString16()); // transId
+    dataParcel.WriteString16(data.ReadString16()); // country
     bool ret = SendGeocodeRequest(REQUEST_GEOCODE, dataParcel, replyParcel, option);
     if (!ret) {
         reply.WriteInt32(ERRCODE_GEOCODING_FAIL);

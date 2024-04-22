@@ -68,9 +68,12 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
-            OnLocationReport(location);
-            std::unique_lock<std::mutex> guard(mutex_);
-            singleLocation_ = std::move(location);
+            if (locationPriority_ != LOCATION_PRIORITY_ACCURACY || IfReportAccuracyLocation(location)) {
+                OnLocationReport(location);
+            }
+            if (locationPriority_ != LOCATION_PRIORITY_ACCURACY) {
+                SetSingleLocation(location);
+            }
             CountDown();
             break;
         }
@@ -307,7 +310,7 @@ bool LocatorCallbackHost::IsSingleLocationRequest()
 
 void LocatorCallbackHost::CountDown()
 {
-    if (IsSingleLocationRequest() && latch_ != nullptr) {
+    if (IsSingleLocationRequest() && latch_ != nullptr && locationPriority_ != LOCATION_PRIORITY_ACCURACY) {
         latch_->CountDown();
     }
 }
@@ -332,6 +335,41 @@ void LocatorCallbackHost::SetCount(int count)
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         return latch_->SetCount(count);
     }
+}
+
+bool LocatorCallbackHost::IfReportAccuracyLocation(const std::unique_ptr<Location>& location)
+{
+    LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
+    if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
+        LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
+        SetSingleLocation(location);
+        return true;
+    } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE) {
+        if (singleLocation_ != nullptr && singleLocation_->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
+            LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
+            return false;
+        } else {
+            SetSingleLocation(location);
+            LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
+            return true;
+        }
+    } else if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
+        if (singleLocation_ == nullptr) {
+            LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
+            SetSingleLocation(location);
+        }
+        LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
+        return false;
+    } else {
+        LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
+        return true;
+    }
+}
+
+void LocatorCallbackHost::SetSingleLocation(const std::unique_ptr<Location>& location)
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    singleLocation_ = std::make_shared<Location>(*location);
 }
 } // namespace Location
 } // namespace OHOS

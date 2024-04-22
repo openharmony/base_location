@@ -38,7 +38,8 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
         std::string name = parcel.ReadString();
         int timeInterval = parcel.ReadInt32();
         std::string uuid = parcel.ReadString();
-        Add(uid, pid, name, timeInterval, uuid);
+        int locationRequestType = parcel.ReadInt32();
+        Add(uid, pid, name, timeInterval, uuid, locationRequestType);
     }
     deviceId_ = parcel.ReadString();
 }
@@ -60,6 +61,7 @@ bool WorkRecord::Marshalling(Parcel& parcel) const
         parcel.WriteString(names_[i]);
         parcel.WriteInt32(timeInterval_[i]);
         parcel.WriteString(uuid_[i]);
+        parcel.WriteInt32(locationRequestType_[i]);
     }
     parcel.WriteString(deviceId_);
     return true;
@@ -173,7 +175,7 @@ bool WorkRecord::IsEmpty()
     return false;
 }
 
-bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::string uuid)
+bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::string uuid, int locationRequestType)
 {
     std::unique_lock<std::mutex> lock(workRecordMutex_);
     uids_.push_back(uid);
@@ -181,6 +183,7 @@ bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::
     names_.push_back(name);
     timeInterval_.push_back(timeInterval);
     uuid_.push_back(uuid);
+    locationRequestType_.push_back(locationRequestType);
     num_++;
     return true;
 }
@@ -207,6 +210,7 @@ bool WorkRecord::Remove(int uid, int pid, std::string name, std::string uuid)
     names_.erase(names_.begin() + i);
     timeInterval_.erase(timeInterval_.begin() + i);
     uuid_.erase(uuid_.begin() + i);
+    locationRequestType_.erase(locationRequestType_.begin() + i);
     num_--;
     return true;
 }
@@ -231,6 +235,7 @@ bool WorkRecord::Remove(std::string name)
     names_.erase(names_.begin() + i);
     timeInterval_.erase(timeInterval_.begin() + i);
     uuid_.erase(uuid_.begin() + i);
+    locationRequestType_.erase(locationRequestType_.begin() + i);
     num_--;
     return true;
 }
@@ -260,6 +265,7 @@ void WorkRecord::Clear()
     names_.clear();
     timeInterval_.clear();
     uuid_.clear();
+    locationRequestType_.clear();
     num_ = 0;
 }
 
@@ -273,8 +279,18 @@ void WorkRecord::Set(WorkRecord &workRecord)
         std::string name = workRecord.GetName(i);
         int timeInterval = workRecord.GetTimeInterval(i);
         std::string uuid = workRecord.GetUuid(i);
-        Add(uid, pid, name, timeInterval, uuid);
+        int locationRequestType = workRecord.GetLocationRequestType(i);
+        Add(uid, pid, name, timeInterval, uuid, locationRequestType);
     }
+}
+
+int WorkRecord::GetLocationRequestType(int index)
+{
+    std::unique_lock<std::mutex> lock(workRecordMutex_);
+    if (index >= 0 && index < num_) {
+        return locationRequestType_[index];
+    }
+    return -1;
 }
 } // namespace Location
 } // namespace OHOS

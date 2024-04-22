@@ -627,6 +627,22 @@ public:
      * @return Returns ERRCODE_SUCCESS if Unsubscribe to changes in WiFi/BT scanning information successfully.
      */
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
+
+    /**
+     * @brief Subscribe location error changed.
+     *
+     * @param callback Indicates the callback for reporting the location error result.
+     * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
+     */
+    LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
+    
+    /**
+     * @brief Unsubscribe location errorcode changed.
+     *
+     * @param callback Indicates the callback for reporting the location error result.
+     * @return Returns ERRCODE_SUCCESS if Unsubscribe error changed succeed.
+     */
+    LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<LocatorProxy> GetProxy();
     bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);

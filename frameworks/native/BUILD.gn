@@ -50,6 +50,7 @@ ohos_shared_library("locator_sdk") {
     "$LOCATION_NATIVE_DIR/source/locating_required_data_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_manager.cpp",
     "$LOCATION_NATIVE_DIR/source/location_data_rdb_observer.cpp",
+    "$LOCATION_NATIVE_DIR/source/location_error_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/location_switch_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/source/locator.cpp",
     "$LOCATION_NATIVE_DIR/source/locator_callback_host.cpp",

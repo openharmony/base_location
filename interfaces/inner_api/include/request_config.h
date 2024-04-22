@@ -107,6 +107,46 @@ public:
         return timestamp_;
     }
 
+    inline void SetInterval(int interval)
+    {
+        interval_ = interval;
+    }
+
+    inline int GetInterval()
+    {
+        return interval_;
+    }
+
+    inline void SetLocationScenario(int locationScenario)
+    {
+        locationScenario_ = locationScenario;
+    }
+
+    inline int GetLocationScenario()
+    {
+        return locationScenario_;
+    }
+
+    inline void SetLocatingTimeoutMs(int locatingTimeoutMs)
+    {
+        locatingTimeoutMs_ = locatingTimeoutMs;
+    }
+
+    inline int GetLocationTimeoutMs()
+    {
+        return locatingTimeoutMs_;
+    }
+
+    inline void SetLocatingPriority(int locatingPriority)
+    {
+        locatingPriority_ = locatingPriority;
+    }
+
+    inline int GetLocationPriority()
+    {
+        return locatingPriority_;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -116,12 +156,16 @@ public:
 private:
     int scenario_;
     int timeInterval_; /* Units are seconds */
-    double distanceInterval_;
+    double distanceInterval_ = 0.0;
     float maxAccuracy_;
     int fixNumber_;
     int priority_;
     int timeOut_;
     int64_t timestamp_;
+    int interval_ = 1;
+    int locationScenario_;
+    int locatingTimeoutMs_;
+    int locatingPriority_;
 };
 } // namespace Location
 } // namespace OHOS

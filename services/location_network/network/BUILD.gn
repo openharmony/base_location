@@ -17,10 +17,6 @@ import("//build/ohos.gni")
 if (location_feature_with_network) {
   ohos_shared_library("lbsservice_network") {
     sources = [
-      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
       "$LOCATION_NETWORK_ROOT/source/network_ability.cpp",
       "$LOCATION_NETWORK_ROOT/source/network_ability_skeleton.cpp",
       "$LOCATION_NETWORK_ROOT/source/network_callback_host.cpp",
@@ -34,6 +30,7 @@ if (location_feature_with_network) {
 
     deps = [
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     ]
 
     external_deps = [

@@ -129,6 +129,35 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     if (isFromMock != -1) {
         SetValueBool(env, "isFromMock", (locationInfo->GetIsFromMock() == 1), result);
     }
+    napi_value additionMap = CreateJsMap(env, locationInfo->GetAdditionsMap());
+    SetValueStringMap(env, "additionsMap", additionMap, result);
+    SetValueDouble(env, "altitudeAccuracy", locationInfo->GetAltitudeAccuracy(), result);
+    SetValueDouble(env, "speedAccuracy", locationInfo->GetSpeedAccuracy(), result);
+    SetValueDouble(env, "directionAccuracy", locationInfo->GetDirectionAccuracy(), result);
+    SetValueInt64(env, "uncertaintyOfTimeSinceBoot", locationInfo->GetUncertaintyOfTimeSinceBoot(), result);
+    SetValueInt32(env, "sourceType", locationInfo->GetLocationSourceType(), result);
+}
+
+napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& additionsMap)
+{
+    napi_value global = nullptr;
+    napi_value mapFunc = nullptr;
+    napi_value map = nullptr;
+    NAPI_CALL(env, napi_get_global(env, &global));
+    NAPI_CALL(env, napi_get_named_property(env, global, "Map", &mapFunc));
+    NAPI_CALL(env, napi_new_instance(env, mapFunc, 0, nullptr, &map));
+    napi_value setFunc = nullptr;
+    NAPI_CALL(env, napi_get_named_property(env, map, "set", &setFunc));
+    for (auto iter : additionsMap) {
+        LBSLOGE(LOCATOR_STANDARD, "CreateJsMap");
+        napi_value key = nullptr;
+        napi_value value = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, iter.first.c_str(), NAPI_AUTO_LENGTH, &key));
+        NAPI_CALL(env, napi_create_string_utf8(env, iter.second.c_str(), NAPI_AUTO_LENGTH, &value));
+        napi_value setArgs[] = { key, value };
+        NAPI_CALL(env, napi_call_function(env, map, setFunc, sizeof(setArgs) / sizeof(setArgs[0]), setArgs, nullptr));
+    }
+    return map;
 }
 
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result)
@@ -265,36 +294,28 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     double valueDouble = 0.0;
     if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
-    } else {
-        requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     }
-
     if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         requestConfig->SetScenario(value);
-    } else {
-        requestConfig->SetScenario(SCENE_UNSET);
     }
-
     if (JsObjectToInt(env, object, "timeInterval", value) == SUCCESS) {
         if (value >= 0 && value < 1) {
             requestConfig->SetTimeInterval(1);
         } else {
             requestConfig->SetTimeInterval(value);
         }
-    } else {
-        requestConfig->SetTimeInterval(1);
     }
-
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
-    } else {
-        requestConfig->SetMaxAccuracy(0);
     }
-
     if (JsObjectToDouble(env, object, "distanceInterval", valueDouble) == SUCCESS) {
         requestConfig->SetDistanceInterval(valueDouble);
-    } else {
-        requestConfig->SetDistanceInterval(0);
+    }
+    if (JsObjectToInt(env, object, "interval", value) == SUCCESS) {
+        requestConfig->SetInterval(value);
+    }
+    if (JsObjectToInt(env, object, "locationScenario", value) == SUCCESS) {
+        requestConfig->SetLocationScenario(value);
     }
 }
 
@@ -324,23 +345,22 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     double valueDouble = 0.0;
     if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
-    } else {
-        requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     }
     if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
         requestConfig->SetScenario(value);
-    } else {
-        requestConfig->SetScenario(SCENE_UNSET);
     }
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
-    } else {
-        requestConfig->SetMaxAccuracy(0);
     }
     if (JsObjectToInt(env, object, "timeoutMs", value) == SUCCESS) {
         requestConfig->SetTimeOut(value);
-    } else {
-        requestConfig->SetTimeOut(DEFAULT_TIMEOUT_30S);
+    }
+    if (JsObjectToInt(env, object, "locatingTimeoutMs", value) == SUCCESS) {
+        requestConfig->SetLocatingTimeoutMs(value);
+        requestConfig->SetTimeOut(value);
+    }
+    if (JsObjectToInt(env, object, "locatingPriority", value) == SUCCESS) {
+        requestConfig->SetLocatingPriority(value);
     }
 }
 
@@ -365,6 +385,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     double maxLongitude = 0.0;
     std::string locale = "zh";
     int bufLen = MAX_BUF_LEN;
+    std::string country = "";
     CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", bufLen, locale), false);
     CHK_ERROR_CODE("description", JsObjectToString(env, object, "description", bufLen, description), true);
     if (description == "") {
@@ -376,6 +397,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     CHK_ERROR_CODE("minLongitude", JsObjectToDouble(env, object, "minLongitude", minLongitude), false);
     CHK_ERROR_CODE("maxLatitude", JsObjectToDouble(env, object, "maxLatitude", maxLatitude), false);
     CHK_ERROR_CODE("maxLongitude", JsObjectToDouble(env, object, "maxLongitude", maxLongitude), false);
+    CHK_ERROR_CODE("country", JsObjectToString(env, object, "country", MAX_BUF_LEN, country), false);
     if (minLatitude < MIN_LATITUDE || minLatitude > MAX_LATITUDE) {
         return INPUT_PARAMS_ERROR;
     }
@@ -399,6 +421,8 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     dataParcel.WriteDouble(minLongitude); // longitude
     dataParcel.WriteDouble(maxLatitude); // latitude
     dataParcel.WriteDouble(maxLongitude); // longitude
+    dataParcel.WriteString16(Str8ToStr16(CommonUtils::GenerateUuid())); // transId
+    dataParcel.WriteString16(Str8ToStr16(country)); // country
     return SUCCESS;
 }
 
@@ -408,11 +432,13 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     double longitude = 0;
     int maxItems = 1;
     std::string locale = "zh";
+    std::string country = "";
 
     CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
     CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
     CHK_ERROR_CODE("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
     CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale), false); // max bufLen
+    CHK_ERROR_CODE("country", JsObjectToString(env, object, "country", MAX_BUF_LEN, country), false);
 
     if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
         return false;
@@ -427,6 +453,8 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     dataParcel.WriteDouble(latitude); // latitude
     dataParcel.WriteDouble(longitude); // longitude
     dataParcel.WriteInt32(maxItems); // maxItems
+    dataParcel.WriteString16(Str8ToStr16(CommonUtils::GenerateUuid())); // transId
+    dataParcel.WriteString16(Str8ToStr16(country)); // country
     return true;
 }
 
@@ -739,6 +767,12 @@ napi_status SetValueUtf8String(const napi_env& env, const char* fieldStr, const 
 }
 
 napi_status SetValueStringArray(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result)
+{
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
+}
+
+napi_status SetValueStringMap(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result)
 {
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
     return napi_ok;

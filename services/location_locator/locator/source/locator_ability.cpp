@@ -860,7 +860,9 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
 {
     if (requestConfig->GetFixNumber() == 1 &&
-        ((requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
+        requestConfig->GetLocationPriority() != LOCATION_PRIORITY_ACCURACY &&
+        ((requestConfig->GetLocationPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
+        (requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_FAST_FIRST_FIX)) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_LOW_POWER)))) {
         return true;
@@ -951,8 +953,10 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
         locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
     }
-    loc = reportManager_->GetPermittedLocation(identity.GetUid(), identity.GetTokenId(),
-        identity.GetFirstTokenId(), identity.GetTokenIdEx(), lastLocation);
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    sptr<ILocatorCallback> callback;
+    auto request = InitRequest(requestConfig, callback, identity);
+    loc = reportManager_->GetPermittedLocation(request, lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     if (loc == nullptr) {
         UpdatePermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
@@ -1087,6 +1091,8 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
+    dataParcel.WriteString16(data.ReadString16()); // transId
+    dataParcel.WriteString16(data.ReadString16()); // country
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
     int errorCode = reply.ReadInt32();
@@ -1118,6 +1124,8 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
+    dataParcel.WriteString16(data.ReadString16()); // transId
+    dataParcel.WriteString16(data.ReadString16()); // country
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
     int errorCode = reply.ReadInt32();
@@ -1292,6 +1300,52 @@ void LocatorAbility::ReportDataToResSched(std::string state)
     int64_t value =  ResourceSchedule::ResType::LocationStatus::LOCATION_SWITCH_CHANGE;
     ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
 #endif
+}
+
+LocationErrCode LocatorAbility::RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
+{
+    // update offset before add request
+    if (requestManager_ == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    requestManager_->UpdateLocationErrorCallbackToRequest(callback, identity.GetTokenId(), true);
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocatorAbility::UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
+{
+    if (requestManager_ == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    requestManager_->UpdateLocationErrorCallbackToRequest(callback, identity.GetTokenId(), false);
+    return ERRCODE_SUCCESS;
+}
+
+void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return;
+    }
+    auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr || requests->empty()) {
+        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        return;
+    }
+    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
+        auto list = mapIter->second;
+        for (auto request : list) {
+            if (uuid != "" && uuid != request->GetUuid()) {
+                continue;
+            }
+            auto locationErrorCallbackHost = request->GetLocationErrorCallBack();
+            if (locationErrorCallbackHost != nullptr) {
+                LBSLOGE(LOCATOR, "errCode : %{public}d ,uuid : %{public}s", errCode, uuid.c_str());
+                locationErrorCallbackHost->OnErrorReport(errCode);
+            }
+        }
+    }
 }
 
 void LocationMessage::SetAbilityName(std::string abilityName)

@@ -138,6 +138,9 @@ public:
     LocationErrCode UnregisterBluetoothScanInfoCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterBleScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterBleScanInfoCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
+    LocationErrCode UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
+    void ReportLocationError(std::string uuid, int32_t errCode);
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();

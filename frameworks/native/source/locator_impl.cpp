@@ -1236,6 +1236,42 @@ LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocati
     return proxy->UnRegisterLocatingRequiredDataCallback(callback);
 }
 
+LocationErrCode LocatorImpl::SubscribeLocationError(sptr<ILocatorCallback>& callback)
+{
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StartLocatingV9()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->SubscribeLocationError(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "SubscribeLocationError failed.");
+    }
+    return errCode;
+}
+
+LocationErrCode LocatorImpl::UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
+{
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopLocatingV9()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->UnSubscribeLocationError(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "UnSubscribeLocationError failed.");
+    }
+    return errCode;
+}
+
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {

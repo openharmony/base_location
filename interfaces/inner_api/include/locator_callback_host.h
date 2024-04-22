@@ -142,11 +142,24 @@ public:
         deferred_ = deferred;
     }
 
+    inline void SetLocationPriority(const int locationPriority)
+    {
+        locationPriority_ = locationPriority;
+    }
+
+    inline int GetLocationPriority()
+    {
+        return locationPriority_;
+    }
+
     inline std::shared_ptr<Location> GetSingleLocation()
     {
         std::unique_lock<std::mutex> guard(mutex_);
         return singleLocation_;
     }
+
+    bool IfReportAccuracyLocation(const std::unique_ptr<Location>& location);
+    void SetSingleLocation(const std::unique_ptr<Location>& location);
 
 private:
     napi_env env_;
@@ -159,6 +172,7 @@ private:
     std::mutex mutex_;
     CountDownLatch* latch_;
     std::shared_ptr<Location> singleLocation_;
+    int locationPriority_;
 };
 } // namespace Location
 } // namespace OHOS

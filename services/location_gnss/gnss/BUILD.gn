@@ -21,10 +21,6 @@ if (location_feature_with_gnss) {
       "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
     ]
 
     include_dirs = [
@@ -42,6 +38,7 @@ if (location_feature_with_gnss) {
 
     deps = [
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     ]
 
     external_deps = [

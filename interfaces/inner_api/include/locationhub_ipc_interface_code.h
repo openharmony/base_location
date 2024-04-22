@@ -64,6 +64,9 @@ enum class LocatorInterfaceCode {
     REPORT_LOCATION = 42,
     REG_LOCATING_REQUIRED_DATA_CALLBACK = 43,
     UNREG_LOCATING_REQUIRED_DATA_CALLBACK = 44,
+    REG_LOCATION_ERROR = 45,
+    UNREG_LOCATION_ERROR = 46,
+    REPORT_LOCATION_ERROR = 47,
 };
 
 enum class GeoConvertInterfaceCode {
