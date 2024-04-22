@@ -363,7 +363,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     double minLongitude = 0.0;
     double maxLatitude = 0.0;
     double maxLongitude = 0.0;
-    std::string locale = "";
+    std::string locale = "zh";
     int bufLen = MAX_BUF_LEN;
     CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", bufLen, locale), false);
     CHK_ERROR_CODE("description", JsObjectToString(env, object, "description", bufLen, description), true);
@@ -407,7 +407,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     double latitude = 0;
     double longitude = 0;
     int maxItems = 1;
-    std::string locale = "";
+    std::string locale = "zh";
 
     CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
     CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
