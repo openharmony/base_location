@@ -40,6 +40,9 @@
 #include "geofence_request.h"
 #include "locationhub_ipc_interface_code.h"
 #include "geofence_event_callback.h"
+#include "ipc_skeleton.h"
+#include "notification_request.h"
+#include "notification_helper.h"
 
 namespace OHOS {
 namespace Location {
@@ -72,7 +75,7 @@ using HDI::Location::Geofence::V2_0::GeofenceEvent;
 using HDI::Location::Geofence::V2_0::GeofenceInfo;
 
 typedef struct {
-    GeofenceRequest request;
+    std::shared_ptr<GeofenceRequest> request;
     sptr<IGeofenceCallback> callback;
     int requestCode;
     int retCode;
@@ -172,6 +175,9 @@ public:
     bool UnregisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request);
     std::shared_ptr<GeofenceRequest> GetGeofenceRequestByFenceId(int fenceId);
     sptr<IRemoteObject> GetGnssGeofenceCallbackByFenceId(int fenceId);
+    void ReportGeofenceEvent(int32_t fenceId, int event);
+    void ReportAddGeofenceOperationSuccess(int32_t fenceId);
+
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -208,6 +214,7 @@ private:
     sptr<IGeofenceCallback> geofenceCallback_;
     int32_t fenceId_;
     std::mutex fenceIdMutex_;
+    std::mutex gnssGeofenceRequestMapMutex_;
     std::map<std::shared_ptr<GeofenceRequest>, sptr<IRemoteObject>> gnssGeofenceRequestMap_;
 };
 

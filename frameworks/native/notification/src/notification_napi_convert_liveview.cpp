@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "common.h"
+#include "notification_napi.h"
 #include "ans_inner_errors.h"
 #include "location_log.h"
 #include "js_native_api.h"
@@ -30,7 +30,7 @@
 
 namespace OHOS {
 namespace Location {
-napi_value Common::GetNotificationLocalLiveViewContent(
+napi_value NotificationNapi::GetNotificationLocalLiveViewContent(
     const napi_env &env, const napi_value &result, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -69,7 +69,7 @@ napi_value Common::GetNotificationLocalLiveViewContent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLocalLiveViewCapsule(
+napi_value NotificationNapi::GetNotificationLocalLiveViewCapsule(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationLocalLiveViewContent> content)
 {
@@ -143,7 +143,7 @@ napi_value Common::GetNotificationLocalLiveViewCapsule(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLocalLiveViewButton(
+napi_value NotificationNapi::GetNotificationLocalLiveViewButton(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationLocalLiveViewContent> content)
 {
@@ -224,7 +224,7 @@ napi_value Common::GetNotificationLocalLiveViewButton(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLocalLiveViewProgress(const napi_env &env, const napi_value &contentResult,
+napi_value NotificationNapi::GetNotificationLocalLiveViewProgress(const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationLocalLiveViewContent> content)
 {
     napi_value result = nullptr;
@@ -290,7 +290,7 @@ napi_value Common::GetNotificationLocalLiveViewProgress(const napi_env &env, con
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLocalLiveViewTime(const napi_env &env, const napi_value &contentResult,
+napi_value NotificationNapi::GetNotificationLocalLiveViewTime(const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationLocalLiveViewContent> content)
 {
     napi_value result = nullptr;
@@ -370,7 +370,7 @@ napi_value Common::GetNotificationLocalLiveViewTime(const napi_env &env, const n
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLocalLiveViewContentDetailed(
+napi_value NotificationNapi::GetNotificationLocalLiveViewContentDetailed(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationLocalLiveViewContent> content)
 {
@@ -430,7 +430,7 @@ napi_value Common::GetNotificationLocalLiveViewContentDetailed(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLiveViewContent(
+napi_value NotificationNapi::GetNotificationLiveViewContent(
     const napi_env &env, const napi_value &result, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -456,7 +456,7 @@ napi_value Common::GetNotificationLiveViewContent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLiveViewContentDetailed(
+napi_value NotificationNapi::GetNotificationLiveViewContentDetailed(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<NotificationLiveViewContent> &liveViewContent)
 {
@@ -523,7 +523,7 @@ napi_value Common::GetNotificationLiveViewContentDetailed(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetLiveViewPictures(
+napi_value NotificationNapi::GetLiveViewPictures(
     const napi_env &env, const napi_value &picturesObj,
     std::vector<std::shared_ptr<Media::PixelMap>> &pictures)
 {
@@ -563,7 +563,7 @@ napi_value Common::GetLiveViewPictures(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetLiveViewPictureInfo(
+napi_value NotificationNapi::GetLiveViewPictureInfo(
     const napi_env &env, const napi_value &pictureMapObj,
     std::map<std::string, std::vector<std::shared_ptr<Media::PixelMap>>> &pictureMap)
 {

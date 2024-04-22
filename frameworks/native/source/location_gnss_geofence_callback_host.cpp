@@ -138,7 +138,8 @@ void LocationGnssGeofenceCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                     scope, context, work);
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler), scope, context, work);
+                    napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
+                    scope, context, work);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
                     jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "Report event failed");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "common.h"
+#include "notification_napi.h"
 #include "ans_inner_errors.h"
 #include "location_log.h"
 #include "js_native_api.h"
@@ -30,16 +30,16 @@
 
 namespace OHOS {
 namespace Location {
-std::set<std::shared_ptr<AbilityRuntime::WantAgent::WantAgent>> Common::wantAgent_;
-std::mutex Common::mutex_;
+std::set<std::shared_ptr<AbilityRuntime::WantAgent::WantAgent>> NotificationNapi::wantAgent_;
+std::mutex NotificationNapi::mutex_;
 
-Common::Common()
+NotificationNapi::NotificationNapi()
 {}
 
-Common::~Common()
+NotificationNapi::~NotificationNapi()
 {}
 
-napi_value Common::GetNotificationSubscriberInfo(
+napi_value NotificationNapi::GetNotificationSubscriberInfo(
     const napi_env &env, const napi_value &value, NotificationSubscribeInfo &subscriberInfo)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -96,7 +96,7 @@ napi_value Common::GetNotificationSubscriberInfo(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInput(
+napi_value NotificationNapi::GetNotificationUserInput(
     const napi_env &env, const napi_value &actionButton, std::shared_ptr<NotificationActionButton> &pActionButton)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -124,7 +124,7 @@ napi_value Common::GetNotificationUserInput(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInputByInputKey(
+napi_value NotificationNapi::GetNotificationUserInputByInputKey(
     const napi_env &env, const napi_value &userInputResult, std::shared_ptr<NotificationUserInput> &userInput)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -157,7 +157,7 @@ napi_value Common::GetNotificationUserInputByInputKey(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInputByTag(
+napi_value NotificationNapi::GetNotificationUserInputByTag(
     const napi_env &env, const napi_value &userInputResult, std::shared_ptr<NotificationUserInput> &userInput)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -191,7 +191,7 @@ napi_value Common::GetNotificationUserInputByTag(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInputByOptions(
+napi_value NotificationNapi::GetNotificationUserInputByOptions(
     const napi_env &env, const napi_value &userInputResult, std::shared_ptr<NotificationUserInput> &userInput)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -244,7 +244,7 @@ napi_value Common::GetNotificationUserInputByOptions(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInputByPermitMimeTypes(
+napi_value NotificationNapi::GetNotificationUserInputByPermitMimeTypes(
     const napi_env &env, const napi_value &userInputResult, std::shared_ptr<NotificationUserInput> &userInput)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -292,7 +292,7 @@ napi_value Common::GetNotificationUserInputByPermitMimeTypes(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInputByPermitFreeFormInput(
+napi_value NotificationNapi::GetNotificationUserInputByPermitFreeFormInput(
     const napi_env &env, const napi_value &userInputResult, std::shared_ptr<NotificationUserInput> &userInput)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -323,7 +323,7 @@ napi_value Common::GetNotificationUserInputByPermitFreeFormInput(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInputByEditType(
+napi_value NotificationNapi::GetNotificationUserInputByEditType(
     const napi_env &env, const napi_value &userInputResult, std::shared_ptr<NotificationUserInput> &userInput)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -352,7 +352,7 @@ napi_value Common::GetNotificationUserInputByEditType(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUserInputByAdditionalData(
+napi_value NotificationNapi::GetNotificationUserInputByAdditionalData(
     const napi_env &env, const napi_value &userInputResult, std::shared_ptr<NotificationUserInput> &userInput)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -385,7 +385,7 @@ napi_value Common::GetNotificationUserInputByAdditionalData(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationContentType(const napi_env &env, const napi_value &result, int32_t &type)
+napi_value NotificationNapi::GetNotificationContentType(const napi_env &env, const napi_value &result, int32_t &type)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -426,7 +426,7 @@ napi_value Common::GetNotificationContentType(const napi_env &env, const napi_va
     }
 }
 
-napi_value Common::GetNotificationSlot(const napi_env &env, const napi_value &value, NotificationSlot &slot)
+napi_value NotificationNapi::GetNotificationSlot(const napi_env &env, const napi_value &value, NotificationSlot &slot)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -482,7 +482,8 @@ napi_value Common::GetNotificationSlot(const napi_env &env, const napi_value &va
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSlotByString(const napi_env &env, const napi_value &value, NotificationSlot &slot)
+napi_value NotificationNapi::GetNotificationSlotByString(
+    const napi_env &env, const napi_value &value, NotificationSlot &slot)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -528,7 +529,8 @@ napi_value Common::GetNotificationSlotByString(const napi_env &env, const napi_v
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSlotByBool(const napi_env &env, const napi_value &value, NotificationSlot &slot)
+napi_value NotificationNapi::GetNotificationSlotByBool(
+    const napi_env &env, const napi_value &value, NotificationSlot &slot)
 {
     LBSLOGD(NAPI_UTILS, "enter");
     napi_value nobj = nullptr;
@@ -583,7 +585,8 @@ napi_value Common::GetNotificationSlotByBool(const napi_env &env, const napi_val
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSlotByNumber(const napi_env &env, const napi_value &value, NotificationSlot &slot)
+napi_value NotificationNapi::GetNotificationSlotByNumber(
+    const napi_env &env, const napi_value &value, NotificationSlot &slot)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -643,7 +646,8 @@ napi_value Common::GetNotificationSlotByNumber(const napi_env &env, const napi_v
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSlotByVibration(const napi_env &env, const napi_value &value, NotificationSlot &slot)
+napi_value NotificationNapi::GetNotificationSlotByVibration(
+    const napi_env &env, const napi_value &value, NotificationSlot &slot)
 {
     LBSLOGD(NAPI_UTILS, "enter");
     napi_value nobj = nullptr;
@@ -701,7 +705,8 @@ napi_value Common::GetNotificationSlotByVibration(const napi_env &env, const nap
     return NapiGetNull(env);
 }
 
-napi_value Common::GetBundleOption(const napi_env &env, const napi_value &value, NotificationBundleOption &option)
+napi_value NotificationNapi::GetBundleOption(
+    const napi_env &env, const napi_value &value, NotificationBundleOption &option)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -743,7 +748,8 @@ napi_value Common::GetBundleOption(const napi_env &env, const napi_value &value,
     return NapiGetNull(env);
 }
 
-napi_value Common::GetButtonOption(const napi_env &env, const napi_value &value, NotificationButtonOption &option)
+napi_value NotificationNapi::GetButtonOption(
+    const napi_env &env, const napi_value &value, NotificationButtonOption &option)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -771,7 +777,8 @@ napi_value Common::GetButtonOption(const napi_env &env, const napi_value &value,
     return NapiGetNull(env);
 }
 
-napi_value Common::GetHashCodes(const napi_env &env, const napi_value &value, std::vector<std::string> &hashCodes)
+napi_value NotificationNapi::GetHashCodes(
+    const napi_env &env, const napi_value &value, std::vector<std::string> &hashCodes)
 {
     LBSLOGD(NAPI_UTILS, "enter");
     uint32_t length = 0;
@@ -798,7 +805,7 @@ napi_value Common::GetHashCodes(const napi_env &env, const napi_value &value, st
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationKey(const napi_env &env, const napi_value &value, NotificationKey &key)
+napi_value NotificationNapi::GetNotificationKey(const napi_env &env, const napi_value &value, NotificationKey &key)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -838,7 +845,7 @@ napi_value Common::GetNotificationKey(const napi_env &env, const napi_value &val
     return NapiGetNull(env);
 }
 
-bool Common::IsValidRemoveReason(int32_t reasonType)
+bool NotificationNapi::IsValidRemoveReason(int32_t reasonType)
 {
     if (reasonType == NotificationConstant::CLICK_REASON_DELETE ||
         reasonType == NotificationConstant::CANCEL_REASON_DELETE) {
@@ -848,7 +855,8 @@ bool Common::IsValidRemoveReason(int32_t reasonType)
     return false;
 }
 
-napi_value Common::GetNotificationTemplate(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationTemplate(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -880,7 +888,7 @@ napi_value Common::GetNotificationTemplate(const napi_env &env, const napi_value
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationBundleOption(
+napi_value NotificationNapi::GetNotificationBundleOption(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "Called.");
@@ -913,7 +921,7 @@ napi_value Common::GetNotificationBundleOption(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationTemplateInfo(const napi_env &env, const napi_value &value,
+napi_value NotificationNapi::GetNotificationTemplateInfo(const napi_env &env, const napi_value &value,
     std::shared_ptr<NotificationTemplate> &templ)
 {
     LBSLOGD(NAPI_UTILS, "enter");

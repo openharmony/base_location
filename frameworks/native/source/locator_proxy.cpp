@@ -857,6 +857,7 @@ LocationErrCode LocatorProxy::HandleGnssfenceRequest(
     data.WriteDouble(geofence->longitude);
     data.WriteDouble(geofence->radius);
     data.WriteDouble(geofence->expiration);
+    data.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
     auto wantAgent = request->GetWantAgent();
     data.WriteParcelable(&wantAgent);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(static_cast<int>(code), data, reply);
@@ -877,35 +878,7 @@ LocationErrCode LocatorProxy::AddGnssGeofence(
         LBSLOGE(LOCATOR_STANDARD, "can not write descriptor");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto geofence = request->GetGeofence();
-    if (geofence == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "geofence is nullptr");
-        return ERRCODE_INVALID_PARAM;
-    }
-    data.WriteDouble(geofence->latitude);
-    data.WriteDouble(geofence->longitude);
-    data.WriteDouble(geofence->radius);
-    data.WriteDouble(geofence->expiration);
-    auto statusList = request->GetGeofenceTransitionEventList();
-    data.WriteInt32(statusList.size());
-    for (int i = 0; i < statusList.size(); i++) {
-        data.WriteInt32(static_cast<int>(statusList[i]));
-    }
-    auto notificationRequestList = request->GetNotificationRequestList();
-    data.WriteInt32(notificationRequestList.size());
-    for (int i = 0; i < notificationRequestList.size(); i++) {
-        if (notificationRequestList[i] == nullptr) {
-            LBSLOGE(LOCATOR_STANDARD,
-                "notificationRequest is nullptr, index:%{public}d", i);
-            return ERRCODE_INVALID_PARAM;
-        }
-        notificationRequestList[i]->Marshalling(data);
-    }
-    auto locationGnssGeofenceCallback = request->GetGeofenceTransitionCallback();
-    if (locationGnssGeofenceCallback == nullptr) {
-        return ERRCODE_INVALID_PARAM;
-    }
-    data.WriteRemoteObject(locationGnssGeofenceCallback);
+    request->Marshalling(data);
     data.WriteRemoteObject(callback);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(
         static_cast<int>(LocatorInterfaceCode::ADD_GNSS_GEOFENCE), data, reply);

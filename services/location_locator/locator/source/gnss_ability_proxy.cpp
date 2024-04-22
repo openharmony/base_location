@@ -272,6 +272,7 @@ LocationErrCode GnssAbilityProxy::AddFence(std::shared_ptr<GeofenceRequest>& req
     data.WriteDouble(geofence->longitude);
     data.WriteDouble(geofence->radius);
     data.WriteDouble(geofence->expiration);
+    data.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
     auto wantAgent = request->GetWantAgent();
     data.WriteParcelable(&wantAgent);
     sptr<IRemoteObject> remote = Remote();
@@ -300,6 +301,7 @@ LocationErrCode GnssAbilityProxy::RemoveFence(std::shared_ptr<GeofenceRequest>& 
     data.WriteDouble(geofence->longitude);
     data.WriteDouble(geofence->radius);
     data.WriteDouble(geofence->expiration);
+    data.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
     auto wantAgent = request->GetWantAgent();
     data.WriteParcelable(&wantAgent);
     sptr<IRemoteObject> remote = Remote();
@@ -322,23 +324,11 @@ LocationErrCode GnssAbilityProxy::AddGnssGeofence(
     if (!dataToStub.WriteInterfaceToken(GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::shared_ptr<GeoFence> geofence = request->GetGeofence();
-    dataToStub.WriteDouble(geofence->latitude);
-    dataToStub.WriteDouble(geofence->longitude);
-    dataToStub.WriteDouble(geofence->radius);
-    dataToStub.WriteDouble(geofence->expiration);
-    auto statusList = request->GetGeofenceTransitionEventList();
-    dataToStub.WriteInt32(statusList.size());
-    for (int i = 0; i < statusList.size(); i++) {
-        dataToStub.WriteInt32(static_cast<int>(statusList[i]));
+    if (request == nullptr) {
+        LBSLOGE(GNSS, "request is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto notificationRequestList = request->GetNotificationRequestList();
-    dataToStub.WriteInt32(notificationRequestList.size());
-    for (int i = 0; i < notificationRequestList.size(); i++) {
-        notificationRequestList[i]->Unmarshalling(dataToStub);
-    }
-    auto locationGnssGeofenceCallback = request->GetGeofenceTransitionCallback();
-    dataToStub.WriteRemoteObject(locationGnssGeofenceCallback);
+    request->Marshalling(dataToStub);
     dataToStub.WriteRemoteObject(callback);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -351,8 +341,7 @@ LocationErrCode GnssAbilityProxy::AddGnssGeofence(
     return LocationErrCode(replyToStub.ReadInt32());
 }
 
-LocationErrCode GnssAbilityProxy::RemoveGnssGeofence(
-    std::shared_ptr<GeofenceRequest>& request)
+LocationErrCode GnssAbilityProxy::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
@@ -361,6 +350,7 @@ LocationErrCode GnssAbilityProxy::RemoveGnssGeofence(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     dataToStub.WriteInt32(request->GetFenceId());
+    dataToStub.WriteString("");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "RemoveFence remote is null");

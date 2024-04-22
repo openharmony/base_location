@@ -606,6 +606,7 @@ LocationErrCode LocatorAbility::AddFence(std::shared_ptr<GeofenceRequest>& reque
     dataToStub.WriteDouble(geofence->longitude);
     dataToStub.WriteDouble(geofence->radius);
     dataToStub.WriteDouble(geofence->expiration);
+    dataToStub.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
     auto wantAgent = request->GetWantAgent();
     dataToStub.WriteParcelable(&wantAgent);
     return SendGnssRequest(
@@ -627,6 +628,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& re
     dataToStub.WriteDouble(geofence->longitude);
     dataToStub.WriteDouble(geofence->radius);
     dataToStub.WriteDouble(geofence->expiration);
+    dataToStub.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
     auto wantAgent = request->GetWantAgent();
     dataToStub.WriteParcelable(&wantAgent);
     return SendGnssRequest(
@@ -643,25 +645,8 @@ LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::shared_ptr<GeoFence> geofence = request->GetGeofence();
-    dataToStub.WriteDouble(geofence->latitude);
-    dataToStub.WriteDouble(geofence->longitude);
-    dataToStub.WriteDouble(geofence->radius);
-    dataToStub.WriteDouble(geofence->expiration);
-    auto statusList = request->GetGeofenceTransitionEventList();
-    dataToStub.WriteInt32(statusList.size());
-    for (int i = 0; i < statusList.size(); i++) {
-        dataToStub.WriteInt32(static_cast<int>(statusList[i]));
-    }
-    auto notificationRequestList = request->GetNotificationRequestList();
-    dataToStub.WriteInt32(notificationRequestList.size());
-    for (int i = 0; i < notificationRequestList.size(); i++) {
-        notificationRequestList[i]->Marshalling(dataToStub);
-    }
-    auto locationGnssGeofenceCallback = request->GetGeofenceTransitionCallback();
-    dataToStub.WriteRemoteObject(locationGnssGeofenceCallback);
+    request->Marshalling(dataToStub);
     dataToStub.WriteRemoteObject(callback);
-    dataToStub.WriteString(request->GetBundleName());
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::ADD_GNSS_GEOFENCE), dataToStub, replyToStub);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "common.h"
+#include "notification_napi.h"
 #include "ans_inner_errors.h"
 #include "ans_log_wrapper.h"
 #include "js_native_api.h"
@@ -30,7 +30,7 @@
 
 namespace OHOS {
 namespace Location {
-const char *Common::GetPropertyNameByContentType(ContentType type)
+const char *NotificationNapi::GetPropertyNameByContentType(ContentType type)
 {
     switch (type) {
         case ContentType::NOTIFICATION_CONTENT_BASIC_TEXT: // normal?: NotificationBasicContent
@@ -53,7 +53,8 @@ const char *Common::GetPropertyNameByContentType(ContentType type)
     }
 }
 
-napi_value Common::GetNotificationContent(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationContent(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     ANS_LOGD("enter");
 
@@ -114,7 +115,7 @@ napi_value Common::GetNotificationContent(const napi_env &env, const napi_value 
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationBasicContent(
+napi_value NotificationNapi::GetNotificationBasicContent(
     const napi_env &env, const napi_value &result, NotificationRequest &request)
 {
     ANS_LOGD("enter");
@@ -149,7 +150,7 @@ napi_value Common::GetNotificationBasicContent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationBasicContentDetailed(
+napi_value NotificationNapi::GetNotificationBasicContentDetailed(
     const napi_env &env, const napi_value &contentResult, std::shared_ptr<NotificationBasicContent> basicContent)
 {
     ANS_LOGD("enter");
@@ -203,7 +204,7 @@ napi_value Common::GetNotificationBasicContentDetailed(
     return GetLockScreenPicture(env, contentResult, basicContent);
 }
 
-napi_value Common::GetNotificationLongTextContent(
+napi_value NotificationNapi::GetNotificationLongTextContent(
     const napi_env &env, const napi_value &result, NotificationRequest &request)
 {
     ANS_LOGD("enter");
@@ -241,7 +242,7 @@ napi_value Common::GetNotificationLongTextContent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLongTextContentDetailed(
+napi_value NotificationNapi::GetNotificationLongTextContentDetailed(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationLongTextContent> &longContent)
 {
@@ -321,7 +322,7 @@ napi_value Common::GetNotificationLongTextContentDetailed(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationPictureContent(
+napi_value NotificationNapi::GetNotificationPictureContent(
     const napi_env &env, const napi_value &result, NotificationRequest &request)
 {
     ANS_LOGD("enter");
@@ -357,7 +358,7 @@ napi_value Common::GetNotificationPictureContent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationPictureContentDetailed(const napi_env &env,
+napi_value NotificationNapi::GetNotificationPictureContentDetailed(const napi_env &env,
     const napi_value &contentResult, std::shared_ptr<OHOS::Notification::NotificationPictureContent> &pictureContent)
 {
     ANS_LOGD("enter");
@@ -430,10 +431,10 @@ napi_value Common::GetNotificationPictureContentDetailed(const napi_env &env,
     }
     pictureContent->SetBigPicture(pixelMap);
 
-    return Common::NapiGetNull(env);
+    return NotificationNapi::NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationConversationalContent(
+napi_value NotificationNapi::GetNotificationConversationalContent(
     const napi_env &env, const napi_value &result, NotificationRequest &request)
 {
     ANS_LOGD("enter");
@@ -484,7 +485,7 @@ napi_value Common::GetNotificationConversationalContent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationConversationalContentByUser(
+napi_value NotificationNapi::GetNotificationConversationalContentByUser(
     const napi_env &env, const napi_value &contentResult, MessageUser &user)
 {
     ANS_LOGD("enter");
@@ -512,7 +513,7 @@ napi_value Common::GetNotificationConversationalContentByUser(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetMessageUser(const napi_env &env, const napi_value &result, MessageUser &messageUser)
+napi_value NotificationNapi::GetMessageUser(const napi_env &env, const napi_value &result, MessageUser &messageUser)
 {
     ANS_LOGD("enter");
 
@@ -531,7 +532,8 @@ napi_value Common::GetMessageUser(const napi_env &env, const napi_value &result,
     return NapiGetNull(env);
 }
 
-napi_value Common::GetMessageUserByString(const napi_env &env, const napi_value &result, MessageUser &messageUser)
+napi_value NotificationNapi::GetMessageUserByString(
+    const napi_env &env, const napi_value &result, MessageUser &messageUser)
 {
     ANS_LOGD("enter");
 
@@ -594,7 +596,8 @@ napi_value Common::GetMessageUserByString(const napi_env &env, const napi_value 
     return NapiGetNull(env);
 }
 
-napi_value Common::GetMessageUserByBool(const napi_env &env, const napi_value &result, MessageUser &messageUser)
+napi_value NotificationNapi::GetMessageUserByBool(
+    const napi_env &env, const napi_value &result, MessageUser &messageUser)
 {
     ANS_LOGD("enter");
 
@@ -640,7 +643,8 @@ napi_value Common::GetMessageUserByBool(const napi_env &env, const napi_value &r
     return NapiGetNull(env);
 }
 
-napi_value Common::GetMessageUserByCustom(const napi_env &env, const napi_value &result, MessageUser &messageUser)
+napi_value NotificationNapi::GetMessageUserByCustom(
+    const napi_env &env, const napi_value &result, MessageUser &messageUser)
 {
     ANS_LOGD("enter");
 
@@ -669,7 +673,7 @@ napi_value Common::GetMessageUserByCustom(const napi_env &env, const napi_value 
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationConversationalContentTitle(
+napi_value NotificationNapi::GetNotificationConversationalContentTitle(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationConversationalContent> &conversationalContent)
 {
@@ -699,7 +703,7 @@ napi_value Common::GetNotificationConversationalContentTitle(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationConversationalContentGroup(
+napi_value NotificationNapi::GetNotificationConversationalContentGroup(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationConversationalContent> &conversationalContent)
 {
@@ -728,7 +732,7 @@ napi_value Common::GetNotificationConversationalContentGroup(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationConversationalContentMessages(
+napi_value NotificationNapi::GetNotificationConversationalContentMessages(
     const napi_env &env, const napi_value &contentResult,
     std::shared_ptr<OHOS::Notification::NotificationConversationalContent> &conversationalContent)
 {
@@ -774,7 +778,7 @@ napi_value Common::GetNotificationConversationalContentMessages(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetConversationalMessage(const napi_env &env, const napi_value &conversationalMessage,
+napi_value NotificationNapi::GetConversationalMessage(const napi_env &env, const napi_value &conversationalMessage,
     std::shared_ptr<NotificationConversationalMessage> &message)
 {
     ANS_LOGD("enter");
@@ -788,7 +792,8 @@ napi_value Common::GetConversationalMessage(const napi_env &env, const napi_valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetConversationalMessageBasicInfo(const napi_env &env, const napi_value &conversationalMessage,
+napi_value NotificationNapi::GetConversationalMessageBasicInfo(
+    const napi_env &env, const napi_value &conversationalMessage,
     std::shared_ptr<NotificationConversationalMessage> &message)
 {
     ANS_LOGD("enter");
@@ -860,7 +865,8 @@ napi_value Common::GetConversationalMessageBasicInfo(const napi_env &env, const 
     return NapiGetNull(env);
 }
 
-napi_value Common::GetConversationalMessageOtherInfo(const napi_env &env, const napi_value &conversationalMessage,
+napi_value NotificationNapi::GetConversationalMessageOtherInfo(
+    const napi_env &env, const napi_value &conversationalMessage,
     std::shared_ptr<NotificationConversationalMessage> &message)
 {
     ANS_LOGD("enter");
@@ -909,7 +915,7 @@ napi_value Common::GetConversationalMessageOtherInfo(const napi_env &env, const 
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationMultiLineContent(
+napi_value NotificationNapi::GetNotificationMultiLineContent(
     const napi_env &env, const napi_value &result, NotificationRequest &request)
 {
     ANS_LOGD("enter");
@@ -1000,7 +1006,7 @@ napi_value Common::GetNotificationMultiLineContent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationMultiLineContentLines(const napi_env &env, const napi_value &result,
+napi_value NotificationNapi::GetNotificationMultiLineContentLines(const napi_env &env, const napi_value &result,
     std::shared_ptr<OHOS::Notification::NotificationMultiLineContent> &multiLineContent)
 {
     ANS_LOGD("enter");
@@ -1040,7 +1046,7 @@ napi_value Common::GetNotificationMultiLineContentLines(const napi_env &env, con
     return NapiGetNull(env);
 }
 
-napi_value Common::GetLockScreenPicture(
+napi_value NotificationNapi::GetLockScreenPicture(
     const napi_env &env, const napi_value &contentResult, std::shared_ptr<NotificationBasicContent> basicContent)
 {
     bool hasProperty = false;

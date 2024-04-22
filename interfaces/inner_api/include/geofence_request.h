@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <vector>
+#include <parcel.h>
 #include "constant_definition.h"
 #include "notification_request.h"
 #include "want_agent_helper.h"
@@ -32,7 +33,7 @@ typedef struct {
     CoordinateSystemType coordinateSystemType;
 } GeoFence;
 
-class GeofenceRequest {
+class GeofenceRequest : public Parcelable {
 public:
     GeofenceRequest()
     {
@@ -49,7 +50,7 @@ public:
         this->SetWantAgent(geofenceRequest.GetWantAgent());
         this->SetGeofenceTransitionEventList(geofenceRequest.GetGeofenceTransitionEventList());
         this->SetNotificationRequestList(geofenceRequest.GetNotificationRequestList());
-        this->SetCallback(geofenceRequest.GetCallback());
+        this->SetGeofenceTransitionCallback(geofenceRequest.GetGeofenceTransitionCallback());
         this->SetFenceId(geofenceRequest.GetFenceId());
         this->SetBundleName(geofenceRequest.GetBundleName());
     }
@@ -88,16 +89,19 @@ public:
 
     inline std::vector<GeofenceTransitionEvent> GetGeofenceTransitionEventList()
     {
+        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         return transitionStatusList_;
     }
 
     inline void SetGeofenceTransitionEvent(GeofenceTransitionEvent status)
     {
+        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         transitionStatusList_.push_back(status);
     }
 
     inline void SetGeofenceTransitionEventList(std::vector<GeofenceTransitionEvent> statusList)
     {
+        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         for (auto it = statusList.begin(); it != statusList.end(); ++it) {
             transitionStatusList_.push_back(*it);
         }
@@ -105,16 +109,19 @@ public:
 
     inline std::vector<std::shared_ptr<Notification::NotificationRequest>> GetNotificationRequestList()
     {
+        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         return notificationRequestList_;
     }
 
     inline void SetNotificationRequest(std::shared_ptr<Notification::NotificationRequest> request)
     {
+        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         notificationRequestList_.push_back(request);
     }
 
     inline void SetNotificationRequestList(std::vector<std::shared_ptr<Notification::NotificationRequest>> requestList)
     {
+        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         for (auto it = requestList.begin(); it != requestList.end(); ++it) {
             notificationRequestList_.push_back(*it);
         }
@@ -150,6 +157,9 @@ public:
         bundleName_ = bundleName;
     }
 
+    void ReadFromParcel(Parcel& parcel);
+    bool Marshalling(Parcel& parcel) const override;
+    static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
 private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
     std::vector<std::shared_ptr<Notification::NotificationRequest>> notificationRequestList_;
@@ -159,6 +169,7 @@ private:
     int fenceId_;
     AbilityRuntime::WantAgent::WantAgent wantAgent_;
     std::string bundleName_;
+    mutable std::mutex geofenceRequestMutex_;
 };
 } // namespace Location
 } // namespace OHOS

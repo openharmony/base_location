@@ -36,6 +36,7 @@
 #include "request_config.h"
 #include "satellite_status.h"
 #include "location_gnss_geofence_callback_host.h"
+#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {

@@ -242,6 +242,7 @@ int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, Ap
     geofence->longitude = data.ReadDouble();
     geofence->radius = data.ReadDouble();
     geofence->expiration = data.ReadDouble();
+    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
     request->SetGeofence(geofence);
     auto agent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
     request->SetWantAgent(*agent);
@@ -261,6 +262,7 @@ int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply,
     geofence->longitude = data.ReadDouble();
     geofence->radius = data.ReadDouble();
     geofence->expiration = data.ReadDouble();
+    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
     request->SetGeofence(geofence);
     auto agent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
     request->SetWantAgent(*agent);
@@ -273,29 +275,8 @@ int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &re
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    geofence->latitude = data.ReadDouble();
-    geofence->longitude = data.ReadDouble();
-    geofence->radius = data.ReadDouble();
-    geofence->expiration = data.ReadDouble();
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    request->SetGeofence(geofence);
-    int monitorGeofenceTransitionSize = data.ReadInt32();
-    std::vector<GeofenceTransitionEvent> statusList;
-    for (int i = 0; i < monitorGeofenceTransitionSize; i++) {
-        statusList.push_back(static_cast<GeofenceTransitionEvent>(data.ReadInt32()));
-    }
-    request->SetGeofenceTransitionEventList(statusList);
-    int requestSize = data.ReadInt32();
-    std::vector<std::shared_ptr<Notification::NotificationRequest>> requestList;
-    for (int i = 0; i < requestSize; i++) {
-        auto request = Notification::NotificationRequest::Unmarshalling(data);
-        requestList.push_back(std::make_shared<Notification::NotificationRequest>(*request));
-    }
-    request->SetNotificationRequestList(requestList);
-    request->SetGeofenceTransitionCallback(data.ReadObject<IRemoteObject>());
+    auto request = GeofenceRequest::Unmarshalling(data);
     sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
-    request->SetBundleName(data.ReadString());
     reply.WriteInt32(AddGnssGeofence(request, callback));
     return ERRCODE_SUCCESS;
 }

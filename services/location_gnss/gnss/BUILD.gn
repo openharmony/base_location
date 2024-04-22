@@ -22,6 +22,7 @@ if (location_feature_with_gnss) {
       "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
+      "$LOCATION_GNSS_ROOT/source/location_gnss_geofence_callback_proxy.cpp",
       "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
       "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
       "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",

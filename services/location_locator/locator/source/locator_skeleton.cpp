@@ -656,6 +656,7 @@ int LocatorAbilityStub::DoProcessFenceRequest(
     geofence->longitude = data.ReadDouble();
     geofence->radius = data.ReadDouble();
     geofence->expiration = data.ReadDouble();
+    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
     request->SetGeofence(geofence);
     auto wantAgent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
     request->SetWantAgent(*wantAgent);
@@ -674,7 +675,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(reply, identity)) {
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -683,27 +684,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    geofence->latitude = data.ReadDouble();
-    geofence->longitude = data.ReadDouble();
-    geofence->radius = data.ReadDouble();
-    geofence->expiration = data.ReadDouble();
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    request->SetGeofence(geofence);
-    int monitorGeofenceTransitionSize = data.ReadInt32();
-    std::vector<GeofenceTransitionEvent> statusList;
-    for (int i = 0; i < monitorGeofenceTransitionSize; i++) {
-        statusList.push_back(static_cast<GeofenceTransitionEvent>(data.ReadInt32()));
-    }
-    request->SetGeofenceTransitionEventList(statusList);
-    int requestSize = data.ReadInt32();
-    std::vector<std::shared_ptr<Notification::NotificationRequest>> requestList;
-    for (int i = 0; i < requestSize; i++) {
-        auto request = Notification::NotificationRequest::Unmarshalling(data);
-        requestList.push_back(std::make_shared<Notification::NotificationRequest>(*request));
-    }
-    request->SetNotificationRequestList(requestList);
-    request->SetSetGeofenceTransitionCallback(data.ReadObject<IRemoteObject>());
+    auto request = GeofenceRequest::Unmarshalling(data);
     request->SetBundleName(identity.GetBundleName());
     sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(locatorAbility->AddGnssGeofence(request, callback));
@@ -717,7 +698,7 @@ int LocatorAbilityStub::PreRemoveGnssGeofence(MessageParcel &data, MessageParcel
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(reply, identity)) {
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();

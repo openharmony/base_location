@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "common.h"
+#include "notification_napi.h"
 #include "ans_inner_errors.h"
 #include "location_log.h"
 #include "js_native_api.h"
@@ -30,7 +30,7 @@
 
 namespace OHOS {
 namespace Location {
-napi_value Common::GetNotificationRequestDistributedOptions(const napi_env &env,
+napi_value NotificationNapi::GetNotificationRequestDistributedOptions(const napi_env &env,
     const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -67,7 +67,7 @@ napi_value Common::GetNotificationRequestDistributedOptions(const napi_env &env,
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationIsDistributed(
+napi_value NotificationNapi::GetNotificationIsDistributed(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");

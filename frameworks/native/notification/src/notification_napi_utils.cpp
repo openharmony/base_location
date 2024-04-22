@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "common.h"
+#include "notification_napi.h"
 #include "ans_inner_errors.h"
 #include "location_log.h"
 #include "js_native_api.h"
@@ -52,31 +52,31 @@ static const std::unordered_map<int32_t, std::string> ERROR_CODE_MESSAGE {
 };
 }
 
-napi_value Common::NapiGetBoolean(napi_env env, const bool &isValue)
+napi_value NotificationNapi::NapiGetBoolean(napi_env env, const bool &isValue)
 {
     napi_value result = nullptr;
     napi_get_boolean(env, isValue, &result);
     return result;
 }
 
-napi_value Common::NapiGetNull(napi_env env)
+napi_value NotificationNapi::NapiGetNull(napi_env env)
 {
     napi_value result = nullptr;
     napi_get_null(env, &result);
     return result;
 }
 
-napi_value Common::NapiGetUndefined(napi_env env)
+napi_value NotificationNapi::NapiGetUndefined(napi_env env)
 {
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
     return result;
 }
 
-napi_value Common::CreateErrorValue(napi_env env, int32_t errCode, bool newType)
+napi_value NotificationNapi::CreateErrorValue(napi_env env, int32_t errCode, bool newType)
 {
     LBSLOGI(NAPI_UTILS, "enter, errorCode[%{public}d]", errCode);
-    napi_value error = Common::NapiGetNull(env);
+    napi_value error = NotificationNapi::NapiGetNull(env);
     if (errCode == ERR_OK && newType) {
         return error;
     }
@@ -94,14 +94,14 @@ napi_value Common::CreateErrorValue(napi_env env, int32_t errCode, bool newType)
     return error;
 }
 
-void Common::NapiThrow(napi_env env, int32_t errCode)
+void NotificationNapi::NapiThrow(napi_env env, int32_t errCode)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
     napi_throw(env, CreateErrorValue(env, errCode, true));
 }
 
-napi_value Common::GetCallbackErrorValue(napi_env env, int32_t errCode)
+napi_value NotificationNapi::GetCallbackErrorValue(napi_env env, int32_t errCode)
 {
     napi_value result = nullptr;
     napi_value eCode = nullptr;
@@ -111,7 +111,7 @@ napi_value Common::GetCallbackErrorValue(napi_env env, int32_t errCode)
     return result;
 }
 
-void Common::PaddingCallbackPromiseInfo(
+void NotificationNapi::PaddingCallbackPromiseInfo(
     const napi_env &env, const napi_ref &callback, CallbackPromiseInfo &info, napi_value &promise)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -128,7 +128,8 @@ void Common::PaddingCallbackPromiseInfo(
     }
 }
 
-void Common::ReturnCallbackPromise(const napi_env &env, const CallbackPromiseInfo &info, const napi_value &result)
+void NotificationNapi::ReturnCallbackPromise(
+    const napi_env &env, const CallbackPromiseInfo &info, const napi_value &result)
 {
     LBSLOGD(NAPI_UTILS, "enter errorCode=%{public}d", info.errorCode);
     if (info.isCallback) {
@@ -139,7 +140,7 @@ void Common::ReturnCallbackPromise(const napi_env &env, const CallbackPromiseInf
     LBSLOGD(NAPI_UTILS, "end");
 }
 
-void Common::SetCallback(
+void NotificationNapi::SetCallback(
     const napi_env &env, const napi_ref &callbackIn, const int32_t &errorCode, const napi_value &result, bool newType)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -156,7 +157,7 @@ void Common::SetCallback(
     LBSLOGD(NAPI_UTILS, "end");
 }
 
-void Common::SetCallback(
+void NotificationNapi::SetCallback(
     const napi_env &env, const napi_ref &callbackIn, const napi_value &result)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -170,7 +171,7 @@ void Common::SetCallback(
     LBSLOGD(NAPI_UTILS, "end");
 }
 
-void Common::SetCallbackArg2(
+void NotificationNapi::SetCallbackArg2(
     const napi_env &env, const napi_ref &callbackIn, const napi_value &result0, const napi_value &result1)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -185,7 +186,7 @@ void Common::SetCallbackArg2(
     LBSLOGD(NAPI_UTILS, "end");
 }
 
-void Common::SetPromise(const napi_env &env,
+void NotificationNapi::SetPromise(const napi_env &env,
     const napi_deferred &deferred, const int32_t &errorCode, const napi_value &result, bool newType)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -197,19 +198,20 @@ void Common::SetPromise(const napi_env &env,
     LBSLOGD(NAPI_UTILS, "end");
 }
 
-napi_value Common::JSParaError(const napi_env &env, const napi_ref &callback)
+napi_value NotificationNapi::JSParaError(const napi_env &env, const napi_ref &callback)
 {
     if (callback) {
-        return Common::NapiGetNull(env);
+        return NotificationNapi::NapiGetNull(env);
     }
     napi_value promise = nullptr;
     napi_deferred deferred = nullptr;
     napi_create_promise(env, &deferred, &promise);
-    SetPromise(env, deferred, ERROR, Common::NapiGetNull(env), false);
+    SetPromise(env, deferred, ERROR, NotificationNapi::NapiGetNull(env), false);
     return promise;
 }
 
-napi_value Common::ParseParaOnlyCallback(const napi_env &env, const napi_callback_info &info, napi_ref &callback)
+napi_value NotificationNapi::ParseParaOnlyCallback(
+    const napi_env &env, const napi_callback_info &info, napi_ref &callback)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -228,15 +230,15 @@ napi_value Common::ParseParaOnlyCallback(const napi_env &env, const napi_callbac
         NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valuetype));
         if (valuetype != napi_function) {
             LBSLOGE(NAPI_UTILS, "Callback is not function excute promise.");
-            return Common::NapiGetNull(env);
+            return NotificationNapi::NapiGetNull(env);
         }
         napi_create_reference(env, argv[PARAM0], 1, &callback);
     }
 
-    return Common::NapiGetNull(env);
+    return NotificationNapi::NapiGetNull(env);
 }
 
-void Common::CreateReturnValue(const napi_env &env, const CallbackPromiseInfo &info, const napi_value &result)
+void NotificationNapi::CreateReturnValue(const napi_env &env, const CallbackPromiseInfo &info, const napi_value &result)
 {
     LBSLOGD(NAPI_UTILS, "enter errorCode=%{public}d", info.errorCode);
     int32_t errorCode = info.errorCode == ERR_OK ? ERR_OK : ErrorToExternal(info.errorCode);
@@ -248,7 +250,7 @@ void Common::CreateReturnValue(const napi_env &env, const CallbackPromiseInfo &i
     LBSLOGD(NAPI_UTILS, "end");
 }
 
-int32_t Common::ErrorToExternal(uint32_t errCode)
+int32_t NotificationNapi::ErrorToExternal(uint32_t errCode)
 {
     static std::vector<std::pair<uint32_t, int32_t>> errorsConvert = {
         {ERR_ANS_PERMISSION_DENIED, ERROR_PERMISSION_DENIED},

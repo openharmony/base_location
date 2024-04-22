@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "common.h"
+#include "notification_napi.h"
 #include "ans_inner_errors.h"
 #include "location_log.h"
 #include "js_native_api.h"
@@ -30,7 +30,7 @@
 
 namespace OHOS {
 namespace Location {
-napi_value Common::GetNotificationRequestByNumber(
+napi_value NotificationNapi::GetNotificationRequestByNumber(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -66,7 +66,7 @@ napi_value Common::GetNotificationRequestByNumber(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationRequestByString(
+napi_value NotificationNapi::GetNotificationRequestByString(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -93,7 +93,7 @@ napi_value Common::GetNotificationRequestByString(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationRequestByBool(
+napi_value NotificationNapi::GetNotificationRequestByBool(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -135,7 +135,7 @@ napi_value Common::GetNotificationRequestByBool(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationRequestByCustom(
+napi_value NotificationNapi::GetNotificationRequestByCustom(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -198,7 +198,8 @@ napi_value Common::GetNotificationRequestByCustom(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationRequest(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationRequest(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
     if (!GetNotificationRequestByNumber(env, value, request)) {
@@ -216,7 +217,8 @@ napi_value Common::GetNotificationRequest(const napi_env &env, const napi_value 
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSmallIcon(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationSmallIcon(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -244,7 +246,8 @@ napi_value Common::GetNotificationSmallIcon(const napi_env &env, const napi_valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLargeIcon(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationLargeIcon(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -272,7 +275,7 @@ napi_value Common::GetNotificationLargeIcon(const napi_env &env, const napi_valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationOverlayIcon(
+napi_value NotificationNapi::GetNotificationOverlayIcon(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -301,7 +304,7 @@ napi_value Common::GetNotificationOverlayIcon(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSupportDisplayDevices(
+napi_value NotificationNapi::GetNotificationSupportDisplayDevices(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -346,7 +349,7 @@ napi_value Common::GetNotificationSupportDisplayDevices(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSupportOperateDevices(
+napi_value NotificationNapi::GetNotificationSupportOperateDevices(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -392,7 +395,8 @@ napi_value Common::GetNotificationSupportOperateDevices(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationId(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationId(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -420,7 +424,8 @@ napi_value Common::GetNotificationId(const napi_env &env, const napi_value &valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationSlotType(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationSlotType(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -473,7 +478,8 @@ napi_value Common::GetNotificationSlotType(const napi_env &env, const napi_value
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationIsOngoing(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationIsOngoing(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -497,7 +503,7 @@ napi_value Common::GetNotificationIsOngoing(const napi_env &env, const napi_valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationIsUnremovable(
+napi_value NotificationNapi::GetNotificationIsUnremovable(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -522,7 +528,7 @@ napi_value Common::GetNotificationIsUnremovable(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationDeliveryTime(
+napi_value NotificationNapi::GetNotificationDeliveryTime(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -547,7 +553,7 @@ napi_value Common::GetNotificationDeliveryTime(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationtapDismissed(
+napi_value NotificationNapi::GetNotificationtapDismissed(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -572,7 +578,8 @@ napi_value Common::GetNotificationtapDismissed(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationWantAgent(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationWantAgent(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -602,7 +609,8 @@ napi_value Common::GetNotificationWantAgent(const napi_env &env, const napi_valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationExtraInfo(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationExtraInfo(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -630,7 +638,8 @@ napi_value Common::GetNotificationExtraInfo(const napi_env &env, const napi_valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationGroupName(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationGroupName(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -655,7 +664,7 @@ napi_value Common::GetNotificationGroupName(const napi_env &env, const napi_valu
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationRemovalWantAgent(
+napi_value NotificationNapi::GetNotificationRemovalWantAgent(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -689,7 +698,7 @@ napi_value Common::GetNotificationRemovalWantAgent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationMaxScreenWantAgent(
+napi_value NotificationNapi::GetNotificationMaxScreenWantAgent(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -720,7 +729,7 @@ napi_value Common::GetNotificationMaxScreenWantAgent(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationAutoDeletedTime(
+napi_value NotificationNapi::GetNotificationAutoDeletedTime(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -745,7 +754,7 @@ napi_value Common::GetNotificationAutoDeletedTime(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationClassification(
+napi_value NotificationNapi::GetNotificationClassification(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -771,7 +780,7 @@ napi_value Common::GetNotificationClassification(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationAppMessageId(
+napi_value NotificationNapi::GetNotificationAppMessageId(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     bool hasProperty = false;
@@ -791,7 +800,8 @@ napi_value Common::GetNotificationAppMessageId(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationColor(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationColor(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -819,7 +829,7 @@ napi_value Common::GetNotificationColor(const napi_env &env, const napi_value &v
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationColorEnabled(
+napi_value NotificationNapi::GetNotificationColorEnabled(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -844,7 +854,7 @@ napi_value Common::GetNotificationColorEnabled(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationIsAlertOnce(
+napi_value NotificationNapi::GetNotificationIsAlertOnce(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -869,7 +879,7 @@ napi_value Common::GetNotificationIsAlertOnce(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationIsStopwatch(
+napi_value NotificationNapi::GetNotificationIsStopwatch(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -894,7 +904,7 @@ napi_value Common::GetNotificationIsStopwatch(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationIsCountDown(
+napi_value NotificationNapi::GetNotificationIsCountDown(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -919,7 +929,7 @@ napi_value Common::GetNotificationIsCountDown(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationStatusBarText(
+napi_value NotificationNapi::GetNotificationStatusBarText(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -945,7 +955,8 @@ napi_value Common::GetNotificationStatusBarText(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationLabel(const napi_env &env, const napi_value &value, NotificationRequest &request)
+napi_value NotificationNapi::GetNotificationLabel(
+    const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
 
@@ -970,7 +981,7 @@ napi_value Common::GetNotificationLabel(const napi_env &env, const napi_value &v
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationBadgeIconStyle(
+napi_value NotificationNapi::GetNotificationBadgeIconStyle(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -995,7 +1006,7 @@ napi_value Common::GetNotificationBadgeIconStyle(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationShowDeliveryTime(
+napi_value NotificationNapi::GetNotificationShowDeliveryTime(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -1020,7 +1031,7 @@ napi_value Common::GetNotificationShowDeliveryTime(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationIsRemoveAllowed(
+napi_value NotificationNapi::GetNotificationIsRemoveAllowed(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -1045,7 +1056,7 @@ napi_value Common::GetNotificationIsRemoveAllowed(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationActionButtons(
+napi_value NotificationNapi::GetNotificationActionButtons(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -1058,7 +1069,7 @@ napi_value Common::GetNotificationActionButtons(
 
     napi_has_named_property(env, value, "actionButtons", &hasProperty);
     if (!hasProperty) {
-        return Common::NapiGetNull(env);
+        return NotificationNapi::NapiGetNull(env);
     }
 
     request.SetIsCoverActionButtons(true);
@@ -1071,7 +1082,7 @@ napi_value Common::GetNotificationActionButtons(
     napi_get_array_length(env, actionButtons, &length);
     if (length == 0) {
         LBSLOGI(NAPI_UTILS, "The array is empty.");
-        return Common::NapiGetNull(env);
+        return NotificationNapi::NapiGetNull(env);
     }
     for (size_t i = 0; i < length; i++) {
         napi_value actionButton = nullptr;
@@ -1092,7 +1103,7 @@ napi_value Common::GetNotificationActionButtons(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationActionButtonsDetailed(
+napi_value NotificationNapi::GetNotificationActionButtonsDetailed(
     const napi_env &env, const napi_value &actionButton, std::shared_ptr<NotificationActionButton> &pActionButton)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -1109,7 +1120,7 @@ napi_value Common::GetNotificationActionButtonsDetailed(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationActionButtonsDetailedBasicInfo(
+napi_value NotificationNapi::GetNotificationActionButtonsDetailedBasicInfo(
     const napi_env &env, const napi_value &actionButton, std::shared_ptr<NotificationActionButton> &pActionButton)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -1177,7 +1188,7 @@ napi_value Common::GetNotificationActionButtonsDetailedBasicInfo(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationActionButtonsDetailedByExtras(
+napi_value NotificationNapi::GetNotificationActionButtonsDetailedByExtras(
     const napi_env &env, const napi_value &actionButton, std::shared_ptr<NotificationActionButton> &pActionButton)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -1209,7 +1220,7 @@ napi_value Common::GetNotificationActionButtonsDetailedByExtras(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationBadgeNumber(
+napi_value NotificationNapi::GetNotificationBadgeNumber(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "enter");
@@ -1240,7 +1251,7 @@ napi_value Common::GetNotificationBadgeNumber(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationUnifiedGroupInfo(
+napi_value NotificationNapi::GetNotificationUnifiedGroupInfo(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     bool hasProperty = false;
@@ -1297,7 +1308,7 @@ napi_value Common::GetNotificationUnifiedGroupInfo(
     return NapiGetNull(env);
 }
 
-napi_value Common::GetNotificationControlFlags(
+napi_value NotificationNapi::GetNotificationControlFlags(
     const napi_env &env, const napi_value &value, NotificationRequest &request)
 {
     LBSLOGD(NAPI_UTILS, "Called.");

@@ -28,14 +28,14 @@
 #include "reminder_request.h"
 #include "napi_common_want.h"
 #include "notification_request.h"
-#include "common.h"
+#include "notification_napi.h"
 
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
 static constexpr int MIN_WIFI_SCAN_TIME = 3000;
 const uint32_t MAX_ADDITION_SIZE = 100;
-const int MAX_TRANSITION_ARRAY_SIZE = 3
+const int MAX_TRANSITION_ARRAY_SIZE = 3;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -257,8 +257,8 @@ void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
     if (JsObjectToDouble(env, geofenceValue, "longitude", doubleValue) == SUCCESS) {
         geofence->longitude = doubleValue;
     }
-    if (JsObjectToInt(env, geofenceValue, "coordinateSystemType", intValue) == SUCCESS) {
-        geofence->coordinateSystemType = static_cast<CoordinateSystemType>(intValue);
+    if (JsObjectToInt(env, geofenceValue, "coordinateSystemType", value) == SUCCESS) {
+        geofence->coordinateSystemType = static_cast<CoordinateSystemType>(value);
     } else {
         geofence->coordinateSystemType = CoordinateSystemType::WGS84;
     }
@@ -563,7 +563,7 @@ void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
         return;
     }
     // argv[0] : NotificationRequest
-    Common::GetNotificationRequest(env, elementValue, notificationRequest);
+    NotificationNapi::GetNotificationRequest(env, elementValue, notificationRequest);
 }
 
 void JsObjToGeofenceTransitionEventList(const napi_env& env, const napi_value& object,
