@@ -36,7 +36,6 @@ CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
 CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 CallbackManager<LocatingRequiredDataCallbackHost> g_locatingRequiredDataCallbacks;
 CallbackManager<LocationErrorCallbackHost> g_locationErrorCallbackHosts;
-std::vector<GeoFenceState*> mFences;
 
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
 auto g_locatorProxy = Locator::GetInstance();

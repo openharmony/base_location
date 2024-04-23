@@ -97,7 +97,7 @@ HWTEST_F(PassiveAbilityTest, SendLocationRequest001, TestSize.Level1)
         int timeInterval = i;
         std::string name = "nameForTest";
         std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
-        workRecord->Add(uid, pid, name, timeInterval, uuid);
+        workRecord->Add(uid, pid, name, timeInterval, uuid, 0);
     }
     /*
      * @tc.steps: step2. send location request

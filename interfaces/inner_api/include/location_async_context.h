@@ -281,7 +281,7 @@ public:
     LocationErrorAsyncContext() = delete;
 
     ~LocationErrorAsyncContext() override {}
-}
+};
 
 class GnssGeofenceAsyncContext : public AsyncContext {
 public:

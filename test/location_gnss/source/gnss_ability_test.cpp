@@ -118,7 +118,8 @@ HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
         int timeInterval = i;
         std::string name = "nameForTest";
         std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
-        workRecord->Add(uid, pid, name, timeInterval, uuid);
+        int locationRequestType = i + 1;
+        workRecord->Add(uid, pid, name, timeInterval, uuid, locationRequestType);
     }
     /*
      * @tc.steps: step2. send location request
@@ -1229,7 +1230,8 @@ HWTEST_F(GnssAbilityTest, SubAbilityCommonGetRequestNum001, TestSize.Level1)
         int timeInterval = i;
         std::string name = "nameForTest";
         std::string uuid = "uuidForTest";
-        workRecord->Add(uid, pid, name, timeInterval, uuid);
+        int locationRequestType = i + 1;
+        workRecord->Add(uid, pid, name, timeInterval, uuid, locationRequestType);
     }
     gnssAbility->newRecord_->Set(*workRecord);
     gnssAbility->GetRequestNum();
@@ -1237,7 +1239,7 @@ HWTEST_F(GnssAbilityTest, SubAbilityCommonGetRequestNum001, TestSize.Level1)
     gnssAbility->newRecord_ = nullptr;
     gnssAbility->GetRequestNum();
     
-    gnssAbility->lastRecord_->Add(0, 0, "nameForTest", 0, "uuidForTest");
+    gnssAbility->lastRecord_->Add(0, 0, "nameForTest", 0, "uuidForTest", 0);
     gnssAbility->HandleRemoveRecord(*workRecord);
 
     gnssAbility->lastRecord_->Clear();

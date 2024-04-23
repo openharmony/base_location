@@ -69,12 +69,9 @@ void LocatorAbilityStub::ConstructLocatorHandleMap()
         &LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback;
     locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK] =
         &LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_LOCATION_ERROR)] =
-        &LocatorAbilityStub::PreRegisterLocationError;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_LOCATION_ERROR)] =
-        &LocatorAbilityStub::PreUnregisterLocationError;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION_ERROR)] =
-        &LocatorAbilityStub::PreReportLocationError;
+    locatorHandleMap_[LocatorInterfaceCode::REG_LOCATION_ERROR] = &LocatorAbilityStub::PreRegisterLocationError;
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATION_ERROR] = &LocatorAbilityStub::PreUnregisterLocationError;
+    locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION_ERROR] = &LocatorAbilityStub::PreReportLocationError;
 }
 
 void LocatorAbilityStub::ConstructGeocodeHandleMap()
