@@ -22,6 +22,28 @@
 
 namespace OHOS {
 namespace Location {
+napi_value CoordinateSystemTypeConstructor(napi_env env)
+{
+    napi_value coordinateSystemType;
+    NAPI_CALL(env, napi_create_object(env, &coordinateSystemType));
+    SetEnumPropertyByInteger(env, coordinateSystemType, CoordinateSystemType::WGS84, "WGS84");
+    SetEnumPropertyByInteger(env, coordinateSystemType, CoordinateSystemType::GCJ02, "GCJ02");
+    return coordinateSystemType;
+}
+
+napi_value GeofenceTransitionEventConstructor(napi_env env)
+{
+    napi_value geofenceTransitionStatus = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &geofenceTransitionStatus));
+    SetEnumPropertyByInteger(env, geofenceTransitionStatus,
+        GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER, "GEOFENCE_TRANSITION_EVENT_ENTER");
+    SetEnumPropertyByInteger(env, geofenceTransitionStatus,
+        GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT, "GEOFENCE_TRANSITION_EVENT_EXIT");
+    SetEnumPropertyByInteger(env, geofenceTransitionStatus,
+        GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_DWELL, "GEOFENCE_TRANSITION_EVENT_DWELL");
+    return geofenceTransitionStatus;
+}
+
 napi_value SvConstellationTypeConstructor(napi_env env)
 {
     napi_value satelliteConstellationCategory = nullptr;
@@ -219,12 +241,16 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disableReverseGeocodingMock", DisableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("setReverseGeocodingMockInfo", SetReverseGeocodingMockInfo),
         DECLARE_NAPI_FUNCTION("getLocatingRequiredData", GetLocatingRequiredData),
+        DECLARE_NAPI_FUNCTION("addGnssGeofence", AddGnssGeofence),
+        DECLARE_NAPI_FUNCTION("removeGnssGeofence", RemoveGnssGeofence),
 
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationPrivacyType", LocationPrivacyTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("CountryCodeType", CountryCodeTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocatingRequiredDataType", LocatingRequiredDataTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("GeofenceTransitionEvent", GeofenceTransitionEventConstructor(env)),
+        DECLARE_NAPI_PROPERTY("CoordinateSystemType", CoordinateSystemTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("SatelliteConstellationCategory", SvConstellationTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("SatelliteAdditionalInfo", SatelliteAdditionalInfoTypeConstructor(env)),
     };

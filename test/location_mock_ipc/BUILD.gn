@@ -64,6 +64,7 @@ ohos_unittest("LocationMockIpcTest") {
     "common_event_service:cesfwk_innerkits",
     "core_service:tel_core_service_api",
     "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
+    "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
     "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
     "eventhandler:libeventhandler",
     "hdf_core:libhdi",

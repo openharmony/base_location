@@ -37,9 +37,6 @@
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #endif
-#ifdef FEATURE_GNSS_SUPPORT
-#include "geofence_state.h"
-#endif
 #include "location.h"
 #include "location_data_rdb_helper.h"
 #include "location_data_rdb_manager.h"
@@ -450,24 +447,6 @@ HWTEST_F(LocationCommonTest, AppIdentityTest001, TestSize.Level1)
     EXPECT_NE("", identity.ToString());
     LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest001 end");
 }
-
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocationCommonTest, GeoFenceStateTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationCommonTest, GeoFenceStateTest001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoFenceStateTest001 begin");
-    GeoFence fence;
-    fence.latitude = 1.0;
-    fence.longitude = 2.0;
-    fence.radius = 3.0;
-    fence.expiration = 4.0;
-    auto wantAgent = AbilityRuntime::WantAgent::WantAgent();
-    auto state = new (std::nothrow) GeoFenceState(fence, wantAgent);
-    EXPECT_NE(nullptr, state);
-    LBSLOGI(LOCATOR, "[LocationCommonTest] GeoFenceStateTest001 end");
-}
-#endif
 
 #ifdef FEATURE_GEOCODE_SUPPORT
 HWTEST_F(LocationCommonTest, GeocodingMockInfoTest002, TestSize.Level1)

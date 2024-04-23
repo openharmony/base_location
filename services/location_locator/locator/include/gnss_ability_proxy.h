@@ -44,11 +44,15 @@ public:
     LocationErrCode GetCachedGnssLocationsSize(int &size) override;
     LocationErrCode FlushCachedGnssLocations() override;
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) override;
-    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) override;
-    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request) override;
+    LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode EnableMock() override;
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
+    LocationErrCode AddGnssGeofence(
+        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback) override;
+    LocationErrCode RemoveGnssGeofence(
+        std::shared_ptr<GeofenceRequest>& request) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };

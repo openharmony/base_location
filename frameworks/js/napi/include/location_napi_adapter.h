@@ -19,6 +19,9 @@
 #include "common_utils.h"
 #include "locator.h"
 #include "napi_util.h"
+#include "geofence_request.h"
+#include "constant_definition.h"
+#include "location_gnss_geofence_callback_host.h"
 
 namespace OHOS {
 namespace Location {
@@ -46,6 +49,12 @@ napi_value SetReverseGeocodingMockInfo(napi_env env, napi_callback_info info);
 napi_value HandleGetCachedLocation(napi_env env);
 LocationErrCode CheckLocationSwitchState();
 napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info);
+napi_value AddGnssGeofence(napi_env env, napi_callback_info info);
+GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContext(const napi_env& env,
+    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackHost> callback);
+napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info);
+GnssGeofenceAsyncContext* CreateRemoveGnssGeofenceAsyncContext(const napi_env& env,
+    int fenceId, sptr<LocationGnssGeofenceCallbackHost> callback);
 #endif
 }  // namespace Location
 }  // namespace OHOS
