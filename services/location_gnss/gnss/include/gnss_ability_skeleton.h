@@ -26,6 +26,7 @@
 #include "subability_common.h"
 
 #include "app_identity.h"
+#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -44,8 +45,12 @@ public:
     virtual LocationErrCode GetCachedGnssLocationsSize(int &size) = 0;
     virtual LocationErrCode FlushCachedGnssLocations() = 0;
     virtual LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
-    virtual LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode AddGnssGeofence(
+        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback) = 0;
+    virtual LocationErrCode RemoveGnssGeofence(
+        std::shared_ptr<GeofenceRequest>& request) = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
@@ -78,6 +83,8 @@ private:
     int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int AddFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
 private:
     bool isMessageRequest_ = false;
     GnssMsgHandleMap GnssMsgHandleMap_;

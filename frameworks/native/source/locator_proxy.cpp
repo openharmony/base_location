@@ -33,6 +33,7 @@
 #include "location_log.h"
 #include "locationhub_ipc_interface_code.h"
 #include "request_config.h"
+#include "notification_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -323,38 +324,6 @@ void LocatorProxy::SendCommand(std::unique_ptr<LocationCommand>& commands)
     data.WriteString16(Str8ToStr16(commands->command));
     int error = SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::SEND_COMMAND), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SendCommand Transact ErrCodes = %{public}d", error);
-}
-
-void LocatorProxy::AddFence(std::unique_ptr<GeofenceRequest>& request)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
-    data.WriteInt32(request->scenario);
-    data.WriteDouble(request->geofence.latitude);
-    data.WriteDouble(request->geofence.longitude);
-    data.WriteDouble(request->geofence.radius);
-    data.WriteDouble(request->geofence.expiration);
-    int error = SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::ADD_FENCE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::AddFence Transact ErrCodes = %{public}d", error);
-}
-
-void LocatorProxy::RemoveFence(std::unique_ptr<GeofenceRequest>& request)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
-    data.WriteInt32(request->scenario);
-    data.WriteDouble(request->geofence.latitude);
-    data.WriteDouble(request->geofence.longitude);
-    data.WriteDouble(request->geofence.radius);
-    data.WriteDouble(request->geofence.expiration);
-    int error = SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", error);
 }
 
 bool LocatorProxy::EnableLocationMock()
@@ -860,7 +829,18 @@ LocationErrCode LocatorProxy::SendCommandV9(std::unique_ptr<LocationCommand>& co
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::AddFenceV9(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorProxy::AddFenceV9(std::shared_ptr<GeofenceRequest>& request)
+{
+    return HandleGnssfenceRequest(LocatorInterfaceCode::ADD_FENCE, request);
+}
+
+LocationErrCode LocatorProxy::RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request)
+{
+    return HandleGnssfenceRequest(LocatorInterfaceCode::REMOVE_FENCE, request);
+}
+
+LocationErrCode LocatorProxy::HandleGnssfenceRequest(
+    LocatorInterfaceCode code, std::shared_ptr<GeofenceRequest>& request)
 {
     if (request == nullptr) {
         return ERRCODE_INVALID_PARAM;
@@ -868,20 +848,46 @@ LocationErrCode LocatorProxy::AddFenceV9(std::unique_ptr<GeofenceRequest>& reque
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s WriteInterfaceToken failed", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    data.WriteInt32(request->scenario);
-    data.WriteDouble(request->geofence.latitude);
-    data.WriteDouble(request->geofence.longitude);
-    data.WriteDouble(request->geofence.radius);
-    data.WriteDouble(request->geofence.expiration);
-    LocationErrCode errorCode =
-        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::ADD_FENCE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::AddFence Transact ErrCodes = %{public}d", errorCode);
+    data.WriteInt32(request->GetScenario());
+    auto geofence = request->GetGeofence();
+    data.WriteDouble(geofence->latitude);
+    data.WriteDouble(geofence->longitude);
+    data.WriteDouble(geofence->radius);
+    data.WriteDouble(geofence->expiration);
+    data.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
+    auto wantAgent = request->GetWantAgent();
+    data.WriteParcelable(&wantAgent);
+    LocationErrCode errorCode = SendMsgWithDataReplyV9(static_cast<int>(code), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorProxy::AddGnssGeofence(
+    std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback)
+{
+    if (request == nullptr || callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "request or callback is nullptr");
+        return ERRCODE_INVALID_PARAM;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LBSLOGE(LOCATOR_STANDARD, "can not write descriptor");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    request->Marshalling(data);
+    data.WriteRemoteObject(callback);
+    LocationErrCode errorCode = SendMsgWithDataReplyV9(
+        static_cast<int>(LocatorInterfaceCode::ADD_GNSS_GEOFENCE), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
+
+LocationErrCode LocatorProxy::RemoveGnssGeofence(
+    std::shared_ptr<GeofenceRequest>& request)
 {
     if (request == nullptr) {
         return ERRCODE_INVALID_PARAM;
@@ -891,14 +897,10 @@ LocationErrCode LocatorProxy::RemoveFenceV9(std::unique_ptr<GeofenceRequest>& re
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    data.WriteInt32(request->scenario);
-    data.WriteDouble(request->geofence.latitude);
-    data.WriteDouble(request->geofence.longitude);
-    data.WriteDouble(request->geofence.radius);
-    data.WriteDouble(request->geofence.expiration);
-    LocationErrCode errorCode =
-        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::RemoveFence Transact ErrCodes = %{public}d", errorCode);
+    data.WriteInt32(request->GetFenceId());
+    LocationErrCode errorCode = SendMsgWithDataReplyV9(
+        static_cast<int>(LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 

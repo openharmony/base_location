@@ -34,6 +34,7 @@
 #include "nmea_message_callback_host.h"
 #include "subability_common.h"
 #include "work_record.h"
+#include "geofence_request.h"
 
 namespace OHOS {
     using namespace OHOS::Location;
@@ -93,7 +94,7 @@ namespace OHOS {
         std::unique_ptr<LocationCommand> command = std::make_unique<LocationCommand>();
         proxy->SendCommand(command);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-        std::unique_ptr<GeofenceRequest> fence = std::make_unique<GeofenceRequest>();
+        std::shared_ptr<GeofenceRequest> fence = std::make_shared<GeofenceRequest>();
         proxy->AddFence(fence);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->RemoveFence(fence);

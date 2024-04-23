@@ -55,6 +55,7 @@ const std::string LOCALE_KEY = "persist.global.locale";
 const int MODE_STANDALONE = 1;
 const int MODE_MS_BASED = 2;
 const int MODE_MS_ASSISTED = 3;
+const int DEFAULT_CALLBACK_WAIT_TIME = 10000;
 
 enum {
     SCENE_UNSET = 0x0300,
@@ -126,6 +127,7 @@ enum LocationErrCode {
     ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
     ERRCODE_SCAN_FAIL = 3301800,              /* Failed to start WiFi or Bluetooth scanning. */
+    ERRCODE_GEOFENCE_EXCEED_MAXIMUM = 3301601 /* The number of geofences exceeds the maximum. */
 };
 
 enum SatelliteConstellation {
@@ -167,6 +169,18 @@ enum LocationSourceType {
     RTK_TYPE = 4,
 };
 
+enum GeofenceTransitionEvent {
+    GEOFENCE_TRANSITION_INIT = -1,
+    GEOFENCE_TRANSITION_EVENT_ENTER = 1,
+    GEOFENCE_TRANSITION_EVENT_EXIT = 2,
+    GEOFENCE_TRANSITION_EVENT_DWELL = 4,
+};
+
+enum CoordinateSystemType {
+    WGS84 = 1,
+    GCJ02,
+};
+
 typedef struct {
     int reportingPeriodSec;
     bool wakeUpCacheQueueFull;
@@ -178,23 +192,16 @@ typedef struct {
 } LocationCommand;
 
 typedef struct {
-    double latitude;
-    double longitude;
-    double radius;
-    double expiration;
-} GeoFence;
-
-typedef struct {
-    int scenario;
-    GeoFence geofence;
-} GeofenceRequest;
-
-typedef struct {
     std::string locale;
     double latitude;
     double longitude;
     int maxItems;
 } ReverseGeocodeRequest;
+
+typedef struct {
+    int fenceId;
+    GeofenceTransitionEvent event;
+} GeofenceTransition;
 } // namespace Location
 } // namespace OHOS
 #endif // CONSTANT_DEFINITION_H

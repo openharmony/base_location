@@ -42,6 +42,7 @@
 #endif
 #include "request_config.h"
 #include "permission_manager.h"
+#include "geofence_request.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -164,17 +165,6 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission003, Tes
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 #ifdef FEATURE_GNSS_SUPPORT
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->scenario = SCENE_NAVIGATION;
-    GeoFence geofence;
-    geofence.latitude = 1.0;
-    geofence.longitude = 2.0;
-    geofence.radius = 3.0;
-    geofence.expiration = 4.0;
-    fenceRequest->geofence = geofence;
-    EXPECT_EQ(true, locatorImpl->AddFence(fenceRequest));
-    EXPECT_EQ(true, locatorImpl->RemoveFence(fenceRequest));
-
     locatorImpl->GetCachedGnssLocationsSize();
 
     auto cachedLocationsCallbackHost =
@@ -279,14 +269,13 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     bool state = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->IsLocationEnabledV9(state));
 #ifdef FEATURE_GNSS_SUPPORT
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->scenario = SCENE_NAVIGATION;
-    GeoFence geofence;
-    geofence.latitude = 1.0;
-    geofence.longitude = 2.0;
-    geofence.radius = 3.0;
-    geofence.expiration = 4.0;
-    fenceRequest->geofence = geofence;
+    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    geofence->latitude = 35.1;
+    geofence->longitude = 40.2;
+    geofence->radius = 2.2;
+    geofence->expiration = 12.2;
+    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
+    fenceRequest->SetGeofence(geofence);
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->AddFenceV9(fenceRequest));
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RemoveFenceV9(fenceRequest));

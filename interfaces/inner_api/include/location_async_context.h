@@ -35,6 +35,8 @@
 #include "locator_callback_host.h"
 #include "request_config.h"
 #include "satellite_status.h"
+#include "location_gnss_geofence_callback_host.h"
+#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -279,6 +281,23 @@ public:
     LocationErrorAsyncContext() = delete;
 
     ~LocationErrorAsyncContext() override {}
+}
+
+class GnssGeofenceAsyncContext : public AsyncContext {
+public:
+    int code_;
+    GeofenceTransition transition_;
+    sptr<LocationGnssGeofenceCallbackHost> callbackHost_ = nullptr;
+    std::shared_ptr<GeofenceRequest> request_;
+    int fenceId_;
+
+    explicit GnssGeofenceAsyncContext(
+        napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), fenceId_(-1) {}
+
+    GnssGeofenceAsyncContext() = delete;
+
+    ~GnssGeofenceAsyncContext() override {}
 };
 }  // namespace Location
 }  // namespace OHOS

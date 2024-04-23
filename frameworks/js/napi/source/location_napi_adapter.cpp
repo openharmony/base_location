@@ -1039,6 +1039,128 @@ napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info)
     }
     return DoAsyncWork(env, asyncContext, argc, argv, 1);
 }
+
+napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
+{
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator ext SA failed");
+    if (argc > PARAM1) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
+    ParseGnssGeofenceRequest(env, argv[0], gnssGeofenceRequest);
+    auto gnssGeofenceCallbackHost =
+        sptr<LocationGnssGeofenceCallbackHost>(new (std::nothrow) LocationGnssGeofenceCallbackHost());
+    gnssGeofenceCallbackHost->SetEnv(env);
+    auto asyncContext = CreateGnssGeofenceAsyncContext(env, gnssGeofenceRequest, gnssGeofenceCallbackHost);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    return DoAsyncWork(env, asyncContext, argc, argv, 1);
+}
+
+GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContext(const napi_env& env,
+    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackHost> callback)
+{
+    auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    NAPI_CALL(env, napi_create_string_latin1(env, "addGnssGeofence", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    asyncContext->callbackHost_ = callback;
+    asyncContext->request_ = request;
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        auto gnssGeofenceRequest = context->request_;
+        if (callbackHost != nullptr || gnssGeofenceRequest != nullptr) {
+            auto callbackPtr = sptr<IGnssGeofenceCallback>(callbackHost);
+            auto errCode = g_locatorClient->AddGnssGeofence(gnssGeofenceRequest, callbackPtr->AsObject());
+            if (errCode != ERRCODE_SUCCESS) {
+                context->errCode = errCode;
+            }
+            callbackHost->Wait(DEFAULT_CALLBACK_WAIT_TIME);
+            if (callbackHost->GetCount() != 0) {
+                context->errCode = ERRCODE_SERVICE_UNAVAILABLE;
+            }
+            callbackHost->SetCount(1);
+        }
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        if (callbackHost != nullptr) {
+            int fenceId = callbackHost->GetFenceId();
+            napi_create_object(context->env, &context->result[PARAM1]);
+            napi_create_int64(context->env, fenceId, &context->result[PARAM1]);
+            callbackHost->ClearFenceId();
+        } else {
+            LBSLOGE(LOCATOR_STANDARD, "callbackHost is nullptr!");
+        }
+        if (context->callbackHost_) {
+            context->callbackHost_ = nullptr;
+        }
+        LBSLOGD(LOCATOR_STANDARD, "Push fence id to client");
+    };
+    return asyncContext;
+}
+
+napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info)
+{
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    if (argc > PARAM1) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    int fenceId = -1;
+    napi_valuetype valueType1;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType1));
+    if (valueType1 != napi_number) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    NAPI_CALL(env, napi_get_value_int32(env, argv[0], &fenceId));
+    auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    asyncContext->fenceId_ = fenceId;
+    NAPI_CALL(env, napi_create_string_latin1(env,
+        "removeGnssGeofence", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+
+    asyncContext->executeFunc = [&](void* data) -> void {
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+        request->SetFenceId(context->fenceId_);
+        context->errCode = g_locatorClient->RemoveGnssGeofence(request);
+    };
+
+    asyncContext->completeFunc = [&](void* data) -> void {
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        LBSLOGD(LOCATOR_STANDARD, "Push RemoveGnssGeofence result to client");
+    };
+
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
 #endif
 } // namespace Location
 } // namespace OHOS

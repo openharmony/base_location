@@ -26,10 +26,12 @@
 #include "request_config.h"
 #include "system_ability_definition.h"
 #include "location_sa_load_manager.h"
-#include "locationhub_ipc_interface_code.h"
+
 #include "locating_required_data_config.h"
 #include "locator_required_data_manager.h"
 #include "location_log_event_ids.h"
+#include "notification_request.h"
+#include "geofence_request.h"
 #include "permission_manager.h"
 
 namespace OHOS {
@@ -39,41 +41,33 @@ void LocatorAbilityStub::InitLocatorHandleMap()
     if (locatorHandleMap_.size() != 0) {
         return;
     }
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_SWITCH_STATE)] =
-        &LocatorAbilityStub::PreGetSwitchState;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_SWITCH_CALLBACK)] =
-        &LocatorAbilityStub::PreRegisterSwitchCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_SWITCH_CALLBACK)] =
-        &LocatorAbilityStub::PreUnregisterSwitchCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::START_LOCATING)] =
-        &LocatorAbilityStub::PreStartLocating;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::STOP_LOCATING)] =
-        &LocatorAbilityStub::PreStopLocating;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_CACHE_LOCATION)] =
-        &LocatorAbilityStub::PreGetCacheLocation;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ENABLE_ABILITY)] =
-        &LocatorAbilityStub::PreEnableAbility;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UPDATE_SA_ABILITY)] =
-        &LocatorAbilityStub::PreUpdateSaAbility;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::IS_PRIVACY_COMFIRMED)] =
-        &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS)] =
+    ConstructLocatorHandleMap();
+    ConstructGeocodeHandleMap();
+    ConstructGnssHandleMap();
+}
+
+void LocatorAbilityStub::ConstructLocatorHandleMap()
+{
+    locatorHandleMap_[LocatorInterfaceCode::GET_SWITCH_STATE] = &LocatorAbilityStub::PreGetSwitchState;
+    locatorHandleMap_[LocatorInterfaceCode::REG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreRegisterSwitchCallback;
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreUnregisterSwitchCallback;
+    locatorHandleMap_[LocatorInterfaceCode::START_LOCATING] = &LocatorAbilityStub::PreStartLocating;
+    locatorHandleMap_[LocatorInterfaceCode::STOP_LOCATING] = &LocatorAbilityStub::PreStopLocating;
+    locatorHandleMap_[LocatorInterfaceCode::GET_CACHE_LOCATION] = &LocatorAbilityStub::PreGetCacheLocation;
+    locatorHandleMap_[LocatorInterfaceCode::ENABLE_ABILITY] = &LocatorAbilityStub::PreEnableAbility;
+    locatorHandleMap_[LocatorInterfaceCode::UPDATE_SA_ABILITY] = &LocatorAbilityStub::PreUpdateSaAbility;
+    locatorHandleMap_[LocatorInterfaceCode::IS_PRIVACY_COMFIRMED] = &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
+    locatorHandleMap_[LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS] =
         &LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)] =
-        &LocatorAbilityStub::PreEnableLocationMock;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)] =
-        &LocatorAbilityStub::PreDisableLocationMock;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        &LocatorAbilityStub::PreSetMockedLocations;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE)] =
-        &LocatorAbilityStub::PreProxyUidForFreeze;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY)] =
-        &LocatorAbilityStub::PreResetAllProxy;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION)] =
-        &LocatorAbilityStub::PreReportLocation;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK)] =
+    locatorHandleMap_[LocatorInterfaceCode::ENABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreEnableLocationMock;
+    locatorHandleMap_[LocatorInterfaceCode::DISABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreDisableLocationMock;
+    locatorHandleMap_[LocatorInterfaceCode::SET_MOCKED_LOCATIONS] = &LocatorAbilityStub::PreSetMockedLocations;
+    locatorHandleMap_[LocatorInterfaceCode::PROXY_UID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyUidForFreeze;
+    locatorHandleMap_[LocatorInterfaceCode::RESET_ALL_PROXY] = &LocatorAbilityStub::PreResetAllProxy;
+    locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION] = &LocatorAbilityStub::PreReportLocation;
+    locatorHandleMap_[LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK] =
         &LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK)] =
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK] =
         &LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_LOCATION_ERROR)] =
         &LocatorAbilityStub::PreRegisterLocationError;
@@ -81,50 +75,49 @@ void LocatorAbilityStub::InitLocatorHandleMap()
         &LocatorAbilityStub::PreUnregisterLocationError;
     locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION_ERROR)] =
         &LocatorAbilityStub::PreReportLocationError;
+}
+
+void LocatorAbilityStub::ConstructGeocodeHandleMap()
+{
 #ifdef FEATURE_GEOCODE_SUPPORT
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GEO_IS_AVAILABLE)] =
-        &LocatorAbilityStub::PreIsGeoConvertAvailable;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE)] =
-        &LocatorAbilityStub::PreGetAddressByCoordinate;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME)] =
-        &LocatorAbilityStub::PreGetAddressByLocationName;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK)] =
+    locatorHandleMap_[LocatorInterfaceCode::GEO_IS_AVAILABLE] = &LocatorAbilityStub::PreIsGeoConvertAvailable;
+    locatorHandleMap_[LocatorInterfaceCode::GET_FROM_COORDINATE] = &LocatorAbilityStub::PreGetAddressByCoordinate;
+    locatorHandleMap_[LocatorInterfaceCode::GET_FROM_LOCATION_NAME] = &LocatorAbilityStub::PreGetAddressByLocationName;
+    locatorHandleMap_[LocatorInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK] =
         &LocatorAbilityStub::PreEnableReverseGeocodingMock;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK)] =
+    locatorHandleMap_[LocatorInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK] =
         &LocatorAbilityStub::PreDisableReverseGeocodingMock;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO)] =
+    locatorHandleMap_[LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO] =
         &LocatorAbilityStub::PreSetReverseGeocodingMockInfo;
-#endif
-#ifdef FEATURE_GNSS_SUPPORT
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_GNSS_STATUS_CALLBACK)] =
-        &LocatorAbilityStub::PreRegisterGnssStatusCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_GNSS_STATUS_CALLBACK)] =
-        &LocatorAbilityStub::PreUnregisterGnssStatusCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK)] =
-        &LocatorAbilityStub::PreRegisterNmeaMessageCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK)] =
-        &LocatorAbilityStub::PreUnregisterNmeaMessageCallback;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_CACHED_CALLBACK)] =
-        &LocatorAbilityStub::PreStartCacheLocating;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_CACHED_CALLBACK)] =
-        &LocatorAbilityStub::PreStopCacheLocating;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::GET_CACHED_LOCATION_SIZE)] =
-        &LocatorAbilityStub::PreGetCachedGnssLocationsSize;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::FLUSH_CACHED_LOCATIONS)] =
-        &LocatorAbilityStub::PreFlushCachedGnssLocations;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::SEND_COMMAND)] =
-        &LocatorAbilityStub::PreSendCommand;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::ADD_FENCE)] =
-        &LocatorAbilityStub::PreAddFence;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE)] =
-        &LocatorAbilityStub::PreRemoveFence;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_V9)] =
-        &LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9;
-    locatorHandleMap_[static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9)] =
-        &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
 #endif
 }
 
+void LocatorAbilityStub::ConstructGnssHandleMap()
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    locatorHandleMap_[LocatorInterfaceCode::REG_GNSS_STATUS_CALLBACK] =
+        &LocatorAbilityStub::PreRegisterGnssStatusCallback;
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_GNSS_STATUS_CALLBACK] =
+        &LocatorAbilityStub::PreUnregisterGnssStatusCallback;
+    locatorHandleMap_[LocatorInterfaceCode::REG_NMEA_CALLBACK] = &LocatorAbilityStub::PreRegisterNmeaMessageCallback;
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_NMEA_CALLBACK] =
+        &LocatorAbilityStub::PreUnregisterNmeaMessageCallback;
+    locatorHandleMap_[LocatorInterfaceCode::REG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStartCacheLocating;
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStopCacheLocating;
+    locatorHandleMap_[LocatorInterfaceCode::GET_CACHED_LOCATION_SIZE] =
+        &LocatorAbilityStub::PreGetCachedGnssLocationsSize;
+    locatorHandleMap_[LocatorInterfaceCode::FLUSH_CACHED_LOCATIONS] = &LocatorAbilityStub::PreFlushCachedGnssLocations;
+    locatorHandleMap_[LocatorInterfaceCode::SEND_COMMAND] = &LocatorAbilityStub::PreSendCommand;
+    locatorHandleMap_[LocatorInterfaceCode::ADD_FENCE] = &LocatorAbilityStub::PreAddFence;
+    locatorHandleMap_[LocatorInterfaceCode::REMOVE_FENCE] = &LocatorAbilityStub::PreRemoveFence;
+    locatorHandleMap_[LocatorInterfaceCode::REG_NMEA_CALLBACK_V9] =
+        &LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9;
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9] =
+        &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
+    locatorHandleMap_[LocatorInterfaceCode::ADD_GNSS_GEOFENCE] = &LocatorAbilityStub::PreAddGnssGeofence;
+    locatorHandleMap_[LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE] = &LocatorAbilityStub::PreRemoveGnssGeofence;
+#endif
+}
 
 LocatorAbilityStub::LocatorAbilityStub()
 {
@@ -635,31 +628,20 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreAddFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckLocationSwitchState(reply)) {
-        return ERRCODE_SWITCH_OFF;
-    }
-    if (!CheckLocationPermission(reply, identity)) {
-        return ERRCODE_PERMISSION_DENIED;
-    }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreAddFence: LocatorAbility is nullptr.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->scenario = data.ReadInt32();
-    request->geofence.latitude = data.ReadDouble();
-    request->geofence.longitude = data.ReadDouble();
-    request->geofence.radius = data.ReadDouble();
-    request->geofence.expiration = data.ReadDouble();
-    reply.WriteInt32(locatorAbility->AddFence(request));
-    return ERRCODE_SUCCESS;
+    return DoProcessFenceRequest(LocatorInterfaceCode::ADD_FENCE, data, reply, identity);
 }
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    return DoProcessFenceRequest(LocatorInterfaceCode::REMOVE_FENCE, data, reply, identity);
+}
+#endif
+
+#ifdef FEATURE_GNSS_SUPPORT
+int LocatorAbilityStub::DoProcessFenceRequest(
+    LocatorInterfaceCode code, MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
@@ -673,13 +655,68 @@ int LocatorAbilityStub::PreRemoveFence(MessageParcel &data, MessageParcel &reply
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->scenario = data.ReadInt32();
-    request->geofence.latitude = data.ReadDouble();
-    request->geofence.longitude = data.ReadDouble();
-    request->geofence.radius = data.ReadDouble();
-    request->geofence.expiration = data.ReadDouble();
-    reply.WriteInt32(locatorAbility->RemoveFence(request));
+    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetScenario(data.ReadInt32());
+    geofence->latitude = data.ReadDouble();
+    geofence->longitude = data.ReadDouble();
+    geofence->radius = data.ReadDouble();
+    geofence->expiration = data.ReadDouble();
+    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
+    request->SetGeofence(geofence);
+    auto wantAgent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
+    request->SetWantAgent(*wantAgent);
+    if (code == LocatorInterfaceCode::ADD_FENCE) {
+        reply.WriteInt32(locatorAbility->AddFence(request));
+    } else if (code == LocatorInterfaceCode::REMOVE_FENCE) {
+        reply.WriteInt32(locatorAbility->RemoveFence(request));
+    }
+    return ERRCODE_SUCCESS;
+}
+#endif
+
+#ifdef FEATURE_GNSS_SUPPORT
+int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility is nullptr.");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto request = GeofenceRequest::Unmarshalling(data);
+    request->SetBundleName(identity.GetBundleName());
+    sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
+    reply.WriteInt32(locatorAbility->AddGnssGeofence(request, callback));
+    return ERRCODE_SUCCESS;
+}
+#endif
+
+#ifdef FEATURE_GNSS_SUPPORT
+int LocatorAbilityStub::PreRemoveGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility is nullptr.");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetFenceId(data.ReadInt32());
+    request->SetBundleName(identity.GetBundleName());
+    reply.WriteInt32(locatorAbility->RemoveGnssGeofence(request));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -1108,7 +1145,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     }
     RemoveUnloadTask(code);
 
-    auto handleFunc = locatorHandleMap_.find(code);
+    auto handleFunc = locatorHandleMap_.find(static_cast<LocatorInterfaceCode>(code));
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
         ret = (this->*memberFunc)(data, reply, identity);

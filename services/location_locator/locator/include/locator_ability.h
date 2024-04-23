@@ -34,6 +34,8 @@
 #include "request.h"
 #include "request_manager.h"
 #include "report_manager.h"
+#include "want_agent_helper.h"
+#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -94,8 +96,11 @@ public:
     LocationErrCode GetCachedGnssLocationsSize(int& size);
     LocationErrCode FlushCachedGnssLocations();
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands);
-    LocationErrCode AddFence(std::unique_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveFence(std::unique_ptr<GeofenceRequest>& request);
+    LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request,
+        const sptr<IRemoteObject>& callback);
+    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
 #endif
     LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback, AppIdentity &identity);
