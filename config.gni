@@ -51,6 +51,9 @@ declare_args() {
   resourceschedule_background_task_mgr_enable = true
   resourceschedule_schedule_service_enable = true
   ability_form_fwk_enable = true
+  call_manager_enable = true
+  sms_mms_enable = true
+  common_event_service_enable = true
 
   if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
     i18n_enable = false
@@ -99,5 +102,20 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_schedule_service)) {
     resourceschedule_schedule_service_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.telephony_call_manager)) {
+    call_manager_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.notification_common_event_service)) {
+    common_event_service_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.telephony_sms_mms)) {
+    sms_mms_enable = false
   }
 }
