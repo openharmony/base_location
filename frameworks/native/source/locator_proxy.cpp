@@ -426,39 +426,6 @@ bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geoco
     return state;
 }
 
-bool LocatorProxy::ProxyUidForFreeze(int32_t uid, bool isProxy)
-{
-    bool state = false;
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return false;
-    }
-
-    if (!data.WriteInt32(uid) || !data.WriteBool(isProxy)) {
-        LBSLOGE(LOCATOR_STANDARD, "[ProxyUid] fail: write data failed");
-        return false;
-    }
-    int error = SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyUid Transact ErrCodes = %{public}d", error);
-    if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
-        state = true;
-    }
-    return state;
-}
-
-bool LocatorProxy::ResetAllProxy()
-{
-    bool state = false;
-    MessageParcel reply;
-    int error = SendMsgWithReply(static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY), reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ResetAllProxy Transact ErrCodes = %{public}d", error);
-    if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
-        state = true;
-    }
-    return state;
-}
-
 LocationErrCode LocatorProxy::GetSwitchStateV9(bool &isEnabled)
 {
     MessageParcel reply;
@@ -985,7 +952,7 @@ LocationErrCode LocatorProxy::SetReverseGeocodingMockInfoV9(std::vector<std::sha
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
+LocationErrCode LocatorProxy::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -993,17 +960,18 @@ LocationErrCode LocatorProxy::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
-    if (!data.WriteInt32(uid) || !data.WriteBool(isProxy)) {
-        LBSLOGE(LOCATOR_STANDARD, "[ProxyUid] fail: write data failed");
-        return ERRCODE_INVALID_PARAM;
+    data.WriteInt32(pidList.size());
+    for (auto it = pidList.begin(); it != pidList.end(); it++) {
+        data.WriteInt32(*it);
     }
+    data.WriteBool(isProxy);
     LocationErrCode errorCode =
-        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyUid Transact ErrCodes = %{public}d", errorCode);
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyForFreeze Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::ResetAllProxyV9()
+LocationErrCode LocatorProxy::ResetAllProxy()
 {
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithReplyV9(static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY), reply);

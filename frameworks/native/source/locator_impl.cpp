@@ -578,43 +578,6 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
     return flag;
 }
 
-bool LocatorImpl::ProxyUidForFreeze(int32_t uid, bool isProxy)
-{
-    if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
-        return true;
-    }
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return false;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyUid()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    bool flag = proxy->ProxyUidForFreeze(uid, isProxy);
-    return flag;
-}
-
-bool LocatorImpl::ResetAllProxy()
-{
-    if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
-        LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need reset proxy", __func__);
-        return true;
-    }
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return false;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ResetAllProxy()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return false;
-    }
-    bool flag = proxy->ResetAllProxy();
-    return flag;
-}
-
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
@@ -1172,7 +1135,7 @@ LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shar
     return errCode;
 }
 
-LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
+LocationErrCode LocatorImpl::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
     if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SUCCESS;
@@ -1180,17 +1143,17 @@ LocationErrCode LocatorImpl::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyUidForFreezeV9()");
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyForFreeze()");
     sptr<LocatorProxy> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->ProxyUidForFreezeV9(uid, isProxy);
+    LocationErrCode errCode = proxy->ProxyForFreeze(pidList, isProxy);
     return errCode;
 }
 
-LocationErrCode LocatorImpl::ResetAllProxyV9()
+LocationErrCode LocatorImpl::ResetAllProxy()
 {
     if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
         LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need reset proxy", __func__);
@@ -1199,13 +1162,13 @@ LocationErrCode LocatorImpl::ResetAllProxyV9()
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ResetAllProxyV9()");
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ResetAllProxy()");
     sptr<LocatorProxy> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->ResetAllProxyV9();
+    LocationErrCode errCode = proxy->ResetAllProxy();
     return errCode;
 }
 

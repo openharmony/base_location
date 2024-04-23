@@ -74,8 +74,6 @@ public:
     virtual bool DisableLocationMock() = 0;
     virtual bool SetMockedLocations(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
-    virtual bool ProxyUidForFreeze(int32_t uid, bool isProxy) = 0;
-    virtual bool ResetAllProxy() = 0;
 
     virtual LocationErrCode IsLocationEnabledV9(bool &isEnabled) = 0;
     virtual LocationErrCode EnableAbilityV9(bool enable) = 0;
@@ -115,8 +113,8 @@ public:
     virtual LocationErrCode DisableLocationMockV9() = 0;
     virtual LocationErrCode SetMockedLocationsV9(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
-    virtual LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy) = 0;
-    virtual LocationErrCode ResetAllProxyV9() = 0;
+    virtual LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy) = 0;
+    virtual LocationErrCode ResetAllProxy() = 0;
 private:
     static std::shared_ptr<LocatorImpl> instance_;
     static std::mutex mutex_;

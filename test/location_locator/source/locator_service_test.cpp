@@ -1300,8 +1300,6 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
 #endif
     EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
 
-    EXPECT_EQ(false, locatorImpl->ProxyUidForFreeze(1000, false));
-
     int timeInterval = 2;
     EXPECT_EQ(true, locatorImpl->EnableLocationMock());
     std::vector<std::shared_ptr<Location>> locations;
@@ -1739,23 +1737,25 @@ HWTEST_F(LocatorServiceTest, locatorServiceGetReceivers001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGetReceivers001 end");
 }
 
-HWTEST_F(LocatorServiceTest, locatorServiceProxyUidForFreeze001, TestSize.Level1)
+HWTEST_F(LocatorServiceTest, locatorServiceProxyForFreeze001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceProxyUidForFreeze001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyUidForFreeze001 begin");
+        << "LocatorServiceTest, locatorServiceProxyForFreeze001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyForFreeze001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyUidForFreeze(SYSTEM_UID, true));
-    EXPECT_EQ(true, locatorAbility->IsProxyUid(SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyUidForFreeze(SYSTEM_UID, false));
-    EXPECT_EQ(false, locatorAbility->IsProxyUid(SYSTEM_UID));
+    std::set<int> pidList;
+    pidList.insert(SYSTEM_UID);
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, true));
+    EXPECT_EQ(true, locatorAbility->IsProxyPid(SYSTEM_UID));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, false));
+    EXPECT_EQ(false, locatorAbility->IsProxyPid(SYSTEM_UID));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyUidForFreeze(SYSTEM_UID, true));
-    EXPECT_EQ(true, locatorAbility->IsProxyUid(SYSTEM_UID));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, true));
+    EXPECT_EQ(true, locatorAbility->IsProxyPid(SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ResetAllProxy());
-    EXPECT_EQ(false, locatorAbility->IsProxyUid(SYSTEM_UID));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyUidForFreeze001 end");
+    EXPECT_EQ(false, locatorAbility->IsProxyPid(SYSTEM_UID));
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyForFreeze001 end");
 }
 
 HWTEST_F(LocatorServiceTest, LocatorAbilityStubDump001, TestSize.Level1)
@@ -1808,20 +1808,20 @@ HWTEST_F(LocatorServiceTest, LocatorAbilityGetProxyMap002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityGetProxyMap002 end");
 }
 
-HWTEST_F(LocatorServiceTest, locatorServicePreProxyUidForFreeze001, TestSize.Level1)
+HWTEST_F(LocatorServiceTest, locatorServicePreProxyForFreeze001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceProxyUidForFreeze001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyUidForFreeze001 begin");
+        << "LocatorServiceTest, locatorServicePreProxyForFreeze001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePreProxyForFreeze001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     AppIdentity identity;
     MessageParcel data;
     MessageParcel reply;
     identity.SetUid(100);
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->PreProxyUidForFreeze(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->PreProxyForFreeze(data, reply, identity));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->PreResetAllProxy(data, reply, identity));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyUidForFreeze001 end");
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePreProxyForFreeze001 end");
 }
 
 HWTEST_F(LocatorServiceTest, locatorServiceOnAddSystemAbility001, TestSize.Level1)
