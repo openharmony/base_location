@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,23 @@
  * limitations under the License.
  */
 
-#include "geofence_state.h"
+#ifndef I_GNSS_GEOFENCE_CALLBACK_H
+#define I_GNSS_GEOFENCE_CALLBACK_H
+
+#include "iremote_broker.h"
+
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
-GeoFenceState::GeoFenceState(const GeoFence fence, const AbilityRuntime::WantAgent::WantAgent wantAgent)
-{
-    mFence = fence;
-    mWantAgent = wantAgent;
-    mState = 0;
-}
+class IGnssGeofenceCallback : public IRemoteBroker {
+public:
+    enum {
+        RECEIVE_FENCE_ID_EVENT = 1,
+        RECEIVE_TRANSITION_STATUS_EVENT
+    };
+    DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssGeofenceCallback");
+};
 } // namespace Location
 } // namespace OHOS
+#endif // I_GNSS_GEOFENCE_CALLBACK_H

@@ -52,6 +52,7 @@
                 "data_share",
                 "drivers_interface_location_agnss",
                 "drivers_interface_location_gnss",
+                "drivers_interface_location_geofence",
                 "eventhandler",
                 "form_fwk",
                 "hdf_core",
@@ -70,7 +71,8 @@
                 "sms_mms",
                 "wifi",
                 "bluetooth",
-                "distributed_notification_service"
+                "distributed_notification_service",
+                "image_framework"
             ],
             "third_party": [
                 "libuv"
@@ -98,34 +100,33 @@
             },
             "inner_kits": [
                 {
-                    "header" : {
+                    "header": {
                         "header_base": "//base/location/interfaces/inner_api/include",
                         "header_files": [
                             "locator_impl.h"
                         ]
                     },
-                    "name" : "//base/location/frameworks/native:locator_sdk"
+                    "name": "//base/location/frameworks/native:locator_sdk"
                 },
                 {
-                    "header" : {
+                    "header": {
                         "header_base": "//base/location/interfaces/inner_api/include",
                         "header_files": []
                     },
-                    "name" : "//base/location/frameworks/location_common/common:lbsservice_common"
+                    "name": "//base/location/frameworks/location_common/common:lbsservice_common"
                 },
                 {
-                    "header" : {
+                    "header": {
                         "header_base": "//base/location/interfaces/inner_api/include",
                         "header_files": []
                     },
-                    "name" : "//base/location/interfaces/inner_api/native:locator_agent"
+                    "name": "//base/location/interfaces/inner_api/native:locator_agent"
                 }
             ],
             "test": [
                 "//base/location/test/location_common:unittest",
                 "//base/location/test/location_geocode:unittest",
                 "//base/location/test/location_gnss:unittest",
-                "//base/location/test/location_fence:unittest",
                 "//base/location/test/location_locator:unittest",
                 "//base/location/test/location_network:unittest",
                 "//base/location/test/location_passive:unittest",

@@ -55,6 +55,7 @@
 #include "nmea_message_callback_host.h"
 #endif
 #include "permission_manager.h"
+#include "geofence_request.h"
 
 using namespace testing::ext;
 
@@ -989,68 +990,6 @@ HWTEST_F(LocatorServiceTest, SendCommand001, TestSize.Level1)
 #endif
 
 /*
- * @tc.name: AddFence001
- * @tc.desc: Test add fence
- * @tc.type: FUNC
- */
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. build geo fence request
-     */
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, AddFence001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddFence001 begin");
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->scenario = 2; // scenario
-    request->geofence.latitude = 35.1; // latitude
-    request->geofence.longitude = 40.2; // longitude
-    request->geofence.radius = 2.2; // radius
-    request->geofence.expiration = 12.2; // expiration
-
-    /*
-     * @tc.steps: step2. test add fence
-     * @tc.expected: no exception happens
-     */
-    ASSERT_TRUE(proxy_ != nullptr);
-    proxy_->AddFence(request);
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddFence001 end");
-}
-#endif
-
-/*
- * @tc.name: RemoveFence001
- * @tc.desc: Test add fence
- * @tc.type: FUNC
- */
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
-{
-    /*
-     * @tc.steps: step1. build geo fence request
-     */
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, RemoveFence001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 begin");
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->scenario = 2; // scenario
-    request->geofence.latitude = 35.1; // latitude
-    request->geofence.longitude = 40.2; // longitude
-    request->geofence.radius = 2.2; // radius
-    request->geofence.expiration = 12.2; // expiration
-
-    /*
-     * @tc.steps: step2. test remove fence
-     * @tc.expected: no exception happens
-     */
-    ASSERT_TRUE(proxy_ != nullptr);
-    proxy_->RemoveFence(request);
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 end");
-}
-#endif
-
-/*
  * @tc.name: EnableLocationMock001
  * @tc.desc: Test enable location mock in SCENE_CAR_HAILING scenario
  * @tc.type: FUNC
@@ -1358,16 +1297,6 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     command->scenario = SCENE_NAVIGATION;
     command->command = "cmd";
     EXPECT_EQ(true, locatorImpl->SendCommand(command));
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->scenario = SCENE_NAVIGATION;
-    GeoFence geofence;
-    geofence.latitude = 1.0;
-    geofence.longitude = 2.0;
-    geofence.radius = 3.0;
-    geofence.expiration = 4.0;
-    fenceRequest->geofence = geofence;
-    EXPECT_EQ(true, locatorImpl->AddFence(fenceRequest));
-    EXPECT_EQ(true, locatorImpl->RemoveFence(fenceRequest));
 #endif
     EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
 
@@ -1734,14 +1663,13 @@ HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::unique_ptr<GeofenceRequest> fenceRequest = std::make_unique<GeofenceRequest>();
-    fenceRequest->scenario = SCENE_NAVIGATION;
-    GeoFence geofence;
-    geofence.latitude = 1.0;
-    geofence.longitude = 2.0;
-    geofence.radius = 3.0;
-    geofence.expiration = 4.0;
-    fenceRequest->geofence = geofence;
+    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    geofence->latitude = 35.1;
+    geofence->longitude = 40.2;
+    geofence->radius = 2.2;
+    geofence->expiration = 12.2;
+    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
+    fenceRequest->SetGeofence(geofence);
     // uid pid not match locationhub process
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->AddFence(fenceRequest));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RemoveFence(fenceRequest));

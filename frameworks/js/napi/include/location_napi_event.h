@@ -17,7 +17,6 @@
 #define LOCATION_NAPI_EVENT_H
 
 #include "cached_locations_callback_host.h"
-#include "geofence_state.h"
 #include "gnss_status_callback_host.h"
 #include "locating_required_data_callback_host.h"
 #include "location_switch_callback_host.h"

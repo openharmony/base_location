@@ -35,11 +35,10 @@ namespace OHOS {
 namespace Location {
 using namespace EventFwk;
 constexpr uint32_t MAX_RETRY_TIMES = 3;
-constexpr uint32_t AGAIN_REGISTER_CALLBACK_INTERVAL = 500;
 constexpr uint32_t TIME_AFTER_EMERGENCY_CALL = 10 * 1000;
 constexpr int32_t INVALID_SUBID = -1;
 const std::string URN_APPLICATION_ID = "x-oma-application:ulp.ua";
-constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
+const std::string AGNSS_NI_SERVICE_NAME = "agnss_ni";
 const int32_t GNSS_AGNSS_NI_NOTIFICATION_ID = LOCATION_GNSS_SA_ID * 100;
 const std::string LOCATION_DIALOG_BUNDLE_NAME = "com.ohos.locationdialog";
 const std::string AGNSS_NI_DIALOG_ABILITY_NAME = "ConfirmUIExtAbility";
@@ -134,6 +133,7 @@ void AGnssNiManager::AgnssNiSuplInit()
 #endif
 }
 
+#ifdef SMS_MMS_ENABLE
 static bool IsFromDefaultSubId(const OHOS::EventFwk::Want &want)
 {
     int32_t subId = want.GetIntParam("slotId", INVALID_SUBID);
@@ -149,9 +149,11 @@ static bool IsFromDefaultSubId(const OHOS::EventFwk::Want &want)
     }
     return true;
 }
+#endif
 
 void AGnssNiManager::CheckWapSuplInit(const EventFwk::Want &want)
 {
+#ifdef SMS_MMS_ENABLE
     AgnssNiSuplInit();
     if (!IsFromDefaultSubId(want)) {
         LBSLOGE(GNSS, "supl init message does not come from default sub");
@@ -174,10 +176,12 @@ void AGnssNiManager::CheckWapSuplInit(const EventFwk::Want &want)
         return;
     }
     gnssInterface_->SendNetworkInitiatedMsg(rawData, rawData.length());
+#endif
 }
 
 void AGnssNiManager::CheckSmsSuplInit(const EventFwk::Want &want)
 {
+#ifdef SMS_MMS_ENABLE
     AgnssNiSuplInit();
     if (!IsFromDefaultSubId(want)) {
         LBSLOGE(GNSS, "supl init message does not come from default sub");
@@ -210,6 +214,7 @@ void AGnssNiManager::CheckSmsSuplInit(const EventFwk::Want &want)
         delete message;
         message = nullptr;
     }
+#endif
 }
 
 bool AGnssNiManager::IsInEmergency()
@@ -223,6 +228,7 @@ bool AGnssNiManager::IsInEmergency()
 
 void AGnssNiManager::OnCallStateChanged(const EventFwk::Want &want)
 {
+#ifdef CALL_MANAGER_ENABLE
     int32_t state = want.GetIntParam("state", (int32_t)Telephony::TelCallState::CALL_STATUS_UNKNOWN);
     if (state == (int32_t)Telephony::TelCallState::CALL_STATUS_DIALING) {
         int32_t slotId = want.GetIntParam("slotId", -1);
@@ -241,6 +247,7 @@ void AGnssNiManager::OnCallStateChanged(const EventFwk::Want &want)
         }
     }
     return;
+#endif
 }
 
 std::string AGnssNiManager::BuildStartCommand(const GnssNiNotificationRequest &notif)
@@ -322,8 +329,12 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
     }
 
     std::string title = "Location Request";
-    std::string message = "Requested by " + DecodeNiString(notif.supplicantInfo, notif.supplicantInfoEncoding) +
+    std::string msgBody = DecodeNiString(notif.supplicantInfo, notif.supplicantInfoEncoding) +
         DecodeNiString(notif.notificationText, notif.notificationTextEncoding);
+    if (msgBody.empty()) {
+        msgBody = "SUPL Service";
+    }
+    std::string message = "Requested by " + msgBody;
     notificationNormalContent->SetTitle(title);
     notificationNormalContent->SetText(message);
     std::shared_ptr<OHOS::Notification::NotificationContent> notificationContent =
@@ -340,6 +351,8 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
     request.SetCreatorUid(LOCATION_GNSS_SA_ID);
     request.SetAutoDeletedTime(NOTIFICATION_AUTO_DELETED_TIME);
     request.SetTapDismissed(true);
+    request.SetCreatorBundleName(AGNSS_NI_SERVICE_NAME);
+    request.SetSlotType(Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
 
     int32_t ret = Notification::NotificationHelper::PublishNotification(request);
     if (ret != 0) {
@@ -361,21 +374,6 @@ void AGnssNiManager::SendUserResponse(GnssNiResponseCmd responseCmd)
 
 void AGnssNiManager::HandleNiNotification(const GnssNiNotificationRequest &notif)
 {
-    LBSLOGI(GNSS,
-        "reportNiNotification: gnssNiNotificationId %{public}u, gnssNiRequestCategory %{public}d, "
-        "notificationCategory %{public}d, timeout %{public}d, defaultRespone %{public}d",
-        notif.gnssNiNotificationId,
-        notif.gnssNiRequestCategory,
-        notif.notificationCategory,
-        notif.requestTimeout,
-        notif.defaultResponseCmd);
-    LBSLOGI(GNSS,
-        "supplicantInfo %{public}s, notificationText %{public}s, supplicantInfoEncoding %{public}d, "
-        "notificationTextEncoding %{public}d",
-        notif.supplicantInfo.c_str(),
-        notif.notificationText.c_str(),
-        notif.supplicantInfoEncoding,
-        notif.notificationTextEncoding);
     std::unique_lock<std::mutex> lock(mutex_);
     niNotificationId_ = notif.gnssNiNotificationId;
     bool needNotify = (notif.notificationCategory & GNSS_NI_NOTIFICATION_REQUIRE_NOTIFY) != 0;

@@ -19,10 +19,12 @@ if (location_feature_with_gnss) {
     sources = [
       "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
       "$LOCATION_GNSS_ROOT/source/agnss_ni_manager.cpp",
+      "$LOCATION_GNSS_ROOT/source/geofence_event_callback.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
+      "$LOCATION_GNSS_ROOT/source/location_gnss_geofence_callback_proxy.cpp",
       "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
       "$LOCATION_GNSS_ROOT/source/ui_extension_ability_connection.cpp",
       "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
@@ -49,15 +51,12 @@ if (location_feature_with_gnss) {
     ]
 
     external_deps = [
-      "ability_base:base",
       "ability_base:want",
       "ability_base:zuri",
-      "ability_runtime:extension_manager",
       "ability_runtime:wantagent_innerkits",
       "c_utils:utils",
-      "call_manager:tel_call_manager_api",
-      "common_event_service:cesfwk_innerkits",
       "distributed_notification_service:ans_innerkits",
+      "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
       "eventhandler:libeventhandler",
       "hdf_core:libhdi",
       "hilog:libhilog",
@@ -66,7 +65,6 @@ if (location_feature_with_gnss) {
       "relational_store:native_rdb",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
-      "sms_mms:tel_sms_mms_api",
     ]
 
     defines = []
@@ -101,6 +99,24 @@ if (location_feature_with_gnss) {
     if (communication_wifi_enable) {
       external_deps += [ "wifi:wifi_sdk" ]
       defines += [ "WIFI_ENABLE" ]
+    }
+
+    if (call_manager_enable) {
+      external_deps += [ "call_manager:tel_call_manager_api" ]
+      defines += [ "CALL_MANAGER_ENABLE" ]
+    }
+
+    if (common_event_service_enable) {
+      external_deps += [
+        "ability_runtime:extension_manager",
+        "common_event_service:cesfwk_innerkits",
+      ]
+      defines += [ "COMMON_EVENT_SERVICE_ENABLE" ]
+    }
+
+    if (sms_mms_enable) {
+      external_deps += [ "sms_mms:tel_sms_mms_api" ]
+      defines += [ "SMS_MMS_ENABLE" ]
     }
 
     part_name = "location"

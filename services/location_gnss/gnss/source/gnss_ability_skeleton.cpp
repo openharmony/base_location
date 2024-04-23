@@ -23,6 +23,8 @@
 #include "gnss_ability.h"
 #include "locationhub_ipc_interface_code.h"
 #include "permission_manager.h"
+#include "want_agent_helper.h"
+#include "notification_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -65,6 +67,10 @@ void GnssAbilityStub::InitGnssMsgHandleMap()
         &GnssAbilityStub::AddFenceInner;
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO)] =
         &GnssAbilityStub::RemoveFenceInner;
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ADD_GNSS_GEOFENCE)] =
+        &GnssAbilityStub::AddGnssGeofenceInner;
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE)] =
+        &GnssAbilityStub::RemoveGnssGeofenceInner;
 }
 
 GnssAbilityStub::GnssAbilityStub()
@@ -229,12 +235,17 @@ int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, Ap
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->scenario = data.ReadInt32();
-    request->geofence.latitude = data.ReadDouble();
-    request->geofence.longitude = data.ReadDouble();
-    request->geofence.radius = data.ReadDouble();
-    request->geofence.expiration = data.ReadDouble();
+    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetScenario(data.ReadInt32());
+    geofence->latitude = data.ReadDouble();
+    geofence->longitude = data.ReadDouble();
+    geofence->radius = data.ReadDouble();
+    geofence->expiration = data.ReadDouble();
+    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
+    request->SetGeofence(geofence);
+    auto agent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
+    request->SetWantAgent(*agent);
     reply.WriteInt32(AddFence(request));
     return ERRCODE_SUCCESS;
 }
@@ -244,13 +255,41 @@ int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply,
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    std::unique_ptr<GeofenceRequest> request = std::make_unique<GeofenceRequest>();
-    request->scenario = data.ReadInt32();
-    request->geofence.latitude = data.ReadDouble();
-    request->geofence.longitude = data.ReadDouble();
-    request->geofence.radius = data.ReadDouble();
-    request->geofence.expiration = data.ReadDouble();
+    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetScenario(data.ReadInt32());
+    geofence->latitude = data.ReadDouble();
+    geofence->longitude = data.ReadDouble();
+    geofence->radius = data.ReadDouble();
+    geofence->expiration = data.ReadDouble();
+    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
+    request->SetGeofence(geofence);
+    auto agent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
+    request->SetWantAgent(*agent);
     reply.WriteInt32(RemoveFence(request));
+    return ERRCODE_SUCCESS;
+}
+
+int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto request = GeofenceRequest::Unmarshalling(data);
+    sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
+    reply.WriteInt32(AddGnssGeofence(request, callback));
+    return ERRCODE_SUCCESS;
+}
+
+int GnssAbilityStub::RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetFenceId(data.ReadInt32());
+    request->SetBundleName(data.ReadString());
+    reply.WriteInt32(RemoveGnssGeofence(request));
     return ERRCODE_SUCCESS;
 }
 
