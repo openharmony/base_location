@@ -18,11 +18,19 @@ if (location_feature_with_gnss) {
   ohos_shared_library("lbsservice_gnss") {
     sources = [
       "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
+      "$LOCATION_GNSS_ROOT/source/agnss_ni_manager.cpp",
       "$LOCATION_GNSS_ROOT/source/geofence_event_callback.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
+      "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
       "$LOCATION_GNSS_ROOT/source/location_gnss_geofence_callback_proxy.cpp",
+      "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
+      "$LOCATION_GNSS_ROOT/source/ui_extension_ability_connection.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
     ]
 
     include_dirs = [
@@ -40,7 +48,6 @@ if (location_feature_with_gnss) {
 
     deps = [
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     ]
 
     external_deps = [
@@ -92,6 +99,24 @@ if (location_feature_with_gnss) {
     if (communication_wifi_enable) {
       external_deps += [ "wifi:wifi_sdk" ]
       defines += [ "WIFI_ENABLE" ]
+    }
+
+    if (call_manager_enable) {
+      external_deps += [ "call_manager:tel_call_manager_api" ]
+      defines += [ "CALL_MANAGER_ENABLE" ]
+    }
+
+    if (common_event_service_enable) {
+      external_deps += [
+        "ability_runtime:extension_manager",
+        "common_event_service:cesfwk_innerkits",
+      ]
+      defines += [ "COMMON_EVENT_SERVICE_ENABLE" ]
+    }
+
+    if (sms_mms_enable) {
+      external_deps += [ "sms_mms:tel_sms_mms_api" ]
+      defines += [ "SMS_MMS_ENABLE" ]
     }
 
     part_name = "location"

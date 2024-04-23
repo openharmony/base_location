@@ -161,7 +161,7 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
     std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
     records->Set(*lastRecord_);
     if (state) {
-        records->Add(uid, pid, name, interval_, uuid, 0);
+        records->Add(uid, pid, name, interval_, uuid, LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
     } else {
         records->Remove(uid, pid, name, uuid);
     }

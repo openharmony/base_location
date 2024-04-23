@@ -100,7 +100,7 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
 LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_value& object, const napi_value& handler);
 LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<LocatingRequiredDataCallbackHost>& locatingCallbackHost);
-LocationErrCode SubscribeLocationError(const napi_env& env, const napi_value& object,
+LocationErrCode SubscribeLocationError(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationErrorCallbackHost>& locationErrorCallbackHost);
 LocationErrCode UnSubscribeLocationChangeV9(sptr<ILocatorCallback>& callback);
 LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env,

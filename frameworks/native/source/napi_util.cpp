@@ -155,7 +155,6 @@ napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& a
     napi_value setFunc = nullptr;
     NAPI_CALL(env, napi_get_named_property(env, map, "set", &setFunc));
     for (auto iter : additionsMap) {
-        LBSLOGE(LOCATOR_STANDARD, "CreateJsMap");
         napi_value key = nullptr;
         napi_value value = nullptr;
         NAPI_CALL(env, napi_create_string_utf8(env, iter.first.c_str(), NAPI_AUTO_LENGTH, &key));
@@ -308,10 +307,12 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
     }
-    if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
+    if (JsObjectToInt(env, object, "scenario", value) == SUCCESS ||
+        JsObjectToInt(env, object, "locationScenario", value) == SUCCESS) {
         requestConfig->SetScenario(value);
     }
-    if (JsObjectToInt(env, object, "timeInterval", value) == SUCCESS) {
+    if (JsObjectToInt(env, object, "timeInterval", value) == SUCCESS ||
+        JsObjectToInt(env, object, "interval", value) == SUCCESS) {
         if (value >= 0 && value < 1) {
             requestConfig->SetTimeInterval(1);
         } else {
@@ -323,12 +324,6 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     }
     if (JsObjectToDouble(env, object, "distanceInterval", valueDouble) == SUCCESS) {
         requestConfig->SetDistanceInterval(valueDouble);
-    }
-    if (JsObjectToInt(env, object, "interval", value) == SUCCESS) {
-        requestConfig->SetInterval(value);
-    }
-    if (JsObjectToInt(env, object, "locationScenario", value) == SUCCESS) {
-        requestConfig->SetLocationScenario(value);
     }
 }
 
@@ -356,7 +351,8 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
 {
     int value = 0;
     double valueDouble = 0.0;
-    if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
+    if (JsObjectToInt(env, object, "priority", value) == SUCCESS ||
+        JsObjectToInt(env, object, "locatingPriority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
     }
     if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
@@ -365,15 +361,9 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     if (JsObjectToDouble(env, object, "maxAccuracy", valueDouble) == SUCCESS) {
         requestConfig->SetMaxAccuracy(valueDouble);
     }
-    if (JsObjectToInt(env, object, "timeoutMs", value) == SUCCESS) {
+    if (JsObjectToInt(env, object, "timeoutMs", value) == SUCCESS ||
+        JsObjectToInt(env, object, "locatingTimeoutMs", value) == SUCCESS) {
         requestConfig->SetTimeOut(value);
-    }
-    if (JsObjectToInt(env, object, "locatingTimeoutMs", value) == SUCCESS) {
-        requestConfig->SetLocatingTimeoutMs(value);
-        requestConfig->SetTimeOut(value);
-    }
-    if (JsObjectToInt(env, object, "locatingPriority", value) == SUCCESS) {
-        requestConfig->SetLocatingPriority(value);
     }
 }
 

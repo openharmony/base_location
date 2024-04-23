@@ -627,12 +627,16 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
 
 int RequestManager::GetLocationRequestType(const sptr<RequestConfig>& requestConfig)
 {
-    if (requestConfig->GetLocationScenario() == LOCATION_SCENE_NAVIGATION ||
-        requestConfig->GetLocationScenario() == LOCATION_SCENE_SPORT ||
-        requestConfig->GetLocationScenario() == LOCATION_SCENE_TRANSPORT ||
-        requestConfig->GetLocationPriority() == HIGH_POWER_CONSUMPTION ||
-        requestConfig->GetLocationPriority() == LOCATION_PRIORITY_ACCURACY ||
-        requestConfig->GetLocationPriority() == LOCATION_PRIORITY_LOCATING_SPEED) {
+    if (requestConfig->GetScenario() == SCENE_NAVIGATION ||
+        requestConfig->GetScenario() == SCENE_TRAJECTORY_TRACKING ||
+        requestConfig->GetScenario() == SCENE_CAR_HAILING ||
+        requestConfig->GetScenario() == LOCATION_SCENE_NAVIGATION ||
+        requestConfig->GetScenario() == LOCATION_SCENE_SPORT ||
+        requestConfig->GetScenario() == LOCATION_SCENE_TRANSPORT ||
+        requestConfig->GetScenario() == PRIORITY_ACCURACY ||
+        requestConfig->GetScenario() == PRIORITY_FAST_FIRST_FIX ||
+        requestConfig->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
+        requestConfig->GetPriority() == LOCATION_PRIORITY_ACCURACY) {
         return LocationRequestType::PRIORITY_TYPE_INDOOR;
     } else {
         return LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;

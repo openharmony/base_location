@@ -143,6 +143,16 @@ public:
         isFromMock_ = fromMock;
     }
 
+    inline int32_t GetFloorNo() const
+    {
+        return floorNo_;
+    }
+
+    inline void SetFloorNo(int32_t floorNo)
+    {
+        floorNo_ = floorNo;
+    }
+
     inline int32_t GetIsSystemApp() const
     {
         return isSystemApp_;

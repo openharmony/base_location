@@ -280,13 +280,9 @@ LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const n
     return g_locatorProxy->RegisterLocatingRequiredDataCallback(dataConfig, callbackPtr);
 }
 
-LocationErrCode SubscribeLocationError(const napi_env& env, const napi_value& object,
+LocationErrCode SubscribeLocationError(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationErrorCallbackHost>& locationErrorCallbackHost)
 {
-    LocationErrCode errorCode = CheckLocationSwitchEnable();
-    if (errorCode != ERRCODE_SUCCESS) {
-        return errorCode;
-    }
     locationErrorCallbackHost->SetEnv(env);
     locationErrorCallbackHost->SetHandleCb(handlerRef);
     auto locationErrorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
@@ -430,9 +426,6 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
         g_locatorProxy->StopLocating(callbackPtr);
         if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() == nullptr) {
             context->errCode = ERRCODE_LOCATING_FAIL;
-        } else if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() != nullptr) {
-            std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
-            callbackHost->OnLocationReport(location);
         }
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
@@ -1535,7 +1528,7 @@ bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
         // argv[1]:request params, argv[2]:handler
-        LocationErrCode errorCode = SubscribeLocationError(env, argv[PARAM1], handlerRef, locationErrorCallbackHost);
+        LocationErrCode errorCode = SubscribeLocationError(env, handlerRef, locationErrorCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1547,7 +1540,7 @@ bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_
 
 bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
 {
-    auto locationErrorCallbackHost = g_locationCallbacks.GetCallbackPtr(env, handler);
+    auto locationErrorCallbackHost = g_locationErrorCallbackHosts.GetCallbackPtr(env, handler);
     if (locationErrorCallbackHost) {
         auto locatorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
         LocationErrCode errorCode = UnSubscribeLocationError(locatorCallback);

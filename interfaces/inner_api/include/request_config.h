@@ -107,26 +107,6 @@ public:
         return timestamp_;
     }
 
-    inline void SetInterval(int interval)
-    {
-        interval_ = interval;
-    }
-
-    inline int GetInterval()
-    {
-        return interval_;
-    }
-
-    inline void SetLocationScenario(int locationScenario)
-    {
-        locationScenario_ = locationScenario;
-    }
-
-    inline int GetLocationScenario()
-    {
-        return locationScenario_;
-    }
-
     inline void SetLocatingTimeoutMs(int locatingTimeoutMs)
     {
         locatingTimeoutMs_ = locatingTimeoutMs;
@@ -162,10 +142,6 @@ private:
     int priority_;
     int timeOut_;
     int64_t timestamp_;
-    int interval_ = 1;
-    int locationScenario_;
-    int locatingTimeoutMs_;
-    int locatingPriority_;
 };
 } // namespace Location
 } // namespace OHOS

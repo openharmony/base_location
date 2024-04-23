@@ -20,6 +20,7 @@ if (location_feature_with_geocode) {
       "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_callback_host.cpp",
       "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
       "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_skeleton.cpp",
+      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
     ]
 
     include_dirs = [
@@ -37,7 +38,6 @@ if (location_feature_with_geocode) {
 
     deps = [
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     ]
 
     defines = []

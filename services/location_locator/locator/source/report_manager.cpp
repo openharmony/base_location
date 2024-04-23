@@ -70,8 +70,13 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
         WriteNetWorkReportEvent(abilityName, request, location);
-        if (!ProcessRequestForReport(request, deadRequests, location, abilityName)) {
+        if (abilityName == NETWORK_ABILITY && (request->GetUuid() == location->GetUuid())) {
+            ProcessRequestForReport(request, deadRequests, location, abilityName);
+            break;
+        } else if (abilityName == NETWORK_ABILITY && (request->GetUuid() != location->GetUuid())) {
             continue;
+        } else {
+            ProcessRequestForReport(request, deadRequests, location, abilityName);
         }
     }
     for (auto iter = deadRequests->begin(); iter != deadRequests->end(); ++iter) {
@@ -105,8 +110,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (location == nullptr ||
-        request == nullptr || request->GetRequestConfig() == nullptr || !request->GetIsRequesting() ||
-        (abilityName == NETWORK_ABILITY && (request->GetUuid() != location->GetUuid()))) {
+        request == nullptr || request->GetRequestConfig() == nullptr || !request->GetIsRequesting()) {
         return false;
     }
     std::unique_ptr<Location> fuseLocation;
@@ -389,13 +393,12 @@ bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
     }
     if ((request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
         request->GetRequestConfig()->GetPriority() == PRIORITY_FAST_FIRST_FIX) ||
-        request->GetRequestConfig()->GetLocationScenario() == LOCATION_SCENE_NAVIGATION ||
-        request->GetRequestConfig()->GetLocationScenario() == LOCATION_SCENE_SPORT ||
-        request->GetRequestConfig()->GetLocationScenario() == LOCATION_SCENE_TRANSPORT ||
-        request->GetRequestConfig()->GetLocationPriority() == LOCATION_PRIORITY_ACCURACY ||
-        request->GetRequestConfig()->GetLocationPriority() == LOCATION_PRIORITY_LOCATING_SPEED ||
-        request->GetRequestConfig()->GetLocationPriority() == HIGH_POWER_CONSUMPTION ||
-        request->GetRequestConfig()->GetLocationPriority() == NO_POWER_CONSUMPTION) {
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_NAVIGATION ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_SPORT ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_TRANSPORT ||
+        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_ACCURACY ||
+        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED ||
+        request->GetRequestConfig()->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION) {
         return true;
     }
     return false;

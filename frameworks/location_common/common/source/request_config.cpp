@@ -31,10 +31,6 @@ RequestConfig::RequestConfig()
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = DEFAULT_TIMEOUT_30S;
     timestamp_ = 0;
-    interval_ = 1;
-    locationScenario_ = LOCATION_SCENE_UNSET;
-    locatingTimeoutMs_ = DEFAULT_TIMEOUT_30S;
-    locatingPriority_ = LOCATION_PRIORITY_UNSET;
 }
 
 RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
@@ -46,10 +42,6 @@ RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = DEFAULT_TIMEOUT_30S;
     timestamp_ = 0;
-    interval_ = 1;
-    locationScenario_ = LOCATION_SCENE_UNSET;
-    locatingTimeoutMs_ = DEFAULT_TIMEOUT_30S;
-    locatingPriority_ = LOCATION_PRIORITY_UNSET;
 }
 
 void RequestConfig::Set(RequestConfig& requestConfig)
@@ -62,10 +54,6 @@ void RequestConfig::Set(RequestConfig& requestConfig)
     fixNumber_ = requestConfig.GetFixNumber();
     timeOut_ = requestConfig.GetTimeOut();
     timestamp_ = requestConfig.GetTimeStamp();
-    interval_ = requestConfig.GetInterval();
-    locationScenario_ = requestConfig.GetLocationScenario();
-    locatingTimeoutMs_ = requestConfig.GetLocationTimeoutMs();
-    locatingPriority_ = requestConfig.GetLocationPriority();
 }
 
 bool RequestConfig::IsSame(RequestConfig& requestConfig)
@@ -88,10 +76,6 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
     maxAccuracy_ = parcel.ReadFloat();
     fixNumber_ = parcel.ReadInt32();
     timeOut_ = parcel.ReadInt32();
-    interval_ = parcel.ReadInt32();
-    locationScenario_ = parcel.ReadInt32();
-    locatingTimeoutMs_ = parcel.ReadInt32();
-    locatingPriority_ = parcel.ReadInt32();
 }
 
 std::unique_ptr<RequestConfig> RequestConfig::Unmarshalling(Parcel& parcel)
@@ -109,11 +93,7 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
            parcel.WriteDouble(distanceInterval_) &&
            parcel.WriteFloat(maxAccuracy_) &&
            parcel.WriteInt32(fixNumber_) &&
-           parcel.WriteInt32(timeOut_) &&
-           parcel.WriteInt32(interval_) &&
-           parcel.WriteInt32(locationScenario_) &&
-           parcel.WriteInt32(locatingTimeoutMs_) &&
-           parcel.WriteInt32(locatingPriority_);
+           parcel.WriteInt32(timeOut_);
 }
 
 std::string RequestConfig::ToString() const

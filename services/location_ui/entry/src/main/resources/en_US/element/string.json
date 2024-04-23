@@ -1,0 +1,56 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "ConfirmUIExtAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "ConfirmUIExtAbility_label",
+      "value": "label"
+    },
+    {
+      "name": "ConfirmCallbackAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "ConfirmCallbackAbility_label",
+      "value": "label"
+    },
+    {
+      "name": "ni_notify_title",
+      "value": "Location Request"
+    },
+    {
+      "name": "ni_notify_message",
+      "value": "Requested by "
+    },
+    {
+      "name": "confirm_button",
+      "value": "AGREE"
+    },
+    {
+      "name": "cancel_button",
+      "value": "CANCEL"
+    },
+    {
+      "name": "location_target_statement_title",
+      "value": "Location Services"
+    },
+    {
+      "name": "location_target_statement_content",
+      "value": "Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When enabled, the device's location information will be shared with services that have been granted location permissions. Your location information will also be used for system services, such as updating time zone, emergency calls. For more information, refer to the ${page_link}."
+    },
+    {
+      "name": "LocationPrivacyExtAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "LocationPrivacyExtAbility_label",
+      "value": "label"
+    }
+  ]
+}

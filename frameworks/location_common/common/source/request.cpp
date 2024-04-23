@@ -260,15 +260,16 @@ bool Request::GetProxyNameByLocationPriority(std::shared_ptr<std::list<std::stri
     switch (requestConfig_->GetLocationPriority()) {
         case LOCATION_PRIORITY_UNSET:
             return false;
-        case LOW_POWER_CONSUMPTION:
+        case LOCATION_SCENE_LOW_POWER_CONSUMPTION:
             proxys->push_back(NETWORK_ABILITY);
             return true;
         case LOCATION_PRIORITY_ACCURACY:
         case LOCATION_PRIORITY_LOCATING_SPEED:
-        case HIGH_POWER_CONSUMPTION:
-        case NO_POWER_CONSUMPTION:
+        case LOCATION_SCENE_HIGH_POWER_CONSUMPTION:
             proxys->push_back(GNSS_ABILITY);
             proxys->push_back(NETWORK_ABILITY);
+        case LOCATION_SCENE_NO_POWER_CONSUMPTION:
+            proxys->push_back(PASSIVE_ABILITY);
             return true;
         default:
             return false;

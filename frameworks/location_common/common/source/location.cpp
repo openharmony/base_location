@@ -57,6 +57,8 @@ Location::Location(Location& location)
     direction_ = location.GetDirection();
     timeStamp_ = location.GetTimeStamp();
     timeSinceBoot_ = location.GetTimeSinceBoot();
+    floorNo_ = location.GetFloorNo();
+    floorAccuracy_ = location.GetFloorAccuracy();
     additions_ = location.GetAdditions();
     additionsMap_ = location.GetAdditionsMap();
     additionSize_ = location.GetAdditionSize();
@@ -155,30 +157,18 @@ std::vector<std::u16string> Location::VectorString8ToVectorString16() const
 
 std::string Location::ToString() const
 {
-    std::string additionString;
-    for (auto addition : additions_) {
-        additionString = additionString + "," + addition;
-    }
-    if (additionString.size() > 0) {
-        additionString.substr(1, additionString.size() - 1);
-    }
-    std::string additionMapString;
-    for (auto iter : additionsMap_) {
-        additionMapString = additionMapString + "," + iter.first.c_str() + ":" + iter.second.c_str();
-    }
-    std::string str = "latitude : " + std::to_string(latitude_) +
-        ", longitude : " + std::to_string(longitude_) +
+    std::string str = "latitude : " + "******" +
+        ", longitude : " + "******" +
         ", altitude : " + std::to_string(altitude_) +
         ", accuracy : " + std::to_string(accuracy_) +
         ", speed : " + std::to_string(speed_) +
         ", direction : " + std::to_string(direction_) +
         ", timeStamp : " + std::to_string(timeStamp_) +
         ", timeSinceBoot : " + std::to_string(timeSinceBoot_) +
-        ", additions : " + additionString +
+        ", additions : " + "******" +
         ", additionSize : " + std::to_string(additionSize_) +
         ", isFromMock : " + std::to_string(isFromMock_) +
         ", isSystemApp : " + std::to_string(isSystemApp_) +
-        ", additionsMap : " + additionMapString +
         ", altitudeAccuracy : " + std::to_string(altitudeAccuracy_) +
         ", speedAccuracy : " + std::to_string(speedAccuracy_) +
         ", directionAccuracy : " + std::to_string(directionAccuracy_) +

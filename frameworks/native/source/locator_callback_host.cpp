@@ -339,29 +339,22 @@ void LocatorCallbackHost::SetCount(int count)
 
 bool LocatorCallbackHost::IfReportAccuracyLocation(const std::unique_ptr<Location>& location)
 {
-    LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
     if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
-        LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
         SetSingleLocation(location);
         return true;
     } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE) {
         if (singleLocation_ != nullptr && singleLocation_->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
-            LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
             return false;
         } else {
             SetSingleLocation(location);
-            LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
             return true;
         }
     } else if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
         if (singleLocation_ == nullptr) {
-            LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
             SetSingleLocation(location);
         }
-        LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
         return false;
     } else {
-        LBSLOGE(LOCATOR, "locationPriority_ =  %{public}d", location->GetLocationSourceType());
         return true;
     }
 }
