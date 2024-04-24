@@ -239,13 +239,21 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
     EXPECT_NE(nullptr, gnssCallbackHost);
-    EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
+    if (state) {
+        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
+    } else {
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
+    }
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
 
     auto nmeaCallbackHost =
         sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
     EXPECT_NE(nullptr, nmeaCallbackHost);
-    EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    if (state) {
+        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    } else {
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
+    }
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocationsV9());
@@ -301,7 +309,11 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     EXPECT_NE(nullptr, request);
     request->reportingPeriodSec = 10;
     request->wakeUpCacheQueueFull = true;
-    EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
+    if (state) {
+        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
+    } else {
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
+    }
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterCachedLocationCallbackV9(cachedCallback));
 #endif
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 end");
