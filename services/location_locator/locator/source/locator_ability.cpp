@@ -328,7 +328,7 @@ void LocatorAbility::RemoveUnloadTask(uint32_t code)
         LBSLOGE(LOCATOR, "%{public}s locatorHandler is nullptr", __func__);
         return;
     }
-    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE) ||
+    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE) ||
         code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
         return;
     }
@@ -337,7 +337,7 @@ void LocatorAbility::RemoveUnloadTask(uint32_t code)
 
 void LocatorAbility::PostUnloadTask(uint32_t code)
 {
-    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE) ||
+    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE) ||
         code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
         return;
     }
@@ -1236,16 +1236,24 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
 }
 #endif
 
-LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
+LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
-    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
-        uid, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    lock.lock();
     if (isProxy) {
-        proxyUids_.insert(uid);
+        for (auto it = pidList.begin(); it != pidList.end(); it++) {
+            proxyPids_.insert(*it);
+            LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
+                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+        }
     } else {
-        proxyUids_.erase(uid);
+        for (auto it = pidList.begin(); it != pidList.end(); it++) {
+            proxyPids_.erase(*it);
+            LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
+                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+        }
     }
+    lock.unlock();
     if (GetActiveRequestNum() <= 0) {
         LBSLOGD(LOCATOR, "no active request, do not refresh.");
         return ERRCODE_SUCCESS;
@@ -1258,8 +1266,10 @@ LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 LocationErrCode LocatorAbility::ResetAllProxy()
 {
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
-    proxyUids_.clear();
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    lock.lock();
+    proxyPids_.clear();
+    lock.unlock();
     if (GetActiveRequestNum() <= 0) {
         LBSLOGD(LOCATOR, "no active request, do not refresh.");
         return ERRCODE_SUCCESS;
@@ -1269,16 +1279,10 @@ LocationErrCode LocatorAbility::ResetAllProxy()
     return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::IsProxyUid(int32_t uid)
+bool LocatorAbility::IsProxyPid(int32_t pid)
 {
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
-    return proxyUids_.find(uid) != proxyUids_.end();
-}
-
-std::set<int32_t> LocatorAbility::GetProxyUid()
-{
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
-    return proxyUids_;
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_);
+    return proxyPids_.find(pid) != proxyPids_.end();
 }
 
 void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,

@@ -16,8 +16,9 @@
 #ifndef LOCATOR_PROXY_H
 #define LOCATOR_PROXY_H
 
-#include <vector>
 #include <list>
+#include <set>
+#include <vector>
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
@@ -80,8 +81,6 @@ public:
     int SendMsgWithReply(const int msgId, MessageParcel& reply);
     int SendSimpleMsg(const int msgId);
     int SendRegisterMsgToRemote(const int msgId, const sptr<IRemoteObject>& callback, pid_t uid);
-    bool ProxyUidForFreeze(int32_t uid, bool isProxy);
-    bool ResetAllProxy();
 
     LocationErrCode UpdateSaAbilityV9();
     LocationErrCode GetSwitchStateV9(bool &isEnabled);
@@ -126,8 +125,8 @@ public:
     LocationErrCode SendMsgWithReplyV9(const int msgId, MessageParcel& reply);
     LocationErrCode SendSimpleMsgV9(const int msgId);
     LocationErrCode SendRegisterMsgToRemoteV9(const int msgId, const sptr<IRemoteObject>& callback);
-    LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy);
-    LocationErrCode ResetAllProxyV9();
+    LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
+    LocationErrCode ResetAllProxy();
     LocationErrCode RegisterLocatingRequiredDataCallback(
         std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);

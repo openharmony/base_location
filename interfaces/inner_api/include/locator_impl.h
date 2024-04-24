@@ -302,22 +302,6 @@ public:
     bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
 
     /**
-     * @brief Used to freeze locating process with specified uid.
-     *
-     * @param uid Indicates the calling uid.
-     * @param isProxy Indicates if the locating process should be freezed.
-     * @return Returns true if the process has been frozen successfully, returns false otherwise.
-     */
-    bool ProxyUidForFreeze(int32_t uid, bool isProxy);
-
-    /**
-     * @brief Used to reset the frozen status of all location processes.
-     *
-     * @return Returns true if the frozen status of process has been reset successfully, returns false otherwise.
-     */
-    bool ResetAllProxy();
-
-    /**
      * @brief Obtain current location switch status.
      *
      * @param isEnabled Indicates if the location switch on.
@@ -588,14 +572,14 @@ public:
      * @param isProxy Indicates if the locating process should be freezed.
      * @return Returns ERRCODE_SUCCESS if the process has been frozen successfully.
      */
-    LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy);
+    LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
 
     /**
      * @brief Used to reset the frozen status of all location processes.
      *
      * @return Returns ERRCODE_SUCCESS if the frozen status of process has been reset successfully.
      */
-    LocationErrCode ResetAllProxyV9();
+    LocationErrCode ResetAllProxy();
 
     /**
      * @brief Subscribe to changes in WiFi/BT scanning information.

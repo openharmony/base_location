@@ -151,9 +151,6 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->FlushCachedGnssLocations());
     }
 #endif
-
-    EXPECT_EQ(false, locatorImpl->ProxyUidForFreeze(1000, false));
-    EXPECT_EQ(false, locatorImpl->ResetAllProxy());
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 end");
 }
 
@@ -253,8 +250,10 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->FlushCachedGnssLocationsV9());
     }
 #endif
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ProxyUidForFreezeV9(1000, false));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ResetAllProxyV9());
+    std::set<int> pidList;
+    pidList.insert(1000);
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ProxyForFreeze(pidList, false));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ResetAllProxy());
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9002 end");
 }
 

@@ -339,13 +339,15 @@ HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCodeV9, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetIsoCountryCodeV9 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplProxyUidForFreezeV9, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplProxyForFreeze, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplProxyUidForFreezeV9, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreezeV9 begin");
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl_->ProxyUidForFreezeV9(SYSTEM_UID, false));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyUidForFreezeV9 end");
+        << "LocatorImplTest, locatorImplProxyForFreeze, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyForFreeze begin");
+    std::set<int> pidList;
+    pidList.insert(SYSTEM_UID);
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl_->ProxyForFreeze(pidList, false));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplProxyForFreeze end");
 }
 
 #ifdef FEATURE_GEOCODE_SUPPORT
