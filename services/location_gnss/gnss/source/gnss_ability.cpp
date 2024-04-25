@@ -608,7 +608,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest
             iter++;
         }
     }
-    LBSLOGD(GNSS, "After UnregisterGnssGeofenceCallback size:%{public}u", gnssGeofenceRequestMap_.size());
+    LBSLOGD(GNSS, "After UnregisterGnssGeofenceCallback size:%{public}s", std::to_string(gnssGeofenceRequestMap_.size()).c_str());
     return true;
 }
 
