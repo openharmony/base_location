@@ -24,19 +24,6 @@ LocationGnssGeofenceCallbackProxy::LocationGnssGeofenceCallbackProxy(const sptr<
 {
 }
 
-void LocationGnssGeofenceCallbackProxy::OnFenceIdChange(int fenceId)
-{
-    MessageParcel dataParcel;
-    MessageParcel reply;
-    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
-    dataParcel.WriteInt32(fenceId);
-    MessageOption option = { MessageOption::TF_ASYNC };
-    int error = Remote()->SendRequest(RECEIVE_FENCE_ID_EVENT, dataParcel, reply, option);
-    LBSLOGD(LOCATION_GNSS_GEOFENCE_CALLBACK, "OnFenceIdChange Transact ErrCode = %{public}d", error);
-}
-
 void LocationGnssGeofenceCallbackProxy::OnTransitionStatusChange(GeofenceTransition transition)
 {
     MessageParcel dataParcel;
@@ -49,6 +36,21 @@ void LocationGnssGeofenceCallbackProxy::OnTransitionStatusChange(GeofenceTransit
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_TRANSITION_STATUS_EVENT, dataParcel, reply, option);
     LBSLOGD(LOCATION_GNSS_GEOFENCE_CALLBACK, "OnTransitionStatusChange Transact ErrCode = %{public}d", error);
+}
+
+void LocationGnssGeofenceCallbackProxy::OnReportOperationResult(int fenceId, int type, int result)
+{
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    dataParcel.WriteInt32(fenceId);
+    dataParcel.WriteInt32(type);
+    dataParcel.WriteInt32(result);
+    MessageOption option = { MessageOption::TF_ASYNC };
+    int error = Remote()->SendRequest(REPORT_OPERATION_RESULT_EVENT, dataParcel, reply, option);
+    LBSLOGD(LOCATION_GNSS_GEOFENCE_CALLBACK, "OnReportOperationResult Transact ErrCode = %{public}d", error);
 }
 } // namespace Location
 } // namespace OHOS

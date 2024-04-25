@@ -52,17 +52,12 @@ if (location_feature_with_gnss) {
 
     external_deps = [
       "ability_base:want",
-      "ability_base:zuri",
-      "ability_runtime:wantagent_innerkits",
       "c_utils:utils",
-      "distributed_notification_service:ans_innerkits",
-      "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
       "eventhandler:libeventhandler",
       "hdf_core:libhdi",
       "hilog:libhilog",
       "init:libbegetutil",
       "ipc:ipc_single",
-      "relational_store:native_rdb",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
     ]
@@ -117,6 +112,18 @@ if (location_feature_with_gnss) {
     if (sms_mms_enable) {
       external_deps += [ "sms_mms:tel_sms_mms_api" ]
       defines += [ "SMS_MMS_ENABLE" ]
+    }
+
+    if (notification_distributed_notification_service_enable) {
+      external_deps += [ "distributed_notification_service:ans_innerkits" ]
+      defines += [ "NOTIFICATION_ENABLE" ]
+    }
+
+    if (hdf_drivers_interface_location_geofence_enable) {
+      external_deps += [
+        "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
+      ]
+      defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }
 
     part_name = "location"

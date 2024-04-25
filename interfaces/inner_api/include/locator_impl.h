@@ -610,10 +610,9 @@ public:
     void RemoveSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
     void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
     void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
-    LocationErrCode AddGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback);
-    LocationErrCode RemoveGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes);
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);

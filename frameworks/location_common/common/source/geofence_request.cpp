@@ -16,7 +16,9 @@
 #include "geofence_request.h"
 #include <parcel.h>
 #include "common_utils.h"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
+#endif
 #include "iremote_object.h"
 
 namespace OHOS {
@@ -37,6 +39,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     for (int i = 0; i < monitorGeofenceTransitionSize; i++) {
         transitionStatusList_.push_back(static_cast<GeofenceTransitionEvent>(data.ReadInt32()));
     }
+#ifdef NOTIFICATION_ENABLE
     int requestSize = data.ReadInt32();
     if (requestSize > MAX_NOTIFICATION_REQUEST_LIST_SIZE) {
         LBSLOGE(LOCATOR, "request size should not be greater than 3");
@@ -46,6 +49,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
         auto request = Notification::NotificationRequest::Unmarshalling(data);
         notificationRequestList_.push_back(std::make_shared<Notification::NotificationRequest>(*request));
     }
+#endif
     callback_ = data.ReadObject<IRemoteObject>();
     bundleName_ = data.ReadString();
 }
@@ -66,6 +70,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     for (int i = 0; i < transitionStatusList_.size(); i++) {
         parcel.WriteInt32(static_cast<int>(transitionStatusList_[i]));
     }
+#ifdef NOTIFICATION_ENABLE
     if (notificationRequestList_.size() > MAX_NOTIFICATION_REQUEST_LIST_SIZE) {
         LBSLOGE(LOCATOR, "request size should not be greater than 3");
         return false;
@@ -74,6 +79,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     for (int i = 0; i < notificationRequestList_.size(); i++) {
         notificationRequestList_[i]->Marshalling(parcel);
     }
+#endif
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
     return true;

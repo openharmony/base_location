@@ -18,10 +18,10 @@
 
 #include <mutex>
 #include <vector>
-#include <parcel.h>
-#include "constant_definition.h"
+#include "geofence_definition.h"
 #include "notification_request.h"
 #include "want_agent_helper.h"
+#include <parcel.h>
 
 namespace OHOS {
 namespace Location {

@@ -65,7 +65,8 @@ enum class LocatorInterfaceCode {
     REG_LOCATING_REQUIRED_DATA_CALLBACK = 43,
     UNREG_LOCATING_REQUIRED_DATA_CALLBACK = 44,
     ADD_GNSS_GEOFENCE = 45,
-    REMOVE_GNSS_GEOFENCE = 46
+    REMOVE_GNSS_GEOFENCE = 46,
+    QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE = 47,
 };
 
 enum class GeoConvertInterfaceCode {
@@ -106,6 +107,7 @@ enum class GnssInterfaceCode {
     DISABLE_REV_GEOCODE_MOCK = 26,
     ADD_GNSS_GEOFENCE = 27,
     REMOVE_GNSS_GEOFENCE = 28,
+    QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE = 29,
 };
 
 enum class NetworkInterfaceCode {

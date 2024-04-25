@@ -33,7 +33,9 @@
 #include "location_log.h"
 #include "locationhub_ipc_interface_code.h"
 #include "request_config.h"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -832,11 +834,10 @@ LocationErrCode LocatorProxy::HandleGnssfenceRequest(
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::AddGnssGeofence(
-    std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorProxy::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
-    if (request == nullptr || callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "request or callback is nullptr");
+    if (request == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "request is nullptr");
         return ERRCODE_INVALID_PARAM;
     }
     MessageParcel data;
@@ -846,7 +847,6 @@ LocationErrCode LocatorProxy::AddGnssGeofence(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     request->Marshalling(data);
-    data.WriteRemoteObject(callback);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(
         static_cast<int>(LocatorInterfaceCode::ADD_GNSS_GEOFENCE), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
@@ -1006,6 +1006,26 @@ LocationErrCode LocatorProxy::UnRegisterLocatingRequiredDataCallback(sptr<ILocat
         SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK),
             callback->AsObject());
     LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
+    return errorCode;
+}
+
+LocationErrCode LocatorProxy::GetGeofenceSupportedCoordTypes(
+    std::vector<CoordinateSystemType>& coordinateSystemTypes)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    MessageParcel reply;
+    LocationErrCode errorCode = SendMsgWithDataReplyV9(
+        static_cast<int>(LocatorInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
+    int size = reply.ReadInt32();
+    size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
+    for (int i = 0; i < size; i++) {
+        int coordinateSystemType = reply.ReadInt32();
+        coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
+    }
     return errorCode;
 }
 } // namespace Location

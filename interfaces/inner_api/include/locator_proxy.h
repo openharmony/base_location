@@ -110,10 +110,8 @@ public:
     LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands);
     LocationErrCode AddFenceV9(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode AddGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback);
-    LocationErrCode RemoveGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode EnableLocationMockV9();
     LocationErrCode DisableLocationMockV9();
     LocationErrCode SetMockedLocationsV9(
@@ -130,6 +128,7 @@ public:
     LocationErrCode RegisterLocatingRequiredDataCallback(
         std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
+    LocationErrCode GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes);
 private:
     LocationErrCode HandleGnssfenceRequest(LocatorInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
 

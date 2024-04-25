@@ -25,7 +25,7 @@ namespace Location {
 class IGnssGeofenceCallback : public IRemoteBroker {
 public:
     enum {
-        RECEIVE_FENCE_ID_EVENT = 1,
+        REPORT_OPERATION_RESULT_EVENT = 1,
         RECEIVE_TRANSITION_STATUS_EVENT
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssGeofenceCallback");
