@@ -15,6 +15,7 @@
 
 #ifndef AGNSS_NI_MANAGER_H
 #define AGNSS_NI_MANAGER_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include <mutex>
 #include <singleton.h>
@@ -84,4 +85,5 @@ private:
 } // namespace Location
 } // namespace OHOS
 
+#endif // FEATURE_GNSS_SUPPORT
 #endif // AGNSS_NI_MANAGER_H

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "agnss_ni_manager.h"
 
 #include "call_manager_client.h"
@@ -432,3 +433,4 @@ void SystemAbilityStatusChangeListener::OnRemoveSystemAbility(int32_t systemAbil
 
 }  // namespace Location
 }  // namespace OHOS
+#endif

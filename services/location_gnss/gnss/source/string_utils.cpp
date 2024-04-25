@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "string_utils.h"
 
 #include <codecvt>
@@ -186,3 +187,4 @@ std::string StringUtils::Gsm7Decode(const std::string &gsm7Str)
 
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT
