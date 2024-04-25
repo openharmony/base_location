@@ -33,7 +33,7 @@
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
-static constexpr int MIN_WIFI_SCAN_TIME = 3000;
+static constexpr int MIN_WIFI_SCAN_TIME = 5000;
 const uint32_t MAX_ADDITION_SIZE = 100;
 const int MAX_TRANSITION_ARRAY_SIZE = 3;
 
