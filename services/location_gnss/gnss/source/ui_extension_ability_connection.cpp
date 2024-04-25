@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef FEATURE_GNSS_SUPPORT
 #include "ui_extension_ability_connection.h"
 
 #include "ability_connect_callback_interface.h"
@@ -48,3 +49,4 @@ void UIExtensionAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

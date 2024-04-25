@@ -15,6 +15,7 @@
 
 #ifndef STRING_UTILS_H
 #define STRING_UTILS_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include <string>
 #include <vector>
@@ -46,4 +47,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif
+#endif // FEATURE_GNSS_SUPPORT
+#endif // STRING_UTILS_H

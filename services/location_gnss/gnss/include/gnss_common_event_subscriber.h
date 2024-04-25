@@ -15,6 +15,7 @@
 
 #ifndef COMMON_EVENT_SUBSCRIBER_H
 #define COMMON_EVENT_SUBSCRIBER_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include "common_event_manager.h"
 #include "common_event_subscriber.h"
@@ -39,4 +40,5 @@ public:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT
 #endif // GNSS_ABILITY_COMMON_EVENT_SUBSCRIBER_H

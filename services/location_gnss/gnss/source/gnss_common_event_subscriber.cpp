@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_common_event_subscriber.h"
 
 #include "agnss_ni_manager.h"
@@ -50,3 +51,4 @@ void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEvent
 }
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT

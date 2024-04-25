@@ -15,6 +15,7 @@
 
 #ifndef UI_EXTENSION_ABILITY_CONNECTION_H
 #define UI_EXTENSION_ABILITY_CONNECTION_H
+#ifdef FEATURE_GNSS_SUPPORT
 
 #include "ability_connect_callback_stub.h"
 #include "extension_manager_client.h"
@@ -43,4 +44,5 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
+#endif // FEATURE_GNSS_SUPPORT
 #endif // UI_EXTENSION_ABILITY_CONNECTION_H
