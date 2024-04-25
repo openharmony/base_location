@@ -31,8 +31,13 @@ static void WriteEvent(const std::string& eventType, Types... args)
     int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::LOCATION, eventType,
         HiviewDFX::HiSysEvent::EventType::STATISTIC, args...);
     if (ret != 0) {
-        LBSLOGD(COMMON_UTILS, "Write event fail: %{public}s", eventType.c_str());
+        LBSLOGE(COMMON_UTILS, "Write event fail: %{public}s, ret = %{public}d", eventType.c_str(), ret);
     }
+}
+
+void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t uid)
+{
+    WriteEvent("GNSS_STATE", "STATE", state, "PID", pid, "UID", uid);
 }
 
 void WriteAppLocatingStateEvent(const std::string& state, const pid_t pid, const pid_t uid)

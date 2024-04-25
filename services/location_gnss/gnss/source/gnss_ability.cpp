@@ -363,6 +363,8 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             StopGnss();
         }
     }
+    std::string state = isAdded ? "start" : "stop";
+    WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
 void GnssAbility::ReConnectHdi()

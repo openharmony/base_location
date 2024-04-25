@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace Location {
 void WriteAppLocatingStateEvent(const std::string& state, const pid_t pid, const pid_t uid);
+void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t uid);
 void WriteLocationSwitchStateEvent(const std::string& state);
 void WriteLocationInnerEvent(const int event, std::vector<std::string> names, std::vector<std::string>& values);
 void WriteLocationInnerEvent(const int event, std::initializer_list<std::string> params);
