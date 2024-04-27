@@ -155,7 +155,7 @@ HWTEST_F(FusionControllerTest, ChooseBestLocation001, TestSize.Level1)
     parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    EXPECT_NE(nullptr, fusionController_->chooseBestLocation(nullptr, location));
+    EXPECT_EQ(nullptr, fusionController_->chooseBestLocation(nullptr, location));
 
     std::unique_ptr<Location> location_gnss = std::make_unique<Location>();
     location_gnss->ReadFromParcel(parcel);

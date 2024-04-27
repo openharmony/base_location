@@ -33,6 +33,7 @@ public:
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
+    void OnNetWorkErrorReport(const int errorCode) override;
 };
 } // namespace Location
 } // namespace OHOS

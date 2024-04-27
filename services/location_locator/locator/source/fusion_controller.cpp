@@ -106,23 +106,41 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
     if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
         return std::make_unique<Location>(*location);
     } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE) {
-        if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE &&
-            lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
-            MAX_INDOOR_LOCATION_COMPARISON_MS >= location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        if (CheckIfLastIndoorLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
             return std::make_unique<Location>(*lastFuseLocation);
         }
     } else if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
-        if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE &&
-            lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
-            MAX_INDOOR_LOCATION_COMPARISON_MS >= location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        if (CheckIfLastIndoorLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
             return std::make_unique<Location>(*lastFuseLocation);
-        } else if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::GNSS_TYPE &&
-            lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
-            MAX_GNSS_LOCATION_COMPARISON_MS >= location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        } else if (CheckIfLastGnssLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
             return std::make_unique<Location>(*lastFuseLocation);
         }
     }
     return std::make_unique<Location>(*location);
+}
+
+bool FusionController::CheckIfLastIndoorLocationValid(const std::unique_ptr<Location>& location,
+    const std::unique_ptr<Location>& lastFuseLocation)
+{
+    if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE &&
+            lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
+            MAX_INDOOR_LOCATION_COMPARISON_MS >= location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool FusionController::CheckIfLastGnssLocationValid(const std::unique_ptr<Location>& location,
+    const std::unique_ptr<Location>& lastFuseLocation)
+{
+    if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::GNSS_TYPE &&
+            lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
+            MAX_GNSS_LOCATION_COMPARISON_MS >= location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 std::unique_ptr<Location> FusionController::GetFuseLocation(const std::unique_ptr<Location>& location,

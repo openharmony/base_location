@@ -144,6 +144,10 @@ void LocationErrorCallbackHost::OnErrorReport(const int errorCode)
     Send(errorCode);
 }
 
+void LocationErrorCallbackHost::OnNetWorkErrorReport(const int errorCode)
+{
+}
+
 void LocationErrorCallbackHost::DeleteHandler()
 {
     std::unique_lock<std::mutex> guard(mutex_);

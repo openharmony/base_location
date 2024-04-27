@@ -59,6 +59,9 @@ private:
     void UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -180,8 +183,6 @@ private:
     void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
-    std::shared_ptr<Request> InitRequest(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, AppIdentity &identity);
     void ReportDataToResSched(std::string state);
 
     bool registerToAbility_ = false;
@@ -223,9 +224,23 @@ class LocatorCallbackMessage {
 public:
     void SetCallback(const sptr<ILocatorCallback>& callback);
     sptr<ILocatorCallback> GetCallback();
+    void SetAppIdentity(AppIdentity& appIdentity);
+    AppIdentity GetAppIdentity();
 private:
     std::string abilityName_;
+    Appidentity appIdentity_;
     sptr<ILocatorCallback> callback_;
+};
+
+class LocatorErrorMessage {
+public:
+    void SetUuid(std::string uuid);
+    std::string GetUuid();
+    void SetErrCode(int32_t errCode);
+    int32_t GetErrCode();
+private:
+    std::string uuid_;
+    int32_t errCode_;
 };
 } // namespace Location
 } // namespace OHOS

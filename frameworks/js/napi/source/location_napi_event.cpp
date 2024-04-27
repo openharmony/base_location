@@ -557,7 +557,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-    singleLocatorCallbackHost->SetLocationPriority(requestConfig->GetLocationPriority());
+    singleLocatorCallbackHost->SetLocationPriority(requestConfig->GetPriority());
     LocationErrCode errorCode = CheckLocationSwitchEnable();
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
@@ -1483,10 +1483,16 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
     if (config == nullptr) {
         return false;
     }
-    if (config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) {
+    if ((config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) &&
+        (config->GetScenario() > LOCATION_SCENE_DAILY_LIFE_SERVICE ||
+        config->GetScenario() < LOCATION_SCENE_NAVIGATION) &&
+        (config->GetScenario() > LOCATION_SCENE_NO_POWER_CONSUMPTION ||
+        config->GetScenario() < LOCATION_SCENE_HIGH_POWER_CONSUMPTION) ) {
         return false;
     }
-    if (config->GetPriority() > PRIORITY_FAST_FIRST_FIX || config->GetPriority() < PRIORITY_UNSET) {
+    if ((config->GetPriority() > PRIORITY_FAST_FIRST_FIX || config->GetPriority() < PRIORITY_UNSET) &&
+        (config->GetPriority() > LOCATION_PRIORITY_LOCATING_SPEED ||
+        config->GetPriority() < LOCATION_PRIORITY_ACCURACY)) {
         return false;
     }
     if (config->GetTimeOut() < MIN_TIMEOUTMS_FOR_LOCATIONONCE) {
@@ -1549,7 +1555,6 @@ bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
             return false;
         }
         g_locationErrorCallbackHosts.DeleteCallback(env, handler);
-        locationErrorCallbackHost->DeleteAllCallbacks();
         locationErrorCallbackHost = nullptr;
         return true;
     }

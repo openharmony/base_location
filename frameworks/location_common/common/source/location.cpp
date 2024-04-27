@@ -157,15 +157,13 @@ std::vector<std::u16string> Location::VectorString8ToVectorString16() const
 
 std::string Location::ToString() const
 {
-    std::string str = "latitude : " + "******" +
-        ", longitude : " + "******" +
+    std::string str = 
         ", altitude : " + std::to_string(altitude_) +
         ", accuracy : " + std::to_string(accuracy_) +
         ", speed : " + std::to_string(speed_) +
         ", direction : " + std::to_string(direction_) +
         ", timeStamp : " + std::to_string(timeStamp_) +
         ", timeSinceBoot : " + std::to_string(timeSinceBoot_) +
-        ", additions : " + "******" +
         ", additionSize : " + std::to_string(additionSize_) +
         ", isFromMock : " + std::to_string(isFromMock_) +
         ", isSystemApp : " + std::to_string(isSystemApp_) +

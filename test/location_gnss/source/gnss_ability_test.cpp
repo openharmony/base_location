@@ -113,13 +113,16 @@ HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
     std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
     int num = 2;
     for (int i = 0; i < num; i++) {
-        int uid = i + 1;
-        int pid = i + 2;
-        int timeInterval = i;
-        std::string name = "nameForTest";
-        std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
-        int locationRequestType = i + 1;
-        workRecord->Add(uid, pid, name, timeInterval, uuid, locationRequestType);
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(i);
+        request->SetUid(i + 1);
+        request->SetPid(i + 2);
+        request->SetPackageName("nameForTest");
+        request->SetRequestConfig(*requestConfig);
+        request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+        request->SetNlpRequestType(i + 1);
+        workRecord->Add(request);
     }
     /*
      * @tc.steps: step2. send location request
@@ -1224,24 +1227,32 @@ HWTEST_F(GnssAbilityTest, SubAbilityCommonGetRequestNum001, TestSize.Level1)
     gnssAbility->newRecord_ = std::make_unique<WorkRecord>();
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
     int num = 2;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
     for (int i = 0; i < num; i++) {
-        int uid = i + 1;
-        int pid = i + 2;
-        int timeInterval = i;
-        std::string name = "nameForTest";
-        std::string uuid = "uuidForTest";
-        int locationRequestType = i + 1;
-        workRecord->Add(uid, pid, name, timeInterval, uuid, locationRequestType);
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(i);
+        request->SetUid(i + 1);
+        request->SetPid(i + 2);
+        request->SetPackageName("nameForTest");
+        request->SetRequestConfig(*requestConfig);
+        request->SetUuid("uuidForTest");
+        request->SetNlpRequestType(i + 1);
+        workRecord->Add(request);
     }
     gnssAbility->newRecord_->Set(*workRecord);
     gnssAbility->GetRequestNum();
 
     gnssAbility->newRecord_ = nullptr;
     gnssAbility->GetRequestNum();
-    
-    gnssAbility->lastRecord_->Add(0, 0, "nameForTest", 0, "uuidForTest", 0);
-    gnssAbility->HandleRemoveRecord(*workRecord);
 
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    request->SetUid(0);
+    request->SetPid(0);
+    request->SetRequestConfig(*requestConfig);
+    request->SetNlpRequestType(0);
+    gnssAbility->lastRecord_->Add(request);
+    gnssAbility->HandleRemoveRecord(*workRecord);
     gnssAbility->lastRecord_->Clear();
     gnssAbility->lastRecord_->Set(*workRecord);
     gnssAbility->HandleAddRecord(*workRecord);

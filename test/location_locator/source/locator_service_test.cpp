@@ -2050,7 +2050,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceInitRequest001, TestSize.Level1)
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     AppIdentity identity;
-    auto request = locatorAbility->InitRequest(requestConfig, callbackStub_, identity);
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub_, identity);
     EXPECT_NE(nullptr, request);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceInitRequest001 end");
 }

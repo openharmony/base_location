@@ -291,7 +291,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
     MessageOption option;
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteInt64(workRecord.GetTimeInterval(0) * MILLI_PER_SEC);
-    data.WriteInt32(workRecord.GetLocationRequestType(0));
+    data.WriteInt32(workRecord.GetNlpRequestType(0));
     data.WriteRemoteObject(callback->AsObject());
     if (workRecord.GetName(0).size() == 0) {
         data.WriteString16(Str8ToStr16(std::to_string(workRecord.GetUid(0)))); // uid

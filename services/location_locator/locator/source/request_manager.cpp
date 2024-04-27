@@ -449,8 +449,8 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     }
     // add request info to work record
     if (workRecord != nullptr) {
-        workRecord->Add(request->GetUid(), request->GetPid(), request->GetPackageName(),
-            requestConfig->GetTimeInterval(), request->GetUuid(), GetLocationRequestType(requestConfig));
+        request->SetNlpRequestType();
+        workRecord->Add(request);
     }
     return true;
 }
@@ -625,24 +625,6 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
     }
 }
 
-int RequestManager::GetLocationRequestType(const sptr<RequestConfig>& requestConfig)
-{
-    if (requestConfig->GetScenario() == SCENE_NAVIGATION ||
-        requestConfig->GetScenario() == SCENE_TRAJECTORY_TRACKING ||
-        requestConfig->GetScenario() == SCENE_CAR_HAILING ||
-        requestConfig->GetScenario() == LOCATION_SCENE_NAVIGATION ||
-        requestConfig->GetScenario() == LOCATION_SCENE_SPORT ||
-        requestConfig->GetScenario() == LOCATION_SCENE_TRANSPORT ||
-        requestConfig->GetScenario() == PRIORITY_ACCURACY ||
-        requestConfig->GetScenario() == PRIORITY_FAST_FIRST_FIX ||
-        requestConfig->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
-        requestConfig->GetPriority() == LOCATION_PRIORITY_ACCURACY) {
-        return LocationRequestType::PRIORITY_TYPE_INDOOR;
-    } else {
-        return LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;
-    }
-}
-
 void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
 {
 #ifdef RES_SCHED_SUPPROT
@@ -656,7 +638,7 @@ void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
 }
 
 void RequestManager::UpdateLocationErrorCallbackToRequest(
-    sptr<ILocatorCallback>& callback, uint32_t tokenId, bool state)
+    sptr<ILocatorCallback> callback, uint32_t tokenId, bool state)
 {
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {

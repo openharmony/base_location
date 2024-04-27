@@ -89,6 +89,21 @@ void LocatorCallbackProxy::OnErrorReport(const int errorCode)
     }
 }
 
+void LocatorCallbackProxy::OnNetWorkErrorReport(const int errorCode)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    data.WriteInt32(errorCode);
+    MessageOption option = { MessageOption::TF_ASYNC };
+    int error = Remote()->SendRequest(RECEIVE_NETWORK_ERROR_INFO_EVENT, data, reply, option);
+    if (error != ERR_OK) {
+        LBSLOGI(LOCATOR_CALLBACK, "OnErrorReport:%{public}d, Transact ErrCode = %{public}d", errorCode, error);
+    }
+}
+
 
 int LocatorCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -113,6 +128,10 @@ void LocatorCallbackStub::OnLocatingStatusChange(const int status)
 }
 
 void LocatorCallbackStub::OnErrorReport(const int errorCode)
+{
+}
+
+void LocatorCallbackStub::OnNetWorkErrorReport(const int errorCode)
 {
 }
 } // namespace Location

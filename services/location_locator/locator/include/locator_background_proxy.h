@@ -75,6 +75,7 @@ private:
         void OnLocationReport(const std::unique_ptr<Location>& location);
         void OnLocatingStatusChange(const int status);
         void OnErrorReport(const int errorCode);
+        void OnNetWorkErrorReport(const int errorCode) override;
     };
 
     class UserSwitchSubscriber : public OHOS::EventFwk::CommonEventSubscriber {

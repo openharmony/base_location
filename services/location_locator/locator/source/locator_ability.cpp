@@ -70,6 +70,9 @@ const uint32_t EVENT_START_LOCATING = 0x0007;
 const uint32_t EVENT_STOP_LOCATING = 0x0008;
 const uint32_t EVENT_UPDATE_LASTLOCATION_REQUESTNUM = 0x0009;
 const uint32_t EVENT_UNLOAD_SA = 0x0010;
+const uint32_t EVENT_REG_LOCATION_ERROR = 0x0011;
+const uint32_t EVENT_UNREG_LOCATION_ERROR = 0x0012;
+const uint32_t EVENT_REPORT_LOCATION_ERROR = 0x0013;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -850,24 +853,6 @@ LocationErrCode LocatorAbility::SetMockedLocations(
         static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS));
 }
 
-std::shared_ptr<Request> LocatorAbility::InitRequest(std::unique_ptr<RequestConfig>& requestConfig,
-    sptr<ILocatorCallback>& callback, AppIdentity &identity)
-{
-    // generate request object according to input params
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    requestConfig->SetTimeStamp(CommonUtils::GetCurrentTime());
-    request->SetUid(identity.GetUid());
-    request->SetPid(identity.GetPid());
-    request->SetTokenId(identity.GetTokenId());
-    request->SetTokenIdEx(identity.GetTokenIdEx());
-    request->SetFirstTokenId(identity.GetFirstTokenId());
-    request->SetPackageName(identity.GetBundleName());
-    request->SetRequestConfig(*requestConfig);
-    request->SetLocatorCallBack(callback);
-    request->SetUuid(CommonUtils::GenerateUuid());
-    return request;
-}
-
 LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
@@ -883,7 +868,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     reportManager_->UpdateRandom();
-    auto request = InitRequest(requestConfig, callback, identity);
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     HookUtils::ExecuteHookWhenStartLocation(request);
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
@@ -901,8 +886,8 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
 {
     if (requestConfig->GetFixNumber() == 1 &&
-        requestConfig->GetLocationPriority() != LOCATION_PRIORITY_ACCURACY &&
-        ((requestConfig->GetLocationPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
+        requestConfig->GetPriority() != LOCATION_PRIORITY_ACCURACY &&
+        ((requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
         (requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_FAST_FIRST_FIX)) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_LOW_POWER)))) {
@@ -996,7 +981,7 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     }
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
-    auto request = InitRequest(requestConfig, callback, identity);
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     loc = reportManager_->GetPermittedLocation(request, lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     if (loc == nullptr) {
@@ -1345,47 +1330,39 @@ void LocatorAbility::ReportDataToResSched(std::string state)
 
 LocationErrCode LocatorAbility::RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
-    // update offset before add request
-    if (requestManager_ == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
+    callbackMessage->SetCallback(callback);
+    callbackMessage->SetAppIdentity(identity);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_REG_LOCATION_ERROR, callbackMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
     }
-    requestManager_->UpdateLocationErrorCallbackToRequest(callback, identity.GetTokenId(), true);
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorAbility::UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
-    if (requestManager_ == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
+    callbackMessage->SetCallback(callback);
+    callbackMessage->SetAppIdentity(identity);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_UNREG_LOCATION_ERROR, callbackMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
     }
-    requestManager_->UpdateLocationErrorCallbackToRequest(callback, identity.GetTokenId(), false);
     return ERRCODE_SUCCESS;
 }
 
 void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
-        return;
-    }
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (uuid != "" && uuid != request->GetUuid()) {
-                continue;
-            }
-            auto locationErrorCallbackHost = request->GetLocationErrorCallBack();
-            if (locationErrorCallbackHost != nullptr) {
-                LBSLOGE(LOCATOR, "errCode : %{public}d ,uuid : %{public}s", errCode, uuid.c_str());
-                locationErrorCallbackHost->OnErrorReport(errCode);
-            }
-        }
+    std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = std::make_unique<LocatorErrorMessage>();
+    locatorErrorMessage->SetUuid(uuid);
+    locatorErrorMessage->SetErrCode(errCode);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_REPORT_LOCATION_ERROR, locatorErrorMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
     }
 }
 
@@ -1425,6 +1402,36 @@ sptr<ILocatorCallback> LocatorCallbackMessage::GetCallback()
     return callback_;
 }
 
+void LocatorCallbackMessage::SetAppIdentity(AppIdentity& appIdentity)
+{
+    appIdentity_ = appIdentity;
+}
+
+Appidentity LocatorCallbackMessage::GetAppIdentity()
+{
+    return appIdentity_;
+}
+
+void LocatorErrorMessage::SetUuid(std::string uuid)
+{
+    uuid_ = uuid;
+}
+
+std::string LocatorErrorMessage::GetUuid()
+{
+    return uuid_;
+}
+
+void LocatorErrorMessage::SetErrCode(int32_t errCode)
+{
+    errCode_ = errCode;
+}
+
+int32_t LocatorErrorMessage::GetErrCode()
+{
+    return errCode_;
+}
+
 LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
 {
     InitLocatorHandlerEventMap();
@@ -1447,6 +1454,9 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     locatorHandlerEventMap_[EVENT_STOP_LOCATING] = &LocatorHandler::StopLocatingEvent;
     locatorHandlerEventMap_[EVENT_UPDATE_LASTLOCATION_REQUESTNUM] = &LocatorHandler::UpdateLastLocationRequestNum;
     locatorHandlerEventMap_[EVENT_UNLOAD_SA] = &LocatorHandler::UnloadSaEvent;
+    locatorHandlerEventMap_[EVENT_REG_LOCATION_ERROR] = &LocatorHandler::RegLocationErrorEvent;
+    locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] = &LocatorHandler::UnRegLocationErrorEvent;
+    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] = &LocatorHandler::ReportLocationErrorEvent;
 }
 
 void LocatorHandler::UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
@@ -1563,6 +1573,69 @@ void LocatorHandler::UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locationSaLoadManager != nullptr) {
         locationSaLoadManager->UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
+    }
+}
+
+void LocatorHandler::RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    std::unique_ptr<LocatorCallbackMessage> callbackMessage = event->GetUniqueObject<LocatorCallbackMessage>();
+    if (callbackMessage == nullptr) {
+        return;
+    }
+    if (requestManager != nullptr) {
+        requestManager->UpdateLocationErrorCallbackToRequest(callbackMessage->GetCallback(),
+            callbackMessage->GetAppIdentity(), true);
+    }
+}
+
+void LocatorHandler::UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    std::unique_ptr<LocatorCallbackMessage> callbackMessage = event->GetUniqueObject<LocatorCallbackMessage>();
+    if (callbackMessage == nullptr) {
+        return;
+    }
+    if (requestManager != nullptr) {
+        requestManager->UpdateLocationErrorCallbackToRequest(callbackMessage->GetCallback(),
+            callbackMessage->GetAppIdentity(), false);
+    }
+}
+
+void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = event->GetUniqueObject<LocatorErrorMessage>();
+    if (locatorErrorMessage == nullptr) {
+        return;
+    }
+    auto uuid = locatorErrorMessage->GetUuid();
+    auto errCode = locatorErrorMessage->GetErrCode();
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
+        return;
+    }
+    auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr || requests->empty()) {
+        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
+        return;
+    }
+    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
+        auto list = mapIter->second;
+        for (auto request : list) {
+            if (uuid != "" && uuid != request->GetUuid()) {
+                continue;
+            } else if (uuid != "") {
+                auto locationCallbackHost = request->GetLocatorCallBack();
+                locationCallbackHost->OnNetWorkErrorReport(errCode);
+            }
+            auto locationErrorCallbackHost = request->GetLocationErrorCallBack();
+            if (locationErrorCallbackHost != nullptr) {
+                LBSLOGE(LOCATOR, "errCode : %{public}d ,uuid : %{public}s", errCode, uuid.c_str());
+                locationErrorCallbackHost->OnErrorReport(errCode);
+            }
+        }
     }
 }
 

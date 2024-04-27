@@ -61,5 +61,9 @@ void NativeLocationCallbackHost::OnLocatingStatusChange(const int status)
 void NativeLocationCallbackHost::OnErrorReport(const int errorCode)
 {
 }
+
+void NativeLocationCallbackHost::OnNetWorkErrorReport(const int errorCode)
+{
+}
 } // namespace Location
 } // namespace OHOS
