@@ -58,8 +58,6 @@ private:
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
     void ReportDataToResSched(std::string state, const pid_t uid);
-    int GetLocationRequestType(const sptr<RequestConfig>& requestConfig);
-
     std::map<int32_t, int32_t> runningUidMap_;
     static std::mutex requestMutex_;
     std::mutex runningUidsMutex_;

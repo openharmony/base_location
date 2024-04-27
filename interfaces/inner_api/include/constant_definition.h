@@ -99,7 +99,7 @@ enum {
     COUNTRY_CODE_FROM_NETWORK,
 };
 
-enum LocationRequestType {
+enum NlpRequestType {
     PRIORITY_TYPE_HIGH_ACCURACY = 100,            // GNSS + NLP
     PRIORITY_TYPE_BALANCED_POWER_ACCURACY = 102,  // NLP
     PRIORITY_TYPE_LOW_POWER = 104,                // NLP

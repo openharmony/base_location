@@ -557,7 +557,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-    singleLocatorCallbackHost->SetLocationPriority(requestConfig->GetLocationPriority());
+    singleLocatorCallbackHost->SetLocationPriority(requestConfig->GetPriority());
     LocationErrCode errorCode = CheckLocationSwitchEnable();
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
@@ -1549,7 +1549,6 @@ bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
             return false;
         }
         g_locationErrorCallbackHosts.DeleteCallback(env, handler);
-        locationErrorCallbackHost->DeleteAllCallbacks();
         locationErrorCallbackHost = nullptr;
         return true;
     }

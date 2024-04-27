@@ -107,26 +107,6 @@ public:
         return timestamp_;
     }
 
-    inline void SetLocatingTimeoutMs(int locatingTimeoutMs)
-    {
-        locatingTimeoutMs_ = locatingTimeoutMs;
-    }
-
-    inline int GetLocationTimeoutMs()
-    {
-        return locatingTimeoutMs_;
-    }
-
-    inline void SetLocatingPriority(int locatingPriority)
-    {
-        locatingPriority_ = locatingPriority;
-    }
-
-    inline int GetLocationPriority()
-    {
-        return locatingPriority_;
-    }
-
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;

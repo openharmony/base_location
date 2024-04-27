@@ -119,7 +119,18 @@ HWTEST_F(GnssAbilityTest, SendLocationRequest001, TestSize.Level1)
         std::string name = "nameForTest";
         std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
         int locationRequestType = i + 1;
-        workRecord->Add(uid, pid, name, timeInterval, uuid, locationRequestType);
+
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(timeInterval);
+        sptr<ILocatorCallback> callback;
+        AppIdentity appIdentity;
+        appIdentity.SetUid(uid);
+        appIdentity.SetPid(pid);
+        appIdentity.GetBundleName(name);
+        appIdentity.SetUuid(uuid);
+        std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+        request->SetNlpRequestType(nlpRequestType);
+        workRecord->Add(request);
     }
     /*
      * @tc.steps: step2. send location request
@@ -1231,7 +1242,19 @@ HWTEST_F(GnssAbilityTest, SubAbilityCommonGetRequestNum001, TestSize.Level1)
         std::string name = "nameForTest";
         std::string uuid = "uuidForTest";
         int locationRequestType = i + 1;
-        workRecord->Add(uid, pid, name, timeInterval, uuid, locationRequestType);
+
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(timeInterval);
+        sptr<ILocatorCallback> callback;
+        AppIdentity appIdentity;
+        appIdentity.SetUid(uid);
+        appIdentity.SetPid(pid);
+        appIdentity.GetBundleName(name);
+        appIdentity.SetUuid(uuid);
+        std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+        request->SetNlpRequestType(nlpRequestType);
+        
+        workRecord->Add(request);
     }
     gnssAbility->newRecord_->Set(*workRecord);
     gnssAbility->GetRequestNum();
@@ -1239,7 +1262,18 @@ HWTEST_F(GnssAbilityTest, SubAbilityCommonGetRequestNum001, TestSize.Level1)
     gnssAbility->newRecord_ = nullptr;
     gnssAbility->GetRequestNum();
     
-    gnssAbility->lastRecord_->Add(0, 0, "nameForTest", 0, "uuidForTest", 0);
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(0);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("nameForTest");
+    appIdentity.SetUuid("uuidForTest");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    request->SetNlpRequestType(0);
+    
+    gnssAbility->lastRecord_->Add(request);
     gnssAbility->HandleRemoveRecord(*workRecord);
 
     gnssAbility->lastRecord_->Clear();

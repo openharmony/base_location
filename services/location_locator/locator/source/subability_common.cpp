@@ -24,6 +24,7 @@
 #include "locationhub_ipc_interface_code.h"
 
 #include "work_record_statistic.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -107,8 +108,7 @@ void SubAbility::HandleRemoveRecord(WorkRecord &newRecord)
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-            workRecord->Add(uid, lastRecord_->GetPid(i), lastRecord_->GetName(i),
-                lastRecord_->GetTimeInterval(i), lastRecord_->GetUuid(i), lastRecord_->GetLocationRequestType(i));
+            workRecord->Add(*workRecord, i);
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(*workRecord, false);
         }
@@ -124,8 +124,7 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
             std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-            workRecord->Add(uid, newRecord.GetPid(i), newRecord.GetName(i),
-                newRecord.GetTimeInterval(i), newRecord.GetUuid(i), newRecord.GetLocationRequestType(i));
+            workRecord->Add(*workRecord, i);
             workRecord->SetDeviceId(newRecord.GetDeviceId());
             RequestRecord(*workRecord, true);
         }
@@ -161,7 +160,17 @@ void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
     std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
     records->Set(*lastRecord_);
     if (state) {
-        records->Add(uid, pid, name, interval_, uuid, LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(interval_);
+        sptr<ILocatorCallback> callback;
+        AppIdentity appIdentity;
+        appIdentity.SetUid(uid);
+        appIdentity.SetPid(pid);
+        appIdentity.GetBundleName(name);
+        appIdentity.SetUuid(uuid);
+        std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+        request->SetNlpRequestType(NlpRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
+        records->Add(request);
     } else {
         records->Remove(uid, pid, name, uuid);
     }

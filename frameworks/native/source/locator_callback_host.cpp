@@ -42,6 +42,7 @@ LocatorCallbackHost::LocatorCallbackHost()
     completeHandlerCb_ = nullptr;
     deferred_ = nullptr;
     fixNumber_ = 0;
+    inHdArea_ = true;
     singleLocation_ = nullptr;
     InitLatch();
 }
@@ -68,13 +69,13 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
-            if (locationPriority_ != LOCATION_PRIORITY_ACCURACY || IfReportAccuracyLocation(location)) {
-                OnLocationReport(location);
-            }
-            if (locationPriority_ != LOCATION_PRIORITY_ACCURACY) {
+            OnLocationReport(location);
+            if (NeedSetSingleLocation(location)) {
                 SetSingleLocation(location);
             }
-            CountDown();
+            if (IfReportAccuracyLocation()) {
+                CountDown();
+            }
             break;
         }
         case RECEIVE_LOCATION_STATUS_EVENT: {
@@ -86,6 +87,13 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
             int errorCode = data.ReadInt32();
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive ERROR_EVENT. errorCode:%{public}d", errorCode);
             OnErrorReport(errorCode);
+            break;
+        }
+        case RECEIVE_NETWORK_ERROR_INFO_EVENT: {
+            inHdArea_ = false;
+            if (GetSingleLocation() != nullptr) {
+                CountDown();
+            }
             break;
         }
         default: {
@@ -310,7 +318,7 @@ bool LocatorCallbackHost::IsSingleLocationRequest()
 
 void LocatorCallbackHost::CountDown()
 {
-    if (IsSingleLocationRequest() && latch_ != nullptr && locationPriority_ != LOCATION_PRIORITY_ACCURACY) {
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
         latch_->CountDown();
     }
 }
@@ -337,26 +345,26 @@ void LocatorCallbackHost::SetCount(int count)
     }
 }
 
-bool LocatorCallbackHost::IfReportAccuracyLocation(const std::unique_ptr<Location>& location)
+bool LocatorCallbackHost::NeedSetSingleLocation(const std::unique_ptr<Location>& location)
 {
-    if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
-        SetSingleLocation(location);
-        return true;
-    } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE) {
-        if (singleLocation_ != nullptr && singleLocation_->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
-            return false;
-        } else {
-            SetSingleLocation(location);
-            return true;
-        }
-    } else if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
-        if (singleLocation_ == nullptr) {
-            SetSingleLocation(location);
-        }
+    if (locationPriority_ == LOCATION_PRIORITY_ACCURACY &&
+        singleLocation_ != nullptr &&
+        location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
         return false;
     } else {
         return true;
     }
+}
+
+bool LocatorCallbackHost::IfReportAccuracyLocation()
+{
+    if (locationPriority_ == LOCATION_PRIORITY_ACCURACY &&
+        ((singleLocation_->GetLocationSourceType() == LocationSourceType::GNSS_TYPE && inHdArea_ == true) ||
+        singleLocation_->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE)) {
+        return false;
+    } else {
+        return true;
+    } 
 }
 
 void LocatorCallbackHost::SetSingleLocation(const std::unique_ptr<Location>& location)

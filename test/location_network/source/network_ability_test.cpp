@@ -103,7 +103,18 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
         int timeInterval = i;
         std::string name = "nameForTest";
         std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
-        workRecord->Add(uid, pid, name, timeInterval, uuid, 0);
+
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(timeInterval);
+        sptr<ILocatorCallback> callback;
+        AppIdentity appIdentity;
+        appIdentity.SetUid(uid);
+        appIdentity.SetPid(pid);
+        appIdentity.GetBundleName(name);
+        appIdentity.SetUuid(uuid);
+        std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+        request->SetNlpRequestType(0);
+        workRecord->Add(request);
     }
     /*
      * @tc.steps: step2. send location request

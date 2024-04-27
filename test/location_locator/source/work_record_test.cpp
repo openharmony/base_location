@@ -78,7 +78,18 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
     EXPECT_EQ(true, workrecord->Remove("name"));
     EXPECT_EQ(0, workrecord->Size()); // remove successfully
 
-    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0", 0));
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    request->SetNlpRequestType(0);
+
+    EXPECT_EQ(true, workrecord->Add(request));
     EXPECT_EQ(1, workrecord->Size());
     EXPECT_EQ(false, workrecord->Remove(SYSTEM_UID, 0, "WrongName", "0"));
     EXPECT_EQ(1, workrecord->Size());
@@ -105,7 +116,18 @@ HWTEST_F(WorkRecordTest, FindWorkRecord001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[WorkRecordTest] FindWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(false, workrecord->Find(SYSTEM_UID, "name", "0"));
-    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0", 0));
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    request->SetNlpRequestType(0);
+
+    EXPECT_EQ(true, workrecord->Add(request));
     EXPECT_EQ("name", workrecord->GetName(0));
     EXPECT_EQ("", workrecord->GetName(1)); // out of range
     EXPECT_EQ("", workrecord->GetName(-1)); // out of range
@@ -128,7 +150,17 @@ HWTEST_F(WorkRecordTest, ClearWorkRecord001, TestSize.Level1)
         << "WorkRecordTest, ClearWorkRecord001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] ClearWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
-    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0", 0));
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    request->SetNlpRequestType(0);
+    EXPECT_EQ(true, workrecord->Add(request));
     EXPECT_EQ(false, workrecord->IsEmpty());
     workrecord->Clear();
     EXPECT_EQ(true, workrecord->IsEmpty());
@@ -153,7 +185,17 @@ HWTEST_F(WorkRecordTest, WorkRecordToString001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordToString001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ("[]", workrecord->ToString());
-    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0", 0));
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    request->SetNlpRequestType(0);
+    EXPECT_EQ(true, workrecord->Add(request));
     EXPECT_NE("", workrecord->ToString());
     LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordToString001 end");
 }
@@ -164,8 +206,20 @@ HWTEST_F(WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1)
         << "WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] MarshallingWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
-    workrecord->Add(SYSTEM_UID, 0, "name1", 1, "0", 0);
-    workrecord->Add(WRONG_UID, 0, "name2", 1, "0", 0);
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    request->SetNlpRequestType(0);
+    workrecord->Add(request);
+    request->SetUid(WRONG_UID);
+    request->SetBundleName("name2");
+    workrecord->Add(request);
     MessageParcel parcel;
     workrecord->MarshallingWorkRecord(parcel);
 
@@ -185,9 +239,23 @@ HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
         << "WorkRecordTest, AddWorkRecord001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
-    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID + 1, 0, "name", 1, "0", 0));
-    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "name", 1, "0", 0)); // diff uid, add to record
-    EXPECT_EQ(true, workrecord->Add(SYSTEM_UID, 0, "DiffName", 1, "0", 0)); // diff name, add to record
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID + 1);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    request->SetNlpRequestType(0);
+    
+    EXPECT_EQ(true, workrecord->Add(request));
+
+    request->SetUid(SYSTEM_UID);
+    EXPECT_EQ(true, workrecord->Add(request)); // diff uid, add to record
+    request->SetPackageName("DiffName");
+    EXPECT_EQ(true, workrecord->Add(request)); // diff name, add to record
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 end");
 }
 

@@ -97,6 +97,16 @@ HWTEST_F(PassiveAbilityTest, SendLocationRequest001, TestSize.Level1)
         int timeInterval = i;
         std::string name = "nameForTest";
         std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(timeInterval);
+        sptr<ILocatorCallback> callback;
+        AppIdentity appIdentity;
+        appIdentity.SetUid(uid);
+        appIdentity.SetPid(pid);
+        appIdentity.GetBundleName(name);
+        appIdentity.SetUuid(uuid);
+        std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+        request->SetNlpRequestType(0);
         workRecord->Add(uid, pid, name, timeInterval, uuid, 0);
     }
     /*

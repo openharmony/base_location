@@ -157,8 +157,8 @@ public:
         std::unique_lock<std::mutex> guard(mutex_);
         return singleLocation_;
     }
-
-    bool IfReportAccuracyLocation(const std::unique_ptr<Location>& location);
+    bool NeedSetSingleLocation(const std::unique_ptr<Location>& location);
+    bool IfReportAccuracyLocation();
     void SetSingleLocation(const std::unique_ptr<Location>& location);
 
 private:
@@ -173,6 +173,7 @@ private:
     CountDownLatch* latch_;
     std::shared_ptr<Location> singleLocation_;
     int locationPriority_;
+    bool inHdArea_;
 };
 } // namespace Location
 } // namespace OHOS
