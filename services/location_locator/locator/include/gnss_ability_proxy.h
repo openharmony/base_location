@@ -49,10 +49,10 @@ public:
     LocationErrCode EnableMock() override;
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
-    LocationErrCode AddGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RemoveGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode QuerySupportCoordinateSystemType(
+        std::vector<CoordinateSystemType>& coordinateSystemTypes) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };

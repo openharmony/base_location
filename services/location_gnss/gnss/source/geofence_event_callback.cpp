@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 #include "geofence_event_callback.h"
 #include "location_log.h"
 #include "gnss_ability.h"
@@ -35,7 +35,7 @@ int32_t GeofenceEventCallback::ReportGeofenceEvent(
         LBSLOGE(GNSS, "gnssAbility is nullptr");
         return -1;
     }
-    gnssAbility->ReportGeofenceEvent(fenceIndex, static_cast<int>(event));
+    gnssAbility->ReportGeofenceEvent(fenceIndex, event);
     return 0;
 }
 
@@ -48,15 +48,9 @@ int32_t GeofenceEventCallback::ReportGeofenceOperateResult(
         LBSLOGE(GNSS, "gnssAbility is nullptr");
         return -1;
     }
-    if (type == TYPE_ADD) {
-        if (result == GEOFENCE_OPERATION_SUCCESS) {
-            gnssAbility->ReportAddGeofenceOperationSuccess(fenceIndex);
-        } else {
-            // 上报错误码
-            LBSLOGE(GNSS, "fence id:%{public}d, result:%{public}d", fenceIndex, result);
-        }
-    }
+    gnssAbility->ReportGeofenceOperationResult(fenceIndex, type, result);
     return 0;
 }
 }  // namespace Location
 }  // namespace OHOS
+#endif

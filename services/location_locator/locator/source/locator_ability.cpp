@@ -637,8 +637,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& re
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request,
-    const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
@@ -646,7 +645,6 @@ LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     request->Marshalling(dataToStub);
-    dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::ADD_GNSS_GEOFENCE), dataToStub, replyToStub);
 }
@@ -1342,6 +1340,30 @@ void LocatorAbility::ReportDataToResSched(std::string state)
     ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
 #endif
 }
+
+#ifdef FEATURE_GNSS_SUPPORT
+LocationErrCode LocatorAbility::QuerySupportCoordinateSystemType(
+    std::vector<CoordinateSystemType>& coordinateSystemTypes)
+{
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE),
+        dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        int size = replyToStub.ReadInt32();
+        size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
+        for (int i = 0; i < size; i++) {
+            int coordinateSystemType = replyToStub.ReadInt32();
+            coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
+        }
+    }
+    return errCode;
+}
+#endif
 
 void LocationMessage::SetAbilityName(std::string abilityName)
 {

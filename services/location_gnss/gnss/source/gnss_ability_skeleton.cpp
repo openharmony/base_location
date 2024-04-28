@@ -24,7 +24,6 @@
 #include "locationhub_ipc_interface_code.h"
 #include "permission_manager.h"
 #include "want_agent_helper.h"
-#include "notification_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -71,6 +70,8 @@ void GnssAbilityStub::InitGnssMsgHandleMap()
         &GnssAbilityStub::AddGnssGeofenceInner;
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE)] =
         &GnssAbilityStub::RemoveGnssGeofenceInner;
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE)] =
+        &GnssAbilityStub::QuerySupportCoordinateSystemTypeInner;
 }
 
 GnssAbilityStub::GnssAbilityStub()
@@ -276,8 +277,7 @@ int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &re
         return ERRCODE_PERMISSION_DENIED;
     }
     auto request = GeofenceRequest::Unmarshalling(data);
-    sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(AddGnssGeofence(request, callback));
+    reply.WriteInt32(AddGnssGeofence(request));
     return ERRCODE_SUCCESS;
 }
 
@@ -290,6 +290,27 @@ int GnssAbilityStub::RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel 
     request->SetFenceId(data.ReadInt32());
     request->SetBundleName(data.ReadString());
     reply.WriteInt32(RemoveGnssGeofence(request));
+    return ERRCODE_SUCCESS;
+}
+
+int GnssAbilityStub::QuerySupportCoordinateSystemTypeInner(
+    MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    auto errCode = QuerySupportCoordinateSystemType(coordinateSystemTypes);
+    reply.WriteInt32(errCode);
+    if (errCode != ERRCODE_SUCCESS) {
+        return errCode;
+    }
+    int size = coordinateSystemTypes.size() > COORDINATE_SYSTEM_TYPE_SIZE ?
+        COORDINATE_SYSTEM_TYPE_SIZE : coordinateSystemTypes.size();
+    reply.WriteInt32(size);
+    for (int i = 0; i < size; i++) {
+        reply.WriteInt32(static_cast<int>(coordinateSystemTypes[i]));
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -378,6 +399,24 @@ void CachedLocationCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject
         gnssAbility->UnregisterCachedCallback(remote.promote());
         gnssAbility->UnloadGnssSystemAbility();
         LBSLOGI(LOCATOR, "cached location callback OnRemoteDied");
+    }
+}
+
+GnssGeofenceCallbackDeathRecipient::GnssGeofenceCallbackDeathRecipient()
+{
+}
+
+GnssGeofenceCallbackDeathRecipient::~GnssGeofenceCallbackDeathRecipient()
+{
+}
+
+void GnssGeofenceCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility != nullptr) {
+        gnssAbility->RemoveGnssGeofenceRequestByCallback(remote.promote());
+        gnssAbility->UnloadGnssSystemAbility();
+        LBSLOGI(LOCATOR, "gnss geofence location callback OnRemoteDied");
     }
 }
 } // namespace Location

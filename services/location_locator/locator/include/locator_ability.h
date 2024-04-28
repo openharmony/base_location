@@ -98,8 +98,7 @@ public:
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands);
     LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request,
-        const sptr<IRemoteObject>& callback);
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
 #endif
     LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -159,6 +158,10 @@ public:
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
     void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt);
+#ifdef FEATURE_GNSS_SUPPORT
+    LocationErrCode QuerySupportCoordinateSystemType(
+        std::vector<CoordinateSystemType>& coordinateSystemTypes);
+#endif
 
 private:
     bool Init();

@@ -23,6 +23,7 @@
 #include "uv.h"
 #include "common_utils.h"
 #include "i_gnss_geofence_callback.h"
+#include "geofence_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,6 +42,11 @@ public:
     int GetFenceId();
     void ClearFenceId();
     void SetFenceId(int fenceId);
+    LocationErrCode DealGeofenceOperationResult();
+    GnssGeofenceOperateType GetGeofenceOperationType();
+    void SetGeofenceOperationType(GnssGeofenceOperateType type);
+    GnssGeofenceOperateResult GetGeofenceOperationResult();
+    void SetGeofenceOperationResult(GnssGeofenceOperateResult result);
 
     inline napi_env GetEnv() const
     {
@@ -75,14 +81,17 @@ public:
 private:
     void Send(int code, MessageParcel& data);
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
+    void InitLatch();
 
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
     std::mutex mutex_;
-    std::mutex idMutex_;
+    std::mutex operationResultMutex_;
     CountDownLatch* latch_;
     int fenceId_;
+    GnssGeofenceOperateType type_;
+    GnssGeofenceOperateResult result_;
 };
 } // namespace Location
 } // namespace OHOS

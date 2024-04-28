@@ -95,16 +95,20 @@ bool ParseGnssGeofenceRequest(
 bool GenGnssGeofenceRequest(
     const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& reminder);
 napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName);
+#ifdef NOTIFICATION_ENABLE
 void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<Notification::NotificationRequest>>& notificationRequestList);
 void GetNotificationRequestArray(const napi_env& env, const napi_value& notificationRequest,
     std::vector<std::shared_ptr<Notification::NotificationRequest>>& notificationRequestList);
+#endif
 void JsObjToGeofenceTransitionEventList(const napi_env& env, const napi_value& object,
     std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList);
 void GetGeofenceTransitionEventArray(const napi_env& env, const napi_value& monitorGeofenceTransition,
     std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList);
+#ifdef NOTIFICATION_ENABLE
 void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
     Notification::NotificationRequest& notificationRequest);
+#endif
 void GeofenceTransitionToJs(const napi_env& env,
     const GeofenceTransition geofenceTransition, napi_value& result);
 void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& object,

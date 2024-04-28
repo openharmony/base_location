@@ -110,6 +110,8 @@ void LocatorAbilityStub::ConstructGnssHandleMap()
         &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
     locatorHandleMap_[LocatorInterfaceCode::ADD_GNSS_GEOFENCE] = &LocatorAbilityStub::PreAddGnssGeofence;
     locatorHandleMap_[LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE] = &LocatorAbilityStub::PreRemoveGnssGeofence;
+    locatorHandleMap_[LocatorInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE] =
+        &LocatorAbilityStub::PreQuerySupportCoordinateSystemType;
 #endif
 }
 
@@ -686,8 +688,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
     }
     auto request = GeofenceRequest::Unmarshalling(data);
     request->SetBundleName(identity.GetBundleName());
-    sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(locatorAbility->AddGnssGeofence(request, callback));
+    reply.WriteInt32(locatorAbility->AddGnssGeofence(request));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -968,6 +969,32 @@ int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel 
     reply.WriteInt32(errorCode);
     return ERRCODE_SUCCESS;
 }
+
+#ifdef FEATURE_GNSS_SUPPORT
+int LocatorAbilityStub::PreQuerySupportCoordinateSystemType(MessageParcel &data,
+    MessageParcel &reply, AppIdentity &identity)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility is nullptr.");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    auto errCode = locatorAbility->QuerySupportCoordinateSystemType(coordinateSystemTypes);
+    reply.WriteInt32(errCode);
+    if (errCode != ERRCODE_SUCCESS) {
+        return errCode;
+    }
+    int size = coordinateSystemTypes.size() > COORDINATE_SYSTEM_TYPE_SIZE ?
+        COORDINATE_SYSTEM_TYPE_SIZE : coordinateSystemTypes.size();
+    reply.WriteInt32(size);
+    for (int i = 0; i < size; i++) {
+        reply.WriteInt32(static_cast<int>(coordinateSystemTypes[i]));
+    }
+    return ERRCODE_SUCCESS;
+}
+#endif
 
 bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdentity &identity)
 {

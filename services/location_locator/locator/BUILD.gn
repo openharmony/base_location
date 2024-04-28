@@ -70,13 +70,11 @@ ohos_shared_library("lbsservice_locator") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_consumer",
-    "distributed_notification_service:ans_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
-    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

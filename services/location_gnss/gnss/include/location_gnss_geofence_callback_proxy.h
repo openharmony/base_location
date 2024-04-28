@@ -22,7 +22,7 @@
 #include "iremote_object.h"
 
 #include "i_gnss_geofence_callback.h"
-#include "constant_definition.h"
+#include "geofence_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -30,8 +30,8 @@ class LocationGnssGeofenceCallbackProxy : public IRemoteProxy<IGnssGeofenceCallb
 public:
     explicit LocationGnssGeofenceCallbackProxy(const sptr<IRemoteObject> &impl);
     ~LocationGnssGeofenceCallbackProxy() = default;
-    void OnFenceIdChange(int fenceId);
     void OnTransitionStatusChange(GeofenceTransition transition);
+    void OnReportOperationResult(int fenceId, int type, int result);
 private:
     static inline BrokerDelegator<LocationGnssGeofenceCallbackProxy> delegator_;
 };
