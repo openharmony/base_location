@@ -84,6 +84,7 @@ bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
     GnssStatusAsyncContext *context = new (std::nothrow) GnssStatusAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     context->env = env_;

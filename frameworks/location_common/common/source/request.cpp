@@ -24,6 +24,7 @@ Request::Request()
     this->pid_ = -1;
     this->uid_ = -1;
     this->tokenId_ = 0;
+    this->tokenIdEx_ = 0;
     this->firstTokenId_ = 0;
     this->packageName_ = "";
     this->isRequesting_ = false;

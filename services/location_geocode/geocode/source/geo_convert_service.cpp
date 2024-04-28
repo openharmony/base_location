@@ -445,7 +445,9 @@ void GeoConvertService::RegisterGeoServiceDeathRecipient()
         return;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GeoServiceDeathRecipient());
-    serviceProxy_->AddDeathRecipient(death);
+    if (death != nullptr) {
+        serviceProxy_->AddDeathRecipient(death);
+    }
 }
 
 bool GeoConvertService::SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel,

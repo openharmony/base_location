@@ -89,6 +89,7 @@ bool CachedLocationsCallbackHost::Send(std::vector<std::unique_ptr<Location>>& l
     CachedLocationAsyncContext *context = new (std::nothrow) CachedLocationAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     context->env = env_;

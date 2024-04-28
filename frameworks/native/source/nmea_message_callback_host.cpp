@@ -91,6 +91,7 @@ bool NmeaMessageCallbackHost::Send(const std::string msg)
     NmeaAsyncContext *context = new (std::nothrow) NmeaAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     context->env = env_;
