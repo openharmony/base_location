@@ -363,7 +363,7 @@ void LocatorAbility::SendSwitchState(const int state)
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->IsConnecting();
+    return DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->IsConnecting() && GetActiveRequestNum() > 0;
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
