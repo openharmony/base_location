@@ -957,7 +957,9 @@ void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    ReportLocationStatus(callback, SESSION_START);
+    if (callback != nullptr) {
+        ReportLocationStatus(callback, SESSION_START);
+    }
 }
 
 LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
@@ -976,7 +978,9 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    ReportLocationStatus(callback, SESSION_STOP);
+    if (callback != nullptr) {
+        ReportLocationStatus(callback, SESSION_STOP);
+    }
     return ERRCODE_SUCCESS;
 }
 

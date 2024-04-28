@@ -109,6 +109,7 @@ bool LocatingRequiredDataCallbackHost::Send(const std::vector<std::shared_ptr<Lo
     LocatingRequiredDataAsyncContext *context = new (std::nothrow) LocatingRequiredDataAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(LOCATING_DATA_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     context->env = env_;
