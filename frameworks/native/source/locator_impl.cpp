@@ -1199,20 +1199,6 @@ LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocati
     return proxy->UnRegisterLocatingRequiredDataCallback(callback);
 }
 
-LocationErrCode LocatorImpl::GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    return proxy->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
-}
-
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {

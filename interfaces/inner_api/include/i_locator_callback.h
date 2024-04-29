@@ -29,11 +29,13 @@ public:
         RECEIVE_LOCATION_STATUS_EVENT = 2,
         RECEIVE_ERROR_INFO_EVENT = 3,
         RECEIVE_LOCATION_INFO_EVENT = 4,
+        RECEIVE_NETWORK_ERROR_INFO_EVENT = 5,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocatorCallback");
     virtual void OnLocationReport(const std::unique_ptr<Location>& location) = 0;
     virtual void OnLocatingStatusChange(const int status) = 0;
     virtual void OnErrorReport(const int errorCode) = 0;
+    virtual void OnNetworkErrorReport(const int errorCode) = 0;
 };
 } // namespace Location
 } // namespace OHOS

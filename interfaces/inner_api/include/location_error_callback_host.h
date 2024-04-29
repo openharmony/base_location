@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef NATIVE_LOCATION_CALLBACK_HOST_H
-#define NATIVE_LOCATION_CALLBACK_HOST_H
-
+#ifndef LOCATION_ERROR_CALLBACK_HOST_H
+#define LOCATION_ERROR_CALLBACK_HOST_H
 #include "iremote_stub.h"
+#include "napi/native_api.h"
+#include "uv.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
@@ -25,34 +26,46 @@
 
 namespace OHOS {
 namespace Location {
-typedef void (* LocationUpdate)(const std::unique_ptr<Location>& location);
-
-typedef struct {
-    LocationUpdate locationUpdate;
-} LocationCallbackIfaces;
-
-class NativeLocationCallbackHost : public IRemoteStub<ILocatorCallback> {
+class LocationErrorCallbackHost : public IRemoteStub<ILocatorCallback> {
 public:
-    virtual int OnRemoteRequest(uint32_t code,
-        MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+    LocationErrorCallbackHost();
+    virtual ~LocationErrorCallbackHost();
+    virtual int OnRemoteRequest(
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
     void OnNetworkErrorReport(const int errorCode) override;
+    napi_value PackResult(bool switchState);
+    bool Send(int switchState);
+    void DeleteHandler();
+    void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
-    inline void SetCallback(const LocationCallbackIfaces& locationCallback)
+    inline napi_env GetEnv() const
     {
-        locationCallback_ = locationCallback;
+        return env_;
     }
 
-    inline LocationCallbackIfaces GetCallback()
+    inline void SetEnv(const napi_env& env)
     {
-        return locationCallback_;
+        env_ = env;
+    }
+
+    inline napi_ref GetHandleCb() const
+    {
+        return handlerCb_;
+    }
+
+    inline void SetHandleCb(const napi_ref& handlerCb)
+    {
+        handlerCb_ = handlerCb;
     }
 
 private:
-    LocationCallbackIfaces locationCallback_;
+    napi_env env_;
+    napi_ref handlerCb_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // NATIVE_LOCATION_CALLBACK_HOST_H
+#endif // LOCATION_SWITCH_CALLBACK_HOST_H

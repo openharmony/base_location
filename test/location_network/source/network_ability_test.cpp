@@ -98,12 +98,16 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
     std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
     int num = 2;
     for (int i = 0; i < num; i++) {
-        int uid = i + 1;
-        int pid = i + 2;
-        int timeInterval = i;
-        std::string name = "nameForTest";
-        std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
-        workRecord->Add(uid, pid, name, timeInterval, uuid);
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(i);
+        request->SetUid(i + 1);
+        request->SetPid(i + 2);
+        request->SetPackageName("nameForTest");
+        request->SetRequestConfig(*requestConfig);
+        request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+        request->SetNlpRequestType(i + 1);
+        workRecord->Add(request);
     }
     /*
      * @tc.steps: step2. send location request

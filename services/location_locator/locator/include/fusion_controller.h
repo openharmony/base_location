@@ -31,18 +31,19 @@ public:
     void FuseResult(std::string abilityName, const std::unique_ptr<Location>& location);
     std::unique_ptr<Location> chooseBestLocation(const std::unique_ptr<Location>& gnssLocation,
         const std::unique_ptr<Location>& networkLocation);
-    std::unique_ptr<Location> GetFuseLocation(std::string abilityName,
-        const std::unique_ptr<Location>& location);
+    std::unique_ptr<Location> GetFuseLocation(
+        const std::unique_ptr<Location>& location, const sptr<Location>& lastFuseLocation);
 private:
 #ifdef FEATURE_NETWORK_SUPPORT
     void RequestQuickFix(bool state);
 #endif
+    bool CheckIfLastIndoorLocationValid(const std::unique_ptr<Location>& location,
+        const std::unique_ptr<Location>& lastFuseLocation);
+    bool CheckIfLastGnssLocationValid(const std::unique_ptr<Location>& location,
+        const std::unique_ptr<Location>& lastFuseLocation);
 
     uint32_t fusedFlag_ = 0;
     bool needReset_ = true;
-    std::unique_ptr<Location> gnssLocation_;
-    std::unique_ptr<Location> networkLocation_;
-    std::unique_ptr<Location> fuseLocation_;
 };
 } // namespace Location
 } // namespace OHOS

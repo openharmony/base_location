@@ -67,18 +67,16 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     }
     auto requestList = requestListIter->second;
     auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
-    auto fuseLocation = fusionController->GetFuseLocation(abilityName, location);
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
         WriteNetWorkReportEvent(abilityName, request, location);
-        bool ret = true;
-        if (IsRequestFuse(request)) {
-            ret = ProcessRequestForReport(request, deadRequests, fuseLocation, abilityName);
-        } else {
-            ret = ProcessRequestForReport(request, deadRequests, location, abilityName);
-        }
-        if (!ret) {
+        if (abilityName == NETWORK_ABILITY && (request->GetUuid() == location->GetUuid())) {
+            ProcessRequestForReport(request, deadRequests, location, abilityName);
+            break;
+        } else if (abilityName == NETWORK_ABILITY && (request->GetUuid() != location->GetUuid())) {
             continue;
+        } else {
+            ProcessRequestForReport(request, deadRequests, location, abilityName);
         }
     }
     for (auto iter = deadRequests->begin(); iter != deadRequests->end(); ++iter) {
@@ -103,7 +101,9 @@ void ReportManager::UpdateLocationByRequest(const uint32_t tokenId, const uint64
         return;
     }
     if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
-        location->SetIsFromMock(-1);
+        location->SetIsSystemApp(0);
+    } else {
+        location->SetIsSystemApp(1);
     }
 }
 
@@ -111,16 +111,24 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
     const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    if (request == nullptr || request->GetRequestConfig() == nullptr ||
-        !request->GetIsRequesting()) {
+    if (location == nullptr ||
+        request == nullptr || request->GetRequestConfig() == nullptr || !request->GetIsRequesting()) {
         return false;
+    }
+    std::unique_ptr<Location> fuseLocation;
+    std::unique_ptr<Location> finalLocation;
+    if (IsRequestFuse(request)) {
+        auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+        if (fusionController == nullptr) {
+            return false;
+        }
+        fuseLocation = fusionController->GetFuseLocation(location, request->GetLastLocation());
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
-    std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
-        request->GetTokenId(), request->GetFirstTokenId(), request->GetTokenIdEx(), location);
+    finalLocation = GetPermittedLocation(request, IsRequestFuse(request) ? fuseLocation : location);
     if (!ResultCheck(finalLocation, request)) {
         // add location permission using record
         locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
@@ -166,24 +174,36 @@ std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Re
     return std::make_unique<Location>(reportStruct.location);
 }
 
-std::unique_ptr<Location> ReportManager::GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
-    uint64_t tokenIdEx, const std::unique_ptr<Location>& location)
+std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_ptr<Request>& request,
+    const std::unique_ptr<Location>& location)
 {
     if (location == nullptr) {
         return nullptr;
     }
     std::string bundleName = "";
+    auto tokenId = request->GetTokenId();
+    auto firstTokenId = request->GetFirstTokenId();
+    auto tokenIdEx = request->GetTokenIdEx();
+    auto uid =  request->GetUid();
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
     if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
+        auto locationErrorCallback = request->GetLocationErrorCallBack();
+        if (locationErrorCallback != nullptr) {
+            locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
+        }
         return nullptr;
     }
     if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
         !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
+        auto locationErrorCallback = request->GetLocationErrorCallBack();
+        if (locationErrorCallback != nullptr) {
+            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
+        }
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
@@ -272,7 +292,8 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
             cacheGnssLocation_ = *location;
             lastLocation_ = *location;
         }
-    } else if (abilityName == NETWORK_ABILITY) {
+    } else if (abilityName == NETWORK_ABILITY &&
+        location->GetLocationSourceType() != LocationSourceType::INDOOR_TYPE) {
         cacheNlpLocation_ = *location;
         lastLocation_ = *location;
     } else {
@@ -301,8 +322,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
         (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= NLP_FIX_CACHED_TIME) {
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
-    std::unique_ptr<Location> finalLocation = GetPermittedLocation(request->GetUid(),
-        request->GetTokenId(), request->GetFirstTokenId(), request->GetTokenIdEx(), cacheLocation);
+    std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
         return nullptr;
     }
@@ -373,8 +393,14 @@ bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
     if (request == nullptr || request->GetRequestConfig() == nullptr) {
         return false;
     }
-    if (request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
-        request->GetRequestConfig()->GetPriority() == PRIORITY_FAST_FIRST_FIX) {
+    if ((request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
+        request->GetRequestConfig()->GetPriority() == PRIORITY_FAST_FIRST_FIX) ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_NAVIGATION ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_SPORT ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_TRANSPORT ||
+        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_ACCURACY ||
+        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED ||
+        request->GetRequestConfig()->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION) {
         return true;
     }
     return false;

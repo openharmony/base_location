@@ -271,6 +271,18 @@ public:
     ~SingleScanAsyncContext() override {}
 };
 
+class LocationErrorAsyncContext : public AsyncContext {
+public:
+    int32_t errCode;
+
+    explicit LocationErrorAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), errCode(-1) {}
+
+    LocationErrorAsyncContext() = delete;
+
+    ~LocationErrorAsyncContext() override {}
+};
+
 class GnssGeofenceAsyncContext : public AsyncContext {
 public:
     int code_;

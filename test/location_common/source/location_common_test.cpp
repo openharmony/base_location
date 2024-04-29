@@ -174,7 +174,9 @@ void LocationCommonTest::VerifyLocationMarshalling(MessageParcel& newParcel)
     EXPECT_EQ(VERIFY_LOCATION_TIME, newParcel.ReadInt64()); // timeStamp
     EXPECT_EQ(VERIFY_LOCATION_TIMESINCEBOOT, newParcel.ReadInt64()); // timeSinceBoot
     EXPECT_EQ(1, newParcel.ReadInt64()); // additionSize
-    EXPECT_EQ("additions", Str16ToStr8(newParcel.ReadString16())); // additions
+    std::vector<std::u16string> additions;
+    newParcel.ReadString16Vector(&additions);
+    EXPECT_EQ("additions", Str16ToStr8(additions[0])); // additions
     EXPECT_EQ(1, newParcel.ReadInt32()); // isFromMock
 }
 
@@ -239,7 +241,9 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     parcel.WriteInt64(VERIFY_LOCATION_TIME); // timeStamp
     parcel.WriteInt64(VERIFY_LOCATION_TIMESINCEBOOT); // timeSinceBoot
     parcel.WriteInt64(1); // additionSize
-    parcel.WriteString16(u"additions"); // additions
+    std::vector<std::u16string> additions;
+    additions.push_back(Str16ToStr8("additions"));
+    parcel.WriteString16Vector(additions);
     parcel.WriteInt32(1); // isFromMock
     location->ReadFromParcel(parcel);
     EXPECT_EQ(VERIFY_LOCATION_LATITUDE, location->GetLatitude());

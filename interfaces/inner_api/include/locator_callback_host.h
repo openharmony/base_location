@@ -40,6 +40,7 @@ public:
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
+    void OnNetworkErrorReport(const int errorCode) override;
     void DeleteAllCallbacks();
     void DeleteHandler();
     void DeleteSuccessHandler();
@@ -142,11 +143,24 @@ public:
         deferred_ = deferred;
     }
 
+    inline void SetLocationPriority(const int locationPriority)
+    {
+        locationPriority_ = locationPriority;
+    }
+
+    inline int GetLocationPriority()
+    {
+        return locationPriority_;
+    }
+
     inline std::shared_ptr<Location> GetSingleLocation()
     {
         std::unique_lock<std::mutex> guard(mutex_);
         return singleLocation_;
     }
+    bool NeedSetSingleLocation(const std::unique_ptr<Location>& location);
+    bool IfReportAccuracyLocation();
+    void SetSingleLocation(const std::unique_ptr<Location>& location);
 
 private:
     napi_env env_;
@@ -159,6 +173,8 @@ private:
     std::mutex mutex_;
     CountDownLatch* latch_;
     std::shared_ptr<Location> singleLocation_;
+    int locationPriority_;
+    bool inHdArea_;
 };
 } // namespace Location
 } // namespace OHOS

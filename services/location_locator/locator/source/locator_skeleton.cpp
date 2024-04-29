@@ -69,6 +69,9 @@ void LocatorAbilityStub::ConstructLocatorHandleMap()
         &LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback;
     locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK] =
         &LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback;
+    locatorHandleMap_[LocatorInterfaceCode::REG_LOCATION_ERROR] = &LocatorAbilityStub::PreRegisterLocationError;
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATION_ERROR] = &LocatorAbilityStub::PreUnregisterLocationError;
+    locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION_ERROR] = &LocatorAbilityStub::PreReportLocationError;
 }
 
 void LocatorAbilityStub::ConstructGeocodeHandleMap()
@@ -889,11 +892,7 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
-        LBSLOGE(LOCATOR, "check system permission failed, [%{public}s]",
-            identity.ToString().c_str());
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -1066,6 +1065,70 @@ bool LocatorAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
         return false;
     }
     return true;
+}
+
+int LocatorAbilityStub::PreRegisterLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "PreStartLocating: LocatorAbility is nullptr.");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
+    if (remoteObject == nullptr) {
+        LBSLOGE(LOCATOR, "StartLocating remote object nullptr");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
+    reply.WriteInt32(locatorAbility->RegisterLocationError(callback, identity));
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreUnregisterLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "PreStopLocating: LocatorAbility is nullptr.");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
+    if (remoteObject == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility::StopLocating remote object nullptr");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
+    reply.WriteInt32(locatorAbility->UnregisterLocationError(callback, identity));
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "PreReportLocation: LocatorAbility is nullptr.");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    int32_t errCode = data.ReadInt32();
+    std::string errMsg = data.ReadString();
+    std::string uuid = data.ReadString();
+    locatorAbility->ReportLocationError(uuid, errCode);
+    return ERRCODE_SUCCESS;
 }
 
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,

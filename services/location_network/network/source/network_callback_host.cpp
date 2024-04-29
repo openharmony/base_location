@@ -36,13 +36,20 @@ int NetworkCallbackHost::OnRemoteRequest(
     }
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT_V9: {
-            std::unique_ptr<Location> location = Location::UnmarshallingV9(data);
+            std::unique_ptr<Location> location = Location::Unmarshalling(data);
             OnLocationReport(location);
             break;
         }
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             OnLocationReport(location);
+            break;
+        }
+        case RECEIVE_ERROR_INFO_EVENT: {
+            auto errCode = data.ReadInt32();
+            auto errMsg = Str16ToStr8(data.ReadString16());
+            auto uuid = Str16ToStr8(data.ReadString16());
+            DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationError(errCode, errMsg, uuid);
             break;
         }
         default: {
@@ -73,6 +80,10 @@ void NetworkCallbackHost::OnLocatingStatusChange(const int status)
 void NetworkCallbackHost::OnErrorReport(const int errorCode)
 {
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnErrorReport!");
+}
+
+void NetworkCallbackHost::OnNetworkErrorReport(const int errorCode)
+{
 }
 } // namespace Location
 } // namespace OHOS
