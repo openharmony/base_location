@@ -1332,7 +1332,11 @@ LocationErrCode LocatorAbility::RegisterLocationError(sptr<ILocatorCallback>& ca
 {
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
     callbackMessage->SetCallback(callback);
+<<<<<<< HEAD
     callbackMessage->SetAppIdentity(identity);
+=======
+    callbackMessage->SetAppIdentity(appIdentity);
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_REG_LOCATION_ERROR, callbackMessage);
     if (locatorHandler_ != nullptr) {
@@ -1345,7 +1349,11 @@ LocationErrCode LocatorAbility::UnregisterLocationError(sptr<ILocatorCallback>& 
 {
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
     callbackMessage->SetCallback(callback);
+<<<<<<< HEAD
     callbackMessage->SetAppIdentity(identity);
+=======
+    callbackMessage->SetAppIdentity(appIdentity);
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_UNREG_LOCATION_ERROR, callbackMessage);
     if (locatorHandler_ != nullptr) {
@@ -1360,7 +1368,11 @@ void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode)
     locatorErrorMessage->SetUuid(uuid);
     locatorErrorMessage->SetErrCode(errCode);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+<<<<<<< HEAD
         Get(EVENT_REPORT_LOCATION_ERROR, locatorErrorMessage);
+=======
+        Get(EVENT_REPORT_LOCATION_ERROR, callbackMessage);
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
@@ -1402,12 +1414,20 @@ sptr<ILocatorCallback> LocatorCallbackMessage::GetCallback()
     return callback_;
 }
 
+<<<<<<< HEAD
 void LocatorCallbackMessage::SetAppIdentity(AppIdentity& appIdentity)
+=======
+void LocatorCallbackMessage::SetAppidentity(Appidentity& appIdentity)
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
 {
     appIdentity_ = appIdentity;
 }
 
+<<<<<<< HEAD
 Appidentity LocatorCallbackMessage::GetAppIdentity()
+=======
+Appidentity LocatorCallbackMessage::GetAppidentity()
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
 {
     return appIdentity_;
 }
@@ -1627,7 +1647,11 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
             if (uuid != "" && uuid != request->GetUuid()) {
                 continue;
             } else if (uuid != "") {
+<<<<<<< HEAD
                 auto locationCallbackHost = request->GetLocatorCallBack();
+=======
+                auto locationCallbackHost = request->GetLocationCallBack();
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
                 locationCallbackHost->OnNetWorkErrorReport(errCode);
             }
             auto locationErrorCallbackHost = request->GetLocationErrorCallBack();

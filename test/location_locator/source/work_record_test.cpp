@@ -78,6 +78,7 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
     EXPECT_EQ(true, workrecord->Remove("name"));
     EXPECT_EQ(0, workrecord->Size()); // remove successfully
 
+<<<<<<< HEAD
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetTimeInterval(0);
@@ -86,6 +87,17 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
     request->SetPackageName("name");
     request->SetRequestConfig(*requestConfig);
     request->SetUuid("0");
+=======
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
     request->SetNlpRequestType(0);
 
     EXPECT_EQ(true, workrecord->Add(request));
@@ -115,6 +127,7 @@ HWTEST_F(WorkRecordTest, FindWorkRecord001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[WorkRecordTest] FindWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(false, workrecord->Find(SYSTEM_UID, "name", "0"));
+<<<<<<< HEAD
 
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
@@ -124,6 +137,17 @@ HWTEST_F(WorkRecordTest, FindWorkRecord001, TestSize.Level1)
     request->SetPackageName("name");
     request->SetRequestConfig(*requestConfig);
     request->SetUuid("0");
+=======
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
     request->SetNlpRequestType(0);
 
     EXPECT_EQ(true, workrecord->Add(request));
@@ -149,6 +173,7 @@ HWTEST_F(WorkRecordTest, ClearWorkRecord001, TestSize.Level1)
         << "WorkRecordTest, ClearWorkRecord001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] ClearWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
+<<<<<<< HEAD
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetTimeInterval(1);
@@ -157,6 +182,17 @@ HWTEST_F(WorkRecordTest, ClearWorkRecord001, TestSize.Level1)
     request->SetPackageName("name");
     request->SetRequestConfig(*requestConfig);
     request->SetUuid("0");
+=======
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
     request->SetNlpRequestType(0);
     EXPECT_EQ(true, workrecord->Add(request));
     EXPECT_EQ(false, workrecord->IsEmpty());
@@ -235,6 +271,7 @@ HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
         << "WorkRecordTest, AddWorkRecord001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddWorkRecord001 begin");
     std::unique_ptr<WorkRecord> workrecord = std::make_unique<WorkRecord>();
+<<<<<<< HEAD
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetTimeInterval(0);
@@ -243,6 +280,17 @@ HWTEST_F(WorkRecordTest, AddWorkRecord001, TestSize.Level1)
     request->SetPackageName("name");
     request->SetRequestConfig(*requestConfig);
     request->SetUuid("0");
+=======
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    sptr<ILocatorCallback> callback;
+    AppIdentity appIdentity;
+    appIdentity.SetUid(SYSTEM_UID + 1);
+    appIdentity.SetPid(0);
+    appIdentity.GetBundleName("name");
+    appIdentity.SetUuid("0");
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+>>>>>>> e0430728e4f7966242f00ec1ecaf9085a26fecf8
     request->SetNlpRequestType(0);
     
     EXPECT_EQ(true, workrecord->Add(request));
