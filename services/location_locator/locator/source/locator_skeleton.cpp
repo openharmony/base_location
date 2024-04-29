@@ -892,7 +892,11 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(LOCATOR, "check system permission failed, [%{public}s]",
+            identity.ToString().c_str());
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
@@ -1116,7 +1120,11 @@ int LocatorAbilityStub::PreUnregisterLocationError(MessageParcel &data, MessageP
 
 int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(LOCATOR, "check system permission failed, [%{public}s]",
+            identity.ToString().c_str());
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();

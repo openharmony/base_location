@@ -38,7 +38,6 @@ public:
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
-    void OnNetworkErrorReport(const int errorCode) override;
 
     inline void SetCallback(const LocationCallbackIfaces& locationCallback)
     {

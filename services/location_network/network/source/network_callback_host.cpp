@@ -81,10 +81,6 @@ void NetworkCallbackHost::OnErrorReport(const int errorCode)
 {
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnErrorReport!");
 }
-
-void NetworkCallbackHost::OnNetworkErrorReport(const int errorCode)
-{
-}
 } // namespace Location
 } // namespace OHOS
 #endif // FEATURE_NETWORK_SUPPORT

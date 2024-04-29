@@ -90,13 +90,13 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
         case RECEIVE_ERROR_INFO_EVENT: {
             int errorCode = data.ReadInt32();
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive ERROR_EVENT. errorCode:%{public}d", errorCode);
-            OnErrorReport(errorCode);
-            break;
-        }
-        case RECEIVE_NETWORK_ERROR_INFO_EVENT: {
-            inHdArea_ = false;
-            if (GetSingleLocation() != nullptr) {
-                CountDown();
+            if (errorCode == LOCATING_FAILED_INTERNET_ACCESS_FAILURE) {
+                inHdArea_ = false;
+                if (GetSingleLocation() != nullptr) {
+                    CountDown();
+                }
+            } else {
+                OnErrorReport(errorCode);
             }
             break;
         }
@@ -277,10 +277,6 @@ void LocatorCallbackHost::OnLocatingStatusChange(const int status)
 void LocatorCallbackHost::OnErrorReport(const int errorCode)
 {
     SendErrorCode(errorCode);
-}
-
-void LocatorCallbackHost::OnNetworkErrorReport(const int errorCode)
-{
 }
 
 void LocatorCallbackHost::DeleteAllCallbacks()

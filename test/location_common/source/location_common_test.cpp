@@ -242,7 +242,7 @@ HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
     parcel.WriteInt64(VERIFY_LOCATION_TIMESINCEBOOT); // timeSinceBoot
     parcel.WriteInt64(1); // additionSize
     std::vector<std::u16string> additions;
-    additions.push_back(Str16ToStr8("additions"));
+    additions.push_back(Str8ToStr16("additions"));
     parcel.WriteString16Vector(additions);
     parcel.WriteInt32(1); // isFromMock
     location->ReadFromParcel(parcel);

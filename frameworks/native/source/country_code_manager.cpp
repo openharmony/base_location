@@ -373,10 +373,6 @@ void CountryCodeManager::LocatorCallback::OnErrorReport(const int errorCode)
 {
 }
 
-void CountryCodeManager::LocatorCallback::OnNetworkErrorReport(const int errorCode)
-{
-}
-
 CountryCodeManager::NetworkSubscriber::NetworkSubscriber(
     const OHOS::EventFwk::CommonEventSubscribeInfo &info)
     : CommonEventSubscriber(info)

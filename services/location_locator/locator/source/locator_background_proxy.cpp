@@ -410,10 +410,6 @@ void LocatorBackgroundProxy::mLocatorCallback::OnErrorReport(const int errorCode
 {
 }
 
-void LocatorBackgroundProxy::mLocatorCallback::OnNetworkErrorReport(const int errorCode)
-{
-}
-
 LocatorBackgroundProxy::UserSwitchSubscriber::UserSwitchSubscriber(
     const OHOS::EventFwk::CommonEventSubscribeInfo &info)
     : CommonEventSubscriber(info)

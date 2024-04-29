@@ -1334,6 +1334,30 @@ void LocatorAbility::ReportDataToResSched(std::string state)
 #endif
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
+LocationErrCode LocatorAbility::QuerySupportCoordinateSystemType(
+    std::vector<CoordinateSystemType>& coordinateSystemTypes)
+{
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE),
+        dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        int size = replyToStub.ReadInt32();
+        size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
+        for (int i = 0; i < size; i++) {
+            int coordinateSystemType = replyToStub.ReadInt32();
+            coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
+        }
+    }
+    return errCode;
+}
+#endif
+
 LocationErrCode LocatorAbility::RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
@@ -1634,7 +1658,7 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
                 continue;
             } else if (uuid != "") {
                 auto locationCallbackHost = request->GetLocatorCallBack();
-                locationCallbackHost->OnNetworkErrorReport(errCode);
+                locationCallbackHost->OnErrorReport(errCode);
             }
             auto locationErrorCallbackHost = request->GetLocationErrorCallBack();
             if (locationErrorCallbackHost != nullptr) {

@@ -214,7 +214,7 @@ HWTEST_F(WorkRecordTest, MarshallingWorkRecord001, TestSize.Level1)
     request->SetNlpRequestType(0);
     workrecord->Add(request);
     request->SetUid(WRONG_UID);
-    request->SetBundleName("name2");
+    request->SetPackageName("name2");
     workrecord->Add(request);
     MessageParcel parcel;
     workrecord->MarshallingWorkRecord(parcel);
