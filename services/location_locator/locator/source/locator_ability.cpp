@@ -600,15 +600,7 @@ LocationErrCode LocatorAbility::AddFence(std::shared_ptr<GeofenceRequest>& reque
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(request->GetScenario());
-    auto geofence = request->GetGeofence();
-    dataToStub.WriteDouble(geofence->latitude);
-    dataToStub.WriteDouble(geofence->longitude);
-    dataToStub.WriteDouble(geofence->radius);
-    dataToStub.WriteDouble(geofence->expiration);
-    dataToStub.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
-    auto wantAgent = request->GetWantAgent();
-    dataToStub.WriteParcelable(&wantAgent);
+    request->Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::ADD_FENCE_INFO), dataToStub, replyToStub);
 }
@@ -622,15 +614,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& re
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(request->GetScenario());
-    auto geofence = request->GetGeofence();
-    dataToStub.WriteDouble(geofence->latitude);
-    dataToStub.WriteDouble(geofence->longitude);
-    dataToStub.WriteDouble(geofence->radius);
-    dataToStub.WriteDouble(geofence->expiration);
-    dataToStub.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
-    auto wantAgent = request->GetWantAgent();
-    dataToStub.WriteParcelable(&wantAgent);
+    request->Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
 }
@@ -1351,7 +1335,7 @@ LocationErrCode LocatorAbility::QuerySupportCoordinateSystemType(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto errCode = SendGnssRequest(
-        static_cast<int>(GnssInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE),
+        static_cast<int>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE),
         dataToStub, replyToStub);
     if (errCode == ERRCODE_SUCCESS) {
         int size = replyToStub.ReadInt32();

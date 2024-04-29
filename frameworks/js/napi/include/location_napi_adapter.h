@@ -50,10 +50,10 @@ napi_value HandleGetCachedLocation(napi_env env);
 LocationErrCode CheckLocationSwitchState();
 napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info);
 napi_value AddGnssGeofence(napi_env env, napi_callback_info info);
-GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForAdd(const napi_env& env,
+GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& env,
     std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackHost> callback);
 napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info);
-GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForRemove(const napi_env& env, int fenceId);
+GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env& env, int fenceId);
 napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info);
 #endif
 }  // namespace Location

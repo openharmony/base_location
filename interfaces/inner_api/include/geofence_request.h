@@ -38,7 +38,6 @@ public:
     GeofenceRequest()
     {
         callback_ = nullptr;
-        geofence_ = std::make_shared<GeoFence>();
         scenario_ = -1;
         fenceId_ = -1;
     }
@@ -57,12 +56,12 @@ public:
 
     ~GeofenceRequest() {}
 
-    inline std::shared_ptr<GeoFence> GetGeofence()
+    inline GeoFence GetGeofence()
     {
         return geofence_;
     }
 
-    inline void SetGeofence(std::shared_ptr<GeoFence> geofence)
+    inline void SetGeofence(GeoFence geofence)
     {
         geofence_ = geofence;
     }
@@ -107,19 +106,19 @@ public:
         }
     }
 
-    inline std::vector<std::shared_ptr<Notification::NotificationRequest>> GetNotificationRequestList()
+    inline std::vector<Notification::NotificationRequest> GetNotificationRequestList()
     {
         std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         return notificationRequestList_;
     }
 
-    inline void SetNotificationRequest(std::shared_ptr<Notification::NotificationRequest> request)
+    inline void SetNotificationRequest(Notification::NotificationRequest request)
     {
         std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         notificationRequestList_.push_back(request);
     }
 
-    inline void SetNotificationRequestList(std::vector<std::shared_ptr<Notification::NotificationRequest>> requestList)
+    inline void SetNotificationRequestList(std::vector<Notification::NotificationRequest> requestList)
     {
         std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         for (auto it = requestList.begin(); it != requestList.end(); ++it) {
@@ -162,9 +161,9 @@ public:
     static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
 private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
-    std::vector<std::shared_ptr<Notification::NotificationRequest>> notificationRequestList_;
+    std::vector<Notification::NotificationRequest> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;
-    std::shared_ptr<GeoFence> geofence_ = nullptr;
+    GeoFence geofence_;
     int scenario_;
     int fenceId_;
     AbilityRuntime::WantAgent::WantAgent wantAgent_;

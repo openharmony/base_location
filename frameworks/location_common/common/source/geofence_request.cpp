@@ -20,17 +20,19 @@
 #include "notification_request.h"
 #endif
 #include "iremote_object.h"
+#include "want_agent.h"
 
 namespace OHOS {
 namespace Location {
 void GeofenceRequest::ReadFromParcel(Parcel& data)
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-    geofence_->latitude = data.ReadDouble();
-    geofence_->longitude = data.ReadDouble();
-    geofence_->radius = data.ReadDouble();
-    geofence_->expiration = data.ReadDouble();
-    geofence_->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
+    scenario_ = data.ReadInt32();
+    geofence_.latitude = data.ReadDouble();
+    geofence_.longitude = data.ReadDouble();
+    geofence_.radius = data.ReadDouble();
+    geofence_.expiration = data.ReadDouble();
+    geofence_.coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
     int monitorGeofenceTransitionSize = data.ReadInt32();
     if (monitorGeofenceTransitionSize > MAX_TRANSITION_SIZE) {
         LBSLOGE(LOCATOR, "fence transition list size should not be greater than 3");
@@ -47,21 +49,23 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     }
     for (int i = 0; i < requestSize; i++) {
         auto request = Notification::NotificationRequest::Unmarshalling(data);
-        notificationRequestList_.push_back(std::make_shared<Notification::NotificationRequest>(*request));
+        notificationRequestList_.push_back(*request);
     }
 #endif
     callback_ = data.ReadObject<IRemoteObject>();
     bundleName_ = data.ReadString();
+    wantAgent_ = *(data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>());
 }
 
 bool GeofenceRequest::Marshalling(Parcel& parcel) const
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-    parcel.WriteDouble(geofence_->latitude);
-    parcel.WriteDouble(geofence_->longitude);
-    parcel.WriteDouble(geofence_->radius);
-    parcel.WriteDouble(geofence_->expiration);
-    parcel.WriteInt32(static_cast<int>(geofence_->coordinateSystemType));
+    parcel.WriteInt32(scenario_);
+    parcel.WriteDouble(geofence_.latitude);
+    parcel.WriteDouble(geofence_.longitude);
+    parcel.WriteDouble(geofence_.radius);
+    parcel.WriteDouble(geofence_.expiration);
+    parcel.WriteInt32(static_cast<int>(geofence_.coordinateSystemType));
     if (transitionStatusList_.size() > MAX_TRANSITION_SIZE) {
         LBSLOGE(LOCATOR, "fence transition list size should not be greater than 3");
         return false;
@@ -77,11 +81,12 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     }
     parcel.WriteInt32(notificationRequestList_.size());
     for (int i = 0; i < notificationRequestList_.size(); i++) {
-        notificationRequestList_[i]->Marshalling(parcel);
+        notificationRequestList_[i].Marshalling(parcel);
     }
 #endif
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
+    parcel.WriteParcelable(&wantAgent_);
     return true;
 }
 

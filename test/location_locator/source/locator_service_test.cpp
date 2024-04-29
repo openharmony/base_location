@@ -1661,11 +1661,11 @@ HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    geofence->latitude = 35.1;
-    geofence->longitude = 40.2;
-    geofence->radius = 2.2;
-    geofence->expiration = 12.2;
+    GeoFence geofence;
+    geofence.latitude = 35.1;
+    geofence.longitude = 40.2;
+    geofence.radius = 2.2;
+    geofence.expiration = 12.2;
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetGeofence(geofence);
     // uid pid not match locationhub process

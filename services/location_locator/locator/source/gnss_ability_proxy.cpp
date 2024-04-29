@@ -266,15 +266,7 @@ LocationErrCode GnssAbilityProxy::AddFence(std::shared_ptr<GeofenceRequest>& req
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    data.WriteInt32(request->GetScenario());
-    auto geofence = request->GetGeofence();
-    data.WriteDouble(geofence->latitude);
-    data.WriteDouble(geofence->longitude);
-    data.WriteDouble(geofence->radius);
-    data.WriteDouble(geofence->expiration);
-    data.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
-    auto wantAgent = request->GetWantAgent();
-    data.WriteParcelable(&wantAgent);
+    request->Marshalling(data);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "AddFence remote is null");
@@ -295,15 +287,7 @@ LocationErrCode GnssAbilityProxy::RemoveFence(std::shared_ptr<GeofenceRequest>& 
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    data.WriteInt32(request->GetScenario());
-    auto geofence = request->GetGeofence();
-    data.WriteDouble(geofence->latitude);
-    data.WriteDouble(geofence->longitude);
-    data.WriteDouble(geofence->radius);
-    data.WriteDouble(geofence->expiration);
-    data.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
-    auto wantAgent = request->GetWantAgent();
-    data.WriteParcelable(&wantAgent);
+    request->Marshalling(data);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "RemoveFence remote is null");
@@ -444,7 +428,7 @@ LocationErrCode GnssAbilityProxy::QuerySupportCoordinateSystemType(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error =
-        remote->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply, option);
     LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(reply.ReadInt32());
 }

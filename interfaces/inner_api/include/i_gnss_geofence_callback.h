@@ -18,7 +18,7 @@
 
 #include "iremote_broker.h"
 
-#include "constant_definition.h"
+#include "geofence_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -29,6 +29,8 @@ public:
         RECEIVE_TRANSITION_STATUS_EVENT
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssGeofenceCallback");
+    virtual void OnTransitionStatusChange(GeofenceTransition transition) = 0;
+    virtual void OnReportOperationResult(int fenceId, int type, int result) = 0;
 };
 } // namespace Location
 } // namespace OHOS

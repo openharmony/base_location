@@ -97,9 +97,9 @@ bool GenGnssGeofenceRequest(
 napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName);
 #ifdef NOTIFICATION_ENABLE
 void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
-    std::vector<std::shared_ptr<Notification::NotificationRequest>>& notificationRequestList);
+    std::vector<Notification::NotificationRequest>& notificationRequestList);
 void GetNotificationRequestArray(const napi_env& env, const napi_value& notificationRequest,
-    std::vector<std::shared_ptr<Notification::NotificationRequest>>& notificationRequestList);
+    std::vector<Notification::NotificationRequest>& notificationRequestList);
 #endif
 void JsObjToGeofenceTransitionEventList(const napi_env& env, const napi_value& object,
     std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList);

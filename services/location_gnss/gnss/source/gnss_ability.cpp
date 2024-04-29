@@ -43,7 +43,6 @@
 #include "location_data_rdb_manager.h"
 
 #include "hook_utils.h"
-#include "location_gnss_geofence_callback_proxy.h"
 #include "geofence_definition.h"
 
 namespace OHOS {
@@ -486,10 +485,6 @@ LocationErrCode GnssAbility::SetPositionMode()
 LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
 {
     auto geofence = request->GetGeofence();
-    if (geofence == nullptr) {
-        LBSLOGE(GNSS, "geofence is nullptr");
-        return ERRCODE_INVALID_PARAM;
-    }
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
@@ -499,14 +494,14 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     }
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
-    fenceInfo.latitude = geofence->latitude;
-    fenceInfo.longitude = geofence->longitude;
-    fenceInfo.radius = geofence->radius;
+    fenceInfo.latitude = geofence.latitude;
+    fenceInfo.longitude = geofence.longitude;
+    fenceInfo.radius = geofence.radius;
     int monitorEvent = static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER) |
         static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT);
     int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, static_cast<GeofenceEvent>(monitorEvent));
-#endif
     LBSLOGD(GNSS, "Successfully AddFence!, %{public}d", ret);
+#endif
     if (ExecuteFenceProcess(GnssInterfaceCode::ADD_FENCE_INFO, request)) {
         return ERRCODE_SUCCESS;
     }
@@ -521,8 +516,8 @@ LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& reque
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int32_t ret = geofenceInterface_->DeleteGnssGeofence(request->GetFenceId());
-#endif
     LBSLOGD(GNSS, "Successfully RemoveFence!, %{public}d", ret);
+#endif
     if (ExecuteFenceProcess(GnssInterfaceCode::REMOVE_FENCE_INFO, request)) {
         return ERRCODE_SUCCESS;
     }
@@ -544,10 +539,6 @@ int32_t GnssAbility::GenerateFenceId()
 LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
     auto geofence = request->GetGeofence();
-    if (geofence == nullptr) {
-        LBSLOGE(GNSS, "geofence is nullptr");
-        return ERRCODE_INVALID_PARAM;
-    }
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
@@ -557,9 +548,9 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     }
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
-    fenceInfo.latitude = geofence->latitude;
-    fenceInfo.longitude = geofence->longitude;
-    fenceInfo.radius = geofence->radius;
+    fenceInfo.latitude = geofence.latitude;
+    fenceInfo.longitude = geofence.longitude;
+    fenceInfo.radius = geofence.radius;
     auto transitionList = request->GetGeofenceTransitionEventList();
     int monitorEvent = 0;
     for (int i = 0; i < transitionList.size(); i++) {
@@ -623,6 +614,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
         auto fenceIdInMap = requestInMap->GetFenceId();
         if (fenceId == fenceIdInMap) {
             iter = gnssGeofenceRequestMap_.erase(iter);
+            break;
         } else {
             iter++;
         }
@@ -667,6 +659,7 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
     return true;
 }
 
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 void GnssAbility::ReportGeofenceOperationResult(
     int fenceId, GeofenceOperateType type, GeofenceOperateResult result)
 {
@@ -676,19 +669,21 @@ void GnssAbility::ReportGeofenceOperationResult(
         LBSLOGE(GNSS, "request is nullptr");
         return;
     }
-    auto callback = GetGnssGeofenceCallbackByFenceId(fenceId);
+    auto callback = geofenceRequest->GetGeofenceTransitionCallback();
     if (callback == nullptr) {
         LBSLOGE(GNSS, "callback is nullptr");
         return;
     }
-    auto gnssGeofenceCallback = std::make_unique<LocationGnssGeofenceCallbackProxy>(callback);
+    sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
     gnssGeofenceCallback->OnReportOperationResult(
         fenceId, static_cast<int>(type), static_cast<int>(result));
     if (type == GeofenceOperateType::TYPE_DELETE) {
         UnregisterGnssGeofenceCallback(fenceId);
     }
 }
+#endif
 
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
 {
     std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
@@ -702,7 +697,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         LBSLOGE(GNSS, "callback is nullptr");
         return;
     }
-    auto gnssGeofenceCallback = std::make_unique<LocationGnssGeofenceCallbackProxy>(callback);
+    sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
     auto transitionStatusList = request->GetGeofenceTransitionEventList();
 #ifdef NOTIFICATION_ENABLE
     auto notificationRequestList = request->GetNotificationRequestList();
@@ -718,16 +713,16 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
 #ifdef NOTIFICATION_ENABLE
         auto notificationRequest = notificationRequestList[i];
-        if (notificationRequest != nullptr &&
-            transitionStatusList.size() == notificationRequestList.size()) {
-            notificationRequest->SetCreatorUid(IPCSkeleton::GetCallingUid());
-            Notification::NotificationHelper::PublishNotification(*notificationRequest);
+        if (transitionStatusList.size() == notificationRequestList.size()) {
+            notificationRequest.SetCreatorUid(IPCSkeleton::GetCallingUid());
+            Notification::NotificationHelper::PublishNotification(notificationRequest);
         } else {
             LBSLOGE(GNSS, "transitionStatusList size does not equals to notificationRequestList size");
         }
 #endif
     }
 }
+#endif
 
 std::shared_ptr<GeofenceRequest> GnssAbility::GetGeofenceRequestByFenceId(int fenceId)
 {
@@ -735,18 +730,6 @@ std::shared_ptr<GeofenceRequest> GnssAbility::GetGeofenceRequestByFenceId(int fe
         auto request = iter->first;
         if (request->GetFenceId() == fenceId) {
             return request;
-        }
-    }
-    return nullptr;
-}
-
-sptr<IRemoteObject> GnssAbility::GetGnssGeofenceCallbackByFenceId(int fenceId)
-{
-    for (auto iter = gnssGeofenceRequestMap_.begin(); iter != gnssGeofenceRequestMap_.end(); iter++) {
-        auto request = iter->first;
-        auto callback = iter->second;
-        if (request->GetFenceId() == fenceId) {
-            return callback;
         }
     }
     return nullptr;
@@ -949,7 +932,7 @@ bool GnssAbility::ConnectHdi()
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     geofenceInterface_ = IGeofenceInterface::Get();
     if (geofenceInterface_ != nullptr) {
-        geofenceCallback_ = new (std::nothrow) GeofenceEventCallback();
+        geofenceCallback_ = sptr<GeofenceEventCallback>(new (std::nothrow) GeofenceEventCallback);
         SetGeofenceCallback();
     }
 #endif
@@ -1163,7 +1146,7 @@ LocationErrCode GnssAbility::QuerySupportCoordinateSystemType(
     supportedTypes.push_back(CoordinateSystemType::WGS84);
     FenceStruct fenceStruct;
     fenceStruct.requestCode =
-        static_cast<int>(GnssInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE);
+        static_cast<int>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE);
     fenceStruct.coordinateSystemTypes = supportedTypes;
     HookUtils::ExecuteHook(
         LocationProcessStage::FENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);

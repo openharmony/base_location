@@ -61,7 +61,11 @@ int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
     }
     switch (code) {
         case RECEIVE_TRANSITION_STATUS_EVENT: {
-            Send(code, data);
+            GeofenceTransition transition;
+            transition.fenceId = data.ReadInt32();
+            transition.event =
+                static_cast<GeofenceTransitionEvent>(data.ReadInt32());
+            OnTransitionStatusChange(transition);
             break;
         }
         case REPORT_OPERATION_RESULT_EVENT: {
@@ -70,7 +74,7 @@ int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
             int result = data.ReadInt32();
             SetFenceId(fenceId);
             SetGeofenceOperationType(static_cast<GnssGeofenceOperateType>(type));
-            SetGeofenceOperationResult(static_cast<GnssGeofenceOperateResult>(result));
+            OnReportOperationResult(fenceId, type, result);
             CountDown();
             break;
         }
@@ -82,7 +86,8 @@ int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-void LocationGnssGeofenceCallbackHost::Send(int code, MessageParcel& data)
+void LocationGnssGeofenceCallbackHost::OnTransitionStatusChange(
+    GeofenceTransition transition)
 {
     std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
@@ -103,13 +108,24 @@ void LocationGnssGeofenceCallbackHost::Send(int code, MessageParcel& data)
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    if (code == static_cast<int>(RECEIVE_TRANSITION_STATUS_EVENT)) {
-        context->transition_.fenceId = data.ReadInt32();
-        context->transition_.event =
-            static_cast<GeofenceTransitionEvent>(data.ReadInt32());
-        context->code_ = code;
-        work->data = context;
-        UvQueueWork(loop, work);
+    context->transition_ = transition;
+    work->data = context;
+    UvQueueWork(loop, work);
+}
+
+void LocationGnssGeofenceCallbackHost::OnReportOperationResult(int fenceId, int type, int result)
+{
+    int addValue = static_cast<int>(GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD);
+    if ((type != addValue && fenceId == GetFenceId()) ||
+        (type == addValue)) {
+        GnssGeofenceOperateResult optResult = static_cast<GnssGeofenceOperateResult>(result);
+        GnssGeofenceOperateType optType = static_cast<GnssGeofenceOperateType>(type);
+        if (result == GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS &&
+            optType == GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD) {
+            SetFenceId(fenceId);
+        }
+        SetGeofenceOperationType(optType);
+        SetGeofenceOperationResult(optResult);
     }
 }
 

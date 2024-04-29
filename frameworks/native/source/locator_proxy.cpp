@@ -820,15 +820,7 @@ LocationErrCode LocatorProxy::HandleGnssfenceRequest(
         LBSLOGE(LOCATOR_STANDARD, "%{public}s WriteInterfaceToken failed", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    data.WriteInt32(request->GetScenario());
-    auto geofence = request->GetGeofence();
-    data.WriteDouble(geofence->latitude);
-    data.WriteDouble(geofence->longitude);
-    data.WriteDouble(geofence->radius);
-    data.WriteDouble(geofence->expiration);
-    data.WriteInt32(static_cast<int>(geofence->coordinateSystemType));
-    auto wantAgent = request->GetWantAgent();
-    data.WriteParcelable(&wantAgent);
+    request->Marshalling(data);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(static_cast<int>(code), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
@@ -836,25 +828,10 @@ LocationErrCode LocatorProxy::HandleGnssfenceRequest(
 
 LocationErrCode LocatorProxy::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
-    if (request == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "request is nullptr");
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(LOCATOR_STANDARD, "can not write descriptor");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    request->Marshalling(data);
-    LocationErrCode errorCode = SendMsgWithDataReplyV9(
-        static_cast<int>(LocatorInterfaceCode::ADD_GNSS_GEOFENCE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
+    return HandleGnssfenceRequest(LocatorInterfaceCode::ADD_GNSS_GEOFENCE, request);
 }
 
-LocationErrCode LocatorProxy::RemoveGnssGeofence(
-    std::shared_ptr<GeofenceRequest>& request)
+LocationErrCode LocatorProxy::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
     if (request == nullptr) {
         return ERRCODE_INVALID_PARAM;
@@ -1018,7 +995,7 @@ LocationErrCode LocatorProxy::GetGeofenceSupportedCoordTypes(
     }
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithDataReplyV9(
-        static_cast<int>(LocatorInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply);
+        static_cast<int>(LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
     int size = reply.ReadInt32();
     size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
