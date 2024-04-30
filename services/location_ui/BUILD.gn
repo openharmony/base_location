@@ -26,7 +26,13 @@ ohos_hap("location_dialog_hap") {
   hap_name = "LocationDialog"
   subsystem_name = "application"
   part_name = "prebuilt_hap"
-  module_install_dir = "app/com.ohos.locationdialog"
+  module_install_dir = "app/LocationDialog"
+  if (defined(sign_hap_py_path)) {
+    certificate_profile = "${certificate_profile_path}"
+    key_alias = "LocationDialog Release"
+    private_key_path = "LocationDialog Release"
+    compatible_version = "10"
+  }
 }
 
 ohos_js_assets("location_dialog_js_assets") {
