@@ -50,7 +50,6 @@ if (location_feature_with_gnss) {
       "common_event_service:cesfwk_innerkits",
       "core_service:tel_core_service_api",
       "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
-      "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
       "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
       "eventhandler:libeventhandler",
       "hilog:libhilog",
@@ -83,6 +82,13 @@ if (location_feature_with_gnss) {
       external_deps +=
           [ "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0" ]
       defines += [ "FEATURE_GNSS_SUPPORT" ]
+    }
+
+    if (hdf_drivers_interface_location_geofence_enable) {
+      external_deps += [
+        "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
+      ]
+      defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }
 
     if (location_feature_with_passive) {

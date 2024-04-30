@@ -59,15 +59,20 @@ ohos_shared_library("lbsservice_common") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "data_share:datashare_consumer",
-    "distributed_notification_service:ans_innerkits",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
-    "relational_store:native_rdb",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (notification_distributed_notification_service_enable) {
+    public_external_deps += [ "distributed_notification_service:ans_innerkits" ]
+    public_external_deps += [ "relational_store:native_rdb" ]
+    defines += [ "NOTIFICATION_ENABLE" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   part_name = "location"

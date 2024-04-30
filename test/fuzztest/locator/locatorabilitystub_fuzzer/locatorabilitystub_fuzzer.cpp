@@ -184,7 +184,7 @@ bool LocatorAbilityStub008FuzzTest(const char* data, size_t size)
     MessageOption option;
 
     auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
-    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE),
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE),
         requestParcel, reply, option);
 
     return true;

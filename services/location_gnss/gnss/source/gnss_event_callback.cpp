@@ -222,8 +222,8 @@ bool GnssEventCallback::IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int
     if (sv == nullptr) {
         return false;
     }
-    return sv->GetSatelliteAdditionalInfoList()[index] &
-        static_cast<int>(HDI::Location::Gnss::V2_0::SATELLITES_ADDITIONAL_INFO_USED_IN_FIX);
+    return static_cast<uint32_t>(sv->GetSatelliteAdditionalInfoList()[index]) &
+        static_cast<uint8_t>(HDI::Location::Gnss::V2_0::SATELLITES_ADDITIONAL_INFO_USED_IN_FIX);
 }
 
 void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svid, int cN0Dbhz)

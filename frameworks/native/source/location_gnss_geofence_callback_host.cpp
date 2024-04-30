@@ -30,10 +30,21 @@ LocationGnssGeofenceCallbackHost::LocationGnssGeofenceCallbackHost()
     handlerCb_ = nullptr;
     remoteDied_ = false;
     fenceId_ = -1;
+    InitLatch();
 }
 
 LocationGnssGeofenceCallbackHost::~LocationGnssGeofenceCallbackHost()
 {
+    if (latch_ != nullptr) {
+        delete latch_;
+        latch_ = nullptr;
+    }
+}
+
+void LocationGnssGeofenceCallbackHost::InitLatch()
+{
+    latch_ = new CountDownLatch();
+    latch_->SetCount(1);
 }
 
 int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
@@ -49,12 +60,18 @@ int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
         return -1;
     }
     switch (code) {
-        case RECEIVE_FENCE_ID_EVENT:
-            SetFenceId(data.ReadInt32());
-            CountDown();
-            break;
         case RECEIVE_TRANSITION_STATUS_EVENT: {
             Send(code, data);
+            break;
+        }
+        case REPORT_OPERATION_RESULT_EVENT: {
+            int fenceId = data.ReadInt32();
+            int type = data.ReadInt32();
+            int result = data.ReadInt32();
+            SetFenceId(fenceId);
+            SetGeofenceOperationType(static_cast<GnssGeofenceOperateType>(type));
+            SetGeofenceOperationResult(static_cast<GnssGeofenceOperateResult>(result));
+            CountDown();
             break;
         }
         default: {
@@ -200,20 +217,71 @@ void LocationGnssGeofenceCallbackHost::SetCount(int count)
 
 void LocationGnssGeofenceCallbackHost::ClearFenceId()
 {
-    std::unique_lock<std::mutex> guard(idMutex_);
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
     fenceId_ = -1;
 }
 
 int LocationGnssGeofenceCallbackHost::GetFenceId()
 {
-    std::unique_lock<std::mutex> guard(idMutex_);
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
     return fenceId_;
 }
 
 void LocationGnssGeofenceCallbackHost::SetFenceId(int fenceId)
 {
-    std::unique_lock<std::mutex> guard(idMutex_);
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
     fenceId_ = fenceId;
+}
+
+GnssGeofenceOperateType LocationGnssGeofenceCallbackHost::GetGeofenceOperationType()
+{
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
+    return type_;
+}
+
+void LocationGnssGeofenceCallbackHost::SetGeofenceOperationType(GnssGeofenceOperateType type)
+{
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
+    type_ = type;
+}
+
+GnssGeofenceOperateResult LocationGnssGeofenceCallbackHost::GetGeofenceOperationResult()
+{
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
+    return result_;
+}
+
+void LocationGnssGeofenceCallbackHost::SetGeofenceOperationResult(GnssGeofenceOperateResult result)
+{
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
+    result_ = result;
+}
+
+LocationErrCode LocationGnssGeofenceCallbackHost::DealGeofenceOperationResult()
+{
+    std::unique_lock<std::mutex> guard(operationResultMutex_);
+    LocationErrCode errCode = ERRCODE_SUCCESS;
+    GnssGeofenceOperateResult result = result_;
+    switch (result) {
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS:
+            errCode = ERRCODE_SUCCESS;
+            break;
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_UNKNOWN:
+            errCode = ERRCODE_SERVICE_UNAVAILABLE;
+            break;
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_TOO_MANY_GEOFENCES:
+            errCode = ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
+            break;
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_GEOFENCE_ID_EXISTS:
+            errCode = ERRCODE_SERVICE_UNAVAILABLE;
+            break;
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_PARAMS_INVALID:
+            errCode = ERRCODE_SERVICE_UNAVAILABLE;
+            break;
+        default:
+            break;
+    }
+    return errCode;
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -29,6 +29,9 @@ void CountryCodeManagerTest::SetUp()
 
 void CountryCodeManagerTest::TearDown()
 {
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    countryCodeManager->lastCountryByLocation_ = std::make_shared<CountryCode>();
+    countryCodeManager->lastCountry_ = std::make_shared<CountryCode>();
 }
 
 HWTEST_F(CountryCodeManagerTest, GetIsoCountryCode001, TestSize.Level1)
@@ -36,8 +39,7 @@ HWTEST_F(CountryCodeManagerTest, GetIsoCountryCode001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, GetIsoCountryCode001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetIsoCountryCode001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     EXPECT_NE(nullptr, countryCodeManager->GetIsoCountryCode());
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetIsoCountryCode001 end");
 }
@@ -47,8 +49,7 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Leve
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     ASSERT_TRUE(countryCodeManager != nullptr);
     countryCodeManager->UnregisterCountryCodeCallback(callback);
@@ -61,8 +62,7 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Leve
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback002 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     countryCodeManager->UnregisterCountryCodeCallback(nullptr);
     EXPECT_EQ(0, countryCodeManager->countryCodeCallback_->size());
@@ -74,8 +74,7 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Leve
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback003 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     auto wrongCallback = sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
     countryCodeManager->UnregisterCountryCodeCallback(wrongCallback->AsObject());
@@ -88,8 +87,7 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback004, TestSize.Leve
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, UnregisterCountryCodeCallback004, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback004 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     auto callback1 = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     countryCodeManager->RegisterCountryCodeCallback(callback1, 0);
@@ -108,8 +106,7 @@ HWTEST_F(CountryCodeManagerTest, RegisterCountryCodeCallback001, TestSize.Level1
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, RegisterCountryCodeCallback001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     countryCodeManager->RegisterCountryCodeCallback(callback, 0);
     EXPECT_NE(0, countryCodeManager->countryCodeCallback_->size());
@@ -121,11 +118,10 @@ HWTEST_F(CountryCodeManagerTest, RegisterCountryCodeCallback002, TestSize.Level1
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, RegisterCountryCodeCallback002, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback002 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     countryCodeManager->RegisterCountryCodeCallback(nullptr, 0);
-    EXPECT_EQ(0, countryCodeManager->countryCodeCallback_->size());
+    EXPECT_EQ(2, countryCodeManager->countryCodeCallback_->size());
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback002 end");
 }
 
@@ -134,12 +130,11 @@ HWTEST_F(CountryCodeManagerTest, RegisterCountryCodeCallback003, TestSize.Level1
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, RegisterCountryCodeCallback003, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback003 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     auto wrongCallback = sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
     countryCodeManager->RegisterCountryCodeCallback(wrongCallback->AsObject(), 0);
-    EXPECT_EQ(0, countryCodeManager->countryCodeCallback_->size());
+    EXPECT_EQ(2, countryCodeManager->countryCodeCallback_->size());
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback003 end");
 }
 
@@ -148,9 +143,8 @@ HWTEST_F(CountryCodeManagerTest, ReSubscribeEvent001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, ReSubscribeEvent001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReSubscribeEvent001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
-    EXPECT_EQ(0, countryCodeManager->countryCodeCallback_->size());
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    EXPECT_EQ(2, countryCodeManager->countryCodeCallback_->size());
     countryCodeManager->ReSubscribeEvent();
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReSubscribeEvent001 end");
 }
@@ -160,8 +154,7 @@ HWTEST_F(CountryCodeManagerTest, ReSubscribeEvent002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, ReSubscribeEvent002, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReSubscribeEvent002 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     countryCodeManager->RegisterCountryCodeCallback(callback, 0);
     EXPECT_NE(0, countryCodeManager->countryCodeCallback_->size());
@@ -174,9 +167,8 @@ HWTEST_F(CountryCodeManagerTest, ReUnsubscribeEvent001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, ReUnsubscribeEvent001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
-    EXPECT_EQ(0, countryCodeManager->countryCodeCallback_->size());
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    EXPECT_EQ(2, countryCodeManager->countryCodeCallback_->size());
     countryCodeManager->ReUnsubscribeEvent();
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent001 end");
 }
@@ -186,8 +178,7 @@ HWTEST_F(CountryCodeManagerTest, ReUnsubscribeEvent002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, ReUnsubscribeEvent002, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent002 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     countryCodeManager->RegisterCountryCodeCallback(callback, 0);
     EXPECT_NE(0, countryCodeManager->countryCodeCallback_->size());
@@ -200,8 +191,7 @@ HWTEST_F(CountryCodeManagerTest, NotifyAllListener001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, NotifyAllListener001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] NotifyAllListener001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
     sptr<ICountryCodeCallback> countryCodeCallback1 = iface_cast<ICountryCodeCallback>(callback);
@@ -217,8 +207,7 @@ HWTEST_F(CountryCodeManagerTest, GetCountryCodeByLastLocation001, TestSize.Level
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, GetCountryCodeByLastLocation001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetCountryCodeByLastLocation001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     countryCodeManager->lastCountryByLocation_ = nullptr;
     EXPECT_EQ("", countryCodeManager->GetCountryCodeByLastLocation());
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetCountryCodeByLastLocation001 end");
@@ -229,8 +218,7 @@ HWTEST_F(CountryCodeManagerTest, UpdateCountryCode001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, UpdateCountryCode001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UpdateCountryCode001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     countryCodeManager->lastCountry_->SetCountryCodeType(1);
     countryCodeManager->UpdateCountryCode("zh", 0); // last type is more reliable
@@ -245,8 +233,7 @@ HWTEST_F(CountryCodeManagerTest, UpdateCountryCodeByLocation001, TestSize.Level1
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, UpdateCountryCodeByLocation001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UpdateCountryCodeByLocation001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     countryCodeManager->lastCountryByLocation_->SetCountryCodeStr("zh");
     EXPECT_EQ(false, countryCodeManager->UpdateCountryCodeByLocation("zh", 1));
 
@@ -263,8 +250,7 @@ HWTEST_F(CountryCodeManagerTest, GetCountryCodeByLocation001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, GetCountryCodeByLocation001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetCountryCodeByLocation001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     EXPECT_EQ("", countryCodeManager->GetCountryCodeByLocation(nullptr));
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetCountryCodeByLocation001 end");
@@ -275,8 +261,7 @@ HWTEST_F(CountryCodeManagerTest, OnLocationReport001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, OnLocationReport001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] OnLocationReport001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     sptr<ILocatorCallback> callback =
         sptr<ILocatorCallback>(new (std::nothrow) CountryCodeManager::LocatorCallback());
@@ -296,8 +281,7 @@ HWTEST_F(CountryCodeManagerTest, NetworkSubscriber001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, NetworkSubscriber001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] NetworkSubscriber001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     OHOS::EventFwk::MatchingSkills matchingSkills;
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
@@ -312,8 +296,7 @@ HWTEST_F(CountryCodeManagerTest, SimSubscriber001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "CountryCodeManagerTest, SimSubscriber001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] SimSubscriber001 begin");
-    std::shared_ptr<CountryCodeManager> countryCodeManager =
-        std::make_shared<CountryCodeManager>();
+    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
     OHOS::EventFwk::MatchingSkills matchingSkills;
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);

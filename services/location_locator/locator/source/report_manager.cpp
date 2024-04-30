@@ -226,8 +226,8 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     if (locatorAbility == nullptr) {
         return false;
     }
-    if (locatorAbility->IsProxyUid(request->GetUid())) {
-        LBSLOGE(REPORT_MANAGER, "uid:%{public}d is proxy by freeze, no need to report", request->GetUid());
+    if (locatorAbility->IsProxyPid(request->GetPid())) {
+        LBSLOGE(REPORT_MANAGER, "pid:%{public}d is proxy by freeze, no need to report", request->GetPid());
         return false;
     }
     int permissionLevel = PermissionManager::GetPermissionLevel(request->GetTokenId(), request->GetFirstTokenId());

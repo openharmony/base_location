@@ -213,7 +213,7 @@ bool Location::AdditionEqual(const std::unique_ptr<Location>& location)
     if (additionA.size() != additionB.size()) {
         return false;
     }
-    for (int i = 0; i < additionA.size(); i++) {
+    for (size_t i = 0; i < additionA.size(); i++) {
         if (additionA[i].compare(additionB[i]) != 0) {
             return false;
         }

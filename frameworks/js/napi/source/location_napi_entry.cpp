@@ -19,6 +19,7 @@
 #include "location_napi_adapter.h"
 #include "location_napi_event.h"
 #include "location_napi_system.h"
+#include "geofence_definition.h"
 
 namespace OHOS {
 namespace Location {
@@ -243,6 +244,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getLocatingRequiredData", GetLocatingRequiredData),
         DECLARE_NAPI_FUNCTION("addGnssGeofence", AddGnssGeofence),
         DECLARE_NAPI_FUNCTION("removeGnssGeofence", RemoveGnssGeofence),
+        DECLARE_NAPI_FUNCTION("getGeofenceSupportedCoordTypes", GetGeofenceSupportedCoordTypes),
 
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),

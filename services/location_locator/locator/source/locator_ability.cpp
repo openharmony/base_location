@@ -328,7 +328,7 @@ void LocatorAbility::RemoveUnloadTask(uint32_t code)
         LBSLOGE(LOCATOR, "%{public}s locatorHandler is nullptr", __func__);
         return;
     }
-    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE) ||
+    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE) ||
         code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
         return;
     }
@@ -337,7 +337,7 @@ void LocatorAbility::RemoveUnloadTask(uint32_t code)
 
 void LocatorAbility::PostUnloadTask(uint32_t code)
 {
-    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE) ||
+    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE) ||
         code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
         return;
     }
@@ -363,7 +363,7 @@ void LocatorAbility::SendSwitchState(const int state)
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->IsConnecting();
+    return DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->IsConnecting() && GetActiveRequestNum() > 0;
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
@@ -637,8 +637,7 @@ LocationErrCode LocatorAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& re
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request,
-    const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
@@ -646,7 +645,6 @@ LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     request->Marshalling(dataToStub);
-    dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::ADD_GNSS_GEOFENCE), dataToStub, replyToStub);
 }
@@ -957,7 +955,9 @@ void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    ReportLocationStatus(callback, SESSION_START);
+    if (callback != nullptr) {
+        ReportLocationStatus(callback, SESSION_START);
+    }
 }
 
 LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
@@ -976,7 +976,9 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    ReportLocationStatus(callback, SESSION_STOP);
+    if (callback != nullptr) {
+        ReportLocationStatus(callback, SESSION_STOP);
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -1236,16 +1238,24 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
 }
 #endif
 
-LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
+LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
-    LBSLOGI(LOCATOR, "Start locator proxy, uid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
-        uid, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    lock.lock();
     if (isProxy) {
-        proxyUids_.insert(uid);
+        for (auto it = pidList.begin(); it != pidList.end(); it++) {
+            proxyPids_.insert(*it);
+            LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
+                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+        }
     } else {
-        proxyUids_.erase(uid);
+        for (auto it = pidList.begin(); it != pidList.end(); it++) {
+            proxyPids_.erase(*it);
+            LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
+                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+        }
     }
+    lock.unlock();
     if (GetActiveRequestNum() <= 0) {
         LBSLOGD(LOCATOR, "no active request, do not refresh.");
         return ERRCODE_SUCCESS;
@@ -1258,8 +1268,10 @@ LocationErrCode LocatorAbility::ProxyUidForFreeze(int32_t uid, bool isProxy)
 LocationErrCode LocatorAbility::ResetAllProxy()
 {
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
-    proxyUids_.clear();
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    lock.lock();
+    proxyPids_.clear();
+    lock.unlock();
     if (GetActiveRequestNum() <= 0) {
         LBSLOGD(LOCATOR, "no active request, do not refresh.");
         return ERRCODE_SUCCESS;
@@ -1269,16 +1281,10 @@ LocationErrCode LocatorAbility::ResetAllProxy()
     return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::IsProxyUid(int32_t uid)
+bool LocatorAbility::IsProxyPid(int32_t pid)
 {
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
-    return proxyUids_.find(uid) != proxyUids_.end();
-}
-
-std::set<int32_t> LocatorAbility::GetProxyUid()
-{
-    std::unique_lock<std::mutex> lock(proxyUidsMutex_);
-    return proxyUids_;
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_);
+    return proxyPids_.find(pid) != proxyPids_.end();
 }
 
 void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
@@ -1334,6 +1340,30 @@ void LocatorAbility::ReportDataToResSched(std::string state)
     ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
 #endif
 }
+
+#ifdef FEATURE_GNSS_SUPPORT
+LocationErrCode LocatorAbility::QuerySupportCoordinateSystemType(
+    std::vector<CoordinateSystemType>& coordinateSystemTypes)
+{
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE),
+        dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        int size = replyToStub.ReadInt32();
+        size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
+        for (int i = 0; i < size; i++) {
+            int coordinateSystemType = replyToStub.ReadInt32();
+            coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
+        }
+    }
+    return errCode;
+}
+#endif
 
 void LocationMessage::SetAbilityName(std::string abilityName)
 {

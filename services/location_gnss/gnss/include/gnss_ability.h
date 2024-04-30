@@ -20,7 +20,9 @@
 #include <mutex>
 #include <singleton.h>
 #include <v2_0/ignss_interface.h>
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 #include <v2_0/igeofence_interface.h>
+#endif
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include <v2_0/ia_gnss_interface.h>
 #endif
@@ -41,8 +43,10 @@
 #include "locationhub_ipc_interface_code.h"
 #include "geofence_event_callback.h"
 #include "ipc_skeleton.h"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
 #include "notification_helper.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -69,16 +73,19 @@ using HDI::Location::Agnss::V2_0::IAGnssCallback;
 using HDI::Location::Agnss::V2_0::AGNSS_TYPE_SUPL;
 using HDI::Location::Agnss::V2_0::AGnssServerInfo;
 #endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 using HDI::Location::Geofence::V2_0::IGeofenceInterface;
 using HDI::Location::Geofence::V2_0::IGeofenceCallback;
 using HDI::Location::Geofence::V2_0::GeofenceEvent;
 using HDI::Location::Geofence::V2_0::GeofenceInfo;
+#endif
 
 typedef struct {
     std::shared_ptr<GeofenceRequest> request;
     sptr<IGeofenceCallback> callback;
     int requestCode;
     int retCode;
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
 } FenceStruct;
 
 class GnssHandler : public AppExecFwk::EventHandler {
@@ -135,10 +142,8 @@ public:
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) override;
     LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request) override;
-    LocationErrCode AddGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RemoveGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
     void ReportGnssSessionStatus(int status);
     void ReportNmea(int64_t timestamp, const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
@@ -163,7 +168,9 @@ public:
     void SetRefInfo(const AGnssRefInfo& refInfo);
     void SetRefInfoImpl(const AGnssRefInfo &refInfo);
 #endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     bool SetGeofenceCallback();
+#endif
     void ReConnectHdiImpl();
     bool IsMockEnabled();
     void ProcessReportLocationMock();
@@ -172,11 +179,15 @@ public:
     void RestGnssWorkStatus();
     bool RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request,
         const sptr<IRemoteObject>& callback);
-    bool UnregisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request);
+    bool UnregisterGnssGeofenceCallback(int fenceId);
     std::shared_ptr<GeofenceRequest> GetGeofenceRequestByFenceId(int fenceId);
     sptr<IRemoteObject> GetGnssGeofenceCallbackByFenceId(int fenceId);
-    void ReportGeofenceEvent(int32_t fenceId, int event);
-    void ReportAddGeofenceOperationSuccess(int32_t fenceId);
+    void ReportGeofenceEvent(int fenceId, GeofenceEvent event);
+    void ReportGeofenceOperationResult(
+        int fenceId, GeofenceOperateType type, GeofenceOperateResult result);
+    bool RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callbackObj);
+    LocationErrCode QuerySupportCoordinateSystemType(
+        std::vector<CoordinateSystemType>& coordinateSystemTypes) override;
 
 private:
     bool Init();
@@ -192,6 +203,8 @@ private:
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
+    bool IsGnssfenceRequestMapExist();
+    bool CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId);
 
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
@@ -210,8 +223,10 @@ private:
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;
 #endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     sptr<IGeofenceInterface> geofenceInterface_;
     sptr<IGeofenceCallback> geofenceCallback_;
+#endif
     int32_t fenceId_;
     std::mutex fenceIdMutex_;
     std::mutex gnssGeofenceRequestMapMutex_;

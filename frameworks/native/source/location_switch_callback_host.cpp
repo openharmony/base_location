@@ -86,6 +86,7 @@ bool LocationSwitchCallbackHost::Send(int switchState)
     SwitchAsyncContext *context = new (std::nothrow) SwitchAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(SWITCH_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     context->env = env_;

@@ -40,14 +40,10 @@ ohos_shared_library("geolocation") {
   ]
 
   external_deps = [
-    "ability_base:zuri",
-    "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
-    "distributed_notification_service:ans_innerkits",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "relational_store:native_rdb",
   ]
 
   defines = []
@@ -86,7 +82,6 @@ ohos_static_library("geolocation_static") {
   ]
 
   external_deps = [
-    "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
@@ -126,14 +121,10 @@ ohos_shared_library("geolocationmanager") {
   defines = [ "ENABLE_NAPI_MANAGER" ]
 
   external_deps = [
-    "ability_base:zuri",
-    "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
-    "distributed_notification_service:ans_innerkits",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "relational_store:native_rdb",
   ]
 
   if (location_feature_with_jsstack) {

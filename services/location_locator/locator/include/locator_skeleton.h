@@ -83,13 +83,14 @@ private:
     int PreRemoveFence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreAddGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRemoveGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreQuerySupportCoordinateSystemType(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
 #endif
     int PreIsLocationPrivacyConfirmed(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreSetLocationPrivacyConfirmStatus(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreEnableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreDisableLocationMock(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreSetMockedLocations(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreProxyForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreResetAllProxy(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreReportLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterLocatingRequiredDataCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

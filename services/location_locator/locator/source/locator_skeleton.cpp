@@ -62,7 +62,7 @@ void LocatorAbilityStub::ConstructLocatorHandleMap()
     locatorHandleMap_[LocatorInterfaceCode::ENABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreEnableLocationMock;
     locatorHandleMap_[LocatorInterfaceCode::DISABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreDisableLocationMock;
     locatorHandleMap_[LocatorInterfaceCode::SET_MOCKED_LOCATIONS] = &LocatorAbilityStub::PreSetMockedLocations;
-    locatorHandleMap_[LocatorInterfaceCode::PROXY_UID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyUidForFreeze;
+    locatorHandleMap_[LocatorInterfaceCode::PROXY_PID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyForFreeze;
     locatorHandleMap_[LocatorInterfaceCode::RESET_ALL_PROXY] = &LocatorAbilityStub::PreResetAllProxy;
     locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION] = &LocatorAbilityStub::PreReportLocation;
     locatorHandleMap_[LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK] =
@@ -110,6 +110,8 @@ void LocatorAbilityStub::ConstructGnssHandleMap()
         &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
     locatorHandleMap_[LocatorInterfaceCode::ADD_GNSS_GEOFENCE] = &LocatorAbilityStub::PreAddGnssGeofence;
     locatorHandleMap_[LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE] = &LocatorAbilityStub::PreRemoveGnssGeofence;
+    locatorHandleMap_[LocatorInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE] =
+        &LocatorAbilityStub::PreQuerySupportCoordinateSystemType;
 #endif
 }
 
@@ -686,8 +688,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
     }
     auto request = GeofenceRequest::Unmarshalling(data);
     request->SetBundleName(identity.GetBundleName());
-    sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(locatorAbility->AddGnssGeofence(request, callback));
+    reply.WriteInt32(locatorAbility->AddGnssGeofence(request));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -847,20 +848,27 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
 }
 #endif
 
-int LocatorAbilityStub::PreProxyUidForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int LocatorAbilityStub::PreProxyForFreeze(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!CheckRssProcessName(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
     if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreProxyUidForFreeze: LocatorAbility is nullptr.");
+        LBSLOGE(LOCATOR, "PreProxyForFreeze: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int32_t uid = data.ReadInt32();
+    std::set<int> pidList;
+    int size = data.ReadInt32();
+    if (size > MAX_BUFF_SIZE) {
+        size = MAX_BUFF_SIZE;
+    }
+    for (int i = 0; i < size; i++) {
+        pidList.insert(data.ReadInt32());
+    }
     bool isProxy = data.ReadBool();
-    reply.WriteInt32(locatorAbility->ProxyUidForFreeze(uid, isProxy));
+    reply.WriteInt32(locatorAbility->ProxyForFreeze(pidList, isProxy));
     return ERRCODE_SUCCESS;
 }
 
@@ -962,6 +970,32 @@ int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel 
     return ERRCODE_SUCCESS;
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
+int LocatorAbilityStub::PreQuerySupportCoordinateSystemType(MessageParcel &data,
+    MessageParcel &reply, AppIdentity &identity)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility is nullptr.");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    auto errCode = locatorAbility->QuerySupportCoordinateSystemType(coordinateSystemTypes);
+    reply.WriteInt32(errCode);
+    if (errCode != ERRCODE_SUCCESS) {
+        return errCode;
+    }
+    int size = coordinateSystemTypes.size() > COORDINATE_SYSTEM_TYPE_SIZE ?
+        COORDINATE_SYSTEM_TYPE_SIZE : coordinateSystemTypes.size();
+    reply.WriteInt32(size);
+    for (int i = 0; i < size; i++) {
+        reply.WriteInt32(static_cast<int>(coordinateSystemTypes[i]));
+    }
+    return ERRCODE_SUCCESS;
+}
+#endif
+
 bool LocatorAbilityStub::CheckLocationPermission(MessageParcel &reply, AppIdentity &identity)
 {
     uint32_t callingTokenId = identity.GetTokenId();
@@ -1055,7 +1089,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", callingUid);
     }
     identity.SetBundleName(bundleName);
-    if (code != static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE)) {
+    if (code != static_cast<int>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
         LBSLOGI(LOCATOR,
             "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
             code, option.GetFlags(), identity.ToString().c_str(),

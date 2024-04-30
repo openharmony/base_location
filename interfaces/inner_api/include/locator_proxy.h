@@ -16,8 +16,9 @@
 #ifndef LOCATOR_PROXY_H
 #define LOCATOR_PROXY_H
 
-#include <vector>
 #include <list>
+#include <set>
+#include <vector>
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
@@ -80,8 +81,6 @@ public:
     int SendMsgWithReply(const int msgId, MessageParcel& reply);
     int SendSimpleMsg(const int msgId);
     int SendRegisterMsgToRemote(const int msgId, const sptr<IRemoteObject>& callback, pid_t uid);
-    bool ProxyUidForFreeze(int32_t uid, bool isProxy);
-    bool ResetAllProxy();
 
     LocationErrCode UpdateSaAbilityV9();
     LocationErrCode GetSwitchStateV9(bool &isEnabled);
@@ -111,10 +110,8 @@ public:
     LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands);
     LocationErrCode AddFenceV9(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode AddGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback);
-    LocationErrCode RemoveGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode EnableLocationMockV9();
     LocationErrCode DisableLocationMockV9();
     LocationErrCode SetMockedLocationsV9(
@@ -126,11 +123,12 @@ public:
     LocationErrCode SendMsgWithReplyV9(const int msgId, MessageParcel& reply);
     LocationErrCode SendSimpleMsgV9(const int msgId);
     LocationErrCode SendRegisterMsgToRemoteV9(const int msgId, const sptr<IRemoteObject>& callback);
-    LocationErrCode ProxyUidForFreezeV9(int32_t uid, bool isProxy);
-    LocationErrCode ResetAllProxyV9();
+    LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
+    LocationErrCode ResetAllProxy();
     LocationErrCode RegisterLocatingRequiredDataCallback(
         std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
+    LocationErrCode GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes);
 private:
     LocationErrCode HandleGnssfenceRequest(LocatorInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
 

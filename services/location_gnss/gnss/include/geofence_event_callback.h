@@ -16,8 +16,9 @@
 #ifndef GEOFENCE_EVENT_CALLBACK_H
 #define GEOFENCE_EVENT_CALLBACK_H
 
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+
 #include <v2_0/igeofence_callback.h>
-#include "notification_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,4 +42,5 @@ public:
 };
 }  // namespace Location
 }  // namespace OHOS
+#endif // HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 #endif // GEOFENCE_EVENT_CALLBACK_H

@@ -24,16 +24,16 @@
 #include "location_log.h"
 #include "locator_proxy.h"
 #include "request_config.h"
-#include "notification_constant.h"
-#include "reminder_request.h"
-#include "napi_common_want.h"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
 #include "notification_napi.h"
+#endif
+#include "geofence_definition.h"
 
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
-static constexpr int MIN_WIFI_SCAN_TIME = 3000;
+static constexpr int MIN_WIFI_SCAN_TIME = 5000;
 const uint32_t MAX_ADDITION_SIZE = 100;
 const int MAX_TRANSITION_ARRAY_SIZE = 3;
 
@@ -376,7 +376,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     double minLongitude = 0.0;
     double maxLatitude = 0.0;
     double maxLongitude = 0.0;
-    std::string locale = "zh";
+    std::string locale = "";
     int bufLen = MAX_BUF_LEN;
     CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", bufLen, locale), false);
     CHK_ERROR_CODE("description", JsObjectToString(env, object, "description", bufLen, description), true);
@@ -420,7 +420,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     double latitude = 0;
     double longitude = 0;
     int maxItems = 1;
-    std::string locale = "zh";
+    std::string locale = "";
 
     CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
     CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
@@ -462,18 +462,15 @@ bool GenGnssGeofenceRequest(
         LBSLOGE(NAPI_UTILS, "geofenceRequest == nullptr");
         return false;
     }
-    std::vector<GeofenceTransitionEvent> geofenceTransitionStatusList;
-    std::vector<std::shared_ptr<NotificationRequest>> notificationRequestList;
     JsObjToGeoFenceRequest(env, value, geofenceRequest);
+    std::vector<GeofenceTransitionEvent> geofenceTransitionStatusList;
     JsObjToGeofenceTransitionEventList(env, value, geofenceTransitionStatusList);
     geofenceRequest->SetGeofenceTransitionEventList(geofenceTransitionStatusList);
+#ifdef NOTIFICATION_ENABLE
+    std::vector<std::shared_ptr<NotificationRequest>> notificationRequestList;
     JsObjToNotificationRequestList(env, value, notificationRequestList);
     geofenceRequest->SetNotificationRequestList(notificationRequestList);
-    auto locationGnssGeofenceCallbackHost =
-        sptr<LocationGnssGeofenceCallbackHost>(new (std::nothrow) LocationGnssGeofenceCallbackHost());
-    JsObjToGeofenceTransitionCallback(env, value, locationGnssGeofenceCallbackHost);
-    auto callbackPtr = sptr<IGnssGeofenceCallback>(locationGnssGeofenceCallbackHost);
-    geofenceRequest->SetGeofenceTransitionCallback(callbackPtr->AsObject());
+#endif
     return true;
 }
 
@@ -514,6 +511,7 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
     return property;
 }
 
+#ifdef NOTIFICATION_ENABLE
 void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
     std::vector<std::shared_ptr<NotificationRequest>>& notificationRequestList)
 {
@@ -565,6 +563,7 @@ void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
     // argv[0] : NotificationRequest
     NotificationNapi::GetNotificationRequest(env, elementValue, notificationRequest);
 }
+#endif
 
 void JsObjToGeofenceTransitionEventList(const napi_env& env, const napi_value& object,
     std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList)
@@ -1015,6 +1014,7 @@ std::string GetErrorMsgByCode(int code)
         {LocationErrCode::ERRCODE_GEOFENCE_FAIL, "Failed to operate the geofence."},
         {LocationErrCode::ERRCODE_NO_RESPONSE, "No response to the request."},
         {LocationErrCode::ERRCODE_GEOFENCE_EXCEED_MAXIMUM, "The number of geofences exceeds the maximum."},
+        {LocationErrCode::ERRCODE_GEOFENCE_INCORRECT_ID, "Failed to delete a geofence due to an incorrect ID."},
     };
 
     auto iter = errorCodeMap.find(code);

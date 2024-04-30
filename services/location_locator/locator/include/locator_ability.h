@@ -98,8 +98,7 @@ public:
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands);
     LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request,
-        const sptr<IRemoteObject>& callback);
+    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
 #endif
     LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -150,16 +149,19 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests(int delay);
     void RegisterAction();
-    LocationErrCode ProxyUidForFreeze(int32_t uid, bool isProxy);
+    LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
     LocationErrCode ResetAllProxy();
-    bool IsProxyUid(int32_t uid);
+    bool IsProxyPid(int32_t pid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
-    std::set<int32_t> GetProxyUid();
     void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt);
+#ifdef FEATURE_GNSS_SUPPORT
+    LocationErrCode QuerySupportCoordinateSystemType(
+        std::vector<CoordinateSystemType>& coordinateSystemTypes);
+#endif
 
 private:
     bool Init();
@@ -201,8 +203,8 @@ private:
     std::shared_ptr<LocatorHandler> locatorHandler_;
     std::shared_ptr<RequestManager> requestManager_;
     std::shared_ptr<ReportManager> reportManager_;
-    std::mutex proxyUidsMutex_;
-    std::set<int32_t> proxyUids_;
+    std::mutex proxyPidsMutex_;
+    std::set<int32_t> proxyPids_;
 };
 
 class LocationMessage {

@@ -33,7 +33,9 @@
 #include "location_log.h"
 #include "locationhub_ipc_interface_code.h"
 #include "request_config.h"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -420,39 +422,6 @@ bool LocatorProxy::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geoco
     int error =
         SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::SetReverseGeocodingMockInfo Transact ErrCodes = %{public}d", error);
-    if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
-        state = true;
-    }
-    return state;
-}
-
-bool LocatorProxy::ProxyUidForFreeze(int32_t uid, bool isProxy)
-{
-    bool state = false;
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return false;
-    }
-
-    if (!data.WriteInt32(uid) || !data.WriteBool(isProxy)) {
-        LBSLOGE(LOCATOR_STANDARD, "[ProxyUid] fail: write data failed");
-        return false;
-    }
-    int error = SendMsgWithDataReply(static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyUid Transact ErrCodes = %{public}d", error);
-    if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
-        state = true;
-    }
-    return state;
-}
-
-bool LocatorProxy::ResetAllProxy()
-{
-    bool state = false;
-    MessageParcel reply;
-    int error = SendMsgWithReply(static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY), reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ResetAllProxy Transact ErrCodes = %{public}d", error);
     if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
         state = true;
     }
@@ -865,11 +834,10 @@ LocationErrCode LocatorProxy::HandleGnssfenceRequest(
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::AddGnssGeofence(
-    std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback)
+LocationErrCode LocatorProxy::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
-    if (request == nullptr || callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "request or callback is nullptr");
+    if (request == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "request is nullptr");
         return ERRCODE_INVALID_PARAM;
     }
     MessageParcel data;
@@ -879,7 +847,6 @@ LocationErrCode LocatorProxy::AddGnssGeofence(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     request->Marshalling(data);
-    data.WriteRemoteObject(callback);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(
         static_cast<int>(LocatorInterfaceCode::ADD_GNSS_GEOFENCE), data, reply);
     LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
@@ -985,7 +952,7 @@ LocationErrCode LocatorProxy::SetReverseGeocodingMockInfoV9(std::vector<std::sha
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
+LocationErrCode LocatorProxy::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -993,17 +960,18 @@ LocationErrCode LocatorProxy::ProxyUidForFreezeV9(int32_t uid, bool isProxy)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
-    if (!data.WriteInt32(uid) || !data.WriteBool(isProxy)) {
-        LBSLOGE(LOCATOR_STANDARD, "[ProxyUid] fail: write data failed");
-        return ERRCODE_INVALID_PARAM;
+    data.WriteInt32(pidList.size());
+    for (auto it = pidList.begin(); it != pidList.end(); it++) {
+        data.WriteInt32(*it);
     }
+    data.WriteBool(isProxy);
     LocationErrCode errorCode =
-        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::PROXY_UID_FOR_FREEZE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyUid Transact ErrCodes = %{public}d", errorCode);
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::ProxyForFreeze Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::ResetAllProxyV9()
+LocationErrCode LocatorProxy::ResetAllProxy()
 {
     MessageParcel reply;
     LocationErrCode errorCode = SendMsgWithReplyV9(static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY), reply);
@@ -1038,6 +1006,26 @@ LocationErrCode LocatorProxy::UnRegisterLocatingRequiredDataCallback(sptr<ILocat
         SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK),
             callback->AsObject());
     LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
+    return errorCode;
+}
+
+LocationErrCode LocatorProxy::GetGeofenceSupportedCoordTypes(
+    std::vector<CoordinateSystemType>& coordinateSystemTypes)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    MessageParcel reply;
+    LocationErrCode errorCode = SendMsgWithDataReplyV9(
+        static_cast<int>(LocatorInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
+    int size = reply.ReadInt32();
+    size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
+    for (int i = 0; i < size; i++) {
+        int coordinateSystemType = reply.ReadInt32();
+        coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
+    }
     return errorCode;
 }
 } // namespace Location

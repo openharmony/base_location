@@ -81,6 +81,7 @@ bool CountryCodeCallbackHost::Send(const std::shared_ptr<CountryCode>& country)
     auto context = new (std::nothrow) CountryCodeContext(env_);
     if (context == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     context->env = env_;

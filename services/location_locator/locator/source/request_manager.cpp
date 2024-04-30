@@ -388,23 +388,17 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
  */
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
-    int32_t requestUid = request->GetUid();
-    std::set<int32_t> proxyUids = DelayedSingleton<LocatorAbility>::GetInstance()->GetProxyUid();
-    for (auto iter = proxyUids.begin(); iter != proxyUids.end(); iter++) {
-        int32_t uid = *iter;
-        // for frozen app, do not add to workRecord
-        if (uid == requestUid) {
-            LBSLOGD(LOCATOR, "%{public}d is freezed.", uid);
-            return false;
-        }
-        // for once_request app, if it has timed out, do not add to workRecord
-        int64_t curTime = CommonUtils::GetCurrentTime();
-        if (request->GetRequestConfig()->GetFixNumber() == 1 &&
-            fabs(curTime - request->GetRequestConfig()->GetTimeStamp()) >
-            (request->GetRequestConfig()->GetTimeOut() / MILLI_PER_SEC)) {
-            LBSLOGE(LOCATOR, "%{public}d has timed out.", request->GetUid());
-            return false;
-        }
+    // for frozen app, do not add to workRecord
+    if (DelayedSingleton<LocatorAbility>::GetInstance()->IsProxyPid(request->GetPid())) {
+        return false;
+    }
+    // for once_request app, if it has timed out, do not add to workRecord
+    int64_t curTime = CommonUtils::GetCurrentTime();
+    if (request->GetRequestConfig()->GetFixNumber() == 1 &&
+        fabs(curTime - request->GetRequestConfig()->GetTimeStamp()) >
+        (request->GetRequestConfig()->GetTimeOut() / MILLI_PER_SEC)) {
+        LBSLOGE(LOCATOR, "%{public}d has timed out.", request->GetPid());
+        return false;
     }
     return true;
 }

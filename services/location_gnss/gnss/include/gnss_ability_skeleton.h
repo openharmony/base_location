@@ -47,10 +47,10 @@ public:
     virtual LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
     virtual LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request) = 0;
     virtual LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request) = 0;
-    virtual LocationErrCode AddGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request, const sptr<IRemoteObject>& callback) = 0;
-    virtual LocationErrCode RemoveGnssGeofence(
-        std::shared_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request) = 0;
+    virtual LocationErrCode QuerySupportCoordinateSystemType(
+        std::vector<CoordinateSystemType>& coordinateSystemTypes) = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
@@ -85,6 +85,7 @@ private:
     int RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int QuerySupportCoordinateSystemTypeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
 private:
     bool isMessageRequest_ = false;
     GnssMsgHandleMap GnssMsgHandleMap_;
@@ -109,6 +110,13 @@ public:
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     CachedLocationCallbackDeathRecipient();
     ~CachedLocationCallbackDeathRecipient() override;
+};
+
+class GnssGeofenceCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    GnssGeofenceCallbackDeathRecipient();
+    ~GnssGeofenceCallbackDeathRecipient() override;
 };
 } // namespace Location
 } // namespace OHOS
