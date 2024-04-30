@@ -35,6 +35,7 @@ CallbackManager<NmeaMessageCallbackHost> g_nmeaCallbacks;
 CallbackManager<CachedLocationsCallbackHost> g_cachedLocationCallbacks;
 CallbackManager<CountryCodeCallbackHost> g_countryCodeCallbacks;
 CallbackManager<LocatingRequiredDataCallbackHost> g_locatingRequiredDataCallbacks;
+CallbackManager<LocationErrorCallbackHost> g_locationErrorCallbackHosts;
 
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
 auto g_locatorProxy = Locator::GetInstance();
@@ -60,6 +61,7 @@ void InitOnFuncMap()
     g_onFuncMap.insert(std::make_pair("gnssFenceStatusChange", &OnFenceStatusChangeCallback));
     g_onFuncMap.insert(std::make_pair("nmeaMessage", &OnNmeaMessageChangeCallback));
     g_onFuncMap.insert(std::make_pair("locatingRequiredDataChange", &OnLocatingRequiredDataChangeCallback));
+    g_onFuncMap.insert(std::make_pair("locationError", &OnLocationErrorCallback));
 #else
     g_onFuncMap.insert(std::make_pair("locationServiceState", &OnLocationServiceStateCallback));
     g_onFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OnCachedGnssLocationsReportingCallback));
@@ -98,6 +100,7 @@ void InitOffFuncMap()
     g_offFuncMap.insert(std::make_pair("satelliteStatusChange", &OffGnssStatusChangeCallback));
     g_offFuncMap.insert(std::make_pair("nmeaMessage", &OffNmeaMessageChangeCallback));
     g_offFuncMap.insert(std::make_pair("locatingRequiredDataChange", &OffLocatingRequiredDataChangeCallback));
+    g_offFuncMap.insert(std::make_pair("locationError", &OffLocationErrorCallback));
 #else
     g_offFuncMap.insert(std::make_pair("locationServiceState", &OffLocationServiceStateCallback));
     g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
@@ -276,6 +279,15 @@ LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const n
     JsObjToLocatingRequiredDataConfig(env, object, dataConfig);
     return g_locatorProxy->RegisterLocatingRequiredDataCallback(dataConfig, callbackPtr);
 }
+
+LocationErrCode SubscribeLocationError(const napi_env& env,
+    const napi_ref& handlerRef, sptr<LocationErrorCallbackHost>& locationErrorCallbackHost)
+{
+    locationErrorCallbackHost->SetEnv(env);
+    locationErrorCallbackHost->SetHandleCb(handlerRef);
+    auto locationErrorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
+    return g_locatorProxy->SubscribeLocationError(locationErrorCallback);
+}
 #endif
 
 void UnsubscribeCountryCodeChange(sptr<CountryCodeCallbackHost>& callbackHost)
@@ -412,7 +424,7 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
 #endif
         callbackHost->Wait(context->timeout_);
         g_locatorProxy->StopLocating(callbackPtr);
-        if (callbackHost->GetCount() != 0) {
+        if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() == nullptr) {
             context->errCode = ERRCODE_LOCATING_FAIL;
         }
         callbackHost->SetCount(1);
@@ -545,6 +557,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
+    singleLocatorCallbackHost->SetLocationPriority(requestConfig->GetPriority());
     LocationErrCode errorCode = CheckLocationSwitchEnable();
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
@@ -586,6 +599,12 @@ LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>&
     LBSLOGD(LOCATION_NAPI, "UnSubscribeCacheLocationChangeV9");
     g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
     return ERRCODE_NOT_SUPPORTED;
+}
+
+LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
+{
+    LBSLOGD(LOCATION_NAPI, "UnSubscribeLocationError");
+    return g_locatorProxy->UnSubscribeLocationError(callback);
 }
 #endif
 
@@ -1464,10 +1483,16 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
     if (config == nullptr) {
         return false;
     }
-    if (config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) {
+    if ((config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) &&
+        (config->GetScenario() > LOCATION_SCENE_DAILY_LIFE_SERVICE ||
+        config->GetScenario() < LOCATION_SCENE_NAVIGATION) &&
+        (config->GetScenario() > LOCATION_SCENE_NO_POWER_CONSUMPTION ||
+        config->GetScenario() < LOCATION_SCENE_HIGH_POWER_CONSUMPTION)) {
         return false;
     }
-    if (config->GetPriority() > PRIORITY_FAST_FIRST_FIX || config->GetPriority() < PRIORITY_UNSET) {
+    if ((config->GetPriority() > PRIORITY_FAST_FIRST_FIX || config->GetPriority() < PRIORITY_UNSET) &&
+        (config->GetPriority() > LOCATION_PRIORITY_LOCATING_SPEED ||
+        config->GetPriority() < LOCATION_PRIORITY_ACCURACY)) {
         return false;
     }
     if (config->GetTimeOut() < MIN_TIMEOUTMS_FOR_LOCATIONONCE) {
@@ -1484,5 +1509,57 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
     }
     return true;
 }
+
+#ifdef ENABLE_NAPI_MANAGER
+bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    if (argc != PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        LBSLOGE(LOCATION_NAPI, "ERRCODE_INVALID_PARAM");
+        return false;
+    }
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        LBSLOGE(LOCATION_NAPI, "ERRCODE_INVALID_PARAM");
+        return false;
+    }
+    // the third params should be handler
+    if (g_locationErrorCallbackHosts.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto locationErrorCallbackHost =
+        sptr<LocationErrorCallbackHost>(new (std::nothrow) LocationErrorCallbackHost());
+    if (locationErrorCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
+        // argv[1]:request params, argv[2]:handler
+        LocationErrCode errorCode = SubscribeLocationError(env, handlerRef, locationErrorCallbackHost);
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
+            return false;
+        }
+        g_locationErrorCallbackHosts.AddCallback(env, handlerRef, locationErrorCallbackHost);
+    }
+    return true;
+}
+
+bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
+{
+    auto locationErrorCallbackHost = g_locationErrorCallbackHosts.GetCallbackPtr(env, handler);
+    if (locationErrorCallbackHost) {
+        auto locatorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
+        LocationErrCode errorCode = UnSubscribeLocationError(locatorCallback);
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
+            return false;
+        }
+        g_locationErrorCallbackHosts.DeleteCallback(env, handler);
+        locationErrorCallbackHost = nullptr;
+        return true;
+    }
+    return false;
+}
+#endif
 }  // namespace Location
 }  // namespace OHOS

@@ -21,12 +21,15 @@
 
 #include "i_locator_callback.h"
 #include "request_config.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
 class Request {
 public:
     Request();
+    Request(std::unique_ptr<RequestConfig>& requestConfig,
+        sptr<ILocatorCallback>& callback, AppIdentity &identity);
     ~Request();
     pid_t GetUid();
     pid_t GetPid();
@@ -58,6 +61,11 @@ public:
     void SetLocationPermState(bool state);
     void SetBackgroundPermState(bool state);
     void SetApproximatelyPermState(bool state);
+    void SetNlpRequestType(int nlpRequestType);
+    int GetNlpRequestType();
+    void SetNlpRequestType();
+    void SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback);
+    sptr<ILocatorCallback> GetLocationErrorCallBack();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
@@ -66,11 +74,13 @@ private:
     uint32_t tokenId_;
     uint64_t tokenIdEx_;
     uint32_t firstTokenId_;
+    int nlpRequestType_;
     sptr<Location> lastLocation_;
     std::string packageName_;
     std::string uuid_;
     sptr<RequestConfig> requestConfig_;
     sptr<ILocatorCallback> callBack_;
+    sptr<ILocatorCallback> locationErrorcallBack_;
     bool isRequesting_;
     bool isUsingLocationPerm_;
     bool isUsingBackgroundPerm_;

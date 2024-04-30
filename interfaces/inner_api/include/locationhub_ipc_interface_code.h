@@ -67,6 +67,9 @@ enum class LocatorInterfaceCode {
     ADD_GNSS_GEOFENCE = 45,
     REMOVE_GNSS_GEOFENCE = 46,
     QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE = 47,
+    REG_LOCATION_ERROR = 48,
+    UNREG_LOCATION_ERROR = 49,
+    REPORT_LOCATION_ERROR = 50
 };
 
 enum class GeoConvertInterfaceCode {

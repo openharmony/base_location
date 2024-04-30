@@ -129,6 +129,8 @@ public:
         std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes);
+    LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
+    LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
 private:
     LocationErrCode HandleGnssfenceRequest(LocatorInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
 
