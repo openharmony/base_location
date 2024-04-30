@@ -116,7 +116,7 @@ public:
 private:
     int scenario_;
     int timeInterval_; /* Units are seconds */
-    double distanceInterval_;
+    double distanceInterval_ = 0.0;
     float maxAccuracy_;
     int fixNumber_;
     int priority_;

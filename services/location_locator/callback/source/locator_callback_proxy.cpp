@@ -89,7 +89,6 @@ void LocatorCallbackProxy::OnErrorReport(const int errorCode)
     }
 }
 
-
 int LocatorCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {

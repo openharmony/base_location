@@ -38,7 +38,18 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
         std::string name = parcel.ReadString();
         int timeInterval = parcel.ReadInt32();
         std::string uuid = parcel.ReadString();
-        Add(uid, pid, name, timeInterval, uuid);
+        int nlpRequestType = parcel.ReadInt32();
+
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(timeInterval);
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        request->SetUid(uid);
+        request->SetPid(pid);
+        request->SetPackageName(name);
+        request->SetRequestConfig(*requestConfig);
+        request->SetUuid(uuid);
+        request->SetNlpRequestType(nlpRequestType);
+        Add(request);
     }
     deviceId_ = parcel.ReadString();
 }
@@ -60,6 +71,7 @@ bool WorkRecord::Marshalling(Parcel& parcel) const
         parcel.WriteString(names_[i]);
         parcel.WriteInt32(timeInterval_[i]);
         parcel.WriteString(uuid_[i]);
+        parcel.WriteInt32(nlpRequestType_[i]);
     }
     parcel.WriteString(deviceId_);
     return true;
@@ -173,14 +185,28 @@ bool WorkRecord::IsEmpty()
     return false;
 }
 
-bool WorkRecord::Add(int uid, int pid, std::string name, int timeInterval, std::string uuid)
+bool WorkRecord::Add(const std::shared_ptr<Request>& request)
 {
     std::unique_lock<std::mutex> lock(workRecordMutex_);
-    uids_.push_back(uid);
-    pids_.push_back(pid);
-    names_.push_back(name);
-    timeInterval_.push_back(timeInterval);
-    uuid_.push_back(uuid);
+    uids_.push_back(request->GetUid());
+    pids_.push_back(request->GetPid());
+    names_.push_back(request->GetPackageName());
+    timeInterval_.push_back(request->GetRequestConfig()->GetTimeInterval());
+    uuid_.push_back(request->GetUuid());
+    nlpRequestType_.push_back(request->GetNlpRequestType());
+    num_++;
+    return true;
+}
+
+bool WorkRecord::Add(WorkRecord &workRecord, int32_t index)
+{
+    std::unique_lock<std::mutex> lock(workRecordMutex_);
+    uids_.push_back(workRecord.GetUid(index));
+    pids_.push_back(workRecord.GetPid(index));
+    names_.push_back(workRecord.GetName(index));
+    timeInterval_.push_back(workRecord.GetTimeInterval(index));
+    uuid_.push_back(workRecord.GetUuid(index));
+    nlpRequestType_.push_back(workRecord.GetNlpRequestType(index));
     num_++;
     return true;
 }
@@ -207,6 +233,7 @@ bool WorkRecord::Remove(int uid, int pid, std::string name, std::string uuid)
     names_.erase(names_.begin() + i);
     timeInterval_.erase(timeInterval_.begin() + i);
     uuid_.erase(uuid_.begin() + i);
+    nlpRequestType_.erase(nlpRequestType_.begin() + i);
     num_--;
     return true;
 }
@@ -231,6 +258,7 @@ bool WorkRecord::Remove(std::string name)
     names_.erase(names_.begin() + i);
     timeInterval_.erase(timeInterval_.begin() + i);
     uuid_.erase(uuid_.begin() + i);
+    nlpRequestType_.erase(nlpRequestType_.begin() + i);
     num_--;
     return true;
 }
@@ -260,6 +288,7 @@ void WorkRecord::Clear()
     names_.clear();
     timeInterval_.clear();
     uuid_.clear();
+    nlpRequestType_.clear();
     num_ = 0;
 }
 
@@ -268,13 +297,17 @@ void WorkRecord::Set(WorkRecord &workRecord)
     Clear();
     int num = workRecord.Size();
     for (int i = 0; i < num; i++) {
-        int uid = workRecord.GetUid(i);
-        int pid = workRecord.GetPid(i);
-        std::string name = workRecord.GetName(i);
-        int timeInterval = workRecord.GetTimeInterval(i);
-        std::string uuid = workRecord.GetUuid(i);
-        Add(uid, pid, name, timeInterval, uuid);
+        Add(workRecord, i);
     }
+}
+
+int WorkRecord::GetNlpRequestType(int index)
+{
+    std::unique_lock<std::mutex> lock(workRecordMutex_);
+    if (index >= 0 && index < num_) {
+        return nlpRequestType_[index];
+    }
+    return -1;
 }
 } // namespace Location
 } // namespace OHOS

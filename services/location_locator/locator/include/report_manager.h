@@ -37,8 +37,8 @@ public:
     void UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     std::unique_ptr<Location> GetLastLocation();
     std::unique_ptr<Location> GetCacheLocation(const std::shared_ptr<Request>& request);
-    std::unique_ptr<Location> GetPermittedLocation(pid_t uid, uint32_t tokenId, uint32_t firstTokenId,
-        uint64_t tokenIdEx, const std::unique_ptr<Location>& location);
+    std::unique_ptr<Location> GetPermittedLocation(const std::shared_ptr<Request>& request,
+        const std::unique_ptr<Location>& location);
     void UpdateRandom();
     bool IsRequestFuse(const std::shared_ptr<Request>& request);
     void UpdateLocationByRequest(const uint32_t tokenId, const uint64_t tokenIdEx,

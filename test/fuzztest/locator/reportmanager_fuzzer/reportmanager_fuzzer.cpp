@@ -48,11 +48,11 @@ namespace OHOS {
         reportManager->ResultCheck(location, request);
         reportManager->UpdateCacheLocation(location, "gps");
         reportManager->GetLastLocation();
-        pid_t uid = data[index++];
-        uint32_t tokenId = data[index++];
-        uint32_t firstTokenId = data[index++];
-        uint32_t tokenIdEx = data[index++];
-        reportManager->GetPermittedLocation(uid, tokenId, firstTokenId, tokenIdEx, location);
+        request->SetUid(data[index++]);
+        request->SetTokenId(data[index++]);
+        request->SetFirstTokenId(data[index++]);
+        request->SetTokenIdEx(data[index++]);
+        reportManager->GetPermittedLocation(request, location);
         reportManager->UpdateRandom();
         return true;
     }

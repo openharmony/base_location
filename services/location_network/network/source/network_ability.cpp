@@ -291,7 +291,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
     MessageOption option;
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteInt64(workRecord.GetTimeInterval(0) * MILLI_PER_SEC);
-    data.WriteInt32(LocationRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
+    data.WriteInt32(workRecord.GetNlpRequestType(0));
     data.WriteRemoteObject(callback->AsObject());
     if (workRecord.GetName(0).size() == 0) {
         data.WriteString16(Str8ToStr16(std::to_string(workRecord.GetUid(0)))); // uid
@@ -483,6 +483,24 @@ bool NetworkAbility::IsConnect()
 {
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     return nlpServiceProxy_ != nullptr;
+}
+
+void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(u"location.ILocator");
+    data.WriteInt32(LOCATING_FAILED_INTERNET_ACCESS_FAILURE);
+    data.WriteString(errMsg);
+    data.WriteString(uuid);
+    sptr<IRemoteObject> objectLocator =
+        CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
+    if (objectLocator == nullptr) {
+        LBSLOGE(NETWORK, "%{public}s get locator sa failed", __func__);
+        return;
+    }
+    objectLocator->SendRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION_ERROR), data, reply, option);
 }
 
 NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}

@@ -51,6 +51,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
         auto request = Notification::NotificationRequest::Unmarshalling(data);
         if (request != nullptr) {
             notificationRequestList_.push_back(*request);
+            delete request;
         }
     }
 #endif

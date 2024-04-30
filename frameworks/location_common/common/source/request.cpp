@@ -35,6 +35,33 @@ Request::Request()
     isUsingApproximatelyPerm_ = false;
 }
 
+Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
+    sptr<ILocatorCallback>& callback, AppIdentity &identity)
+{
+    this->pid_ = -1;
+    this->uid_ = -1;
+    this->tokenId_ = 0;
+    this->firstTokenId_ = 0;
+    this->packageName_ = "";
+    this->isRequesting_ = false;
+    requestConfig_ = new (std::nothrow) RequestConfig();
+    lastLocation_ = new (std::nothrow) Location();
+    isUsingLocationPerm_ = false;
+    isUsingBackgroundPerm_ = false;
+    isUsingApproximatelyPerm_ = false;
+    SetUid(identity.GetUid());
+    SetPid(identity.GetPid());
+    SetTokenId(identity.GetTokenId());
+    SetTokenIdEx(identity.GetTokenIdEx());
+    SetFirstTokenId(identity.GetFirstTokenId());
+    SetPackageName(identity.GetBundleName());
+    SetRequestConfig(*requestConfig);
+    requestConfig_->SetTimeStamp(CommonUtils::GetCurrentTime());
+    SetLocatorCallBack(callback);
+    SetUuid(CommonUtils::GenerateUuid());
+}
+
+
 Request::~Request() {}
 
 void Request::SetRequestConfig(RequestConfig& requestConfig)
@@ -158,6 +185,7 @@ void Request::SetLastLocation(const std::unique_ptr<Location>& location)
     this->lastLocation_->SetDirection(location->GetDirection());
     this->lastLocation_->SetTimeStamp(location->GetTimeStamp());
     this->lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
+    this->lastLocation_->SetLocationSourceType(location->GetLocationSourceType());
 }
 
 void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
@@ -169,6 +197,10 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
     proxys->push_back(GNSS_ABILITY);
 #else
     switch (requestConfig_->GetScenario()) {
+        case LOCATION_SCENE_NAVIGATION:
+        case LOCATION_SCENE_SPORT:
+        case LOCATION_SCENE_TRANSPORT:
+        case LOCATION_SCENE_HIGH_POWER_CONSUMPTION:
         case SCENE_NAVIGATION:
         case SCENE_TRAJECTORY_TRACKING:
         case SCENE_CAR_HAILING: {
@@ -176,10 +208,13 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
             proxys->push_back(NETWORK_ABILITY);
             break;
         }
+        case LOCATION_SCENE_LOW_POWER_CONSUMPTION:
+        case LOCATION_SCENE_DAILY_LIFE_SERVICE:
         case SCENE_DAILY_LIFE_SERVICE: {
             proxys->push_back(NETWORK_ABILITY);
             break;
         }
+        case LOCATION_SCENE_NO_POWER_CONSUMPTION:
         case SCENE_NO_POWER: {
             proxys->push_back(PASSIVE_ABILITY);
             break;
@@ -206,6 +241,8 @@ void Request::GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> pro
         case PRIORITY_LOW_POWER:
             proxys->push_back(NETWORK_ABILITY);
             break;
+        case LOCATION_PRIORITY_ACCURACY:
+        case LOCATION_PRIORITY_LOCATING_SPEED:
         case PRIORITY_ACCURACY:
         case PRIORITY_FAST_FIRST_FIX:
             proxys->push_back(GNSS_ABILITY);
@@ -247,6 +284,34 @@ void Request::SetApproximatelyPermState(bool state)
     isUsingApproximatelyPerm_ = state;
 }
 
+void Request::SetNlpRequestType(int nlpRequestType)
+{
+    nlpRequestType_ = nlpRequestType;
+}
+
+int Request::GetNlpRequestType()
+{
+    return nlpRequestType_;
+}
+
+void Request::SetNlpRequestType()
+{
+    if (requestConfig_->GetScenario() == SCENE_NAVIGATION ||
+        requestConfig_->GetScenario() == SCENE_TRAJECTORY_TRACKING ||
+        requestConfig_->GetScenario() == SCENE_CAR_HAILING ||
+        requestConfig_->GetScenario() == LOCATION_SCENE_NAVIGATION ||
+        requestConfig_->GetScenario() == LOCATION_SCENE_SPORT ||
+        requestConfig_->GetScenario() == LOCATION_SCENE_TRANSPORT ||
+        requestConfig_->GetScenario() == PRIORITY_ACCURACY ||
+        requestConfig_->GetScenario() == PRIORITY_FAST_FIRST_FIX ||
+        requestConfig_->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
+        requestConfig_->GetPriority() == LOCATION_PRIORITY_ACCURACY) {
+        nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR;
+    } else {
+        nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;
+    }
+}
+
 std::string Request::ToString() const
 {
     if (requestConfig_ == nullptr) {
@@ -261,5 +326,16 @@ std::string Request::ToString() const
         ", uuid:" + uuid_ + ", packageName:" + packageName_;
     return str;
 }
+
+void Request::SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback)
+{
+    this->locationErrorcallBack_ = callback;
+}
+
+sptr<ILocatorCallback> Request::GetLocationErrorCallBack()
+{
+    return locationErrorcallBack_;
+}
+
 } // namespace Location
 } // namespace OHOS
