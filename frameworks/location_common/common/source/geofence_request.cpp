@@ -49,12 +49,18 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     }
     for (int i = 0; i < requestSize; i++) {
         auto request = Notification::NotificationRequest::Unmarshalling(data);
-        notificationRequestList_.push_back(*request);
+        if (request != nullptr) {
+            notificationRequestList_.push_back(*request);
+        }
     }
 #endif
     callback_ = data.ReadObject<IRemoteObject>();
     bundleName_ = data.ReadString();
-    wantAgent_ = *(data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>());
+    auto wantAgent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
+    if (wantAgent != nullptr) {
+        wantAgent_ = *(wantAgent);
+        delete wantAgent;
+    }
 }
 
 bool GeofenceRequest::Marshalling(Parcel& parcel) const

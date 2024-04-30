@@ -72,8 +72,6 @@ int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
             int fenceId = data.ReadInt32();
             int type = data.ReadInt32();
             int result = data.ReadInt32();
-            SetFenceId(fenceId);
-            SetGeofenceOperationType(static_cast<GnssGeofenceOperateType>(type));
             OnReportOperationResult(fenceId, type, result);
             CountDown();
             break;
@@ -160,11 +158,9 @@ void LocationGnssGeofenceCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* w
             napi_value jsEvent[PARAM2];
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent[PARAM1]),
                 scope, context, work);
-            if (context->code_ == RECEIVE_TRANSITION_STATUS_EVENT) {
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &jsEvent[PARAM0]),
-                    scope, context, work);
-                GeofenceTransitionToJs(context->env, context->transition_, jsEvent[PARAM1]);
-            }
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &jsEvent[PARAM0]),
+                scope, context, work);
+            GeofenceTransitionToJs(context->env, context->transition_, jsEvent[PARAM1]);
             if (context->callback[SUCCESS_CALLBACK] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;

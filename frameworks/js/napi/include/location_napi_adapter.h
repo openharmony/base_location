@@ -55,6 +55,9 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
 napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info);
 GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env& env, int fenceId);
 napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info);
+void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackHost> callbackHost);
+void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId);
+sptr<LocationGnssGeofenceCallbackHost> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId);
 #endif
 }  // namespace Location
 }  // namespace OHOS

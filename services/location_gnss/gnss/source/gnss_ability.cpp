@@ -484,10 +484,10 @@ LocationErrCode GnssAbility::SetPositionMode()
 
 LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
 {
-    auto geofence = request->GetGeofence();
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+    auto geofence = request->GetGeofence();
     if (geofenceInterface_ == nullptr) {
         LBSLOGE(GNSS, "geofenceInterface_ is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -538,10 +538,10 @@ int32_t GnssAbility::GenerateFenceId()
 
 LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
-    auto geofence = request->GetGeofence();
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+    auto geofence = request->GetGeofence();
     if (geofenceInterface_ == nullptr) {
         LBSLOGE(GNSS, "geofenceInterface_ is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
