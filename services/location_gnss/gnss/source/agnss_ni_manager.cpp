@@ -201,17 +201,14 @@ void AGnssNiManager::CheckSmsSuplInit(const EventFwk::Want &want)
     Telephony::ShortMessage::CreateMessage(pdu, netType, *message);
 
     if (message != nullptr) {
-        std::vector<unsigned char> rawPdu = message->GetPdu();
-        std::string rawPduTmp = StringUtils::StringToHex(rawPdu);
-        std::vector<uint8_t> str = {0, 17, 2, 0, 0, 64, 0, 0, 0, 70, 5, 64, 1, 24, 32, 16, 8};
-        std::string messageBody = StringUtils::StringToHex(str);
+        std::string rawUserData = StringUtils::StringToHex(message->GetRawUserData());
         if (gnssInterface_ == nullptr) {
             LBSLOGE(GNSS, "gnssInterfacev1_0 is nullptr");
             delete message;
             message = nullptr;
             return;
         }
-        gnssInterface_->SendNetworkInitiatedMsg(messageBody, messageBody.length());
+        gnssInterface_->SendNetworkInitiatedMsg(rawUserData, rawUserData.length());
         delete message;
         message = nullptr;
     }
