@@ -69,6 +69,10 @@ LocatorImpl::~LocatorImpl()
 bool LocatorImpl::IsLocationEnabled()
 {
     int32_t state = DISABLED;
+    int res = LocationDataRdbManager::GetSwitchMode();
+    if (res >= 0) {
+        return (res == ENABLED);
+    }
     auto locationDataRdbHelper =
         DelayedSingleton<LocationDataRdbHelper>::GetInstance();
     if (locationDataRdbHelper == nullptr) {
@@ -114,6 +118,8 @@ void LocatorImpl::EnableAbility(bool enable)
             locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
         }
     }
+    // update param
+    LocationDataRdbManager::SetSwitchMode(enable ? ENABLED : DISABLED);
 }
 
 void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -582,6 +588,11 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
     int32_t state = DISABLED;
+    int res = LocationDataRdbManager::GetSwitchMode();
+    if (res >= 0) {
+        isEnabled = (res == ENABLED);
+        return ERRCODE_SUCCESS;
+    }
     auto locationDataRdbHelper =
         DelayedSingleton<LocationDataRdbHelper>::GetInstance();
     if (locationDataRdbHelper == nullptr) {
@@ -633,6 +644,8 @@ LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
             locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
         }
     }
+    // update param
+    LocationDataRdbManager::SetSwitchMode(enable ? ENABLED : DISABLED);
     return errCode;
 }
 

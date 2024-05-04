@@ -37,6 +37,8 @@ public:
     static LocationErrCode SetSwitchState(int modeValue);
     static bool SetLocationWorkingState(int32_t state);
     static bool GetLocationWorkingState(int32_t& state);
+    static int GetSwitchMode();
+    static bool SetSwitchMode(int value);
 };
 } // namespace Location
 } // namespace OHOS
