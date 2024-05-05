@@ -39,6 +39,7 @@ enum class LocationProcessStage {
     REQUEST_MANAGER_HANDLE_STOP,
     LOCATOR_SA_GET_ADDRESSES_FROM_LOCATION_PROCESS,
     LOCATOR_SA_GET_ADDRESSES_FROM_LOCATIONNAME_PROCESS,
+    WRITE_DFX_INNER_EVENT_PROCESS,
 };
 
 typedef struct {
@@ -57,6 +58,12 @@ typedef struct {
     bool enableMock;
 } MockLocationStruct;
 
+typedef struct {
+    int32_t eventId;
+    std::vector<std::string> names;
+    std::vector<std::string> values;
+} DfxInnerInfo;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -68,6 +75,8 @@ public:
     static void ExecuteHookWhenStopLocation(std::shared_ptr<Request> request);
     static void ExecuteHookWhenGetAddressFromLocation(std::string packageName);
     static void ExecuteHookWhenGetAddressFromLocationName(std::string packageName);
+    static void ExecuteHookWhenReportInnerInfo(
+        int32_t event, std::vector<std::string>& names, std::vector<std::string>& values);
 };
 } // namespace Location
 } // namespace OHOS
