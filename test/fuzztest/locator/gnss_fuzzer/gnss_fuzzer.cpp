@@ -35,6 +35,7 @@
 #include "subability_common.h"
 #include "work_record.h"
 #include "geofence_request.h"
+#include "work_record_statistic.h"
 
 namespace OHOS {
     using namespace OHOS::Location;
@@ -67,6 +68,7 @@ namespace OHOS {
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterNmeaMessageCallback(nmeaCallbackHost);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+        WorkRecordStatistic::DestroyInstance();
         return true;
     }
 
@@ -106,6 +108,7 @@ namespace OHOS {
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->SetMocked(data[index++], locations);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+        WorkRecordStatistic::DestroyInstance();
         return true;
     }
 }
