@@ -22,6 +22,7 @@ namespace OHOS {
 namespace Location {
 auto g_locatorClient = Locator::GetInstance();
 std::map<int, sptr<LocationGnssGeofenceCallbackHost>> g_gnssGeofenceCallbackHostMap;
+std::mutex g_gnssGeofenceCallbackHostMutex;
 
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
 {
@@ -1061,7 +1062,7 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
     JsObjToGeofenceTransitionCallback(env, argv[0], locationGnssGeofenceCallbackHost);
     auto callbackPtr = sptr<IGnssGeofenceCallback>(locationGnssGeofenceCallbackHost);
     gnssGeofenceRequest->SetGeofenceTransitionCallback(callbackPtr->AsObject());
-    auto asyncContext = CreateGnssGeofenceAsyncContextForAdd(
+    auto asyncContext = CreateAsyncContextForAddGnssGeofence(
         env, gnssGeofenceRequest, locationGnssGeofenceCallbackHost);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
@@ -1070,7 +1071,7 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, 1);
 }
 
-GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForAdd(const napi_env& env,
+GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& env,
     std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackHost> callback)
 {
     auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
@@ -1097,7 +1098,7 @@ GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForAdd(const napi_env& e
                 context->errCode = ERRCODE_SERVICE_UNAVAILABLE;
             }
             callbackHost->SetCount(1);
-            g_gnssGeofenceCallbackHostMap.insert(std::make_pair(callbackHost->GetFenceId(), callbackHost));
+            AddCallbackToGnssGeofenceCallbackHostMap(gnssGeofenceRequest->GetFenceId(), callbackHost);
         }
     };
     asyncContext->completeFunc = [&](void* data) -> void {
@@ -1106,14 +1107,13 @@ GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForAdd(const napi_env& e
         }
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
-        if (callbackHost != nullptr &&
+        if (callbackHost != nullptr && context->errCode == ERRCODE_SUCCESS &&
             callbackHost->GetGeofenceOperationType() == GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD) {
             LocationErrCode errCode = callbackHost->DealGeofenceOperationResult();
             if (errCode == ERRCODE_SUCCESS) {
                 int fenceId = callbackHost->GetFenceId();
                 napi_create_object(context->env, &context->result[PARAM1]);
                 napi_create_int64(context->env, fenceId, &context->result[PARAM1]);
-                callbackHost->ClearFenceId();
             } else {
                 context->errCode = errCode;
             }
@@ -1143,28 +1143,21 @@ napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &fenceId));
-    auto asyncContext = CreateGnssGeofenceAsyncContextForRemove(env, fenceId);
+    auto asyncContext = CreateAsyncContextForRemoveGnssGeofence(env, fenceId);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
-    }
-    auto iterForDelete = g_gnssGeofenceCallbackHostMap.find(fenceId);
-    if (iterForDelete != g_gnssGeofenceCallbackHostMap.end()) {
-        g_gnssGeofenceCallbackHostMap.erase(iterForDelete);
     }
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
-GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForRemove(const napi_env& env, int fenceId)
+GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env& env, int fenceId)
 {
     auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     asyncContext->fenceId_ = fenceId;
-    auto iter = g_gnssGeofenceCallbackHostMap.find(fenceId);
-    if (iter != g_gnssGeofenceCallbackHostMap.end()) {
-        asyncContext->callbackHost_ = iter->second;
-    }
+    asyncContext->callbackHost_ = FindCallbackInGnssGeofenceCallbackHostMap(fenceId);
     NAPI_CALL(env, napi_create_string_latin1(env,
         "removeGnssGeofence", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
 
@@ -1191,7 +1184,7 @@ GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForRemove(const napi_env
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
-        if (callbackHost != nullptr &&
+        if (callbackHost != nullptr && context->errCode == ERRCODE_SUCCESS &&
             callbackHost->GetGeofenceOperationType() ==
             GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE) {
             LocationErrCode errCode = callbackHost->DealGeofenceOperationResult();
@@ -1204,6 +1197,7 @@ GnssGeofenceAsyncContext* CreateGnssGeofenceAsyncContextForRemove(const napi_env
         } else {
             context->errCode = ERRCODE_GEOFENCE_INCORRECT_ID;
         }
+        RemoveCallbackToGnssGeofenceCallbackHostMap(context->fenceId_);
         LBSLOGD(LOCATOR_STANDARD, "Push RemoveGnssGeofence result to client");
     };
     return asyncContext;
@@ -1235,6 +1229,31 @@ napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
         NAPI_CALL(env, napi_set_element(env, res, idx++, eachObj));
     }
     return res;
+}
+
+void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackHost> callbackHost)
+{
+    std::unique_lock<std::mutex> lock(g_gnssGeofenceCallbackHostMutex);
+    g_gnssGeofenceCallbackHostMap.insert(std::make_pair(fenceId, callbackHost));
+}
+
+void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId)
+{
+    std::unique_lock<std::mutex> lock(g_gnssGeofenceCallbackHostMutex);
+    auto iterForDelete = g_gnssGeofenceCallbackHostMap.find(fenceId);
+    if (iterForDelete != g_gnssGeofenceCallbackHostMap.end()) {
+        g_gnssGeofenceCallbackHostMap.erase(iterForDelete);
+    }
+}
+
+sptr<LocationGnssGeofenceCallbackHost> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId)
+{
+    std::unique_lock<std::mutex> lock(g_gnssGeofenceCallbackHostMutex);
+    auto iter = g_gnssGeofenceCallbackHostMap.find(fenceId);
+    if (iter != g_gnssGeofenceCallbackHostMap.end()) {
+        return iter->second;
+    }
+    return nullptr;
 }
 #endif
 } // namespace Location

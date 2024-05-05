@@ -113,7 +113,7 @@ void LocatorAbilityStub::ConstructGnssHandleMap()
         &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
     locatorHandleMap_[LocatorInterfaceCode::ADD_GNSS_GEOFENCE] = &LocatorAbilityStub::PreAddGnssGeofence;
     locatorHandleMap_[LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE] = &LocatorAbilityStub::PreRemoveGnssGeofence;
-    locatorHandleMap_[LocatorInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE] =
+    locatorHandleMap_[LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE] =
         &LocatorAbilityStub::PreQuerySupportCoordinateSystemType;
 #endif
 }
@@ -654,17 +654,7 @@ int LocatorAbilityStub::DoProcessFenceRequest(
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    request->SetScenario(data.ReadInt32());
-    geofence->latitude = data.ReadDouble();
-    geofence->longitude = data.ReadDouble();
-    geofence->radius = data.ReadDouble();
-    geofence->expiration = data.ReadDouble();
-    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
-    request->SetGeofence(geofence);
-    auto wantAgent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
-    request->SetWantAgent(*wantAgent);
+    auto request = GeofenceRequest::Unmarshalling(data);
     if (code == LocatorInterfaceCode::ADD_FENCE) {
         reply.WriteInt32(locatorAbility->AddFence(request));
     } else if (code == LocatorInterfaceCode::REMOVE_FENCE) {

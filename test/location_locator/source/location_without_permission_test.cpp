@@ -276,11 +276,11 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     bool state = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->IsLocationEnabledV9(state));
 #ifdef FEATURE_GNSS_SUPPORT
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    geofence->latitude = 35.1;
-    geofence->longitude = 40.2;
-    geofence->radius = 2.2;
-    geofence->expiration = 12.2;
+    GeoFence geofence;
+    geofence.latitude = 35.1;
+    geofence.longitude = 40.2;
+    geofence.radius = 2.2;
+    geofence.expiration = 12.2;
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetGeofence(geofence);
     if (state) {

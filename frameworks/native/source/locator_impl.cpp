@@ -1033,7 +1033,7 @@ LocationErrCode LocatorImpl::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddGnssGeofence()");
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveGnssGeofence()");
     sptr<LocatorProxy> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);

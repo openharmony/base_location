@@ -70,7 +70,7 @@ void GnssAbilityStub::InitGnssMsgHandleMap()
         &GnssAbilityStub::AddGnssGeofenceInner;
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE)] =
         &GnssAbilityStub::RemoveGnssGeofenceInner;
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::QUERY_SUPPORT_COORDINATE_SYSTEM_TYPE)] =
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE)] =
         &GnssAbilityStub::QuerySupportCoordinateSystemTypeInner;
 }
 
@@ -236,17 +236,7 @@ int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, Ap
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    request->SetScenario(data.ReadInt32());
-    geofence->latitude = data.ReadDouble();
-    geofence->longitude = data.ReadDouble();
-    geofence->radius = data.ReadDouble();
-    geofence->expiration = data.ReadDouble();
-    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
-    request->SetGeofence(geofence);
-    auto agent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
-    request->SetWantAgent(*agent);
+    auto request = GeofenceRequest::Unmarshalling(data);
     reply.WriteInt32(AddFence(request));
     return ERRCODE_SUCCESS;
 }
@@ -256,17 +246,7 @@ int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply,
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    request->SetScenario(data.ReadInt32());
-    geofence->latitude = data.ReadDouble();
-    geofence->longitude = data.ReadDouble();
-    geofence->radius = data.ReadDouble();
-    geofence->expiration = data.ReadDouble();
-    geofence->coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
-    request->SetGeofence(geofence);
-    auto agent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
-    request->SetWantAgent(*agent);
+    auto request = GeofenceRequest::Unmarshalling(data);
     reply.WriteInt32(RemoveFence(request));
     return ERRCODE_SUCCESS;
 }

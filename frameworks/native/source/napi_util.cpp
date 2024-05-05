@@ -277,23 +277,23 @@ void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
         LBSLOGE(LOCATOR_STANDARD, "parse geofence failed");
         return;
     }
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
+    GeoFence geofence;
     if (JsObjectToDouble(env, geofenceValue, "latitude", doubleValue) == SUCCESS) {
-        geofence->latitude = doubleValue;
+        geofence.latitude = doubleValue;
     }
     if (JsObjectToDouble(env, geofenceValue, "longitude", doubleValue) == SUCCESS) {
-        geofence->longitude = doubleValue;
+        geofence.longitude = doubleValue;
     }
     if (JsObjectToInt(env, geofenceValue, "coordinateSystemType", value) == SUCCESS) {
-        geofence->coordinateSystemType = static_cast<CoordinateSystemType>(value);
+        geofence.coordinateSystemType = static_cast<CoordinateSystemType>(value);
     } else {
-        geofence->coordinateSystemType = CoordinateSystemType::WGS84;
+        geofence.coordinateSystemType = CoordinateSystemType::WGS84;
     }
     if (JsObjectToDouble(env, geofenceValue, "radius", doubleValue) == SUCCESS) {
-        geofence->radius = doubleValue;
+        geofence.radius = doubleValue;
     }
     if (JsObjectToDouble(env, geofenceValue, "expiration", doubleValue) == SUCCESS) {
-        geofence->expiration = doubleValue;
+        geofence.expiration = doubleValue;
     }
     request->SetGeofence(geofence);
 }
@@ -484,7 +484,7 @@ bool GenGnssGeofenceRequest(
     JsObjToGeofenceTransitionEventList(env, value, geofenceTransitionStatusList);
     geofenceRequest->SetGeofenceTransitionEventList(geofenceTransitionStatusList);
 #ifdef NOTIFICATION_ENABLE
-    std::vector<std::shared_ptr<NotificationRequest>> notificationRequestList;
+    std::vector<NotificationRequest> notificationRequestList;
     JsObjToNotificationRequestList(env, value, notificationRequestList);
     geofenceRequest->SetNotificationRequestList(notificationRequestList);
 #endif
@@ -530,14 +530,14 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
 
 #ifdef NOTIFICATION_ENABLE
 void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
-    std::vector<std::shared_ptr<NotificationRequest>>& notificationRequestList)
+    std::vector<NotificationRequest>& notificationRequestList)
 {
     napi_value notificationRequest = GetArrayProperty(env, object, "notifications");
     GetNotificationRequestArray(env, notificationRequest, notificationRequestList);
 }
 
 void GetNotificationRequestArray(const napi_env& env, const napi_value& notificationRequestValue,
-    std::vector<std::shared_ptr<NotificationRequest>>& notificationRequestList)
+    std::vector<NotificationRequest>& notificationRequestList)
 {
     napi_valuetype valueType;
     NAPI_CALL_RETURN_VOID(env, napi_typeof(env, notificationRequestValue, &valueType));
@@ -562,9 +562,7 @@ void GetNotificationRequestArray(const napi_env& env, const napi_value& notifica
         }
         NotificationRequest notificationRequest;
         GenNotificationRequest(env, elementValue, notificationRequest);
-        std::shared_ptr<NotificationRequest> request =
-            std::make_shared<NotificationRequest>(notificationRequest);
-        notificationRequestList.push_back(request);
+        notificationRequestList.push_back(notificationRequest);
     }
 }
 

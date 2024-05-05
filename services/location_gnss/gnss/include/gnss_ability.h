@@ -82,7 +82,9 @@ using HDI::Location::Geofence::V2_0::GeofenceInfo;
 
 typedef struct {
     std::shared_ptr<GeofenceRequest> request;
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     sptr<IGeofenceCallback> callback;
+#endif
     int requestCode;
     int retCode;
     std::vector<CoordinateSystemType> coordinateSystemTypes;
@@ -181,10 +183,11 @@ public:
         const sptr<IRemoteObject>& callback);
     bool UnregisterGnssGeofenceCallback(int fenceId);
     std::shared_ptr<GeofenceRequest> GetGeofenceRequestByFenceId(int fenceId);
-    sptr<IRemoteObject> GetGnssGeofenceCallbackByFenceId(int fenceId);
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     void ReportGeofenceEvent(int fenceId, GeofenceEvent event);
     void ReportGeofenceOperationResult(
         int fenceId, GeofenceOperateType type, GeofenceOperateResult result);
+#endif
     bool RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callbackObj);
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes) override;

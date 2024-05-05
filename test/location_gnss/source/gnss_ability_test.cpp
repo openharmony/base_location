@@ -514,11 +514,11 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
     /*
      * @tc.steps: step1. build geo fence request
      */
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    geofence->latitude = 35.1;
-    geofence->longitude = 40.2;
-    geofence->radius = 2.2;
-    geofence->expiration = 12.2;
+    GeoFence geofence;
+    geofence.latitude = 35.1;
+    geofence.longitude = 40.2;
+    geofence.radius = 2.2;
+    geofence.expiration = 12.2;
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     request->SetGeofence(geofence);
 
@@ -543,11 +543,11 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
     /*
      * @tc.steps: step1. build geo fence request
      */
-    std::shared_ptr<GeoFence> geofence = std::make_shared<GeoFence>();
-    geofence->latitude = 35.1;
-    geofence->longitude = 40.2;
-    geofence->radius = 2.2;
-    geofence->expiration = 12.2;
+    GeoFence geofence;
+    geofence.latitude = 35.1;
+    geofence.longitude = 40.2;
+    geofence.radius = 2.2;
+    geofence.expiration = 12.2;
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     request->SetGeofence(geofence);
 

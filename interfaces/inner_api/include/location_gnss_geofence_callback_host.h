@@ -47,6 +47,8 @@ public:
     void SetGeofenceOperationType(GnssGeofenceOperateType type);
     GnssGeofenceOperateResult GetGeofenceOperationResult();
     void SetGeofenceOperationResult(GnssGeofenceOperateResult result);
+    void OnTransitionStatusChange(GeofenceTransition transition) override;
+    void OnReportOperationResult(int fenceId, int type, int result) override;
 
     inline napi_env GetEnv() const
     {
@@ -79,7 +81,6 @@ public:
     }
 
 private:
-    void Send(int code, MessageParcel& data);
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
     void InitLatch();
 
