@@ -70,7 +70,7 @@ bool LocatorImpl::IsLocationEnabled()
 {
     int32_t state = DISABLED;
     int res = LocationDataRdbManager::GetSwitchMode();
-    if (res >= 0) {
+    if (res == DISABLED || res == ENABLED) {
         return (res == ENABLED);
     }
     auto locationDataRdbHelper =
@@ -79,6 +79,10 @@ bool LocatorImpl::IsLocationEnabled()
         return false;
     }
     state = LocationDataRdbManager::QuerySwitchState();
+    if (res == DEFAULT_STATE) {
+        // update param
+        LocationDataRdbManager::SetSwitchMode(state);
+    }
     return (state == ENABLED);
 }
 
@@ -117,9 +121,9 @@ void LocatorImpl::EnableAbility(bool enable)
         if (locationDataManager_ != nullptr) {
             locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
         }
+        // update param
+        LocationDataRdbManager::SetSwitchMode(enable ? ENABLED : DISABLED);
     }
-    // update param
-    LocationDataRdbManager::SetSwitchMode(enable ? ENABLED : DISABLED);
 }
 
 void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
@@ -589,7 +593,7 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
     int32_t state = DISABLED;
     int res = LocationDataRdbManager::GetSwitchMode();
-    if (res >= 0) {
+    if (res == DISABLED || res == ENABLED) {
         isEnabled = (res == ENABLED);
         return ERRCODE_SUCCESS;
     }
@@ -600,6 +604,10 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     }
     state = LocationDataRdbManager::QuerySwitchState();
     isEnabled = (state == ENABLED);
+    if (res == DEFAULT_STATE) {
+        // update param
+        LocationDataRdbManager::SetSwitchMode(state);
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -643,9 +651,9 @@ LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
         if (locationDataManager_ != nullptr) {
             locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
         }
+        // update param
+        LocationDataRdbManager::SetSwitchMode(enable ? ENABLED : DISABLED);
     }
-    // update param
-    LocationDataRdbManager::SetSwitchMode(enable ? ENABLED : DISABLED);
     return errCode;
 }
 
