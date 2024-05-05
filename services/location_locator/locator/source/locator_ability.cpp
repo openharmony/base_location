@@ -390,16 +390,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        state = res;
-        return ERRCODE_SUCCESS;
-    }
     state = LocationDataRdbManager::QuerySwitchState();
-    if (res == DEFAULT_STATE) {
-        // update param
-        LocationDataRdbManager::SetSwitchMode(state);
-    }
     return ERRCODE_SUCCESS;
 }
 
