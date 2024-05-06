@@ -91,5 +91,15 @@ void HookUtils::ExecuteHookWhenGetAddressFromLocationName(std::string packageNam
     ExecuteHook(
         LocationProcessStage::LOCATOR_SA_GET_ADDRESSES_FROM_LOCATIONNAME_PROCESS, (void *)&reportStruct, nullptr);
 }
+
+void HookUtils::ExecuteHookWhenReportInnerInfo(
+    int32_t event, std::vector<std::string>& names, std::vector<std::string>& values)
+{
+    DfxInnerInfo innerInfo;
+    innerInfo.eventId = event;
+    innerInfo.names = names;
+    innerInfo.values = values;
+    ExecuteHook(LocationProcessStage::WRITE_DFX_INNER_EVENT_PROCESS, (void *)&innerInfo, nullptr);
+}
 } // namespace Location
 } // namespace OHOS
