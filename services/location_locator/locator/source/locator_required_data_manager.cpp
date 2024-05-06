@@ -23,6 +23,8 @@ namespace OHOS {
 namespace Location {
 const uint32_t EVENT_START_SCAN = 0x0100;
 const uint32_t EVENT_STOP_SCAN = 0x0200;
+const uint32_t EVENT_GET_WIFI_LIST = 0x0300;
+const int32_t DEFAULT_TIMEOUT_4S = 4000;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
 #ifdef WIFI_ENABLE
@@ -238,14 +240,9 @@ __attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::RegisterWif
     return true;
 }
 
-__attribute__((no_sanitize("cfi"))) void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
+__attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::GetWifiScanList(
+    std::vector<Wifi::WifiScanInfo>& wifiScanInfo)
 {
-    LBSLOGD(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
-    if (state == 0) {
-        LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
-        return;
-    }
-    std::vector<Wifi::WifiScanInfo> wifiScanInfo;
     std::shared_ptr<Wifi::WifiScan> ptrWifiScan = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     if (ptrWifiScan == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan get instance failed", __func__);
@@ -256,17 +253,12 @@ __attribute__((no_sanitize("cfi"))) void LocatorWifiScanEventCallback::OnWifiSca
         LBSLOGE(LOCATOR, "GetScanInfoList failed");
         return;
     }
-    std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByWifi(wifiScanInfo);
-    auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
+    if (scanHandler_ != nullptr) {
+        scanHandler_->RemoveEvent(EVENT_GET_WIFI_LIST);
     }
-    dataManager->ReportData(result);
-    return;
 }
 
-std::vector<std::shared_ptr<LocatingRequiredData>> LocatorWifiScanEventCallback::GetLocatingRequiredDataByWifi(
+std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::GetLocatingRequiredDataByWifi(
     const std::vector<Wifi::WifiScanInfo>& wifiScanInfo)
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> res;
@@ -284,6 +276,26 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorWifiScanEventCallback:
     }
     return res;
 }
+
+void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
+{
+    LBSLOGD(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
+    if (state == 0) {
+        LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
+        return;
+    }
+    auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    if (dataManager == nullptr) {
+        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
+        return;
+    }
+    std::vector<Wifi::WifiScanInfo> wifiScanInfo;
+    dataManager->GetWifiScanList(wifiScanInfo);
+    std::vector<std::shared_ptr<LocatingRequiredData>> result =
+        dataManager->GetLocatingRequiredDataByWifi(wifiScanInfo);
+    dataManager->ReportData(result);
+    return;
+}
 #endif
 
 void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result)
@@ -299,12 +311,16 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
     if (!flag) {
         if (scanHandler_ != nullptr) {
             scanHandler_->RemoveEvent(EVENT_START_SCAN);
+            scanHandler_->RemoveEvent(EVENT_GET_WIFI_LIST);
         }
         return;
     }
 #ifdef WIFI_ENABLE
     if (wifiScanPtr_ == nullptr) {
         return;
+    }
+    if (scanHandler_ != nullptr) {
+        scanHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, DEFAULT_TIMEOUT_4S);
     }
     int ret = wifiScanPtr_->Scan();
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
@@ -346,6 +362,14 @@ void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case EVENT_STOP_SCAN: {
             dataManager->StartWifiScan(false);
+            break;
+        }
+        case EVENT_GET_WIFI_LIST: {
+            std::vector<Wifi::WifiScanInfo> wifiScanInfo;
+            dataManager->GetWifiScanList(wifiScanInfo);
+            std::vector<std::shared_ptr<LocatingRequiredData>> result =
+                dataManager->GetLocatingRequiredDataByWifi(wifiScanInfo);
+            dataManager->ReportData(result);
             break;
         }
         default:
