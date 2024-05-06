@@ -312,8 +312,8 @@ HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
     geofence.expiration = 12.2;
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetGeofence(geofence);
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->AddFenceV9(fenceRequest));
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl_->RemoveFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->AddFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RemoveFenceV9(fenceRequest));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 end");
 }
 #endif
@@ -655,6 +655,37 @@ HWTEST_F(LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1)
     auto saStatusListener = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
     saStatusListener->OnRemoveSystemAbility(0, "deviceId");
     LBSLOGI(LOCATOR, "[LocatorImplTest] OnRemoveSystemAbility001 end");
+}
+
+HWTEST_F(LocatorImplTest, HasGnssNetworkRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, HasGnssNetworkRequest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 begin");
+    locatorImpl_->HasGnssNetworkRequest();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 end");
+}
+
+HWTEST_F(LocatorImplTest, AddGnssGeoFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, AddGnssGeoFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] AddGnssGeoFence001 begin");
+    auto request = std::make_shared<GeofenceRequest>();
+    EXPECT_NE(nullptr, request);
+    locatorImpl_->AddGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] AddGnssGeoFence001 end");
+}
+
+HWTEST_F(LocatorImplTest, RemoveGnssGeoFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, RemoveGnssGeoFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] RemoveGnssGeoFence001 begin");
+    auto request = std::make_shared<GeofenceRequest>();
+    EXPECT_NE(nullptr, request);
+    locatorImpl_->RemoveGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] RemoveGnssGeoFence001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

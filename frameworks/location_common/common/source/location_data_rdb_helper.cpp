@@ -144,7 +144,7 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
         predicates.EqualTo(LOCATION_DATA_COLUMN_KEYWORD, column);
         err = dataShareHelper->Update(uri, predicates, bucket);
     }
-    if (err == -1) {
+    if (err != DataShare::E_OK) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: can not set value", __func__);
         ReleaseDataShareHelper(dataShareHelper);
         return ERRCODE_SERVICE_UNAVAILABLE;
