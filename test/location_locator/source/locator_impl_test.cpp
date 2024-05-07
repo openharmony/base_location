@@ -687,5 +687,15 @@ HWTEST_F(LocatorImplTest, RemoveGnssGeoFence001, TestSize.Level1)
     locatorImpl_->RemoveGnssGeofence(request);
     LBSLOGI(LOCATOR, "[LocatorImplTest] RemoveGnssGeoFence001 end");
 }
+
+HWTEST_F(LocatorImplTest, GetGeofenceSupportedCoordTypes001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, GetGeofenceSupportedCoordTypes001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] GetGeofenceSupportedCoordTypes001 begin");
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    locatorImpl_->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] GetGeofenceSupportedCoordTypes001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
