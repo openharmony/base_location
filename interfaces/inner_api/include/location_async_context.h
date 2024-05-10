@@ -285,11 +285,11 @@ public:
 
 class GnssGeofenceAsyncContext : public AsyncContext {
 public:
-    int code_;
-    GeofenceTransition transition_;
+    int code_{-1};
+    GeofenceTransition transition_{-1, GEOFENCE_TRANSITION_INIT};
     sptr<LocationGnssGeofenceCallbackHost> callbackHost_ = nullptr;
     std::shared_ptr<GeofenceRequest> request_;
-    int fenceId_;
+    int fenceId_{-1};
 
     explicit GnssGeofenceAsyncContext(
         napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)

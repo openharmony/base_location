@@ -552,10 +552,10 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     fenceInfo.longitude = geofence.longitude;
     fenceInfo.radius = geofence.radius;
     auto transitionList = request->GetGeofenceTransitionEventList();
-    int monitorEvent = 0;
-    for (int i = 0; i < transitionList.size(); i++) {
+    uint32_t monitorEvent = 0;
+    for (size_t i = 0; i < transitionList.size(); i++) {
         GeofenceTransitionEvent status = transitionList[i];
-        monitorEvent |= static_cast<int>(status);
+        monitorEvent |= static_cast<uint32_t>(status);
     }
     int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, static_cast<GeofenceEvent>(monitorEvent));
     LBSLOGD(GNSS, "Successfully AddGnssGeofence!, %{public}d", ret);
@@ -702,7 +702,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
 #ifdef NOTIFICATION_ENABLE
     auto notificationRequestList = request->GetNotificationRequestList();
 #endif
-    for (int i = 0; i < transitionStatusList.size(); i++) {
+    for (size_t i = 0; i < transitionStatusList.size(); i++) {
         if (transitionStatusList[i] !=
             static_cast<GeofenceTransitionEvent>(event)) {
             continue;

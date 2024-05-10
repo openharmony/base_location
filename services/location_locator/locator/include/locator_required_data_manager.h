@@ -221,11 +221,6 @@ private:
     sptr<ISystemAbilityStatusChange> saStatusListener_ =
         sptr<WifiServiceStatusChange>(new WifiServiceStatusChange());
 #endif
-#ifdef BLUETOOTH_ENABLE
-    void BleInfoInit();
-    Bluetooth::BluetoothHost *bluetoothHost_;
-    LocatorBluetoothHost locatorBluetoothHost_;
-#endif
     std::mutex mutex_;
     std::vector<sptr<ILocatingRequiredDataCallback>> callbacks_;
     std::shared_ptr<ScanHandler> scanHandler_;

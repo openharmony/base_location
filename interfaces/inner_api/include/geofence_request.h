@@ -163,7 +163,7 @@ private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
     std::vector<Notification::NotificationRequest> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;
-    GeoFence geofence_;
+    GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;
     int fenceId_;
     AbilityRuntime::WantAgent::WantAgent wantAgent_;

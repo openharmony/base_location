@@ -30,6 +30,8 @@ LocationGnssGeofenceCallbackHost::LocationGnssGeofenceCallbackHost()
     handlerCb_ = nullptr;
     remoteDied_ = false;
     fenceId_ = -1;
+    type_ = GNSS_GEOFENCE_OPT_TYPE_ADD;
+    result_ = GNSS_GEOFENCE_OPERATION_SUCCESS;
     InitLatch();
 }
 
@@ -102,6 +104,7 @@ void LocationGnssGeofenceCallbackHost::OnTransitionStatusChange(
     GnssGeofenceAsyncContext *context = new (std::nothrow) GnssGeofenceAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "context == nullptr.");
+        delete work;
         return;
     }
     context->env = env_;

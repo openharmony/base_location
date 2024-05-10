@@ -78,7 +78,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
         return false;
     }
     parcel.WriteInt32(transitionStatusList_.size());
-    for (int i = 0; i < transitionStatusList_.size(); i++) {
+    for (size_t i = 0; i < transitionStatusList_.size(); i++) {
         parcel.WriteInt32(static_cast<int>(transitionStatusList_[i]));
     }
 #ifdef NOTIFICATION_ENABLE
@@ -87,7 +87,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
         return false;
     }
     parcel.WriteInt32(notificationRequestList_.size());
-    for (int i = 0; i < notificationRequestList_.size(); i++) {
+    for (size_t i = 0; i < notificationRequestList_.size(); i++) {
         notificationRequestList_[i].Marshalling(parcel);
     }
 #endif
