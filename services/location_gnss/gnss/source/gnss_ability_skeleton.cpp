@@ -285,8 +285,8 @@ int GnssAbilityStub::QuerySupportCoordinateSystemTypeInner(
     if (errCode != ERRCODE_SUCCESS) {
         return errCode;
     }
-    int size = coordinateSystemTypes.size() > COORDINATE_SYSTEM_TYPE_SIZE ?
-        COORDINATE_SYSTEM_TYPE_SIZE : coordinateSystemTypes.size();
+    int size = static_cast<int>(coordinateSystemTypes.size()) > COORDINATE_SYSTEM_TYPE_SIZE ?
+        COORDINATE_SYSTEM_TYPE_SIZE : static_cast<int>(coordinateSystemTypes.size());
     reply.WriteInt32(size);
     for (int i = 0; i < size; i++) {
         reply.WriteInt32(static_cast<int>(coordinateSystemTypes[i]));

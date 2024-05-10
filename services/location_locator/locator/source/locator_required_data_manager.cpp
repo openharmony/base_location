@@ -102,12 +102,6 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
 }
 
 #ifdef BLUETOOTH_ENABLE
-void LocatorRequiredDataManager::BleInfoInit()
-{
-    std::shared_ptr<LocatorBleCallbackWapper> callback = std::make_shared<LocatorBleCallbackWapper>();
-    auto bleCentralManager = std::make_shared<Bluetooth::BleCentralManager>(callback);
-    bluetoothHost_ = &Bluetooth::BluetoothHost::GetDefaultHost();
-}
 
 std::vector<std::shared_ptr<LocatingRequiredData>> LocatorBluetoothHost::GetLocatingRequiredDataByBtHost(
     const Bluetooth::BluetoothRemoteDevice &device)

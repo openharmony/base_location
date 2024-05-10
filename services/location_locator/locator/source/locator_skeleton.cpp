@@ -979,8 +979,8 @@ int LocatorAbilityStub::PreQuerySupportCoordinateSystemType(MessageParcel &data,
     if (errCode != ERRCODE_SUCCESS) {
         return errCode;
     }
-    int size = coordinateSystemTypes.size() > COORDINATE_SYSTEM_TYPE_SIZE ?
-        COORDINATE_SYSTEM_TYPE_SIZE : coordinateSystemTypes.size();
+    int size = static_cast<int>(coordinateSystemTypes.size()) > COORDINATE_SYSTEM_TYPE_SIZE ?
+        COORDINATE_SYSTEM_TYPE_SIZE : static_cast<int>(coordinateSystemTypes.size());
     reply.WriteInt32(size);
     for (int i = 0; i < size; i++) {
         reply.WriteInt32(static_cast<int>(coordinateSystemTypes[i]));
@@ -1150,7 +1150,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", callingUid);
     }
     identity.SetBundleName(bundleName);
-    if (code != static_cast<int>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
+    if (code != static_cast<uint32_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
         LBSLOGI(LOCATOR,
             "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
             code, option.GetFlags(), identity.ToString().c_str(),
@@ -1242,7 +1242,7 @@ bool LocatorAbilityStub::PostUnloadTask(uint32_t code)
 void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode,
     MessageParcel &data, AppIdentity &identity)
 {
-    if (code == static_cast<int>(LocatorInterfaceCode::START_LOCATING) && errCode != ERRCODE_SUCCESS) {
+    if (code == static_cast<uint32_t>(LocatorInterfaceCode::START_LOCATING) && errCode != ERRCODE_SUCCESS) {
         std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
         requestConfig->ReadFromParcel(data);
         auto requestInfo = requestConfig->ToString();
