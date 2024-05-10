@@ -40,7 +40,7 @@ std::shared_ptr<WorkRecordStatistic> WorkRecordStatistic::GetInstance()
 void WorkRecordStatistic::DestroyInstance()
 {
     std::unique_lock<std::mutex> lock(workRecordStatisticMutex_);
-    if (instance_ == nullptr) {
+    if (instance_ != nullptr) {
         instance_ = nullptr;
     }
 }
