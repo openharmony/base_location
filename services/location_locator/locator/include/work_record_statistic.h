@@ -25,6 +25,7 @@ namespace Location {
 class WorkRecordStatistic {
 public:
     static std::shared_ptr<WorkRecordStatistic> GetInstance();
+    static void DestroyInstance();
     bool Update(std::string name, int requestNum);
 private:
     bool UpdateLocationWorkingState();

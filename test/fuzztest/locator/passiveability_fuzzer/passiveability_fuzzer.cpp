@@ -30,6 +30,7 @@
 #include "passive_ability.h"
 #endif
 #include "permission_manager.h"
+#include "work_record_statistic.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -97,7 +98,7 @@ bool PassiveAbility001FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    
+    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -115,7 +116,7 @@ bool PassiveAbility002FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    
+    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -133,7 +134,7 @@ bool PassiveAbility003FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    
+    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -151,7 +152,7 @@ bool PassiveAbility004FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    
+    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -169,7 +170,7 @@ bool PassiveAbility005FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    
+    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 #endif

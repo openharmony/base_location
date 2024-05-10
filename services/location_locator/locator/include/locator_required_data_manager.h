@@ -44,13 +44,11 @@ class LocatorWifiScanEventCallback : public Wifi::IWifiScanCallback {
 public:
     explicit LocatorWifiScanEventCallback() {}
     ~LocatorWifiScanEventCallback() {}
-    __attribute__((no_sanitize("cfi"))) void OnWifiScanStateChanged(int state) override;
+    void OnWifiScanStateChanged(int state) override;
     sptr<IRemoteObject> AsObject() override
     {
         return nullptr;
     }
-    std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByWifi(
-        const std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
 };
 #endif
 
@@ -210,6 +208,9 @@ private:
 public:
     void ResetCallbackRegisteredStatus();
     __attribute__((no_sanitize("cfi"))) bool RegisterWifiCallBack();
+    std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByWifi(
+        const std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
+    __attribute__((no_sanitize("cfi"))) void GetWifiScanList(std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
 private:
     void WifiInfoInit();
     bool isWifiCallbackRegistered();
