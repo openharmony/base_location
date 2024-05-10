@@ -37,6 +37,18 @@ std::shared_ptr<WorkRecordStatistic> WorkRecordStatistic::GetInstance()
     return instance_;
 }
 
+std::shared_ptr<WorkRecordStatistic> WorkRecordStatistic::DesTroyInstance()
+{
+    if (instance_ == nullptr) {
+        std::unique_lock<std::mutex> lock(workRecordStatisticMutex_);
+        if (instance_ == nullptr) {
+            std::shared_ptr<WorkRecordStatistic> workRecordStatistic = std::make_shared<WorkRecordStatistic>();
+            instance_ = workRecordStatistic;
+        }
+    }
+    return instance_;
+}
+
 bool WorkRecordStatistic::Update(std::string name, int requestNum)
 {
     std::unique_lock<std::mutex> lock(mutex_);
