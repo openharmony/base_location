@@ -1098,7 +1098,6 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
                 context->errCode = ERRCODE_SERVICE_UNAVAILABLE;
             }
             callbackHost->SetCount(1);
-            AddCallbackToGnssGeofenceCallbackHostMap(gnssGeofenceRequest->GetFenceId(), callbackHost);
         }
     };
     asyncContext->completeFunc = [&](void* data) -> void {
@@ -1114,6 +1113,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
                 int fenceId = callbackHost->GetFenceId();
                 napi_create_object(context->env, &context->result[PARAM1]);
                 napi_create_int64(context->env, fenceId, &context->result[PARAM1]);
+                AddCallbackToGnssGeofenceCallbackHostMap(fenceId, callbackHost);
             } else {
                 context->errCode = errCode;
             }
