@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GEOCONVERTSERVICE_FUZZER_H
-#define GEOCONVERTSERVICE_FUZZER_H
+#ifndef PASSIVEABILITY_FUZZER_H
+#define PASSIVEABILITY_FUZZER_H
 #include <thread>
 
 #include "securec.h"
@@ -40,15 +40,10 @@
 
 namespace OHOS {
 namespace Location {
-#define FUZZ_PROJECT_NAME "geoconvertservice_fuzzer"
+#define FUZZ_PROJECT_NAME "passiveability_fuzzer"
 
-#ifdef FEATURE_GEOCODE_SUPPORT
-bool GeoConvertServiceFuzzTest001(const char* data, size_t size);
-bool GeoConvertServiceFuzzTest002(const char* data, size_t size);
-bool GeoConvertServiceFuzzTest003(const char* data, size_t size);
-bool GeoConvertServiceFuzzTest004(const char* data, size_t size);
-bool GeoConvertServiceFuzzTest005(const char* data, size_t size);
-bool GeoConvertServiceFuzzTest006(const char* data, size_t size);
+#ifdef FEATURE_PASSIVE_SUPPORT
+bool PassiveAbilityFuzzTest(const char* data, size_t size);
 #endif
 } // namespace Location
 } // namespace OHOS

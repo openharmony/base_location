@@ -30,10 +30,32 @@
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_service.h"
 #endif
+#include "permission_manager.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
+const int32_t LOCATION_PERM_NUM = 4;
+void MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "Geocode_FuzzTest",
+        .aplStr = "system_basic",
+    };
+    auto tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
 
 char* ParseData(const uint8_t* data, size_t size)
 {
@@ -60,7 +82,7 @@ char* ParseData(const uint8_t* data, size_t size)
 }
 
 #ifdef FEATURE_GEOCODE_SUPPORT
-bool GeoConvertServiceFuzzTest(const char* data, size_t size)
+bool GeoConvertServiceFuzzTest001(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
@@ -73,18 +95,88 @@ bool GeoConvertServiceFuzzTest(const char* data, size_t size)
     auto service1 = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
     service1->OnRemoteRequest(static_cast<uint32_t>(GeoConvertInterfaceCode::IS_AVAILABLE),
         requestParcel, reply, option);
+
+    return true;
+}
+
+bool GeoConvertServiceFuzzTest002(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
     auto service2 = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
     service2->OnRemoteRequest(static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_COORDINATE),
         requestParcel, reply, option);
+
+    return true;
+}
+
+bool GeoConvertServiceFuzzTest003(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
     auto service3 = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
     service3->OnRemoteRequest(static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY),
         requestParcel, reply, option);
+
+    return true;
+}
+
+bool GeoConvertServiceFuzzTest004(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
     auto service4 = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
     service4->OnRemoteRequest(static_cast<uint32_t>(GeoConvertInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK),
         requestParcel, reply, option);
+
+    return true;
+}
+
+bool GeoConvertServiceFuzzTest005(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
     auto service5 = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
     service5->OnRemoteRequest(static_cast<uint32_t>(GeoConvertInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK),
         requestParcel, reply, option);
+
+    return true;
+}
+
+bool GeoConvertServiceFuzzTest006(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGeoConvert");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+
     auto service6 = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
     service6->OnRemoteRequest(static_cast<uint32_t>(GeoConvertInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO),
         requestParcel, reply, option);
@@ -100,7 +192,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
 #ifdef FEATURE_GEOCODE_SUPPORT
-        OHOS::GeoConvertServiceFuzzTest(ch, size);
+        OHOS::GeoConvertServiceFuzzTest001(ch, size);
+        OHOS::GeoConvertServiceFuzzTest002(ch, size);
+        OHOS::GeoConvertServiceFuzzTest003(ch, size);
+        OHOS::GeoConvertServiceFuzzTest004(ch, size);
+        OHOS::GeoConvertServiceFuzzTest005(ch, size);
+        OHOS::GeoConvertServiceFuzzTest006(ch, size);
 #endif
         free(ch);
         ch = nullptr;

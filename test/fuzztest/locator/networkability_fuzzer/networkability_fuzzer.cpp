@@ -52,7 +52,7 @@ void MockNativePermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "GnssAbility_FuzzTest",
+        .processName = "NetworkAbility_FuzzTest",
         .aplStr = "system_basic",
     };
     auto tokenId = GetAccessTokenId(&infoInstance);

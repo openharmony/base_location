@@ -111,6 +111,26 @@ namespace OHOS {
         WorkRecordStatistic::DestroyInstance();
         return true;
     }
+
+    bool GnssProxyFuzzTest003(const uint8_t* data, size_t size)
+    {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
+        sptr<OHOS::Location::GnssAbility> ability = new (std::nothrow) GnssAbility();
+        sptr<OHOS::Location::GnssAbilityProxy> proxy =
+            new (std::nothrow) GnssAbilityProxy(ability);
+        std::shared_ptr<GeofenceRequest> fence = std::make_shared<GeofenceRequest>();
+        proxy->AddGnssGeofence(fence);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+        proxy->RemoveGnssGeofence(fence);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+        std::vector<CoordinateSystemType> coordinateSystemTypes;
+        proxy->QuerySupportCoordinateSystemType(coordinateSystemTypes);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+        WorkRecordStatistic::DestroyInstance();
+        return true;
+    }
 }
 
 /* Fuzzer entry point */
@@ -119,6 +139,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     /* Run your code on data */
     OHOS::GnssProxyFuzzTest001(data, size);
     OHOS::GnssProxyFuzzTest002(data, size);
+    OHOS::GnssProxyFuzzTest003(data, size);
     return 0;
 }
 #endif // FEATURE_GNSS_SUPPORT

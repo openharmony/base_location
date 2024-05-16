@@ -430,7 +430,15 @@ LocationErrCode GnssAbilityProxy::QuerySupportCoordinateSystemType(
     int error = remote->SendRequest(
         static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply, option);
     LBSLOGD(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
-    return LocationErrCode(reply.ReadInt32());
+    auto errCode = reply.ReadInt32();
+    if (errCode == ERRCODE_SUCCESS) {
+        auto size = reply.ReadInt32();
+        size = size > MAXIMUM_INTERATION ? MAXIMUM_INTERATION : size;
+        for (int i = 0; i < size; i++) {
+            coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(reply.ReadInt32()));
+        }
+    }
+    return LocationErrCode(errCode);
 }
 } // namespace Location
 } // namespace OHOS
