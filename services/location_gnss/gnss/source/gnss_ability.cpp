@@ -712,8 +712,8 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         geofenceTransition.event = transitionStatusList[i];
         gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
 #ifdef NOTIFICATION_ENABLE
-        auto notificationRequest = notificationRequestList[i];
         if (transitionStatusList.size() == notificationRequestList.size()) {
+            auto notificationRequest = notificationRequestList[i];
             notificationRequest.SetCreatorUid(IPCSkeleton::GetCallingUid());
             Notification::NotificationHelper::PublishNotification(notificationRequest);
         } else {
