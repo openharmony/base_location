@@ -69,6 +69,10 @@ LocatorImpl::~LocatorImpl()
 bool LocatorImpl::IsLocationEnabled()
 {
     int32_t state = DISABLED;
+    int res = LocationDataRdbManager::GetSwitchMode();
+    if (res == DISABLED || res == ENABLED) {
+        return (res == ENABLED);
+    }
     auto locationDataRdbHelper =
         DelayedSingleton<LocationDataRdbHelper>::GetInstance();
     if (locationDataRdbHelper == nullptr) {
@@ -582,6 +586,11 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
     int32_t state = DISABLED;
+    int res = LocationDataRdbManager::GetSwitchMode();
+    if (res == DISABLED || res == ENABLED) {
+        isEnabled = (res == ENABLED);
+        return ERRCODE_SUCCESS;
+    }
     auto locationDataRdbHelper =
         DelayedSingleton<LocationDataRdbHelper>::GetInstance();
     if (locationDataRdbHelper == nullptr) {
