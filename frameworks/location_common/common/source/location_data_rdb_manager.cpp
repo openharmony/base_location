@@ -85,7 +85,7 @@ int LocationDataRdbManager::GetSwitchMode()
     char result[MAX_SIZE] = {0};
     std::string value = "";
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
-    if (res <= 0) {
+    if (res <= 0 || strlen(result) == 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
         return UNKNOW_ERROR;
     }
@@ -95,6 +95,9 @@ int LocationDataRdbManager::GetSwitchMode()
             LBSLOGE(COMMON_UTILS, "wrong para");
             return UNKNOW_ERROR;
         }
+    }
+    if (value.size() == 0) {
+        return UNKNOW_ERROR;
     }
     return std::stoi(value);
 }
