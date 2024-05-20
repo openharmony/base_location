@@ -62,6 +62,7 @@ private:
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -164,6 +165,9 @@ public:
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
     void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt);
+    LocationErrCode RemoveInvalidRequests();
+    bool IsInvalidRequest(std::shared_ptr<Request>& request);
+    bool IsProcessRunning(pid_t pid);
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
