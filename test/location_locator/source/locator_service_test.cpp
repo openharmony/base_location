@@ -2055,6 +2055,36 @@ HWTEST_F(LocatorServiceTest, locatorServiceInitRequest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceInitRequest001 end");
 }
 
+HWTEST_F(LocatorServiceTest, IsCacheVaildScenario001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsCacheVaildScenario001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCacheVaildScenario001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    AppIdentity identity;
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub_, identity);
+    bool res = locatorAbility->IsCacheVaildScenario(request->GetRequestConfig());
+    EXPECT_EQ(false, res);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCacheVaildScenario001 end");
+}
+
+HWTEST_F(LocatorServiceTest, IsSingleRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsSingleRequest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsSingleRequest001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    AppIdentity identity;
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub_, identity);
+    bool res = locatorAbility->IsSingleRequest(request->GetRequestConfig());
+    EXPECT_EQ(false, res);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsSingleRequest001 end");
+}
+
 HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
