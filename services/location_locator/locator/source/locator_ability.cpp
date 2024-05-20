@@ -891,6 +891,14 @@ bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConf
     return false;
 }
 
+bool LocatorAbility::IsSingleRequest(const sptr<RequestConfig>& requestConfig)
+{
+    if (requestConfig->GetFixNumber() == 1) {
+        return true;
+    }
+    return false;
+}
+
 void LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt)
 {
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
@@ -910,7 +918,7 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
         return false;
     }
     // report cache location in single location request
-    if (IsCacheVaildScenario(request->GetRequestConfig())) {
+    if (IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
         auto cacheLocation = reportManager_->GetCacheLocation(request);
         if (cacheLocation != nullptr && callback != nullptr) {
             auto workRecordStatistic = WorkRecordStatistic::GetInstance();
@@ -927,6 +935,17 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
                 LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
             }
             return true;
+        }
+    } else if (!IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
+        auto cacheLocation = reportManager_->GetCacheLocation(request);
+        if (cacheLocation != nullptr && callback != nullptr) {
+            auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+            if (!workRecordStatistic->Update("CacheLocation", 1)) {
+                LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
+            }
+            callback->OnLocationReport(cacheLocation);
+            // add location permission using record
+            UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
         }
     }
     return false;

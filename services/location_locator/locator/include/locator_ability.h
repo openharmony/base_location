@@ -184,6 +184,7 @@ private:
     bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
+    bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
     void ReportDataToResSched(std::string state);
 
