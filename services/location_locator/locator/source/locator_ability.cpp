@@ -54,6 +54,10 @@
 #include "res_type.h"
 #include "res_sched_client.h"
 #endif
+#include "app_mgr_interface.h"
+#include "app_state_data.h"
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
 
 namespace OHOS {
 namespace Location {
@@ -73,6 +77,7 @@ const uint32_t EVENT_UNLOAD_SA = 0x0010;
 const uint32_t EVENT_REG_LOCATION_ERROR = 0x0011;
 const uint32_t EVENT_UNREG_LOCATION_ERROR = 0x0012;
 const uint32_t EVENT_REPORT_LOCATION_ERROR = 0x0013;
+const uint32_t EVENT_PERIODIC_CHECK = 0x0016;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -84,6 +89,8 @@ const std::u16string COMMON_DESCRIPTION = u"location.IHifenceAbility";
 const std::string UNLOAD_TASK = "locatior_sa_unload";
 const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
 const uint32_t SET_ENABLE = 3;
+const uint32_t EVENT_PERIODIC_INTERVAL = 3 * 60 * 1000;
+const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
@@ -170,6 +177,7 @@ bool LocatorAbility::Init()
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
+        locatorHandler_->SendHighPriorityEvent(EVENT_PERIODIC_CHECK, 0, EVENT_PERIODIC_INTERVAL);
     }
     registerToAbility_ = true;
     return registerToAbility_;
@@ -1393,6 +1401,95 @@ void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode)
     }
 }
 
+LocationErrCode LocatorAbility::RemoveInvalidRequests()
+{
+    std::list<std::shared_ptr<Request>> invalidRequestList;
+    int32_t requestNum = 0;
+    int32_t invalidRequestNum = 0;
+    {
+        std::unique_lock<std::mutex> lock(requestsMutex_);
+#ifdef FEATURE_GNSS_SUPPORT
+        auto gpsListIter = requests_->find(GNSS_ABILITY);
+        if (gpsListIter != requests_->end()) {
+            auto list = &(gpsListIter->second);
+            requestNum += static_cast<int>(list->size());
+            for (auto& item : *list) {
+                if (IsInvalidRequest(item)) {
+                    invalidRequestList.push_back(item);
+                    invalidRequestNum++;
+                }
+            }
+        }
+#endif
+#ifdef FEATURE_NETWORK_SUPPORT
+        auto networkListIter = requests_->find(NETWORK_ABILITY);
+        if (networkListIter != requests_->end()) {
+            auto list = &(networkListIter->second);
+            requestNum += static_cast<int>(list->size());
+            for (auto& item : *list) {
+                if (IsInvalidRequest(item)) {
+                    invalidRequestList.push_back(item);
+                    invalidRequestNum++;
+                }
+            }
+        }
+#endif
+    }
+    LBSLOGI(LOCATOR, "request num : %{public}d, invalid request num: %{public}d", requestNum, invalidRequestNum);
+    for (auto& item : invalidRequestList) {
+        sptr<ILocatorCallback> callback = item->GetLocatorCallBack();
+        StopLocating(callback);
+    }
+    return ERRCODE_SUCCESS;
+}
+
+bool LocatorAbility::IsInvalidRequest(std::shared_ptr<Request>& request)
+{
+    LBSLOGI(LOCATOR, "request : %{public}s %{public}s", request->GetPackageName().c_str(),
+        request->GetRequestConfig()->ToString().c_str());
+    int64_t timeDiff = fabs(CommonUtils::GetCurrentTime() - request->GetRequestConfig()->GetTimeStamp());
+    if (request->GetRequestConfig()->GetFixNumber() == 1 &&
+        timeDiff > (request->GetRequestConfig()->GetTimeOut() / MILLI_PER_SEC)) {
+        LBSLOGI(LOCATOR, "once request is timeout");
+        return true;
+    }
+
+    if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND && !IsProcessRunning(request->GetPid())) {
+        LBSLOGI(LOCATOR, "request process is not running");
+        return true;
+    }
+    return false;
+}
+
+bool LocatorAbility::IsProcessRunning(pid_t pid)
+{
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(LOCATOR, "Get system ability manager failed.");
+        return false;
+    }
+    sptr<AppExecFwk::IAppMgr> iAppManager =
+        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppManager == nullptr) {
+        LBSLOGE(LOCATOR, "Failed to get ability manager service.");
+        return false;
+    }
+    std::vector<AppExecFwk::RunningProcessInfo> runningProcessList;
+    int32_t res = iAppManager->GetAllRunningProcesses(runningProcessList);
+    if (res != ERR_OK) {
+        LBSLOGE(LOCATOR, "Failed to get all running process.");
+        return false;
+    }
+    auto it = std::find_if(runningProcessList.begin(), runningProcessList.end(), [pid] (auto runningProcessInfo) {
+        return pid == runningProcessInfo.pid_;
+    });
+    if (it != runningProcessList.end()) {
+        LBSLOGD(LOCATOR, "process : %{public}d is found.", pid);
+        return true;
+    }
+    return false;
+}
+
 void LocationMessage::SetAbilityName(std::string abilityName)
 {
     abilityName_ = abilityName;
@@ -1680,5 +1777,13 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     }
 }
 
+void LocatorHandler::RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->RemoveInvalidRequests();
+    }
+    SendHighPriorityEvent(EVENT_PERIODIC_CHECK, 0, EVENT_PERIODIC_INTERVAL);
+}
 } // namespace Location
 } // namespace OHOS

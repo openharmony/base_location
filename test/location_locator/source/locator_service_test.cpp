@@ -2054,5 +2054,42 @@ HWTEST_F(LocatorServiceTest, locatorServiceInitRequest001, TestSize.Level1)
     EXPECT_NE(nullptr, request);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceInitRequest001 end");
 }
+
+HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    auto ret = locatorAbility->RemoveInvalidRequests();
+    EXPECT_NE(ERRCODE_SUCCESS, ret);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests end");
+}
+
+HWTEST_F(LocatorServiceTest, IsInvalidRequest, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsInvalidRequest, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsInvalidRequest begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    auto result = locatorAbility->IsInvalidRequest(request);
+    EXPECT_NE(false, result);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsInvalidRequest end");
+}
+
+HWTEST_F(LocatorServiceTest, IsPorcessRunning, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsPorcessRunning, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    auto result = locatorAbility->IsProcessRunning(1000);
+    EXPECT_NE(false, result);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning end");
+}
 }  // namespace Location
 }  // namespace OHOS
