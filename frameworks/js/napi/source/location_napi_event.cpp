@@ -422,7 +422,14 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
 #else
         g_locatorProxy->StartLocating(context->request_, callbackPtr);
 #endif
-        callbackHost->Wait(context->timeout_);
+        if (context->timeout_ > DEFAULT_TIMEOUT_30S) {
+            callbackHost->Wait(DEFAULT_TIMEOUT_30S);
+            if (callbackHost->GetSingleLocation() == nullptr) {
+                callbackHost->Wait(context->timeout_ - DEFAULT_TIMEOUT_30S);
+            }
+        } else {
+            callbackHost->Wait(context->timeout_);
+        }
         g_locatorProxy->StopLocating(callbackPtr);
         if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() == nullptr) {
             context->errCode = ERRCODE_LOCATING_FAIL;
@@ -557,7 +564,7 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-    singleLocatorCallbackHost->SetLocationPriority(requestConfig->GetPriority());
+    singleLocatorCallbackHost->SetLocationPriority(GetCurrentLocationType(requestConfig));
     LocationErrCode errorCode = CheckLocationSwitchEnable();
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
@@ -1561,5 +1568,18 @@ bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
     return false;
 }
 #endif
+
+int GetCurrentLocationType(std::unique_ptr<RequestConfig>& config)
+{
+    if (config->GetPriority() == LOCATION_PRIORITY_ACCURACY ||
+        (config->GetScenario() == SCENE_UNSET && config->GetPriority() == PRIORITY_ACCURACY) ||
+        config->GetScenario() == SCENE_NAVIGATION ||
+        config->GetScenario() == SCENE_TRAJECTORY_TRACKING ||
+        config->GetScenario() == SCENE_CAR_HAILING) {
+        return LOCATION_PRIORITY_ACCURACY;
+    } else {
+        return LOCATION_PRIORITY_LOCATING_SPEED;
+    }
+}
 }  // namespace Location
 }  // namespace OHOS

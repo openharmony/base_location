@@ -113,6 +113,39 @@ napi_value LocationRequestScenarioTypeConstructor(napi_env env)
     return locationRequestScenario;
 }
 
+napi_value UserActivityScenarioTypeConstructor(napi_env env)
+{
+    napi_value userActivityScenario = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &userActivityScenario));
+    SetEnumPropertyByInteger(env, userActivityScenario, LOCATION_SCENE_NAVIGATION, "NAVIGATION");
+    SetEnumPropertyByInteger(env, userActivityScenario, LOCATION_SCENE_SPORT, "SPORT");
+    SetEnumPropertyByInteger(env, userActivityScenario, LOCATION_SCENE_TRANSPORT, "TRANSPORT");
+    SetEnumPropertyByInteger(env, userActivityScenario, LOCATION_SCENE_DAILY_LIFE_SERVICE, "DAILY_LIFE_SERVICE");
+    return userActivityScenario;
+}
+
+napi_value LocatingPriorityTypeConstructor(napi_env env)
+{
+    napi_value locatingPriority = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &locatingPriority));
+    SetEnumPropertyByInteger(env, locatingPriority, LOCATION_PRIORITY_ACCURACY, "PRIORITY_ACCURACY");
+    SetEnumPropertyByInteger(env, locatingPriority, LOCATION_PRIORITY_LOCATING_SPEED, "PRIORITY_LOCATING_SPEED");
+    return locatingPriority;
+}
+
+napi_value PowerConsumptionScenarioTypeConstructor(napi_env env)
+{
+    napi_value powerConsumptionScenario = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &powerConsumptionScenario));
+    SetEnumPropertyByInteger(env, powerConsumptionScenario,
+        LOCATION_SCENE_HIGH_POWER_CONSUMPTION, "HIGH_POWER_CONSUMPTION");
+    SetEnumPropertyByInteger(env, powerConsumptionScenario,
+        LOCATION_SCENE_LOW_POWER_CONSUMPTION, "LOW_POWER_CONSUMPTION");
+    SetEnumPropertyByInteger(env, powerConsumptionScenario,
+        LOCATION_SCENE_NO_POWER_CONSUMPTION, "NO_POWER_CONSUMPTION");
+    return powerConsumptionScenario;
+}
+
 napi_value LocationPrivacyTypeConstructor(napi_env env)
 {
     napi_value locationPrivacyType = nullptr;
@@ -255,6 +288,9 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("CoordinateSystemType", CoordinateSystemTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("SatelliteConstellationCategory", SvConstellationTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("SatelliteAdditionalInfo", SatelliteAdditionalInfoTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("UserActivityScenario", UserActivityScenarioTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocatingPriority", LocatingPriorityTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("PowerConsumptionScenario", PowerConsumptionScenarioTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

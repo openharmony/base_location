@@ -394,16 +394,15 @@ bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
         return false;
     }
     if ((request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
-        request->GetRequestConfig()->GetPriority() == PRIORITY_FAST_FIRST_FIX) ||
-        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_NAVIGATION ||
-        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_SPORT ||
-        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_TRANSPORT ||
-        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_ACCURACY ||
-        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED ||
-        request->GetRequestConfig()->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION) {
-        return true;
+        request->GetRequestConfig()->GetPriority() == PRIORITY_LOW_POWER) ||
+        request->GetRequestConfig()->GetScenario() == SCENE_NO_POWER ||
+        request->GetRequestConfig()->GetScenario() == SCENE_DAILY_LIFE_SERVICE ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_DAILY_LIFE_SERVICE ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_LOW_POWER_CONSUMPTION ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+        return false;
     }
-    return false;
+    return true;
 }
 
 void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request,

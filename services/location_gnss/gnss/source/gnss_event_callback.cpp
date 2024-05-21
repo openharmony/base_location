@@ -55,6 +55,7 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     locationNew->SetTimeStamp(location.timeForFix);
     locationNew->SetTimeSinceBoot(location.timeSinceBoot);
     locationNew->SetIsFromMock(false);
+    locationNew->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
     if (gnssAbility->IsMockEnabled()) {
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         IPCSkeleton::SetCallingIdentity(identity);

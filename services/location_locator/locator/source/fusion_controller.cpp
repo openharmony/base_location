@@ -33,7 +33,7 @@ const uint32_t QUICK_FIX_FLAG = FUSION_BASE_FLAG << 1;
 const uint32_t NETWORK_SELF_REQUEST = 4;
 #endif
 const long NANOS_PER_MILLI = 1000000L;
-const long MAX_GNSS_LOCATION_COMPARISON_MS = 120 * MILLI_PER_SEC;
+const long MAX_GNSS_LOCATION_COMPARISON_MS = 30 * MILLI_PER_SEC;
 const long MAX_INDOOR_LOCATION_COMPARISON_MS = 5 * MILLI_PER_SEC;
 
 void FusionController::ActiveFusionStrategies(int type)
@@ -105,7 +105,8 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
     }
     if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
         return std::make_unique<Location>(*location);
-    } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE) {
+    } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE ||
+                location->GetLocationSourceType() == LocationSourceType::RTK_TYPE) {
         if (CheckIfLastIndoorLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
             return std::make_unique<Location>(*lastFuseLocation);
         }
@@ -123,8 +124,8 @@ bool FusionController::CheckIfLastIndoorLocationValid(const std::unique_ptr<Loca
     const std::unique_ptr<Location>& lastFuseLocation)
 {
     if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE &&
-            lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
-            MAX_INDOOR_LOCATION_COMPARISON_MS >= location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        ((location->GetTimeSinceBoot() / NANOS_PER_MILLI -
+        lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) < MAX_INDOOR_LOCATION_COMPARISON_MS)) {
         return true;
     } else {
         return false;
@@ -135,8 +136,8 @@ bool FusionController::CheckIfLastGnssLocationValid(const std::unique_ptr<Locati
     const std::unique_ptr<Location>& lastFuseLocation)
 {
     if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::GNSS_TYPE &&
-            lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI +
-            MAX_GNSS_LOCATION_COMPARISON_MS >= location->GetTimeSinceBoot() / NANOS_PER_MILLI) {
+        ((location->GetTimeSinceBoot() / NANOS_PER_MILLI -
+        lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) < MAX_GNSS_LOCATION_COMPARISON_MS)) {
         return true;
     } else {
         return false;
