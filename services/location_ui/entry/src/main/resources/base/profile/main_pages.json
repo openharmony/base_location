@@ -1,6 +1,7 @@
 {
   "src": [
     "pages/ConfirmDialog",
-    "pages/LocationPrivacyDialog"
+    "pages/LocationPrivacyDialog",
+    "pages/WifiDialog"
   ]
 }

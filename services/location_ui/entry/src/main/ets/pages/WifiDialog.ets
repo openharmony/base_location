@@ -1,0 +1,134 @@
+/*
+ * Copyright (c) 2024-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
+import commonEventManager from '@ohos.commonEventManager';
+
+let TAG = '[WIFI-NI:WifiDialog]==>';
+const WIFI_NI_ACCEPT_EVENT: string = 'ohos.event.wifi.DIALOG_ACCEPT';
+const WIFI_NI_REJECT_EVENT: string = 'ohos.event.wifi.DIALOG_REJECT';
+
+@Entry
+@Component
+struct dialogPlusPage {
+  @State title: Resource = $r('app.string.wifi_cdd_notify_title');
+  @State primaryButtonValue: Resource = $r('app.string.wifi_cdd_notify_no_button');
+  @State secondaryButtonValue: Resource = $r('app.string.wifi_cdd_notify_yes_button');
+  private WIFI_DIALOG_CDD: number = 0;
+  private WIFI_DIALOG_THREE_VAP: number = 1;
+
+  aboutToAppear() {
+    console.info(TAG, 'aboutToAppear')
+    if (AppStorage.get('wifiDialogType') != null) {
+      let type : number = AppStorage.get('wifiDialogType') as number
+      switch (type) {
+        case this.WIFI_DIALOG_CDD:
+            this.title = $r('app.string.wifi_cdd_notify_title');
+            this.primaryButtonValue = $r('app.string.wifi_cdd_notify_no_button');
+            this.secondaryButtonValue = $r('app.string.wifi_cdd_notify_yes_button');
+            break;
+        case this.WIFI_DIALOG_THREE_VAP:
+            this.title = $r('app.string.wifi_three_vap_notify_title');
+            this.primaryButtonValue = $r('app.string.wifi_three_vap_notify_no_button');
+            this.secondaryButtonValue = $r('app.string.wifi_three_vap_notify_yes_button');
+            break;
+        default:
+            break;
+      }
+      AlertDialog.show(
+        {
+          title: '',
+          message: this.title,
+          autoCancel: false,
+          primaryButton: {
+            value: this.primaryButtonValue,
+            action: () => {
+              this.onCancel(type);
+            }
+          },
+          secondaryButton: {
+            value: this.secondaryButtonValue,
+            action: () => {
+              this.onAccept(type);
+            }
+          }
+        }
+      )
+      console.info(TAG, 'dialog show success')
+    }
+  }
+
+  aboutToDisappear() {
+    let session = AppStorage.get<UIExtensionContentSession>('ConfirmSession');
+    if (session) {
+      session.terminateSelf();
+    }
+  }
+
+  onCancel(type :number) {
+    console.info(TAG, 'Wifi dialog cancel clicked.')
+
+    const options: commonEventManager.CommonEventPublishData = {
+      code: 0,
+      data: 'message',
+      subscriberPermissions: [''],
+      isOrdered: true,
+      isSticky: false,
+      parameters: { 'dialogType': type }
+    }
+
+    commonEventManager.publish(WIFI_NI_REJECT_EVENT, options, (err) => {
+      if (err) {
+        console.info(TAG, 'Wifi dialog cancel event publish failed .' + JSON.stringify(err));
+      } else {
+        console.info(TAG, 'Wifi dialog cancel event publish success.');
+      }
+    })
+
+    let session = AppStorage.get<UIExtensionContentSession>('ConfirmSession');
+    if (session) {
+      session.terminateSelf();
+    }
+  }
+
+  onAccept(type : number) {
+    console.info(TAG, 'Wifi dialog accept clicked.')
+
+    const options: commonEventManager.CommonEventPublishData = {
+      code: 0,
+      data: 'message',
+      subscriberPermissions: [''],
+      isOrdered: true,
+      isSticky: false,
+      parameters: { 'dialogType': type }
+    }
+
+    commonEventManager.publish(WIFI_NI_ACCEPT_EVENT, options, (err) => {
+      if (err) {
+        console.info(TAG, 'Wifi dialog accept event publish failed .' + JSON.stringify(err));
+      } else {
+        console.info(TAG, 'Wifi dialog accept event publish success.');
+      }
+    })
+
+    let session = AppStorage.get<UIExtensionContentSession>('ConfirmSession');
+    if (session) {
+      session.terminateSelf();
+    }
+  }
+
+  build() {
+  }
+}

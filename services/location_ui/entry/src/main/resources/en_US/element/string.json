@@ -51,6 +51,54 @@
     {
       "name": "LocationPrivacyExtAbility_label",
       "value": "label"
+    },
+    {
+      "name": "wifi_portal_connected_notify_title",
+      "value": "Connected to %s"
+    },
+    {
+      "name": "wifi_portal_connected_notify_text",
+      "value": "Touch to login/authorize"
+    },
+    {
+      "name": "wifi_portal_connect_timeout_notify_title",
+      "value": "WLAN authentication expired"
+    },
+    {
+      "name": "wifi_portal_connect_timeout_notify_text",
+      "value": "Touch here to log in to %s"
+    },
+    {
+      "name": "wifi_portal_found_notify_title",
+      "value": "Authorize Wi-Fi network"
+    },
+    {
+      "name": "wifi_portal_found_notify_text",
+      "value": "Touch here to log in to %s"
+    },
+    {
+      "name": "wifi_cdd_notify_title",
+      "value": "This WLAN network has no Internet access. Connect anyway?"
+    },
+    {
+      "name": "wifi_cdd_notify_no_button",
+      "value": "Cancel"
+    },
+    {
+      "name": "wifi_cdd_notify_yes_button",
+      "value": "Connect"
+    },
+    {
+      "name": "wifi_three_vap_notify_title",
+      "value": "A hotspot can't be created while WLAN Direct, Huawei Share, or screen mirroring are in use. Disconnect and try again."
+    },
+    {
+      "name": "wifi_three_vap_notify_no_button",
+      "value": "Cancel"
+    },
+    {
+      "name": "wifi_three_vap_notify_yes_button",
+      "value": "Disconnect"
     }
   ]
 }

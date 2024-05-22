@@ -51,6 +51,54 @@
     {
       "name": "LocationPrivacyExtAbility_label",
       "value": "label"
+    },
+    {
+      "name": "wifi_portal_connected_notify_title",
+      "value": "已连接%s"
+    },
+    {
+      "name": "wifi_portal_connected_notify_text",
+      "value": "点击进行登录/认证"
+    },
+    {
+      "name": "wifi_portal_connect_timeout_notify_title",
+      "value": "该 WLAN 网络认证已过期"
+    },
+    {
+      "name": "wifi_portal_connect_timeout_notify_text",
+      "value": "点击进行登录/认证%s"
+    },
+    {
+      "name": "wifi_portal_found_notify_title",
+      "value": "发现需认证的 WLAN 网络"
+    },
+    {
+      "name": "wifi_portal_found_notify_text",
+      "value": "点击进行登录/认证%s"
+    },
+    {
+      "name": "wifi_cdd_notify_title",
+      "value": "当前 WLAN 不可上网。是否继续使用此 WLAN？"
+    },
+    {
+      "name": "wifi_cdd_notify_no_button",
+      "value": "不使用"
+    },
+    {
+      "name": "wifi_cdd_notify_yes_button",
+      "value": "使用"
+    },
+    {
+      "name": "wifi_three_vap_notify_title",
+      "value": "检测到 WLAN 共享通道已被占用。若您正使用 WLAN 直连、华为分享、多屏互动等互联应用，断开后才可开启个人热点。是否断开？"
+    },
+    {
+      "name": "wifi_three_vap_notify_no_button",
+      "value": "取消"
+    },
+    {
+      "name": "wifi_three_vap_notify_yes_button",
+      "value": "断开"
     }
   ]
 }

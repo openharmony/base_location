@@ -29,6 +29,23 @@
         "label": "$string:LocationPrivacyExtAbility_label",
         "exported": true,
         "type": "sysDialog/common"
+      },
+      {
+        "name": "WifiUIExtAbility",
+        "srcEntry": "./ets/wifiability/WifiUIExtAbility.ets",
+        "description": "WifiUIExtAbility",
+        "label": "WifiUIExtAbility",
+        "exported": true,
+        "type": "sysDialog/common"
+      },
+      {
+        "name": "WifiServiceAbility",
+        "srcEntry": "./ets/serviceability/WifiServiceAbility.ets",
+        "description": "service",
+        "icon": "$media:app_icon",
+        "type": "service",
+        "visible": true,
+        "exported": true
       }
     ],
     "requestPermissions": [
