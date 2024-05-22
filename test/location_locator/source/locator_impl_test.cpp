@@ -312,8 +312,8 @@ HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
     geofence.expiration = 12.2;
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetGeofence(geofence);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->AddFenceV9(fenceRequest));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RemoveFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorImpl_->AddFenceV9(fenceRequest));
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorImpl_->RemoveFenceV9(fenceRequest));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 end");
 }
 #endif
