@@ -349,6 +349,8 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
         if (!AddRequestToWorkRecord(request, workRecord)) {
+            WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
+                    "abilityName", abilityName, "requestAddress", request->GetUuid()});
             continue;
         }
         if (!ActiveLocatingStrategies(request)) {
@@ -434,6 +436,7 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
         if (reportManager->IsAppBackground(bundleName, tokenId,
             request->GetTokenIdEx(), uid)&&
             !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+            LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
             return false;
         }
     }
