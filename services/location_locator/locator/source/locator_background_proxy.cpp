@@ -154,24 +154,10 @@ void LocatorBackgroundProxy::StopLocatorThread()
 
 void LocatorBackgroundProxy::StopLocator()
 {
-    std::unique_lock lock(locatorMutex_);
-    if (!isLocating_) {
-        return;
-    }
-    std::thread th(&LocatorBackgroundProxy::StopLocatorThread, this);
-    th.detach();
 }
 
 void LocatorBackgroundProxy::StartLocator()
 {
-    std::unique_lock lock(locatorMutex_);
-    if (isLocating_ || !proxySwtich_ || isWating_) {
-        return;
-    }
-    isWating_ = true;
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "start locating");
-    std::thread th(&LocatorBackgroundProxy::StartLocatorThread, this);
-    th.detach();
 }
 
 void LocatorBackgroundProxy::UpdateListOnRequestChange(const std::shared_ptr<Request>& request)
