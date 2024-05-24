@@ -377,7 +377,7 @@ void AGnssNiManager::HandleNiNotification(const GnssNiNotificationRequest &notif
     bool needNotify = (notif.notificationCategory & GNSS_NI_NOTIFICATION_REQUIRE_NOTIFY) != 0;
     bool needVerify = (notif.notificationCategory & GNSS_NI_NOTIFICATION_REQUIRE_VERIFY) != 0;
     bool privacyOverride = (notif.notificationCategory & GNSS_NI_NOTIFICATION_REQUIRE_PRIVACY_OVERRIDE) != 0;
-    if (LocationDataRdbManager::QuerySwitchState() == DISABLED && !IsInEmergency()) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED && !IsInEmergency()) {
         SendUserResponse(GNSS_NI_RESPONSE_CMD_NO_RESPONSE);
     }
 

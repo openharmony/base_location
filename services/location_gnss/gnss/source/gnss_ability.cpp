@@ -753,7 +753,7 @@ bool GnssAbility::ExecuteFenceProcess(
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 bool GnssAbility::SetGeofenceCallback()
 {
-    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
@@ -789,7 +789,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 
 bool GnssAbility::EnableGnss()
 {
-    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
@@ -846,7 +846,7 @@ void GnssAbility::RestGnssWorkStatus()
 
 void GnssAbility::StartGnss()
 {
-    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return;
     }

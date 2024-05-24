@@ -45,6 +45,7 @@ int LocationDataRdbManager::QuerySwitchState()
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
+        return DEFAULT_STATE;
     }
     return state;
 }
