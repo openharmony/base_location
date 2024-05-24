@@ -51,6 +51,7 @@ if (location_feature_with_gnss) {
 
     external_deps = [
       "ability_base:want",
+      "ability_runtime:ability_connect_callback_stub",
       "c_utils:utils",
       "eventhandler:libeventhandler",
       "hdf_core:libhdi",
