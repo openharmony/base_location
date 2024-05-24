@@ -332,7 +332,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
             LBSLOGI(LOCATOR, "enable %{public}s ability, remote result %{public}d", (iter->first).c_str(), error);
         }
     }
-    SendSwitchState(state);
+    SendSwitchState(isEnabled ? 1 : 0);
 }
 
 void LocatorAbility::RemoveUnloadTask(uint32_t code)
@@ -383,7 +383,8 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
-    if (modeValue == LocationDataRdbManager::QuerySwitchState()) {
+    int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
+    if (modeValue == currentSwitchState) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
@@ -391,8 +392,10 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
         LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    // update param
-    LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
+    if (currentSwitchState != DEFAULT_STATE) {
+        // update param
+        LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
+    }
     UpdateSaAbility();
     std::string state = isEnabled ? "enable" : "disable";
     ReportDataToResSched(state);
@@ -408,7 +411,7 @@ LocationErrCode LocatorAbility::GetSwitchState(int& state)
         return ERRCODE_SUCCESS;
     }
     state = LocationDataRdbManager::QuerySwitchState();
-    if (res == DEFAULT_STATE) {
+    if (res == DEFAULT_STATE && state != DEFAULT_STATE) {
         // update param
         LocationDataRdbManager::SetSwitchMode(state);
     }
@@ -863,7 +866,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return ERRCODE_NOT_SUPPORTED;
 #endif
-    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     // update offset before add request

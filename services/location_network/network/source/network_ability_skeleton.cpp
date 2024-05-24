@@ -151,7 +151,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
 
 bool NetworkAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
 {
-    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(NETWORK, "%{public}s: %{public}d switch state is off.", __func__, __LINE__);
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return false;

@@ -276,7 +276,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return false;
     }
-    if (LocationDataRdbManager::QuerySwitchState() == DISABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
         return false;
     }
