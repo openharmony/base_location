@@ -143,8 +143,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
-        LBSLOGI(REPORT_MANAGER, "report location to %{public}s, TimeSinceBoot : %{public}s",
-            request->GetPackageName().c_str(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
+        LBSLOGI(REPORT_MANAGER, "report location to %{public}d, TimeSinceBoot : %{public}s",
+            request->GetTokenId(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
         // add location permission using record
         locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
