@@ -874,10 +874,6 @@ napi_value NotificationNapi::GetNotificationTemplate(
         }
 
         std::shared_ptr<NotificationTemplate> templ = std::make_shared<NotificationTemplate>();
-        if (templ == nullptr) {
-            LBSLOGE(NAPI_UTILS, "template is null");
-            return nullptr;
-        }
         if (GetNotificationTemplateInfo(env, result, templ) == nullptr) {
             return nullptr;
         }
@@ -907,10 +903,6 @@ napi_value NotificationNapi::GetNotificationBundleOption(
         }
 
         std::shared_ptr<NotificationBundleOption> bundleOption = std::make_shared<NotificationBundleOption>();
-        if (bundleOption == nullptr) {
-            LBSLOGE(NAPI_UTILS, "The bundleOption is null.");
-            return nullptr;
-        }
         if (GetBundleOption(env, result, *bundleOption) == nullptr) {
             return nullptr;
         }

@@ -96,7 +96,7 @@ bool ParseGnssGeofenceRequest(
     const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& request);
 bool GenGnssGeofenceRequest(
     const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& reminder);
-napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName);
+napi_value GetArrayProperty(const napi_env& env, const napi_value& object, const std::string propertyName);
 #ifdef NOTIFICATION_ENABLE
 void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
     std::vector<Notification::NotificationRequest>& notificationRequestList);
