@@ -31,6 +31,9 @@
 #include "request_manager.h"
 #include "permission_manager.h"
 
+#include "accesstoken_kit.h"
+#include "tokenid_kit.h"
+
 #ifdef BGTASKMGR_SUPPORT
 #include "background_mode.h"
 #include "background_task_mgr_helper.h"
@@ -556,6 +559,10 @@ bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint64_t toke
 {
     bool ret = false;
     if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        return ret;
+    }
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
         return ret;
     }
 #ifdef FMSKIT_NATIVE_SUPPORT
