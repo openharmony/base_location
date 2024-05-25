@@ -1026,7 +1026,7 @@ std::string GetErrorMsgByCode(int code)
         {LocationErrCode::ERRCODE_SYSTEM_PERMISSION_DENIED, "System API is not allowed called by third HAP."},
         {LocationErrCode::ERRCODE_INVALID_PARAM, "Parameter error."},
         {LocationErrCode::ERRCODE_NOT_SUPPORTED, "Capability not supported."},
-        {LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE, "Location service is unavailable."},
+        {LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE, "The location service is unavailable."},
         {LocationErrCode::ERRCODE_SWITCH_OFF, "The location switch is off."},
         {LocationErrCode::ERRCODE_LOCATING_FAIL, "Failed to obtain the geographical location."},
         {LocationErrCode::ERRCODE_REVERSE_GEOCODING_FAIL, "Reverse geocoding query failed."},
