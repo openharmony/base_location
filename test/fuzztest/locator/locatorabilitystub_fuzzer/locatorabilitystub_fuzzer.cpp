@@ -25,10 +25,32 @@
 #include "token_setproc.h"
 #include "locator_ability.h"
 #include "locationhub_ipc_interface_code.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
+const int32_t LOCATION_PERM_NUM = 4;
+void MockNativePermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "LocatorAbility_FuzzTest",
+        .aplStr = "system_basic",
+    };
+    auto tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
 
 char* ParseData(const uint8_t* data, size_t size)
 {
@@ -726,13 +748,105 @@ bool LocatorAbilityStub040FuzzTest(const char* data, size_t size)
 
     return true;
 }
+
+bool LocatorAbilityStub041FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ADD_GNSS_GEOFENCE),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub042FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub043FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub044FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub045FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK),
+        requestParcel, reply, option);
+
+    return true;
+}
 } // namespace OHOS
+
+void GeoCodeFuzzTest(const char* ch, size_t size)
+{
+    OHOS::LocatorAbilityStub018FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub019FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub020FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub021FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub022FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub023FuzzTest(ch, size);
+}
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
+        OHOS::MockNativePermission();
+        GeoCodeFuzzTest(ch, size);
         OHOS::LocatorAbilityStub001FuzzTest(ch, size);
         OHOS::LocatorAbilityStub002FuzzTest(ch, size);
         OHOS::LocatorAbilityStub003FuzzTest(ch, size);
@@ -750,12 +864,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub015FuzzTest(ch, size);
         OHOS::LocatorAbilityStub016FuzzTest(ch, size);
         OHOS::LocatorAbilityStub017FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub018FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub019FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub020FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub021FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub022FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub023FuzzTest(ch, size);
         OHOS::LocatorAbilityStub024FuzzTest(ch, size);
         OHOS::LocatorAbilityStub025FuzzTest(ch, size);
         OHOS::LocatorAbilityStub026FuzzTest(ch, size);
@@ -773,6 +881,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub038FuzzTest(ch, size);
         OHOS::LocatorAbilityStub039FuzzTest(ch, size);
         OHOS::LocatorAbilityStub040FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub041FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub042FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub043FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub044FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub045FuzzTest(ch, size);
         free(ch);
         ch = nullptr;
     }

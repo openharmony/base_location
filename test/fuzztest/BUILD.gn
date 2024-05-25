@@ -35,9 +35,11 @@ group("fuzztest") {
     "locator/locatorcallbackstub_fuzzer:LocatorCallbackStubFuzzTest",
     "locator/locatoreventmanager_fuzzer:LocatorEventManagerFuzzTest",
     "locator/networkability_fuzzer:NetworkAbilityFuzzTest",
+    "locator/networkabilityproxy_fuzzer:NetworkAbilityProxyFuzzTest",
     "locator/networkcallbackhost_fuzzer:NetworkCallbackHostFuzzTest",
     "locator/nmeamessagecallbackhost_fuzzer:NmeaMessageCallbackHostFuzzTest",
     "locator/passiveability_fuzzer:PassiveAbilityFuzzTest",
+    "locator/passiveabilityproxy_fuzzer:PassiveAbilityProxyFuzzTest",
     "locator/reportmanager_fuzzer:ReportManagerFuzzTest",
     "locator/requestmanager_fuzzer:RequestManagerFuzzTest",
   ]

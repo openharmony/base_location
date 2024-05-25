@@ -24,14 +24,14 @@ namespace OHOS {
         if (size == 0) {
             return true;
         }
-        std::shared_ptr<CountryCodeManager> countryCodeManager =
-            std::make_shared<CountryCodeManager>();
+        auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
         countryCodeManager->GetIsoCountryCode();
         countryCodeManager->UnregisterCountryCodeCallback(nullptr);
         int index = 0;
         countryCodeManager->RegisterCountryCodeCallback(nullptr, data[index++]);
         countryCodeManager->ReSubscribeEvent();
         countryCodeManager->ReUnsubscribeEvent();
+        DelayedSingleton<CountryCodeManager>::DestroyInstance();
         return true;
     }
 }

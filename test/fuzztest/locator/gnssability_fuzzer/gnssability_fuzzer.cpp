@@ -386,6 +386,60 @@ bool GnssAbility017FuzzTest(const char* data, size_t size)
     WorkRecordStatistic::DestroyInstance();
     return true;
 }
+
+bool GnssAbility018FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ADD_GNSS_GEOFENCE),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    WorkRecordStatistic::DestroyInstance();
+    return true;
+}
+
+bool GnssAbility019FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    WorkRecordStatistic::DestroyInstance();
+    return true;
+}
+
+bool GnssAbility020FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    WorkRecordStatistic::DestroyInstance();
+    return true;
+}
 #endif
 } // namespace OHOS
 
@@ -413,6 +467,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::GnssAbility015FuzzTest(ch, size);
     OHOS::GnssAbility016FuzzTest(ch, size);
     OHOS::GnssAbility017FuzzTest(ch, size);
+    OHOS::GnssAbility018FuzzTest(ch, size);
+    OHOS::GnssAbility019FuzzTest(ch, size);
+    OHOS::GnssAbility020FuzzTest(ch, size);
 #endif
         free(ch);
         ch = nullptr;
