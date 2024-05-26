@@ -30,7 +30,7 @@ class FusionControllerTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    std::shared_ptr<FusionController> fusionController_;
+    FusionController* fusionController_;
 };
 } // namespace Location
 } // namespace OHOS

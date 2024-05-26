@@ -192,7 +192,7 @@ public:
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 };
 
-class LocatorRequiredDataManager : public DelayedSingleton<LocatorRequiredDataManager> {
+class LocatorRequiredDataManager {
 public:
     LocatorRequiredDataManager();
     ~LocatorRequiredDataManager();
@@ -202,6 +202,8 @@ public:
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(bool flag);
     bool IsConnecting();
+    static LocatorRequiredDataManager* GetInstance();
+
 private:
     int timeInterval_ = 0;
 #ifdef WIFI_ENABLE

@@ -34,6 +34,12 @@
 
 namespace OHOS {
 namespace Location {
+CountryCodeManager* CountryCodeManager::GetInstance()
+{
+    static CountryCodeManager data;
+    return &data;
+}
+
 CountryCodeManager::CountryCodeManager()
 {
     lastCountryByLocation_ = std::make_shared<CountryCode>();
@@ -309,7 +315,7 @@ bool CountryCodeManager::SubscribeLocaleConfigEvent()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
         LBSLOGD(COUNTRY_CODE, "LOCALE_KEY changed");
-        auto manager = DelayedSingleton<CountryCodeManager>::GetInstance();
+        auto manager = CountryCodeManager::GetInstance();
         if (manager == nullptr) {
             LBSLOGE(COUNTRY_CODE, "SubscribeLocaleConfigEvent CountryCodeManager is nullptr");
             return;
@@ -345,7 +351,7 @@ bool CountryCodeManager::UnsubscribeNetworkStatusEvent()
 
 void CountryCodeManager::LocatorCallback::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    auto manager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto manager = CountryCodeManager::GetInstance();
     if (manager == nullptr) {
         LBSLOGE(COUNTRY_CODE, "OnLocationReport CountryCodeManager is nullptr");
         return;
@@ -382,7 +388,7 @@ CountryCodeManager::NetworkSubscriber::NetworkSubscriber(
 
 void CountryCodeManager::NetworkSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
-    auto manager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto manager = CountryCodeManager::GetInstance();
     if (manager == nullptr) {
         LBSLOGE(COUNTRY_CODE, "CountryCodeManager is nullptr");
         return;
@@ -400,7 +406,7 @@ CountryCodeManager::SimSubscriber::SimSubscriber(
 
 void CountryCodeManager::SimSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
-    auto manager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto manager = CountryCodeManager::GetInstance();
     if (manager == nullptr) {
         LBSLOGE(COUNTRY_CODE, "CountryCodeManager is nullptr");
         return;

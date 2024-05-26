@@ -59,7 +59,7 @@ std::shared_ptr<LocatorImpl> LocatorImpl::GetInstance()
 
 LocatorImpl::LocatorImpl()
 {
-    locationDataManager_ = DelayedSingleton<LocationDataManager>::GetInstance();
+    locationDataManager_ = LocationDataManager::GetInstance();
 }
 
 LocatorImpl::~LocatorImpl()
@@ -74,7 +74,7 @@ bool LocatorImpl::IsLocationEnabled()
         return (res == ENABLED);
     }
     auto locationDataRdbHelper =
-        DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+        LocationDataRdbHelper::GetInstance();
     if (locationDataRdbHelper == nullptr) {
         return false;
     }
@@ -187,7 +187,7 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
 
 bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    auto locationDataRdbHelper = LocationDataRdbHelper::GetInstance();
     auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
     if (locationDataManager_ == nullptr || locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
         return false;
@@ -278,7 +278,7 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
 
 bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto countryCodeManager = CountryCodeManager::GetInstance();
     if (countryCodeManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return false;
@@ -289,7 +289,7 @@ bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callbac
 
 bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback)
 {
-    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto countryCodeManager = CountryCodeManager::GetInstance();
     if (countryCodeManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return false;
@@ -483,7 +483,7 @@ bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
 std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCode()");
-    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto countryCodeManager = CountryCodeManager::GetInstance();
     if (countryCodeManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return nullptr;
@@ -592,7 +592,7 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
         return ERRCODE_SUCCESS;
     }
     auto locationDataRdbHelper =
-        DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+        LocationDataRdbHelper::GetInstance();
     if (locationDataRdbHelper == nullptr) {
         return ERRCODE_NOT_SUPPORTED;
     }
@@ -702,7 +702,7 @@ LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
 
 LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    auto locationDataRdbHelper = LocationDataRdbHelper::GetInstance();
     auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
     if (locationDataManager_ == nullptr || locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -805,7 +805,7 @@ LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteO
 LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCountryCodeCallbackV9()");
-    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto countryCodeManager = CountryCodeManager::GetInstance();
     if (countryCodeManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -817,7 +817,7 @@ LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObj
 LocationErrCode LocatorImpl::UnregisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCountryCodeCallbackV9()");
-    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto countryCodeManager = CountryCodeManager::GetInstance();
     if (countryCodeManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1042,7 +1042,7 @@ LocationErrCode LocatorImpl::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
 LocationErrCode LocatorImpl::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCodeV9()");
-    auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+    auto countryCodeManager = CountryCodeManager::GetInstance();
     if (countryCodeManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;

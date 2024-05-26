@@ -29,7 +29,7 @@ public:
     void TearDown();
     void MockNativePermission();
     std::unique_ptr<Location> MockLocation();
-    std::shared_ptr<ReportManager> reportManager_;
+    ReportManager* reportManager_;
     uint64_t tokenId_;
 };
 } // namespace Location

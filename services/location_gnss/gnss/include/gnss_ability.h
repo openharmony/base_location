@@ -115,11 +115,13 @@ private:
     GnssEventProcessMap gnssEventProcessMap_;
 };
 
-class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility, DelayedSingleton<GnssAbility> {
+class GnssAbility : public SystemAbility, public GnssAbilityStub, public SubAbility {
 DECLEAR_SYSTEM_ABILITY(GnssAbility);
 
 public:
     DISALLOW_COPY_AND_MOVE(GnssAbility);
+    static GnssAbility* GetInstance();
+
     GnssAbility();
     ~GnssAbility() override;
     void OnStart() override;

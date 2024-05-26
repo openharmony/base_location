@@ -30,7 +30,7 @@ public:
     void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
 };
 
-class LocationSaLoadManager : public DelayedSingleton<LocationSaLoadManager> {
+class LocationSaLoadManager {
 public:
     LocationSaLoadManager();
     ~LocationSaLoadManager();
@@ -41,6 +41,8 @@ public:
     static bool CheckIfSystemAbilityAvailable(int32_t systemAbilityId);
     static bool InitLocationSa(int32_t systemAbilityId);
     static bool UnInitLocationSa(int32_t systemAbilityId);
+    static LocationSaLoadManager* GetInstance();
+
 private:
     void InitLoadState();
     LocationErrCode WaitLoadStateChange(int32_t systemAbilityId);

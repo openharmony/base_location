@@ -15,7 +15,6 @@
 
 #include "locator_impl_test.h"
 
-#include <singleton.h>
 #include "accesstoken_kit.h"
 #include "message_parcel.h"
 #include "nativetoken_kit.h"
@@ -81,18 +80,18 @@ void LocatorImplTest::TearDown()
 
 void LocatorImplTest::LoadSystemAbility()
 {
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
 #ifdef FEATURE_GNSS_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_GEOCODE_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
 #endif
 }
 
@@ -588,7 +587,7 @@ HWTEST_F(LocatorImplTest, locatorAgentTest1, TestSize.Level1)
         << "LocatorImplTest, locatorAgentTest1, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorAgentTest1 begin");
     auto locatorAgent =
-        DelayedSingleton<LocatorAgentManager>::GetInstance();
+        LocatorAgentManager::GetInstance();
     ASSERT_TRUE(locatorAgent != nullptr);
     static OHOS::Location::LocationCallbackIfaces locationCallback;
     locationCallback.locationUpdate = TestLocationUpdate;

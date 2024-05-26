@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "location_mock_ipc.h"
-#include <singleton.h>
 #include <map>
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability.h"

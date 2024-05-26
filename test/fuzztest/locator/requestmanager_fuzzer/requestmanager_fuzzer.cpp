@@ -26,8 +26,8 @@ namespace OHOS {
     const int MIN_DATA_LEN = 6;
     bool RequestManagerFuzzerTest(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<RequestManager> requestManager =
-            DelayedSingleton<RequestManager>::GetInstance();
+        RequestManager* requestManager =
+            RequestManager::GetInstance();
         if (requestManager == nullptr) {
             return false;
         }

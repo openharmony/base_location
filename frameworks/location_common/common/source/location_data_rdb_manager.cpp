@@ -41,7 +41,7 @@ int LocationDataRdbManager::QuerySwitchState()
 {
     int32_t state = DISABLED;
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
@@ -53,14 +53,14 @@ int LocationDataRdbManager::QuerySwitchState()
 LocationErrCode LocationDataRdbManager::SetSwitchState(int modeValue)
 {
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    return DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    return LocationDataRdbHelper::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
 }
 
 bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 {
     Uri locationWorkingStateUri(GetLocationDataUri(LOCATION_WORKING_STATE));
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         SetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: can not set value to db, errcode = %{public}d", __func__, errCode);
@@ -72,7 +72,7 @@ bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 bool LocationDataRdbManager::GetLocationWorkingState(int32_t& state)
 {
     Uri locationWorkingStateUri(GetLocationDataUri(LOCATION_WORKING_STATE));
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: can not get value, errcode = %{public}d", __func__, errCode);

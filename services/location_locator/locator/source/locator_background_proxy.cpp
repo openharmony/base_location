@@ -47,6 +47,12 @@ namespace OHOS {
 namespace Location {
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
+LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
+{
+    static LocatorBackgroundProxy data;
+    return &data;
+}
+
 LocatorBackgroundProxy::LocatorBackgroundProxy()
 {
     InitArgsFromProp();
@@ -76,7 +82,7 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     request_->SetLocatorCallBack(callback_);
     SubscribeSaStatusChangeListerner();
     isUserSwitchSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
-    proxySwtich_ = (LocationConfigManager::GetInstance().GetLocationSwitchState() == ENABLED);
+    proxySwtich_ = (LocationConfigManager::GetInstance()->GetLocationSwitchState() == ENABLED);
     RegisterAppStateObserver();
 }
 
@@ -114,8 +120,8 @@ void LocatorBackgroundProxy::SubscribeSaStatusChangeListerner()
 
 void LocatorBackgroundProxy::StartLocatorThread()
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (requestManager == nullptr || locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "StartLocatorThread: RequestManager or LocatorAbility is nullptr");
         return;
@@ -132,13 +138,13 @@ void LocatorBackgroundProxy::StartLocatorThread()
     isLocating_ = true;
     lock.unlock();
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "real start locating");
-    requestManager.get()->HandleStartLocating(request_);
-    locatorAbility.get()->ReportLocationStatus(callback_, SESSION_START);
+    requestManager->HandleStartLocating(request_);
+    locatorAbility->ReportLocationStatus(callback_, SESSION_START);
 }
 
 void LocatorBackgroundProxy::StopLocatorThread()
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "StopLocatorThread: LocatorAbility is nullptr.");
         return;
@@ -151,7 +157,7 @@ void LocatorBackgroundProxy::StopLocatorThread()
     }
     isLocating_ = false;
     lock.unlock();
-    locatorAbility.get()->StopLocating(callback_);
+    locatorAbility->StopLocating(callback_);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "end locating");
 }
 
@@ -255,7 +261,7 @@ void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>&
     if (request == nullptr) {
         return;
     }
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     if (requestManager == nullptr) {
         LBSLOGE(LOCATOR_BACKGROUND_PROXY, "UpdateListOnSuspend: RequestManager is nullptr.");
         return;
@@ -375,12 +381,12 @@ bool LocatorBackgroundProxy::CheckMaxRequestNum(pid_t uid, const std::string& pa
 void LocatorBackgroundProxy::mLocatorCallback::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "locator background OnLocationReport");
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         LBSLOGE(LOCATOR_BACKGROUND_PROXY, "OnLocationReport: LocatorBackgroundProxy is nullptr.");
         return;
     }
-    auto requestsList = locatorBackgroundProxy.get()->GetRequestsInProxy();
+    auto requestsList = locatorBackgroundProxy->GetRequestsInProxy();
     if (requestsList.empty()) {
         locatorBackgroundProxy->StopLocator();
         return;
@@ -410,16 +416,16 @@ void LocatorBackgroundProxy::UserSwitchSubscriber::OnReceiveEvent(const OHOS::Ev
 {
     int32_t userId = event.GetCode();
     const auto action = event.GetWant().GetAction();
-    auto locatorProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    auto locatorProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorProxy == nullptr) {
         LBSLOGE(LOCATOR_BACKGROUND_PROXY, "OnReceiveEvent: LocatorBackgroundProxy is nullptr.");
         return;
     }
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "action = %{public}s, userId = %{public}d", action.c_str(), userId);
     if (action == OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
-        locatorProxy.get()->OnUserSwitch(userId);
+        locatorProxy->OnUserSwitch(userId);
     } else if (action == OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED) {
-        locatorProxy.get()->OnUserRemove(userId);
+        locatorProxy->OnUserRemove(userId);
     }
 }
 
@@ -581,7 +587,7 @@ AppStateChangeCallback::~AppStateChangeCallback()
 
 void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     if (requestManager == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "OnForegroundApplicationChanged: RequestManager is nullptr.");
         return;

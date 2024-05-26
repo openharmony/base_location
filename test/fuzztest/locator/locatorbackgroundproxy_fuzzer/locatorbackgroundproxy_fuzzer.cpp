@@ -28,7 +28,7 @@ namespace OHOS {
     {
         int index = 0;
         auto backgroundProxy =
-            DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+            LocatorBackgroundProxy::GetInstance();
         if (backgroundProxy == nullptr) {
             return false;
         }
