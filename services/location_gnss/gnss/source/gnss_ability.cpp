@@ -574,7 +574,10 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         LBSLOGE(GNSS, "register an invalid request");
         return false;
     }
-
+    if (callback == nullptr) {
+        LBSLOGE(GNSS, "register an invalid callback");
+        return false;
+    }
     std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
