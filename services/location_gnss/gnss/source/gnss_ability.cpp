@@ -944,7 +944,9 @@ bool GnssAbility::ConnectHdi()
 #endif
     if (gnssInterface_ != nullptr) {
         LBSLOGD(GNSS, "connect v2_0 hdi success.");
-        gnssCallback_ = new (std::nothrow) GnssEventCallback();
+        if (gnssCallback_ == nullptr) {
+            gnssCallback_ = new (std::nothrow) GnssEventCallback();
+        }
         RegisterLocationHdiDeathRecipient();
         lock.unlock();
         return true;
@@ -962,14 +964,14 @@ bool GnssAbility::RemoveHdi()
         return false;
     }
     if (devmgr->UnloadDevice(GNSS_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load gnss service failed!");
+        LBSLOGE(GNSS, "Unload gnss service failed!");
         return false;
     }
     gnssCallback_ = nullptr;
     gnssInterface_ = nullptr;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     if (devmgr->UnloadDevice(AGNSS_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load agnss service failed!");
+        LBSLOGE(GNSS, "Unload agnss service failed!");
         return false;
     }
     agnssCallback_ = nullptr;
@@ -977,12 +979,13 @@ bool GnssAbility::RemoveHdi()
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     if (devmgr->UnloadDevice(GEOFENCE_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load geofence service failed!");
+        LBSLOGE(GNSS, "Unload geofence service failed!");
         return false;
     }
     geofenceCallback_ = nullptr;
     geofenceInterface_ = nullptr;
 #endif
+    LBSLOGI(GNSS, "RemoveHdi success.");
     return true;
 }
 
