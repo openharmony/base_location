@@ -124,12 +124,11 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     AppIdentity identity;
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
-    LBSLOGD(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
+    LBSLOGI(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(NETWORK, "invalid token.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int ret = ERRCODE_SUCCESS;
@@ -140,7 +139,6 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         ret = (this->*memberFunc)(data, reply, identity);
     } else {
         LBSLOGE(NETWORK, "OnReceived cmd = %{public}u, unsupport service.", code);
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     if (!isMessageRequest_) {

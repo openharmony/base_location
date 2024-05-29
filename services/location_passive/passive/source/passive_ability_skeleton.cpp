@@ -112,7 +112,6 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int ret = ERRCODE_SUCCESS;
@@ -123,7 +122,6 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
         ret = (this->*memberFunc)(data, reply, identity);
     } else {
         LBSLOGE(PASSIVE, "OnReceived cmd = %{public}u, unsupport service.", code);
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     if (!isMessageRequest_) {

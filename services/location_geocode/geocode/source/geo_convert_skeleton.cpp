@@ -138,7 +138,6 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         code, option.GetFlags(), callingPid, callingUid, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GEO_CONVERT, "invalid token.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
  
@@ -149,9 +148,6 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         ret = (this->*memberFunc)(data, reply, identity);
     } else {
         LBSLOGE(GEO_CONVERT, "OnReceived cmd = %{public}u, unsupport service.", code);
-#if !defined(FEATURE_GNSS_SUPPORT) || !defined(FEATURE_GEOCODE_SUPPORT)
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-#endif
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     UnloadGeoConvertSystemAbility();

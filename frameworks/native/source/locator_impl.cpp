@@ -1515,6 +1515,7 @@ void CallbackResumeManager::ResumeLocating()
         }
         auto requestConfig = std::make_unique<RequestConfig>();
         requestConfig->Set(iter->second);
+        LBSLOGI(LOCATOR_STANDARD, "ResumeLocating requestConfig = %{public}s", requestConfig->ToString().c_str());
         proxy->StartLocatingV9(requestConfig, locatorCallback);
     }
 }
