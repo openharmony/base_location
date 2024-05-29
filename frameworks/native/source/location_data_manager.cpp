@@ -22,12 +22,29 @@
 #include "location_data_rdb_helper.h"
 #include "location_log.h"
 #include "common_hisysevent.h"
+#include "if_system_ability_manager.h"
+#include "system_ability_definition.h"
+#include "iservice_registry.h"
+#include "location_data_rdb_observer.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
 LocationDataManager::LocationDataManager()
 {
     switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
+        return;
+    }
+    if (saStatusListener_ == nullptr) {
+        saStatusListener_ = sptr<DataShareSystemAbilityListener>(new DataShareSystemAbilityListener());
+    }
+    int32_t result = sam->SubscribeSystemAbility(DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID, saStatusListener_);
+    if (result != ERR_OK) {
+        LBSLOGE(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
+    }
 }
 
 LocationDataManager::~LocationDataManager()
@@ -62,7 +79,6 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         LBSLOGE(LOCATOR, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-
     std::unique_lock<std::mutex> lock(mutex_);
     switchCallbacks_->erase(uid);
     switchCallbacks_->insert(std::make_pair(uid, switchCallback));
@@ -109,6 +125,45 @@ bool LocationDataManager::IsSwitchStateReg()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     return (switchCallbacks_->size() > 0);
+}
+
+void LocationDataManager::ResetIsObserverReg()
+{
+    isObserverReg_ = false;
+}
+
+void LocationDataManager::RegisterDatashareObserver()
+{
+    auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
+    if (locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
+        return;
+    }
+    if (!isObserverReg_) {
+        Uri locationDataEnableUri(LOCATION_DATA_URI);
+        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
+        isObserverReg_ = true;
+    }
+}
+
+void DataShareSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
+    auto locationDataManager = DelayedSingleton<LocationDataManager>::GetInstance();
+    if (locationDataManager == nullptr) {
+        return;
+    }
+    locationDataManager->RegisterDatashareObserver();
+}
+
+void DataShareSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
+    auto locationDataManager = DelayedSingleton<LocationDataManager>::GetInstance();
+    if (locationDataManager == nullptr) {
+        return;
+    }
+    locationDataManager->ResetIsObserverReg();
 }
 }  // namespace Location
 }  // namespace OHOS

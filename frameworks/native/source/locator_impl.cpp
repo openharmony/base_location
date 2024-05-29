@@ -187,15 +187,8 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
 
 bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
-    auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
-    if (locationDataManager_ == nullptr || locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
+    if (locationDataManager_ == nullptr) {
         return false;
-    }
-    if (!isObserverReg_) {
-        Uri locationDataEnableUri(LOCATION_DATA_URI);
-        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
-        isObserverReg_ = true;
     }
     return locationDataManager_->RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid()) == ERRCODE_SUCCESS;
 }
@@ -702,15 +695,8 @@ LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
 
 LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
-    auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
-    if (locationDataManager_ == nullptr || locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
+    if (locationDataManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (!isObserverReg_) {
-        Uri locationDataEnableUri(LOCATION_DATA_URI);
-        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
-        isObserverReg_ = true;
     }
     return locationDataManager_->
         RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid());

@@ -659,7 +659,6 @@ private:
     std::mutex resumeMutex_;
     static std::mutex locatorMutex_;
     static std::shared_ptr<LocatorImpl> instance_;
-    bool isObserverReg_ = false;
     sptr<ISystemAbilityStatusChange> saStatusListener_ =
         sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
 };
