@@ -33,6 +33,12 @@ LocatorRequiredDataManager::LocatorRequiredDataManager()
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true));
 }
 
+LocatorRequiredDataManager* LocatorRequiredDataManager::GetInstance()
+{
+    static LocatorRequiredDataManager data;
+    return &data;
+}
+
 LocatorRequiredDataManager::~LocatorRequiredDataManager()
 {
 }
@@ -140,7 +146,7 @@ void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDev
     const std::string deviceName, int deviceClass)
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByBtHost(device);
-    auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
     if (dataManager == nullptr) {
         LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
@@ -161,7 +167,7 @@ void LocatorBluetoothHost::OnDeviceAddrChanged(const std::string &address) {}
 void LocatorBleCallbackWapper::OnScanCallback(const Bluetooth::BleScanResult &result)
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> res = GetLocatingRequiredDataByBle(result);
-    auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
     if (dataManager == nullptr) {
         LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
@@ -278,7 +284,7 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
         LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
         return;
     }
-    auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
     if (dataManager == nullptr) {
         LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
@@ -342,7 +348,7 @@ ScanHandler::~ScanHandler() {}
 
 void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto dataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
     if (dataManager == nullptr) {
         LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
         return;
@@ -374,13 +380,13 @@ void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 void WifiServiceStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     LBSLOGI(LOCATOR, "WifiServiceStatusChange::OnAddSystemAbility systemAbilityId :%{public}d", systemAbilityId);
-    DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->RegisterWifiCallBack();
+    LocatorRequiredDataManager::GetInstance()->RegisterWifiCallBack();
 }
 
 void WifiServiceStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     LBSLOGI(LOCATOR, "WifiServiceStatusChange::OnRemoveSystemAbility systemAbilityId :%{public}d", systemAbilityId);
-    DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->ResetCallbackRegisteredStatus();
+    LocatorRequiredDataManager::GetInstance()->ResetCallbackRegisteredStatus();
 }
 } // namespace Location
 } // namespace OHOS

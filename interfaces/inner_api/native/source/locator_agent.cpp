@@ -23,6 +23,12 @@
 
 namespace OHOS {
 namespace Location {
+LocatorAgentManager* LocatorAgentManager::GetInstance()
+{
+    static LocatorAgentManager data;
+    return &data;
+}
+
 LocatorAgentManager::LocatorAgentManager()
 {
     nmeaCallbackHost_ =
@@ -139,7 +145,7 @@ sptr<LocatorAgent> LocatorAgentManager::GetLocatorAgent()
 
 bool LocatorAgentManager::TryLoadLocatorSystemAbility()
 {
-    auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    auto instance = LocationSaLoadManager::GetInstance();
     if (instance == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get instance failed.", __func__);
         return false;

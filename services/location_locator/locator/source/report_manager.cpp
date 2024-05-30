@@ -37,6 +37,13 @@ static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 static constexpr int GNSS_FIX_CACHED_TIME = 60;
 static constexpr int NLP_FIX_CACHED_TIME = 45;
+
+ReportManager* ReportManager::GetInstance()
+{
+    static ReportManager data;
+    return &data;
+}
+
 ReportManager::ReportManager()
 {
     clock_gettime(CLOCK_REALTIME, &lastUpdateTime_);
@@ -47,13 +54,13 @@ ReportManager::~ReportManager() {}
 
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    auto fusionController = FusionController::GetInstance();
     if (fusionController == nullptr) {
         return false;
     }
     fusionController->FuseResult(abilityName, location);
     UpdateCacheLocation(location, abilityName);
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
@@ -84,7 +91,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        auto requestManger = DelayedSingleton<RequestManager>::GetInstance();
+        auto requestManger = RequestManager::GetInstance();
         if (requestManger != nullptr) {
             requestManger->UpdateRequestRecord(request, false);
         }
@@ -118,13 +125,13 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> fuseLocation;
     std::unique_ptr<Location> finalLocation;
     if (IsRequestFuse(request)) {
-        auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+        auto fusionController = FusionController::GetInstance();
         if (fusionController == nullptr) {
             return false;
         }
         fuseLocation = fusionController->GetFuseLocation(location, request->GetLastLocation());
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
@@ -242,7 +249,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     if (location == nullptr) {
         return false;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
@@ -332,7 +339,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
 
 void ReportManager::UpdateRandom()
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return;
     }
@@ -423,7 +430,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         return false;
     }

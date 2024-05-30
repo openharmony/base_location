@@ -30,7 +30,7 @@ int32_t GeofenceEventCallback::ReportGeofenceEvent(
     int32_t fenceIndex, const LocationInfo& location, GeofenceEvent event, int64_t timestamp)
 {
     LBSLOGD(GNSS, "ReportGeofenceEvent enter");
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "gnssAbility is nullptr");
         return -1;
@@ -43,7 +43,7 @@ int32_t GeofenceEventCallback::ReportGeofenceOperateResult(
     int32_t fenceIndex, GeofenceOperateType type, GeofenceOperateResult result)
 {
     LBSLOGD(GNSS, "ReportGeofenceOperateResult enter");
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "gnssAbility is nullptr");
         return -1;

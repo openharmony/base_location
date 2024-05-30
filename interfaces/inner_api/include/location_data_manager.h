@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace Location {
-class LocationDataManager : public DelayedSingleton<LocationDataManager> {
+class LocationDataManager {
 public:
     LocationDataManager();
     ~LocationDataManager();
@@ -34,6 +34,8 @@ public:
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     void SetCachedSwitchState(int32_t state);
     bool IsSwitchStateReg();
+    static LocationDataManager* GetInstance();
+
 private:
     std::mutex mutex_;
     std::mutex switchStateMutex_;

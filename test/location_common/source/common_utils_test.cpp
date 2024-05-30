@@ -15,7 +15,6 @@
 
 #include "common_utils_test.h"
 
-#include <singleton.h>
 #include "string_ex.h"
 
 #include "accesstoken_kit.h"
@@ -115,7 +114,7 @@ void CommonUtilsTest::MockNativeAccurateLocation()
 
 void CommonUtilsTest::LoadSystemAbility()
 {
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    auto locationSaLoadManager = LocationSaLoadManager::GetInstance();
     if (locationSaLoadManager == nullptr) {
         return;
     }

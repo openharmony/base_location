@@ -45,6 +45,12 @@ void DftHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
 }
 
+LocatorDftManager* LocatorDftManager::GetInstance()
+{
+    static LocatorDftManager data;
+    return &data;
+}
+
 LocatorDftManager::LocatorDftManager()
 {
     distributeSissionCnt_ = 0;

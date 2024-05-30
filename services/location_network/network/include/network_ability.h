@@ -43,14 +43,14 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
-class NetworkAbility : public SystemAbility, public NetworkAbilityStub, public SubAbility,
-    DelayedSingleton<NetworkAbility> {
+class NetworkAbility : public SystemAbility, public NetworkAbilityStub, public SubAbility {
 DECLEAR_SYSTEM_ABILITY(NetworkAbility);
 
 public:
     DISALLOW_COPY_AND_MOVE(NetworkAbility);
     NetworkAbility();
     ~NetworkAbility() override;
+    static NetworkAbility* GetInstance();
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const

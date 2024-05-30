@@ -39,12 +39,13 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
-class PassiveAbility : public SystemAbility, public PassiveAbilityStub, public SubAbility,
-    DelayedSingleton<PassiveAbility> {
+class PassiveAbility : public SystemAbility, public PassiveAbilityStub, public SubAbility {
 DECLEAR_SYSTEM_ABILITY(PassiveAbility);
 
 public:
     DISALLOW_COPY_AND_MOVE(PassiveAbility);
+
+    static PassiveAbility* GetInstance();
     PassiveAbility();
     ~PassiveAbility() override;
     void OnStart() override;

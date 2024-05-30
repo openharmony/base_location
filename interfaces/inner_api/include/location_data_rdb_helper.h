@@ -24,8 +24,9 @@
 
 namespace OHOS {
 namespace Location {
-class LocationDataRdbHelper : DelayedSingleton<LocationDataRdbHelper> {
+class LocationDataRdbHelper {
 public:
+    static LocationDataRdbHelper* GetInstance();
     LocationDataRdbHelper();
     ~LocationDataRdbHelper();
     LocationErrCode RegisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);

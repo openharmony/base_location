@@ -40,14 +40,13 @@ const std::string UNKNOWN_ABILITY = "unknown_ability";
 void ReportManagerTest::SetUp()
 {
     MockNativePermission();
-    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
+    reportManager_ = ReportManager::GetInstance();
     EXPECT_NE(nullptr, reportManager_);
 }
 
 void ReportManagerTest::TearDown()
 {
     reportManager_ = nullptr;
-    DelayedSingleton<ReportManager>::DestroyInstance();
 }
 
 void ReportManagerTest::MockNativePermission()

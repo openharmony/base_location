@@ -66,7 +66,13 @@ constexpr int32_t FENCE_MAX_ID = 1000000;
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
-    DelayedSingleton<GnssAbility>::GetInstance().get());
+    GnssAbility::GetInstance());
+
+GnssAbility* GnssAbility::GetInstance()
+{
+    static GnssAbility data;
+    return &data;
+}
 
 GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 {
@@ -84,7 +90,7 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
         gnssHandler_->SendEvent(event);
     }
     fenceId_ = 0;
-    auto agnssNiManager = DelayedSingleton<AGnssNiManager>::GetInstance();
+    auto agnssNiManager = AGnssNiManager::GetInstance();
     if (agnssNiManager != nullptr) {
         agnssNiManager->SubscribeSaStatusChangeListerner();
     }
@@ -172,7 +178,7 @@ void GnssAbility::UnloadGnssSystemAbility()
         return;
     }
     auto task = [this]() {
-        auto instance = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+        auto instance = LocationSaLoadManager::GetInstance();
         if (instance == nullptr) {
             LBSLOGE(GNSS, "%{public}s instance is nullptr", __func__);
             return;
@@ -464,7 +470,7 @@ LocationErrCode GnssAbility::SetPositionMode()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     GnssConfigPara para;
-    int suplMode = LocationConfigManager::GetInstance().GetSuplMode();
+    int suplMode = LocationConfigManager::GetInstance()->GetSuplMode();
     if (suplMode == MODE_STANDALONE) {
         para.gnssBasic.gnssMode = GnssWorkingMode::GNSS_WORKING_MODE_STANDALONE;
     } else if (suplMode == MODE_MS_BASED) {
@@ -1001,12 +1007,12 @@ void GnssAbility::SetAgnssServer()
         return;
     }
     std::string addrName;
-    bool result = LocationConfigManager::GetInstance().GetAgnssServerAddr(addrName);
+    bool result = LocationConfigManager::GetInstance()->GetAgnssServerAddr(addrName);
     if (!result || addrName.empty()) {
         LBSLOGE(GNSS, "get agnss server address failed!");
         return;
     }
-    int port = LocationConfigManager::GetInstance().GetAgnssServerPort();
+    int port = LocationConfigManager::GetInstance()->GetAgnssServerPort();
     AGnssServerInfo info;
     info.type = AGNSS_TYPE_SUPL;
     info.server = addrName;
@@ -1316,7 +1322,7 @@ GnssHandler::~GnssHandler() {}
 
 void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1333,7 +1339,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 
 void GnssHandler::HandleReportMockLocation(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1343,7 +1349,7 @@ void GnssHandler::HandleReportMockLocation(const AppExecFwk::InnerEvent::Pointer
 
 void GnssHandler::HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1356,7 +1362,7 @@ void GnssHandler::HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointe
 
 void GnssHandler::HandleSetMockedLocations(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1374,7 +1380,7 @@ void GnssHandler::HandleSetMockedLocations(const AppExecFwk::InnerEvent::Pointer
 
 void GnssHandler::HandleSendCommands(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1387,7 +1393,7 @@ void GnssHandler::HandleSendCommands(const AppExecFwk::InnerEvent::Pointer& even
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 void GnssHandler::HandleSetSubscriberSetId(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1400,7 +1406,7 @@ void GnssHandler::HandleSetSubscriberSetId(const AppExecFwk::InnerEvent::Pointer
 
 void GnssHandler::HandleSetAgnssRefInfo(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1415,7 +1421,7 @@ void GnssHandler::HandleSetAgnssRefInfo(const AppExecFwk::InnerEvent::Pointer& e
 
 void GnssHandler::HandleReconnectHdi(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1425,7 +1431,7 @@ void GnssHandler::HandleReconnectHdi(const AppExecFwk::InnerEvent::Pointer& even
 
 void GnssHandler::HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1436,7 +1442,7 @@ void GnssHandler::HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event)
 
 void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1460,7 +1466,7 @@ LocationHdiDeathRecipient::~LocationHdiDeathRecipient()
 
 void LocationHdiDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility != nullptr) {
         LBSLOGI(LOCATOR, "hdi reconnecting");
         // wait for device unloaded

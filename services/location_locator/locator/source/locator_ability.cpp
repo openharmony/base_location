@@ -62,7 +62,7 @@
 namespace OHOS {
 namespace Location {
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
-    DelayedSingleton<LocatorAbility>::GetInstance().get());
+    LocatorAbility::GetInstance());
 
 const uint32_t EVENT_UPDATE_SA = 0x0001;
 const uint32_t EVENT_INIT_REQUEST_MANAGER = 0x0002;
@@ -92,6 +92,12 @@ const uint32_t SET_ENABLE = 3;
 const uint32_t EVENT_PERIODIC_INTERVAL = 3 * 60 * 1000;
 const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
 
+LocatorAbility* LocatorAbility::GetInstance()
+{
+    static LocatorAbility data;
+    return &data;
+}
+
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
     switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
@@ -101,7 +107,7 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     loadedSaMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     permissionMap_ = std::make_shared<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>>();
     InitRequestManagerMap();
-    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
+    reportManager_ = ReportManager::GetInstance();
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
@@ -172,7 +178,7 @@ bool LocatorAbility::Init()
     }
 
     deviceId_ = CommonUtils::InitDeviceId();
-    requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
+    requestManager_ = RequestManager::GetInstance();
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
@@ -299,12 +305,12 @@ void LocatorAbility::UpdateSaAbilityHandler()
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
     bool isEnabled = (state == ENABLED);
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
         return;
     }
-    locatorBackgroundProxy.get()->OnSaStateChange(isEnabled);
+    locatorBackgroundProxy->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
     std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
     for (auto iter = loadedSaMap_->begin(); iter != loadedSaMap_->end(); iter++) {
@@ -376,7 +382,7 @@ void LocatorAbility::SendSwitchState(const int state)
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return DelayedSingleton<LocatorRequiredDataManager>::GetInstance()->IsConnecting() && GetActiveRequestNum() > 0;
+    return LocatorRequiredDataManager::GetInstance()->IsConnecting() && GetActiveRequestNum() > 0;
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
@@ -420,12 +426,12 @@ LocationErrCode LocatorAbility::GetSwitchState(int& state)
 
 LocationErrCode LocatorAbility::IsLocationPrivacyConfirmed(const int type, bool& isConfirmed)
 {
-    return LocationConfigManager::GetInstance().GetPrivacyTypeState(type, isConfirmed);
+    return LocationConfigManager::GetInstance()->GetPrivacyTypeState(type, isConfirmed);
 }
 
 LocationErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
-    return LocationConfigManager::GetInstance().SetPrivacyTypeState(type, isConfirmed);
+    return LocationConfigManager::GetInstance()->SetPrivacyTypeState(type, isConfirmed);
 }
 
 LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
@@ -1607,7 +1613,7 @@ void LocatorHandler::InitLocatorHandlerEventMap()
 
 void LocatorHandler::UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->UpdateSaAbilityHandler();
     }
@@ -1615,7 +1621,7 @@ void LocatorHandler::UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
 
 void LocatorHandler::InitRequestManagerEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     if (requestManager == nullptr || !requestManager->InitSystemListeners()) {
         LBSLOGE(LOCATOR, "InitSystemListeners failed");
     }
@@ -1623,7 +1629,7 @@ void LocatorHandler::InitRequestManagerEvent(const AppExecFwk::InnerEvent::Point
 
 void LocatorHandler::ApplyRequirementsEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     if (requestManager != nullptr) {
         requestManager->HandleRequest();
     }
@@ -1631,7 +1637,7 @@ void LocatorHandler::ApplyRequirementsEvent(const AppExecFwk::InnerEvent::Pointe
 
 void LocatorHandler::RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->RegisterAction();
     }
@@ -1639,7 +1645,7 @@ void LocatorHandler::RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Poin
 
 void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    auto reportManager = ReportManager::GetInstance();
     if (reportManager != nullptr) {
         std::unique_ptr<LocationMessage> locationMessage = event->GetUniqueObject<LocationMessage>();
         if (locationMessage == nullptr) {
@@ -1659,7 +1665,7 @@ void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Po
 
 void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         int state = event->GetParam();
         if (!LocationSaLoadManager::InitLocationSa(COMMON_SA_ID)) {
@@ -1683,7 +1689,7 @@ void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent:
 
 void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     std::shared_ptr<Request> request = event->GetSharedObject<Request>();
     if (request == nullptr) {
         return;
@@ -1695,7 +1701,7 @@ void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& e
 
 void LocatorHandler::StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = event->GetUniqueObject<LocatorCallbackMessage>();
     if (callbackMessage == nullptr) {
         return;
@@ -1715,8 +1721,7 @@ void LocatorHandler::UpdateLastLocationRequestNum(const AppExecFwk::InnerEvent::
 
 void LocatorHandler::UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locationSaLoadManager = LocationSaLoadManager::GetInstance();
     if (locationSaLoadManager != nullptr) {
         locationSaLoadManager->UnloadLocationSa(LOCATION_LOCATOR_SA_ID);
     }
@@ -1724,7 +1729,7 @@ void LocatorHandler::UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
 
 void LocatorHandler::RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = event->GetUniqueObject<LocatorCallbackMessage>();
     if (callbackMessage == nullptr) {
         return;
@@ -1737,7 +1742,7 @@ void LocatorHandler::RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer
 
 void LocatorHandler::UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = event->GetUniqueObject<LocatorCallbackMessage>();
     if (callbackMessage == nullptr) {
         return;
@@ -1750,14 +1755,13 @@ void LocatorHandler::UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Point
 
 void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
     std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = event->GetUniqueObject<LocatorErrorMessage>();
     if (locatorErrorMessage == nullptr) {
         return;
     }
     auto uuid = locatorErrorMessage->GetUuid();
     auto errCode = locatorErrorMessage->GetErrCode();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
@@ -1801,7 +1805,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 
 void LocatorHandler::RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->RemoveInvalidRequests();
     }

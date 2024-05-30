@@ -31,7 +31,7 @@
 
 namespace OHOS {
 namespace Location {
-class CountryCodeManager : public DelayedSingleton<CountryCodeManager> {
+class CountryCodeManager {
 public:
     CountryCodeManager();
     ~CountryCodeManager();
@@ -41,6 +41,7 @@ public:
     void ReSubscribeEvent();
     void ReUnsubscribeEvent();
     bool IsCountryCodeRegistered();
+    static CountryCodeManager* GetInstance();
 
 private:
     std::string GetCountryCodeByLocation(const std::unique_ptr<Location>& location);

@@ -51,7 +51,7 @@ public:
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 };
 
-class AGnssNiManager : public DelayedSingleton<AGnssNiManager> {
+class AGnssNiManager {
 public:
     AGnssNiManager();
     ~AGnssNiManager();
@@ -64,6 +64,7 @@ public:
     void OnCallStateChanged(const EventFwk::Want &want);
     void HandleNiNotification(const GnssNiNotificationRequest &notif);
     void SendUserResponse(GnssNiResponseCmd responseCmd);
+    static AGnssNiManager* GetInstance();
 
 private:
     void AgnssNiSuplInit();

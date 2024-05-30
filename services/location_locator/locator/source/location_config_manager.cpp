@@ -24,10 +24,10 @@
 
 namespace OHOS {
 namespace Location {
-LocationConfigManager &LocationConfigManager::GetInstance()
+LocationConfigManager* LocationConfigManager::GetInstance()
 {
     static LocationConfigManager gLocationConfigManager;
-    return gLocationConfigManager;
+    return &gLocationConfigManager;
 }
 
 LocationConfigManager::LocationConfigManager()

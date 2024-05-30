@@ -15,8 +15,6 @@
 
 #include "fusion_controller_test.h"
 
-#include <singleton.h>
-
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "fusion_controller.h"
@@ -30,14 +28,13 @@ const uint32_t FUSION_BASE_FLAG = 1;
 const uint32_t REPORT_FUSED_LOCATION_FLAG = FUSION_BASE_FLAG;
 void FusionControllerTest::SetUp()
 {
-    fusionController_ = DelayedSingleton<FusionController>::GetInstance();
+    fusionController_ = FusionController::GetInstance();
     EXPECT_NE(nullptr, fusionController_);
 }
 
 void FusionControllerTest::TearDown()
 {
     fusionController_ = nullptr;
-    DelayedSingleton<FusionController>::DestroyInstance();
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies001, TestSize.Level1)

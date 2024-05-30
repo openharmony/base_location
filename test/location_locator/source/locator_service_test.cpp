@@ -16,7 +16,6 @@
 #include "locator_service_test.h"
 
 #include <cstdlib>
-#include <singleton.h>
 
 #include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
@@ -87,11 +86,11 @@ void LocatorServiceTest::SetUp()
     EXPECT_NE(nullptr, proxy_);
     callbackStub_ = new (std::nothrow) LocatorCallbackStub();
     EXPECT_NE(nullptr, callbackStub_);
-    backgroundProxy_ = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    backgroundProxy_ = LocatorBackgroundProxy::GetInstance();
     EXPECT_NE(nullptr, backgroundProxy_);
     request_ = std::make_shared<Request>();
     EXPECT_NE(nullptr, request_);
-    requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
+    requestManager_ = RequestManager::GetInstance();
     EXPECT_NE(nullptr, requestManager_);
     request_->SetLocatorCallBack(callbackStub_);
     request_->SetUid(SYSTEM_UID);
@@ -108,25 +107,23 @@ void LocatorServiceTest::TearDown()
     proxy_ = nullptr;
     callbackStub_ = nullptr;
     backgroundProxy_ = nullptr;
-    DelayedSingleton<LocatorBackgroundProxy>::DestroyInstance();
     requestManager_ = nullptr;
-    DelayedSingleton<RequestManager>::DestroyInstance();
 }
 
 void LocatorServiceTest::LoadSystemAbility()
 {
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
 #ifdef FEATURE_GNSS_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_GEOCODE_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
 #endif
 }
 

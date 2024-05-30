@@ -32,14 +32,13 @@ const int32_t LOCATION_APPROXIMATELY_PERM = 3;
 void LocationApproximatelyPermissionTest::SetUp()
 {
     MockNativePermission();
-    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
+    reportManager_ = ReportManager::GetInstance();
     EXPECT_NE(nullptr, reportManager_);
 }
 
 void LocationApproximatelyPermissionTest::TearDown()
 {
     reportManager_ = nullptr;
-    DelayedSingleton<ReportManager>::DestroyInstance();
 }
 
 void LocationApproximatelyPermissionTest::MockNativePermission()

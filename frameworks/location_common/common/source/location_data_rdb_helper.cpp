@@ -29,6 +29,12 @@
 
 namespace OHOS {
 namespace Location {
+LocationDataRdbHelper* LocationDataRdbHelper::GetInstance()
+{
+    static LocationDataRdbHelper data;
+    return &data;
+}
+
 LocationDataRdbHelper::LocationDataRdbHelper()
 {
     Initialize();
