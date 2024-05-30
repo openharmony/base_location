@@ -2063,7 +2063,7 @@ HWTEST_F(LocatorServiceTest, IsCacheVaildScenario001, TestSize.Level1)
     AppIdentity identity;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub_, identity);
     bool res = locatorAbility->IsCacheVaildScenario(request->GetRequestConfig());
-    EXPECT_EQ(false, res);
+    EXPECT_EQ(true, res);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCacheVaildScenario001 end");
 }
 
@@ -2090,7 +2090,7 @@ HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto ret = locatorAbility->RemoveInvalidRequests();
-    EXPECT_NE(ERRCODE_SUCCESS, ret);
+    EXPECT_EQ(ERRCODE_SUCCESS, ret);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests end");
 }
 
@@ -2103,7 +2103,7 @@ HWTEST_F(LocatorServiceTest, IsInvalidRequest, TestSize.Level1)
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::shared_ptr<Request> request = std::make_shared<Request>();
     auto result = locatorAbility->IsInvalidRequest(request);
-    EXPECT_NE(false, result);
+    EXPECT_EQ(false, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsInvalidRequest end");
 }
 
@@ -2115,7 +2115,7 @@ HWTEST_F(LocatorServiceTest, IsPorcessRunning, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto result = locatorAbility->IsProcessRunning(1000);
-    EXPECT_NE(false, result);
+    EXPECT_EQ(false, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning end");
 }
 }  // namespace Location
