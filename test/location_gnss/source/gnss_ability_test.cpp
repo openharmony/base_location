@@ -526,7 +526,7 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
      * @tc.steps: step2. test add fence
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->AddFence(request));
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, proxy_->AddFence(request));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFence001 end");
 }
 
@@ -555,7 +555,7 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
      * @tc.steps: step2. test remove fence
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->RemoveFence(request));
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, proxy_->RemoveFence(request));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RemoveFence001 end");
 }
 
@@ -678,8 +678,8 @@ HWTEST_F(GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1)
         << "GnssAbilityTest, AddFenceAndRemoveFenceTest001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFenceAndRemoveFenceTest001 begin");
     std::shared_ptr<GeofenceRequest> fence = std::make_shared<GeofenceRequest>();
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, ability_->AddFence(fence));
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, ability_->RemoveFence(fence));
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, ability_->AddFence(fence));
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, ability_->RemoveFence(fence));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] AddFenceAndRemoveFenceTest001 end");
 }
 
