@@ -52,11 +52,6 @@ napi_value NotificationNapi::GetNotificationLocalLiveViewContent(
 
     std::shared_ptr<OHOS::Notification::NotificationLocalLiveViewContent> localLiveViewContent =
         std::make_shared<OHOS::Notification::NotificationLocalLiveViewContent>();
-    if (localLiveViewContent == nullptr) {
-        LBSLOGE(NAPI_UTILS, "localLiveViewContent is null");
-        return nullptr;
-    }
-
     if (GetNotificationLocalLiveViewContentDetailed(env, contentResult, localLiveViewContent) == nullptr) {
         return nullptr;
     }
@@ -442,11 +437,6 @@ napi_value NotificationNapi::GetNotificationLiveViewContent(
     }
 
     std::shared_ptr<NotificationLiveViewContent> liveViewContent = std::make_shared<NotificationLiveViewContent>();
-    if (liveViewContent == nullptr) {
-        LBSLOGE(NAPI_UTILS, "LiveViewContent is null");
-        return nullptr;
-    }
-
     if (GetNotificationLiveViewContentDetailed(env, contentResult, liveViewContent) == nullptr) {
         return nullptr;
     }

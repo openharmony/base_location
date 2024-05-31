@@ -136,11 +136,6 @@ napi_value NotificationNapi::GetNotificationBasicContent(
     }
 
     std::shared_ptr<NotificationNormalContent> normalContent = std::make_shared<NotificationNormalContent>();
-    if (normalContent == nullptr) {
-        ANS_LOGE("normalContent is null");
-        return nullptr;
-    }
-
     if (GetNotificationBasicContentDetailed(env, contentResult, normalContent) == nullptr) {
         return nullptr;
     }
@@ -228,11 +223,6 @@ napi_value NotificationNapi::GetNotificationLongTextContent(
 
     std::shared_ptr<OHOS::Notification::NotificationLongTextContent> longContent =
         std::make_shared<OHOS::Notification::NotificationLongTextContent>();
-    if (longContent == nullptr) {
-        ANS_LOGE("longContent is null");
-        return nullptr;
-    }
-
     if (GetNotificationLongTextContentDetailed(env, contentResult, longContent) == nullptr) {
         return nullptr;
     }
@@ -345,10 +335,6 @@ napi_value NotificationNapi::GetNotificationPictureContent(
 
     std::shared_ptr<OHOS::Notification::NotificationPictureContent> pictureContent =
         std::make_shared<OHOS::Notification::NotificationPictureContent>();
-    if (pictureContent == nullptr) {
-        ANS_LOGE("pictureContent is null");
-        return nullptr;
-    }
     if (GetNotificationPictureContentDetailed(env, contentResult, pictureContent) == nullptr) {
         return nullptr;
     }
@@ -462,11 +448,6 @@ napi_value NotificationNapi::GetNotificationConversationalContent(
 
     std::shared_ptr<OHOS::Notification::NotificationConversationalContent> conversationalContent =
         std::make_shared<OHOS::Notification::NotificationConversationalContent>(user);
-    if (conversationalContent == nullptr) {
-        ANS_LOGE("conversationalContent is null");
-        return nullptr;
-    }
-
     if (GetNotificationBasicContentDetailed(env, contentResult, conversationalContent) == nullptr) {
         return nullptr;
     }
@@ -941,11 +922,6 @@ napi_value NotificationNapi::GetNotificationMultiLineContent(
 
     std::shared_ptr<OHOS::Notification::NotificationMultiLineContent> multiLineContent =
         std::make_shared<OHOS::Notification::NotificationMultiLineContent>();
-    if (multiLineContent == nullptr) {
-        ANS_LOGE("multiLineContent is null");
-        return nullptr;
-    }
-
     if (GetNotificationBasicContentDetailed(env, contentResult, multiLineContent) == nullptr) {
         return nullptr;
     }
