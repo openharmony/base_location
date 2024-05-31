@@ -48,7 +48,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
         return;
     }
     for (int i = 0; i < requestSize; i++) {
-        auto request = Notification::NotificationRequest::Unmarshalling(data);
+        auto request = OHOS::Notification::NotificationRequest::Unmarshalling(data);
         if (request != nullptr) {
             notificationRequestList_.push_back(*request);
             delete request;

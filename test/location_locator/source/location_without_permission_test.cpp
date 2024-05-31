@@ -37,6 +37,7 @@
 #include "location_log.h"
 #include "locator_callback_proxy.h"
 #include "locator_impl.h"
+#include "geofence_sdk.h"
 #ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_host.h"
 #endif
@@ -271,6 +272,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
         << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 begin");
     auto locatorImpl = Locator::GetInstance();
+    auto geofenceSdk = GeofenceManager::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
 
     bool state = false;
@@ -284,11 +286,11 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetGeofence(geofence);
     if (state) {
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->AddFenceV9(fenceRequest));
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RemoveFenceV9(fenceRequest));
+        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, geofenceSdk->AddFenceV9(fenceRequest));
+        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, geofenceSdk->RemoveFenceV9(fenceRequest));
     } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->AddFenceV9(fenceRequest));
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RemoveFenceV9(fenceRequest));
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, geofenceSdk->AddFenceV9(fenceRequest));
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, geofenceSdk->RemoveFenceV9(fenceRequest));
     }
     
     int size = -1;

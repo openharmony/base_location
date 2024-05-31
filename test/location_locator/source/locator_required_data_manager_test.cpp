@@ -39,7 +39,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, OnWifiScanStateChanged001, TestSize.Lev
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] OnWifiScanStateChanged001 begin");
 #ifdef WIFI_ENABLE
     auto wifiScanEventCallback =
-		sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
+        sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
     wifiScanEventCallback->OnWifiScanStateChanged(0);
     wifiScanEventCallback->OnWifiScanStateChanged(1);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] OnWifiScanStateChanged001 end");

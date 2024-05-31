@@ -28,7 +28,6 @@
 #include "constant_definition.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
-#include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
 
@@ -373,16 +372,6 @@ bool CommonUtils::GetStringParameter(const std::string& type, std::string& value
 bool CommonUtils::GetEdmPolicy(std::string& name)
 {
     return GetStringParameter(EDM_POLICY_NAME, name);
-}
-
-bool CommonUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
-{
-    GnssLocationValidStruct gnssLocationValidStruct;
-    gnssLocationValidStruct.location = *location;
-    gnssLocationValidStruct.result = true;
-    HookUtils::ExecuteHook(
-        LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
-    return gnssLocationValidStruct.result;
 }
 
 std::string CommonUtils::GenerateUuid()

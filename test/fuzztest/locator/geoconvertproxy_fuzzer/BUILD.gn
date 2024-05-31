@@ -41,7 +41,7 @@ if (location_feature_with_geocode) {
       "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
       "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+      "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
     ]
     external_deps = [
       "access_token:libaccesstoken_sdk",

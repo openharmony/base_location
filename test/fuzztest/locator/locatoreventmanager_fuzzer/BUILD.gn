@@ -35,7 +35,7 @@ ohos_fuzztest("LocatorEventManagerFuzzTest") {
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
     "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
     "//third_party/libuv:uv",
   ]

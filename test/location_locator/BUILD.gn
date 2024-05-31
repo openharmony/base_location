@@ -55,8 +55,9 @@ ohos_unittest("LocatorServiceAbilityTest") {
 
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
-    "$LOCATION_ROOT_DIR/interfaces/inner_api/native:locator_agent",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_agent:locator_agent",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

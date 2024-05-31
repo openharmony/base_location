@@ -82,11 +82,12 @@
             "group_type": {
                 "base_group": [],
                 "fwk_group": [
-                    "//base/location/frameworks/native:locator_sdk",
+                    "//base/location/frameworks/native/locator_sdk:locator_sdk",
                     "//base/location/frameworks/js/napi:geolocation",
                     "//base/location/frameworks/js/napi:geolocationmanager",
                     "//base/location/frameworks/location_common/common:lbsservice_common",
-                    "//base/location/interfaces/inner_api/native:locator_agent"
+                    "//base/location/frameworks/native/locator_agent:locator_agent",
+                    "//base/location/frameworks/native/geofence_sdk:geofence_sdk"
                 ],
                 "service_group": [
                     "//base/location/services/location_geocode/geocode:lbsservice_geocode",
@@ -106,7 +107,7 @@
                             "locator_impl.h"
                         ]
                     },
-                    "name": "//base/location/frameworks/native:locator_sdk"
+                    "name": "//base/location/frameworks/native/locator_sdk:locator_sdk"
                 },
                 {
                     "header": {
@@ -120,7 +121,14 @@
                         "header_base": "//base/location/interfaces/inner_api/include",
                         "header_files": []
                     },
-                    "name": "//base/location/interfaces/inner_api/native:locator_agent"
+                    "name": "//base/location/frameworks/native/locator_agent:locator_agent"
+                },
+                {
+                    "header": {
+                        "header_base": "//base/location/interfaces/inner_api/include",
+                        "header_files": []
+                    },
+                    "name": "//base/location/frameworks/native/geofence_sdk:geofence_sdk"
                 }
             ],
             "test": [

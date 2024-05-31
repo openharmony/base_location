@@ -12,46 +12,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "gnss_status_callback_host.h"
-
-#include "napi/native_common.h"
+#include "nmea_message_callback_host.h"
 
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
-#include "location_napi_adapter.h"
 #include "napi_util.h"
+#include "constant_definition.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
 
 namespace OHOS {
 namespace Location {
-GnssStatusCallbackHost::GnssStatusCallbackHost()
+NmeaMessageCallbackHost::NmeaMessageCallbackHost()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
 }
 
-GnssStatusCallbackHost::~GnssStatusCallbackHost()
+NmeaMessageCallbackHost::~NmeaMessageCallbackHost()
 {
 }
 
-int GnssStatusCallbackHost::OnRemoteRequest(
+int NmeaMessageCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(GNSS_STATUS_CALLBACK, "GnssStatusCallbackHost::OnRemoteRequest!");
+    LBSLOGD(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackHost::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "invalid token.");
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "invalid token.");
         return -1;
     }
     if (remoteDied_) {
-        LBSLOGD(GNSS_STATUS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
+        LBSLOGD(NMEA_MESSAGE_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
 
     switch (code) {
-        case RECEIVE_STATUS_INFO_EVENT: {
-            std::unique_ptr<SatelliteStatus> statusInfo = SatelliteStatus::Unmarshalling(data);
-            Send(statusInfo);
+        case RECEIVE_NMEA_MESSAGE_EVENT: {
+            int64_t timestamp = data.ReadInt64();
+            std::string msg = Str16ToStr8(data.ReadString16());
+            OnMessageChange(timestamp, msg);
             break;
         }
         default: {
@@ -62,53 +63,61 @@ int GnssStatusCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-bool GnssStatusCallbackHost::IsRemoteDied()
+bool NmeaMessageCallbackHost::IsRemoteDied()
 {
     return remoteDied_;
 }
 
-bool GnssStatusCallbackHost::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
+napi_value NmeaMessageCallbackHost::PackResult(const std::string msg)
+{
+    napi_value result;
+    NAPI_CALL(env_, napi_create_string_utf8(env_, msg.c_str(), NAPI_AUTO_LENGTH, &result));
+    return result;
+}
+
+bool NmeaMessageCallbackHost::Send(const std::string msg)
 {
     std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "loop == nullptr.");
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "loop == nullptr.");
         return false;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "work == nullptr.");
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "work == nullptr.");
         return false;
     }
-    GnssStatusAsyncContext *context = new (std::nothrow) GnssStatusAsyncContext(env_);
+    NmeaAsyncContext *context = new (std::nothrow) NmeaAsyncContext(env_);
     if (context == nullptr) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
         delete work;
         return false;
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    context->statusInfo = std::move(statusInfo);
+    context->msg = msg;
     work->data = context;
     UvQueueWork(loop, work);
     return true;
 }
 
-void GnssStatusCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+
+void NmeaMessageCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
     uv_queue_work(
         loop,
         work,
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            GnssStatusAsyncContext *context = nullptr;
+            NmeaAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
                 return;
             }
-            context = static_cast<GnssStatusAsyncContext *>(work->data);
+            context = static_cast<NmeaAsyncContext *>(work->data);
             if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
@@ -116,27 +125,26 @@ void GnssStatusCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
-                LBSLOGE(GNSS_STATUS_CALLBACK, "scope is nullptr");
+                LBSLOGE(NMEA_MESSAGE_CALLBACK, "scope is nullptr");
                 delete context;
                 delete work;
                 return;
             }
-            napi_value jsEvent = nullptr;
-            if (context->statusInfo != nullptr) {
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
-                    scope, context, work);
-                SatelliteStatusToJs(context->env, context->statusInfo, jsEvent);
-            }
+            napi_value jsEvent;
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                napi_create_string_utf8(context->env, context->msg.c_str(), NAPI_AUTO_LENGTH, &jsEvent),
+                scope, context, work);
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                     scope, context, work);
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
+                    napi_get_reference_value(context->env, context->callback[0], &handler),
+                    scope, context, work);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
-                    LBSLOGE(GNSS_STATUS_CALLBACK, "Report event failed");
+                    LBSLOGE(NMEA_MESSAGE_CALLBACK, "Report event failed");
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
@@ -145,21 +153,22 @@ void GnssStatusCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
     });
 }
 
-void GnssStatusCallbackHost::OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo)
+void NmeaMessageCallbackHost::OnMessageChange(int64_t timestamp, const std::string msg)
 {
-    LBSLOGD(GNSS_STATUS_CALLBACK, "GnssStatusCallbackHost::OnStatusChange");
+    LBSLOGD(NMEA_MESSAGE_CALLBACK, "NmeaMessageCallbackHost::OnMessageChange");
+    Send(msg);
 }
 
-void GnssStatusCallbackHost::DeleteHandler()
+void NmeaMessageCallbackHost::DeleteHandler()
 {
     std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "handler or env is nullptr.");
         return;
     }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
         return;
     }
     context->env = env_;

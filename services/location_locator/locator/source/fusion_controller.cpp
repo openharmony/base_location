@@ -18,6 +18,7 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "location_log.h"
+#include "hook_utils.h"
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_proxy.h"
 #endif
@@ -153,7 +154,7 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(const std::unique_pt
     const sptr<Location>& lastFuseLocation)
 {
     LBSLOGD(FUSION_CONTROLLER, " GetFuseLocation enter");
-    if (!CommonUtils::CheckGnssLocationValidity(location)) {
+    if (!HookUtils::CheckGnssLocationValidity(location)) {
         return nullptr;
     }
     auto bestLocation = chooseBestLocation(location, std::make_unique<Location>(*lastFuseLocation));

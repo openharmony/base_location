@@ -20,7 +20,9 @@
 #include "common_utils.h"
 #include "location_log.h"
 #include "napi_util.h"
+#include "geofence_napi.h"
 #include "location_async_context.h"
+#include "geofence_async_context.h"
 
 namespace OHOS {
 namespace Location {

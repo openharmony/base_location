@@ -1,0 +1,103 @@
+# Copyright (C) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/location/config.gni")
+import("//build/ohos.gni")
+
+config("geofence_sdk_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/native/notification/include",
+  ]
+}
+
+ohos_shared_library("geofence_sdk") {
+  install_enable = true
+
+  public_configs = [ ":geofence_sdk_config" ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  sources = [
+    "$LOCATION_COMMON_DIR/source/common_hisysevent.cpp",
+    "$LOCATION_COMMON_DIR/source/common_utils.cpp",
+    "$LOCATION_COMMON_DIR/source/geo_address.cpp",
+    "$LOCATION_COMMON_DIR/source/geo_coding_mock_info.cpp",
+    "$LOCATION_COMMON_DIR/source/hook_utils.cpp",
+    "$LOCATION_COMMON_DIR/source/location.cpp",
+    "$LOCATION_COMMON_DIR/source/location_data_rdb_helper.cpp",
+    "$LOCATION_COMMON_DIR/source/location_data_rdb_manager.cpp",
+    "$LOCATION_COMMON_DIR/source/location_sa_load_manager.cpp",
+    "$LOCATION_COMMON_DIR/source/request.cpp",
+    "$LOCATION_COMMON_DIR/source/request_config.cpp",
+    "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
+    "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_napi.cpp",
+    "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_sdk.cpp",
+    "$LOCATION_NATIVE_DIR/geofence_sdk/source/location_gnss_geofence_callback_host.cpp",
+    "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_proxy.cpp",
+    "$LOCATION_NATIVE_DIR/locator_sdk/source/napi_util.cpp",
+  ]
+
+  public_external_deps = [
+    "ability_base:zuri",
+    "ability_runtime:napi_common",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "data_share:datashare_consumer",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "init:libbegetutil",
+    "ipc:ipc_single",
+    "napi:ace_napi",
+    "os_account:os_account_innerkits",
+    "samgr:samgr_proxy",
+  ]
+  defines = []
+  if (notification_distributed_notification_service_enable) {
+    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi.cpp" ]
+    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_content.cpp" ]
+    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_liveview.cpp" ]
+    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_notification.cpp" ]
+    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_request.cpp" ]
+    sources +=
+        [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_utils.cpp" ]
+    public_external_deps += [ "distributed_notification_service:ans_innerkits" ]
+    public_external_deps += [ "ability_base:want" ]
+    public_external_deps += [ "image_framework:image" ]
+    public_external_deps += [ "relational_store:native_rdb" ]
+    defines += [ "NOTIFICATION_ENABLE" ]
+  }
+
+  cflags_cc = [
+    "-std=c++17",
+    "-fno-rtti",
+  ]
+
+  ldflags = [
+    "-fPIC",
+    "-Wl,-E",
+  ]
+
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "location"
+  subsystem_name = "location"
+}

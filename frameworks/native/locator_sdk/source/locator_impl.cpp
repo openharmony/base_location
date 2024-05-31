@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include <singleton.h>
 #include "locator_impl.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -979,66 +978,6 @@ LocationErrCode LocatorImpl::SendCommandV9(std::unique_ptr<LocationCommand>& com
     return errCode;
 }
 
-LocationErrCode LocatorImpl::AddFenceV9(std::shared_ptr<GeofenceRequest> &request)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddFenceV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LocationErrCode errCode = proxy->AddFenceV9(request);
-    return errCode;
-}
-
-LocationErrCode LocatorImpl::RemoveFenceV9(std::shared_ptr<GeofenceRequest> &request)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveFenceV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LocationErrCode errCode = proxy->RemoveFenceV9(request);
-    return errCode;
-}
-
-LocationErrCode LocatorImpl::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::AddGnssGeofence()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LocationErrCode errCode = proxy->AddGnssGeofence(request);
-    return errCode;
-}
-
-LocationErrCode LocatorImpl::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RemoveGnssGeofence()");
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LocationErrCode errCode = proxy->RemoveGnssGeofence(request);
-    return errCode;
-}
-
 LocationErrCode LocatorImpl::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetIsoCountryCodeV9()");
@@ -1206,20 +1145,6 @@ LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocati
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     return proxy->UnRegisterLocatingRequiredDataCallback(callback);
-}
-
-LocationErrCode LocatorImpl::GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes)
-{
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    return proxy->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
 }
 
 LocationErrCode LocatorImpl::SubscribeLocationError(sptr<ILocatorCallback>& callback)

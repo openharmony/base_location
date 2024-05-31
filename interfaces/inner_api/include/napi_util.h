@@ -35,8 +35,6 @@
 #include "location_log.h"
 #include "request_config.h"
 #include "satellite_status.h"
-#include "geofence_request.h"
-#include "notification_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -55,8 +53,6 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<CachedGnssLocationsRequest>& request);
 int JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig);
-void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
-    const std::shared_ptr<GeofenceRequest>& request);
 int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 int JsObjectToString(const napi_env& env, const napi_value& object,
@@ -92,29 +88,7 @@ bool CheckIfParamIsObjectType(napi_env env, napi_value param);
 napi_value GetNapiValueByKey(napi_env env, const std::string& keyChar, napi_value object);
 napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& additionsMap);
 napi_status SetValueStringMap(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
-bool ParseGnssGeofenceRequest(
-    const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& request);
-bool GenGnssGeofenceRequest(
-    const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& reminder);
-napi_value GetArrayProperty(const napi_env& env, const napi_value& object, const std::string propertyName);
-#ifdef NOTIFICATION_ENABLE
-void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
-    std::vector<Notification::NotificationRequest>& notificationRequestList);
-void GetNotificationRequestArray(const napi_env& env, const napi_value& notificationRequest,
-    std::vector<Notification::NotificationRequest>& notificationRequestList);
-#endif
-void JsObjToGeofenceTransitionEventList(const napi_env& env, const napi_value& object,
-    std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList);
-void GetGeofenceTransitionEventArray(const napi_env& env, const napi_value& monitorGeofenceTransition,
-    std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList);
-#ifdef NOTIFICATION_ENABLE
-void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
-    Notification::NotificationRequest& notificationRequest);
-#endif
-void GeofenceTransitionToJs(const napi_env& env,
-    const GeofenceTransition geofenceTransition, napi_value& result);
-void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& object,
-    sptr<LocationGnssGeofenceCallbackHost> callbackHost);
+napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \
