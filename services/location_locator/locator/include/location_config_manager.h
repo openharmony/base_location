@@ -27,7 +27,7 @@ namespace Location {
 class LocationConfigManager {
 public:
     ~LocationConfigManager();
-    static LocationConfigManager &GetInstance();
+    static LocationConfigManager* GetInstance();
 
     /*
      * @Description Init the LocationConfigManager object

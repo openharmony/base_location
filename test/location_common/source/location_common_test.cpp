@@ -15,7 +15,6 @@
 
 #include "location_common_test.h"
 
-#include <singleton.h>
 #include "string_ex.h"
 
 #include "message_parcel.h"
@@ -567,10 +566,10 @@ HWTEST_F(LocationCommonTest, LoadLocationSaTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LoadLocationSaTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest001 begin");
-    LocationErrCode err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(UN_SAID);
+    LocationErrCode err = LocationSaLoadManager::GetInstance()->LoadLocationSa(UN_SAID);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
 
-    err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    err = LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
     EXPECT_EQ(ERRCODE_SUCCESS, err);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest001 end");
 }
@@ -580,11 +579,11 @@ HWTEST_F(LocationCommonTest, LoadLocationSaTest002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LoadLocationSaTest002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest002 begin");
-    LocationErrCode err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->UnloadLocationSa(UN_SAID);
+    LocationErrCode err = LocationSaLoadManager::GetInstance()->UnloadLocationSa(UN_SAID);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
 
     // can not unload sa by another sa
-    err = DelayedSingleton<LocationSaLoadManager>::GetInstance()->UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    err = LocationSaLoadManager::GetInstance()->UnloadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest002 end");
 }
@@ -598,10 +597,10 @@ HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest001, TestSize.Level1)
     Uri unknownUri(UN_URI);
     auto dataRdbObserver =  sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
     LocationErrCode err =
-        DelayedSingleton<LocationDataRdbHelper>::GetInstance()->RegisterDataObserver(unknownUri, dataRdbObserver);
+        LocationDataRdbHelper::GetInstance()->RegisterDataObserver(unknownUri, dataRdbObserver);
     EXPECT_EQ(ERRCODE_SUCCESS, err);
 
-    err = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->UnregisterDataObserver(unknownUri, dataRdbObserver);
+    err = LocationDataRdbHelper::GetInstance()->UnregisterDataObserver(unknownUri, dataRdbObserver);
     EXPECT_EQ(ERRCODE_SUCCESS, err);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest001 end");
 }
@@ -613,10 +612,10 @@ HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest002 begin");
     Uri locationDataEnableUri(LOCATION_DATA_URI);
     int32_t state = DISABLED;
-    EXPECT_EQ(ERRCODE_SUCCESS, DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    EXPECT_EQ(ERRCODE_SUCCESS, LocationDataRdbHelper::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    EXPECT_EQ(ERRCODE_SUCCESS, LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state));
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest002 end");
 }
@@ -628,10 +627,10 @@ HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest003, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest003 begin");
     Uri unknownUri(UN_URI);
     int32_t state = DISABLED;
-    EXPECT_EQ(ERRCODE_SUCCESS, DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    EXPECT_EQ(ERRCODE_SUCCESS, LocationDataRdbHelper::GetInstance()->
         SetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state));
 
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, LocationDataRdbHelper::GetInstance()->
         GetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state));
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest003 end");
 }
@@ -641,7 +640,7 @@ HWTEST_F(LocationCommonTest, LocationSaLoadManager002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LocationSaLoadManager002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationSaLoadManager002 begin");
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadSystemAbilityFail();
+    LocationSaLoadManager::GetInstance()->LoadSystemAbilityFail();
 
     auto locationSaLoadCallback = sptr<LocationSaLoadCallback>(new LocationSaLoadCallback());
     ASSERT_TRUE(locationSaLoadCallback != nullptr);
@@ -710,7 +709,7 @@ HWTEST_F(LocationCommonTest, LoadLocationSaTest003, TestSize.Level1)
         << "LocationCommonTest, LoadLocationSaTest003, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest003 begin");
     LocationErrCode err =
-        DelayedSingleton<LocationSaLoadManager>::GetInstance()->WaitLoadStateChange(LOCATION_LOCATOR_SA_ID);
+        LocationSaLoadManager::GetInstance()->WaitLoadStateChange(LOCATION_LOCATOR_SA_ID);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest003 end");
 }

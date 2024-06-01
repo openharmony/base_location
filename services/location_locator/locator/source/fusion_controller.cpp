@@ -36,6 +36,12 @@ const long NANOS_PER_MILLI = 1000000L;
 const long MAX_GNSS_LOCATION_COMPARISON_MS = 120 * MILLI_PER_SEC;
 const long MAX_INDOOR_LOCATION_COMPARISON_MS = 5 * MILLI_PER_SEC;
 
+FusionController* FusionController::GetInstance()
+{
+    static FusionController data;
+    return &data;
+}
+
 void FusionController::ActiveFusionStrategies(int type)
 {
     if (needReset_) {

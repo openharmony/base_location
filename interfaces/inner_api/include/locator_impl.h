@@ -266,7 +266,7 @@ public:
      * @return Returns true if the mock location function has been disabled successfully, returns false otherwise.
      */
     bool DisableLocationMock();
-    
+
     /**
      * @brief Set the configuration parameters for location simulation.
      *
@@ -326,7 +326,7 @@ public:
      */
     LocationErrCode StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback);
-    
+
     /**
      * @brief Unsubscribe location changed.
      *
@@ -606,7 +606,7 @@ public:
      * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
      */
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
-    
+
     /**
      * @brief Unsubscribe location errorcode changed.
      *
@@ -652,7 +652,7 @@ private:
 
     sptr<LocatorProxy> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
-    std::shared_ptr<LocationDataManager> locationDataManager_ { nullptr };
+    LocationDataManager* locationDataManager_ { nullptr };
     bool isServerExist_ = false;
     bool isCallbackResuming_ = false;
     std::mutex mutex_;

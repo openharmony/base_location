@@ -37,7 +37,7 @@ const int UNKNOWN_SCENE = 0x02FF;
 void RequestManagerTest::SetUp()
 {
     MockNativePermission();
-    requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
+    requestManager_ = RequestManager::GetInstance();
     EXPECT_NE(nullptr, requestManager_);
     request_ = std::make_shared<Request>();
     EXPECT_NE(nullptr, request_);
@@ -60,7 +60,6 @@ void RequestManagerTest::SetUp()
 void RequestManagerTest::TearDown()
 {
     requestManager_ = nullptr;
-    DelayedSingleton<RequestManager>::DestroyInstance();
 }
 
 void RequestManagerTest::MockNativePermission()
@@ -286,7 +285,7 @@ HWTEST_F(RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1)
         << "RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePermissionChangedTest001 begin");
     requestManager_->HandleStartLocating(request_);
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     EXPECT_NE(0, locatorAbility->GetActiveRequestNum());
     requestManager_->HandlePermissionChanged(request_->GetTokenId());
 

@@ -45,6 +45,12 @@ const std::string LOCATION_DIALOG_BUNDLE_NAME = "com.ohos.locationdialog";
 const std::string AGNSS_NI_DIALOG_ABILITY_NAME = "ConfirmUIExtAbility";
 constexpr uint32_t NOTIFICATION_AUTO_DELETED_TIME = 1000;
 
+AGnssNiManager* AGnssNiManager::GetInstance()
+{
+    static AGnssNiManager data;
+    return &data;
+}
+
 AGnssNiManager::AGnssNiManager()
 {}
 
@@ -101,7 +107,7 @@ void AGnssNiManager::Run()
     RegisterAgnssNiEvent();
     gnssInterface_ = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
     if (gnssInterface_ == nullptr) {
-        auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+        auto gnssAbility = GnssAbility::GetInstance();
         if (gnssAbility == nullptr) {
             LBSLOGE(GNSS, "AGNSS-NI: gnss ability is nullptr");
             return;
@@ -127,7 +133,7 @@ void AGnssNiManager::UnRegisterAgnssNiEvent()
 void AGnssNiManager::AgnssNiSuplInit()
 {
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->SetAgnssServer();
     }
@@ -321,11 +327,6 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
 {
     std::shared_ptr<Notification::NotificationNormalContent> notificationNormalContent =
         std::make_shared<Notification::NotificationNormalContent>();
-    if (notificationNormalContent == nullptr) {
-        LBSLOGE(GNSS, "get notification normal content nullptr");
-        return;
-    }
-
     std::string title = "Location Request";
     std::string msgBody = DecodeNiString(notif.supplicantInfo, notif.supplicantInfoEncoding) +
         DecodeNiString(notif.notificationText, notif.notificationTextEncoding);
@@ -337,12 +338,6 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
     notificationNormalContent->SetText(message);
     std::shared_ptr<OHOS::Notification::NotificationContent> notificationContent =
         std::make_shared<OHOS::Notification::NotificationContent>(notificationNormalContent);
-
-    if (notificationContent == nullptr) {
-        LBSLOGE(GNSS, "get notification content nullptr");
-        return;
-    }
-
     Notification::NotificationRequest request;
     request.SetNotificationId(GNSS_AGNSS_NI_NOTIFICATION_ID);
     request.SetContent(notificationContent);
@@ -402,7 +397,7 @@ void SystemAbilityStatusChangeListener::OnAddSystemAbility(int32_t systemAbility
         LBSLOGE(GNSS, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
         return;
     }
-    auto agnssNiManager = DelayedSingleton<AGnssNiManager>::GetInstance();
+    auto agnssNiManager = AGnssNiManager::GetInstance();
     if (agnssNiManager == nullptr) {
         LBSLOGE(GNSS, "agnssNiManager nullptr");
         return;
@@ -419,7 +414,7 @@ void SystemAbilityStatusChangeListener::OnRemoveSystemAbility(int32_t systemAbil
         LBSLOGE(GNSS, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
         return;
     }
-    auto agnssNiManager = DelayedSingleton<AGnssNiManager>::GetInstance();
+    auto agnssNiManager = AGnssNiManager::GetInstance();
     if (agnssNiManager == nullptr) {
         LBSLOGE(GNSS, "agnssNiManager nullptr");
         return;

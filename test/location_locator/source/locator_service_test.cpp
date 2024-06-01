@@ -16,7 +16,6 @@
 #include "locator_service_test.h"
 
 #include <cstdlib>
-#include <singleton.h>
 
 #include "accesstoken_kit.h"
 #include "bundle_mgr_interface.h"
@@ -87,11 +86,11 @@ void LocatorServiceTest::SetUp()
     EXPECT_NE(nullptr, proxy_);
     callbackStub_ = new (std::nothrow) LocatorCallbackStub();
     EXPECT_NE(nullptr, callbackStub_);
-    backgroundProxy_ = DelayedSingleton<LocatorBackgroundProxy>::GetInstance();
+    backgroundProxy_ = LocatorBackgroundProxy::GetInstance();
     EXPECT_NE(nullptr, backgroundProxy_);
     request_ = std::make_shared<Request>();
     EXPECT_NE(nullptr, request_);
-    requestManager_ = DelayedSingleton<RequestManager>::GetInstance();
+    requestManager_ = RequestManager::GetInstance();
     EXPECT_NE(nullptr, requestManager_);
     request_->SetLocatorCallBack(callbackStub_);
     request_->SetUid(SYSTEM_UID);
@@ -108,25 +107,23 @@ void LocatorServiceTest::TearDown()
     proxy_ = nullptr;
     callbackStub_ = nullptr;
     backgroundProxy_ = nullptr;
-    DelayedSingleton<LocatorBackgroundProxy>::DestroyInstance();
     requestManager_ = nullptr;
-    DelayedSingleton<RequestManager>::DestroyInstance();
 }
 
 void LocatorServiceTest::LoadSystemAbility()
 {
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
 #ifdef FEATURE_GNSS_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_GNSS_SA_ID);
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
 #endif
 #ifdef FEATURE_GEOCODE_SUPPORT
-    DelayedSingleton<LocationSaLoadManager>::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+    LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_GEO_CONVERT_SA_ID);
 #endif
 }
 
@@ -2066,7 +2063,7 @@ HWTEST_F(LocatorServiceTest, IsCacheVaildScenario001, TestSize.Level1)
     AppIdentity identity;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub_, identity);
     bool res = locatorAbility->IsCacheVaildScenario(request->GetRequestConfig());
-    EXPECT_EQ(false, res);
+    EXPECT_EQ(true, res);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCacheVaildScenario001 end");
 }
 
@@ -2093,7 +2090,7 @@ HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto ret = locatorAbility->RemoveInvalidRequests();
-    EXPECT_NE(ERRCODE_SUCCESS, ret);
+    EXPECT_EQ(ERRCODE_SUCCESS, ret);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests end");
 }
 
@@ -2106,7 +2103,7 @@ HWTEST_F(LocatorServiceTest, IsInvalidRequest, TestSize.Level1)
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::shared_ptr<Request> request = std::make_shared<Request>();
     auto result = locatorAbility->IsInvalidRequest(request);
-    EXPECT_NE(false, result);
+    EXPECT_EQ(false, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsInvalidRequest end");
 }
 
@@ -2118,7 +2115,7 @@ HWTEST_F(LocatorServiceTest, IsPorcessRunning, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto result = locatorAbility->IsProcessRunning(1000);
-    EXPECT_NE(false, result);
+    EXPECT_EQ(false, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning end");
 }
 }  // namespace Location

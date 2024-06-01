@@ -15,7 +15,6 @@
 
 #include "permission_manager_test.h"
 
-#include <singleton.h>
 #include "string_ex.h"
 
 #include "accesstoken_kit.h"

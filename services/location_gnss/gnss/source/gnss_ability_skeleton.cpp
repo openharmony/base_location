@@ -338,7 +338,7 @@ GnssStatusCallbackDeathRecipient::~GnssStatusCallbackDeathRecipient()
 
 void GnssStatusCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->UnregisterGnssStatusCallback(remote.promote());
         gnssAbility->UnloadGnssSystemAbility();
@@ -356,7 +356,7 @@ NmeaCallbackDeathRecipient::~NmeaCallbackDeathRecipient()
 
 void NmeaCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->UnregisterNmeaMessageCallback(remote.promote());
         gnssAbility->UnloadGnssSystemAbility();
@@ -374,7 +374,7 @@ CachedLocationCallbackDeathRecipient::~CachedLocationCallbackDeathRecipient()
 
 void CachedLocationCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->UnregisterCachedCallback(remote.promote());
         gnssAbility->UnloadGnssSystemAbility();
@@ -392,7 +392,7 @@ GnssGeofenceCallbackDeathRecipient::~GnssGeofenceCallbackDeathRecipient()
 
 void GnssGeofenceCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility != nullptr) {
         gnssAbility->RemoveGnssGeofenceRequestByCallback(remote.promote());
         gnssAbility->UnloadGnssSystemAbility();

@@ -66,11 +66,12 @@ private:
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
-class LocatorAbility : public SystemAbility, public LocatorAbilityStub, DelayedSingleton<LocatorAbility> {
+class LocatorAbility : public SystemAbility, public LocatorAbilityStub {
 DECLEAR_SYSTEM_ABILITY(LocatorAbility);
 
 public:
     DISALLOW_COPY_AND_MOVE(LocatorAbility);
+    static LocatorAbility* GetInstance();
     LocatorAbility();
     ~LocatorAbility() override;
     void OnStart() override;
@@ -78,7 +79,7 @@ public:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     ServiceRunningState QueryServiceState() const
-    {
+   {
         return state_;
     }
     void InitSaAbility();
@@ -210,8 +211,8 @@ private:
     std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> loadedSaMap_;
     std::shared_ptr<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>> permissionMap_;
     std::shared_ptr<LocatorHandler> locatorHandler_;
-    std::shared_ptr<RequestManager> requestManager_;
-    std::shared_ptr<ReportManager> reportManager_;
+    RequestManager* requestManager_;
+    ReportManager* reportManager_;
     std::mutex proxyPidsMutex_;
     std::set<int32_t> proxyPids_;
 };

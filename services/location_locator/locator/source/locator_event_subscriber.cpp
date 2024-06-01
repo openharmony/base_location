@@ -26,7 +26,7 @@ LocatorEventSubscriber::~LocatorEventSubscriber() {}
 
 void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
         return;
@@ -34,7 +34,7 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
     std::string action = event.GetWant().GetAction();
     LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
     if (MODE_CHANGED_EVENT.compare(action) == 0) {
-        locatorAbility.get()->UpdateSaAbility();
+        locatorAbility->UpdateSaAbility();
     }
 }
 } // namespace Location

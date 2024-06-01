@@ -30,6 +30,12 @@
 
 namespace OHOS {
 namespace Location {
+LocationDataManager* LocationDataManager::GetInstance()
+{
+    static LocationDataManager data;
+    return &data;
+}
+
 LocationDataManager::LocationDataManager()
 {
     switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();

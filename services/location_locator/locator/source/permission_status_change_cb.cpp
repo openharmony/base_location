@@ -23,15 +23,15 @@ namespace OHOS {
 namespace Location {
 void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
 {
-    auto requestManager = DelayedSingleton<RequestManager>::GetInstance();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto requestManager = RequestManager::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (requestManager == nullptr || locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PermStateChangeCallback: RequestManager or LocatorAbility is nullptr.");
         return;
     }
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
-    requestManager.get()->HandlePermissionChanged(result.tokenID);
-    locatorAbility.get()->ApplyRequests(1);
+    requestManager->HandlePermissionChanged(result.tokenID);
+    locatorAbility->ApplyRequests(1);
 }
 } // namespace Location
 } // namespace OHOS

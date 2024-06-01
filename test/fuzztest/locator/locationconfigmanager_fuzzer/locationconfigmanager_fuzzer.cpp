@@ -25,18 +25,18 @@ namespace OHOS {
             return true;
         }
         int index = 0;
-        LocationConfigManager::GetInstance().Init();
-        LocationConfigManager::GetInstance().GetLocationSwitchState();
-        LocationConfigManager::GetInstance().SetLocationSwitchState(data[index++]);
+        LocationConfigManager::GetInstance()->Init();
+        LocationConfigManager::GetInstance()->GetLocationSwitchState();
+        LocationConfigManager::GetInstance()->SetLocationSwitchState(data[index++]);
         std::string fileName((const char*) data, size);
-        LocationConfigManager::GetInstance().IsExistFile(fileName);
+        LocationConfigManager::GetInstance()->IsExistFile(fileName);
         std::string fileData((const char*) data, size);
-        LocationConfigManager::GetInstance().CreateFile(fileName, fileData);
-        LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(data[index++]);
+        LocationConfigManager::GetInstance()->CreateFile(fileName, fileData);
+        LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(data[index++]);
         bool isConfirmed = false;
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(data[index++], isConfirmed);
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(data[index++], true);
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(data[index++], false);
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(data[index++], isConfirmed);
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(data[index++], true);
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(data[index++], false);
         return true;
     }
 }

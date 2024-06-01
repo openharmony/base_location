@@ -39,8 +39,9 @@ public:
     void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
 };
 
-class LocatorBackgroundProxy : DelayedSingleton<LocatorBackgroundProxy> {
+class LocatorBackgroundProxy {
 public:
+    static LocatorBackgroundProxy* GetInstance();
     LocatorBackgroundProxy();
     ~LocatorBackgroundProxy();
     void UpdateListOnRequestChange(const std::shared_ptr<Request>& request);

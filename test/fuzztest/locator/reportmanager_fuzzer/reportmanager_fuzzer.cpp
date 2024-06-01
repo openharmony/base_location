@@ -29,8 +29,8 @@ namespace OHOS {
         if (size < MIN_DATA_LEN) {
             return true;
         }
-        std::shared_ptr<ReportManager> reportManager =
-            DelayedSingleton<ReportManager>::GetInstance();
+        auto reportManager =
+            ReportManager::GetInstance();
         if (reportManager == nullptr) {
             return false;
         }

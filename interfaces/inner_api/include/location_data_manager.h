@@ -31,7 +31,7 @@ public:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 };
-class LocationDataManager : public DelayedSingleton<LocationDataManager> {
+class LocationDataManager {
 public:
     LocationDataManager();
     ~LocationDataManager();
@@ -42,6 +42,8 @@ public:
     bool IsSwitchStateReg();
     void ResetIsObserverReg();
     void RegisterDatashareObserver();
+    static LocationDataManager* GetInstance();
+
 private:
     std::mutex mutex_;
     std::mutex switchStateMutex_;

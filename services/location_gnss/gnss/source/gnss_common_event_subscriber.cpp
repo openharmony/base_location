@@ -27,7 +27,7 @@ void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEvent
     auto want = data.GetWant();
     std::string action = want.GetAction();
 
-    auto agnssNiManager = DelayedSingleton<AGnssNiManager>::GetInstance();
+    auto agnssNiManager = AGnssNiManager::GetInstance();
     if (agnssNiManager == nullptr) {
         LBSLOGE(GNSS, "agnssNiManager nullptr");
         return;

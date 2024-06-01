@@ -30,7 +30,7 @@
 
 namespace OHOS {
 namespace Location {
-class RequestManager : public DelayedSingleton<RequestManager> {
+class RequestManager {
 public:
     RequestManager();
     ~RequestManager();
@@ -43,6 +43,8 @@ public:
     void UpdateUsingPermission(std::shared_ptr<Request> request);
     void HandlePermissionChanged(uint32_t tokenId);
     void UpdateLocationErrorCallbackToRequest(sptr<ILocatorCallback> callback, uint32_t tokenId, bool state);
+    static RequestManager* GetInstance();
+
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void HandleChrEvent(std::list<std::shared_ptr<Request>> requests);

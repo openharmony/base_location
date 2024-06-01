@@ -24,14 +24,13 @@ namespace OHOS {
         if (size == 0) {
             return true;
         }
-        auto countryCodeManager = DelayedSingleton<CountryCodeManager>::GetInstance();
+        auto countryCodeManager = CountryCodeManager::GetInstance();
         countryCodeManager->GetIsoCountryCode();
         countryCodeManager->UnregisterCountryCodeCallback(nullptr);
         int index = 0;
         countryCodeManager->RegisterCountryCodeCallback(nullptr, data[index++]);
         countryCodeManager->ReSubscribeEvent();
         countryCodeManager->ReUnsubscribeEvent();
-        DelayedSingleton<CountryCodeManager>::DestroyInstance();
         return true;
     }
 }

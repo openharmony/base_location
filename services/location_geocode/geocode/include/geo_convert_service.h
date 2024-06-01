@@ -36,11 +36,13 @@
 
 namespace OHOS {
 namespace Location {
-class GeoConvertService : public SystemAbility, public GeoConvertServiceStub, DelayedSingleton<GeoConvertService> {
+class GeoConvertService : public SystemAbility, public GeoConvertServiceStub {
 DECLEAR_SYSTEM_ABILITY(GeoConvertService);
 
 public:
     DISALLOW_COPY_AND_MOVE(GeoConvertService);
+    static GeoConvertService* GetInstance();
+
     GeoConvertService();
     ~GeoConvertService() override;
     void OnStart() override;

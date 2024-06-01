@@ -125,7 +125,7 @@ LocatorAbilityStub::LocatorAbilityStub()
 
 int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetSwitchState: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -142,7 +142,7 @@ int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &re
 
 int LocatorAbilityStub::PreRegisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterSwitchCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -162,7 +162,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto reportManager = DelayedSingleton<ReportManager>::GetInstance();
+    auto reportManager = ReportManager::GetInstance();
     if (reportManager != nullptr) {
         if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
             identity.GetTokenIdEx(), identity.GetUid()) &&
@@ -171,7 +171,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
             return ERRCODE_PERMISSION_DENIED;
         }
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -197,7 +197,7 @@ int LocatorAbilityStub::PreStopLocating(MessageParcel &data, MessageParcel &repl
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStopLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -222,7 +222,7 @@ int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetCacheLocation: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -247,7 +247,7 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
     if (!CheckSettingsPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableAbility: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -266,7 +266,7 @@ int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &r
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUpdateSaAbility: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -279,7 +279,7 @@ int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &r
 #ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreIsGeoConvertAvailable: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -295,7 +295,7 @@ int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessagePar
 #ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetAddressByCoordinate: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -309,7 +309,7 @@ int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessagePa
 #ifdef FEATURE_GEOCODE_SUPPORT
 int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetAddressByLocationName: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -322,7 +322,7 @@ int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, Message
 
 int LocatorAbilityStub::PreUnregisterSwitchCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterSwitchCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -342,7 +342,7 @@ int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, Messa
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterGnssStatusCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -361,7 +361,7 @@ int LocatorAbilityStub::PreUnregisterGnssStatusCallback(MessageParcel &data,
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterGnssStatusCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -383,7 +383,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterNmeaMessageCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -402,7 +402,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallback(MessageParcel &data,
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterNmeaMessageCallback: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -425,7 +425,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
         return ERRCODE_PERMISSION_DENIED;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRegisterNmeaMessageCallbackV9: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -444,7 +444,7 @@ int LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9(MessageParcel &data,
         return ERRCODE_PERMISSION_DENIED;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreUnregisterNmeaMessageCallbackV9: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -463,7 +463,7 @@ int LocatorAbilityStub::PreIsLocationPrivacyConfirmed(MessageParcel &data, Messa
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreIsLocationPrivacyConfirmed: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -488,7 +488,7 @@ int LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus(MessageParcel &data,
         return ERRCODE_PERMISSION_DENIED;
     }
 
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSetLocationPrivacyConfirmStatus: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -508,7 +508,7 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartCacheLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -544,7 +544,7 @@ int LocatorAbilityStub::PreStopCacheLocating(MessageParcel &data, MessageParcel 
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStopCacheLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -571,7 +571,7 @@ int LocatorAbilityStub::PreGetCachedGnssLocationsSize(MessageParcel &data, Messa
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreGetCachedGnssLocationsSize: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -593,7 +593,7 @@ int LocatorAbilityStub::PreFlushCachedGnssLocations(MessageParcel &data, Message
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreFlushCachedGnssLocations: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -610,7 +610,7 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSendCommand: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -648,7 +648,7 @@ int LocatorAbilityStub::DoProcessFenceRequest(
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreRemoveFence: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -673,7 +673,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -695,7 +695,7 @@ int LocatorAbilityStub::PreRemoveGnssGeofence(MessageParcel &data, MessageParcel
     if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -717,7 +717,7 @@ int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableLocationMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -735,7 +735,7 @@ int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParce
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreDisableLocationMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -753,7 +753,7 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSetMockedLocations: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -780,7 +780,7 @@ int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, Messa
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableReverseGeocodingMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -801,7 +801,7 @@ int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreDisableReverseGeocodingMock: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -822,7 +822,7 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreSetReverseGeocodingMockInfo: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -846,7 +846,7 @@ int LocatorAbilityStub::PreProxyForFreeze(MessageParcel &data, MessageParcel &re
     if (!CheckRssProcessName(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreProxyForFreeze: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -870,7 +870,7 @@ int LocatorAbilityStub::PreResetAllProxy(MessageParcel &data, MessageParcel &rep
     if (!CheckRssProcessName(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreResetAllProxy: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -889,7 +889,7 @@ int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &re
             identity.ToString().c_str());
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreReportLocation: LocatorAbility is nullptr.");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -919,7 +919,7 @@ int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &d
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
     if (locatorDataManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: locatorDataManager is nullptr.", __func__);
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -950,7 +950,7 @@ int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel 
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
     if (locatorDataManager == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: locatorDataManager is nullptr.", __func__);
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -967,7 +967,7 @@ int LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback(MessageParcel 
 int LocatorAbilityStub::PreQuerySupportCoordinateSystemType(MessageParcel &data,
     MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -1043,7 +1043,7 @@ bool LocatorAbilityStub::CheckSettingsPermission(MessageParcel &reply, AppIdenti
 
 bool LocatorAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "CheckLocationSwitchState: LocatorAbility is nullptr.");
         return false;
@@ -1069,7 +1069,7 @@ int LocatorAbilityStub::PreRegisterLocationError(MessageParcel &data, MessagePar
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStartLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -1091,7 +1091,7 @@ int LocatorAbilityStub::PreUnregisterLocationError(MessageParcel &data, MessageP
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreStopLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
@@ -1117,7 +1117,7 @@ int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParce
             identity.ToString().c_str());
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreReportLocation: LocatorAbility is nullptr.");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1185,7 +1185,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
 
 void LocatorAbilityStub::SaDumpInfo(std::string& result)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "SaDumpInfo: LocatorAbility is nullptr.");
         return;
@@ -1219,7 +1219,7 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
 
 bool LocatorAbilityStub::RemoveUnloadTask(uint32_t code)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
         return false;
@@ -1230,7 +1230,7 @@ bool LocatorAbilityStub::RemoveUnloadTask(uint32_t code)
 
 bool LocatorAbilityStub::PostUnloadTask(uint32_t code)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
         return false;
@@ -1263,7 +1263,7 @@ LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
 void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
         locatorAbility->StopLocating(callback);
@@ -1282,7 +1282,7 @@ SwitchCallbackDeathRecipient::~SwitchCallbackDeathRecipient()
 
 void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
         locatorAbility->UnregisterSwitchCallback(remote.promote());
@@ -1301,7 +1301,7 @@ ScanCallbackDeathRecipient::~ScanCallbackDeathRecipient()
 
 void ScanCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    auto locatorDataManager = DelayedSingleton<LocatorRequiredDataManager>::GetInstance();
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
     if (locatorDataManager != nullptr) {
         locatorDataManager->UnregisterCallback(remote.promote());
         LBSLOGI(LOCATOR, "scan callback OnRemoteDied");

@@ -37,7 +37,13 @@ const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 const std::string UNLOAD_PASSIVE_TASK = "passive_sa_unload";
 const bool REGISTER_RESULT = PassiveAbility::MakeAndRegisterAbility(
-    DelayedSingleton<PassiveAbility>::GetInstance().get());
+    PassiveAbility::GetInstance());
+
+PassiveAbility* PassiveAbility::GetInstance()
+{
+    static PassiveAbility data;
+    return &data;
+}
 
 PassiveAbility::PassiveAbility() : SystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID, true)
 {
@@ -222,7 +228,7 @@ PassiveHandler::~PassiveHandler() {}
 
 void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto passiveAbility = DelayedSingleton<PassiveAbility>::GetInstance();
+    auto passiveAbility = PassiveAbility::GetInstance();
     if (passiveAbility == nullptr) {
         return;
     }

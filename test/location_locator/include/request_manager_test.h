@@ -36,7 +36,7 @@ public:
     void FillRequestField(std::shared_ptr<Request>& request);
     void VerifyRequestField(std::shared_ptr<Request>& request);
 
-    std::shared_ptr<RequestManager> requestManager_;
+    RequestManager* requestManager_;
     std::shared_ptr<Request> request_;
     sptr<ILocatorCallback> callback_;
     uint64_t tokenId_;
