@@ -39,7 +39,7 @@ if (location_feature_with_gnss) {
       "$LOCATION_GNSS_ROOT:lbsservice_gnss",
       "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+      "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
       "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
     external_deps = [

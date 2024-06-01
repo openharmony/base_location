@@ -20,6 +20,8 @@
 #include "location_napi_errcode.h"
 #include "country_code_callback_host.h"
 #include "locator.h"
+#include "geofence_sdk.h"
+#include "geofence_napi.h"
 #include "napi_util.h"
 #ifdef SUPPORT_JSSTACK
 #include "xpower_event_js.h"
@@ -39,6 +41,7 @@ CallbackManager<LocationErrorCallbackHost> g_locationErrorCallbackHosts;
 
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
 auto g_locatorProxy = Locator::GetInstance();
+auto g_geofenceProxy = GeofenceManager::GetInstance();
 
 std::mutex g_FuncMapMutex;
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
@@ -342,7 +345,7 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    g_locatorProxy->AddFenceV9(fenceRequest);
+    g_geofenceProxy->AddFenceV9(fenceRequest);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -361,7 +364,7 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    LocationErrCode errCode = g_locatorProxy->AddFenceV9(fenceRequest);
+    LocationErrCode errCode = g_geofenceProxy->AddFenceV9(fenceRequest);
     return errCode;
 }
 #endif
@@ -377,7 +380,7 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    g_locatorProxy->RemoveFenceV9(fenceRequest);
+    g_geofenceProxy->RemoveFenceV9(fenceRequest);
 }
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -392,7 +395,7 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
     fenceRequest->SetWantAgent(*wantAgent);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
-    return g_locatorProxy->RemoveFenceV9(fenceRequest);
+    return g_geofenceProxy->RemoveFenceV9(fenceRequest);
 }
 #endif
 

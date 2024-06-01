@@ -101,5 +101,15 @@ void HookUtils::ExecuteHookWhenReportInnerInfo(
     innerInfo.values = values;
     ExecuteHook(LocationProcessStage::WRITE_DFX_INNER_EVENT_PROCESS, (void *)&innerInfo, nullptr);
 }
+
+bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
+{
+    GnssLocationValidStruct gnssLocationValidStruct;
+    gnssLocationValidStruct.location = *location;
+    gnssLocationValidStruct.result = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
+    return gnssLocationValidStruct.result;
+}
 } // namespace Location
 } // namespace OHOS

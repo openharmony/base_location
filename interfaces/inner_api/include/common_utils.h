@@ -176,7 +176,6 @@ public:
     static unsigned char ConvertStringToDigit(std::string str);
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
-    static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static std::string GenerateUuid();
 };
 

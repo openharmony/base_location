@@ -24,18 +24,12 @@
 #include "location_log.h"
 #include "locator_proxy.h"
 #include "request_config.h"
-#ifdef NOTIFICATION_ENABLE
-#include "notification_request.h"
-#include "notification_napi.h"
-#endif
-#include "geofence_definition.h"
 
 namespace OHOS {
 namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
 static constexpr int MIN_WIFI_SCAN_TIME = 5000;
 const uint32_t MAX_ADDITION_SIZE = 100;
-const int MAX_TRANSITION_ARRAY_SIZE = 3;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -264,40 +258,6 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
     JsObjectToBool(env, object, "wakeUpCacheQueueFull", request->wakeUpCacheQueueFull);
 }
 
-void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
-    const std::shared_ptr<GeofenceRequest>& request)
-{
-    int value = 0;
-    double doubleValue = 0.0;
-    if (JsObjectToInt(env, object, "scenario", value) == SUCCESS) {
-        request->SetScenario(value);
-    }
-    napi_value geofenceValue = GetNapiValueByKey(env, "geofence", object);
-    if (geofenceValue == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "parse geofence failed");
-        return;
-    }
-    GeoFence geofence;
-    if (JsObjectToDouble(env, geofenceValue, "latitude", doubleValue) == SUCCESS) {
-        geofence.latitude = doubleValue;
-    }
-    if (JsObjectToDouble(env, geofenceValue, "longitude", doubleValue) == SUCCESS) {
-        geofence.longitude = doubleValue;
-    }
-    if (JsObjectToInt(env, geofenceValue, "coordinateSystemType", value) == SUCCESS) {
-        geofence.coordinateSystemType = static_cast<CoordinateSystemType>(value);
-    } else {
-        geofence.coordinateSystemType = CoordinateSystemType::WGS84;
-    }
-    if (JsObjectToDouble(env, geofenceValue, "radius", doubleValue) == SUCCESS) {
-        geofence.radius = doubleValue;
-    }
-    if (JsObjectToDouble(env, geofenceValue, "expiration", doubleValue) == SUCCESS) {
-        geofence.expiration = doubleValue;
-    }
-    request->SetGeofence(geofence);
-}
-
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig)
 {
@@ -460,50 +420,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     return true;
 }
 
-bool ParseGnssGeofenceRequest(
-    const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& request)
-{
-    napi_valuetype valueType;
-    NAPI_CALL_BASE(env, napi_typeof(env, value, &valueType), false);
-    if (valueType != napi_object) {
-        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
-        return false;
-    }
-    return GenGnssGeofenceRequest(env, value, request);
-}
-
-bool GenGnssGeofenceRequest(
-    const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& geofenceRequest)
-{
-    if (geofenceRequest == nullptr) {
-        LBSLOGE(NAPI_UTILS, "geofenceRequest == nullptr");
-        return false;
-    }
-    JsObjToGeoFenceRequest(env, value, geofenceRequest);
-    std::vector<GeofenceTransitionEvent> geofenceTransitionStatusList;
-    JsObjToGeofenceTransitionEventList(env, value, geofenceTransitionStatusList);
-    geofenceRequest->SetGeofenceTransitionEventList(geofenceTransitionStatusList);
-#ifdef NOTIFICATION_ENABLE
-    std::vector<NotificationRequest> notificationRequestList;
-    JsObjToNotificationRequestList(env, value, notificationRequestList);
-    geofenceRequest->SetNotificationRequestList(notificationRequestList);
-#endif
-    return true;
-}
-
-void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& object,
-    sptr<LocationGnssGeofenceCallbackHost> callbackHost)
-{
-    napi_ref handlerRef = nullptr;
-    napi_value callbackNapiValue = nullptr;
-    NAPI_CALL_RETURN_VOID(env,
-        napi_get_named_property(env, object, "geofenceTransitionCallback", &callbackNapiValue));
-    NAPI_CALL_RETURN_VOID(env, napi_create_reference(env, callbackNapiValue, 1, &handlerRef));
-    callbackHost->SetEnv(env);
-    callbackHost->SetHandleCb(handlerRef);
-}
-
-napi_value GetArrayProperty(const napi_env& env, const napi_value& object, const std::string propertyName)
+napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName)
 {
     if (object == nullptr) {
         LBSLOGE(NAPI_UTILS, "object is nullptr.");
@@ -526,95 +443,6 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, const
         return UndefinedNapiValue(env);
     }
     return property;
-}
-
-#ifdef NOTIFICATION_ENABLE
-void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
-    std::vector<NotificationRequest>& notificationRequestList)
-{
-    napi_value notificationRequest = GetArrayProperty(env, object, "notifications");
-    GetNotificationRequestArray(env, notificationRequest, notificationRequestList);
-}
-
-void GetNotificationRequestArray(const napi_env& env, const napi_value& notificationRequestValue,
-    std::vector<NotificationRequest>& notificationRequestList)
-{
-    napi_valuetype valueType;
-    NAPI_CALL_RETURN_VOID(env, napi_typeof(env, notificationRequestValue, &valueType));
-    if (valueType != napi_object) {
-        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
-        return;
-    }
-    uint32_t arrayLength = 0;
-    NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, notificationRequestValue, &arrayLength));
-    if (arrayLength == 0 || arrayLength > MAX_TRANSITION_ARRAY_SIZE) {
-        LBSLOGE(NAPI_UTILS, "The array is empty or out of range.");
-        return;
-    }
-    for (uint32_t i = 0; i < arrayLength; i++) {
-        napi_value elementValue = nullptr;
-        NAPI_CALL_RETURN_VOID(env, napi_get_element(env, notificationRequestValue, i, &elementValue));
-        napi_valuetype napiType;
-        NAPI_CALL_RETURN_VOID(env, napi_typeof(env, elementValue, &napiType));
-        if (napiType != napi_object) {
-            LBSLOGE(NAPI_UTILS, "Wrong argument type.");
-            break;
-        }
-        NotificationRequest notificationRequest;
-        GenNotificationRequest(env, elementValue, notificationRequest);
-        notificationRequestList.push_back(notificationRequest);
-    }
-}
-
-void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
-    NotificationRequest& notificationRequest)
-{
-    napi_valuetype elementValueType;
-    NAPI_CALL_RETURN_VOID(env, napi_typeof(env, elementValue, &elementValueType));
-    if (elementValueType != napi_object) {
-        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
-        return;
-    }
-    // argv[0] : NotificationRequest
-    NotificationNapi::GetNotificationRequest(env, elementValue, notificationRequest);
-}
-#endif
-
-void JsObjToGeofenceTransitionEventList(const napi_env& env, const napi_value& object,
-    std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList)
-{
-    napi_value monitorTransitionEvents = GetArrayProperty(env, object, "monitorTransitionEvents");
-    GetGeofenceTransitionEventArray(env, monitorTransitionEvents, geofenceTransitionStatusList);
-}
-
-void GetGeofenceTransitionEventArray(const napi_env& env, const napi_value& monitorTransitionEvents,
-    std::vector<GeofenceTransitionEvent>& geofenceTransitionStatusList)
-{
-    napi_valuetype valueType;
-    NAPI_CALL_RETURN_VOID(env, napi_typeof(env, monitorTransitionEvents, &valueType));
-    if (valueType != napi_object) {
-        LBSLOGE(NAPI_UTILS, "Wrong argument type, value should be object");
-        return;
-    }
-    uint32_t arrayLength = 0;
-    NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, monitorTransitionEvents, &arrayLength));
-    if (arrayLength == 0 || arrayLength > MAX_TRANSITION_ARRAY_SIZE) {
-        LBSLOGE(NAPI_UTILS, "The array is empty or out of range.");
-        return;
-    }
-    for (uint32_t i = 0; i < arrayLength; i++) {
-        napi_value elementValue = nullptr;
-        NAPI_CALL_RETURN_VOID(env, napi_get_element(env, monitorTransitionEvents, i, &elementValue));
-        napi_valuetype napiType;
-        NAPI_CALL_RETURN_VOID(env, napi_typeof(env, elementValue, &napiType));
-        if (napiType != napi_number) {
-            LBSLOGE(NAPI_UTILS, "Wrong argument type.");
-            break;
-        }
-        int geofenceTransitionStatus = -1;
-        NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, elementValue, &geofenceTransitionStatus));
-        geofenceTransitionStatusList.push_back(static_cast<GeofenceTransitionEvent>(geofenceTransitionStatus));
-    }
 }
 
 bool GetLocationInfo(const napi_env& env, const napi_value& object,
@@ -1268,13 +1096,6 @@ bool CheckIfParamIsObjectType(napi_env env, napi_value param)
         return false;
     }
     return true;
-}
-
-void GeofenceTransitionToJs(const napi_env& env,
-    const GeofenceTransition geofenceTransition, napi_value& result)
-{
-    SetValueInt32(env, "geofenceId", geofenceTransition.fenceId, result);
-    SetValueInt32(env, "transitionEvent", static_cast<int>(geofenceTransition.event), result);
 }
 }  // namespace Location
 }  // namespace OHOS

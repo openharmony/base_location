@@ -30,9 +30,7 @@
 #include "locating_required_data_config.h"
 #include "location_data_manager.h"
 #include "system_ability_status_change_stub.h"
-#include "want_agent_helper.h"
 #include "locationhub_ipc_interface_code.h"
-#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -496,22 +494,6 @@ public:
     LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands);
 
     /**
-     * @brief Add a geofence and subscribe geo fence status changed.
-     *
-     * @param request Indicates the Geofence configuration parameters.
-     * @return Returns ERRCODE_SUCCESS if the fence has been added successfully.
-     */
-    LocationErrCode AddFenceV9(std::shared_ptr<GeofenceRequest>& request);
-
-    /**
-     * @brief Remove a geofence and unsubscribe geo fence status changed.
-     *
-     * @param request Indicates the Geofence configuration parameters.
-     * @return Returns ERRCODE_SUCCESS if the fence has been removed successfully.
-     */
-    LocationErrCode RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request);
-
-    /**
      * @brief Obtain the current country code.
      *
      * @param countryCode the result of the country code
@@ -626,9 +608,6 @@ public:
     void RemoveSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
     void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
     void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
-    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes);
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);

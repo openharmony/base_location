@@ -77,6 +77,7 @@ public:
     static void ExecuteHookWhenGetAddressFromLocationName(std::string packageName);
     static void ExecuteHookWhenReportInnerInfo(
         int32_t event, std::vector<std::string>& names, std::vector<std::string>& values);
+    static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
 };
 } // namespace Location
 } // namespace OHOS

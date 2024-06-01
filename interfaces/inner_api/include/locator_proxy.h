@@ -34,9 +34,7 @@
 
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
-#include "want_agent_helper.h"
 #include "locationhub_ipc_interface_code.h"
-#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -68,8 +66,6 @@ public:
     int GetCachedGnssLocationsSize();
     int FlushCachedGnssLocations();
     void SendCommand(std::unique_ptr<LocationCommand>& commands);
-    void AddFence(std::unique_ptr<GeofenceRequest>& request);
-    void RemoveFence(std::unique_ptr<GeofenceRequest>& request);
     bool EnableLocationMock();
     bool DisableLocationMock();
     bool SetMockedLocations(
@@ -108,10 +104,6 @@ public:
     LocationErrCode GetCachedGnssLocationsSizeV9(int &size);
     LocationErrCode FlushCachedGnssLocationsV9();
     LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands);
-    LocationErrCode AddFenceV9(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode EnableLocationMockV9();
     LocationErrCode DisableLocationMockV9();
     LocationErrCode SetMockedLocationsV9(
@@ -128,11 +120,9 @@ public:
     LocationErrCode RegisterLocatingRequiredDataCallback(
         std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
-    LocationErrCode GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes);
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
     LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
 private:
-    LocationErrCode HandleGnssfenceRequest(LocatorInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
 
     static inline BrokerDelegator<LocatorProxy> delegator_;
 };

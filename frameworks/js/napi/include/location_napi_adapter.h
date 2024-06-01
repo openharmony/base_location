@@ -22,6 +22,7 @@
 #include "geofence_request.h"
 #include "constant_definition.h"
 #include "location_gnss_geofence_callback_host.h"
+#include "geofence_async_context.h"
 
 namespace OHOS {
 namespace Location {

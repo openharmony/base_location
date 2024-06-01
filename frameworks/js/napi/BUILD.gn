@@ -36,7 +36,8 @@ ohos_shared_library("geolocation") {
 
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
   ]
 
   external_deps = [
@@ -78,7 +79,8 @@ ohos_static_library("geolocation_static") {
 
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
   ]
 
   external_deps = [
@@ -115,7 +117,8 @@ ohos_shared_library("geolocationmanager") {
 
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-    "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
   ]
 
   defines = [ "ENABLE_NAPI_MANAGER" ]

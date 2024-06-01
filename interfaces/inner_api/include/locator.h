@@ -64,8 +64,6 @@ public:
     virtual int GetCachedGnssLocationsSize() = 0;
     virtual int FlushCachedGnssLocations() = 0;
     virtual bool SendCommand(std::unique_ptr<LocationCommand>& commands) = 0;
-    virtual bool AddFence(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual bool RemoveFence(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual bool EnableReverseGeocodingMock() = 0;
     virtual bool DisableReverseGeocodingMock() = 0;
     virtual bool SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) = 0;
@@ -102,8 +100,6 @@ public:
     virtual LocationErrCode GetCachedGnssLocationsSizeV9(int &size) = 0;
     virtual LocationErrCode FlushCachedGnssLocationsV9() = 0;
     virtual LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands) = 0;
-    virtual LocationErrCode AddFenceV9(std::unique_ptr<GeofenceRequest>& request) = 0;
-    virtual LocationErrCode RemoveFenceV9(std::unique_ptr<GeofenceRequest>& request) = 0;
     virtual LocationErrCode EnableReverseGeocodingMockV9() = 0;
     virtual LocationErrCode DisableReverseGeocodingMockV9() = 0;
     virtual LocationErrCode SetReverseGeocodingMockInfoV9(

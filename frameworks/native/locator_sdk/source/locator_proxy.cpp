@@ -798,56 +798,6 @@ LocationErrCode LocatorProxy::SendCommandV9(std::unique_ptr<LocationCommand>& co
     return errorCode;
 }
 
-LocationErrCode LocatorProxy::AddFenceV9(std::shared_ptr<GeofenceRequest>& request)
-{
-    return HandleGnssfenceRequest(LocatorInterfaceCode::ADD_FENCE, request);
-}
-
-LocationErrCode LocatorProxy::RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request)
-{
-    return HandleGnssfenceRequest(LocatorInterfaceCode::REMOVE_FENCE, request);
-}
-
-LocationErrCode LocatorProxy::HandleGnssfenceRequest(
-    LocatorInterfaceCode code, std::shared_ptr<GeofenceRequest>& request)
-{
-    if (request == nullptr) {
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s WriteInterfaceToken failed", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    request->Marshalling(data);
-    LocationErrCode errorCode = SendMsgWithDataReplyV9(static_cast<int>(code), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
-LocationErrCode LocatorProxy::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
-{
-    return HandleGnssfenceRequest(LocatorInterfaceCode::ADD_GNSS_GEOFENCE, request);
-}
-
-LocationErrCode LocatorProxy::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
-{
-    if (request == nullptr) {
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    data.WriteInt32(request->GetFenceId());
-    LocationErrCode errorCode = SendMsgWithDataReplyV9(
-        static_cast<int>(LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
 LocationErrCode LocatorProxy::EnableLocationMockV9()
 {
     MessageParcel data;
@@ -1011,26 +961,6 @@ LocationErrCode LocatorProxy::UnSubscribeLocationError(sptr<ILocatorCallback>& c
     LocationErrCode errorCode =
         SendRegisterMsgToRemoteV9(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATION_ERROR), callback->AsObject());
     LBSLOGD(LOCATOR_STANDARD, "Proxy::StopLocatingV9 Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
-LocationErrCode LocatorProxy::GetGeofenceSupportedCoordTypes(
-    std::vector<CoordinateSystemType>& coordinateSystemTypes)
-{
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    MessageParcel reply;
-    LocationErrCode errorCode = SendMsgWithDataReplyV9(
-        static_cast<int>(LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
-    int size = reply.ReadInt32();
-    size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
-    for (int i = 0; i < size; i++) {
-        int coordinateSystemType = reply.ReadInt32();
-        coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
-    }
     return errorCode;
 }
 } // namespace Location

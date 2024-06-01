@@ -17,10 +17,14 @@
 #include "location_log.h"
 #include "location_napi_errcode.h"
 #include "constant_definition.h"
+#include "geofence_sdk.h"
+#include "geofence_napi.h"
+#include "geofence_async_context.h"
 
 namespace OHOS {
 namespace Location {
 auto g_locatorClient = Locator::GetInstance();
+auto g_geofenceClient = GeofenceManager::GetInstance();
 std::map<int, sptr<LocationGnssGeofenceCallbackHost>> g_gnssGeofenceCallbackHostMap;
 std::mutex g_gnssGeofenceCallbackHostMutex;
 
@@ -980,7 +984,7 @@ SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
             return;
         }
         auto context = static_cast<SingleScanAsyncContext*>(data);
-        
+
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
             std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
@@ -1088,7 +1092,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
         auto gnssGeofenceRequest = context->request_;
         if (callbackHost != nullptr || gnssGeofenceRequest != nullptr) {
             auto callbackPtr = sptr<IGnssGeofenceCallback>(callbackHost);
-            auto errCode = g_locatorClient->AddGnssGeofence(gnssGeofenceRequest);
+            auto errCode = g_geofenceClient->AddGnssGeofence(gnssGeofenceRequest);
             if (errCode != ERRCODE_SUCCESS) {
                 context->errCode = errCode;
                 callbackHost->SetCount(0);
@@ -1165,7 +1169,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
         request->SetFenceId(context->fenceId_);
-        context->errCode = g_locatorClient->RemoveGnssGeofence(request);
+        context->errCode = g_geofenceClient->RemoveGnssGeofence(request);
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
             if (context->errCode != ERRCODE_SUCCESS) {
@@ -1213,7 +1217,7 @@ napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     std::vector<CoordinateSystemType> coordinateSystemTypes;
     LocationErrCode errorCode =
-        g_locatorClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
+        g_geofenceClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);

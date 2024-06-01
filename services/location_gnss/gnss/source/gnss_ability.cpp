@@ -178,11 +178,6 @@ void GnssAbility::UnloadGnssSystemAbility()
         return;
     }
     auto task = [this]() {
-        auto instance = LocationSaLoadManager::GetInstance();
-        if (instance == nullptr) {
-            LBSLOGE(GNSS, "%{public}s instance is nullptr", __func__);
-            return;
-        }
         if (CheckIfHdiConnected()) {
             auto startTime = CommonUtils::GetCurrentTimeStamp();
             auto ret = RemoveHdi();
