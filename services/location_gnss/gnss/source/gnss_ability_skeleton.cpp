@@ -236,8 +236,8 @@ int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, Ap
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto request = GeofenceRequest::Unmarshalling(data);
-    reply.WriteInt32(AddFence(request));
+    SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE), data, reply);
+    isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }
 
@@ -246,8 +246,8 @@ int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply,
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto request = GeofenceRequest::Unmarshalling(data);
-    reply.WriteInt32(RemoveFence(request));
+    SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE), data, reply);
+    isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }
 
@@ -257,7 +257,8 @@ int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &re
         return ERRCODE_PERMISSION_DENIED;
     }
     auto request = GeofenceRequest::Unmarshalling(data);
-    reply.WriteInt32(AddGnssGeofence(request));
+    SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE), data, reply);
+    isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }
 
@@ -266,10 +267,8 @@ int GnssAbilityStub::RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel 
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    request->SetFenceId(data.ReadInt32());
-    request->SetBundleName(data.ReadString());
-    reply.WriteInt32(RemoveGnssGeofence(request));
+    SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE), data, reply);
+    isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }
 
