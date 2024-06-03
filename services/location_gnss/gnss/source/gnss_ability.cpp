@@ -49,13 +49,8 @@ namespace OHOS {
 namespace Location {
 namespace {
 constexpr uint32_t WAIT_MS = 200;
-const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
-const uint32_t RECONNECT_HDI = 0x0103;
-const uint32_t INIT_HDI = 0x0104;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-const uint32_t SET_SUBSCRIBER_SET_ID = 0x0101;
-const uint32_t SET_AGNSS_REF_INFO = 0x0102;
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 #endif
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
@@ -86,7 +81,8 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     SetAbility(GNSS_ABILITY);
     gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
     if (gnssHandler_ != nullptr) {
-        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(INIT_HDI, 0);
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+            static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI), 0);
         gnssHandler_->SendEvent(event);
     }
     fenceId_ = 0;
@@ -376,7 +372,8 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 void GnssAbility::ReConnectHdi()
 {
     if (gnssHandler_ != nullptr) {
-        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(RECONNECT_HDI, 0);
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+            static_cast<uint32_t>(GnssAbilityInterfaceCode::RECONNECT_HDI), 0);
         gnssHandler_->SendEvent(event);
     }
 }
@@ -1038,8 +1035,8 @@ void GnssAbility::SetSetId(const SubscriberSetId& id)
     subscribeSetId->type = id.type;
     subscribeSetId->id = id.id;
     if (gnssHandler_ != nullptr) {
-        AppExecFwk::InnerEvent::Pointer event =
-            AppExecFwk::InnerEvent::Get(SET_SUBSCRIBER_SET_ID, subscribeSetId);
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+            static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_SUBSCRIBER_SET_ID), subscribeSetId);
         gnssHandler_->SendEvent(event);
     }
 }
@@ -1062,8 +1059,8 @@ void GnssAbility::SetRefInfo(const AGnssRefInfo& refInfo)
     std::unique_ptr<AgnssRefInfoMessage> agnssRefInfoMessage = std::make_unique<AgnssRefInfoMessage>();
     if (gnssHandler_ != nullptr) {
         agnssRefInfoMessage->SetAgnssRefInfo(refInfo);
-        AppExecFwk::InnerEvent::Pointer event =
-            AppExecFwk::InnerEvent::Get(SET_AGNSS_REF_INFO, agnssRefInfoMessage);
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+            static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_AGNSS_REF_INFO), agnssRefInfoMessage);
         gnssHandler_->SendEvent(event);
     }
 }
@@ -1179,7 +1176,8 @@ void GnssAbility::ProcessReportLocationMock()
     if (mockLocationIndex_ < mockLocationArray.size()) {
         ReportMockedLocation(mockLocationArray[mockLocationIndex_++]);
         if (gnssHandler_ != nullptr) {
-            gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION,
+            gnssHandler_->SendHighPriorityEvent(
+                static_cast<uint32_t>(GnssAbilityInterfaceCode::EVENT_REPORT_MOCK_LOCATION),
                 0, GetTimeIntervalMock() * EVENT_INTERVAL_UNITE);
         }
     } else {
@@ -1191,7 +1189,8 @@ void GnssAbility::ProcessReportLocationMock()
 void GnssAbility::SendReportMockLocationEvent()
 {
     if (gnssHandler_ != nullptr) {
-        gnssHandler_->SendHighPriorityEvent(EVENT_REPORT_MOCK_LOCATION, 0, 0);
+        gnssHandler_->SendHighPriorityEvent(static_cast<uint32_t>(
+            GnssAbilityInterfaceCode::EVENT_REPORT_MOCK_LOCATION), 0, 0);
     }
 }
 
@@ -1257,6 +1256,32 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             SendEvent(event, reply);
             break;
         }
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE): {
+            auto request = GeofenceRequest::Unmarshalling(data);
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
+            SendEvent(event, reply);
+            break;
+        }
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE): {
+            auto request = GeofenceRequest::Unmarshalling(data);
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
+            SendEvent(event, reply);
+            break;
+        }
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE): {
+            auto request = GeofenceRequest::Unmarshalling(data);
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
+            SendEvent(event, reply);
+            break;
+        }
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE): {
+            std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+            request->SetFenceId(data.ReadInt32());
+            request->SetBundleName(data.ReadString());
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
+            SendEvent(event, reply);
+            break;
+        }
         default:
             break;
     }
@@ -1300,7 +1325,8 @@ void GnssHandler::InitGnssEventProcessMap()
     if (gnssEventProcessMap_.size() != 0) {
         return;
     }
-    gnssEventProcessMap_[EVENT_REPORT_MOCK_LOCATION] = &GnssHandler::HandleReportMockLocation;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::EVENT_REPORT_MOCK_LOCATION)] =
+        &GnssHandler::HandleReportMockLocation;
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST)] =
         &GnssHandler::HandleSendLocationRequest;
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
@@ -1308,12 +1334,25 @@ void GnssHandler::InitGnssEventProcessMap()
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
         &GnssHandler::HandleSendCommands;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-    gnssEventProcessMap_[SET_SUBSCRIBER_SET_ID] = &GnssHandler::HandleSetSubscriberSetId;
-    gnssEventProcessMap_[SET_AGNSS_REF_INFO] = &GnssHandler::HandleSetAgnssRefInfo;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_SUBSCRIBER_SET_ID)] =
+        &GnssHandler::HandleSetSubscriberSetId;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_AGNSS_REF_INFO)] =
+        &GnssHandler::HandleSetAgnssRefInfo;
 #endif
-    gnssEventProcessMap_[RECONNECT_HDI] = &GnssHandler::HandleReconnectHdi;
-    gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] = &GnssHandler::HandleSetEnable;
-    gnssEventProcessMap_[INIT_HDI] = &GnssHandler::HandleInitHdi;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::RECONNECT_HDI)] =
+        &GnssHandler::HandleReconnectHdi;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] =
+        &GnssHandler::HandleSetEnable;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI)] =
+        &GnssHandler::HandleInitHdi;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE)] =
+        &GnssHandler::HandleAddFence;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE)] =
+        &GnssHandler::HandleRemoveFence;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE)] =
+        &GnssHandler::HandleAddGeofence;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE)] =
+        &GnssHandler::HandleRemoveGeofence;
 }
 
 GnssHandler::~GnssHandler() {}
@@ -1452,6 +1491,58 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     gnssAbility->SetAgnssCallback();
 #endif
+}
+
+void GnssHandler::HandleAddFence(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
+    if (request != nullptr) {
+        gnssAbility->AddFence(request);
+    }
+}
+
+void GnssHandler::HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
+    if (request != nullptr) {
+        gnssAbility->RemoveFence(request);
+    }
+}
+
+void GnssHandler::HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
+    if (request != nullptr) {
+        gnssAbility->AddGnssGeofence(request);
+    }
+}
+
+void GnssHandler::HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
+    if (request != nullptr) {
+        gnssAbility->RemoveGnssGeofence(request);
+    }
 }
 
 LocationHdiDeathRecipient::LocationHdiDeathRecipient()

@@ -80,6 +80,18 @@ using HDI::Location::Geofence::V2_0::GeofenceEvent;
 using HDI::Location::Geofence::V2_0::GeofenceInfo;
 #endif
 
+enum class GnssAbilityInterfaceCode {
+    EVENT_REPORT_MOCK_LOCATION = 0x0100,
+    SET_SUBSCRIBER_SET_ID = 0x0101,
+    SET_AGNSS_REF_INFO = 0x0102,
+    RECONNECT_HDI = 0x0103,
+    INIT_HDI = 0x0104,
+    ADD_FENCE = 0x0105,
+    REMOVE_FENCE = 0x0106,
+    ADD_GEOFENCE = 0x0107,
+    REMOVE_GEOFENCE = 0x0108,
+};
+
 typedef struct {
     std::shared_ptr<GeofenceRequest> request;
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
@@ -109,6 +121,10 @@ private:
     void HandleReconnectHdi(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleAddFence(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event);
 
     using GnssEventProcessHandle = void (GnssHandler::*)(const AppExecFwk::InnerEvent::Pointer& event);
     using GnssEventProcessMap = std::map<uint32_t, GnssEventProcessHandle>;
