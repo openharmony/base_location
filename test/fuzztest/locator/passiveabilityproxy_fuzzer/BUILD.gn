@@ -20,7 +20,7 @@ import("//build/test.gni")
 ohos_fuzztest("PassiveAbilityProxyFuzzTest") {
   module_out_path = "location/location"
   fuzz_config_file =
-      "$LOCATION_ROOT_DIR/test/fuzztest/locator/passiveability_fuzzer"
+      "$LOCATION_ROOT_DIR/test/fuzztest/locator/passiveabilityproxy_fuzzer"
   include_dirs = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
