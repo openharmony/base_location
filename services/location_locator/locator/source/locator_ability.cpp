@@ -882,6 +882,11 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     reportManager_->UpdateRandom();
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     HookUtils::ExecuteHookWhenStartLocation(request);
+    OHOS::Security::AccessToken::PermUsedTypeEnum type =
+        Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(request->GetTokenId(),
+        ACCESS_APPROXIMATELY_LOCATION);
+    request->SetType(static_cast<int>(type));
+
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
     HandleStartLocating(request, callback);
@@ -916,10 +921,9 @@ bool LocatorAbility::IsSingleRequest(const sptr<RequestConfig>& requestConfig)
     return false;
 }
 
-void LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt)
+void LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
+    int type, int succCnt, int failCnt)
 {
-    OHOS::Security::AccessToken::PermUsedTypeEnum type =
-        Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
     Security::AccessToken::AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = permissionName;
@@ -945,7 +949,7 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
             PrivacyKit::StartUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
             callback->OnLocationReport(cacheLocation);
             // add location permission using record
-            UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
+            UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetType(), 1, 0);
             PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
             if (locatorHandler_ != nullptr &&
                 locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
@@ -962,7 +966,7 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
             }
             callback->OnLocationReport(cacheLocation);
             // add location permission using record
-            UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
+            UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetType(), 1, 0);
         }
     }
     return false;
@@ -1017,21 +1021,25 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    OHOS::Security::AccessToken::PermUsedTypeEnum type =
+        Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(request->GetTokenId(),
+        ACCESS_APPROXIMATELY_LOCATION);
+    request->SetType(static_cast<int>(type));
     loc = reportManager_->GetPermittedLocation(request, lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     if (loc == nullptr) {
-        UpdatePermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
+        UpdatePermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, static_cast<int>(type), 0, 1);
         PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
         return ERRCODE_LOCATING_FAIL;
     }
     if (fabs(loc->GetLatitude() - 0.0) > PRECISION
         && fabs(loc->GetLongitude() - 0.0) > PRECISION) {
         // add location permission using record
-        UpdatePermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
+        UpdatePermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, static_cast<int>(type), 1, 0);
         PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
         return ERRCODE_SUCCESS;
     }
-    UpdatePermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
+    UpdatePermissionUsedRecord(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, static_cast<int>(type), 0, 1);
     PrivacyKit::StopUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
     return ERRCODE_LOCATING_FAIL;
 }

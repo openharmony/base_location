@@ -52,6 +52,8 @@ public:
     uint32_t GetTokenId();
     uint32_t GetFirstTokenId();
     uint64_t GetTokenIdEx();
+    int GetType();
+    void SetType(int type);
     void SetTokenId(uint32_t tokenId);
     void SetFirstTokenId(uint32_t firstTokenId);
     void SetTokenIdEx(uint64_t tokenIdEx);
@@ -85,6 +87,7 @@ private:
     bool isUsingLocationPerm_;
     bool isUsingBackgroundPerm_;
     bool isUsingApproximatelyPerm_;
+    int type_;
 };
 } // namespace Location
 } // namespace OHOS

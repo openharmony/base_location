@@ -165,7 +165,7 @@ public:
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
-    void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt);
+    void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int type, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();
     bool IsInvalidRequest(std::shared_ptr<Request>& request);
     bool IsProcessRunning(pid_t pid);
