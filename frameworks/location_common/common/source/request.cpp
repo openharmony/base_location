@@ -304,7 +304,7 @@ void Request::SetNlpRequestType()
         requestConfig_->GetScenario() == LOCATION_SCENE_TRANSPORT ||
         requestConfig_->GetPriority() == PRIORITY_ACCURACY ||
         requestConfig_->GetPriority() == PRIORITY_FAST_FIRST_FIX ||
-        requestConfig_->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
+        requestConfig_->GetScenario() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
         requestConfig_->GetPriority() == LOCATION_PRIORITY_ACCURACY) {
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR;
     } else {

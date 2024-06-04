@@ -36,6 +36,7 @@ const int32_t MAXIMUM_JS_PARAMS = 10;
 const int32_t MAX_CALLBACK_NUM = 3;
 const size_t RESULT_SIZE = 2;
 const int DEFAULT_TIMEOUT_30S = 30000;
+const int DEFAULT_TIMEOUT_5S = 5000;
 const double DEFAULT_APPROXIMATELY_ACCURACY = 5000.0;
 const int STATE_OPEN = 1;
 const int STATE_CLOSE = 0;

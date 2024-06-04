@@ -363,7 +363,8 @@ bool LocatorCallbackHost::NeedSetSingleLocation(const std::unique_ptr<Location>&
 bool LocatorCallbackHost::IfReportAccuracyLocation()
 {
     if (locationPriority_ == LOCATION_PRIORITY_ACCURACY &&
-        ((singleLocation_->GetLocationSourceType() == LocationSourceType::GNSS_TYPE && inHdArea_) ||
+        (((singleLocation_->GetLocationSourceType() == LocationSourceType::GNSS_TYPE ||
+        singleLocation_->GetLocationSourceType() == LocationSourceType::RTK_TYPE) && inHdArea_) ||
         singleLocation_->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE)) {
         return false;
     } else {
