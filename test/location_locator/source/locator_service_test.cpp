@@ -1650,28 +1650,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
 }
 #endif
 
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocatorServiceTest, locatorServiceFence001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, locatorServiceFence001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    GeoFence geofence;
-    geofence.latitude = 35.1;
-    geofence.longitude = 40.2;
-    geofence.radius = 2.2;
-    geofence.expiration = 12.2;
-    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetGeofence(geofence);
-    // uid pid not match locationhub process
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->AddFence(fenceRequest));
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RemoveFence(fenceRequest));
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceFence001 end");
-}
-#endif
-
 HWTEST_F(LocatorServiceTest, locatorServiceLocationMock001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

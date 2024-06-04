@@ -138,9 +138,9 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     finalLocation = GetPermittedLocation(request, IsRequestFuse(request) ? fuseLocation : location);
     if (!ResultCheck(finalLocation, request)) {
         // add location permission using record
-        int requetType = request->GetType()£»
+        int permUsedType = request->GetPermUsedType();
         locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
-            ACCESS_APPROXIMATELY_LOCATION, requetType, 0, 1);
+            ACCESS_APPROXIMATELY_LOCATION, permUsedType, 0, 1);
         return false;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
@@ -156,9 +156,9 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             request->GetTokenId(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
         // add location permission using record
-        int requetType = request->GetType()£»
+        int permUsedType = request->GetPermUsedType();
         locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
-            ACCESS_APPROXIMATELY_LOCATION, requetType, 1, 0);
+            ACCESS_APPROXIMATELY_LOCATION, permUsedType, 1, 0);
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();
@@ -208,23 +208,22 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         }
         return nullptr;
     }
-    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
-        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-        LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
-        auto locationErrorCallback = request->GetLocationErrorCallBack();
-        if (locationErrorCallback != nullptr) {
-            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
-        }
-        return nullptr;
-    }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
-    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
-        PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (PermissionManager::CheckLocationPermission(tokenId, firstTokenId)) {
+        return finalLocation;
+    }
+    if (PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
         finalLocation = ApproximatelyLocation(location);
+        return finalLocation;
     }
-    return finalLocation;
+    LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
+    auto locationErrorCallback = request->GetLocationErrorCallBack();
+    if (locationErrorCallback != nullptr) {
+        locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
+    }
+    return nullptr;
 }
 
 bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result)
