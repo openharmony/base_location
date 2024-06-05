@@ -28,6 +28,7 @@ Request::Request()
     this->firstTokenId_ = 0;
     this->packageName_ = "";
     this->isRequesting_ = false;
+    this->permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
@@ -44,6 +45,7 @@ Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     this->firstTokenId_ = 0;
     this->packageName_ = "";
     this->isRequesting_ = false;
+    this->permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
@@ -115,6 +117,16 @@ void Request::SetTokenId(uint32_t tokenId)
 uint32_t Request::GetTokenId()
 {
     return tokenId_;
+}
+
+int Request::GetPermUsedType()
+{
+    return permUsedType_;
+}
+
+void Request::SetPermUsedType(int type)
+{
+    this->permUsedType_ = type;
 }
 
 void Request::SetTokenIdEx(uint64_t tokenIdEx)

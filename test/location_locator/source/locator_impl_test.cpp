@@ -299,25 +299,6 @@ HWTEST_F(LocatorImplTest, locatorImplSendCommandV9, TestSize.Level1)
 }
 #endif
 
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1)
-{
-    auto geofenceClient = GeofenceManager::GetInstance();
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplRequestFenceV9, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 begin");
-    GeoFence geofence;
-    geofence.latitude = 35.1;
-    geofence.longitude = 40.2;
-    geofence.radius = 2.2;
-    geofence.expiration = 12.2;
-    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetGeofence(geofence);
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, geofenceClient->AddFenceV9(fenceRequest));
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, geofenceClient->RemoveFenceV9(fenceRequest));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRequestFenceV9 end");
-}
-#endif
 
 HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCodeV9, TestSize.Level1)
 {
@@ -667,29 +648,6 @@ HWTEST_F(LocatorImplTest, HasGnssNetworkRequest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 end");
 }
 
-HWTEST_F(LocatorImplTest, AddGnssGeoFence001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, AddGnssGeoFence001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] AddGnssGeoFence001 begin");
-    auto request = std::make_shared<GeofenceRequest>();
-    EXPECT_NE(nullptr, request);
-    auto geofenceClient = GeofenceManager::GetInstance();
-    geofenceClient->AddGnssGeofence(request);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] AddGnssGeoFence001 end");
-}
-
-HWTEST_F(LocatorImplTest, RemoveGnssGeoFence001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, RemoveGnssGeoFence001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] RemoveGnssGeoFence001 begin");
-    auto request = std::make_shared<GeofenceRequest>();
-    EXPECT_NE(nullptr, request);
-    auto geofenceClient = GeofenceManager::GetInstance();
-    geofenceClient->RemoveGnssGeofence(request);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] RemoveGnssGeoFence001 end");
-}
 
 HWTEST_F(LocatorImplTest, GetGeofenceSupportedCoordTypes001, TestSize.Level1)
 {

@@ -59,6 +59,8 @@ private:
     void UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event);
+    void GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event);
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -165,7 +167,8 @@ public:
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
     void RemoveUnloadTask(uint32_t code);
     void PostUnloadTask(uint32_t code);
-    void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName, int succCnt, int failCnt);
+    void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
+        int permUsedType, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();
     bool IsInvalidRequest(std::shared_ptr<Request>& request);
     bool IsProcessRunning(pid_t pid);
@@ -173,6 +176,7 @@ public:
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
 #endif
+    void UpdateLastLocationRequestNum();
 
 private:
     bool Init();
