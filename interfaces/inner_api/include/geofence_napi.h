@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace Location {
-void JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
+bool JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
     const std::shared_ptr<GeofenceRequest>& request);
 bool ParseGnssGeofenceRequest(
     const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& request);

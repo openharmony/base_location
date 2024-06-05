@@ -1060,7 +1060,11 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
-    ParseGnssGeofenceRequest(env, argv[0], gnssGeofenceRequest);
+    bool isValidParameter = ParseGnssGeofenceRequest(env, argv[0], gnssGeofenceRequest);
+    if (!isValidParameter) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
     auto locationGnssGeofenceCallbackHost =
         sptr<LocationGnssGeofenceCallbackHost>(new (std::nothrow) LocationGnssGeofenceCallbackHost());
     JsObjToGeofenceTransitionCallback(env, argv[0], locationGnssGeofenceCallbackHost);
@@ -1195,13 +1199,11 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
             if (errCode == ERRCODE_SUCCESS) {
                 NAPI_CALL_RETURN_VOID(
                     context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+                RemoveCallbackToGnssGeofenceCallbackHostMap(context->fenceId_);
             } else {
                 context->errCode = errCode;
             }
-        } else {
-            context->errCode = ERRCODE_GEOFENCE_INCORRECT_ID;
         }
-        RemoveCallbackToGnssGeofenceCallbackHostMap(context->fenceId_);
         LBSLOGD(LOCATOR_STANDARD, "Push RemoveGnssGeofence result to client");
     };
     return asyncContext;
