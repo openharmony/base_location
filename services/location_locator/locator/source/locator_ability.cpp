@@ -1109,6 +1109,8 @@ void LocatorAbility::RegisterAction()
     }
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
+    matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 

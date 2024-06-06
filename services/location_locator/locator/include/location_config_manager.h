@@ -21,6 +21,7 @@
 #include <string>
 
 #include "constant_definition.h"
+#include "want.h"
 
 namespace OHOS {
 namespace Location {
@@ -57,6 +58,11 @@ public:
     std::string GetPrivacyTypeConfigPath(const int type);
     LocationErrCode GetPrivacyTypeState(const int type, bool& isConfirmed);
     LocationErrCode SetPrivacyTypeState(const int type, bool isConfirmed);
+    void OpenPrivacyDialog();
+    void ConnectExtensionAbility(const AAFwk::Want &want, const std::string &commandStr);
+    std::string GenerateStartCommand();
+    int GetCachePrivacyType();
+    bool SetCachePrivacyType(int value);
 
     /*
      * @Description get nlp service name
