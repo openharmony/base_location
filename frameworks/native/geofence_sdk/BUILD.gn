@@ -87,6 +87,10 @@ ohos_shared_library("geofence_sdk") {
     defines += [ "NOTIFICATION_ENABLE" ]
   }
 
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
   cflags_cc = [
     "-std=c++17",
     "-fno-rtti",

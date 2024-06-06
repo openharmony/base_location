@@ -61,6 +61,11 @@ ohos_shared_library("locator_agent") {
     "samgr:samgr_proxy",
   ]
 
+  defines = []
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
   innerapi_tags = [ "platformsdk" ]
   part_name = "location"
   subsystem_name = "location"
