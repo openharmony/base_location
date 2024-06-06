@@ -256,7 +256,6 @@ int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &re
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    auto request = GeofenceRequest::Unmarshalling(data);
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE), data, reply);
     isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
