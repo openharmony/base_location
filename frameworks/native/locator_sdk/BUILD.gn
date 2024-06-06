@@ -104,6 +104,10 @@ ohos_shared_library("locator_sdk") {
     defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
   }
 
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
   cflags_cc = [
     "-std=c++17",
     "-fno-rtti",

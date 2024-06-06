@@ -74,6 +74,10 @@ ohos_shared_library("lbsservice_common") {
     defines += [ "NOTIFICATION_ENABLE" ]
   }
 
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
   innerapi_tags = [ "platformsdk" ]
   part_name = "location"
   subsystem_name = "location"
