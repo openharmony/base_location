@@ -59,7 +59,10 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_passive/passive/include",
   ]
 
-  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+  ]
 
   external_deps = [
     "ability_base:want",
@@ -121,6 +124,11 @@ ohos_shared_library("lbsservice_locator") {
   if (resourceschedule_schedule_service_enable) {
     external_deps += [ "resource_schedule_service:ressched_client" ]
     defines += [ "RES_SCHED_SUPPROT" ]
+  }
+
+  if (notification_distributed_notification_service_enable) {
+    external_deps += [ "distributed_notification_service:ans_innerkits" ]
+    defines += [ "NOTIFICATION_ENABLE" ]
   }
 
   part_name = "location"

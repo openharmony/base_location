@@ -41,6 +41,7 @@ ohos_fuzztest("PassiveAbilityProxyFuzzTest") {
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
     "$LOCATION_ROOT_DIR/services/location_geocode/geocode:lbsservice_geocode",
     "$LOCATION_ROOT_DIR/services/location_gnss/gnss:lbsservice_gnss",

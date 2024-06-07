@@ -50,6 +50,7 @@ ohos_unittest("LocationMockIpcTest") {
     "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
     "$LOCATION_NETWORK_ROOT:lbsservice_network",
     "$LOCATION_PASSIVE_ROOT:lbsservice_passive",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
   ]
 

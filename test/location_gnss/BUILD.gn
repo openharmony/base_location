@@ -52,6 +52,7 @@ if (location_feature_with_gnss) {
       "$LOCATION_GNSS_ROOT:lbsservice_gnss",
       "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
       "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
       "$LOCATION_ROOT_DIR/test/location_locator:LocatorServiceAbilityTest",
       "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
@@ -94,7 +95,9 @@ if (location_feature_with_gnss) {
       ]
       defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }
-
+    if (notification_distributed_notification_service_enable) {
+      defines += [ "NOTIFICATION_ENABLE" ]
+    }
     module_out_path = module_output_path
   }
 } else {

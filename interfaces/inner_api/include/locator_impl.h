@@ -550,7 +550,7 @@ public:
     /**
      * @brief Used to freeze locating process with specified uid.
      *
-     * @param uid Indicates the calling uid.
+     * @param pidList Indicates the calling pid.
      * @param isProxy Indicates if the locating process should be freezed.
      * @return Returns ERRCODE_SUCCESS if the process has been frozen successfully.
      */
