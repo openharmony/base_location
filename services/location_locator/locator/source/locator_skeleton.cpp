@@ -23,6 +23,7 @@
 #include "location.h"
 #include "locator_ability.h"
 #include "location_dumper.h"
+#include "location_config_manager.h"
 #include "request_config.h"
 #include "system_ability_definition.h"
 #include "location_sa_load_manager.h"
@@ -254,6 +255,11 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     bool isEnabled = data.ReadBool();
+    bool privacyState = false;
+    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
+    if (isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
+        LocationConfigManager::GetInstance()->OpenPrivacyDialog();
+    }
     reply.WriteInt32(locatorAbility->EnableAbility(isEnabled));
     return ERRCODE_SUCCESS;
 }

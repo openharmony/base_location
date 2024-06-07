@@ -25,7 +25,6 @@ if (location_feature_with_gnss) {
       "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
       "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
       "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
-      "$LOCATION_GNSS_ROOT/source/ui_extension_ability_connection.cpp",
       "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
       "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
       "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",

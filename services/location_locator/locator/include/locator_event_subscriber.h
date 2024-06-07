@@ -23,6 +23,8 @@
 namespace OHOS {
 namespace Location {
 const std::string MODE_CHANGED_EVENT = "usual.event.location.MODE_STATE_CHANGED";
+const std::string LOCATION_PRIVACY_ACCEPT_EVENT = "usual.event.LOCATION_PRIVACY_ACCEPT";
+const std::string LOCATION_PRIVACY_REJECT_EVENT = "usual.event.LOCATION_PRIVACY_REJECT";
 class LocatorEventSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
 public:
     explicit LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);

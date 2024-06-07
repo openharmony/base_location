@@ -16,6 +16,7 @@
 #include "locator_event_subscriber.h"
 #include "location_log.h"
 #include "locator_ability.h"
+#include "location_config_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -35,6 +36,10 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
     LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
     if (MODE_CHANGED_EVENT.compare(action) == 0) {
         locatorAbility->UpdateSaAbility();
+    } else if (LOCATION_PRIVACY_ACCEPT_EVENT.compare(action) == 0) {
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
+    } else if (LOCATION_PRIVACY_REJECT_EVENT.compare(action) == 0) {
+        locatorAbility->EnableAbility(false);
     }
 }
 } // namespace Location

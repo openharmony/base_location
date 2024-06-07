@@ -37,6 +37,18 @@ std::string LocationDataRdbManager::GetLocationDataUri(std::string key)
     return uri;
 }
 
+std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
+{
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_" +
+        std::to_string(userId) +
+        "?Proxy=true&key=" + key;
+    return uri;
+}
+
 int LocationDataRdbManager::QuerySwitchState()
 {
     int32_t state = DISABLED;
@@ -110,6 +122,32 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
     int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
+        return false;
+    }
+    return true;
+}
+
+bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)
+{
+    Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        SetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not set value, key = %{public}s, errcode = %{public}d", LOCATION_ENHANCE_STATUS.c_str(), errCode);
+        return false;
+    }
+    return true;
+}
+
+bool LocationDataRdbManager::GetLocationEnhanceStatus(int32_t& state)
+{
+    Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));
+    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+        GetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not get value, key = %{public}s, errcode = %{public}d", LOCATION_ENHANCE_STATUS.c_str(), errCode);
         return false;
     }
     return true;
