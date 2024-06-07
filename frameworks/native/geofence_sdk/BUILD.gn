@@ -35,25 +35,14 @@ ohos_shared_library("geofence_sdk") {
   branch_protector_ret = "pac_ret"
 
   sources = [
-    "$LOCATION_COMMON_DIR/source/common_hisysevent.cpp",
-    "$LOCATION_COMMON_DIR/source/common_utils.cpp",
-    "$LOCATION_COMMON_DIR/source/geo_address.cpp",
-    "$LOCATION_COMMON_DIR/source/geo_coding_mock_info.cpp",
-    "$LOCATION_COMMON_DIR/source/hook_utils.cpp",
-    "$LOCATION_COMMON_DIR/source/location.cpp",
-    "$LOCATION_COMMON_DIR/source/location_data_rdb_helper.cpp",
-    "$LOCATION_COMMON_DIR/source/location_data_rdb_manager.cpp",
-    "$LOCATION_COMMON_DIR/source/location_sa_load_manager.cpp",
-    "$LOCATION_COMMON_DIR/source/request.cpp",
-    "$LOCATION_COMMON_DIR/source/request_config.cpp",
-    "$LOCATION_COMMON_DIR/source/satellite_status.cpp",
+    "$LOCATION_COMMON_DIR/source/geofence_request.cpp",
     "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_napi.cpp",
     "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_sdk.cpp",
     "$LOCATION_NATIVE_DIR/geofence_sdk/source/location_gnss_geofence_callback_host.cpp",
     "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_proxy.cpp",
     "$LOCATION_NATIVE_DIR/locator_sdk/source/napi_util.cpp",
   ]
-
+  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
   public_external_deps = [
     "ability_base:zuri",
     "ability_runtime:napi_common",

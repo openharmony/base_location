@@ -35,7 +35,6 @@ ohos_shared_library("lbsservice_common") {
     "$LOCATION_COMMON_DIR/source/common_utils.cpp",
     "$LOCATION_COMMON_DIR/source/geo_address.cpp",
     "$LOCATION_COMMON_DIR/source/geo_coding_mock_info.cpp",
-    "$LOCATION_COMMON_DIR/source/geofence_request.cpp",
     "$LOCATION_COMMON_DIR/source/hook_utils.cpp",
     "$LOCATION_COMMON_DIR/source/location.cpp",
     "$LOCATION_COMMON_DIR/source/location_data_rdb_helper.cpp",
@@ -69,8 +68,6 @@ ohos_shared_library("lbsservice_common") {
 
   defines = []
   if (notification_distributed_notification_service_enable) {
-    public_external_deps += [ "distributed_notification_service:ans_innerkits" ]
-    public_external_deps += [ "relational_store:native_rdb" ]
     defines += [ "NOTIFICATION_ENABLE" ]
   }
 
