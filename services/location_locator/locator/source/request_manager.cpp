@@ -425,11 +425,26 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     if (!IsRequestAvailable(request)) {
         return false;
     }
+
+    auto locationErrorCallback = request->GetLocationErrorCallBack();
+    int switchState = DISABLED;
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr && locatorAbility->GetSwitchState(switchState) == ERRCODE_SUCCESS) {
+        if (switchState == DISABLED) {
+            LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
+            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
+            return false;
+        }
+    }
+
     uint32_t tokenId = request->GetTokenId();
     uint32_t firstTokenId = request->GetFirstTokenId();
     // if location access permission granted, add request info to work record
     if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
         !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        if (locationErrorCallback != nullptr) {
+            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
+        }
         LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
@@ -443,6 +458,9 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
         if (reportManager->IsAppBackground(bundleName, tokenId,
             request->GetTokenIdEx(), uid)&&
             !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+            if (locationErrorCallback != nullptr) {
+                locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
+            }
             LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
             return false;
         }

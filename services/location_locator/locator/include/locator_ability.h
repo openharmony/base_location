@@ -126,7 +126,8 @@ public:
     LocationErrCode DisableLocationMock();
     LocationErrCode SetMockedLocations(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
-    LocationErrCode ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
+    LocationErrCode ReportLocation(
+        const std::unique_ptr<Location>& location, std::string abilityName, AppIdentity &identity);
     LocationErrCode ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
     LocationErrCode ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
     LocationErrCode ProcessLocationMockMsg(
@@ -196,6 +197,7 @@ private:
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
     void ReportDataToResSched(std::string state);
+    bool CheckIsReportPermitted(AppIdentity &identity);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

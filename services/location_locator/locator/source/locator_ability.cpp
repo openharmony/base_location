@@ -1039,20 +1039,72 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     return ERRCODE_LOCATING_FAIL;
 }
 
-LocationErrCode LocatorAbility::ReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
+bool LocatorAbility::CheckIsReportPermitted(AppIdentity &identity)
+{
+    auto requests = GetRequests();
+    if (requests == nullptr || requests->empty()) {
+        LBSLOGE(LOCATOR, "requests map is empty");
+        return false;
+    }
+
+    bool isPermitted = true;
+    int switchState = DISABLED;
+    GetSwitchState(switchState);
+    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
+        auto list = mapIter->second;
+        for (auto request : list) {
+            if (request == nullptr || request->GetTokenId() != identity.GetTokenId()) {
+                continue;
+            }
+            auto locationErrorCallback = request->GetLocationErrorCallBack();
+            if (locationErrorCallback != nullptr) {
+                if (switchState == DISABLED) {
+                    LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off", __func__, __LINE__);
+                    isPermitted = false;
+                    locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
+                    continue;
+                }
+
+                std::string bundleName = "";
+                auto tokenId = request->GetTokenId();
+                auto firstTokenId = request->GetFirstTokenId();
+                auto tokenIdEx = request->GetTokenIdEx();
+                auto uid =  request->GetUid();
+                if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+                    LBSLOGE(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", uid);
+                }
+                if (reportManager_->IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
+                    !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+                    isPermitted = false;
+                    //app background, no background permission, not ContinuousTasks
+                    locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
+                    continue;
+                }
+                if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+                    !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+                    LBSLOGE(LOCATOR, "%{public}d has no location permission failed", tokenId);
+                    isPermitted = false;
+                    locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
+                    continue;
+                }
+            }
+        }
+    }
+    return isPermitted;
+}
+
+LocationErrCode LocatorAbility::ReportLocation(
+    const std::unique_ptr<Location>& location, std::string abilityName, AppIdentity &identity)
 {
     if (requests_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int state = DISABLED;
-    LocationErrCode errorCode = GetSwitchState(state);
-    if (errorCode != ERRCODE_SUCCESS) {
-        return errorCode;
-    }
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
-            __func__, __LINE__);
-        return ERRCODE_SWITCH_OFF;
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    sptr<ILocatorCallback> callback;
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    if (!CheckIsReportPermitted(identity)) {
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d report is not allowed", __func__, __LINE__);
+        return ERRCODE_NOT_SUPPORTED;
     }
     std::unique_ptr<LocationMessage> locationMessage = std::make_unique<LocationMessage>();
     locationMessage->SetAbilityName(abilityName);

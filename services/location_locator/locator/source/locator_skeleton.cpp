@@ -902,7 +902,7 @@ int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &re
     }
     std::string systemAbility = data.ReadString();
     std::unique_ptr<Location> location = Location::Unmarshalling(data);
-    locatorAbility->ReportLocation(location, systemAbility);
+    locatorAbility->ReportLocation(location, systemAbility, identity);
     return ERRCODE_SUCCESS;
 }
 
