@@ -1942,7 +1942,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceReportLocation001, TestSize.Level1)
     AppIdentity identity;
     locatorAbility->requests_ = nullptr;
     std::unique_ptr<Location> location = std::make_unique<Location>();
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->ReportLocation(location, "test"));
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->ReportLocation(location, "test", identity));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceReportLocation001 end");
 }
 
