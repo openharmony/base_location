@@ -26,8 +26,8 @@ int32_t GeofenceEventCallback::ReportGeofenceAvailability(bool isAvailable)
     return 0;
 }
 
-int32_t GeofenceEventCallback::ReportGeofenceEvent(
-    int32_t fenceIndex, const LocationInfo& location, GeofenceEvent event, int64_t timestamp)
+int32_t GeofenceEventCallback::ReportGeofenceEvent(int32_t fenceIndex,
+    const HDI::Location::Geofence::V2_0::LocationInfo& location, GeofenceEvent event, int64_t timestamp)
 {
     LBSLOGD(GNSS, "ReportGeofenceEvent enter");
     auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
