@@ -1495,7 +1495,7 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
 
 void GnssHandler::HandleAddFence(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1508,7 +1508,7 @@ void GnssHandler::HandleAddFence(const AppExecFwk::InnerEvent::Pointer& event)
 
 void GnssHandler::HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1521,7 +1521,7 @@ void GnssHandler::HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event
 
 void GnssHandler::HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
@@ -1534,7 +1534,7 @@ void GnssHandler::HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event
 
 void GnssHandler::HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto gnssAbility = DelayedSingleton<GnssAbility>::GetInstance();
+    auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility == nullptr) {
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
