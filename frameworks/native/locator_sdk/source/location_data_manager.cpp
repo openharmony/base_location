@@ -140,7 +140,7 @@ void LocationDataManager::ResetIsObserverReg()
 
 void LocationDataManager::RegisterDatashareObserver()
 {
-    auto locationDataRdbHelper = DelayedSingleton<LocationDataRdbHelper>::GetInstance();
+    auto locationDataRdbHelper = LocationDataRdbHelper::GetInstance();
     auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
     if (locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
         return;
@@ -155,7 +155,7 @@ void LocationDataManager::RegisterDatashareObserver()
 void DataShareSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
-    auto locationDataManager = DelayedSingleton<LocationDataManager>::GetInstance();
+    auto locationDataManager = LocationDataManager::GetInstance();
     if (locationDataManager == nullptr) {
         return;
     }
@@ -165,7 +165,7 @@ void DataShareSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId,
 void DataShareSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
-    auto locationDataManager = DelayedSingleton<LocationDataManager>::GetInstance();
+    auto locationDataManager = LocationDataManager::GetInstance();
     if (locationDataManager == nullptr) {
         return;
     }

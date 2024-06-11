@@ -130,7 +130,7 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
 bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)
 {
     Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         SetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS,
@@ -143,7 +143,7 @@ bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)
 bool LocationDataRdbManager::GetLocationEnhanceStatus(int32_t& state)
 {
     Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS,
