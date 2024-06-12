@@ -430,7 +430,7 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     int switchState = DISABLED;
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr && locatorAbility->GetSwitchState(switchState) == ERRCODE_SUCCESS) {
-        if (switchState == DISABLED) {
+        if (switchState == DISABLED && locationErrorCallback != nullptr) {
             LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
             locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
             return false;
