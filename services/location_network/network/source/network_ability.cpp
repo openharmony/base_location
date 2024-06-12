@@ -273,6 +273,10 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         RequestNetworkLocation(workRecord);
     } else {
         RemoveNetworkLocation(workRecord);
+        if (GetRequestNum() == 0 && conn_ != nullptr) {
+            LBSLOGD(NETWORK, "RequestRecord num 0 disconnect");
+            AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        }
     }
 }
 
