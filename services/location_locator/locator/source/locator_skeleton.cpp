@@ -256,8 +256,9 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
     }
     bool isEnabled = data.ReadBool();
     bool privacyState = false;
-    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
-    if (isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
+    LocationErrCode code =
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
     }
     reply.WriteInt32(locatorAbility->EnableAbility(isEnabled));
