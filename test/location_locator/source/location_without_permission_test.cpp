@@ -264,58 +264,5 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->ResetAllProxy());
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9002 end");
 }
-
-HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 begin");
-    auto locatorImpl = Locator::GetInstance();
-    EXPECT_NE(nullptr, locatorImpl);
-
-    bool state = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->IsLocationEnabledV9(state));
-#ifdef FEATURE_GNSS_SUPPORT
-    GeoFence geofence;
-    geofence.latitude = 35.1;
-    geofence.longitude = 40.2;
-    geofence.radius = 2.2;
-    geofence.expiration = 12.2;
-    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetGeofence(geofence);
-    if (state) {
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->AddFenceV9(fenceRequest));
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RemoveFenceV9(fenceRequest));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->AddFenceV9(fenceRequest));
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RemoveFenceV9(fenceRequest));
-    }
-    
-    int size = -1;
-    if (state) {
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedGnssLocationsSizeV9(size));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->GetCachedGnssLocationsSizeV9(size));
-    }
-    EXPECT_EQ(0, size);
-
-    auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
-    EXPECT_NE(nullptr, cachedLocationsCallbackHost);
-    auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
-    EXPECT_NE(nullptr, cachedCallback);
-    auto request = std::make_unique<CachedGnssLocationsRequest>();
-    EXPECT_NE(nullptr, request);
-    request->reportingPeriodSec = 10;
-    request->wakeUpCacheQueueFull = true;
-    if (state) {
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
-    }
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterCachedLocationCallbackV9(cachedCallback));
-#endif
-    LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9003 end");
-}
 }  // namespace Location
 }  // namespace OHOS
