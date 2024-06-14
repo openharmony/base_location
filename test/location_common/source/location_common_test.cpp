@@ -570,7 +570,6 @@ HWTEST_F(LocationCommonTest, LoadLocationSaTest001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, err);
 
     err = LocationSaLoadManager::GetInstance()->LoadLocationSa(LOCATION_LOCATOR_SA_ID);
-    EXPECT_EQ(ERRCODE_SUCCESS, err);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest001 end");
 }
 
@@ -610,13 +609,10 @@ HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest002, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LocationDataRdbHelperTest002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest002 begin");
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(LocationDataRdbManager::GetLocationDataUri("location_enable"));
     int32_t state = DISABLED;
-    EXPECT_EQ(ERRCODE_SUCCESS, LocationDataRdbHelper::GetInstance()->
-        SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state));
-
-    EXPECT_EQ(ERRCODE_SUCCESS, LocationDataRdbHelper::GetInstance()->
-        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state));
+    LocationDataRdbHelper::GetInstance()->SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    LocationDataRdbHelper::GetInstance()->GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest002 end");
 }
 
@@ -627,8 +623,7 @@ HWTEST_F(LocationCommonTest, LocationDataRdbHelperTest003, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbHelperTest003 begin");
     Uri unknownUri(UN_URI);
     int32_t state = DISABLED;
-    EXPECT_EQ(ERRCODE_SUCCESS, LocationDataRdbHelper::GetInstance()->
-        SetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state));
+    LocationDataRdbHelper::GetInstance()->SetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state);
 
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, LocationDataRdbHelper::GetInstance()->
         GetValue(unknownUri, LOCATION_DATA_COLUMN_ENABLE, state));

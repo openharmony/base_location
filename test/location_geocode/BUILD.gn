@@ -23,20 +23,15 @@ if (location_feature_with_geocode) {
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_ROOT_DIR/test/location_geocode/include",
+      "$LOCATION_ROOT_DIR/test/location_geocode/mock/include",
       "$LOCATION_GEOCONVERT_ROOT/include",
       "$LOCATION_LOCATOR_ROOT/include",
     ]
 
-    sanitize = {
-      cfi = true
-      cfi_cross_dso = true
-      debug = false
-      blocklist = "./../../cfi_blocklist.txt"
-    }
-    branch_protector_ret = "pac_ret"
-
     deps = [
       "$ARKUI_ROOT_DIR/napi:ace_napi",
+      "$GOOGLE_TEST_DIR:gmock_main",
+      "$GOOGLE_TEST_DIR:gtest_main",
       "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
       "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode",
       "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
@@ -47,6 +42,14 @@ if (location_feature_with_geocode) {
       "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
       "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
     ]
+
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+      blocklist = "./../../cfi_blocklist.txt"
+    }
+    branch_protector_ret = "pac_ret"
 
     external_deps = [
       "access_token:libaccesstoken_sdk",

@@ -1,0 +1,70 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/location/config.gni")
+import("//build/test.gni")
+
+module_output_path = "location/native"
+
+ohos_unittest("GeofenceSdkTest") {
+  module_out_path = module_output_path
+  sources = [ "$LOCATION_ROOT_DIR/test/location_geofence/source/location_gnss_geofence_callback_host_test.cpp" ]
+
+  include_dirs = [ "$LOCATION_ROOT_DIR/test/location_geofence/include" ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "./../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+
+  deps = [ "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:dataobs_manager",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "location:locator_sdk",
+    "os_account:os_account_innerkits",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = []
+
+  module_out_path = module_output_path
+}
+
+group("unittest") {
+  testonly = true
+  deps = []
+  deps += [ ":GeofenceSdkTest" ]
+}

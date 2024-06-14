@@ -1570,6 +1570,146 @@ HWTEST_F(GnssAbilityTest, RemoveGnssGeofence002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence002 end");
 }
 
+HWTEST_F(GnssAbilityTest, RegisterGnssGeofenceCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RegisterGnssGeofenceCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RegisterGnssGeofenceCallback001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::shared_ptr<GeofenceRequest> request = nullptr;
+    sptr<IRemoteObject> callback = nullptr;
+    bool result = gnssAbility->RegisterGnssGeofenceCallback(request, callback);
+    EXPECT_EQ(false, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RegisterGnssGeofenceCallback001 end");
+}
+
+HWTEST_F(GnssAbilityTest, UnregisterGnssGeofenceCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, UnregisterGnssGeofenceCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] UnregisterGnssGeofenceCallback001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    int fenceId = 1;
+    bool result = gnssAbility->UnregisterGnssGeofenceCallback(fenceId);
+    EXPECT_EQ(true, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] UnregisterGnssGeofenceCallback001 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveGnssGeofenceRequestByCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveGnssGeofenceRequestByCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceRequestByCallback001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    sptr<IRemoteObject> callbackObj = nullptr;
+    bool result = gnssAbility->RemoveGnssGeofenceRequestByCallback(callbackObj);
+    EXPECT_EQ(false, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceRequestByCallback001 end");
+}
+
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+HWTEST_F(GnssAbilityTest, ReportGeofenceOperationResult001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, ReportGeofenceOperationResult001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReportGeofenceOperationResult001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    int fenceId = 0;
+    GeofenceOperateType type = GeofenceOperateType::TYPE_DELETE;
+    GeofenceOperateResult result = GeofenceOperateResult::GEOFENCE_OPERATION_SUCCESS;
+    gnssAbility->ReportGeofenceOperationResult(fenceId, type, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReportGeofenceOperationResult001 end");
+}
+
+HWTEST_F(GnssAbilityTest, ReportGeofenceEvent001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, ReportGeofenceEvent001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReportGeofenceEvent001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    int fenceId = 0;
+    GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
+    gnssAbility->ReportGeofenceEvent(fenceId, event);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReportGeofenceEvent001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetGeofenceRequestByFenceId001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetGeofenceRequestByFenceId001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetGeofenceRequestByFenceId001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    int fenceId = 0;
+    gnssAbility->GetGeofenceRequestByFenceId(fenceId);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetGeofenceRequestByFenceId001 end");
+}
+
+HWTEST_F(GnssAbilityTest, ExecuteFenceProcess001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, ExecuteFenceProcess001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ExecuteFenceProcess001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    GnssInterfaceCode code= GnssInterfaceCode::ADD_FENCE_INFO;
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    gnssAbility->ExecuteFenceProcess(code, request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ExecuteFenceProcess001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SetGeofenceCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SetGeofenceCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetGeofenceCallback001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->SetGeofenceCallback();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetGeofenceCallback001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StopGnss001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StopGnss001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StopGnss001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->StopGnss();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StopGnss001 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveHdi001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveHdi001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveHdi001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->RemoveHdi();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveHdi001 end");
+}
+
+HWTEST_F(GnssAbilityTest, QuerySupportCoordinateSystemType001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, QuerySupportCoordinateSystemType001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] QuerySupportCoordinateSystemType001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    gnssAbility->QuerySupportCoordinateSystemType(coordinateSystemTypes);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] QuerySupportCoordinateSystemType001 end");
+}
+
+#endif
+
 HWTEST_F(GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1579,6 +1719,44 @@ HWTEST_F(GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1)
     EXPECT_NE(nullptr, gnssAbility);
     gnssAbility->ReConnectHdiImpl();
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl001 end");
+}
+
+HWTEST_F(GnssAbilityTest, InjectTime001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, InjectTime001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] InjectTime001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->InjectTime();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] InjectTime001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendNetworkLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendNetworkLocation001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<Location> location = nullptr;
+    LocationErrCode result = gnssAbility->SendNetworkLocation(location);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendNetworkLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendNetworkLocation002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetLatitude(31.2568);
+    LocationErrCode result = gnssAbility->SendNetworkLocation(location);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation002 end");
 }
 
 HWTEST_F(GnssAbilityTest, AgnssNiManagerRun001, TestSize.Level1)
