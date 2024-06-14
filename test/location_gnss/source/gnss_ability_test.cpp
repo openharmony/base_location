@@ -36,6 +36,10 @@
 #include "permission_manager.h"
 #include "geofence_request.h"
 
+#include "agnss_ni_manager.h"
+#include "call_manager_client.h"
+#include "string_utils.h"
+
 using namespace testing;
 using namespace testing::ext;
 
@@ -1078,6 +1082,18 @@ HWTEST_F(GnssAbilityTest, GnssRequestRecord001, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRequestRecord001 end");
 }
 
+HWTEST_F(GnssAbilityTest, GnssRequestRecord002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssRequestRecord002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRequestRecord002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
+    gnssAbility->RequestRecord(*workRecord, true);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssRequestRecord002 end");
+}
+
 HWTEST_F(GnssAbilityTest, GnssReConnectHdi001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1411,6 +1427,149 @@ HWTEST_F(GnssAbilityTest, GetCommandFlags013, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags013 end");
 }
 
+HWTEST_F(GnssAbilityTest, GetCommandFlags014, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetCommandFlags014, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags014 begin");
+    GnssAuxiliaryDataType flags;
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "unknow";
+    bool result = gnssAbility->GetCommandFlags(cmd, flags);
+    EXPECT_EQ(false, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] GetCommandFlags014 end");
+}
+
+HWTEST_F(GnssAbilityTest, SetEnable001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SetEnable001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetEnable001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    LocationErrCode result = gnssAbility->SetEnable(true);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetEnable001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SetEnable002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SetEnable002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetEnable002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    LocationErrCode result = gnssAbility->SetEnable(false);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetEnable002 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendCommand002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendCommand002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendCommand002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<LocationCommand> cmd = std::make_unique<LocationCommand>();
+    cmd->command = "delete_auxiliary_data_all";
+    LocationErrCode result = gnssAbility->SendCommand(cmd);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendCommand002 end");
+}
+
+HWTEST_F(GnssAbilityTest, SetPositionMode001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SetPositionMode001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetPositionMode001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    LocationErrCode result = gnssAbility->SetPositionMode();
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SetPositionMode001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    LocationErrCode result = gnssAbility->AddFence(request);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence001 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    LocationErrCode result = gnssAbility->RemoveFence(request);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence001 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveFence002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveFence002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::shared_ptr<GeofenceRequest> request = nullptr;
+    LocationErrCode result = gnssAbility->RemoveFence(request);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence002 end");
+}
+
+HWTEST_F(GnssAbilityTest, AddGnssGeofence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddGnssGeofence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    LocationErrCode result = gnssAbility->AddGnssGeofence(request);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence001 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveGnssGeofence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveGnssGeofence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    LocationErrCode result = gnssAbility->RemoveGnssGeofence(request);
+    EXPECT_EQ(ERRCODE_GEOFENCE_INCORRECT_ID, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence001 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveGnssGeofence002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveGnssGeofence002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::shared_ptr<GeofenceRequest> request = nullptr;
+    LocationErrCode result = gnssAbility->RemoveGnssGeofence(request);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence002 end");
+}
+
 HWTEST_F(GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1421,6 +1580,290 @@ HWTEST_F(GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1)
     gnssAbility->ReConnectHdiImpl();
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl001 end");
 }
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerRun001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerRun001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerRun001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    agnssNiManager->Run();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerRun001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerUnRegisterAgnssNiEvent001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerUnRegisterAgnssNiEvent001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerUnRegisterAgnssNiEvent001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    agnssNiManager->UnRegisterAgnssNiEvent();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerUnRegisterAgnssNiEvent001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerCheckSmsSuplInit001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerCheckSmsSuplInit001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerCheckSmsSuplInit001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    EventFwk::Want want;
+    want.SetParam("slotId", 0);
+    std::vector<std::string> newPdus = {"0891683108200075F4240D91688129562983F600001240800102142302C130"};
+    want.SetParam("pdus", newPdus);
+    want.SetParam("isCdma", true);
+    agnssNiManager->CheckSmsSuplInit(want);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerCheckSmsSuplInit001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerCheckWapSuplInit001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerCheckWapSuplInit001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerCheckWapSuplInit001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    EventFwk::Want want;
+    want.SetParam("slotId", 0);
+    std::string appId = "16";
+    want.SetParam("applicationId", appId);
+    agnssNiManager->CheckWapSuplInit(want);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerCheckWapSuplInit001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerCheckWapSuplInit002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerCheckWapSuplInit002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerCheckWapSuplInit002 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    EventFwk::Want want;
+    want.SetParam("slotId", 0);
+    std::string appId = "0";
+    want.SetParam("applicationId", appId);
+    std::string rawData = "0891683108200075F4240D91688129562983F600001240800102142302C130";
+    want.SetParam("rawData", rawData);
+    agnssNiManager->CheckWapSuplInit(want);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerCheckWapSuplInit002 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerOnCallStateChanged001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerOnCallStateChanged001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerOnCallStateChanged001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    EventFwk::Want want;
+    want.SetParam("state", (int32_t)Telephony::TelCallState::CALL_STATUS_DIALING);
+    want.SetParam("slotId", 0);
+    std::string number = "110";
+    want.SetParam("number", number);
+    agnssNiManager->OnCallStateChanged(want);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerOnCallStateChanged001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerSendUserResponse001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerSendUserResponse001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendUserResponse001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    agnssNiManager->SendUserResponse(GNSS_NI_RESPONSE_CMD_ACCEPT);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendUserResponse001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerSendUserResponse002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerSendUserResponse002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendUserResponse002 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    agnssNiManager->SendUserResponse(GNSS_NI_RESPONSE_CMD_ACCEPT);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendUserResponse002 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsStringToHex001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsStringToHex001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsStringToHex001 begin");
+    std::string str = "0314";
+    EXPECT_NE("", StringUtils::StringToHex(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsStringToHex001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsStringToHex002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsStringToHex002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsStringToHex002 begin");
+    const char *data = "0314";
+    int byteLength = 4;
+    EXPECT_NE("", StringUtils::StringToHex(data, byteLength));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsStringToHex002 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsStringToHex003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsStringToHex003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsStringToHex003 begin");
+    std::vector<uint8_t> data = {0, 3, 1, 4};
+    EXPECT_NE("", StringUtils::StringToHex(data));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsStringToHex003 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsHexToString001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsHexToString001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToString001 begin");
+    std::string str = "0314";
+    EXPECT_NE("", StringUtils::HexToString(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToString001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsHexToString002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsHexToString002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToString002 begin");
+    std::string str = "";
+    EXPECT_EQ("", StringUtils::HexToString(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToString002 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsToUtf8001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsToUtf8001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf8001 begin");
+    std::u16string str = u"hello, world!";
+    EXPECT_NE("", StringUtils::ToUtf8(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf8001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsToUtf8002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsToUtf8002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf8002 begin");
+    std::u16string str = u"";
+    EXPECT_EQ("", StringUtils::ToUtf8(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf8002 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsToUtf16001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsToUtf16001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf16001 begin");
+    std::string str = "0314";
+    EXPECT_NE(u"", StringUtils::ToUtf16(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf16001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsToUtf16002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsToUtf16002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf16002 begin");
+    std::string str = "";
+    EXPECT_EQ(u"", StringUtils::ToUtf16(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsToUtf16002 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsUtf8ToWstring001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsUtf8ToWstring001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsUtf8ToWstring001 begin");
+    std::string str = "hello world";
+    EXPECT_NE(L"", StringUtils::Utf8ToWstring(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsUtf8ToWstring001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsUcs2ToWstring001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsUcs2ToWstring001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsUcs2ToWstring001 begin");
+    std::string str = "0xD869";
+    EXPECT_NE(L"", StringUtils::Ucs2ToWstring(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsUcs2ToWstring001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsWstringToString001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsWstringToString001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsWstringToString001 begin");
+    std::wstring str = L"中文";
+    EXPECT_NE("", StringUtils::WstringToString(str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsWstringToString001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsHexToByteVector001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsHexToByteVector001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector001 begin");
+    std::string str = "0314";
+    std::vector<uint8_t> ret = StringUtils::HexToByteVector(str);
+    EXPECT_NE(0, ret.size());
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector001 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsHexToByteVector002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsHexToByteVector002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector002 begin");
+    std::string str = "ABCDEF";
+    std::vector<uint8_t> ret = StringUtils::HexToByteVector(str);
+    EXPECT_NE(0, ret.size());
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector002 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsHexToByteVector003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsHexToByteVector003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector003 begin");
+    std::string str = "abcdef";
+    std::vector<uint8_t> ret = StringUtils::HexToByteVector(str);
+    EXPECT_NE(0, ret.size());
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector003 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsHexToByteVector004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsHexToByteVector003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector003 begin");
+    std::string str = "";
+    std::vector<uint8_t> ret = StringUtils::HexToByteVector(str);
+    EXPECT_EQ(0, ret.size());
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector003 end");
+}
+
+HWTEST_F(GnssAbilityTest, StringUtilsGsm7Decode001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, StringUtilsGsm7Decode001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsGsm7Decode001 begin");
+    std::string gsm7Str = "ABCDEFGHI";
+    EXPECT_NE("", StringUtils::Gsm7Decode(gsm7Str));
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsGsm7Decode001 end");
+}
+
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT
