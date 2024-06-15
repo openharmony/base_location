@@ -34,6 +34,7 @@ Request::Request()
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
+    nlpRequestType_ = 0;
 }
 
 Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
@@ -51,6 +52,7 @@ Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
+    nlpRequestType_ = 0;
     SetUid(identity.GetUid());
     SetPid(identity.GetPid());
     SetTokenId(identity.GetTokenId());
