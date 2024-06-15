@@ -33,6 +33,7 @@
 #include "geo_coding_mock_info.h"
 #include "geo_convert_callback_host.h"
 #include "geo_convert_skeleton.h"
+#include "ability_connect_callback_interface.h"
 
 namespace OHOS {
 namespace Location {
@@ -87,6 +88,7 @@ private:
     std::mutex mutex_;
     sptr<IRemoteObject> serviceProxy_ = nullptr;
     std::condition_variable connectCondition_;
+    sptr<AAFwk::IAbilityConnection> conn_;
 };
 
 class GeoServiceDeathRecipient : public IRemoteObject::DeathRecipient {

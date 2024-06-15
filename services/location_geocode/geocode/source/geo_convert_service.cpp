@@ -17,7 +17,6 @@
 #include "geo_convert_service.h"
 #include <file_ex.h>
 #include <thread>
-#include "ability_connect_callback_interface.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
 #include "geo_address.h"
@@ -48,6 +47,7 @@ GeoConvertService::GeoConvertService() : SystemAbility(LOCATION_GEO_CONVERT_SA_I
 
 GeoConvertService::~GeoConvertService()
 {
+    conn_ = nullptr;
 }
 
 void GeoConvertService::OnStart()
@@ -69,6 +69,10 @@ void GeoConvertService::OnStop()
 {
     state_ = ServiceRunningState::STATE_NOT_START;
     registerToService_ = false;
+    if (conn_ != nullptr) {
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        LBSLOGD(GEO_CONVERT, "GeoConvertService::OnStop and disconnect");
+    }
     LBSLOGI(GEO_CONVERT, "GeoConvertService::OnStop service stopped.");
 }
 
@@ -143,12 +147,12 @@ bool GeoConvertService::ConnectService()
             return false;
         }
         connectionWant.SetElementName(serviceName, abilityName);
-        sptr<AAFwk::IAbilityConnection> conn = new (std::nothrow) AbilityConnection();
-        if (conn == nullptr) {
+        conn_ = sptr<AAFwk::IAbilityConnection>(new (std::nothrow) AbilityConnection());
+        if (conn_ == nullptr) {
             LBSLOGE(GEO_CONVERT, "get connection failed!");
             return false;
         }
-        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn, -1);
+        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn_, -1);
         if (ret != ERR_OK) {
             LBSLOGE(GEO_CONVERT, "Connect cloud service failed!");
             return false;
