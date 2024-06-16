@@ -71,6 +71,11 @@ bool PermissionManager::CheckBackgroundPermission(uint32_t tokenId, uint32_t fir
     return CheckPermission(ACCESS_BACKGROUND_LOCATION, tokenId, firstTokenId);
 }
 
+bool PermissionManager::CheckMockLocationPermission(uint32_t tokenId, uint32_t firstTokenId)
+{
+    return CheckPermission(ACCESS_MOCK_LOCATION, tokenId, firstTokenId);
+}
+
 bool PermissionManager::CheckApproximatelyPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
     return CheckPermission(ACCESS_APPROXIMATELY_LOCATION, tokenId, firstTokenId);

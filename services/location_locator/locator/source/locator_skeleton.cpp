@@ -724,6 +724,12 @@ int LocatorAbilityStub::PreEnableLocationMock(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
+    }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableLocationMock: LocatorAbility is nullptr.");
@@ -742,6 +748,12 @@ int LocatorAbilityStub::PreDisableLocationMock(MessageParcel &data, MessageParce
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
+    }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreDisableLocationMock: LocatorAbility is nullptr.");
@@ -759,6 +771,12 @@ int LocatorAbilityStub::PreSetMockedLocations(MessageParcel &data, MessageParcel
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
@@ -787,6 +805,12 @@ int LocatorAbilityStub::PreEnableReverseGeocodingMock(MessageParcel &data, Messa
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
+    }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreEnableReverseGeocodingMock: LocatorAbility is nullptr.");
@@ -808,6 +832,12 @@ int LocatorAbilityStub::PreDisableReverseGeocodingMock(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
+    }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR, "PreDisableReverseGeocodingMock: LocatorAbility is nullptr.");
@@ -828,6 +858,12 @@ int LocatorAbilityStub::PreSetReverseGeocodingMockInfo(MessageParcel &data,
             identity.ToString().c_str());
         reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
         return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
