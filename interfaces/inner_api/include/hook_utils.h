@@ -40,6 +40,7 @@ enum class LocationProcessStage {
     LOCATOR_SA_GET_ADDRESSES_FROM_LOCATION_PROCESS,
     LOCATOR_SA_GET_ADDRESSES_FROM_LOCATIONNAME_PROCESS,
     WRITE_DFX_INNER_EVENT_PROCESS,
+    ADD_REQUEST_TO_WORK_RECORD,
 };
 
 typedef struct {
@@ -64,6 +65,14 @@ typedef struct {
     std::vector<std::string> values;
 } DfxInnerInfo;
 
+typedef struct {
+    bool deviceStillState;
+    bool deviceIdleState;
+    bool result;
+    std::string abilityName;
+    std::string bundleName;
+} LocatorRequestStruct;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -77,6 +86,8 @@ public:
     static void ExecuteHookWhenGetAddressFromLocationName(std::string packageName);
     static void ExecuteHookWhenReportInnerInfo(
         int32_t event, std::vector<std::string>& names, std::vector<std::string>& values);
+    static bool ExecuteHookWhenAddWorkRecord(bool stillState, bool idleState, std::string abilityName,
+        std::string bundleName);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
 };
 } // namespace Location

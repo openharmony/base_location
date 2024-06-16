@@ -39,6 +39,7 @@
 #include "common_hisysevent.h"
 #include "hook_utils.h"
 #include "permission_manager.h"
+#include "standby_service_client.h"
 
 #ifdef RES_SCHED_SUPPROT
 #include "res_type.h"
@@ -57,10 +58,13 @@ RequestManager* RequestManager::GetInstance()
 
 RequestManager::RequestManager()
 {
+    isDeviceIdleMode_.store(false);
+    isDeviceStillState_.store(false);
     auto locatorDftManager = LocatorDftManager::GetInstance();
     if (locatorDftManager != nullptr) {
         locatorDftManager->Init();
     }
+    IsStandby();
 }
 
 RequestManager::~RequestManager()
@@ -355,7 +359,7 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
     std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
-        if (!AddRequestToWorkRecord(request, workRecord)) {
+        if (!AddRequestToWorkRecord(abilityName, request, workRecord)) {
             WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
                     "abilityName", abilityName, "requestAddress", request->GetUuid()});
             continue;
@@ -412,7 +416,21 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     return true;
 }
 
-bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
+void RequestManager::IsStandby()
+{
+#ifdef DEVICE_STANDBY_ENABLE
+    bool isStandby = false;
+    DevStandbyMgr::StandbyServiceClient& standbyServiceClient = DevStandbyMgr::StandbyServiceClient::GetInstance();
+    ErrCode code = standbyServiceClient.IsDeviceInStandby(isStandby);
+    if (code == ERR_OK && isStandby) {
+        isDeviceIdleMode_.store(true);
+        return;
+    }
+#endif
+    isDeviceIdleMode_.store(false);
+}
+
+bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
     std::shared_ptr<WorkRecord>& workRecord)
 {
     if (request == nullptr) {
@@ -467,6 +485,11 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     }
     auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {
+        return false;
+    }
+    if (HookUtils::ExecuteHookWhenAddWorkRecord(isDeviceStillState_.load(), isDeviceIdleMode_.load(),
+        abilityName, bundleName)) {
+        LBSLOGI(REQUEST_MANAGER, "Enter idle and still status, not add request");
         return false;
     }
     // add request info to work record
@@ -684,6 +707,34 @@ void RequestManager::UpdateLocationErrorCallbackToRequest(
                 request->SetLocationErrorCallBack(nullptr);
             }
         }
+    }
+}
+
+void RequestManager::SyncStillMovementState(bool state)
+{
+    bool newDeviceState = false;
+    bool oldDeviceState = false;
+    oldDeviceState = isDeviceStillState_.load() && isDeviceIdleMode_.load();
+    isDeviceStillState_.store(state);
+    LBSLOGI(REQUEST_MANAGER, "device movement state change, isDeviceStillState_ %{public}d",
+        isDeviceStillState_.load());
+    newDeviceState = isDeviceStillState_.load() && isDeviceIdleMode_.load();
+    if (newDeviceState != oldDeviceState) {
+        HandleRequest();
+    }
+}
+
+void RequestManager::SyncIdleState(bool state)
+{
+    bool newDeviceState = false;
+    bool oldDeviceState = false;
+    oldDeviceState = isDeviceStillState_.load() && isDeviceIdleMode_.load();
+    isDeviceIdleMode_.store(state);
+    LBSLOGI(REQUEST_MANAGER, "device idle mode change, isDeviceIdleMode_ %{public}d",
+        isDeviceIdleMode_.load());
+    newDeviceState = isDeviceStillState_.load() && isDeviceIdleMode_.load();
+    if (newDeviceState != oldDeviceState) {
+        HandleRequest();
     }
 }
 } // namespace Location

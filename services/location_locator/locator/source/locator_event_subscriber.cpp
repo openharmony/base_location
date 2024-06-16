@@ -27,13 +27,25 @@ LocatorEventSubscriber::~LocatorEventSubscriber() {}
 
 void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
+    std::string action = event.GetWant().GetAction();
+    LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
+    if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED.compare(action) == 0) {
+        auto locatorAbility = LocatorAbility::GetInstance();
+        if (locatorAbility == nullptr) {
+            LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
+            return;
+        }
+        const bool napped = event.GetWant().GetBoolParam(LOCATOR_STANDBY_NAP, 0);
+        const bool sleeping = event.GetWant().GetBoolParam(LOCATOR_STANDBY_SLEEPING, 0);
+        LBSLOGD(LOCATOR_EVENT, "device idle napped: %{public}d, sleeping: %{public}d", napped, sleeping);
+        locatorAbility->SyncIdleState(sleeping);
+        return;
+    }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
         return;
     }
-    std::string action = event.GetWant().GetAction();
-    LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
     if (MODE_CHANGED_EVENT.compare(action) == 0) {
         locatorAbility->UpdateSaAbility();
     } else if (LOCATION_PRIVACY_ACCEPT_EVENT.compare(action) == 0) {

@@ -80,6 +80,8 @@ const uint32_t EVENT_REG_LOCATION_ERROR = 0x0011;
 const uint32_t EVENT_UNREG_LOCATION_ERROR = 0x0012;
 const uint32_t EVENT_REPORT_LOCATION_ERROR = 0x0013;
 const uint32_t EVENT_PERIODIC_CHECK = 0x0016;
+const uint32_t EVENT_SYNC_STILL_MOVEMENT_STATE = 0x0018;
+const uint32_t EVENT_SYNC_IDLE_STATE = 0x0019;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -181,6 +183,9 @@ bool LocatorAbility::Init()
 
     deviceId_ = CommonUtils::InitDeviceId();
     requestManager_ = RequestManager::GetInstance();
+#ifdef MOVEMENT_CLIENT_ENABLE
+    LocatorMsdpMonitorManager::GetInstance();
+#endif
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
@@ -1163,6 +1168,7 @@ void LocatorAbility::RegisterAction()
     matchingSkills.AddEvent(MODE_CHANGED_EVENT);
     matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
     matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 
@@ -1583,6 +1589,24 @@ bool LocatorAbility::IsProcessRunning(pid_t pid)
     return false;
 }
 
+void LocatorAbility::SyncStillMovementState(bool state)
+{
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SYNC_STILL_MOVEMENT_STATE, state);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SYNC_MOVEMENT_STATE Send Success", __func__);
+    }
+}
+
+void LocatorAbility::SyncIdleState(bool state)
+{
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SYNC_IDLE_STATE, state);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SYNC_IDLE_STATE Send Success", __func__);
+    }
+}
+
 void LocationMessage::SetAbilityName(std::string abilityName)
 {
     abilityName_ = abilityName;
@@ -1676,6 +1700,8 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     locatorHandlerEventMap_[EVENT_REG_LOCATION_ERROR] = &LocatorHandler::RegLocationErrorEvent;
     locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] = &LocatorHandler::UnRegLocationErrorEvent;
     locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] = &LocatorHandler::ReportLocationErrorEvent;
+    locatorHandlerEventMap_[EVENT_SYNC_STILL_MOVEMENT_STATE] = &LocatorHandler::SyncStillMovementState;
+    locatorHandlerEventMap_[EVENT_SYNC_IDLE_STATE] = &LocatorHandler::SyncIdleState;
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -1915,6 +1941,24 @@ void LocatorHandler::RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& ev
         locatorAbility->RemoveInvalidRequests();
     }
     SendHighPriorityEvent(EVENT_PERIODIC_CHECK, 0, EVENT_PERIODIC_INTERVAL);
+}
+
+void LocatorHandler::SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = RequestManager::GetInstance();
+    if (requestManager != nullptr) {
+        bool state = event->GetParam();
+        requestManager->SyncStillMovementState(state);
+    }
+}
+
+void LocatorHandler::SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = RequestManager::GetInstance();
+    if (requestManager != nullptr) {
+        bool state = event->GetParam();
+        requestManager->SyncIdleState(state);
+    }
 }
 } // namespace Location
 } // namespace OHOS
