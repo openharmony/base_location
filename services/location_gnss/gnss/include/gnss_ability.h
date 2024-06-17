@@ -67,6 +67,9 @@ using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_ENGINE_OFF;
 using HDI::Location::Gnss::V2_0::GnssAuxiliaryDataType;
 using HDI::Location::Gnss::V2_0::GnssWorkingMode;
 using HDI::Location::Gnss::V2_0::GnssConfigPara;
+using HDI::Location::Gnss::V2_0::GnssRefInfoType;
+using HDI::Location::Gnss::V2_0::GnssRefInfo;
+using HDI::Location::Gnss::V2_0::GnssLocationValidity;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 using HDI::Location::Agnss::V2_0::IAGnssInterface;
 using HDI::Location::Agnss::V2_0::IAGnssCallback;
@@ -125,6 +128,7 @@ private:
     void HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event);
 
     using GnssEventProcessHandle = void (GnssHandler::*)(const AppExecFwk::InnerEvent::Pointer& event);
     using GnssEventProcessMap = std::map<uint32_t, GnssEventProcessHandle>;
@@ -209,6 +213,9 @@ public:
     bool RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callbackObj);
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes) override;
+    LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location) override;
+    LocationErrCode InjectLocation();
+    LocationErrCode InjectTime();
 
 private:
     bool Init();
@@ -240,6 +247,7 @@ private:
     std::vector<sptr<INmeaMessageCallback>> nmeaCallback_;
     sptr<IGnssInterface> gnssInterface_;
     sptr<IGnssCallback> gnssCallback_;
+    Location nlpLocation_;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     sptr<IAGnssCallback> agnssCallback_;
     sptr<IAGnssInterface> agnssInterface_;

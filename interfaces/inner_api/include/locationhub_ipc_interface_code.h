@@ -111,6 +111,7 @@ enum class GnssInterfaceCode {
     ADD_GNSS_GEOFENCE = 27,
     REMOVE_GNSS_GEOFENCE = 28,
     GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE = 29,
+    SEND_NETWORK_LOCATION = 30,
 };
 
 enum class NetworkInterfaceCode {

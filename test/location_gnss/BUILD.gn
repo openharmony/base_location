@@ -114,6 +114,11 @@ if (location_feature_with_gnss) {
     if (sms_mms_enable) {
       defines += [ "SMS_MMS_ENABLE" ]
     }
+
+    if (time_service_enable) {
+      external_deps += [ "time_service:time_client" ]
+      defines += [ "TIME_SERVICE_ENABLE" ]
+    }
     module_out_path = module_output_path
   }
 } else {

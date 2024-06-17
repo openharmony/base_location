@@ -1460,6 +1460,24 @@ LocationErrCode LocatorAbility::QuerySupportCoordinateSystemType(
     }
     return errCode;
 }
+
+LocationErrCode LocatorAbility::SendNetworkLocation(const std::unique_ptr<Location>& location)
+{
+    LBSLOGI(LOCATOR, "%{public}s: send network location", __func__);
+    int64_t time = location->GetTimeStamp();
+    int64_t timeSinceBoot = location->GetTimeSinceBoot();
+    double acc = location->GetAccuracy();
+    LBSLOGI(LOCATOR,
+        "receive network location: [ time=%{public}s timeSinceBoot=%{public}s acc=%{public}f]",
+        std::to_string(time).c_str(), std::to_string(timeSinceBoot).c_str(), acc);
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    location->Marshalling(dataToStub);
+    return SendGnssRequest(static_cast<int>(GnssInterfaceCode::SEND_NETWORK_LOCATION), dataToStub, replyToStub);
+}
 #endif
 
 LocationErrCode LocatorAbility::RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
