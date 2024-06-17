@@ -940,6 +940,11 @@ int LocatorAbilityStub::PreReportLocation(MessageParcel &data, MessageParcel &re
     std::string systemAbility = data.ReadString();
     std::unique_ptr<Location> location = Location::Unmarshalling(data);
     locatorAbility->ReportLocation(location, systemAbility, identity);
+#ifdef FEATURE_GNSS_SUPPORT
+    if (systemAbility == NETWORK_ABILITY) {
+        locatorAbility->SendNetworkLocation(location);
+    }
+#endif
     return ERRCODE_SUCCESS;
 }
 

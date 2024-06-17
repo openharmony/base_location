@@ -1581,6 +1581,44 @@ HWTEST_F(GnssAbilityTest, ReConnectHdiImpl001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl001 end");
 }
 
+HWTEST_F(GnssAbilityTest, InjectTime001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, InjectTime001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] InjectTime001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->InjectTime();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] InjectTime001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendNetworkLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendNetworkLocation001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation001 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<Location> location = nullptr;
+    LocationErrCode result = gnssAbility->SendNetworkLocation(location);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendNetworkLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendNetworkLocation002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetLatitude(31.2568);
+    LocationErrCode result = gnssAbility->SendNetworkLocation(location);
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation002 end");
+}
+
 HWTEST_F(GnssAbilityTest, AgnssNiManagerRun001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

@@ -45,6 +45,10 @@
 #include "hook_utils.h"
 #include "geofence_definition.h"
 
+#ifdef TIME_SERVICE_ENABLE
+#include "time_service_client.h"
+#endif
+
 namespace OHOS {
 namespace Location {
 namespace {
@@ -58,6 +62,8 @@ constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
 const std::string UNLOAD_GNSS_TASK = "gnss_sa_unload";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 constexpr int32_t FENCE_MAX_ID = 1000000;
+constexpr int DEFAULT_UNCERTAINTY = 30;
+constexpr int NLP_FIX_VALID_TIME = 2;
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -477,6 +483,74 @@ LocationErrCode GnssAbility::SetPositionMode()
     if (ret != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "SetGnssConfigPara failed , ret =%{public}d", ret);
     }
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode GnssAbility::InjectTime()
+{
+#ifdef TIME_SERVICE_ENABLE
+    if (gnssInterface_ == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface_ is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+
+    GnssRefInfo refInfo;
+    refInfo.type = GnssRefInfoType::GNSS_REF_INFO_TIME;
+    auto wallTime = MiscServices::TimeServiceClient::GetInstance()->GetWallTimeMs();
+    auto elapsedTime = MiscServices::TimeServiceClient::GetInstance()->GetBootTimeMs();
+    if (wallTime < 0 || elapsedTime < 0) {
+        LBSLOGE(GNSS, "get time failed");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    refInfo.time.time = wallTime;
+    refInfo.time.elapsedRealtime = elapsedTime;
+    refInfo.time.uncertaintyOfTime = DEFAULT_UNCERTAINTY;
+    gnssInterface_->SetGnssReferenceInfo(refInfo);
+#endif
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode GnssAbility::SendNetworkLocation(const std::unique_ptr<Location>& location)
+{
+    if (location == nullptr) {
+        LBSLOGE(GNSS, "location is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    nlpLocation_ = *location;
+    return InjectLocation();
+}
+
+LocationErrCode GnssAbility::InjectLocation()
+{
+    if (gnssInterface_ == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface_ or location is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (nlpLocation_.GetAccuracy() < 1e-9 || nlpLocation_.GetTimeStamp() == 0) {
+        LBSLOGW(GNSS, "nlp locaton acc or timesatmp is invalid");
+        return ERRCODE_INVALID_PARAM;
+    }
+    int64_t diff = CommonUtils::GetCurrentTimeStamp() - nlpLocation_.GetTimeStamp() / MILLI_PER_SEC;
+    if (diff > NLP_FIX_VALID_TIME) {
+        LBSLOGI(GNSS, "nlp locaton is invalid");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    GnssRefInfo refInfo;
+    refInfo.type = GnssRefInfoType::GNSS_REF_INFO_LOCATION;
+    refInfo.gnssLocation.fieldValidity = GnssLocationValidity::GNSS_LOCATION_LAT_VALID;
+    refInfo.gnssLocation.latitude = nlpLocation_.GetLatitude();
+    refInfo.gnssLocation.longitude = nlpLocation_.GetLongitude();
+    refInfo.gnssLocation.altitude = nlpLocation_.GetAltitude();
+    refInfo.gnssLocation.speed = nlpLocation_.GetSpeed();
+    refInfo.gnssLocation.bearing = nlpLocation_.GetDirection();
+    refInfo.gnssLocation.horizontalAccuracy = nlpLocation_.GetAccuracy();
+    refInfo.gnssLocation.verticalAccuracy = nlpLocation_.GetAltitudeAccuracy();
+    refInfo.gnssLocation.speedAccuracy = nlpLocation_.GetSpeedAccuracy();
+    refInfo.gnssLocation.bearingAccuracy = nlpLocation_.GetDirectionAccuracy();
+    refInfo.gnssLocation.timeForFix = nlpLocation_.GetTimeStamp();
+    refInfo.gnssLocation.timeSinceBoot = nlpLocation_.GetTimeSinceBoot();
+    refInfo.gnssLocation.timeUncertainty = nlpLocation_.GetUncertaintyOfTimeSinceBoot();
+    gnssInterface_->SetGnssReferenceInfo(refInfo);
     return ERRCODE_SUCCESS;
 }
 
@@ -1282,6 +1356,12 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             SendEvent(event, reply);
             break;
         }
+        case static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION): {
+            auto request = Location::Unmarshalling(data);
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
+            SendEvent(event, reply);
+            break;
+        }
         default:
             break;
     }
@@ -1353,6 +1433,8 @@ void GnssHandler::InitGnssEventProcessMap()
         &GnssHandler::HandleAddGeofence;
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE)] =
         &GnssHandler::HandleRemoveGeofence;
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
+        &GnssHandler::HandleSendNetworkLocation;
 }
 
 GnssHandler::~GnssHandler() {}
@@ -1542,6 +1624,25 @@ void GnssHandler::HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& ev
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
         gnssAbility->RemoveGnssGeofence(request);
+    }
+}
+
+void GnssHandler::HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = GnssAbility::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
+        return;
+    }
+    std::unique_ptr<Location> location = event->GetUniqueObject<Location>();
+    if (location != nullptr) {
+        int64_t time = location->GetTimeStamp();
+        int64_t timeSinceBoot = location->GetTimeSinceBoot();
+        double acc = location->GetAccuracy();
+        LBSLOGI(GNSS,
+            "receive network location from locator: [ time=%{public}s timeSinceBoot=%{public}s acc=%{public}f]",
+            std::to_string(time).c_str(), std::to_string(timeSinceBoot).c_str(), acc);
+            gnssAbility->SendNetworkLocation(location);
     }
 }
 

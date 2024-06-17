@@ -57,6 +57,7 @@ declare_args() {
   hdf_drivers_interface_location_geofence_enable = true
   multimedia_image_framework_enable = true
   notification_distributed_notification_service_enable = true
+  time_service_enable = true
   movement_client_enable = true
   location_device_standby_enable = true
 
@@ -146,5 +147,10 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_device_standby)) {
     location_device_standby_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.time_time_service)) {
+    time_service_enable = false
   }
 }

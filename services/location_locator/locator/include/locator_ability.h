@@ -182,6 +182,7 @@ public:
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
+    LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location);
 #endif
     void UpdateLastLocationRequestNum();
     void SyncStillMovementState(bool stillState);
