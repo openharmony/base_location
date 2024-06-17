@@ -1422,10 +1422,9 @@ void LocatorAbility::ReportDataToResSched(std::string state)
 {
 #ifdef RES_SCHED_SUPPROT
     std::unordered_map<std::string, std::string> payload;
-    payload['uid'] = std::to_string(uid);
-    payload['state'] = state;
-    uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS;
-    int64_t value =  ResourceSchedule::ResType::LocationStatus::LOCATION_SWITCH_CHANGE;
+    payload["state"] = state;
+    uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS_CHANGE;
+    int64_t value =  ResourceSchedule::ResType::LocationStatus::LOCATION_SWTICH_CHANGE;
     ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
 #endif
 }

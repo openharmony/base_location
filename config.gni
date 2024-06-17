@@ -110,7 +110,7 @@ declare_args() {
   }
 
   if (defined(global_parts_info) &&
-      !defined(global_parts_info.resourceschedule_schedule_service)) {
+      !defined(global_parts_info.resourceschedule_resource_schedule_service)) {
     resourceschedule_schedule_service_enable = false
   }
 
