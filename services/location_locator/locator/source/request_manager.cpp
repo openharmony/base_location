@@ -674,10 +674,10 @@ void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
 {
 #ifdef RES_SCHED_SUPPROT
     std::unordered_map<std::string, std::string> payload;
-    payload['uid'] = std::to_string(uid);
-    payload['state'] = state;
-    uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS;
-    int64_t value =  ResourceSchedule::ResType::LocationStatus::APP_LOCATION_STATE_CHANGE;
+    payload["uid"] = std::to_string(uid);
+    payload["state"] = state;
+    uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS_CHANGE;
+    int64_t value =  ResourceSchedule::ResType::LocationStatus::APP_LOCATION_STATUE_CHANGE;
     ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, value, payload);
 #endif
 }
