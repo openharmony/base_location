@@ -155,9 +155,6 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(const std::unique_pt
     const sptr<Location>& lastFuseLocation)
 {
     LBSLOGD(FUSION_CONTROLLER, " GetFuseLocation enter");
-    if (!HookUtils::CheckGnssLocationValidity(location)) {
-        return nullptr;
-    }
     auto bestLocation = chooseBestLocation(location, std::make_unique<Location>(*lastFuseLocation));
     return std::make_unique<Location>(*bestLocation);
 }
