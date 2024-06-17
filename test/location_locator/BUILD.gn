@@ -125,6 +125,4 @@ ohos_unittest("LocatorServiceAbilityTest") {
 group("unittest") {
   testonly = true
   deps = []
-
-  deps += [ ":LocatorServiceAbilityTest" ]
 }
