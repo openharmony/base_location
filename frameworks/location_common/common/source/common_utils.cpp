@@ -28,6 +28,7 @@
 #include "constant_definition.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
+#include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
 
@@ -400,6 +401,19 @@ std::string CommonUtils::GenerateUuid()
         ss << g_dis(g_gen);
     };
     return ss.str();
+}
+bool CommonUtils::CheckAppForUser(int32_t uid)
+{
+    int currentUserId = 0;
+    int userId = 0;
+    if (!GetCurrentUserId(currentUserId)) {
+        return true;
+    }
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    if (userId != currentUserId) {
+        return false;
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

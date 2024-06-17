@@ -208,6 +208,12 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         }
         return nullptr;
     }
+    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx) &&
+        !CommonUtils::CheckAppForUser(uid)) {
+        PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
+        LBSLOGE(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
+        return nullptr;
+    }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (PermissionManager::CheckLocationPermission(tokenId, firstTokenId)) {

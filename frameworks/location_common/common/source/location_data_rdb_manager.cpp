@@ -127,6 +127,19 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
     return true;
 }
 
+bool LocationDataRdbManager::ClearSwitchMode()
+{
+    char valueArray[MAX_SIZE] = {0};
+    (void)sprintf_s(valueArray, sizeof(valueArray), "%s", "");
+    int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
+    LBSLOGE(COMMON_UTILS, "ClearSwitchMode valueArray value: %{public}s", valueArray);
+    if (res < 0) {
+        LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
+        return false;
+    }
+    return true;
+}
+
 bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)
 {
     Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));

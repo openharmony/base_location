@@ -30,6 +30,7 @@
 #include "locator_ability.h"
 #include "request_manager.h"
 #include "permission_manager.h"
+#include "location_data_rdb_manager.h"
 
 #include "accesstoken_kit.h"
 #include "tokenid_kit.h"
@@ -341,6 +342,11 @@ int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
 void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
 {
     UpdateListOnUserSwitch(userId);
+    LocationDataRdbManager::ClearSwitchMode();
+    auto requestManager = RequestManager::GetInstance();
+    if (requestManager != nullptr) {
+        requestManager->HandleRequest();
+    }
     if (!requestsList_->empty()) {
         StartLocator();
     } else {
@@ -353,6 +359,11 @@ void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
 {
     // if user is removed, remove the requestList from the user in requestsMap
     std::unique_lock lock(requestListMutex_);
+    LocationDataRdbManager::ClearSwitchMode();
+    auto requestManager = RequestManager::GetInstance();
+    if (requestManager != nullptr) {
+        requestManager->HandleRequest();
+    }
     auto iter = requestsMap_->find(userId);
     if (iter != requestsMap_->end()) {
         requestsMap_->erase(iter);

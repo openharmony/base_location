@@ -469,6 +469,12 @@ bool RequestManager::AddRequestToWorkRecord(std::shared_ptr<Request>& request,
     if (requestConfig == nullptr) {
         return false;
     }
+    if (!PermissionManager::CheckSystemPermission(tokenId, request->GetTokenIdEx()) &&
+        !CommonUtils::CheckAppForUser(uid)) {
+        PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
+        LBSLOGE(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
+        return false;
+    }
     // add request info to work record
     if (workRecord != nullptr) {
         request->SetNlpRequestType();
