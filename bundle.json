@@ -72,7 +72,9 @@
                 "wifi",
                 "bluetooth",
                 "distributed_notification_service",
-                "image_framework"
+                "image_framework",
+                "movement",
+                "device_standby"
             ],
             "third_party": [
                 "libuv"
