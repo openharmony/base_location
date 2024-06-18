@@ -94,6 +94,10 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
 
 void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request)
 {
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility == nullptr) {
+        return;
+    }
     uint32_t callingTokenId = request->GetTokenId();
     uint32_t callingFirstTokenid = request->GetFirstTokenId();
     int32_t uid = request->GetUid();
@@ -101,6 +105,8 @@ void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
         PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
         if (!request->GetApproximatelyPermState()) {
             PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+            locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
+                ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
             request->SetApproximatelyPermState(true);
         }
     } else {
