@@ -21,10 +21,11 @@
 namespace OHOS {
 namespace Location {
 const int DEFAULT_USERID = 100;
+const int DEFAULT_SWITCHMODE = 2;
 const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
 const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
-
+std::mutex LocationDataRdbManager::mutex_;
 std::string LocationDataRdbManager::GetLocationDataUri(std::string key)
 {
     int userId = 0;
@@ -97,6 +98,7 @@ int LocationDataRdbManager::GetSwitchMode()
 {
     char result[MAX_SIZE] = {0};
     std::string value = "";
+    std::unique_lock<std::mutex> lock(mutex_);
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
     if (res <= 0 || strlen(result) == 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
@@ -119,6 +121,7 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
 {
     char valueArray[MAX_SIZE] = {0};
     (void)sprintf_s(valueArray, sizeof(valueArray), "%d", value);
+    std::unique_lock<std::mutex> lock(mutex_);
     int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
@@ -130,11 +133,10 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
 bool LocationDataRdbManager::ClearSwitchMode()
 {
     char valueArray[MAX_SIZE] = {0};
-    (void)sprintf_s(valueArray, sizeof(valueArray), "%s", "");
+    (void)sprintf_s(valueArray, sizeof(valueArray), "%d", DEFAULT_SWITCHMODE);
+    std::unique_lock<std::mutex> lock(mutex_);
     int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
-    LBSLOGE(COMMON_UTILS, "ClearSwitchMode valueArray value: %{public}s", valueArray);
     if (res < 0) {
-        LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
         return false;
     }
     return true;

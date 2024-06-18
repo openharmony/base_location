@@ -128,7 +128,7 @@ bool CommonUtils::GetCurrentUserId(int &userId)
     std::vector<int> activeIds;
     int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
     if (ret != 0) {
-        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds failed ret:%{public}d", ret);
+        LBSLOGI(COMMON_UTILS, "GetCurrentUserId failed ret:%{public}d", ret);
         return false;
     }
     if (activeIds.empty()) {
@@ -402,14 +402,18 @@ std::string CommonUtils::GenerateUuid()
     };
     return ss.str();
 }
+
 bool CommonUtils::CheckAppForUser(int32_t uid)
 {
     int currentUserId = 0;
     int userId = 0;
     if (!GetCurrentUserId(currentUserId)) {
-        return true;
+        currentUserId = 100;
     }
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    auto result = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    if (result != ERR_OK) {
+        return false;
+    }
     if (userId != currentUserId) {
         return false;
     }

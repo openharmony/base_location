@@ -111,6 +111,31 @@ void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     }
 }
 
+void RequestManager::UpdateUsingApproximatelyStatus(std::shared_ptr<Request> request, bool isActive)
+{
+    std::unique_lock<std::mutex> lock(permissionRecordMutex_, std::defer_lock);
+    lock.lock();
+    if (request == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "request is null");
+        lock.unlock();
+        return;
+    }
+    uint32_t callingTokenId = request->GetTokenId();
+    if (isActive) {
+        if (!request->GetApproximatelyPermState()) {
+            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+            request->SetApproximatelyPermState(true);
+        }
+    } else {
+        if (request->GetApproximatelyPermState()) {
+            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+            request->SetApproximatelyPermState(false);
+        }
+    }
+    lock.unlock();
+}
+
+
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
@@ -360,9 +385,10 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
     for (auto iter = list.begin(); iter != list.end(); iter++) {
         auto request = *iter;
         if (!AddRequestToWorkRecord(abilityName, request, workRecord)) {
-            WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
-                    "abilityName", abilityName, "requestAddress", request->GetUuid()});
+            UpdateUsingApproximatelyStatus(request, false);
             continue;
+        } else {
+            UpdateUsingApproximatelyStatus(request, true);
         }
         if (!ActiveLocatingStrategies(request)) {
             continue;
@@ -401,6 +427,9 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
  */
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
+    if (!request->GetIsRequesting()) {
+        return false;
+    }
     // for frozen app, do not add to workRecord
     if (LocatorAbility::GetInstance()->IsProxyPid(request->GetPid())) {
         return false;
@@ -436,8 +465,11 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (request == nullptr) {
         return false;
     }
-    UpdateUsingPermission(request);
-    if (!request->GetIsRequesting() || !IsRequestAvailable(request) {
+   
+    if (!request->GetIsRequesting()) {
+        return false;
+    }
+    if (!IsRequestAvailable(request)) {
         return false;
     }
     auto locationErrorCallback = request->GetLocationErrorCallBack();
@@ -486,8 +518,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
 
     if (!PermissionManager::CheckSystemPermission(tokenId, request->GetTokenIdEx()) &&
         !CommonUtils::CheckAppForUser(uid)) {
-        PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
-        LBSLOGE(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
+        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
         return false;
     }
 

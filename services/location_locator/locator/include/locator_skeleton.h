@@ -114,6 +114,8 @@ private:
         LocatorInterfaceCode code, MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     void ConstructLocatorHandleMap();
     void ConstructGeocodeHandleMap();
+    bool IsStopAction(uint32_t code);
+    bool CheckRequestAvailable(uint32_t code, AppIdentity &identity);
     void ConstructGnssHandleMap();
     sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();
 };

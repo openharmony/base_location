@@ -24,6 +24,7 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "request.h"
+#include <mutex>
 
 namespace OHOS {
 namespace Location {
@@ -49,9 +50,10 @@ public:
 private:
     struct timespec lastUpdateTime_;
     double offsetRandom_;
-    Location lastLocation_;
+    std::map<int, std::shared_ptr<Location>> lastLocationsMap_;
     Location cacheGnssLocation_;
     Location cacheNlpLocation_;
+    std::mutex lastLocationMutex_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
         std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
@@ -60,6 +62,7 @@ private:
         const std::unique_ptr<Location>& location);
     std::unique_ptr<Location> ExecuteReportProcess(std::shared_ptr<Request>& request,
         std::unique_ptr<Location>& location, std::string abilityName);
+    void UpdateLastLocation(const std::unique_ptr<Location>& location);
 };
 } // namespace OHOS
 } // namespace Location

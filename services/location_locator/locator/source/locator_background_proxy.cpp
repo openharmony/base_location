@@ -343,9 +343,9 @@ void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
 {
     UpdateListOnUserSwitch(userId);
     LocationDataRdbManager::ClearSwitchMode();
-    auto requestManager = RequestManager::GetInstance();
-    if (requestManager != nullptr) {
-        requestManager->HandleRequest();
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->ApplyRequests(1);
     }
     if (!requestsList_->empty()) {
         StartLocator();
@@ -359,11 +359,6 @@ void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
 {
     // if user is removed, remove the requestList from the user in requestsMap
     std::unique_lock lock(requestListMutex_);
-    LocationDataRdbManager::ClearSwitchMode();
-    auto requestManager = RequestManager::GetInstance();
-    if (requestManager != nullptr) {
-        requestManager->HandleRequest();
-    }
     auto iter = requestsMap_->find(userId);
     if (iter != requestsMap_->end()) {
         requestsMap_->erase(iter);

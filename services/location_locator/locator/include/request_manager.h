@@ -57,6 +57,7 @@ private:
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
     void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
+    void UpdateUsingApproximatelyStatus(std::shared_ptr<Request> request, bool isActive);
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
     bool AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
         std::shared_ptr<WorkRecord>& workRecord);
