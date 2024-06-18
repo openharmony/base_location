@@ -208,5 +208,16 @@ HWTEST_F(PermissionManagerTest, CheckRssProcessName001, TestSize.Level1)
     EXPECT_EQ(false, PermissionManager::CheckRssProcessName(invalidTokenId));
     LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] CheckRssProcessName001 end");
 }
+
+HWTEST_F(PermissionManagerTest, CheckMockLocationPermissionTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PermissionManagerTest, CheckMockLocationPermissionTest001, TestSize.Level1";
+    LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] CheckMockLocationPermissionTest001 begin");
+    uint32_t invalidTokenId = 0;
+    uint32_t firstTokenId = 0;
+    EXPECT_EQ(false, PermissionManager::CheckMockLocationPermission(invalidTokenId, firstTokenId));
+    LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] CheckMockLocationPermissionTest001 end");
+}
 } // namespace Location
 } // namespace OHOS

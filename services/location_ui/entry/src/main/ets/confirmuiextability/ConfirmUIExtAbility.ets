@@ -21,7 +21,6 @@ const TAG: string = '[AGNSS-NI]==>'
 
 export default class ConfirmUIExtAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
-        console.info(TAG, `UIExtAbility onSessionCreate, want: ${JSON.stringify(want)}`)
         if (want.parameters == undefined) {
             return;
         }

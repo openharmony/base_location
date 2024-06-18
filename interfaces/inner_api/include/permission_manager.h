@@ -25,6 +25,7 @@ namespace Location {
 const std::string ACCESS_LOCATION = "ohos.permission.LOCATION";
 const std::string ACCESS_APPROXIMATELY_LOCATION = "ohos.permission.APPROXIMATELY_LOCATION";
 const std::string ACCESS_BACKGROUND_LOCATION = "ohos.permission.LOCATION_IN_BACKGROUND";
+const std::string ACCESS_MOCK_LOCATION = "ohos.permission.MOCK_LOCATION";
 const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTINGS";
 const std::string RSS_PROCESS_NAME = "resource_schedule_service";
 
@@ -37,6 +38,7 @@ public:
     static bool CheckLocationPermission(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckApproximatelyPermission(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckBackgroundPermission(uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckMockLocationPermission(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckPermission(const std::string &permission, uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckSecureSettings(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckCallingPermission(pid_t callingUid, pid_t callingPid, MessageParcel &reply);

@@ -72,6 +72,8 @@ void GnssAbilityStub::InitGnssMsgHandleMap()
         &GnssAbilityStub::RemoveGnssGeofenceInner;
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE)] =
         &GnssAbilityStub::QuerySupportCoordinateSystemTypeInner;
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
+        &GnssAbilityStub::SendNetworkLocationInner;
 }
 
 GnssAbilityStub::GnssAbilityStub()
@@ -289,6 +291,16 @@ int GnssAbilityStub::QuerySupportCoordinateSystemTypeInner(
     for (int i = 0; i < size; i++) {
         reply.WriteInt32(static_cast<int>(coordinateSystemTypes[i]));
     }
+    return ERRCODE_SUCCESS;
+}
+
+int GnssAbilityStub::SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION), data, reply);
+    isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }
 

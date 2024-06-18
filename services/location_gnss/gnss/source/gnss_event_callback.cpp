@@ -242,6 +242,23 @@ void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svi
 
 int32_t GnssEventCallback::RequestGnssReferenceInfo(GnssRefInfoType type)
 {
+    LBSLOGI(GNSS, "RequestGnssReferenceInfo: request type %{public}d", static_cast<int>(type));
+    auto gnssAbility = GnssAbility::GetInstance();
+    if (gnssAbility == nullptr) {
+        LBSLOGE(GNSS, "%{public}s gnss ability is nullptr.", __func__);
+        return ERR_OK;
+    }
+    switch (type) {
+        case GnssRefInfoType::GNSS_REF_INFO_TIME:
+            gnssAbility->InjectTime();
+            break;
+        case GnssRefInfoType::GNSS_REF_INFO_LOCATION:
+            gnssAbility->InjectLocation();
+            break;
+        default:
+            LBSLOGI(GNSS, "RequestGnssReferenceInfo: request type not support now");
+            break;
+    }
     return ERR_OK;
 }
 

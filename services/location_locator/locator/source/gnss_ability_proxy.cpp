@@ -440,6 +440,26 @@ LocationErrCode GnssAbilityProxy::QuerySupportCoordinateSystemType(
     }
     return LocationErrCode(errCode);
 }
+
+LocationErrCode GnssAbilityProxy::SendNetworkLocation(const std::unique_ptr<Location>& location)
+{
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    MessageOption option;
+    if (!dataToStub.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    location->Marshalling(dataToStub);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(GNSS, "SendNetworkLocation remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    int error = remote->SendRequest(
+        static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION), dataToStub, replyToStub, option);
+    LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    return LocationErrCode(replyToStub.ReadInt32());
+}
 } // namespace Location
 } // namespace OHOS
 #endif

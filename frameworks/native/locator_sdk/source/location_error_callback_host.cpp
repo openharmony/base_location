@@ -73,6 +73,7 @@ bool LocationErrorCallbackHost::Send(int32_t errorCode)
     LocationErrorAsyncContext *context = new (std::nothrow) LocationErrorAsyncContext(env_);
     if (context == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        delete work;
         return false;
     }
     context->env = env_;

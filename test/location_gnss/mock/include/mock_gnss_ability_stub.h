@@ -61,6 +61,7 @@ public:
     MOCK_METHOD(LocationErrCode, RemoveGnssGeofence, (std::shared_ptr<GeofenceRequest>& request));
     MOCK_METHOD(LocationErrCode, QuerySupportCoordinateSystemType,
         (std::vector<CoordinateSystemType>& coordinateSystemTypes));
+    MOCK_METHOD(LocationErrCode, SendNetworkLocation, (const std::unique_ptr<Location>& location));
 };
 } // namespace Location
 } // namespace OHOS

@@ -53,6 +53,7 @@ public:
     LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes) override;
+    LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };

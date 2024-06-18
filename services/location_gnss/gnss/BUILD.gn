@@ -126,6 +126,11 @@ if (location_feature_with_gnss) {
       defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }
 
+    if (time_service_enable) {
+      external_deps += [ "time_service:time_client" ]
+      defines += [ "TIME_SERVICE_ENABLE" ]
+    }
+
     part_name = "location"
     subsystem_name = "location"
   }

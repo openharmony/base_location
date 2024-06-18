@@ -28,6 +28,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/callback/source/locating_required_data_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/location_gnss_geofence_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
+    "$SUBSYSTEM_DIR/location_locator/callback/source/locator_msdp_state_change_cb.cpp",
     "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
@@ -37,6 +38,7 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_background_proxy.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_subscriber.cpp",
+    "$SUBSYSTEM_DIR/location_locator/locator/source/locator_msdp_monitor_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_required_data_manager.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/locator_skeleton.cpp",
     "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
@@ -129,6 +131,16 @@ ohos_shared_library("lbsservice_locator") {
   if (notification_distributed_notification_service_enable) {
     external_deps += [ "distributed_notification_service:ans_innerkits" ]
     defines += [ "NOTIFICATION_ENABLE" ]
+  }
+
+  if (movement_client_enable) {
+    external_deps += [ "movement:movement_client" ]
+    defines += [ "MOVEMENT_CLIENT_ENABLE" ]
+  }
+
+  if (location_device_standby_enable) {
+    external_deps += [ "device_standby:standby_innerkits" ]
+    defines += [ "DEVICE_STANDBY_ENABLE" ]
   }
 
   part_name = "location"

@@ -36,6 +36,10 @@
 #include "report_manager.h"
 #include "want_agent_helper.h"
 #include "geofence_request.h"
+#include "common_event_support.h"
+#ifdef MOVEMENT_CLIENT_ENABLE
+#include "locator_msdp_monitor_manager.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -65,6 +69,8 @@ private:
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
+    void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -176,8 +182,11 @@ public:
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
+    LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location);
 #endif
     void UpdateLastLocationRequestNum();
+    void SyncStillMovementState(bool stillState);
+    void SyncIdleState(bool stillState);
 
 private:
     bool Init();
