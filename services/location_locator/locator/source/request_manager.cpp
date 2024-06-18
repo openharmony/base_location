@@ -437,13 +437,9 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         return false;
     }
     UpdateUsingPermission(request);
-    if (!request->GetIsRequesting()) {
+    if (!request->GetIsRequesting() || !IsRequestAvailable(request) {
         return false;
     }
-    if (!IsRequestAvailable(request)) {
-        return false;
-    }
-
     auto locationErrorCallback = request->GetLocationErrorCallBack();
     int switchState = DISABLED;
     auto locatorAbility = LocatorAbility::GetInstance();
