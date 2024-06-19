@@ -114,6 +114,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel NAPI_UTILS = {LOG_CORE, LOCATION_LO
 static constexpr OHOS::HiviewDFX::HiLogLabel GEOFENCE_SDK = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "geofenceSdk"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel GEOFENCE_SDK_TEST = {LOG_CORE, LOCATION_LOG_DOMAIN, "GeofenceSdkTest"};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H

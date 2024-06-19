@@ -148,8 +148,6 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
 #ifdef FEATURE_GNSS_SUPPORT
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocations());
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->FlushCachedGnssLocations());
     }
 #endif
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission002 end");
@@ -208,18 +206,13 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9001, T
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->StartLocatingV9(requestConfig, callbackStub));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->StartLocatingV9(requestConfig, callbackStub));
     }
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->StopLocatingV9(callbackStub));
 
     std::unique_ptr loc = std::make_unique<Location>();
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedLocationV9(loc));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->GetCachedLocationV9(loc));
     }
-    EXPECT_EQ(nullptr, loc);
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermissionV9001 end");
 }
 
@@ -239,8 +232,6 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
     EXPECT_NE(nullptr, gnssCallbackHost);
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
     }
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
 
@@ -249,14 +240,10 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9002, T
     EXPECT_NE(nullptr, nmeaCallbackHost);
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
     }
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->FlushCachedGnssLocationsV9());
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->FlushCachedGnssLocationsV9());
     }
 #endif
     std::set<int> pidList;

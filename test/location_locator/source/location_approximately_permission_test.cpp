@@ -83,9 +83,11 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(request, location);
     EXPECT_NE(nullptr, newLocation);
-    EXPECT_EQ(MAX_LATITUDE, newLocation->GetLatitude());
-    EXPECT_EQ(MAX_LONGITUDE, newLocation->GetLongitude());
-    EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    if (newLocation != nullptr) {
+        EXPECT_EQ(MAX_LATITUDE, newLocation->GetLatitude());
+        EXPECT_EQ(MAX_LONGITUDE, newLocation->GetLongitude());
+        EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    }
 }
 
 HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocationTest002, TestSize.Level1)
@@ -109,9 +111,11 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(request, location);
     EXPECT_NE(nullptr, newLocation);
-    EXPECT_EQ(-MAX_LATITUDE, newLocation->GetLatitude());
-    EXPECT_EQ(-MAX_LONGITUDE, newLocation->GetLongitude());
-    EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    if (newLocation != nullptr) {
+        EXPECT_EQ(-MAX_LATITUDE, newLocation->GetLatitude());
+        EXPECT_EQ(-MAX_LONGITUDE, newLocation->GetLongitude());
+        EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    }
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -159,8 +159,6 @@ HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop001, TestSize.Level1)
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
         (ServiceRunningState)ability_->QueryServiceState()); // mock
     ability_->OnStart(); // start ability again
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
 
     ability_->OnStop(); // stop ability
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START,

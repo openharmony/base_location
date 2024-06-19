@@ -137,6 +137,7 @@
             "test": [
                 "//base/location/test/location_common:unittest",
                 "//base/location/test/location_geocode:unittest",
+                "//base/location/test/location_geofence:unittest",
                 "//base/location/test/location_gnss:unittest",
                 "//base/location/test/location_locator:unittest",
                 "//base/location/test/location_network:unittest",

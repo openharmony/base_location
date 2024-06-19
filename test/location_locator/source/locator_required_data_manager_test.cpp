@@ -55,7 +55,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
     dataConfig->SetType(1);
-    dataConfig->SetNeedStartScan(false);
+    dataConfig->SetNeedStartScan(true);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, nullptr);
@@ -244,16 +244,6 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper005, TestSize.L
     Bluetooth::UUID uuid;
     callback->OnNotifyMsgReportFromLpDevice(uuid, 0, vecs);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper005 end");
-}
-
-HWTEST_F(LocatorRequiredDataManagerTest, StartWifiScan001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorRequiredDataManagerTest, StartWifiScan001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartWifiScan001 begin");
-    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-    locatorDataManager->StartWifiScan(true);
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartWifiScan001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

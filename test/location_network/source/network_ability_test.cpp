@@ -35,6 +35,8 @@
 
 #include "network_callback_host.h"
 #include "permission_manager.h"
+#include "locationhub_ipc_interface_code.h"
+#include "location_data_rdb_manager.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -127,6 +129,8 @@ HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 begin");
+    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false));
     /*
      * @tc.steps: step1.remove SA
      * @tc.expected: step1. object1 is null.
@@ -445,7 +449,21 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilityProcessReportLocationMock001, TestSiz
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock001 begin");
     ability_->mockLocationIndex_ = -1;
     ability_->networkHandler_ = nullptr;
-    ability_->ProcessReportLocationMock();
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteInt32(1); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    ability_->CacheLocationMock(locations);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock001 end");
 }
 
@@ -457,7 +475,7 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendReportMockLocationEvent001, TestS
     ability_->networkHandler_ = nullptr;
     ability_->SendReportMockLocationEvent();
 
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));;
+    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
     ability_->SendReportMockLocationEvent();
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilitySendReportMockLocationEvent001 end");
 }
@@ -476,7 +494,7 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendMessage001, TestSize.Level1)
     ability_->networkHandler_ = nullptr;
     ability_->SendMessage(0, requestParcel, reply);
 
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));;
+    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
     ability_->SendMessage(0, requestParcel, reply);
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilitySendMessage001 end");
 }
@@ -489,6 +507,114 @@ HWTEST_F(NetworkAbilityTest, ResetServiceProxy001, TestSize.Level1)
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
     EXPECT_EQ(true, ability->ResetServiceProxy()); // Connect success
     LBSLOGI(NETWORK, "[NetworkAbilityTest] ResetServiceProxy001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RequestNetworkLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RequestNetworkLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation001 begin");
+    std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
+    int num = 2;
+    for (int i = 0; i < num; i++) {
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(i);
+        request->SetUid(i + 1);
+        request->SetPid(i + 2);
+        request->SetPackageName("nameForTest");
+        request->SetRequestConfig(*requestConfig);
+        request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+        request->SetNlpRequestType(i + 1);
+        workRecord->Add(request);
+    }
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RemoveNetworkLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RemoveNetworkLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation001 begin");
+    std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
+    int num = 2;
+    for (int i = 0; i < num; i++) {
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(i);
+        request->SetUid(i + 1);
+        request->SetPid(i + 2);
+        request->SetPackageName("nameForTest");
+        request->SetRequestConfig(*requestConfig);
+        request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+        request->SetNlpRequestType(i + 1);
+        workRecord->Add(request);
+    }
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation001 end");
+}
+
+#ifdef FEATURE_PASSIVE_SUPPORT
+HWTEST_F(NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 begin");
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteInt32(1); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    ability_->ReportMockedLocation(locations);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 end");
+}
+#endif
+
+HWTEST_F(NetworkAbilityTest, RegisterNLPServiceDeathRecipient001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RegisterNLPServiceDeathRecipient001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient001 begin");
+    ability_->RegisterNLPServiceDeathRecipient();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, ReportLocationError001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReportLocationError001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportLocationError001 begin");
+    ability_->ReportLocationError(0, "", "");
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportLocationError001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 begin");
+    std::shared_ptr<Location> location = std::make_shared<Location>();
+    ability_-> ReportMockedLocation(location);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, OnRemoteDied001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, OnRemoteDied001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] OnRemoteDied001 begin");
+    auto deathRecipient = new (std::nothrow) NLPServiceDeathRecipient();
+    const wptr<IRemoteObject> object;
+    deathRecipient->OnRemoteDied(object);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] OnRemoteDied001 end");
 }
 } // namespace Location
 } // namespace OHOS

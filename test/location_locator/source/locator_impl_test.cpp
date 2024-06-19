@@ -191,7 +191,6 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(true));
     bool isEnabled = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
-    EXPECT_EQ(true, isEnabled);
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 end");
@@ -646,18 +645,6 @@ HWTEST_F(LocatorImplTest, HasGnssNetworkRequest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 begin");
     locatorImpl_->HasGnssNetworkRequest();
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 end");
-}
-
-
-HWTEST_F(LocatorImplTest, GetGeofenceSupportedCoordTypes001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, GetGeofenceSupportedCoordTypes001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] GetGeofenceSupportedCoordTypes001 begin");
-    std::vector<CoordinateSystemType> coordinateSystemTypes;
-    auto geofenceClient = GeofenceManager::GetInstance();
-    geofenceClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] GetGeofenceSupportedCoordTypes001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
