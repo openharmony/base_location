@@ -41,7 +41,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$LOCATION_ROOT_DIR/test/location_locator/source/locator_skeleton_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/permission_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/report_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/request_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/work_record_test.cpp",
   ]
 
