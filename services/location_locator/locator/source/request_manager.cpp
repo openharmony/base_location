@@ -327,6 +327,9 @@ void RequestManager::DeleteRequestRecord(std::shared_ptr<std::list<std::shared_p
         auto request = *iter;
         UpdateRequestRecord(request, false);
         UpdateUsingPermission(request);
+        if (request->GetLocatorCallBack() != nullptr && request->GetLocatorCallbackRecipient() != nullptr) {
+            request->GetLocatorCallBack()->AsObject()->RemoveDeathRecipient(request->GetLocatorCallbackRecipient());
+        }
         auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
         if (locatorBackgroundProxy == nullptr) {
             LBSLOGE(REQUEST_MANAGER, "DeleteRequestRecord: LocatorBackgroundProxy is nullptr.");

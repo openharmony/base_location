@@ -186,8 +186,6 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
-    remoteObject->AddDeathRecipient(death);
     sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remoteObject);
     reply.WriteInt32(locatorAbility->StartLocating(requestConfig, callback, identity));
     return ERRCODE_SUCCESS;
@@ -1296,27 +1294,6 @@ void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode
         auto requestInfo = requestConfig->ToString();
         WriteLocationInnerEvent(LOCATION_REQUEST_DENY, {"errorCode", std::to_string(errCode),
             "requestAppName", identity.GetBundleName(), "requestInfo", requestInfo});
-    }
-}
-
-LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)
-{
-    tokenId_ = tokenId;
-}
-
-LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
-{
-}
-
-void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
-{
-    sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility != nullptr) {
-        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
-        locatorAbility->StopLocating(callback);
-        locatorAbility->PostUnloadTask(DEFAULT_CODE);
-        LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
 }
 
