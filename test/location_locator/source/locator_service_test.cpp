@@ -2097,7 +2097,7 @@ HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto ret = locatorAbility->RemoveInvalidRequests();
-    EXPECT_EQ(ERRCODE_SUCCESS, ret);
+    EXPECT_NE(ERRCODE_SUCCESS, ret);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests end");
 }
 

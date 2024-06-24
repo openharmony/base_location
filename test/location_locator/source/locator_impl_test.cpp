@@ -541,6 +541,38 @@ HWTEST_F(LocatorImplTest, locatorImplUnRegisterLocatingRequiredDataCallback001, 
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnRegisterLocatingRequiredDataCallback001 end");
 }
 
+HWTEST_F(LocatorImplTest, locatorImplSubscribeLocationError001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplSubscribeLocationError001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeLocationError001 begin");
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+
+    if (locatorCallbackHostForTest) {
+        locatorCallbackHostForTest->SetFixNumber(1);
+    }
+    sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    locatorImpl_->SubscribeLocationError(callbackPtr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeLocationError001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplUnSubscribeLocationError001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplUnSubscribeLocationError001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeLocationError001 begin");
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+
+    if (locatorCallbackHostForTest) {
+        locatorCallbackHostForTest->SetFixNumber(1);
+    }
+    sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    locatorImpl_->UnSubscribeLocationError(callbackPtr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeLocationError001 end");
+}
+
 static void TestLocationUpdate(
     const std::unique_ptr<OHOS::Location::Location>& location)
 {
