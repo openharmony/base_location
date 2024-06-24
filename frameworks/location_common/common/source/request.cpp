@@ -351,5 +351,14 @@ sptr<ILocatorCallback> Request::GetLocationErrorCallBack()
     return locationErrorcallBack_;
 }
 
+void Request::SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient)
+{
+    locatorCallbackRecipient_ = recipient;
+}
+
+sptr<IRemoteObject::DeathRecipient> Request::GetLocatorCallbackRecipient()
+{
+    return locatorCallbackRecipient_;
+}
 } // namespace Location
 } // namespace OHOS

@@ -118,15 +118,6 @@ private:
     sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();
 };
 
-class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-    LocatorCallbackDeathRecipient(int32_t tokenId);
-    ~LocatorCallbackDeathRecipient() override;
-private:
-    int32_t tokenId_;
-};
-
 class SwitchCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;

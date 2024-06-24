@@ -888,6 +888,9 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     }
     reportManager_->UpdateRandom();
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
+    callback->AsObject()->AddDeathRecipient(death);
+    request->SetLocatorCallbackRecipient(death);
     HookUtils::ExecuteHookWhenStartLocation(request);
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(request->GetTokenId(),
@@ -900,6 +903,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 #else
     if (NeedReportCacheLocation(request, callback)) {
         LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
+        callback->AsObject()->RemoveDeathRecipient(death);
     } else {
         HandleStartLocating(request, callback);
     }
@@ -1975,6 +1979,27 @@ void LocatorHandler::SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event)
     if (requestManager != nullptr) {
         bool state = event->GetParam();
         requestManager->SyncIdleState(state);
+    }
+}
+
+LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)
+{
+    tokenId_ = tokenId;
+}
+
+LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
+{
+}
+
+void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
+        locatorAbility->StopLocating(callback);
+        locatorAbility->PostUnloadTask(DEFAULT_CODE);
+        LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
 }
 } // namespace Location

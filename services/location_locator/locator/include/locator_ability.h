@@ -265,6 +265,15 @@ private:
     std::string uuid_;
     int32_t errCode_;
 };
+
+class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    LocatorCallbackDeathRecipient(int32_t tokenId);
+    ~LocatorCallbackDeathRecipient() override;
+private:
+    int32_t tokenId_;
+};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_ABILITY_H
