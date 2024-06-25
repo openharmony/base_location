@@ -233,6 +233,14 @@ private:
     int32_t GenerateFenceId();
     bool IsGnssfenceRequestMapExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId);
+    bool ConnectGnssHdi();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+    bool ConnectAgnssHdi();
+#endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+    bool ConnectGeofenceHdi();
+#endif
+    bool IsDeviceLoaded(const std::string &servName);
 
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
