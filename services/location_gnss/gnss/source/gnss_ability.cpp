@@ -59,7 +59,7 @@ constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 #endif
 constexpr const char *LOCATION_HOST_NAME = "location_host";
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
-#ifdef
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
 #endif
 const std::string UNLOAD_GNSS_TASK = "gnss_sa_unload";
