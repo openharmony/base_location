@@ -91,7 +91,7 @@ void LocatorSkeletonTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        RUNNING_STATE_OBSERVER.c_str(),
+        RUNNING_STATE_OBSERVER.c_str(), ACCESS_MOCK_LOCATION.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -100,7 +100,7 @@ void LocatorSkeletonTest::MockNativePermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "LocatorTest",
+        .processName = "ohos.permission.MOCK_LOCATION",
         .aplStr = "system_basic",
     };
     tokenId_ = GetAccessTokenId(&infoInstance);
@@ -135,7 +135,6 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterSwitchCallback, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRegisterSwitchCallback begin");
     auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
     MessageParcel data;
-
     MessageParcel reply;
     AppIdentity identity;
     identity.SetPid(1);
@@ -156,8 +155,18 @@ HWTEST_F(LocatorSkeletonTest, PreStartLocating, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStartLocating begin");
     auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
     MessageParcel data;
+    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    data.WriteInt32(1);
+    data.WriteInt32(1);
+    data.WriteInt32(1);
+    data.WriteDouble(1.0);
+    data.WriteFloat(1.0);
+    data.WriteInt32(1);
+    data.WriteInt32(1);
+    data.WriteRemoteObject(callback->AsObject());
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreStartLocating(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -176,6 +185,8 @@ HWTEST_F(LocatorSkeletonTest, PreStopLocating, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStopLocating begin");
     auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
     MessageParcel data;
+    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    data.WriteRemoteObject(callback->AsObject());
     MessageParcel reply;
     AppIdentity identity;
     identity.SetPid(1);
@@ -194,8 +205,12 @@ HWTEST_F(LocatorSkeletonTest, PreGetCacheLocation, TestSize.Level1)
         << "LocatorSkeletonTest, PreGetCacheLocation, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreGetCacheLocation begin");
     auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
-    MessageParcel data;
+    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
     MessageParcel reply;
+    MessageParcel data;
+    data.WriteInt32(1);
+    data.WriteBool(true);
+    data.WriteRemoteObject(callback->AsObject());
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
@@ -218,6 +233,9 @@ HWTEST_F(LocatorSkeletonTest, PreEnableAbility, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreEnableAbility(data, reply, identity);
+    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    data.WriteBool(true);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -238,6 +256,7 @@ HWTEST_F(LocatorSkeletonTest, PreUpdateSaAbility, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreUpdateSaAbility(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -259,6 +278,7 @@ HWTEST_F(LocatorSkeletonTest, PreIsGeoConvertAvailable, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreIsGeoConvertAvailable(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -347,6 +367,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterGnssStatusCallback, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreRegisterGnssStatusCallback(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -369,6 +390,7 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterGnssStatusCallback, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreRegisterGnssStatusCallback(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -391,6 +413,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterNmeaMessageCallback, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreRegisterGnssStatusCallback(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -435,6 +458,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterNmeaMessageCallbackV9, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreRegisterNmeaMessageCallbackV9(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -457,6 +481,7 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterNmeaMessageCallbackV9, TestSize.Level
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreUnregisterNmeaMessageCallbackV9(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -478,6 +503,7 @@ HWTEST_F(LocatorSkeletonTest, PreIsLocationPrivacyConfirmed, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreIsLocationPrivacyConfirmed(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -498,6 +524,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetLocationPrivacyConfirmStatus, TestSize.Level
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreSetLocationPrivacyConfirmStatus(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -518,13 +545,18 @@ HWTEST_F(LocatorSkeletonTest, PreStartCacheLocating, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
+    data.WriteInt32(1);
+    data.WriteBool(true);
+    data.WriteRemoteObject(callback->AsObject());
+    auto result = locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStartCacheLocating end");
 }
 
@@ -543,7 +575,12 @@ HWTEST_F(LocatorSkeletonTest, PreStopCacheLocating, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    locatorAbilityStub->PreStopCacheLocating(data, reply, identity);
+    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    data.WriteInt32(1);
+    data.WriteBool(true);
+    data.WriteRemoteObject(callback->AsObject());
+    auto result = locatorAbilityStub->PreStopCacheLocating(data, reply, identity);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStopCacheLocating end");
 }
 
@@ -556,6 +593,7 @@ HWTEST_F(LocatorSkeletonTest, PreGetCachedGnssLocationsSize, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreGetCachedGnssLocationsSize(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -576,6 +614,7 @@ HWTEST_F(LocatorSkeletonTest, PreFlushCachedGnssLocations, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreFlushCachedGnssLocations(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -596,6 +635,7 @@ HWTEST_F(LocatorSkeletonTest, PreSendCommand, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreSendCommand(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -616,6 +656,7 @@ HWTEST_F(LocatorSkeletonTest, PreAddFence, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    locatorAbilityStub->PreAddFence(data, reply, identity);
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -646,6 +687,46 @@ HWTEST_F(LocatorSkeletonTest, PreRemoveFence, TestSize.Level1)
     auto result = locatorAbilityStub->PreRemoveFence(data, reply, identity);
     EXPECT_EQ(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRemoveFence end");
+}
+
+HWTEST_F(LocatorSkeletonTest, PreAddGnssGeofence, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorSkeletonTest, PreAddGnssGeofence, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreAddGnssGeofence begin");
+    auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    MessageParcel data;
+    MessageParcel reply;
+    AppIdentity identity;
+    identity.SetPid(1);
+    identity.SetUid(2);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    identity.SetTokenId(tokenId);
+    identity.SetFirstTokenId(0);
+    identity.SetBundleName("bundleName");
+    auto result = locatorAbilityStub->PreAddGnssGeofence(data, reply, identity);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreAddGnssGeofence end");
+}
+
+HWTEST_F(LocatorSkeletonTest, PreRemoveGnssGeofence, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorSkeletonTest, PreRemoveGnssGeofence, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRemoveGnssGeofence begin");
+    auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    MessageParcel data;
+    MessageParcel reply;
+    AppIdentity identity;
+    identity.SetPid(1);
+    identity.SetUid(2);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    identity.SetTokenId(tokenId);
+    identity.SetFirstTokenId(0);
+    identity.SetBundleName("bundleName");
+    auto result = locatorAbilityStub->PreRemoveGnssGeofence(data, reply, identity);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRemoveGnssGeofence end");
 }
 
 HWTEST_F(LocatorSkeletonTest, PreEnableLocationMock, TestSize.Level1)

@@ -357,11 +357,11 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
 
 void AGnssNiManager::SendUserResponse(GnssNiResponseCmd responseCmd)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
     if (gnssInterface_ == nullptr) {
         LBSLOGE(GNSS, "gnssInterfacev1_0 is nullptr");
         return;
     }
+    std::unique_lock<std::mutex> lock(mutex_);
     gnssInterface_->SendNiUserResponse(niNotificationId_, responseCmd);
 }
 

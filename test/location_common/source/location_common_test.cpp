@@ -17,6 +17,11 @@
 
 #include "string_ex.h"
 
+#define private public
+#include "request.h"
+#include "request_config.h"
+#undef private
+
 #include "message_parcel.h"
 #include "ipc_skeleton.h"
 #include "common_event_subscriber.h"
@@ -817,14 +822,167 @@ HWTEST_F(LocationCommonTest, WorkRecordStatistic001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic001 end");
 }
 
-HWTEST_F(LocationCommonTest, WorkRecordStatistic002, TestSize.Level1)
+HWTEST_F(LocationCommonTest, Request001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocationCommonTest, WorkRecordStatistic002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic002 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->Update("network", 0);
-    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic002 end");
+        << "LocationCommonTest, Request001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request001 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    request->requestConfig_ = nullptr;
+    RequestConfig requestConfig;
+    request->SetRequestConfig(requestConfig);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request001 end");
+}
+
+HWTEST_F(LocationCommonTest, Request002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request002 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    int type = 1;
+    request->SetPermUsedType(type);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request002 end");
+}
+
+HWTEST_F(LocationCommonTest, Request003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request003 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    std::shared_ptr<std::list<std::string>> proxys;
+    proxys = nullptr;
+    request->GetProxyName(proxys);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request003 end");
+}
+
+HWTEST_F(LocationCommonTest, Request004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request004 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    request->requestConfig_ = nullptr;
+    std::shared_ptr<std::list<std::string>> proxys;
+    request->GetProxyName(proxys);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request004 end");
+}
+
+HWTEST_F(LocationCommonTest, Request005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request005, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request005 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
+    request->GetProxyName(proxys);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request005 end");
+}
+
+HWTEST_F(LocationCommonTest, Request006, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request006, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request006 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    request->requestConfig_ = nullptr;
+    std::shared_ptr<std::list<std::string>> proxys;
+    proxys = nullptr;
+    request->GetProxyName(proxys);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request006 end");
+}
+
+HWTEST_F(LocationCommonTest, Request007, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request007, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request007 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    std::shared_ptr<std::list<std::string>> proxys = std::make_shared<std::list<std::string>>();
+    request->requestConfig_->scenario_ = LOCATION_SCENE_NAVIGATION;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = LOCATION_SCENE_SPORT;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = LOCATION_SCENE_TRANSPORT;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = LOCATION_SCENE_HIGH_POWER_CONSUMPTION;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = SCENE_NAVIGATION;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = SCENE_TRAJECTORY_TRACKING;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = LOCATION_SCENE_LOW_POWER_CONSUMPTION;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = LOCATION_SCENE_DAILY_LIFE_SERVICE;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = SCENE_DAILY_LIFE_SERVICE;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = LOCATION_SCENE_NO_POWER_CONSUMPTION;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = SCENE_NO_POWER;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = SCENE_UNSET;
+    request->GetProxyName(proxys);
+    request->requestConfig_->scenario_ = 0;
+    request->GetProxyName(proxys);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request007 end");
+}
+
+HWTEST_F(LocationCommonTest, Request008, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request008, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request008 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    request->requestConfig_ = nullptr;
+    request->ToString();
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request008 end");
+}
+
+HWTEST_F(LocationCommonTest, Request009, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, Request009, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request009 begin");
+    std::unique_ptr<Request> request = std::make_unique<Request>();
+    request->requestConfig_->scenario_ = SCENE_NAVIGATION;
+    request->SetNlpRequestType();
+    request->requestConfig_->scenario_ = SCENE_TRAJECTORY_TRACKING;
+    request->SetNlpRequestType();
+    request->requestConfig_->scenario_ = SCENE_CAR_HAILING;
+    request->SetNlpRequestType();
+    request->requestConfig_->scenario_ = LOCATION_SCENE_NAVIGATION;
+    request->SetNlpRequestType();
+    request->requestConfig_->scenario_ = LOCATION_SCENE_SPORT;
+    request->SetNlpRequestType();
+    request->requestConfig_->scenario_ = LOCATION_SCENE_TRANSPORT;
+    request->SetNlpRequestType();
+    request->requestConfig_->scenario_ = LOCATION_SCENE_HIGH_POWER_CONSUMPTION;
+    request->SetNlpRequestType();
+    request->requestConfig_->priority_ = PRIORITY_ACCURACY;
+    request->SetNlpRequestType();
+    request->requestConfig_->priority_ = PRIORITY_FAST_FIRST_FIX;
+    request->SetNlpRequestType();
+    request->requestConfig_->priority_ = LOCATION_PRIORITY_ACCURACY;
+    request->SetNlpRequestType();
+    request->requestConfig_->priority_ = 0;
+    request->requestConfig_->scenario_ = 0;
+    LBSLOGI(LOCATOR, "[LocationCommonTest] Request009 end");
+}
+
+HWTEST_F(LocationCommonTest, LoadLocationSaTest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LoadLocationSaTest004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest004 begin");
+    bool ret = LocationSaLoadManager::GetInstance()->UnInitLocationSa(UN_SAID);
+    EXPECT_EQ(true, ret);
+
+    // can not unload sa by another sa
+    ret = LocationSaLoadManager::GetInstance()->UnInitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LoadLocationSaTest004 end");
 }
 } // namespace Location
 } // namespace OHOS
