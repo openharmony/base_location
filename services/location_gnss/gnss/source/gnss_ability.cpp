@@ -59,7 +59,9 @@ constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 #endif
 constexpr const char *LOCATION_HOST_NAME = "location_host";
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
+#ifdef
 constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
+#endif
 const std::string UNLOAD_GNSS_TASK = "gnss_sa_unload";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 constexpr int32_t FENCE_MAX_ID = 1000000;
@@ -1125,7 +1127,7 @@ bool GnssAbility::ConnectHdi()
         return false;
     }
 #endif
-    LBSLOGE(GNSS, "connect v2_0 hdi failed.");
+    LBSLOGI(GNSS, "connect v2_0 hdi success.");
     return true;
 }
 
