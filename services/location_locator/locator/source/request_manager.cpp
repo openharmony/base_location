@@ -39,7 +39,9 @@
 #include "common_hisysevent.h"
 #include "hook_utils.h"
 #include "permission_manager.h"
+#ifdef DEVICE_STANDBY_ENABLE
 #include "standby_service_client.h"
+#endif
 
 #ifdef RES_SCHED_SUPPROT
 #include "res_type.h"
