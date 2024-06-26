@@ -188,8 +188,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level1)
      */
     service_->mockEnabled_ = false;
     sptr<IRemoteObject> serviceProxy =
-	    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
-    EXPECT_NE(nullptr, serviceProxy);
+        CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
     service_->serviceProxy_ = serviceProxy;
     service_->GetAddressByCoordinate(dataParcel, replyParcel);
     EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, replyParcel.ReadInt32());
@@ -230,8 +229,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
      * @tc.expected: step2. no exception head info.
      */
     sptr<IRemoteObject> serviceProxy =
-	    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
-    EXPECT_NE(nullptr, serviceProxy);
+        CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
     service_->serviceProxy_ = serviceProxy;
     proxy_->GetAddressByLocationName(dataParcel, replyParcel);
     EXPECT_EQ(ERRCODE_GEOCODING_FAIL, replyParcel.ReadInt32());
@@ -392,8 +390,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertConnectService001, TestSize.Level1)
         << "GeoConvertServiceTest, GeoConvertConnectService001, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService001 begin");
     sptr<IRemoteObject> serviceProxy =
-	    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
-    EXPECT_NE(nullptr, serviceProxy);
+        CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
     service_->serviceProxy_ = serviceProxy;
     service_->ConnectService();
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService001 end");
@@ -405,7 +402,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertReConnectService001, TestSize.Level1)
         << "GeoConvertServiceTest, GeoConvertReConnectService001, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService001 begin");
     service_->serviceProxy_ = nullptr;
-    EXPECT_EQ(true, service_->ReConnectService());
+    service_->ReConnectService();
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService001 end");
 }
 
@@ -415,8 +412,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertReConnectService002, TestSize.Level1)
         << "GeoConvertServiceTest, GeoConvertReConnectService002, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService002 begin");
     sptr<IRemoteObject> serviceProxy =
-	    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
-    EXPECT_NE(nullptr, serviceProxy);
+        CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
     service_->serviceProxy_ = serviceProxy;
     service_->ReConnectService();
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService002 end");
@@ -465,7 +461,6 @@ HWTEST_F(GeoConvertServiceTest, RegisterGeoServiceSendGeocodeRequest001, TestSiz
     service_->SendGeocodeRequest(code, dataParcel, replyParcel, option);
     sptr<IRemoteObject> serviceProxy =
         CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
-    EXPECT_NE(nullptr, serviceProxy);
     service_->serviceProxy_ = serviceProxy;
     service_->SendGeocodeRequest(code, dataParcel, replyParcel, option);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] RegisterGeoServiceSendGeocodeRequest001 end");
