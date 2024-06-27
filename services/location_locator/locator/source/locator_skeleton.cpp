@@ -1186,6 +1186,11 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint64_t callingTokenIdEx = IPCSkeleton::GetCallingFullTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
+    // first token id is invalid
+    if (callingUid == callingFirstTokenid && callingUid == static_cast<pid_t>(getuid())
+        && callingPid == getpid()) {
+        callingFirstTokenid = 0;
+    }
 
     AppIdentity identity;
     identity.SetPid(callingPid);
