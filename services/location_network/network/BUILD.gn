@@ -42,6 +42,7 @@ if (location_feature_with_network) {
       "ability_runtime:ability_manager",
       "c_utils:utils",
       "eventhandler:libeventhandler",
+      "ffrt::libffrt",
       "hilog:libhilog",
       "init:libbegetutil",
       "ipc:ipc_single",

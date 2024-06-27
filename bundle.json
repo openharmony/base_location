@@ -54,6 +54,7 @@
                 "drivers_interface_location_gnss",
                 "drivers_interface_location_geofence",
                 "eventhandler",
+                "ffrt",
                 "form_fwk",
                 "hdf_core",
                 "hisysevent",

@@ -86,7 +86,7 @@ private:
     void RegisterNLPServiceDeathRecipient();
     bool IsConnect();
     
-    std::mutex mutex_;
+    ffrt::mutex mutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
     std::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;

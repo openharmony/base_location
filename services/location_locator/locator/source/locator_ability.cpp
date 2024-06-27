@@ -186,7 +186,8 @@ bool LocatorAbility::Init()
 #ifdef MOVEMENT_CLIENT_ENABLE
     LocatorMsdpMonitorManager::GetInstance();
 #endif
-    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
+    locatorHandler_ =
+        std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
@@ -198,7 +199,7 @@ bool LocatorAbility::Init()
 
 void LocatorAbility::InitRequestManagerMap()
 {
-    std::unique_lock<std::mutex> lock(requestsMutex_);
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
     if (requests_ != nullptr) {
 #ifdef FEATURE_GNSS_SUPPORT
         std::list<std::shared_ptr<Request>> gnssList;
@@ -217,13 +218,13 @@ void LocatorAbility::InitRequestManagerMap()
 
 std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> LocatorAbility::GetRequests()
 {
-    std::unique_lock<std::mutex> lock(requestsMutex_);
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
     return requests_;
 }
 
 int LocatorAbility::GetActiveRequestNum()
 {
-    std::unique_lock<std::mutex> lock(requestsMutex_);
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
     int num = 0;
 #ifdef FEATURE_GNSS_SUPPORT
     auto gpsListIter = requests_->find(GNSS_ABILITY);
@@ -244,13 +245,13 @@ int LocatorAbility::GetActiveRequestNum()
 
 std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> LocatorAbility::GetReceivers()
 {
-    std::unique_lock<std::mutex> lock(receiversMutex_);
+    std::unique_lock<ffrt::mutex> lock(receiversMutex_);
     return receivers_;
 }
 
 std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> LocatorAbility::GetProxyMap()
 {
-    std::unique_lock<std::mutex> lock(proxyMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
     return proxyMap_;
 }
 
@@ -272,7 +273,7 @@ void LocatorAbility::InitSaAbility()
 
 bool LocatorAbility::CheckSaValid()
 {
-    std::unique_lock<std::mutex> lock(proxyMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
     auto objectGnss = proxyMap_->find(GNSS_ABILITY);
     if (objectGnss == proxyMap_->end()) {
@@ -319,7 +320,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     }
     locatorBackgroundProxy->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
-    std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
     for (auto iter = loadedSaMap_->begin(); iter != loadedSaMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
         MessageParcel data;
@@ -454,7 +455,7 @@ LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>
         LBSLOGE(LOCATOR, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<std::mutex> lock(switchMutex_);
+    std::unique_lock<ffrt::mutex> lock(switchMutex_);
     switchCallbacks_->erase(uid);
     switchCallbacks_->insert(std::make_pair(uid, switchCallback));
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
@@ -474,7 +475,7 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
         return ERRCODE_INVALID_PARAM;
     }
 
-    std::unique_lock<std::mutex> lock(switchMutex_);
+    std::unique_lock<ffrt::mutex> lock(switchMutex_);
     pid_t uid = -1;
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
@@ -765,7 +766,7 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
         UpdateProxyMap();
     }
 
-    std::unique_lock<std::mutex> lock(proxyMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         auto obj = iter->second;
         if (iter->first == GNSS_ABILITY) {
@@ -787,7 +788,7 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
 
 void LocatorAbility::UpdateLoadedSaMap()
 {
-    std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
     loadedSaMap_->clear();
     if (LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_GNSS_SA_ID)) {
         sptr<IRemoteObject> objectGnss =
@@ -808,7 +809,7 @@ void LocatorAbility::UpdateLoadedSaMap()
 
 void LocatorAbility::UpdateProxyMap()
 {
-    std::unique_lock<std::mutex> lock(proxyMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
     // init gnss ability sa
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_GNSS_SA_ID)) {
@@ -1333,7 +1334,7 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
 
 LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
-    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(proxyPidsMutex_, std::defer_lock);
     lock.lock();
     if (isProxy) {
         for (auto it = pidList.begin(); it != pidList.end(); it++) {
@@ -1361,7 +1362,7 @@ LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isPro
 LocationErrCode LocatorAbility::ResetAllProxy()
 {
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
-    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(proxyPidsMutex_, std::defer_lock);
     lock.lock();
     proxyPids_.clear();
     lock.unlock();
@@ -1376,14 +1377,14 @@ LocationErrCode LocatorAbility::ResetAllProxy()
 
 bool LocatorAbility::IsProxyPid(int32_t pid)
 {
-    std::unique_lock<std::mutex> lock(proxyPidsMutex_);
+    std::unique_lock<ffrt::mutex> lock(proxyPidsMutex_);
     return proxyPids_.find(pid) != proxyPids_.end();
 }
 
 void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
     const std::vector<std::string>& permissionNameList)
 {
-    std::unique_lock<std::mutex> lock(permissionMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(permissionMapMutex_);
     if (permissionMap_ == nullptr) {
         LBSLOGE(LOCATOR, "permissionMap is null.");
         return;
@@ -1404,7 +1405,7 @@ void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
 
 void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
 {
-    std::unique_lock<std::mutex> lock(permissionMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(permissionMapMutex_);
     if (permissionMap_ == nullptr) {
         LBSLOGE(LOCATOR, "permissionMap is null.");
         return;
@@ -1527,7 +1528,7 @@ LocationErrCode LocatorAbility::RemoveInvalidRequests()
     int32_t requestNum = 0;
     int32_t invalidRequestNum = 0;
     {
-        std::unique_lock<std::mutex> lock(requestsMutex_);
+        std::unique_lock<ffrt::mutex> lock(requestsMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
         auto gpsListIter = requests_->find(GNSS_ABILITY);
         if (gpsListIter != requests_->end()) {

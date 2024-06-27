@@ -54,6 +54,7 @@ if (location_feature_with_gnss) {
       "ability_runtime:ability_connect_callback_stub",
       "c_utils:utils",
       "eventhandler:libeventhandler",
+      "ffrt::libffrt",
       "hdf_core:libhdi",
       "hilog:libhilog",
       "init:libbegetutil",

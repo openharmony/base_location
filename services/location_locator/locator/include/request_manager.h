@@ -65,9 +65,9 @@ private:
     void ReportDataToResSched(std::string state, const pid_t uid);
     void IsStandby();
     std::map<int32_t, int32_t> runningUidMap_;
-    static std::mutex requestMutex_;
-    std::mutex runningUidsMutex_;
-    std::mutex permissionRecordMutex_;
+    static ffrt::mutex requestMutex_;
+    ffrt::mutex runningUidsMutex_;
+    ffrt::mutex permissionRecordMutex_;
     std::atomic_bool isDeviceIdleMode_;
     std::atomic_bool isDeviceStillState_;
 };
