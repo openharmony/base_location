@@ -538,7 +538,8 @@ LocationErrCode GnssAbility::InjectLocation()
     }
     GnssRefInfo refInfo;
     refInfo.type = GnssRefInfoType::GNSS_REF_INFO_LOCATION;
-    refInfo.gnssLocation.fieldValidity = GnssLocationValidity::GNSS_LOCATION_LAT_VALID;
+    refInfo.gnssLocation.fieldValidity =
+        GnssLocationValidity::GNSS_LOCATION_LAT_VALID | GnssLocationValidity::GNSS_LOCATION_LONG_VALID;
     refInfo.gnssLocation.latitude = nlpLocation_.GetLatitude();
     refInfo.gnssLocation.longitude = nlpLocation_.GetLongitude();
     refInfo.gnssLocation.altitude = nlpLocation_.GetAltitude();
@@ -572,7 +573,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     fenceInfo.radius = geofence.radius;
     int monitorEvent = static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER) |
         static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT);
-    int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, static_cast<GeofenceEvent>(monitorEvent));
+    int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, monitorEvent);
     LBSLOGD(GNSS, "Successfully AddFence!, %{public}d", ret);
 #endif
     if (ExecuteFenceProcess(GnssInterfaceCode::ADD_FENCE_INFO, request)) {
@@ -630,7 +631,7 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
         GeofenceTransitionEvent status = transitionList[i];
         monitorEvent |= static_cast<uint32_t>(status);
     }
-    int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, static_cast<GeofenceEvent>(monitorEvent));
+    int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, monitorEvent);
     LBSLOGD(GNSS, "Successfully AddGnssGeofence!, %{public}d", ret);
 #endif
     RegisterGnssGeofenceCallback(request, request->GetGeofenceTransitionCallback());
