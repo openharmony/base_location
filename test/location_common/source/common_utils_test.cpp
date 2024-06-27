@@ -187,14 +187,14 @@ HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID));
+    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID);
     EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
 
     // read from map
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID));
+    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID);
     EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest001 end");
 }

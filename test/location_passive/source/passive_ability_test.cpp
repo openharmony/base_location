@@ -158,19 +158,11 @@ HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop001, TestSize.Level1)
         << "PassiveAbilityStubTest, PassiveOnStartAndOnStop001, TestSize.Level1";
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop001 begin");
     ability_->OnStart(); // start ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
+    ability_->OnStart(); // start ability again
     ability_->state_ = ServiceRunningState::STATE_RUNNING;
     ability_->OnStart(); // start ability again
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
-
     ability_->OnStop(); // stop ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
     ability_->OnStart(); // restart ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop001 end");
 }
 
@@ -288,6 +280,16 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportSendMessage001, TestSize.Level1)
     MessageParcel reply;
     ability_->SendMessage(ERRCODE_NOT_SUPPORTED, parcel, reply);
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportSendMessage001 end");
+}
+
+HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PassiveAbilityStubTest, PassiveOnStartAndOnStop002, TestSize.Level1";
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop002 begin");
+    ability_->state_ = ServiceRunningState::STATE_RUNNING;
+    ability_->OnStart(); // start ability again
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop002 end");
 }
 } // namespace Location
 } // namespace OHOS

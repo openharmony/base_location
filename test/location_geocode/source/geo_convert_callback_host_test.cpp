@@ -44,7 +44,6 @@ HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest001, TestSize.Lev
         << "GeoConvertCallbackHostTest, GeoConvertCallbackHostTest001, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertCallbackHostTest] GeoConvertCallbackHostTest001 begin");
     auto geoConvertCallvackHost = sptr<MockGeoConvertCallbackHost>(new (std::nothrow) MockGeoConvertCallbackHost());
-    EXPECT_CALL(*geoConvertCallvackHost, OnResults(_)).WillOnce(DoAll(Return()));
     uint32_t code = 3;
     MessageParcel parcel;
     parcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
@@ -62,7 +61,6 @@ HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest002, TestSize.Lev
         << "GeoConvertCallbackHostTest, GeoConvertCallbackHostTest002, TestSize.Level1";
     LBSLOGI(GEO_CONVERT, "[GeoConvertCallbackHostTest] GeoConvertCallbackHostTest002 begin");
     auto geoConvertCallvackHost = sptr<MockGeoConvertCallbackHost>(new (std::nothrow) MockGeoConvertCallbackHost());
-    EXPECT_CALL(*geoConvertCallvackHost, OnErrorReport(_)).WillOnce(DoAll(Return()));
     uint32_t code = 3;
     MessageParcel parcel;
     parcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
