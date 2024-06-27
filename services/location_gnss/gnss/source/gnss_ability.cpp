@@ -1072,7 +1072,7 @@ bool GnssAbility::ConnectAgnssHdi()
         lock.unlock();
         return false;
     }
-    if (agnssCallback_ != nullptr) {
+    if (agnssCallback_ == nullptr) {
         agnssCallback_ = new (std::nothrow) AGnssEventCallback();
     }
     LBSLOGI(GNSS, "ConnectAgnssHdi success");
@@ -1102,7 +1102,7 @@ bool GnssAbility::ConnectGeofenceHdi()
         lock.unlock();
         return false;
     }
-    if (geofenceCallback_ != nullptr) {
+    if (geofenceCallback_ == nullptr) {
         geofenceCallback_ = sptr<GeofenceEventCallback>(new (std::nothrow) GeofenceEventCallback);
     }
     SetGeofenceCallback();
