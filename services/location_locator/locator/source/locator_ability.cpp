@@ -104,6 +104,7 @@ LocatorAbility* LocatorAbility::GetInstance()
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
+    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
@@ -112,6 +113,11 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     permissionMap_ = std::make_shared<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>>();
     InitRequestManagerMap();
     reportManager_ = ReportManager::GetInstance();
+    deviceId_ = CommonUtils::InitDeviceId();
+#ifdef MOVEMENT_CLIENT_ENABLE
+    LocatorMsdpMonitorManager::GetInstance();
+#endif
+    requestManager_ = RequestManager::GetInstance();
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
@@ -180,13 +186,6 @@ bool LocatorAbility::Init()
         LBSLOGE(LOCATOR, "Init add system ability failed!");
         return false;
     }
-
-    deviceId_ = CommonUtils::InitDeviceId();
-    requestManager_ = RequestManager::GetInstance();
-#ifdef MOVEMENT_CLIENT_ENABLE
-    LocatorMsdpMonitorManager::GetInstance();
-#endif
-    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     InitSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
