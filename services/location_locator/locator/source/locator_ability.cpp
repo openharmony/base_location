@@ -104,7 +104,8 @@ LocatorAbility* LocatorAbility::GetInstance()
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
-    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true,
+        AppExecFwk::ThreadMode::FFRT));
     switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();

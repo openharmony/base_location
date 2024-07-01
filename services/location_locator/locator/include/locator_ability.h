@@ -21,6 +21,7 @@
 #include <singleton.h>
 
 #include "event_handler.h"
+#include "ffrt.h"
 #include "system_ability.h"
 
 #include "app_identity.h"

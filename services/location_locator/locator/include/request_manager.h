@@ -22,6 +22,7 @@
 #include <singleton.h>
 #include <string>
 
+#include "ffrt.h"
 #include "iremote_object.h"
 
 #include "i_locator_callback.h"

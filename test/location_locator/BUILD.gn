@@ -74,6 +74,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "common_event_service:cesfwk_innerkits",
     "distributed_notification_service:ans_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",

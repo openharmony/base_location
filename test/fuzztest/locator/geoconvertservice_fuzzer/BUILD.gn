@@ -60,6 +60,7 @@ ohos_fuzztest("GeoconvertServiceFuzzTest") {
     "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
     "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",

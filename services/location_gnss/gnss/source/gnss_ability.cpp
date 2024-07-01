@@ -1036,7 +1036,7 @@ bool GnssAbility::ConnectGnssHdi()
             return false;
         }
     }
-    std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     lock.lock();
     gnssInterface_ = IGnssInterface::Get();
     if (gnssInterface_ == nullptr) {
@@ -1066,7 +1066,7 @@ bool GnssAbility::ConnectAgnssHdi()
             return false;
         }
     }
-    std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     lock.lock();
     agnssInterface_ = IAGnssInterface::Get();
     if (agnssInterface_ == nullptr) {
@@ -1096,7 +1096,7 @@ bool GnssAbility::ConnectGeofenceHdi()
             return false;
         }
     }
-    std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     lock.lock();
     geofenceInterface_ = IGeofenceInterface::Get();
     if (geofenceInterface_ == nullptr) {

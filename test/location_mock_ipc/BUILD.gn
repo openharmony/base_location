@@ -69,6 +69,7 @@ ohos_unittest("LocationMockIpcTest") {
     "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
     "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hdf_core:libhdi",
     "hdf_core:libpub_utils",
     "hilog:libhilog",

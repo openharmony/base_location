@@ -28,6 +28,7 @@
 #endif
 
 #include "event_handler.h"
+#include "ffrt.h"
 #include "system_ability.h"
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include "agnss_event_callback.h"
