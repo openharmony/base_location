@@ -16,6 +16,9 @@
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_test.h"
 
+#define private public
+#include "network_ability.h"
+#undef private
 #include <cstdlib>
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
@@ -218,7 +221,6 @@ HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop001 end");
 }
 
-
 HWTEST_F(NetworkAbilityTest, NetworkDump001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -309,6 +311,8 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
  */
 HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 begin");
     EXPECT_EQ(false, ability_->ReConnectNlpService());
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 end");
@@ -517,20 +521,21 @@ HWTEST_F(NetworkAbilityTest, RequestNetworkLocation001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, RequestNetworkLocation001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation001 begin");
-    std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-    int num = 2;
-    for (int i = 0; i < num; i++) {
-        std::shared_ptr<Request> request = std::make_shared<Request>();
-        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-        requestConfig->SetTimeInterval(i);
-        request->SetUid(i + 1);
-        request->SetPid(i + 2);
-        request->SetPackageName("nameForTest");
-        request->SetRequestConfig(*requestConfig);
-        request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
-        request->SetNlpRequestType(i + 1);
-        workRecord->Add(request);
-    }
+    auto workRecord = std::make_shared<WorkRecord>();
+    sptr<IRemoteObject> nlpServiceProxy =
+        CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID, CommonUtils::InitDeviceId());
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    request->SetUid(1);
+    request->SetPid(2);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+    request->SetNlpRequestType(1);
+    workRecord->Add(request);
+    ability_->RequestNetworkLocation(*workRecord);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation001 end");
 }
 
@@ -539,20 +544,21 @@ HWTEST_F(NetworkAbilityTest, RemoveNetworkLocation001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, RemoveNetworkLocation001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation001 begin");
-    std::unique_ptr<WorkRecord> workRecord = std::make_unique<WorkRecord>();
-    int num = 2;
-    for (int i = 0; i < num; i++) {
-        std::shared_ptr<Request> request = std::make_shared<Request>();
-        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-        requestConfig->SetTimeInterval(i);
-        request->SetUid(i + 1);
-        request->SetPid(i + 2);
-        request->SetPackageName("nameForTest");
-        request->SetRequestConfig(*requestConfig);
-        request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
-        request->SetNlpRequestType(i + 1);
-        workRecord->Add(request);
-    }
+    auto workRecord = std::make_shared<WorkRecord>();
+    sptr<IRemoteObject> nlpServiceProxy =
+        CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID, CommonUtils::InitDeviceId());
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    request->SetUid(1);
+    request->SetPid(2);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+    request->SetNlpRequestType(1);
+    workRecord->Add(request);
+    ability_->RemoveNetworkLocation(*workRecord);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation001 end");
 }
 
@@ -618,6 +624,103 @@ HWTEST_F(NetworkAbilityTest, OnRemoteDied001, TestSize.Level1)
     const wptr<IRemoteObject> object;
     deathRecipient->OnRemoteDied(object);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] OnRemoteDied001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkOnStartAndOnStop002, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop002 begin");
+    ability_->state_ = ServiceRunningState::STATE_RUNNING;
+    ability_->OnStart(); // start ability
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkConnectNlpService002, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService002 begin");
+    sptr<IRemoteObject> nlpServiceProxy =
+        CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID, CommonUtils::InitDeviceId());
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    ability_->ConnectNlpService();
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, ReConnectNlpService002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReConnectNlpService002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService002 begin");
+    sptr<IRemoteObject> nlpServiceProxy =
+        CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID, CommonUtils::InitDeviceId());
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    ability_->ReConnectNlpService(); // Connect success
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, SetEnableAndDisable002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, SetEnableAndDisable002, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable002 begin");
+    /*
+     * @tc.steps: step1.remove SA
+     * @tc.expected: step1. object1 is null.
+     */
+    ability_->networkHandler_ = nullptr;
+    ability_->SetEnable(false); // after mock, sa obj is nullptr
+    /*
+     * @tc.steps: step2. test enable SA
+     * @tc.expected: step2. object2 is not null.
+     */
+    ability_->SetEnable(true); // after mock, sa obj is nullptr
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, UnloadNetworkSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, UnloadNetworkSystemAbility001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] UnloadNetworkSystemAbility001 begin");
+    ability_->networkHandler_ = nullptr;
+    ability_->UnloadNetworkSystemAbility();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] UnloadNetworkSystemAbility001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RequestNetworkLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RequestNetworkLocation002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation002 begin");
+    ability_->nlpServiceProxy_ = nullptr;
+    WorkRecord workRecord;
+    EXPECT_EQ(false, ability_->RequestNetworkLocation(workRecord));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RemoveNetworkLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RemoveNetworkLocation002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation002 begin");
+    ability_->nlpServiceProxy_ = nullptr;
+    WorkRecord workRecord;
+    EXPECT_EQ(false, ability_->RemoveNetworkLocation(workRecord));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RegisterNLPServiceDeathRecipient002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RegisterNLPServiceDeathRecipient002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient002 begin");
+    sptr<IRemoteObject> nlpServiceProxy =
+        CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID, CommonUtils::InitDeviceId());
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    ability_->RegisterNLPServiceDeathRecipient();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient002 end");
 }
 } // namespace Location
 } // namespace OHOS

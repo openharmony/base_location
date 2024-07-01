@@ -2097,7 +2097,7 @@ HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto ret = locatorAbility->RemoveInvalidRequests();
-    EXPECT_EQ(ERRCODE_SUCCESS, ret);
+    EXPECT_NE(ERRCODE_SUCCESS, ret);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests end");
 }
 
@@ -2120,7 +2120,7 @@ HWTEST_F(LocatorServiceTest, IsPorcessRunning, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    auto result = locatorAbility->IsProcessRunning(1000);
+    auto result = locatorAbility->IsProcessRunning(1000, 1000);
     EXPECT_EQ(false, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning end");
 }

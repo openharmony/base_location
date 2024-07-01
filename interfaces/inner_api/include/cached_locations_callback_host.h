@@ -42,6 +42,18 @@ public:
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
+    template <typename T>
+    bool InitContext(T* context)
+    {
+        if (context == nullptr) {
+            LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
+            return false;
+        }
+        context->env = env_;
+        context->callback[SUCCESS_CALLBACK] = handlerCb_;
+        return true;
+    }
+
     inline napi_env GetEnv() const
     {
         return env_;

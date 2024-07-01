@@ -18,7 +18,10 @@ module_output_path = "location/service"
 if (location_feature_with_geocode) {
   ohos_unittest("GeocodeServiceAbilityTest") {
     module_out_path = module_output_path
-    sources = [ "$LOCATION_ROOT_DIR/test/location_geocode/source/geo_convert_service_test.cpp" ]
+    sources = [
+      "$LOCATION_ROOT_DIR/test/location_geocode/source/geo_convert_callback_host_test.cpp",
+      "$LOCATION_ROOT_DIR/test/location_geocode/source/geo_convert_service_test.cpp",
+    ]
 
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",

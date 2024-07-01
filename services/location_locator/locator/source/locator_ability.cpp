@@ -1575,15 +1575,19 @@ bool LocatorAbility::IsInvalidRequest(std::shared_ptr<Request>& request)
         return true;
     }
 
-    if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND && !IsProcessRunning(request->GetPid())) {
+    if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND && !IsProcessRunning(request->GetPid(), request->GetTokenId())) {
         LBSLOGI(LOCATOR, "request process is not running");
         return true;
     }
     return false;
 }
 
-bool LocatorAbility::IsProcessRunning(pid_t pid)
+bool LocatorAbility::IsProcessRunning(pid_t pid, const uint32_t tokenId)
 {
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        return true;
+    }
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(LOCATOR, "Get system ability manager failed.");
