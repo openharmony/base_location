@@ -564,9 +564,6 @@ bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
 bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
 {
     bool ret = false;
-    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
-        return ret;
-    }
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
         return ret;
