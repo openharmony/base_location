@@ -21,6 +21,7 @@
 #include <singleton.h>
 
 #include "event_handler.h"
+#include "ffrt.h"
 #include "system_ability.h"
 
 #include "app_identity.h"
@@ -214,11 +215,11 @@ private:
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
     std::mutex switchMutex_;
-    std::mutex requestsMutex_;
-    std::mutex receiversMutex_;
+    ffrt::mutex requestsMutex_;
+    ffrt::mutex receiversMutex_;
     std::mutex proxyMapMutex_;
-    std::mutex permissionMapMutex_;
-    std::mutex loadedSaMapMutex_;
+    ffrt::mutex permissionMapMutex_;
+    ffrt::mutex loadedSaMapMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requests_;
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> receivers_;

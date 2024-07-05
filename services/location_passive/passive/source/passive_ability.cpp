@@ -48,7 +48,8 @@ PassiveAbility* PassiveAbility::GetInstance()
 PassiveAbility::PassiveAbility() : SystemAbility(LOCATION_NOPOWER_LOCATING_SA_ID, true)
 {
     SetAbility(PASSIVE_ABILITY);
-    passiveHandler_ = std::make_shared<PassiveHandler>(AppExecFwk::EventRunner::Create(true));
+    passiveHandler_ =
+        std::make_shared<PassiveHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     LBSLOGI(PASSIVE, "ability constructed.");
 }
 

@@ -23,6 +23,7 @@
 #include "ability_connect_callback_interface.h"
 #include "event_handler.h"
 #include "event_runner.h"
+#include "ffrt.h"
 #include "system_ability.h"
 
 #include "common_utils.h"
@@ -86,9 +87,9 @@ private:
     void RegisterNLPServiceDeathRecipient();
     bool IsConnect();
     
-    std::mutex mutex_;
+    ffrt::mutex mutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
-    std::condition_variable connectCondition_;
+    ffrt::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;

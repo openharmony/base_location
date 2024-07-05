@@ -28,6 +28,7 @@
 #endif
 
 #include "event_handler.h"
+#include "ffrt.h"
 #include "system_ability.h"
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include "agnss_event_callback.h"
@@ -247,10 +248,10 @@ private:
     int gnssWorkingStatus_ = 0;
     std::shared_ptr<GnssHandler> gnssHandler_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
-    std::mutex gnssMutex_;
-    std::mutex nmeaMutex_;
-    std::mutex hdiMutex_;
-    std::mutex statusMutex_;
+    ffrt::mutex gnssMutex_;
+    ffrt::mutex nmeaMutex_;
+    ffrt::mutex hdiMutex_;
+    ffrt::mutex statusMutex_;
     std::vector<sptr<IGnssStatusCallback>> gnssStatusCallback_;
     std::vector<sptr<INmeaMessageCallback>> nmeaCallback_;
     sptr<IGnssInterface> gnssInterface_;
@@ -265,8 +266,8 @@ private:
     sptr<IGeofenceCallback> geofenceCallback_;
 #endif
     int32_t fenceId_;
-    std::mutex fenceIdMutex_;
-    std::mutex gnssGeofenceRequestMapMutex_;
+    ffrt::mutex fenceIdMutex_;
+    ffrt::mutex gnssGeofenceRequestMapMutex_;
     std::map<std::shared_ptr<GeofenceRequest>, sptr<IRemoteObject>> gnssGeofenceRequestMap_;
 };
 

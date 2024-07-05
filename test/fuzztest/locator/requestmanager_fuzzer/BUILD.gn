@@ -44,6 +44,7 @@ ohos_fuzztest("RequestManagerFuzzTest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",

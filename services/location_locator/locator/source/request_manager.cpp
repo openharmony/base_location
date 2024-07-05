@@ -50,7 +50,7 @@
 
 namespace OHOS {
 namespace Location {
-std::mutex RequestManager::requestMutex_;
+ffrt::mutex RequestManager::requestMutex_;
 
 RequestManager* RequestManager::GetInstance()
 {
@@ -81,7 +81,7 @@ bool RequestManager::InitSystemListeners()
 
 void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
 {
-    std::unique_lock<std::mutex> lock(permissionRecordMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(permissionRecordMutex_, std::defer_lock);
     lock.lock();
     if (request == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "request is null");
@@ -281,7 +281,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
-    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
     auto receivers = locatorAbility->GetReceivers();
     if (receivers == nullptr) {
@@ -348,7 +348,7 @@ void RequestManager::HandleRequest()
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
-    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
     auto requests = locatorAbility->GetRequests();
     lock.unlock();
@@ -633,7 +633,7 @@ void RequestManager::HandlePermissionChanged(uint32_t tokenId)
 
 bool RequestManager::IsUidInProcessing(int32_t uid)
 {
-    std::unique_lock<std::mutex> lock(runningUidsMutex_);
+    std::unique_lock<ffrt::mutex> lock(runningUidsMutex_);
     auto iter = runningUidMap_.find(uid);
     if (iter == runningUidMap_.end()) {
         return false;
@@ -643,7 +643,7 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
 
 void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd)
 {
-    std::unique_lock<std::mutex> lock(runningUidsMutex_);
+    std::unique_lock<ffrt::mutex> lock(runningUidsMutex_);
     auto uid = request->GetUid();
     auto pid = request->GetPid();
     int32_t uidCount = 0;

@@ -30,7 +30,7 @@ LocatorRequiredDataManager::LocatorRequiredDataManager()
 #ifdef WIFI_ENABLE
     WifiInfoInit();
 #endif
-    scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true));
+    scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
 }
 
 LocatorRequiredDataManager* LocatorRequiredDataManager::GetInstance()

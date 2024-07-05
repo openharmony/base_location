@@ -88,7 +88,7 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 #endif
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
-    gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
+    gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     if (gnssHandler_ != nullptr) {
         AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
             static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI), 0);
@@ -204,7 +204,7 @@ bool GnssAbility::CheckIfGnssConnecting()
 
 bool GnssAbility::IsGnssfenceRequestMapExist()
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     return gnssGeofenceRequestMap_.size() != 0;
 }
 
@@ -227,7 +227,7 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
         LBSLOGE(GNSS, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<std::mutex> lock(gnssMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     gnssStatusCallback_.push_back(gnssStatusCallback);
     LBSLOGD(GNSS, "after uid:%{public}d register, gnssStatusCallback size:%{public}s",
         uid, std::to_string(gnssStatusCallback_.size()).c_str());
@@ -246,7 +246,7 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
         return ERRCODE_INVALID_PARAM;
     }
 
-    std::unique_lock<std::mutex> lock(gnssMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     size_t i = 0;
     for (; i < gnssStatusCallback_.size(); i++) {
         sptr<IRemoteObject> remoteObject = gnssStatusCallback_[i]->AsObject();
@@ -279,7 +279,7 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
         LBSLOGE(GNSS, "cast nmea callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<std::mutex> lock(nmeaMutex_);
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     nmeaCallback_.push_back(nmeaCallback);
     LBSLOGD(GNSS, "after uid:%{public}d register, nmeaCallback size:%{public}s",
         uid, std::to_string(nmeaCallback_.size()).c_str());
@@ -298,7 +298,7 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         return ERRCODE_INVALID_PARAM;
     }
 
-    std::unique_lock<std::mutex> lock(nmeaMutex_);
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     size_t i = 0;
     for (; i < nmeaCallback_.size(); i++) {
         sptr<IRemoteObject> remoteObject = nmeaCallback_[i]->AsObject();
@@ -603,7 +603,7 @@ LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& reque
 int32_t GnssAbility::GenerateFenceId()
 {
     LBSLOGD(GNSS, "GenerateFenceId");
-    std::lock_guard<std::mutex> lock(fenceIdMutex_);
+    std::lock_guard<ffrt::mutex> lock(fenceIdMutex_);
     if (fenceId_ > FENCE_MAX_ID) {
         fenceId_ = 0;
     }
@@ -654,7 +654,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         LBSLOGE(GNSS, "register an invalid callback");
         return false;
     }
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     gnssGeofenceRequestMap_.insert(std::make_pair(request, callback));
@@ -705,7 +705,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
 
 bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId)
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     for (auto iter = gnssGeofenceRequestMap_.begin();
         iter != gnssGeofenceRequestMap_.end(); iter++) {
         auto requestInMap = iter->first;
@@ -723,7 +723,7 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
     if (callbackObj == nullptr) {
         return false;
     }
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     for (auto iter = gnssGeofenceRequestMap_.begin(); iter != gnssGeofenceRequestMap_.end();) {
         auto callback = iter->second;
         if (callback == callbackObj) {
@@ -742,7 +742,7 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
 void GnssAbility::ReportGeofenceOperationResult(
     int fenceId, GeofenceOperateType type, GeofenceOperateResult result)
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     auto geofenceRequest = GetGeofenceRequestByFenceId(fenceId);
     if (geofenceRequest == nullptr) {
         LBSLOGE(GNSS, "request is nullptr");
@@ -765,7 +765,7 @@ void GnssAbility::ReportGeofenceOperationResult(
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     auto request = GetGeofenceRequestByFenceId(fenceIndex);
     if (request == nullptr) {
         LBSLOGE(GNSS, "request is nullptr");
@@ -852,7 +852,7 @@ void GnssAbility::ReportGnssSessionStatus(int status)
 
 void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 {
-    std::unique_lock<std::mutex> lock(nmeaMutex_);
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     for (auto nmeaCallback : nmeaCallback_) {
         nmeaCallback->OnMessageChange(timestamp, nmea);
     }
@@ -860,7 +860,7 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 
 void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 {
-    std::unique_lock<std::mutex> lock(gnssMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     for (auto gnssStatusCallback : gnssStatusCallback_) {
         gnssStatusCallback->OnStatusChange(sv);
     }
@@ -919,7 +919,7 @@ bool GnssAbility::IsGnssEnabled()
 
 void GnssAbility::RestGnssWorkStatus()
 {
-    std::unique_lock<std::mutex> uniqueLock(statusMutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
 }
 
@@ -1017,6 +1017,7 @@ bool GnssAbility::IsDeviceLoaded(const std::string &servName)
         LBSLOGE(GNSS, "The devices is not found:%{public}s in host %{public}s", servName.c_str(), LOCATION_HOST_NAME);
         return false;
     }
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     LBSLOGI(GNSS, "check host:%{public}s dev:%{public}s loaded",
         itDevicesInfo->hostName.c_str(), itDevInfo->servName.c_str());
     return true;
@@ -1035,7 +1036,7 @@ bool GnssAbility::ConnectGnssHdi()
             return false;
         }
     }
-    std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     lock.lock();
     gnssInterface_ = IGnssInterface::Get();
     if (gnssInterface_ == nullptr) {
@@ -1065,7 +1066,7 @@ bool GnssAbility::ConnectAgnssHdi()
             return false;
         }
     }
-    std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     lock.lock();
     agnssInterface_ = IAGnssInterface::Get();
     if (agnssInterface_ == nullptr) {
@@ -1095,7 +1096,7 @@ bool GnssAbility::ConnectGeofenceHdi()
             return false;
         }
     }
-    std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     lock.lock();
     geofenceInterface_ = IGeofenceInterface::Get();
     if (geofenceInterface_ == nullptr) {

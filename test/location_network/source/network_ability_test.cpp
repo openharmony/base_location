@@ -132,7 +132,8 @@ HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 begin");
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
+    ability_->networkHandler_ =
+        std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false));
     /*
      * @tc.steps: step1.remove SA
@@ -479,7 +480,8 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendReportMockLocationEvent001, TestS
     ability_->networkHandler_ = nullptr;
     ability_->SendReportMockLocationEvent();
 
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
+    ability_->networkHandler_ =
+        std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     ability_->SendReportMockLocationEvent();
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilitySendReportMockLocationEvent001 end");
 }
@@ -498,7 +500,8 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendMessage001, TestSize.Level1)
     ability_->networkHandler_ = nullptr;
     ability_->SendMessage(0, requestParcel, reply);
 
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
+    ability_->networkHandler_ =
+        std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     ability_->SendMessage(0, requestParcel, reply);
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilitySendMessage001 end");
 }
