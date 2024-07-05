@@ -250,7 +250,7 @@ std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>
 
 std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> LocatorAbility::GetProxyMap()
 {
-    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
+    std::unique_lock<std::mutex> lock(proxyMapMutex_);
     return proxyMap_;
 }
 
@@ -272,7 +272,7 @@ void LocatorAbility::InitSaAbility()
 
 bool LocatorAbility::CheckSaValid()
 {
-    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
+    std::unique_lock<std::mutex> lock(proxyMapMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
     auto objectGnss = proxyMap_->find(GNSS_ABILITY);
     if (objectGnss == proxyMap_->end()) {
@@ -454,7 +454,7 @@ LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>
         LBSLOGE(LOCATOR, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<ffrt::mutex> lock(switchMutex_);
+    std::unique_lock<std::mutex> lock(switchMutex_);
     switchCallbacks_->erase(uid);
     switchCallbacks_->insert(std::make_pair(uid, switchCallback));
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
@@ -474,7 +474,7 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
         return ERRCODE_INVALID_PARAM;
     }
 
-    std::unique_lock<ffrt::mutex> lock(switchMutex_);
+    std::unique_lock<std::mutex> lock(switchMutex_);
     pid_t uid = -1;
     for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
@@ -765,7 +765,7 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
         UpdateProxyMap();
     }
 
-    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
+    std::unique_lock<std::mutex> lock(proxyMapMutex_);
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         auto obj = iter->second;
         if (iter->first == GNSS_ABILITY) {
@@ -808,7 +808,7 @@ void LocatorAbility::UpdateLoadedSaMap()
 
 void LocatorAbility::UpdateProxyMap()
 {
-    std::unique_lock<ffrt::mutex> lock(proxyMapMutex_);
+    std::unique_lock<std::mutex> lock(proxyMapMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
     // init gnss ability sa
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_GNSS_SA_ID)) {
@@ -1333,7 +1333,7 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
 
 LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
-    std::unique_lock<ffrt::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
     lock.lock();
     if (isProxy) {
         for (auto it = pidList.begin(); it != pidList.end(); it++) {
@@ -1361,7 +1361,7 @@ LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isPro
 LocationErrCode LocatorAbility::ResetAllProxy()
 {
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
-    std::unique_lock<ffrt::mutex> lock(proxyPidsMutex_, std::defer_lock);
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
     lock.lock();
     proxyPids_.clear();
     lock.unlock();
@@ -1376,7 +1376,7 @@ LocationErrCode LocatorAbility::ResetAllProxy()
 
 bool LocatorAbility::IsProxyPid(int32_t pid)
 {
-    std::unique_lock<ffrt::mutex> lock(proxyPidsMutex_);
+    std::unique_lock<std::mutex> lock(proxyPidsMutex_);
     return proxyPids_.find(pid) != proxyPids_.end();
 }
 

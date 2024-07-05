@@ -214,10 +214,10 @@ private:
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
-    ffrt::mutex switchMutex_;
+    std::mutex switchMutex_;
     ffrt::mutex requestsMutex_;
     ffrt::mutex receiversMutex_;
-    ffrt::mutex proxyMapMutex_;
+    std::mutex proxyMapMutex_;
     ffrt::mutex permissionMapMutex_;
     ffrt::mutex loadedSaMapMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
@@ -229,7 +229,7 @@ private:
     std::shared_ptr<LocatorHandler> locatorHandler_;
     RequestManager* requestManager_;
     ReportManager* reportManager_;
-    ffrt::mutex proxyPidsMutex_;
+    std::mutex proxyPidsMutex_;
     std::set<int32_t> proxyPids_;
 };
 
