@@ -22,15 +22,15 @@
 #include "message_option.h"
 #include "message_parcel.h"
 
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
-class MockNmeaMessageCallbackHost : public NmeaMessageCallbackHost {
+class MockNmeaMessageCallbackHost : public NmeaMessageCallbackNapi {
 public:
     MockNmeaMessageCallbackHost() {}
     ~MockNmeaMessageCallbackHost() {}
-    
+
     MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data,
         MessageParcel& reply, MessageOption& option));
     MOCK_METHOD(void, OnMessageChange, (int64_t timestamp, const std::string msg));

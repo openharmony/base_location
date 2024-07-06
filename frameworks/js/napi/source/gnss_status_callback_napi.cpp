@@ -12,39 +12,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "gnss_status_callback_napi.h"
 
-#include "location_error_callback_host.h"
+#include "napi/native_common.h"
+
 #include "common_utils.h"
 #include "ipc_skeleton.h"
 #include "location_log.h"
-#include "napi/native_common.h"
 #include "napi_util.h"
-#include "location_async_context.h"
+#include "common_utils.h"
+#include "constant_definition.h"
 
 namespace OHOS {
 namespace Location {
-LocationErrorCallbackHost::LocationErrorCallbackHost()
+GnssStatusCallbackNapi::GnssStatusCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
+    remoteDied_ = false;
 }
 
-LocationErrorCallbackHost::~LocationErrorCallbackHost()
+GnssStatusCallbackNapi::~GnssStatusCallbackNapi()
 {
 }
 
-int LocationErrorCallbackHost::OnRemoteRequest(
+int GnssStatusCallbackNapi::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGI(LOCATOR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! code = %{public}d", code);
+    LBSLOGD(GNSS_STATUS_CALLBACK, "GnssStatusCallbackNapi::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
+        LBSLOGE(GNSS_STATUS_CALLBACK, "invalid token.");
+        return -1;
+    }
+    if (remoteDied_) {
+        LBSLOGD(GNSS_STATUS_CALLBACK, "Failed to `%{public}s`,Remote service is died!", __func__);
         return -1;
     }
 
     switch (code) {
-        case RECEIVE_ERROR_INFO_EVENT: {
-            OnErrorReport(data.ReadInt32());
+        case RECEIVE_STATUS_INFO_EVENT: {
+            std::unique_ptr<SatelliteStatus> statusInfo = SatelliteStatus::Unmarshalling(data);
+            Send(statusInfo);
             break;
         }
         default: {
@@ -55,63 +63,70 @@ int LocationErrorCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-bool LocationErrorCallbackHost::Send(int32_t errorCode)
+bool GnssStatusCallbackNapi::IsRemoteDied()
 {
-    LBSLOGI(LOCATOR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! errorCode = %{public}d", errorCode);
+    return remoteDied_;
+}
+
+bool GnssStatusCallbackNapi::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
+{
     std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
+        LBSLOGE(GNSS_STATUS_CALLBACK, "loop == nullptr.");
         return false;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "work == nullptr.");
+        LBSLOGE(GNSS_STATUS_CALLBACK, "work == nullptr.");
         return false;
     }
-    LocationErrorAsyncContext *context = new (std::nothrow) LocationErrorAsyncContext(env_);
+    GnssStatusAsyncContext *context = new (std::nothrow) GnssStatusAsyncContext(env_);
     if (context == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
         delete work;
         return false;
     }
     context->env = env_;
     context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    context->errCode = errorCode;
+    context->statusInfo = std::move(statusInfo);
     work->data = context;
     UvQueueWork(loop, work);
     return true;
 }
 
-void LocationErrorCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
     uv_queue_work(
         loop,
         work,
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            LocationErrorAsyncContext *context = nullptr;
+            GnssStatusAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
                 return;
             }
-            context = static_cast<LocationErrorAsyncContext *>(work->data);
+            context = static_cast<GnssStatusAsyncContext *>(work->data);
             if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
-            napi_value jsEvent;
-            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_int32(context->env, context->errCode, &jsEvent),
-                scope, context, work);
             if (scope == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
+                LBSLOGE(GNSS_STATUS_CALLBACK, "scope is nullptr");
                 delete context;
                 delete work;
                 return;
+            }
+            napi_value jsEvent = nullptr;
+            if (context->statusInfo != nullptr) {
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
+                    scope, context, work);
+                SatelliteStatusToJs(context->env, context->statusInfo, jsEvent);
             }
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
@@ -122,7 +137,7 @@ void LocationErrorCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                     napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
                 if (napi_call_function(context->env, nullptr, handler, 1,
                     &jsEvent, &undefine) != napi_ok) {
-                    LBSLOGE(LOCATOR_CALLBACK, "Report event failed");
+                    LBSLOGE(GNSS_STATUS_CALLBACK, "Report event failed");
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
@@ -131,30 +146,21 @@ void LocationErrorCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
     });
 }
 
-void LocationErrorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
+void GnssStatusCallbackNapi::OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo)
 {
+    LBSLOGD(GNSS_STATUS_CALLBACK, "GnssStatusCallbackNapi::OnStatusChange");
 }
 
-void LocationErrorCallbackHost::OnLocatingStatusChange(const int status)
-{
-}
-
-void LocationErrorCallbackHost::OnErrorReport(const int errorCode)
-{
-    LBSLOGI(LOCATOR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! errorCode = %{public}d", errorCode);
-    Send(errorCode);
-}
-
-void LocationErrorCallbackHost::DeleteHandler()
+void GnssStatusCallbackNapi::DeleteHandler()
 {
     std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "handler or env is nullptr.");
+        LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
         return;
     }
     auto context = new (std::nothrow) AsyncContext(env_);
     if (context == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
         return;
     }
     context->env = env_;

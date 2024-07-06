@@ -15,7 +15,7 @@
 
 #include "location_gnss_geofence_callback_host_test.h"
 
-#include "location_gnss_geofence_callback_host.h"
+#include "location_gnss_geofence_callback_napi.h"
 #include "location_log.h"
 #include "geofence_definition.h"
 #include "i_gnss_geofence_callback.h"
@@ -36,8 +36,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, OnRemoteRequestTest001, TestSize.
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, OnRemoteRequestTest001, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] OnRemoteRequestTest001 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     MessageParcel dataParcel;
     dataParcel.WriteInt32(DEFAULT_NUM_VALUE);
@@ -53,8 +53,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, OnRemoteRequestTest002, TestSize.
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, OnRemoteRequestTest002, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] OnRemoteRequestTest002 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     MessageParcel dataParcel;
     dataParcel.WriteInt32(DEFAULT_NUM_VALUE);
@@ -71,8 +71,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, IsRemoteDiedTest001, TestSize.Lev
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, IsRemoteDiedTest001, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] IsRemoteDiedTest001 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     callback->IsRemoteDied();
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] IsRemoteDiedTest001 end");
@@ -83,8 +83,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, DeleteHandlerTest001, TestSize.Le
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, DeleteHandlerTest001, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] DeleteHandlerTest001 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     callback->DeleteHandler();
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] DeleteHandlerTest001 end");
@@ -95,8 +95,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, LatchTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, LatchTest001, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] LatchTest001 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     callback->SetCount(1);
     int countNum = callback->GetCount();
@@ -116,8 +116,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, FenceIdOperationTest001, TestSize
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, FenceIdOperationTest001, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] FenceIdOperationTest001 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     callback->SetFenceId(DEFAULT_NUM_VALUE);
     int fenceId = callback->GetFenceId();
@@ -133,8 +133,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, GeofenceOperationTypeTest001, Tes
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, GeofenceOperationTypeTest001, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] GeofenceOperationTypeTest001 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     GnssGeofenceOperateType optType = static_cast<GnssGeofenceOperateType>(0);
     callback->SetGeofenceOperationType(optType);
@@ -148,8 +148,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, GeofenceOperationResultTest001, T
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, GeofenceOperationResultTest001, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] GeofenceOperationResultTest001 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     GnssGeofenceOperateResult optValue = static_cast<GnssGeofenceOperateResult>(0);
     callback->SetGeofenceOperationResult(optValue);
@@ -163,8 +163,8 @@ HWTEST_F(LocationGnssGeofenceCallbackHostTest, GeofenceOperationResultTest002, T
     GTEST_LOG_(INFO)
         << "LocationGnssGeofenceCallbackHostTest, GeofenceOperationResultTest002, TestSize.Level1";
     LBSLOGI(GEOFENCE_SDK_TEST, "[LocationGnssGeofenceCallbackHostTest] GeofenceOperationResultTest002 begin");
-    std::shared_ptr<LocationGnssGeofenceCallbackHost> callback =
-        std::make_shared<LocationGnssGeofenceCallbackHost>();
+    std::shared_ptr<LocationGnssGeofenceCallbackNapi> callback =
+        std::make_shared<LocationGnssGeofenceCallbackNapi>();
     ASSERT_TRUE(callback != nullptr);
     callback->SetGeofenceOperationResult(GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS);
     callback->DealGeofenceOperationResult();

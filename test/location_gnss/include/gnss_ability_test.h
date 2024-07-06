@@ -28,9 +28,9 @@
 #include <v2_0/ignss_interface.h>
 
 #include "gnss_ability_proxy.h"
-#include "gnss_status_callback_host.h"
-#include "nmea_message_callback_host.h"
-#include "cached_locations_callback_host.h"
+#include "gnss_status_callback_napi.h"
+#include "nmea_message_callback_napi.h"
+#include "cached_locations_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,10 +41,10 @@ public:
     void MockNativePermission();
 
     sptr<GnssAbilityProxy> proxy_;
-    sptr<GnssStatusCallbackHost> callbackStub_;
+    sptr<GnssStatusCallbackNapi> callbackStub_;
     sptr<GnssAbility> ability_;
-    sptr<NmeaMessageCallbackHost> nemaCallbackStub_;
-    sptr<CachedLocationsCallbackHost> cachedLocationCallbackStub_;
+    sptr<NmeaMessageCallbackNapi> nemaCallbackStub_;
+    sptr<CachedLocationsCallbackNapi> cachedLocationCallbackStub_;
 };
 } // namespace Location
 } // namespace OHOS

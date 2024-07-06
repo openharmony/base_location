@@ -51,7 +51,7 @@ void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
 void GeofenceTransitionToJs(const napi_env& env,
     const GeofenceTransition geofenceTransition, napi_value& result);
 void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& object,
-    sptr<LocationGnssGeofenceCallbackHost> callbackHost);
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
 }  // namespace Location
 }  // namespace OHOS
 #endif // GEOFENCE_NAPI_H

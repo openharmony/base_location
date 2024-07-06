@@ -24,6 +24,7 @@ const int DEFAULT_USERID = 100;
 const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
 const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
+const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 
 std::string LocationDataRdbManager::GetLocationDataUri(std::string key)
 {
