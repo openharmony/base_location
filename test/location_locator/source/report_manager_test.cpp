@@ -463,11 +463,11 @@ HWTEST_F(ReportManagerTest, UpdateLocationByRequestTest002, TestSize.Level1)
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateLocationByRequestTest002 end");
 }
 
-HWTEST_F(ReportManagerTest, ProcessRequestForReport, TestSize.Level1)
+HWTEST_F(ReportManagerTest, ProcessRequestForReport001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "ReportManagerTest, ProcessRequestForReport, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport begin");
+        << "ReportManagerTest, ProcessRequestForReport001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport001 begin");
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetTimeInterval(1);
@@ -482,9 +482,30 @@ HWTEST_F(ReportManagerTest, ProcessRequestForReport, TestSize.Level1)
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->SetUuid("35279");
     reportManager_->ProcessRequestForReport(request, deadRequests, location, NETWORK_ABILITY);
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport end");
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport001 end");
 }
 
+HWTEST_F(ReportManagerTest, ProcessRequestForReport002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ProcessRequestForReport002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport002 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetUuid("35279");
+    reportManager_->ProcessRequestForReport(request, deadRequests, location, NETWORK_ABILITY);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport002 end");
+}
 
 HWTEST_F(ReportManagerTest, WriteNetWorkReportEvent, TestSize.Level1)
 {

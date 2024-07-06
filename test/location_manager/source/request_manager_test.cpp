@@ -46,10 +46,11 @@ void RequestManagerTest::SetUp()
     request_->SetTokenId(tokenId_);
     request_->SetFirstTokenId(0);
     request_->SetPackageName("RequestManagerTest");
+    request_->SetRequesting(true);
     auto requestConfig = std::make_unique<RequestConfig>();
     EXPECT_NE(nullptr, requestConfig);
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
-    requestConfig->SetFixNumber(1);
+    requestConfig->SetFixNumber(0);
     request_->SetRequestConfig(*requestConfig);
     sptr<LocatorCallbackHost> locatorCallbackHost =
         sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
@@ -145,6 +146,30 @@ HWTEST_F(RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1)
     requestManager_->HandleStartLocating(nullptr); // can't start locating
     requestManager_->HandleStopLocating(callback_); // can stop locating, but not locating
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating001 end");
+}
+
+HWTEST_F(RequestManagerTest, HandleStartAndStopLocating002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, HandleStartAndStopLocating002, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating002 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+
+    request->SetUid(SYSTEM_UID);
+    request->SetPid(0);
+    request->SetTokenId(tokenId_);
+    request->SetFirstTokenId(0);
+    request->SetPackageName("RequestManagerTest");
+    auto requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetFixNumber(0);
+    request->SetRequestConfig(*requestConfig);
+    sptr<LocatorCallbackHost> locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    auto callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    request->SetLocatorCallBack(callback);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating002 end");
 }
 
 HWTEST_F(RequestManagerTest, HandlePowerSuspendChanged001, TestSize.Level1)
@@ -500,6 +525,8 @@ HWTEST_F(RequestManagerTest, HandleChrEvent001, TestSize.Level1)
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
     std::list<std::shared_ptr<Request>> requests;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    requests.push_back(request);
     requestManager_->HandleChrEvent(requests);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent001 end");
 }
@@ -511,12 +538,13 @@ HWTEST_F(RequestManagerTest, HandleChrEvent002, TestSize.Level1)
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent002 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
     std::list<std::shared_ptr<Request>> requests;
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    requests.push_back(request);
+    for (int i = 0; i < 25 ; i++) {
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        requests.push_back(request);
+    }
     requestManager_->HandleChrEvent(requests);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleChrEvent002 end");
 }
-
 
 HWTEST_F(RequestManagerTest, IsUidInProcessing001, TestSize.Level1)
 {
@@ -527,6 +555,30 @@ HWTEST_F(RequestManagerTest, IsUidInProcessing001, TestSize.Level1)
     bool ret = requestManager_->IsUidInProcessing(0);
     EXPECT_EQ(false, ret);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 end");
+}
+
+HWTEST_F(RequestManagerTest, UpdateLocationErrorCallbackToRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, UpdateLocationErrorCallbackToRequest001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateLocationErrorCallbackToRequest001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    sptr<LocatorCallbackHost> locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    requestManager_->UpdateLocationErrorCallbackToRequest(callback, 0, false);
+    requestManager_->UpdateLocationErrorCallbackToRequest(callback, 0, true);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateLocationErrorCallbackToRequest001 end");
+}
+
+HWTEST_F(RequestManagerTest, SyncStillMovementState001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, SyncStillMovementState001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] SyncStillMovementState001 begin");
+    ASSERT_TRUE(requestManager_ != nullptr);
+    requestManager_->SyncStillMovementState(true);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] SyncStillMovementState001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -840,5 +840,55 @@ HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1)
     EXPECT_EQ(false, ret);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible002 end");
 }
+
+HWTEST_F(LocatorBackgroundProxyTest, OnAddSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnAddSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnAddSystemAbility001 begin");
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
+    auto systemAbilityStatusChangeListener = locatorBackgroundProxy->statusChangeListener_;
+    int32_t systemAbilityId = 1000;
+    const std::string& deviceId = "0123456789ABCDEF";
+    systemAbilityStatusChangeListener->OnAddSystemAbility(systemAbilityId, deviceId);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnAddSystemAbility001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnRemoveSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnRemoveSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnRemoveSystemAbility001 begin");
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
+    auto systemAbilityStatusChangeListener = locatorBackgroundProxy->statusChangeListener_;
+    int32_t systemAbilityId = COMMON_EVENT_SERVICE_ID;
+    const std::string& deviceId = "0123456789ABCDEF";
+    systemAbilityStatusChangeListener->OnRemoveSystemAbility(systemAbilityId, deviceId);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnRemoveSystemAbility001 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, OnRemoveSystemAbility002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, OnRemoveSystemAbility002, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnRemoveSystemAbility002 begin");
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
+    auto systemAbilityStatusChangeListener = locatorBackgroundProxy->statusChangeListener_;
+    int32_t systemAbilityId = 1;
+    const std::string& deviceId = "0123456789ABCDEF";
+    systemAbilityStatusChangeListener->OnRemoveSystemAbility(systemAbilityId, deviceId);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnRemoveSystemAbility002 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, IsAppInLocationContinuousTasks001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, IsAppInLocationContinuousTasks001, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppInLocationContinuousTasks001 begin");
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
+
+    locatorBackgroundProxy->IsAppInLocationContinuousTasks(1000);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppInLocationContinuousTasks001 end");
+}
 }  // namespace Location
 }  // namespace OHOS

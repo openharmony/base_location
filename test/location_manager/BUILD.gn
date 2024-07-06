@@ -16,7 +16,7 @@ import("//build/test.gni")
 
 module_output_path = "location/service"
 
-ohos_unittest("LocatorServiceAbilityTest") {
+ohos_unittest("LocatorManagerAbilityTest") {
   sanitize = {
     cfi = true
     cfi_cross_dso = true
@@ -26,27 +26,15 @@ ohos_unittest("LocatorServiceAbilityTest") {
   branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
   sources = [
-    "$LOCATION_ROOT_DIR/test/location_locator/source/callback_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/country_code_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/fusion_controller_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/location_approximately_permission_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/location_config_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/location_without_permission_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_agent_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_background_proxy_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_event_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_impl_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_required_data_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/locator_service_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/permission_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/report_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/work_record_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_manager/source/locator_ability_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_manager/source/locator_skeleton_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_manager/source/request_manager_test.cpp",
   ]
 
   include_dirs = [
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
-    "$LOCATION_ROOT_DIR/test/location_locator/include",
-    "$LOCATION_ROOT_DIR/test/location_locator/mock/include",
+    "$LOCATION_ROOT_DIR/test/location_manager/include",
+    "$LOCATION_ROOT_DIR/test/location_manager/mock/include",
     "$LOCATION_ROOT_DIR/test/mock/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
@@ -73,7 +61,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "common_event_service:cesfwk_innerkits",
     "distributed_notification_service:ans_innerkits",
     "eventhandler:libeventhandler",
-    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",
@@ -129,5 +116,5 @@ group("unittest") {
   testonly = true
   deps = []
 
-  deps += [ ":LocatorServiceAbilityTest" ]
+  deps += [ ":LocatorManagerAbilityTest" ]
 }

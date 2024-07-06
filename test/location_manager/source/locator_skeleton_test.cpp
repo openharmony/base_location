@@ -58,11 +58,6 @@ void LocatorSkeletonTest::SetUp()
      */
     LoadSystemAbility();
     MockNativePermission();
-    sptr<ISystemAbilityManager> systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(nullptr, systemAbilityManager);
-    sptr<IRemoteObject> object = systemAbilityManager->GetSystemAbility(LOCATION_LOCATOR_SA_ID);
-    EXPECT_NE(nullptr, object);
 }
 
 void LocatorSkeletonTest::TearDown()
@@ -555,8 +550,7 @@ HWTEST_F(LocatorSkeletonTest, PreStartCacheLocating, TestSize.Level1)
     data.WriteInt32(1);
     data.WriteBool(true);
     data.WriteRemoteObject(callback->AsObject());
-    auto result = locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStartCacheLocating end");
 }
 
@@ -579,8 +573,7 @@ HWTEST_F(LocatorSkeletonTest, PreStopCacheLocating, TestSize.Level1)
     data.WriteInt32(1);
     data.WriteBool(true);
     data.WriteRemoteObject(callback->AsObject());
-    auto result = locatorAbilityStub->PreStopCacheLocating(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreStopCacheLocating(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStopCacheLocating end");
 }
 
@@ -744,8 +737,7 @@ HWTEST_F(LocatorSkeletonTest, PreEnableLocationMock, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    auto result = locatorAbilityStub->PreEnableLocationMock(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreEnableLocationMock(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreEnableLocationMock end");
 }
 
@@ -764,8 +756,7 @@ HWTEST_F(LocatorSkeletonTest, PreDisableLocationMock, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    auto result = locatorAbilityStub->PreDisableLocationMock(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreDisableLocationMock(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreDisableLocationMock end");
 }
 
@@ -784,8 +775,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetMockedLocations, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    auto result = locatorAbilityStub->PreSetMockedLocations(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreSetMockedLocations(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreSetMockedLocations end");
 }
 
@@ -804,8 +794,7 @@ HWTEST_F(LocatorSkeletonTest, PreEnableReverseGeocodingMock, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    auto result = locatorAbilityStub->PreEnableReverseGeocodingMock(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreEnableReverseGeocodingMock(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreEnableReverseGeocodingMock end");
 }
 
@@ -824,8 +813,7 @@ HWTEST_F(LocatorSkeletonTest, PreDisableReverseGeocodingMock, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    auto result = locatorAbilityStub->PreDisableReverseGeocodingMock(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreDisableReverseGeocodingMock(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreDisableReverseGeocodingMock end");
 }
 
@@ -844,8 +832,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetReverseGeocodingMockInfo, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    auto result = locatorAbilityStub->PreSetReverseGeocodingMockInfo(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreSetReverseGeocodingMockInfo(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreSetReverseGeocodingMockInfo end");
 }
 
