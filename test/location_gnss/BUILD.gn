@@ -24,6 +24,8 @@ if (location_feature_with_gnss) {
       "$GNSS_UNIT_TEST_DIR/mock/src/mock_i_cellular_data_manager.cpp",
       "$GNSS_UNIT_TEST_DIR/source/gnss_ability_stub_test.cpp",
       "$GNSS_UNIT_TEST_DIR/source/gnss_ability_test.cpp",
+      "$GNSS_UNIT_TEST_DIR/source/gnss_event_callback_test.cpp",
+      "$GNSS_UNIT_TEST_DIR/source/gnss_interface_test.cpp",
       "$LOCATION_ROOT_DIR/test/mock/src/mock_service_registry.cpp",
     ]
 
@@ -31,6 +33,7 @@ if (location_feature_with_gnss) {
       "$GNSS_UNIT_TEST_DIR/include",
       "$GNSS_UNIT_TEST_DIR/mock/include",
       "$LOCATION_GNSS_ROOT/include",
+      "$LOCATION_GNSS_ROOT/include/ntp",
       "$LOCATION_LOCATOR_ROOT/include",
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_ROOT_DIR/test/mock/include",

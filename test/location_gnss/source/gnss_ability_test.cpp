@@ -40,6 +40,8 @@
 #include "call_manager_client.h"
 #include "string_utils.h"
 
+#include "gnss_interface_test.h"
+
 using namespace testing;
 using namespace testing::ext;
 
@@ -54,7 +56,7 @@ using HDI::Location::Agnss::V2_0::AGnssRefInfoType;
 const int32_t LOCATION_PERM_NUM = 5;
 const std::string ARGS_HELP = "-h";
 const std::string MANAGER_SETTINGS = "ohos.permission.MANAGE_SETTINGS";
-
+constexpr int32_t FENCE_MAX_ID = 1000000;
 void GnssAbilityTest::SetUp()
 {
     /*
@@ -1235,6 +1237,7 @@ HWTEST_F(GnssAbilityTest, GnssOnStart001, TestSize.Level1)
     ASSERT_TRUE(gnssAbility != nullptr);
     gnssAbility->state_ = ServiceRunningState::STATE_RUNNING;
     gnssAbility->OnStart();
+    gnssAbility->gnssInterface_ = new (std::nothrow) GnssInterfaceTest();
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStart001 end");
 }
 
@@ -1399,6 +1402,57 @@ HWTEST_F(GnssAbilityTest, GnssSendMessage001, TestSize.Level1)
     gnssAbility->gnssHandler_  = nullptr;
     gnssAbility->SendMessage(0, requestParcel, reply);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendMessage002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssSendMessage002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.INetworkAbility");
+    requestParcel.WriteBuffer("data", 4);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    gnssAbility->SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE), requestParcel, reply);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage002 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendMessage003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssSendMessage003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage003 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.INetworkAbility");
+    requestParcel.WriteBuffer("data", 4);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    gnssAbility->SendMessage(0, requestParcel, reply);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage003 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssSendMessage004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssSendMessage004, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage004 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    ASSERT_TRUE(gnssAbility != nullptr);
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.INetworkAbility");
+    requestParcel.WriteBuffer("data", 4);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    gnssAbility->SendMessage(0, requestParcel, reply);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssSendMessage004 end");
 }
 
 
@@ -2421,6 +2475,31 @@ HWTEST_F(GnssAbilityTest, GnssGeofenceCallbackDeathRecipient001, TestSize.Level1
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GnssGeofenceCallbackDeathRecipient001 end");
 }
 
+HWTEST_F(GnssAbilityTest, ReConnectHdiImpl002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, ReConnectHdiImpl002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_BEGIN;
+    gnssAbility->ReConnectHdiImpl();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl002 end");
+}
+
+HWTEST_F(GnssAbilityTest, AddFence002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddFence002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence002 begin");
+    sptr<GnssAbility> gnssAbility = new (std::nothrow) GnssAbility();
+    EXPECT_NE(nullptr, gnssAbility);
+    gnssAbility->fenceId_ = FENCE_MAX_ID + 1;
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    gnssAbility->AddFence(request);
+    EXPECT_EQ(1, gnssAbility->fenceId_);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence002 end");
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT
