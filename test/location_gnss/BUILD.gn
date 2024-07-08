@@ -49,11 +49,12 @@ if (location_feature_with_gnss) {
       "$GOOGLE_TEST_DIR:gmock_main",
       "$GOOGLE_TEST_DIR:gtest_main",
       "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
-      "$LOCATION_GNSS_ROOT:lbsservice_gnss",
-      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
-      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
-      "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
+      "$LOCATION_GNSS_ROOT:lbsservice_gnss_static",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
+      "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
+      "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
+      "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
       "$LOCATION_ROOT_DIR/test/location_locator:LocatorServiceAbilityTest",
       "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
       "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -84,6 +85,11 @@ if (location_feature_with_gnss) {
     defines = []
     if (location_feature_with_gnss) {
       defines += [ "FEATURE_GNSS_SUPPORT" ]
+    }
+
+    if (telephony_core_service_enable) {
+      external_deps += [ "core_service:tel_core_service_api" ]
+      defines += [ "TEL_CORE_SERVICE_ENABLE" ]
     }
 
     if (hdf_drivers_interface_location_agnss_enable) {

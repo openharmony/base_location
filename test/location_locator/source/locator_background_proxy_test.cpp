@@ -35,7 +35,7 @@
 #include "constant_definition.h"
 #include "location.h"
 #include "location_log.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "locator_callback_proxy.h"
 #include "permission_manager.h"
 
@@ -250,8 +250,8 @@ HWTEST_F(LocatorBackgroundProxyTest, IsCallbackInProxyTest001, TestSize.Level1)
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsCallbackInProxyTest001 begin");
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
-    sptr<LocatorCallbackHost> locatorCallbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    sptr<LocatorCallbackNapi> locatorCallbackHost =
+        sptr<LocatorCallbackNapi>(new (std::nothrow)LocatorCallbackNapi());
     auto callback = sptr<ILocatorCallback>(locatorCallbackHost);
     EXPECT_EQ(false, locatorBackgroundProxy->IsCallbackInProxy(callback));
 
@@ -712,7 +712,7 @@ HWTEST_F(LocatorBackgroundProxyTest, OnSaStateChangeTest002, TestSize.Level1)
     std::shared_ptr<Request> request = std::make_shared<Request>();
     locatorBackgroundProxy->requestsList_->push_back(request);
     locatorBackgroundProxy->OnSaStateChange(true);
-    
+
     locatorBackgroundProxy->proxySwtich_ = true;
     locatorBackgroundProxy->OnSaStateChange(false);
 

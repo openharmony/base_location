@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Huawei Device Co., Ltd.
+# Copyright (C) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,6 +14,44 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
+local_base_sources = [
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/cached_locations_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/country_code_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/geofence_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/gnss_status_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/locating_required_data_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_error_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_gnss_geofence_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_errcode.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_event.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_system.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_switch_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/locator_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/napi_util.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/nmea_message_callback_napi.cpp",
+]
+
+if (notification_distributed_notification_service_enable) {
+  local_notification_sources = [
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/src/notification_napi.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/src/notification_napi_convert_content.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/src/notification_napi_convert_liveview.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/src/notification_napi_convert_notification.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/src/notification_napi_convert_request.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/src/notification_napi_utils.cpp",
+  ]
+
+  notification_external_deps = [
+    "ability_base:want",
+    "ability_runtime:napi_common",
+    "distributed_notification_service:ans_innerkits",
+    "image_framework:image",
+    "relational_store:native_rdb",
+  ]
+}
+
 ohos_shared_library("geolocation") {
   sanitize = {
     cfi = true
@@ -24,15 +62,11 @@ ohos_shared_library("geolocation") {
   install_enable = true
   include_dirs = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
   ]
 
-  sources = [
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_event.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_system.cpp",
-  ]
+  sources = local_base_sources
 
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
@@ -41,20 +75,24 @@ ohos_shared_library("geolocation") {
   ]
 
   external_deps = [
-    "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
   defines = []
+
+  if (notification_distributed_notification_service_enable) {
+    sources += local_notification_sources
+    external_deps += notification_external_deps
+    defines += [ "NOTIFICATION_ENABLE" ]
+  }
+
   if (location_feature_with_jsstack) {
     defines += [ "SUPPORT_JSSTACK" ]
     external_deps += [ "hiview:libxpower_event_js" ]
   }
-  if (notification_distributed_notification_service_enable) {
-    defines += [ "NOTIFICATION_ENABLE" ]
-  }
+
   relative_install_dir = "module"
   part_name = "location"
   subsystem_name = "location"
@@ -70,14 +108,10 @@ ohos_static_library("geolocation_static") {
   include_dirs = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/include",
   ]
 
-  sources = [
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_event.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_system.cpp",
-  ]
+  sources = local_base_sources
 
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
@@ -86,13 +120,16 @@ ohos_static_library("geolocation_static") {
   ]
 
   external_deps = [
-    "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]
+
   defines = []
+
   if (notification_distributed_notification_service_enable) {
+    sources += local_notification_sources
+    external_deps += notification_external_deps
     defines += [ "NOTIFICATION_ENABLE" ]
   }
   part_name = "location"
@@ -110,15 +147,10 @@ ohos_shared_library("geolocationmanager") {
   include_dirs = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/notification/include",
   ]
 
-  sources = [
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_errcode.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_event.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_system.cpp",
-  ]
+  sources = local_base_sources
 
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
@@ -129,18 +161,20 @@ ohos_shared_library("geolocationmanager") {
   defines = [ "ENABLE_NAPI_MANAGER" ]
 
   external_deps = [
-    "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
+  if (notification_distributed_notification_service_enable) {
+    sources += local_notification_sources
+    external_deps += notification_external_deps
+    defines += [ "NOTIFICATION_ENABLE" ]
+  }
+
   if (location_feature_with_jsstack) {
     defines += [ "SUPPORT_JSSTACK" ]
     external_deps += [ "hiview:libxpower_event_js" ]
-  }
-  if (notification_distributed_notification_service_enable) {
-    defines += [ "NOTIFICATION_ENABLE" ]
   }
   relative_install_dir = "module"
   part_name = "location"

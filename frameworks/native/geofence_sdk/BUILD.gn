@@ -19,8 +19,14 @@ config("geofence_sdk_config") {
   include_dirs = [
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     "$LOCATION_ROOT_DIR/frameworks/native/notification/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
   ]
 }
+
+local_base_sources = [
+  "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_request.cpp",
+  "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_sdk.cpp",
+]
 
 ohos_shared_library("geofence_sdk") {
   install_enable = true
@@ -34,45 +40,76 @@ ohos_shared_library("geofence_sdk") {
   }
   branch_protector_ret = "pac_ret"
 
-  sources = [
-    "$LOCATION_COMMON_DIR/source/geofence_request.cpp",
-    "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_napi.cpp",
-    "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_sdk.cpp",
-    "$LOCATION_NATIVE_DIR/geofence_sdk/source/location_gnss_geofence_callback_host.cpp",
-    "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_proxy.cpp",
-    "$LOCATION_NATIVE_DIR/locator_sdk/source/napi_util.cpp",
-  ]
+  sources = local_base_sources
+
   deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+
   public_external_deps = [
-    "ability_base:zuri",
-    "ability_runtime:napi_common",
-    "ability_runtime:wantagent_innerkits",
-    "access_token:libaccesstoken_sdk",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "data_share:datashare_consumer",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_single",
-    "napi:ace_napi",
-    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
   ]
+
   defines = []
+
   if (notification_distributed_notification_service_enable) {
-    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi.cpp" ]
-    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_content.cpp" ]
-    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_liveview.cpp" ]
-    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_notification.cpp" ]
-    sources += [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_convert_request.cpp" ]
-    sources +=
-        [ "$LOCATION_NATIVE_DIR/notification/src/notification_napi_utils.cpp" ]
     public_external_deps += [ "distributed_notification_service:ans_innerkits" ]
-    public_external_deps += [ "ability_base:want" ]
-    public_external_deps += [ "image_framework:image" ]
-    public_external_deps += [ "relational_store:native_rdb" ]
+    defines += [ "NOTIFICATION_ENABLE" ]
+  }
+
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
+  cflags_cc = [
+    "-std=c++17",
+    "-fno-rtti",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Os",
+  ]
+
+  ldflags = [
+    "-fPIC",
+    "-Wl,-E",
+    "-Wl,--as-needed",
+    "-Wl,--gc-sections",
+  ]
+
+  # Used to control the export of dynamic library symbols.
+  version_script = "libgeofence_sdk_version_script.txt"
+
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "location"
+  subsystem_name = "location"
+}
+
+ohos_static_library("geofence_sdk_static") {
+  public_configs = [ ":geofence_sdk_config" ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  sources = local_base_sources
+
+  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+
+  public_external_deps = [
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_single",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = []
+
+  if (notification_distributed_notification_service_enable) {
+    public_external_deps += [ "distributed_notification_service:ans_innerkits" ]
     defines += [ "NOTIFICATION_ENABLE" ]
   }
 
@@ -90,7 +127,6 @@ ohos_shared_library("geofence_sdk") {
     "-Wl,-E",
   ]
 
-  innerapi_tags = [ "platformsdk" ]
   part_name = "location"
   subsystem_name = "location"
 }

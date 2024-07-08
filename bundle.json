@@ -77,14 +77,13 @@
                 "movement",
                 "device_standby",
                 "time_service"
-            ],
-            "third_party": [
-                "libuv"
             ]
         },
         "build": {
             "group_type": {
-                "base_group": [],
+                "base_group": [
+                    "//base/location/services/utils:lbsresources"
+                ],
                 "fwk_group": [
                     "//base/location/frameworks/native/locator_sdk:locator_sdk",
                     "//base/location/frameworks/js/napi:geolocation",

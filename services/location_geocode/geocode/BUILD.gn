@@ -14,14 +14,16 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
+local_base_sources = [
+  "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_callback_host.cpp",
+  "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
+  "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_skeleton.cpp",
+  "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
+]
+
 if (location_feature_with_geocode) {
   ohos_shared_library("lbsservice_geocode") {
-    sources = [
-      "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_callback_host.cpp",
-      "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
-      "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_skeleton.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
-    ]
+    sources = local_base_sources
 
     include_dirs = [
       "$LOCATION_GEOCONVERT_ROOT/include",
@@ -40,6 +42,17 @@ if (location_feature_with_geocode) {
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     ]
 
+    ldflags = [
+      "-Wl,--as-needed",
+      "-Wl,--gc-sections",
+    ]
+
+    cflags_cc = [
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Os",
+    ]
+
     defines = []
     if (location_feature_with_geocode) {
       defines += [ "FEATURE_GEOCODE_SUPPORT" ]
@@ -47,11 +60,58 @@ if (location_feature_with_geocode) {
 
     external_deps = [
       "ability_base:want",
-      "ability_runtime:ability_connect_callback_stub",
       "ability_runtime:ability_manager",
-      "c_utils:utils",
       "hilog:libhilog",
-      "init:libbegetutil",
+      "ipc:ipc_single",
+      "safwk:system_ability_fwk",
+    ]
+
+    # Used to control the export of dynamic library symbols.
+    version_script = "liblbsservice_geocode_version_script.txt"
+
+    part_name = "location"
+    subsystem_name = "location"
+  }
+
+  ohos_static_library("lbsservice_geocode_static") {
+    sources = local_base_sources
+
+    include_dirs = [
+      "$LOCATION_GEOCONVERT_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    ]
+
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+    branch_protector_ret = "pac_ret"
+
+    deps = [
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    ]
+
+    ldflags = [
+      "-Wl,--as-needed",
+      "-Wl,--gc-sections",
+    ]
+
+    cflags_cc = [
+      "-ffunction-sections",
+      "-fdata-sections",
+    ]
+
+    defines = []
+    if (location_feature_with_geocode) {
+      defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+    }
+
+    external_deps = [
+      "ability_base:want",
+      "ability_runtime:ability_manager",
+      "hilog:libhilog",
       "ipc:ipc_single",
       "safwk:system_ability_fwk",
     ]

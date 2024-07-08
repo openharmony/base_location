@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATOR_CALLBACK_HOST_H
-#define LOCATOR_CALLBACK_HOST_H
+#ifndef LOCATOR_CALLBACK_NAPI_H
+#define LOCATOR_CALLBACK_NAPI_H
 
 #include "iremote_stub.h"
 #include "napi/native_api.h"
@@ -27,10 +27,10 @@
 
 namespace OHOS {
 namespace Location {
-class LocatorCallbackHost : public IRemoteStub<ILocatorCallback> {
+class LocatorCallbackNapi : public IRemoteStub<ILocatorCallback> {
 public:
-    LocatorCallbackHost();
-    virtual ~LocatorCallbackHost();
+    LocatorCallbackNapi();
+    virtual ~LocatorCallbackNapi();
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
@@ -177,4 +177,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATOR_CALLBACK_HOST_H
+#endif // LOCATOR_CALLBACK_NAPI_H

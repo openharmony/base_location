@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "locating_required_data_callback_host.h"
+#include "locating_required_data_callback_napi.h"
 
 #include "ipc_skeleton.h"
 #include "napi/native_common.h"
@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace Location {
-LocatingRequiredDataCallbackHost::LocatingRequiredDataCallbackHost()
+LocatingRequiredDataCallbackNapi::LocatingRequiredDataCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
@@ -32,7 +32,7 @@ LocatingRequiredDataCallbackHost::LocatingRequiredDataCallbackHost()
     InitLatch();
 }
 
-LocatingRequiredDataCallbackHost::~LocatingRequiredDataCallbackHost()
+LocatingRequiredDataCallbackNapi::~LocatingRequiredDataCallbackNapi()
 {
     if (latch_ != nullptr) {
         delete latch_;
@@ -40,16 +40,16 @@ LocatingRequiredDataCallbackHost::~LocatingRequiredDataCallbackHost()
     }
 }
 
-void LocatingRequiredDataCallbackHost::InitLatch()
+void LocatingRequiredDataCallbackNapi::InitLatch()
 {
     latch_ = new CountDownLatch();
     latch_->SetCount(1);
 }
 
-int LocatingRequiredDataCallbackHost::OnRemoteRequest(
+int LocatingRequiredDataCallbackNapi::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackHost::OnRemoteRequest!");
+    LBSLOGD(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackNapi::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATING_DATA_CALLBACK, "invalid token.");
         return -1;
@@ -84,12 +84,12 @@ int LocatingRequiredDataCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-bool LocatingRequiredDataCallbackHost::IsRemoteDied()
+bool LocatingRequiredDataCallbackNapi::IsRemoteDied()
 {
     return remoteDied_;
 }
 
-bool LocatingRequiredDataCallbackHost::Send(const std::vector<std::shared_ptr<LocatingRequiredData>>& data)
+bool LocatingRequiredDataCallbackNapi::Send(const std::vector<std::shared_ptr<LocatingRequiredData>>& data)
 {
     if (IsSingleLocationRequest()) {
         return false;
@@ -120,7 +120,7 @@ bool LocatingRequiredDataCallbackHost::Send(const std::vector<std::shared_ptr<Lo
     return true;
 }
 
-void LocatingRequiredDataCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
     uv_queue_work(
         loop,
@@ -169,14 +169,14 @@ void LocatingRequiredDataCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* w
     });
 }
 
-void LocatingRequiredDataCallbackHost::OnLocatingDataChange(
+void LocatingRequiredDataCallbackNapi::OnLocatingDataChange(
     const std::vector<std::shared_ptr<LocatingRequiredData>>& data)
 {
-    LBSLOGD(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackHost::OnLocatingDataChange");
+    LBSLOGD(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackNapi::OnLocatingDataChange");
     Send(data);
 }
 
-void LocatingRequiredDataCallbackHost::DeleteHandler()
+void LocatingRequiredDataCallbackNapi::DeleteHandler()
 {
     std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
@@ -194,26 +194,26 @@ void LocatingRequiredDataCallbackHost::DeleteHandler()
     handlerCb_ = nullptr;
 }
 
-bool LocatingRequiredDataCallbackHost::IsSingleLocationRequest()
+bool LocatingRequiredDataCallbackNapi::IsSingleLocationRequest()
 {
     return (fixNumber_ == 1);
 }
 
-void LocatingRequiredDataCallbackHost::CountDown()
+void LocatingRequiredDataCallbackNapi::CountDown()
 {
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         latch_->CountDown();
     }
 }
 
-void LocatingRequiredDataCallbackHost::Wait(int time)
+void LocatingRequiredDataCallbackNapi::Wait(int time)
 {
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         latch_->Wait(time);
     }
 }
 
-int LocatingRequiredDataCallbackHost::GetCount()
+int LocatingRequiredDataCallbackNapi::GetCount()
 {
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         return latch_->GetCount();
@@ -221,20 +221,20 @@ int LocatingRequiredDataCallbackHost::GetCount()
     return 0;
 }
 
-void LocatingRequiredDataCallbackHost::SetCount(int count)
+void LocatingRequiredDataCallbackNapi::SetCount(int count)
 {
     if (IsSingleLocationRequest() && latch_ != nullptr) {
         return latch_->SetCount(count);
     }
 }
 
-void LocatingRequiredDataCallbackHost::ClearSingleResult()
+void LocatingRequiredDataCallbackNapi::ClearSingleResult()
 {
     std::unique_lock<std::mutex> guard(singleResultMutex_);
     singleResult_.clear();
 }
 
-void LocatingRequiredDataCallbackHost::SetSingleResult(
+void LocatingRequiredDataCallbackNapi::SetSingleResult(
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult)
 {
     std::unique_lock<std::mutex> guard(singleResultMutex_);

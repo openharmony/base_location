@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "location_gnss_geofence_callback_host.h"
+#include "location_gnss_geofence_callback_napi.h"
 
 #include "ipc_skeleton.h"
 #include "napi/native_common.h"
@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace Location {
-LocationGnssGeofenceCallbackHost::LocationGnssGeofenceCallbackHost()
+LocationGnssGeofenceCallbackNapi::LocationGnssGeofenceCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
@@ -37,7 +37,7 @@ LocationGnssGeofenceCallbackHost::LocationGnssGeofenceCallbackHost()
     InitLatch();
 }
 
-LocationGnssGeofenceCallbackHost::~LocationGnssGeofenceCallbackHost()
+LocationGnssGeofenceCallbackNapi::~LocationGnssGeofenceCallbackNapi()
 {
     if (latch_ != nullptr) {
         delete latch_;
@@ -45,13 +45,13 @@ LocationGnssGeofenceCallbackHost::~LocationGnssGeofenceCallbackHost()
     }
 }
 
-void LocationGnssGeofenceCallbackHost::InitLatch()
+void LocationGnssGeofenceCallbackNapi::InitLatch()
 {
     latch_ = new CountDownLatch();
     latch_->SetCount(1);
 }
 
-int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
+int LocationGnssGeofenceCallbackNapi::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     LBSLOGD(LOCATION_GNSS_GEOFENCE_CALLBACK, "OnRemoteRequest enter");
@@ -88,7 +88,7 @@ int LocationGnssGeofenceCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-void LocationGnssGeofenceCallbackHost::OnTransitionStatusChange(
+void LocationGnssGeofenceCallbackNapi::OnTransitionStatusChange(
     GeofenceTransition transition)
 {
     std::unique_lock<std::mutex> guard(mutex_);
@@ -116,7 +116,7 @@ void LocationGnssGeofenceCallbackHost::OnTransitionStatusChange(
     UvQueueWork(loop, work);
 }
 
-void LocationGnssGeofenceCallbackHost::OnReportOperationResult(int fenceId, int type, int result)
+void LocationGnssGeofenceCallbackNapi::OnReportOperationResult(int fenceId, int type, int result)
 {
     int addValue = static_cast<int>(GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD);
     if ((type != addValue && fenceId == GetFenceId()) ||
@@ -132,12 +132,12 @@ void LocationGnssGeofenceCallbackHost::OnReportOperationResult(int fenceId, int 
     }
 }
 
-bool LocationGnssGeofenceCallbackHost::IsRemoteDied()
+bool LocationGnssGeofenceCallbackNapi::IsRemoteDied()
 {
     return remoteDied_;
 }
 
-void LocationGnssGeofenceCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
+void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
     uv_queue_work(
         loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
@@ -185,7 +185,7 @@ void LocationGnssGeofenceCallbackHost::UvQueueWork(uv_loop_s* loop, uv_work_t* w
     });
 }
 
-void LocationGnssGeofenceCallbackHost::DeleteHandler()
+void LocationGnssGeofenceCallbackNapi::DeleteHandler()
 {
     std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
@@ -203,21 +203,21 @@ void LocationGnssGeofenceCallbackHost::DeleteHandler()
     handlerCb_ = nullptr;
 }
 
-void LocationGnssGeofenceCallbackHost::CountDown()
+void LocationGnssGeofenceCallbackNapi::CountDown()
 {
     if (latch_ != nullptr) {
         latch_->CountDown();
     }
 }
 
-void LocationGnssGeofenceCallbackHost::Wait(int time)
+void LocationGnssGeofenceCallbackNapi::Wait(int time)
 {
     if (latch_ != nullptr) {
         latch_->Wait(time);
     }
 }
 
-int LocationGnssGeofenceCallbackHost::GetCount()
+int LocationGnssGeofenceCallbackNapi::GetCount()
 {
     if (latch_ != nullptr) {
         return latch_->GetCount();
@@ -225,56 +225,56 @@ int LocationGnssGeofenceCallbackHost::GetCount()
     return 0;
 }
 
-void LocationGnssGeofenceCallbackHost::SetCount(int count)
+void LocationGnssGeofenceCallbackNapi::SetCount(int count)
 {
     if (latch_ != nullptr) {
         return latch_->SetCount(count);
     }
 }
 
-void LocationGnssGeofenceCallbackHost::ClearFenceId()
+void LocationGnssGeofenceCallbackNapi::ClearFenceId()
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     fenceId_ = -1;
 }
 
-int LocationGnssGeofenceCallbackHost::GetFenceId()
+int LocationGnssGeofenceCallbackNapi::GetFenceId()
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     return fenceId_;
 }
 
-void LocationGnssGeofenceCallbackHost::SetFenceId(int fenceId)
+void LocationGnssGeofenceCallbackNapi::SetFenceId(int fenceId)
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     fenceId_ = fenceId;
 }
 
-GnssGeofenceOperateType LocationGnssGeofenceCallbackHost::GetGeofenceOperationType()
+GnssGeofenceOperateType LocationGnssGeofenceCallbackNapi::GetGeofenceOperationType()
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     return type_;
 }
 
-void LocationGnssGeofenceCallbackHost::SetGeofenceOperationType(GnssGeofenceOperateType type)
+void LocationGnssGeofenceCallbackNapi::SetGeofenceOperationType(GnssGeofenceOperateType type)
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     type_ = type;
 }
 
-GnssGeofenceOperateResult LocationGnssGeofenceCallbackHost::GetGeofenceOperationResult()
+GnssGeofenceOperateResult LocationGnssGeofenceCallbackNapi::GetGeofenceOperationResult()
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     return result_;
 }
 
-void LocationGnssGeofenceCallbackHost::SetGeofenceOperationResult(GnssGeofenceOperateResult result)
+void LocationGnssGeofenceCallbackNapi::SetGeofenceOperationResult(GnssGeofenceOperateResult result)
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     result_ = result;
 }
 
-LocationErrCode LocationGnssGeofenceCallbackHost::DealGeofenceOperationResult()
+LocationErrCode LocationGnssGeofenceCallbackNapi::DealGeofenceOperationResult()
 {
     std::unique_lock<std::mutex> guard(operationResultMutex_);
     LocationErrCode errCode = ERRCODE_SUCCESS;

@@ -25,7 +25,7 @@
 #include "token_setproc.h"
 #include "locator_ability.h"
 
-#include "location_switch_callback_host.h"
+#include "location_switch_callback_napi.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -64,7 +64,7 @@ bool LocationSwitchCallbackHostFuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto callback = sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+    auto callback = sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     callback->OnRemoteRequest(ISwitchCallback::RECEIVE_SWITCH_STATE_EVENT, requestParcel, reply, option);
     return true;
 }

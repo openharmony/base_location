@@ -42,6 +42,11 @@
 #include "location_log_event_ids.h"
 #include "location_data_rdb_manager.h"
 
+#ifdef NOTIFICATION_ENABLE
+#include "notification_request.h"
+#include "notification_helper.h"
+#endif
+
 #include "hook_utils.h"
 #include "geofence_definition.h"
 
@@ -62,10 +67,12 @@ constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
 #endif
-const std::string UNLOAD_GNSS_TASK = "gnss_sa_unload";
+constexpr const char *UNLOAD_GNSS_TASK = "gnss_sa_unload";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 constexpr int32_t FENCE_MAX_ID = 1000000;
+#ifdef TIME_SERVICE_ENABLE
 constexpr int DEFAULT_UNCERTAINTY = 30;
+#endif
 constexpr int NLP_FIX_VALID_TIME = 2;
 }
 
@@ -778,9 +785,6 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
     }
     sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
     auto transitionStatusList = request->GetGeofenceTransitionEventList();
-#ifdef NOTIFICATION_ENABLE
-    auto notificationRequestList = request->GetNotificationRequestList();
-#endif
     for (size_t i = 0; i < transitionStatusList.size(); i++) {
         if (transitionStatusList[i] !=
             static_cast<GeofenceTransitionEvent>(event)) {
@@ -791,6 +795,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         geofenceTransition.event = transitionStatusList[i];
         gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
 #ifdef NOTIFICATION_ENABLE
+        auto notificationRequestList = request->GetNotificationRequestList();
         if (transitionStatusList.size() == notificationRequestList.size()) {
             auto notificationRequest = notificationRequestList[i];
             notificationRequest.SetCreatorUid(IPCSkeleton::GetCallingUid());
@@ -969,7 +974,7 @@ void GnssAbility::StopGnss()
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    
+
     int ret = gnssInterface_->StopGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_END;
@@ -1432,6 +1437,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             SendEvent(event, reply);
             break;
         }
+#ifdef NOTIFICATION_ENABLE
         case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE): {
             auto request = GeofenceRequest::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
@@ -1458,6 +1464,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             SendEvent(event, reply);
             break;
         }
+#endif
         case static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION): {
             auto request = Location::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);

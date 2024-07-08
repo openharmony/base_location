@@ -45,13 +45,14 @@ ohos_unittest("LocationMockIpcTest") {
   deps = [
     "$GOOGLE_TEST_DIR:gmock_main",
     "$GOOGLE_TEST_DIR:gtest_main",
-    "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode",
-    "$LOCATION_GNSS_ROOT:lbsservice_gnss",
-    "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
-    "$LOCATION_NETWORK_ROOT:lbsservice_network",
-    "$LOCATION_PASSIVE_ROOT:lbsservice_passive",
-    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
+    "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode_static",
+    "$LOCATION_GNSS_ROOT:lbsservice_gnss_static",
+    "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
+    "$LOCATION_NETWORK_ROOT:lbsservice_network_static",
+    "$LOCATION_PASSIVE_ROOT:lbsservice_passive_static",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
   ]
 
   external_deps = [
