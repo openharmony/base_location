@@ -33,7 +33,10 @@ ohos_unittest("GeofenceSdkTest") {
   }
   branch_protector_ret = "pac_ret"
 
-  deps = [ "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk" ]
+  deps = [
+    "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
+  ]
 
   external_deps = [
     "ability_base:want",
@@ -55,6 +58,7 @@ ohos_unittest("GeofenceSdkTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "location:locator_sdk",
+    "napi:ace_napi",
     "os_account:os_account_innerkits",
     "relational_store:native_dataability",
     "relational_store:native_rdb",

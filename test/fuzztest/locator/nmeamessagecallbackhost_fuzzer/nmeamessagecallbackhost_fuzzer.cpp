@@ -26,7 +26,7 @@
 #include "locator_ability.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 
 namespace OHOS {
@@ -67,7 +67,7 @@ bool NmeaMessageCallbackHostFuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto callback = sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    auto callback = sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     callback->OnRemoteRequest(INmeaMessageCallback::RECEIVE_NMEA_MESSAGE_EVENT, requestParcel, reply, option);
     return true;
 }

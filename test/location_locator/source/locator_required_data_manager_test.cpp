@@ -16,7 +16,7 @@
 #define private public
 #include "locator_required_data_manager.h"
 #undef private
-#include "locating_required_data_callback_host.h"
+#include "locating_required_data_callback_napi.h"
 #include "location_log.h"
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
@@ -76,14 +76,14 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
         << "LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 begin");
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-    
+
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
     dataConfig->SetType(2);
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
     auto callback =
-        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 end");
@@ -95,14 +95,14 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
         << "LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback003 begin");
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-    
+
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
     dataConfig->SetType(1);
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
     auto callback =
-        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback003 end");
@@ -125,7 +125,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost002, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, LocatorBluetoothHost002, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost002 begin");
-    
+
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     locatorBluetoothHost->OnStateChanged(0, 0);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost002 end");
@@ -136,7 +136,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost003, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, LocatorBluetoothHost003, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost003 begin");
-    
+
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnDiscoveryStateChanged(0);
@@ -160,7 +160,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost005, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, LocatorBluetoothHost005, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost005 begin");
-    
+
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnPairRequested(device);
@@ -172,7 +172,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost006, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, LocatorBluetoothHost006, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost006 begin");
-    
+
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnScanModeChanged(0);
@@ -184,7 +184,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost007, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, LocatorBluetoothHost007, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost007 begin");
-    
+
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnDeviceNameChanged("device");
@@ -196,7 +196,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost008, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, LocatorBluetoothHost008, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost008 begin");
-    
+
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     locatorBluetoothHost->OnDeviceAddrChanged("device");
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost008 end");
@@ -207,7 +207,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost009, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, LocatorBluetoothHost009, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBluetoothHost009 begin");
-    
+
     std::shared_ptr<LocatorBluetoothHost> locatorBluetoothHost = std::make_shared<LocatorBluetoothHost>();
     Bluetooth::BluetoothRemoteDevice device;
     locatorBluetoothHost->OnPairConfirmed(device, 0, 0);

@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include "location_napi_errcode.h"
+
 namespace OHOS {
 namespace Location {
 template <typename T>

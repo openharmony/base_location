@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef GNSS_STATUS_CALLBACK_HOST_H
-#define GNSS_STATUS_CALLBACK_HOST_H
+#ifndef GNSS_STATUS_CALLBACK_NAPI_H
+#define GNSS_STATUS_CALLBACK_NAPI_H
 
 #include "iremote_stub.h"
 #include "message_option.h"
@@ -28,10 +28,10 @@
 
 namespace OHOS {
 namespace Location {
-class GnssStatusCallbackHost : public IRemoteStub<IGnssStatusCallback> {
+class GnssStatusCallbackNapi : public IRemoteStub<IGnssStatusCallback> {
 public:
-    GnssStatusCallbackHost();
-    virtual ~GnssStatusCallbackHost();
+    GnssStatusCallbackNapi();
+    virtual ~GnssStatusCallbackNapi();
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     bool IsRemoteDied();
@@ -78,4 +78,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // GNSS_STATUS_CALLBACK_HOST_H
+#endif // GNSS_STATUS_CALLBACK_NAPI_H

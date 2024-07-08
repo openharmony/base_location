@@ -65,11 +65,11 @@ void GnssAbilityTest::SetUp()
     MockNativePermission();
     ability_ = new (std::nothrow) GnssAbility();
     EXPECT_NE(nullptr, ability_);
-    callbackStub_ = new (std::nothrow) GnssStatusCallbackHost();
+    callbackStub_ = new (std::nothrow) GnssStatusCallbackNapi();
     EXPECT_NE(nullptr, callbackStub_);
-    nemaCallbackStub_ = new (std::nothrow) NmeaMessageCallbackHost();
+    nemaCallbackStub_ = new (std::nothrow) NmeaMessageCallbackNapi();
     EXPECT_NE(nullptr, nemaCallbackStub_);
-    cachedLocationCallbackStub_ = new (std::nothrow) CachedLocationsCallbackHost();
+    cachedLocationCallbackStub_ = new (std::nothrow) CachedLocationsCallbackNapi();
     EXPECT_NE(nullptr, cachedLocationCallbackStub_);
     proxy_ = new (std::nothrow) GnssAbilityProxy(ability_);
     EXPECT_NE(nullptr, proxy_);
@@ -520,7 +520,7 @@ HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->EnableMock());
     EXPECT_EQ(true, ability_->IsMockEnabled());
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetMocked(timeInterval, locations));
-    
+
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
     EXPECT_EQ(false, ability_->IsMockEnabled());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));

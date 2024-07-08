@@ -25,18 +25,18 @@
 #include "token_setproc.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #include "i_locator_callback.h"
 #include "location.h"
 #include "locator.h"
-#include "location_switch_callback_host.h"
+#include "location_switch_callback_napi.h"
 #include "locator.h"
 #include "locator_ability.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "location_log.h"
 
 namespace OHOS {
@@ -76,8 +76,8 @@ bool CachedLocationsCallbackHostFuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto callback = sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
-    callback->OnRemoteRequest(CachedLocationsCallbackHost::RECEIVE_CACHED_LOCATIONS_EVENT,
+    auto callback = sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
+    callback->OnRemoteRequest(CachedLocationsCallbackNapi::RECEIVE_CACHED_LOCATIONS_EVENT,
         requestParcel, reply, option);
     return true;
 }

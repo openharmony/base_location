@@ -13,30 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_ERROR_CALLBACK_HOST_H
-#define LOCATION_ERROR_CALLBACK_HOST_H
+#ifndef LOCATION_SWITCH_CALLBACK_NAPI_H
+#define LOCATION_SWITCH_CALLBACK_NAPI_H
+#include "i_switch_callback.h"
+
 #include "iremote_stub.h"
+#include "message_parcel.h"
+#include "message_option.h"
+#include "napi_util.h"
 #include "napi/native_api.h"
 #include "uv.h"
 
-#include "common_utils.h"
-#include "constant_definition.h"
-#include "i_locator_callback.h"
-#include "location.h"
-
 namespace OHOS {
 namespace Location {
-class LocationErrorCallbackHost : public IRemoteStub<ILocatorCallback> {
+class LocationSwitchCallbackNapi : public IRemoteStub<ISwitchCallback> {
 public:
-    LocationErrorCallbackHost();
-    virtual ~LocationErrorCallbackHost();
+    LocationSwitchCallbackNapi();
+    virtual ~LocationSwitchCallbackNapi();
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    void OnLocationReport(const std::unique_ptr<Location>& location) override;
-    void OnLocatingStatusChange(const int status) override;
-    void OnErrorReport(const int errorCode) override;
+    bool IsRemoteDied();
     napi_value PackResult(bool switchState);
     bool Send(int switchState);
+    void OnSwitchChange(int switchState) override;
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
@@ -60,11 +59,22 @@ public:
         handlerCb_ = handlerCb;
     }
 
+    inline bool GetRemoteDied() const
+    {
+        return remoteDied_;
+    }
+
+    inline void SetRemoteDied(const bool remoteDied)
+    {
+        remoteDied_ = remoteDied;
+    }
+
 private:
     napi_env env_;
     napi_ref handlerCb_;
+    bool remoteDied_;
     std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_SWITCH_CALLBACK_HOST_H
+#endif // LOCATION_SWITCH_CALLBACK_NAPI_H

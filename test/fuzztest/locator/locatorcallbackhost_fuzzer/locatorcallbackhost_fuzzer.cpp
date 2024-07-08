@@ -25,7 +25,7 @@
 #include "token_setproc.h"
 #include "locator_ability.h"
 
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "permission_manager.h"
 
 namespace OHOS {
@@ -87,7 +87,7 @@ bool LocatorCallbackHost001FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     callback->OnRemoteRequest(ILocatorCallback::RECEIVE_LOCATION_INFO_EVENT, requestParcel, reply, option);
 
     return true;
@@ -103,7 +103,7 @@ bool LocatorCallbackHost002FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     callback->OnRemoteRequest(ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, requestParcel, reply, option);
 
     return true;
@@ -119,7 +119,7 @@ bool LocatorCallbackHost003FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     callback->OnRemoteRequest(ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, requestParcel, reply, option);
 
     return true;

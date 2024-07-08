@@ -23,7 +23,9 @@
 #include "location_data_rdb_manager.h"
 #include "location_log.h"
 #include "nlohmann/json.hpp"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_helper.h"
+#endif
 #include "securec.h"
 #include "sms_service_manager_client.h"
 #include "string_utils.h"
@@ -40,10 +42,12 @@ constexpr uint32_t TIME_AFTER_EMERGENCY_CALL = 10 * 1000;
 constexpr int32_t INVALID_SUBID = -1;
 const std::string URN_APPLICATION_ID = "x-oma-application:ulp.ua";
 const std::string AGNSS_NI_SERVICE_NAME = "agnss_ni";
-const int32_t GNSS_AGNSS_NI_NOTIFICATION_ID = LOCATION_GNSS_SA_ID * 100;
 const std::string LOCATION_DIALOG_BUNDLE_NAME = "com.ohos.locationdialog";
 const std::string AGNSS_NI_DIALOG_ABILITY_NAME = "ConfirmUIExtAbility";
+#ifdef NOTIFICATION_ENABLE
+const int32_t GNSS_AGNSS_NI_NOTIFICATION_ID = LOCATION_GNSS_SA_ID * 100;
 constexpr uint32_t NOTIFICATION_AUTO_DELETED_TIME = 1000;
+#endif
 
 AGnssNiManager* AGnssNiManager::GetInstance()
 {
@@ -325,6 +329,7 @@ std::string AGnssNiManager::DecodeNiString(std::string original, int coding)
 
 void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
 {
+#ifdef NOTIFICATION_ENABLE
     std::shared_ptr<Notification::NotificationNormalContent> notificationNormalContent =
         std::make_shared<Notification::NotificationNormalContent>();
     std::string title = "Location Request";
@@ -353,6 +358,9 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
         return;
     }
     LBSLOGI(GNSS, "GNSS service publish notification success");
+#else
+    LBSLOGI(GNSS, "GNSS service publish notification not support");
+#endif
 }
 
 void AGnssNiManager::SendUserResponse(GnssNiResponseCmd responseCmd)

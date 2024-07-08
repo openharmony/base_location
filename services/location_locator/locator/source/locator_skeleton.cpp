@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,7 +31,6 @@
 #include "locating_required_data_config.h"
 #include "locator_required_data_manager.h"
 #include "location_log_event_ids.h"
-#include "notification_request.h"
 #include "geofence_request.h"
 #include "permission_manager.h"
 

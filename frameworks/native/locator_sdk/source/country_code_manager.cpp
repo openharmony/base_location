@@ -19,11 +19,7 @@
 #ifdef TEL_CORE_SERVICE_ENABLE
 #include "core_service_client.h"
 #endif
-#ifdef I18N_ENABLE
-#include "locale_config.h"
-#endif
 #include "parameter.h"
-
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "common_utils.h"
@@ -31,6 +27,7 @@
 #include "country_code.h"
 #include "location_log.h"
 #include "locator_impl.h"
+#include "lbs_res_loader.h"
 
 namespace OHOS {
 namespace Location {
@@ -257,7 +254,8 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 #endif
 #ifdef I18N_ENABLE
     if (countryCodeStr8.empty()) {
-        countryCodeStr8 = Global::I18n::LocaleConfig::GetSystemRegion();
+        LbsResLoader resLoader;
+        countryCodeStr8 = resLoader.GetSystemRegion();
         type = COUNTRY_CODE_FROM_LOCALE;
     }
 #endif
@@ -323,7 +321,7 @@ bool CountryCodeManager::SubscribeLocaleConfigEvent()
         manager->GetIsoCountryCode();
     };
 
-    int ret = WatchParameter(LOCALE_KEY.c_str(), eventCallback, nullptr);
+    int ret = WatchParameter(LOCALE_KEY, eventCallback, nullptr);
     if (ret != SUCCESS) {
         LBSLOGD(COUNTRY_CODE, "WatchParameter fail");
         return false;

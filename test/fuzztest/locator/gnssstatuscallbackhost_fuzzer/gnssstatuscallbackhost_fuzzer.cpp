@@ -26,7 +26,7 @@
 #include "locator_ability.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #endif
 
 
@@ -68,8 +68,8 @@ bool GnssStatusCallbackHostFuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto callback = sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
-    callback->OnRemoteRequest(GnssStatusCallbackHost::RECEIVE_STATUS_INFO_EVENT, requestParcel, reply, option);
+    auto callback = sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
+    callback->OnRemoteRequest(GnssStatusCallbackNapi::RECEIVE_STATUS_INFO_EVENT, requestParcel, reply, option);
     return true;
 }
 #endif

@@ -65,7 +65,7 @@ bool GenGnssGeofenceRequest(
 }
 
 void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& object,
-    sptr<LocationGnssGeofenceCallbackHost> callbackHost)
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost)
 {
     napi_ref handlerRef = nullptr;
     napi_value callbackNapiValue = nullptr;

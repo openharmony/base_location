@@ -15,10 +15,10 @@
 
 #include "country_code_manager_test.h"
 
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #include "location_log.h"
 
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -50,7 +50,7 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Leve
         << "CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback001 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
-    auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     ASSERT_TRUE(countryCodeManager != nullptr);
     countryCodeManager->UnregisterCountryCodeCallback(callback);
     EXPECT_EQ(0, countryCodeManager->countryCodeCallback_->size());
@@ -76,7 +76,7 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Leve
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback003 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
-    auto wrongCallback = sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    auto wrongCallback = sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     countryCodeManager->UnregisterCountryCodeCallback(wrongCallback->AsObject());
     EXPECT_EQ(0, countryCodeManager->countryCodeCallback_->size());
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback003 end");
@@ -89,10 +89,10 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback004, TestSize.Leve
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback004 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
-    auto callback1 = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    auto callback1 = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     countryCodeManager->RegisterCountryCodeCallback(callback1, 0);
 
-    auto callback2 = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    auto callback2 = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     countryCodeManager->RegisterCountryCodeCallback(callback2, 1);
 
 
@@ -107,7 +107,7 @@ HWTEST_F(CountryCodeManagerTest, RegisterCountryCodeCallback001, TestSize.Level1
         << "CountryCodeManagerTest, RegisterCountryCodeCallback001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback001 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
-    auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     countryCodeManager->RegisterCountryCodeCallback(callback, 0);
     EXPECT_NE(0, countryCodeManager->countryCodeCallback_->size());
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback001 end");
@@ -132,7 +132,7 @@ HWTEST_F(CountryCodeManagerTest, RegisterCountryCodeCallback003, TestSize.Level1
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback003 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
-    auto wrongCallback = sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+    auto wrongCallback = sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     countryCodeManager->RegisterCountryCodeCallback(wrongCallback->AsObject(), 0);
     EXPECT_EQ(2, countryCodeManager->countryCodeCallback_->size());
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback003 end");
@@ -155,7 +155,7 @@ HWTEST_F(CountryCodeManagerTest, ReSubscribeEvent002, TestSize.Level1)
         << "CountryCodeManagerTest, ReSubscribeEvent002, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReSubscribeEvent002 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
-    auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     countryCodeManager->RegisterCountryCodeCallback(callback, 0);
     EXPECT_NE(0, countryCodeManager->countryCodeCallback_->size());
     countryCodeManager->ReSubscribeEvent();
@@ -179,7 +179,7 @@ HWTEST_F(CountryCodeManagerTest, ReUnsubscribeEvent002, TestSize.Level1)
         << "CountryCodeManagerTest, ReUnsubscribeEvent002, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent002 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
-    auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     countryCodeManager->RegisterCountryCodeCallback(callback, 0);
     EXPECT_NE(0, countryCodeManager->countryCodeCallback_->size());
     countryCodeManager->ReUnsubscribeEvent();
@@ -193,7 +193,7 @@ HWTEST_F(CountryCodeManagerTest, NotifyAllListener001, TestSize.Level1)
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] NotifyAllListener001 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
-    auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     sptr<ICountryCodeCallback> countryCodeCallback1 = iface_cast<ICountryCodeCallback>(callback);
     countryCodeManager->countryCodeCallback_->insert(std::make_pair(0, countryCodeCallback1));
     sptr<ICountryCodeCallback> countryCodeCallback2 = nullptr;
@@ -267,7 +267,7 @@ HWTEST_F(CountryCodeManagerTest, OnLocationReport001, TestSize.Level1)
         sptr<ILocatorCallback>(new (std::nothrow) CountryCodeManager::LocatorCallback());
     ASSERT_TRUE(callback != nullptr);
     callback->OnLocationReport(nullptr);
-    
+
     std::unique_ptr<Location> location = std::make_unique<Location>();
     callback->OnLocationReport(location);
     callback->OnLocatingStatusChange(1);

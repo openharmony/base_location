@@ -22,16 +22,16 @@
 #include "ipc_skeleton.h"
 #include "iremote_object.h"
 
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #include "gnss_ability.h"
 #include "gnss_ability_proxy.h"
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #include "location.h"
-#include "location_switch_callback_host.h"
-#include "nmea_message_callback_host.h"
+#include "location_switch_callback_napi.h"
+#include "nmea_message_callback_napi.h"
 #include "subability_common.h"
 #include "work_record.h"
 #include "geofence_request.h"
@@ -57,13 +57,13 @@ namespace OHOS {
         proxy->RefrashRequirements();
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         auto gnssCallbackHost =
-            sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+            sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
         proxy->RegisterGnssStatusCallback(gnssCallbackHost, data[index++]);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterGnssStatusCallback(gnssCallbackHost);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         auto nmeaCallbackHost =
-            sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+            sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
         proxy->RegisterNmeaMessageCallback(nmeaCallbackHost, data[index++]);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterNmeaMessageCallback(nmeaCallbackHost);
@@ -83,7 +83,7 @@ namespace OHOS {
             new (std::nothrow) GnssAbilityProxy(ability);
         auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
         auto cachedLocationsCallbackHost =
-            sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+            sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
         proxy->RegisterCachedCallback(cachedRequest, cachedLocationsCallbackHost);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterCachedCallback(cachedLocationsCallbackHost);

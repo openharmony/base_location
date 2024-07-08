@@ -35,8 +35,6 @@ namespace OHOS {
 namespace Location {
 static constexpr int REQUEST_NETWORK_LOCATION = 1;
 static constexpr int REMOVE_NETWORK_LOCATION = 2;
-const std::string SERVICE_CONFIG_FILE = "/system/etc/location/location_service.conf";
-const std::string ABILITY_NAME = "LocationServiceAbility";
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
     explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
@@ -86,7 +84,7 @@ private:
     bool RemoveNetworkLocation(WorkRecord &workRecord);
     void RegisterNLPServiceDeathRecipient();
     bool IsConnect();
-    
+
     ffrt::mutex mutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
     ffrt::condition_variable connectCondition_;
