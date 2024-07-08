@@ -138,6 +138,11 @@ if (location_feature_with_gnss) {
       defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }
 
+    if (time_service_enable) {
+      external_deps += [ "time_service:time_client" ]
+      defines += [ "TIME_SERVICE_ENABLE" ]
+    }
+
     # Used to control the export of dynamic library symbols.
     version_script = "liblbsservice_gnss_version_script.txt"
 
