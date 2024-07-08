@@ -22,7 +22,6 @@
 
 #include "i_locator_callback.h"
 #include "locator_ability.h"
-#include "locator_callback_host.h"
 #include "request.h"
 #include "request_config.h"
 #include "permission_manager.h"
@@ -52,10 +51,6 @@ void RequestManagerTest::SetUp()
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetFixNumber(0);
     request_->SetRequestConfig(*requestConfig);
-    sptr<LocatorCallbackHost> locatorCallbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
-    callback_ = sptr<ILocatorCallback>(locatorCallbackHost);
-    request_->SetLocatorCallBack(callback_);
 }
 
 void RequestManagerTest::TearDown()
@@ -94,10 +89,6 @@ void RequestManagerTest::FillRequestField(std::shared_ptr<Request>& request)
     std::unique_ptr<RequestConfig> requestConfig =
         std::make_unique<RequestConfig>();
     request->SetRequestConfig(*requestConfig);
-    sptr<LocatorCallbackHost> locatorCallbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
-    auto callback = sptr<ILocatorCallback>(locatorCallbackHost);
-    request->SetLocatorCallBack(callback);
     request->SetRequesting(false);
     std::unique_ptr<Location> location = std::make_unique<Location>();
     request->SetLastLocation(location);

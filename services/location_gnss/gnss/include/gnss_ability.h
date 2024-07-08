@@ -44,10 +44,6 @@
 #include "locationhub_ipc_interface_code.h"
 #include "geofence_event_callback.h"
 #include "ipc_skeleton.h"
-#ifdef NOTIFICATION_ENABLE
-#include "notification_request.h"
-#include "notification_helper.h"
-#endif
 
 namespace OHOS {
 namespace Location {

@@ -29,31 +29,31 @@
 
 #include "app_identity.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #endif
 #include "i_locator.h"
 #include "location.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
-#include "location_switch_callback_host.h"
+#include "location_switch_callback_napi.h"
 #include "locator.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "locator_callback_proxy.h"
 #define private public
 #include "locator_skeleton.h"
 #undef private
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 #include "permission_manager.h"
 #include "geofence_request.h"
@@ -893,7 +893,7 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, Tes
         << "LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCachedLocationCallback001 begin");
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
-    auto cachedCallbackHost = sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    auto cachedCallbackHost = sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
     std::string bundleName = "test";
 
@@ -1443,30 +1443,30 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     EXPECT_NE(nullptr, switchCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
 #ifdef FEATURE_GNSS_SUPPORT
     auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     EXPECT_NE(nullptr, gnssCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterGnssStatusCallback(gnssCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterGnssStatusCallback(gnssCallbackHost->AsObject()));
     auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     EXPECT_NE(nullptr, nmeaCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
 #endif
     auto countryCodeCallbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterCountryCodeCallback(countryCodeCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterCountryCodeCallback(countryCodeCallbackHost->AsObject()));
 #ifdef FEATURE_GNSS_SUPPORT
     auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     EXPECT_NE(nullptr, cachedLocationsCallbackHost);
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
     EXPECT_NE(nullptr, cachedCallback);
@@ -1573,7 +1573,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
     auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
     // uid pid not match locationhub process
@@ -1596,7 +1596,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     locatorAbility->OnStart();
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(nullptr, SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->RegisterSwitchCallback(switchCallbackHost, SYSTEM_UID));
@@ -1615,7 +1615,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
 
     auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     // uid pid not match locationhub process
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
         locatorAbility->RegisterGnssStatusCallback(nullptr, SYSTEM_UID)); // invalid callback
@@ -1635,7 +1635,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
         locatorAbility->RegisterNmeaMessageCallback(nullptr, SYSTEM_UID)); // invalid callback
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, SYSTEM_UID));
@@ -1886,7 +1886,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceInitSaAbility002, TestSize.Level1)
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     locatorAbility->proxyMap_ = nullptr;
     locatorAbility->InitSaAbility();
-    
+
     locatorAbility->proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     locatorAbility->InitSaAbility();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceInitSaAbility002 end");

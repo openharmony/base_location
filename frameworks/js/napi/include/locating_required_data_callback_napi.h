@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,46 +13,39 @@
  * limitations under the License.
  */
 
-#ifndef CACHED_LOCATIONS_CALLBACK_HOST_H
-#define CACHED_LOCATIONS_CALLBACK_HOST_H
+#ifndef LOCATING_REQUIRED_DATA_CALLBACK_NAPI_H
+#define LOCATING_REQUIRED_DATA_CALLBACK_NAPI_H
 
-#include <vector>
-
+#include "i_locating_required_data_callback.h"
 #include "iremote_stub.h"
-#include "message_option.h"
 #include "message_parcel.h"
-#include "napi_util.h"
+#include "message_option.h"
+#include "common_utils.h"
 #include "napi/native_api.h"
 #include "uv.h"
 
-#include "i_cached_locations_callback.h"
-#include "location.h"
-
 namespace OHOS {
 namespace Location {
-class CachedLocationsCallbackHost : public IRemoteStub<ICachedLocationsCallback> {
+class LocatingRequiredDataCallbackNapi : public IRemoteStub<ILocatingRequiredDataCallback> {
 public:
-    CachedLocationsCallbackHost();
-    virtual ~CachedLocationsCallbackHost();
+    LocatingRequiredDataCallbackNapi();
+    virtual ~LocatingRequiredDataCallbackNapi();
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     bool IsRemoteDied();
-    bool Send(std::vector<std::unique_ptr<Location>>& locations);
-    void OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations) override;
+    bool Send(const std::vector<std::shared_ptr<LocatingRequiredData>>& data);
+    void OnLocatingDataChange(const std::vector<std::shared_ptr<LocatingRequiredData>>& data) override;
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
-
-    template <typename T>
-    bool InitContext(T* context)
-    {
-        if (context == nullptr) {
-            LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
-            return false;
-        }
-        context->env = env_;
-        context->callback[SUCCESS_CALLBACK] = handlerCb_;
-        return true;
-    }
+    bool IsSingleLocationRequest();
+    void CountDown();
+    void Wait(int time);
+    int GetCount();
+    void SetCount(int count);
+    void InitLatch();
+    void ClearSingleResult();
+    void SetSingleResult(
+        std::vector<std::shared_ptr<LocatingRequiredData>> singleResult);
 
     inline napi_env GetEnv() const
     {
@@ -84,12 +77,31 @@ public:
         remoteDied_ = remoteDied;
     }
 
+    inline std::vector<std::shared_ptr<LocatingRequiredData>> GetSingleResult()
+    {
+        std::unique_lock<std::mutex> guard(singleResultMutex_);
+        return singleResult_;
+    }
+
+    inline int GetFixNumber() const
+    {
+        return fixNumber_;
+    }
+
+    inline void SetFixNumber(const int fixNumber)
+    {
+        fixNumber_ = fixNumber;
+    }
 private:
+    int fixNumber_;
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
     std::mutex mutex_;
+    std::mutex singleResultMutex_;
+    CountDownLatch* latch_;
+    std::vector<std::shared_ptr<LocatingRequiredData>> singleResult_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // CACHED_LOCATIONS_CALLBACK_HOST_H
+#endif // LOCATING_REQUIRED_DATA_CALLBACK_NAPI_H

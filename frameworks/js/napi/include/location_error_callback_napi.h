@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,29 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_SWITCH_CALLBACK_HOST_H
-#define LOCATION_SWITCH_CALLBACK_HOST_H
-#include "i_switch_callback.h"
-
+#ifndef LOCATION_ERROR_CALLBACK_NAPI_H
+#define LOCATION_ERROR_CALLBACK_NAPI_H
 #include "iremote_stub.h"
-#include "message_parcel.h"
-#include "message_option.h"
-#include "napi_util.h"
 #include "napi/native_api.h"
 #include "uv.h"
 
+#include "common_utils.h"
+#include "constant_definition.h"
+#include "i_locator_callback.h"
+#include "location.h"
+
 namespace OHOS {
 namespace Location {
-class LocationSwitchCallbackHost : public IRemoteStub<ISwitchCallback> {
+class LocationErrorCallbackNapi : public IRemoteStub<ILocatorCallback> {
 public:
-    LocationSwitchCallbackHost();
-    virtual ~LocationSwitchCallbackHost();
+    LocationErrorCallbackNapi();
+    virtual ~LocationErrorCallbackNapi();
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    bool IsRemoteDied();
+    void OnLocationReport(const std::unique_ptr<Location>& location) override;
+    void OnLocatingStatusChange(const int status) override;
+    void OnErrorReport(const int errorCode) override;
     napi_value PackResult(bool switchState);
     bool Send(int switchState);
-    void OnSwitchChange(int switchState) override;
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
@@ -59,22 +60,11 @@ public:
         handlerCb_ = handlerCb;
     }
 
-    inline bool GetRemoteDied() const
-    {
-        return remoteDied_;
-    }
-
-    inline void SetRemoteDied(const bool remoteDied)
-    {
-        remoteDied_ = remoteDied;
-    }
-
 private:
     napi_env env_;
     napi_ref handlerCb_;
-    bool remoteDied_;
     std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_SWITCH_CALLBACK_HOST_H
+#endif // LOCATION_ERROR_CALLBACK_NAPI_H

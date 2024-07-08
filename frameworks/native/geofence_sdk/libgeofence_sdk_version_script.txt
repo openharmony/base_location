@@ -1,0 +1,36 @@
+{
+  global:
+    "*GeofenceManager*GetInstance*";
+    "*GeofenceManager*AddFenceV9*";
+    "*GeofenceManager*RemoveFenceV9*";
+    "*DoAsyncWork*";
+    "*LocationToJs*";
+    "*JsObjToReverseGeoCodeRequest*";
+    "*GeoAddressesToJsObj*";
+    "*JsObjToGeoCodeRequest*";
+    "*JsObjToCommand*";
+    "*SetEnumPropertyByInteger*";
+    "*CheckIfParamIsFunctionType*";
+    "*JsObjToLocationRequest*";
+    "*JsObjToGeoFenceRequest*";
+    "*GeofenceRequest*";
+    "*JsObjToCachedLocationRequest*";
+    "*JsObjToCurrentLocationRequest*";
+    "*UndefinedNapiValue*";
+    "*CountryCodeToJs*";
+    "*JsObjectToInt*";
+    "*GetLocationArray*";
+    "*JsObjToRevGeocodeMock*";
+    "*LocatingRequiredDataToJsObj*";
+    "*CheckIfParamIsObjectType*";
+    "*JsObjToLocatingRequiredDataConfig*";
+    "*ParseGnssGeofenceRequest*";
+    "*LocationGnssGeofenceCallbackNapi*";
+    "*Unmarshalling*";
+    "*GetErrorMsgByCode*";
+    "*GeofenceManager*GetGeofenceSupportedCoordTypes*";
+    "*GeofenceSdk*";
+    "*LocatorProxy*";
+  local:
+    *;
+};

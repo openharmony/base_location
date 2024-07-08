@@ -13,42 +13,34 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_GNSS_GEOFENCE_CALLBACK_HOST_H
-#define LOCATION_GNSS_GEOFENCE_CALLBACK_HOST_H
+#ifndef NMEA_MESSAGE_CALLBACK_NAPI_H
+#define NMEA_MESSAGE_CALLBACK_NAPI_H
+
+#include <string>
 
 #include "iremote_stub.h"
 #include "message_option.h"
 #include "message_parcel.h"
+#include "napi_util.h"
 #include "napi/native_api.h"
 #include "uv.h"
-#include "common_utils.h"
-#include "i_gnss_geofence_callback.h"
-#include "geofence_definition.h"
+
+#include "i_nmea_message_callback.h"
 
 namespace OHOS {
 namespace Location {
-class LocationGnssGeofenceCallbackHost : public IRemoteStub<IGnssGeofenceCallback> {
+class NmeaMessageCallbackNapi : public IRemoteStub<INmeaMessageCallback> {
 public:
-    LocationGnssGeofenceCallbackHost();
-    virtual ~LocationGnssGeofenceCallbackHost();
+    NmeaMessageCallbackNapi();
+    virtual ~NmeaMessageCallbackNapi();
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     bool IsRemoteDied();
+    bool Send(const std::string msg);
+    napi_value PackResult(const std::string msg);
+    void OnMessageChange(int64_t timestamp, const std::string msg) override;
     void DeleteHandler();
-    void CountDown();
-    void Wait(int time);
-    int GetCount();
-    void SetCount(int count);
-    int GetFenceId();
-    void ClearFenceId();
-    void SetFenceId(int fenceId);
-    LocationErrCode DealGeofenceOperationResult();
-    GnssGeofenceOperateType GetGeofenceOperationType();
-    void SetGeofenceOperationType(GnssGeofenceOperateType type);
-    GnssGeofenceOperateResult GetGeofenceOperationResult();
-    void SetGeofenceOperationResult(GnssGeofenceOperateResult result);
-    void OnTransitionStatusChange(GeofenceTransition transition) override;
-    void OnReportOperationResult(int fenceId, int type, int result) override;
+    void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
     inline napi_env GetEnv() const
     {
@@ -81,19 +73,11 @@ public:
     }
 
 private:
-    void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
-    void InitLatch();
-
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
     std::mutex mutex_;
-    std::mutex operationResultMutex_;
-    CountDownLatch* latch_;
-    int fenceId_;
-    GnssGeofenceOperateType type_;
-    GnssGeofenceOperateResult result_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_GNSS_GEOFENCE_CALLBACK_HOST_H
+#endif // NMEA_MESSAGE_CALLBACK_NAPI_H

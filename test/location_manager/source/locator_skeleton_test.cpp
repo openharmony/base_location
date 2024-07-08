@@ -40,7 +40,7 @@
 #include "locator_skeleton.h"
 #undef private
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 #include "permission_manager.h"
 #include "location_data_rdb_manager.h"
@@ -150,7 +150,7 @@ HWTEST_F(LocatorSkeletonTest, PreStartLocating, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStartLocating begin");
     auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
     MessageParcel data;
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     data.WriteInt32(1);
     data.WriteInt32(1);
     data.WriteInt32(1);
@@ -180,7 +180,7 @@ HWTEST_F(LocatorSkeletonTest, PreStopLocating, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStopLocating begin");
     auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
     MessageParcel data;
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     data.WriteRemoteObject(callback->AsObject());
     MessageParcel reply;
     AppIdentity identity;
@@ -200,7 +200,7 @@ HWTEST_F(LocatorSkeletonTest, PreGetCacheLocation, TestSize.Level1)
         << "LocatorSkeletonTest, PreGetCacheLocation, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreGetCacheLocation begin");
     auto locatorAbilityStub = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     MessageParcel reply;
     MessageParcel data;
     data.WriteInt32(1);
@@ -229,7 +229,7 @@ HWTEST_F(LocatorSkeletonTest, PreEnableAbility, TestSize.Level1)
     MessageParcel reply;
     AppIdentity identity;
     locatorAbilityStub->PreEnableAbility(data, reply, identity);
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     data.WriteBool(true);
     identity.SetPid(1);
     identity.SetUid(2);
@@ -540,7 +540,7 @@ HWTEST_F(LocatorSkeletonTest, PreStartCacheLocating, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     identity.SetPid(1);
     identity.SetUid(2);
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
@@ -569,7 +569,7 @@ HWTEST_F(LocatorSkeletonTest, PreStopCacheLocating, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    auto callback = sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    auto callback = sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     data.WriteInt32(1);
     data.WriteBool(true);
     data.WriteRemoteObject(callback->AsObject());
