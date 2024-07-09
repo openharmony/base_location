@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace Location {
-void OnLocationReport(const std::unique_ptr<Location>& location)
+void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
 }
 

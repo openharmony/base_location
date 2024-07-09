@@ -44,6 +44,7 @@ LocatorCallbackNapi::LocatorCallbackNapi()
     fixNumber_ = 0;
     inHdArea_ = true;
     singleLocation_ = nullptr;
+    locationPriority_ = 0;
     InitLatch();
 }
 
