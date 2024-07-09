@@ -318,7 +318,6 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GNSS, "invalid token.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int ret = ERRCODE_SUCCESS;
@@ -329,7 +328,6 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         ret = (this->*memberFunc)(data, reply, identity);
     } else {
         LBSLOGE(GNSS, "OnReceived cmd = %{public}u, unsupport service.", code);
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     if (!isMessageRequest_) {

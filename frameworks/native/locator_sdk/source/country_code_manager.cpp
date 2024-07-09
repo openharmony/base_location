@@ -274,16 +274,16 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 bool CountryCodeManager::SubscribeSimEvent()
 {
     LBSLOGD(COUNTRY_CODE, "SubscribeSimEvent");
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(SIM_STATE_CHANGE_ACTION);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED);
+    EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::unique_lock<std::mutex> lock(simSubscriberMutex_, std::defer_lock);
     lock.lock();
     if (simSubscriber_ == nullptr) {
         simSubscriber_ = std::make_shared<SimSubscriber>(subscriberInfo);
     }
     lock.unlock();
-    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
+    bool result = EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
     if (!result) {
         LBSLOGE(COUNTRY_CODE, "SubscribeSimEvent failed.");
     }
@@ -293,16 +293,16 @@ bool CountryCodeManager::SubscribeSimEvent()
 bool CountryCodeManager::SubscribeNetworkStatusEvent()
 {
     LBSLOGD(COUNTRY_CODE, "SubscribeNetworkStatusEvent");
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(SEARCH_NET_WORK_STATE_CHANGE_ACTION);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
+    EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::unique_lock<std::mutex> lock(networkSubscriberMutex_, std::defer_lock);
     lock.lock();
     if (networkSubscriber_ == nullptr) {
         networkSubscriber_ = std::make_shared<NetworkSubscriber>(subscriberInfo);
     }
     lock.unlock();
-    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(networkSubscriber_);
+    bool result = EventFwk::CommonEventManager::SubscribeCommonEvent(networkSubscriber_);
     if (!result) {
         LBSLOGE(COUNTRY_CODE, "SubscribeNetworkStatusEvent failed.");
     }
