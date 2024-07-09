@@ -49,7 +49,7 @@ int NetworkCallbackHost::OnRemoteRequest(
             auto errCode = data.ReadInt32();
             auto errMsg = Str16ToStr8(data.ReadString16());
             auto uuid = Str16ToStr8(data.ReadString16());
-            DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationError(errCode, errMsg, uuid);
+            NetworkAbility::GetInstance()->ReportLocationError(errCode, errMsg, uuid);
             break;
         }
         default: {
@@ -64,8 +64,8 @@ void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
 {
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport");
     std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
-    DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
-    DelayedSingleton<NetworkAbility>::GetInstance().get()->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
+    NetworkAbility::GetInstance()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
+    NetworkAbility::GetInstance()->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
     WriteLocationInnerEvent(NETWORK_CALLBACK_LOCATION, {"speed", std::to_string(location->GetSpeed()),
         "accuracy", std::to_string(location->GetAccuracy()),
         "locationTimestamp", std::to_string(location->GetTimeStamp() / MILLI_PER_SEC),

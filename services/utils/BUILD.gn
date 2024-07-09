@@ -1,0 +1,57 @@
+# Copyright (C) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/location/config.gni")
+import("//build/ohos.gni")
+
+ohos_shared_library("lbsresources") {
+  include_dirs = [
+    "$LOCATION_ROOT_DIR/services/utils/inner_api",
+    "$LOCATION_ROOT_DIR/services/utils/resource/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+  ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  sources =
+      [ "$LOCATION_ROOT_DIR/services/utils/resource/source/lbs_resources.cpp" ]
+
+  deps = []
+
+  public_external_deps = [ "hilog:libhilog" ]
+
+  defines = []
+
+  if (i18n_enable) {
+    public_external_deps += [ "i18n:intl_util" ]
+    defines += [ "I18N_ENABLE" ]
+  }
+
+  ldflags = [
+    "-Wl,--as-needed",
+    "-Wl,--gc-sections",
+  ]
+
+  cflags_cc = [
+    "-ffunction-sections",
+    "-fdata-sections",
+  ]
+
+  part_name = "location"
+  subsystem_name = "location"
+}

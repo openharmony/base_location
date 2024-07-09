@@ -19,8 +19,10 @@
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 
 #include <v2_0/ia_gnss_callback.h>
+#ifdef TEL_CORE_SERVICE_ENABLE
 #include "core_service_client.h"
 #include "cell_information.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -31,7 +33,10 @@ using HDI::Location::Agnss::V2_0::SubscriberSetIdType;
 using HDI::Location::Agnss::V2_0::AGnssRefInfo;
 using HDI::Location::Agnss::V2_0::AGnssRefInfoType;
 using HDI::Location::Agnss::V2_0::AGnssUserPlaneProtocol;
+
+#ifdef TEL_CORE_SERVICE_ENABLE
 using OHOS::Telephony::CellInformation;
+#endif
 
 class AGnssEventCallback : public IAGnssCallback {
 public:
@@ -40,10 +45,12 @@ public:
     int32_t RequestSubscriberSetId(SubscriberSetIdType type) override;
     int32_t RequestAgnssRefInfo(AGnssRefInfoType type) override;
 private:
+#ifdef TEL_CORE_SERVICE_ENABLE
     void JudgmentDataGsm(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
     void JudgmentDataUmts(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
     void JudgmentDataLte(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
     void JudgmentDataNr(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem);
+#endif
     __attribute__((no_sanitize("cfi"))) void GetWiFiRefInfo(AGnssRefInfo& refInfo);
     void GetCellRefInfo(AGnssRefInfo& refInfo);
 };

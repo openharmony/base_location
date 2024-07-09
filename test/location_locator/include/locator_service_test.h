@@ -49,9 +49,9 @@ public:
 
     sptr<LocatorProxy> proxy_;
     sptr<ILocatorCallback> callbackStub_;
-    std::shared_ptr<LocatorBackgroundProxy> backgroundProxy_;
+    LocatorBackgroundProxy* backgroundProxy_;
     std::shared_ptr<Request> request_;
-    std::shared_ptr<RequestManager> requestManager_;
+    RequestManager* requestManager_;
     uint64_t tokenId_;
 };
 } // namespace Location

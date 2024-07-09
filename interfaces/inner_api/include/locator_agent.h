@@ -47,8 +47,9 @@ private:
     static inline BrokerDelegator<LocatorAgent> delegator_;
 };
 
-class LocatorAgentManager : DelayedSingleton<LocatorAgentManager> {
+class LocatorAgentManager {
 public:
+    static LocatorAgentManager* GetInstance();
     explicit LocatorAgentManager();
     ~LocatorAgentManager();
 

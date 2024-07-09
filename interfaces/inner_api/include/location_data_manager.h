@@ -22,10 +22,16 @@
 #include "constant_definition.h"
 #include "i_switch_callback.h"
 #include "common_utils.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace Location {
-class LocationDataManager : public DelayedSingleton<LocationDataManager> {
+class DataShareSystemAbilityListener : public SystemAbilityStatusChangeStub {
+public:
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+};
+class LocationDataManager {
 public:
     LocationDataManager();
     ~LocationDataManager();
@@ -34,12 +40,19 @@ public:
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     void SetCachedSwitchState(int32_t state);
     bool IsSwitchStateReg();
+    void ResetIsObserverReg();
+    void RegisterDatashareObserver();
+    static LocationDataManager* GetInstance();
+
 private:
     std::mutex mutex_;
     std::mutex switchStateMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
     int32_t cachedSwitchState_ = DISABLED;
     bool isStateCached_ = false;
+    bool isObserverReg_ = false;
+    sptr<ISystemAbilityStatusChange> saStatusListener_ =
+        sptr<DataShareSystemAbilityListener>(new DataShareSystemAbilityListener());
 };
 }  // namespace Location
 }  // namespace OHOS

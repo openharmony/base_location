@@ -32,14 +32,13 @@ const int32_t LOCATION_APPROXIMATELY_PERM = 3;
 void LocationApproximatelyPermissionTest::SetUp()
 {
     MockNativePermission();
-    reportManager_ = DelayedSingleton<ReportManager>::GetInstance();
+    reportManager_ = ReportManager::GetInstance();
     EXPECT_NE(nullptr, reportManager_);
 }
 
 void LocationApproximatelyPermissionTest::TearDown()
 {
     reportManager_ = nullptr;
-    DelayedSingleton<ReportManager>::DestroyInstance();
 }
 
 void LocationApproximatelyPermissionTest::MockNativePermission()
@@ -84,9 +83,11 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(request, location);
     EXPECT_NE(nullptr, newLocation);
-    EXPECT_EQ(MAX_LATITUDE, newLocation->GetLatitude());
-    EXPECT_EQ(MAX_LONGITUDE, newLocation->GetLongitude());
-    EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    if (newLocation != nullptr) {
+        EXPECT_EQ(MAX_LATITUDE, newLocation->GetLatitude());
+        EXPECT_EQ(MAX_LONGITUDE, newLocation->GetLongitude());
+        EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    }
 }
 
 HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocationTest002, TestSize.Level1)
@@ -110,9 +111,11 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(request, location);
     EXPECT_NE(nullptr, newLocation);
-    EXPECT_EQ(-MAX_LATITUDE, newLocation->GetLatitude());
-    EXPECT_EQ(-MAX_LONGITUDE, newLocation->GetLongitude());
-    EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    if (newLocation != nullptr) {
+        EXPECT_EQ(-MAX_LATITUDE, newLocation->GetLatitude());
+        EXPECT_EQ(-MAX_LONGITUDE, newLocation->GetLongitude());
+        EXPECT_EQ(DEFAULT_APPROXIMATELY_ACCURACY, newLocation->GetAccuracy());
+    }
 }
 }  // namespace Location
 }  // namespace OHOS

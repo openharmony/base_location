@@ -101,5 +101,29 @@ void HookUtils::ExecuteHookWhenReportInnerInfo(
     innerInfo.values = values;
     ExecuteHook(LocationProcessStage::WRITE_DFX_INNER_EVENT_PROCESS, (void *)&innerInfo, nullptr);
 }
+
+bool HookUtils::ExecuteHookWhenAddWorkRecord(bool stillState, bool idleState, std::string abilityName,
+    std::string bundleName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.deviceStillState = stillState;
+    locatorRequestStruct.deviceIdleState = idleState;
+    locatorRequestStruct.abilityName = abilityName;
+    locatorRequestStruct.bundleName = bundleName;
+    locatorRequestStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::ADD_REQUEST_TO_WORK_RECORD, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
+
+bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
+{
+    GnssLocationValidStruct gnssLocationValidStruct;
+    gnssLocationValidStruct.location = *location;
+    gnssLocationValidStruct.result = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
+    return gnssLocationValidStruct.result;
+}
 } // namespace Location
 } // namespace OHOS

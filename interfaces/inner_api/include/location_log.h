@@ -111,6 +111,10 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_GNSS_GEOFENCE_CALLBACK = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "LocationGnssGeofenceCallback"
 };
 static constexpr OHOS::HiviewDFX::HiLogLabel NAPI_UTILS = {LOG_CORE, LOCATION_LOG_DOMAIN, "LocationNapiUtils"};
+static constexpr OHOS::HiviewDFX::HiLogLabel GEOFENCE_SDK = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "geofenceSdk"
+};
+static constexpr OHOS::HiviewDFX::HiLogLabel GEOFENCE_SDK_TEST = {LOG_CORE, LOCATION_LOG_DOMAIN, "GeofenceSdkTest"};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H

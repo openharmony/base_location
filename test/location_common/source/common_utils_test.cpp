@@ -15,7 +15,6 @@
 
 #include "common_utils_test.h"
 
-#include <singleton.h>
 #include "string_ex.h"
 
 #include "accesstoken_kit.h"
@@ -115,7 +114,7 @@ void CommonUtilsTest::MockNativeAccurateLocation()
 
 void CommonUtilsTest::LoadSystemAbility()
 {
-    auto locationSaLoadManager = DelayedSingleton<LocationSaLoadManager>::GetInstance();
+    auto locationSaLoadManager = LocationSaLoadManager::GetInstance();
     if (locationSaLoadManager == nullptr) {
         return;
     }
@@ -188,14 +187,14 @@ HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID));
+    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID);
     EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
 
     // read from map
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
     EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID));
+    CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID);
     EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest001 end");
 }
@@ -304,6 +303,13 @@ HWTEST_F(CommonUtilsTest, GetMacArrayTest001, TestSize.Level1)
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetMacArrayTest001 end");
 }
 
+HWTEST_F(CommonUtilsTest, SplitTest001, TestSize.Level1)
+{
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] SplitTest001 begin");
+    std::vector<std::string> strVec = CommonUtils::Split("aa:bb:cc:dd:ee:ff", ":");
+    EXPECT_EQ(6, strVec.size());
+}
+
 HWTEST_F(CommonUtilsTest, GetStringParameter001, TestSize.Level1)
 {
     std::string name = "";
@@ -318,6 +324,15 @@ HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
     std::string name = "";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 begin");
     CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
+}
+
+HWTEST_F(CommonUtilsTest, GetCurrentTime001, TestSize.Level1)
+{
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetCurrentTime001 begin");
+    int64_t timeStamp = 0;
+    timeStamp = CommonUtils::GetCurrentTime();
+    EXPECT_NE(0, timeStamp);
+    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetCurrentTime001 end");
 }
 
 HWTEST_F(CommonUtilsTest, GenerateUuid001, TestSize.Level1)

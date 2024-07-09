@@ -22,14 +22,10 @@
 
 namespace OHOS {
 namespace Location {
-const std::string LOCATION_DATA_ABILITY_PREFIX = "datashare://";
-const std::string LOCATION_DATA_URI_ID =
-    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=location_enable";
-const std::string LOCATION_DATA_URI = LOCATION_DATA_ABILITY_PREFIX + LOCATION_DATA_URI_ID;
-const std::string LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
-const std::string LOCATION_DATA_COLUMN_VALUE = "VALUE";
 const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
 const std::string LOCATION_WORKING_STATE = "location_working_state";
+const std::string LOCATION_DATA_URI =
+    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=location_enable";
 class LocationDataRdbManager {
 public:
     static std::string GetLocationDataUri(std::string key);
@@ -39,6 +35,9 @@ public:
     static bool GetLocationWorkingState(int32_t& state);
     static int GetSwitchMode();
     static bool SetSwitchMode(int value);
+    static std::string GetLocationDataSecureUri(std::string key);
+    static bool SetLocationEnhanceStatus(int32_t state);
+    static bool GetLocationEnhanceStatus(int32_t& state);
 };
 } // namespace Location
 } // namespace OHOS

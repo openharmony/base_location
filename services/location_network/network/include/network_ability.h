@@ -23,6 +23,7 @@
 #include "ability_connect_callback_interface.h"
 #include "event_handler.h"
 #include "event_runner.h"
+#include "ffrt.h"
 #include "system_ability.h"
 
 #include "common_utils.h"
@@ -34,8 +35,6 @@ namespace OHOS {
 namespace Location {
 static constexpr int REQUEST_NETWORK_LOCATION = 1;
 static constexpr int REMOVE_NETWORK_LOCATION = 2;
-const std::string SERVICE_CONFIG_FILE = "/system/etc/location/location_service.conf";
-const std::string ABILITY_NAME = "LocationServiceAbility";
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
     explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
@@ -43,14 +42,14 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
-class NetworkAbility : public SystemAbility, public NetworkAbilityStub, public SubAbility,
-    DelayedSingleton<NetworkAbility> {
+class NetworkAbility : public SystemAbility, public NetworkAbilityStub, public SubAbility {
 DECLEAR_SYSTEM_ABILITY(NetworkAbility);
 
 public:
     DISALLOW_COPY_AND_MOVE(NetworkAbility);
     NetworkAbility();
     ~NetworkAbility() override;
+    static NetworkAbility* GetInstance();
     void OnStart() override;
     void OnStop() override;
     ServiceRunningState QueryServiceState() const
@@ -85,10 +84,10 @@ private:
     bool RemoveNetworkLocation(WorkRecord &workRecord);
     void RegisterNLPServiceDeathRecipient();
     bool IsConnect();
-    
-    std::mutex mutex_;
+
+    ffrt::mutex mutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
-    std::condition_variable connectCondition_;
+    ffrt::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;

@@ -1,0 +1,27 @@
+{
+  global:
+    "*RequestConfig*";
+    "*LocationSaLoadManager*";
+    "*Unmarshalling*";
+    "*GetLabel*";
+    "*GetCapability*";
+    "*Request*";
+    "*SetLocationWorkingState*";
+    "*LocationDumper*";
+    "*CommonUtils*";
+    "*GeocodingMockInfo*";
+    "*PermissionManager*";
+    "*AppIdentity*";
+    "*QuerySwitchState*";
+    "*WriteLocationInnerEvent*";
+    "*Location*Location*";
+    "*Location*CountDownLatch*";
+    "*Location*GeoAddress*";
+    "*Location*UIExtensionAbilityConnection*";
+    "*Location*WriteGnssStateEvent*";
+    "*Location*SatelliteStatus*";
+    "*Location*WriteAppLocatingStateEvent*";
+    "*ExecuteHookWhenAddWorkRecord*";
+  local:
+    *;
+};

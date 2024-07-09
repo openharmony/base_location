@@ -18,13 +18,33 @@ module_output_path = "location/service"
 if (location_feature_with_geocode) {
   ohos_unittest("GeocodeServiceAbilityTest") {
     module_out_path = module_output_path
-    sources = [ "$LOCATION_ROOT_DIR/test/location_geocode/source/geo_convert_service_test.cpp" ]
+    sources = [
+      "$LOCATION_ROOT_DIR/test/location_geocode/source/geo_convert_callback_host_test.cpp",
+      "$LOCATION_ROOT_DIR/test/location_geocode/source/geo_convert_service_test.cpp",
+    ]
 
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_ROOT_DIR/test/location_geocode/include",
+      "$LOCATION_ROOT_DIR/test/location_geocode/mock/include",
       "$LOCATION_GEOCONVERT_ROOT/include",
       "$LOCATION_LOCATOR_ROOT/include",
+    ]
+
+    deps = [
+      "$ARKUI_ROOT_DIR/napi:ace_napi",
+      "$GOOGLE_TEST_DIR:gmock_main",
+      "$GOOGLE_TEST_DIR:gtest_main",
+      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
+      "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode_static",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
+      "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
+      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+      "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
     ]
 
     sanitize = {
@@ -34,19 +54,6 @@ if (location_feature_with_geocode) {
       blocklist = "./../../cfi_blocklist.txt"
     }
     branch_protector_ret = "pac_ret"
-
-    deps = [
-      "$ARKUI_ROOT_DIR/napi:ace_napi",
-      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
-      "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode",
-      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
-      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
-      "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
-    ]
 
     external_deps = [
       "access_token:libaccesstoken_sdk",

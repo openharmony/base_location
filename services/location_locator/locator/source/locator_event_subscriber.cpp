@@ -16,9 +16,13 @@
 #include "locator_event_subscriber.h"
 #include "location_log.h"
 #include "locator_ability.h"
+#include "location_config_manager.h"
 
 namespace OHOS {
 namespace Location {
+constexpr const char* LOCATOR_STANDBY_NAP = "napped";
+constexpr const char* LOCATOR_STANDBY_SLEEPING = "sleeping";
+
 LocatorEventSubscriber::LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info)
     : CommonEventSubscriber(info) {}
 
@@ -26,15 +30,31 @@ LocatorEventSubscriber::~LocatorEventSubscriber() {}
 
 void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData& event)
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    std::string action = event.GetWant().GetAction();
+    LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
+    if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED.compare(action) == 0) {
+        auto locatorAbility = LocatorAbility::GetInstance();
+        if (locatorAbility == nullptr) {
+            LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
+            return;
+        }
+        const bool napped = event.GetWant().GetBoolParam(LOCATOR_STANDBY_NAP, 0);
+        const bool sleeping = event.GetWant().GetBoolParam(LOCATOR_STANDBY_SLEEPING, 0);
+        LBSLOGD(LOCATOR_EVENT, "device idle napped: %{public}d, sleeping: %{public}d", napped, sleeping);
+        locatorAbility->SyncIdleState(sleeping);
+        return;
+    }
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
         return;
     }
-    std::string action = event.GetWant().GetAction();
-    LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
-    if (MODE_CHANGED_EVENT.compare(action) == 0) {
-        locatorAbility.get()->UpdateSaAbility();
+    if (std::string(MODE_CHANGED_EVENT).compare(action) == 0) {
+        locatorAbility->UpdateSaAbility();
+    } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
+    } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {
+        locatorAbility->EnableAbility(false);
     }
 }
 } // namespace Location

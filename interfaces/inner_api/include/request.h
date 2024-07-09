@@ -52,6 +52,8 @@ public:
     uint32_t GetTokenId();
     uint32_t GetFirstTokenId();
     uint64_t GetTokenIdEx();
+    int GetPermUsedType();
+    void SetPermUsedType(int type);
     void SetTokenId(uint32_t tokenId);
     void SetFirstTokenId(uint32_t firstTokenId);
     void SetTokenIdEx(uint64_t tokenIdEx);
@@ -66,6 +68,8 @@ public:
     void SetNlpRequestType();
     void SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback);
     sptr<ILocatorCallback> GetLocationErrorCallBack();
+    void SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
+    sptr<IRemoteObject::DeathRecipient> GetLocatorCallbackRecipient();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
@@ -85,6 +89,8 @@ private:
     bool isUsingLocationPerm_;
     bool isUsingBackgroundPerm_;
     bool isUsingApproximatelyPerm_;
+    int permUsedType_;
+    sptr<IRemoteObject::DeathRecipient> locatorCallbackRecipient_;
 };
 } // namespace Location
 } // namespace OHOS

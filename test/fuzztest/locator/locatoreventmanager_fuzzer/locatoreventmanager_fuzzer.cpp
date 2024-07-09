@@ -25,7 +25,7 @@ namespace OHOS {
             return true;
         }
         auto locatorDftManager =
-            DelayedSingleton<LocatorDftManager>::GetInstance();
+            LocatorDftManager::GetInstance();
         if (locatorDftManager == nullptr) {
             return false;
         }

@@ -35,10 +35,12 @@ if (location_feature_with_gnss) {
     sources = [ "gnss_fuzzer.cpp" ]
     deps = [
       "$ARKUI_ROOT_DIR/napi:ace_napi",
-      "$LOCATION_GNSS_ROOT:lbsservice_gnss",
-      "$LOCATION_LOCATOR_ROOT:lbsservice_locator",
-      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-      "$LOCATION_ROOT_DIR/frameworks/native:locator_sdk",
+      "$LOCATION_GNSS_ROOT:lbsservice_gnss_static",
+      "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
+      "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
+      "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
+      "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
       "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     ]
     external_deps = [
@@ -49,6 +51,7 @@ if (location_feature_with_gnss) {
       "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
       "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
       "eventhandler:libeventhandler",
+      "ffrt:libffrt",
       "hilog:libhilog",
       "hisysevent:libhisysevent",
       "init:libbegetutil",
@@ -90,6 +93,9 @@ if (location_feature_with_gnss) {
 
     if (location_feature_with_passive) {
       defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    }
+    if (notification_distributed_notification_service_enable) {
+      defines += [ "NOTIFICATION_ENABLE" ]
     }
   }
 } else {

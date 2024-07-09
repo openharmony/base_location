@@ -22,6 +22,7 @@
 #include <singleton.h>
 #include <string>
 
+#include "ffrt.h"
 #include "iremote_object.h"
 
 #include "i_locator_callback.h"
@@ -30,7 +31,7 @@
 
 namespace OHOS {
 namespace Location {
-class RequestManager : public DelayedSingleton<RequestManager> {
+class RequestManager {
 public:
     RequestManager();
     ~RequestManager();
@@ -43,6 +44,10 @@ public:
     void UpdateUsingPermission(std::shared_ptr<Request> request);
     void HandlePermissionChanged(uint32_t tokenId);
     void UpdateLocationErrorCallbackToRequest(sptr<ILocatorCallback> callback, uint32_t tokenId, bool state);
+    void SyncStillMovementState(bool state);
+    void SyncIdleState(bool state);
+    static RequestManager* GetInstance();
+
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void HandleChrEvent(std::list<std::shared_ptr<Request>> requests);
@@ -54,14 +59,18 @@ private:
     bool IsUidInProcessing(int32_t uid);
     void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
-    bool AddRequestToWorkRecord(std::shared_ptr<Request>& request, std::shared_ptr<WorkRecord>& workRecord);
+    bool AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
+        std::shared_ptr<WorkRecord>& workRecord);
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
     void ReportDataToResSched(std::string state, const pid_t uid);
+    void IsStandby();
     std::map<int32_t, int32_t> runningUidMap_;
-    static std::mutex requestMutex_;
-    std::mutex runningUidsMutex_;
-    std::mutex permissionRecordMutex_;
+    static ffrt::mutex requestMutex_;
+    ffrt::mutex runningUidsMutex_;
+    ffrt::mutex permissionRecordMutex_;
+    std::atomic_bool isDeviceIdleMode_;
+    std::atomic_bool isDeviceStillState_;
 };
 } // namespace Location
 } // namespace OHOS

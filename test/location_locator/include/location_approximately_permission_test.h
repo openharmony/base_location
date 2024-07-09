@@ -29,7 +29,7 @@ public:
     void MockNativePermission();
 
     uint64_t tokenId_;
-    std::shared_ptr<ReportManager> reportManager_;
+    ReportManager* reportManager_;
 };
 } // namespace Location
 } // namespace OHOS

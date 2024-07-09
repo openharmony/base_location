@@ -1,0 +1,170 @@
+# Copyright (C) 2022-2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/location/config.gni")
+import("//build/ohos.gni")
+
+################################################################################
+
+config("locator_sdk_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/services/utils/lbsutils/include",
+    "$LOCATION_ROOT_DIR/services/utils/inner_api",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk/include",
+  ]
+}
+
+local_base_sources = [
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/country_code_callback_host.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/country_code_manager.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/location_data_manager.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/location_data_rdb_observer.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/location_switch_callback_host.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/locator.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_callback_host.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_impl.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_proxy.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/switch_callback_proxy.cpp",
+  "$LOCATION_ROOT_DIR/services/utils/lbsutils/source/lbs_res_loader.cpp",
+]
+
+ohos_shared_library("locator_sdk") {
+  install_enable = true
+
+  public_configs = [ ":locator_sdk_config" ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  branch_protector_ret = "pac_ret"
+
+  sources = local_base_sources
+
+  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+
+  public_external_deps = [
+    "ability_runtime:dataobs_manager",
+    "data_share:datashare_consumer",
+    "hilog:libhilog",
+    "init:libbeget_proxy",
+    "ipc:ipc_single",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = []
+
+  if (i18n_enable) {
+    defines += [ "I18N_ENABLE" ]
+  }
+
+  if (telephony_core_service_enable) {
+    public_external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TEL_CORE_SERVICE_ENABLE" ]
+  }
+
+  if (telephony_cellular_data_enable) {
+    public_external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
+  }
+
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
+  cflags_cc = [
+    "-std=c++17",
+    "-fno-rtti",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-flto=thin",
+    "-Os",
+  ]
+
+  ldflags = [
+    "-fPIC",
+    "-Wl,-E",
+    "-Wl,--as-needed",
+    "-Wl,--gc-sections",
+  ]
+
+  # Used to control the export of dynamic library symbols.
+  version_script = "liblocator_sdk_version_script.txt"
+
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "location"
+  subsystem_name = "location"
+}
+
+ohos_static_library("locator_sdk_static") {
+  public_configs = [ ":locator_sdk_config" ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  branch_protector_ret = "pac_ret"
+
+  sources = local_base_sources
+
+  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+
+  public_external_deps = [
+    "ability_runtime:dataobs_manager",
+    "data_share:datashare_consumer",
+    "hilog:libhilog",
+    "init:libbeget_proxy",
+    "ipc:ipc_single",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = []
+
+  if (i18n_enable) {
+    defines += [ "I18N_ENABLE" ]
+  }
+
+  if (telephony_core_service_enable) {
+    public_external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TEL_CORE_SERVICE_ENABLE" ]
+  }
+
+  if (telephony_cellular_data_enable) {
+    public_external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
+  }
+
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
+  cflags_cc = [
+    "-std=c++17",
+    "-fno-rtti",
+  ]
+
+  ldflags = [
+    "-fPIC",
+    "-Wl,-E",
+  ]
+
+  part_name = "location"
+  subsystem_name = "location"
+}

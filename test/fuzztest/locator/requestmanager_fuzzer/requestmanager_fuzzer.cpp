@@ -16,7 +16,7 @@
 #include "requestmanager_fuzzer.h"
 
 #include "i_locator_callback.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "request.h"
 #include "request_config.h"
 #include "request_manager.h"
@@ -26,15 +26,15 @@ namespace OHOS {
     const int MIN_DATA_LEN = 6;
     bool RequestManagerFuzzerTest(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<RequestManager> requestManager =
-            DelayedSingleton<RequestManager>::GetInstance();
+        RequestManager* requestManager =
+            RequestManager::GetInstance();
         if (requestManager == nullptr) {
             return false;
         }
         std::shared_ptr<Request> request = std::make_shared<Request>();
         requestManager->InitSystemListeners();
         auto locatorCallbackHostForTest =
-            sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+            sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
         sptr<ILocatorCallback> locatorCallback =
             sptr<ILocatorCallback>(locatorCallbackHostForTest);
         requestManager->HandleStopLocating(locatorCallback);

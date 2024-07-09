@@ -28,11 +28,13 @@ Request::Request()
     this->firstTokenId_ = 0;
     this->packageName_ = "";
     this->isRequesting_ = false;
+    this->permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
+    nlpRequestType_ = 0;
 }
 
 Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
@@ -44,11 +46,13 @@ Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     this->firstTokenId_ = 0;
     this->packageName_ = "";
     this->isRequesting_ = false;
+    this->permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
+    nlpRequestType_ = 0;
     SetUid(identity.GetUid());
     SetPid(identity.GetPid());
     SetTokenId(identity.GetTokenId());
@@ -115,6 +119,16 @@ void Request::SetTokenId(uint32_t tokenId)
 uint32_t Request::GetTokenId()
 {
     return tokenId_;
+}
+
+int Request::GetPermUsedType()
+{
+    return permUsedType_;
+}
+
+void Request::SetPermUsedType(int type)
+{
+    this->permUsedType_ = type;
 }
 
 void Request::SetTokenIdEx(uint64_t tokenIdEx)
@@ -304,7 +318,7 @@ void Request::SetNlpRequestType()
         requestConfig_->GetScenario() == LOCATION_SCENE_TRANSPORT ||
         requestConfig_->GetPriority() == PRIORITY_ACCURACY ||
         requestConfig_->GetPriority() == PRIORITY_FAST_FIRST_FIX ||
-        requestConfig_->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
+        requestConfig_->GetScenario() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
         requestConfig_->GetPriority() == LOCATION_PRIORITY_ACCURACY) {
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR;
     } else {
@@ -337,5 +351,14 @@ sptr<ILocatorCallback> Request::GetLocationErrorCallBack()
     return locationErrorcallBack_;
 }
 
+void Request::SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient)
+{
+    locatorCallbackRecipient_ = recipient;
+}
+
+sptr<IRemoteObject::DeathRecipient> Request::GetLocatorCallbackRecipient()
+{
+    return locatorCallbackRecipient_;
+}
 } // namespace Location
 } // namespace OHOS

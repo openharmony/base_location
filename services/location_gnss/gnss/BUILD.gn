@@ -14,23 +14,24 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
+local_base_sources = [
+  "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
+  "$LOCATION_GNSS_ROOT/source/agnss_ni_manager.cpp",
+  "$LOCATION_GNSS_ROOT/source/geofence_event_callback.cpp",
+  "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
+  "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
+  "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
+  "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
+  "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
+  "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
+  "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
+  "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
+  "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
+]
+
 if (location_feature_with_gnss) {
   ohos_shared_library("lbsservice_gnss") {
-    sources = [
-      "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
-      "$LOCATION_GNSS_ROOT/source/agnss_ni_manager.cpp",
-      "$LOCATION_GNSS_ROOT/source/geofence_event_callback.cpp",
-      "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
-      "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
-      "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
-      "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
-      "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
-      "$LOCATION_GNSS_ROOT/source/ui_extension_ability_connection.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
-    ]
+    sources = local_base_sources
 
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
@@ -47,17 +48,137 @@ if (location_feature_with_gnss) {
 
     deps = [
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
     ]
 
     external_deps = [
       "ability_base:want",
-      "ability_runtime:ability_connect_callback_stub",
-      "c_utils:utils",
       "eventhandler:libeventhandler",
+      "ffrt:libffrt",
       "hdf_core:libhdi",
       "hilog:libhilog",
-      "init:libbegetutil",
       "ipc:ipc_single",
+      "relational_store:native_rdb",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+    ]
+
+    defines = []
+
+    ldflags = [
+      "-Wl,--as-needed",
+      "-Wl,--gc-sections",
+    ]
+
+    cflags_cc = [
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-flto=thin",
+      "-Os",
+    ]
+
+    if (telephony_core_service_enable) {
+      external_deps += [ "core_service:tel_core_service_api" ]
+      defines += [ "TEL_CORE_SERVICE_ENABLE" ]
+    }
+
+    if (telephony_cellular_data_enable) {
+      external_deps += [ "cellular_data:tel_cellular_data_api" ]
+      defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
+    }
+
+    if (hdf_drivers_interface_location_agnss_enable) {
+      external_deps +=
+          [ "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0" ]
+      defines += [ "HDF_DRIVERS_INTERFACE_AGNSS_ENABLE" ]
+    }
+
+    if (location_feature_with_gnss &&
+        hdf_drivers_interface_location_gnss_enable) {
+      external_deps +=
+          [ "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0" ]
+      defines += [ "FEATURE_GNSS_SUPPORT" ]
+    }
+
+    if (location_feature_with_passive) {
+      defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    }
+
+    if (communication_wifi_enable) {
+      external_deps += [ "wifi:wifi_sdk" ]
+      defines += [ "WIFI_ENABLE" ]
+    }
+
+    if (call_manager_enable) {
+      external_deps += [ "call_manager:tel_call_manager_api" ]
+      defines += [ "CALL_MANAGER_ENABLE" ]
+    }
+
+    if (common_event_service_enable) {
+      external_deps += [
+        "ability_runtime:extension_manager",
+        "common_event_service:cesfwk_innerkits",
+      ]
+      defines += [ "COMMON_EVENT_SERVICE_ENABLE" ]
+    }
+
+    if (sms_mms_enable) {
+      external_deps += [ "sms_mms:tel_sms_mms_api" ]
+      defines += [ "SMS_MMS_ENABLE" ]
+    }
+
+    if (notification_distributed_notification_service_enable) {
+      defines += [ "NOTIFICATION_ENABLE" ]
+    }
+
+    if (hdf_drivers_interface_location_geofence_enable) {
+      external_deps += [
+        "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
+      ]
+      defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
+    }
+
+    if (time_service_enable) {
+      external_deps += [ "time_service:time_client" ]
+      defines += [ "TIME_SERVICE_ENABLE" ]
+    }
+
+    # Used to control the export of dynamic library symbols.
+    version_script = "liblbsservice_gnss_version_script.txt"
+
+    part_name = "location"
+    subsystem_name = "location"
+  }
+
+  ohos_static_library("lbsservice_gnss_static") {
+    sources = local_base_sources
+
+    include_dirs = [
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_GNSS_ROOT/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+    ]
+
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+    branch_protector_ret = "pac_ret"
+
+    deps = [
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+      "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    ]
+
+    external_deps = [
+      "ability_base:want",
+      "eventhandler:libeventhandler",
+      "ffrt:libffrt",
+      "hdf_core:libhdi",
+      "hilog:libhilog",
+      "ipc:ipc_single",
+      "relational_store:native_rdb",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
     ]
@@ -115,7 +236,6 @@ if (location_feature_with_gnss) {
     }
 
     if (notification_distributed_notification_service_enable) {
-      external_deps += [ "distributed_notification_service:ans_innerkits" ]
       defines += [ "NOTIFICATION_ENABLE" ]
     }
 
@@ -124,6 +244,11 @@ if (location_feature_with_gnss) {
         "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
       ]
       defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
+    }
+
+    if (time_service_enable) {
+      external_deps += [ "time_service:time_client" ]
+      defines += [ "TIME_SERVICE_ENABLE" ]
     }
 
     part_name = "location"

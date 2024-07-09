@@ -45,12 +45,18 @@ void DftHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
 }
 
+LocatorDftManager* LocatorDftManager::GetInstance()
+{
+    static LocatorDftManager data;
+    return &data;
+}
+
 LocatorDftManager::LocatorDftManager()
 {
     distributeSissionCnt_ = 0;
     distributeDisconnectCnt_ = 0;
 
-    handler_ = std::make_shared<DftHandler>(AppExecFwk::EventRunner::Create(true));
+    handler_ = std::make_shared<DftHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
 }
 
 LocatorDftManager::~LocatorDftManager() {}

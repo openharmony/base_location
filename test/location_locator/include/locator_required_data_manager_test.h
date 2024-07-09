@@ -20,7 +20,6 @@
 
 #include <map>
 #include <mutex>
-#include <singleton.h>
 #include <string>
 
 #ifdef BLUETOOTH_ENABLE

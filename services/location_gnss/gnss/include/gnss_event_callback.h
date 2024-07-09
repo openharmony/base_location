@@ -36,7 +36,7 @@ public:
     int32_t ReportLocation(const LocationInfo& location) override;
     int32_t ReportGnssWorkingStatus(GnssWorkingStatus status) override;
     int32_t ReportNmea(int64_t timestamp, const std::string& nmea, int32_t length) override;
-    int32_t ReportGnssCapabilities(GnssCapabilities capabilities) override;
+    int32_t ReportGnssCapabilities(unsigned int capabilities) override;
     int32_t ReportSatelliteStatusInfo(const SatelliteStatusInfo& info) override;
     int32_t RequestGnssReferenceInfo(GnssRefInfoType type) override;
     int32_t RequestPredictGnssData() override;

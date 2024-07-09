@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace Location {
-class FusionController : public DelayedSingleton<FusionController> {
+class FusionController {
 public:
     void ActiveFusionStrategies(int type);
     void Process(std::string abilityName);
@@ -33,6 +33,8 @@ public:
         const std::unique_ptr<Location>& networkLocation);
     std::unique_ptr<Location> GetFuseLocation(
         const std::unique_ptr<Location>& location, const sptr<Location>& lastFuseLocation);
+    static FusionController* GetInstance();
+
 private:
 #ifdef FEATURE_NETWORK_SUPPORT
     void RequestQuickFix(bool state);
@@ -41,7 +43,8 @@ private:
         const std::unique_ptr<Location>& lastFuseLocation);
     bool CheckIfLastGnssLocationValid(const std::unique_ptr<Location>& location,
         const std::unique_ptr<Location>& lastFuseLocation);
-
+    bool CheckIfLastRtkLocationValid(const std::unique_ptr<Location>& location,
+        const std::unique_ptr<Location>& lastFuseLocation);
     uint32_t fusedFlag_ = 0;
     bool needReset_ = true;
 };

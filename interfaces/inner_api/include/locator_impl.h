@@ -30,9 +30,7 @@
 #include "locating_required_data_config.h"
 #include "location_data_manager.h"
 #include "system_ability_status_change_stub.h"
-#include "want_agent_helper.h"
 #include "locationhub_ipc_interface_code.h"
-#include "geofence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -266,7 +264,7 @@ public:
      * @return Returns true if the mock location function has been disabled successfully, returns false otherwise.
      */
     bool DisableLocationMock();
-    
+
     /**
      * @brief Set the configuration parameters for location simulation.
      *
@@ -326,7 +324,7 @@ public:
      */
     LocationErrCode StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
         sptr<ILocatorCallback>& callback);
-    
+
     /**
      * @brief Unsubscribe location changed.
      *
@@ -496,22 +494,6 @@ public:
     LocationErrCode SendCommandV9(std::unique_ptr<LocationCommand>& commands);
 
     /**
-     * @brief Add a geofence and subscribe geo fence status changed.
-     *
-     * @param request Indicates the Geofence configuration parameters.
-     * @return Returns ERRCODE_SUCCESS if the fence has been added successfully.
-     */
-    LocationErrCode AddFenceV9(std::shared_ptr<GeofenceRequest>& request);
-
-    /**
-     * @brief Remove a geofence and unsubscribe geo fence status changed.
-     *
-     * @param request Indicates the Geofence configuration parameters.
-     * @return Returns ERRCODE_SUCCESS if the fence has been removed successfully.
-     */
-    LocationErrCode RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request);
-
-    /**
      * @brief Obtain the current country code.
      *
      * @param countryCode the result of the country code
@@ -568,7 +550,7 @@ public:
     /**
      * @brief Used to freeze locating process with specified uid.
      *
-     * @param uid Indicates the calling uid.
+     * @param pidList Indicates the calling pid.
      * @param isProxy Indicates if the locating process should be freezed.
      * @return Returns ERRCODE_SUCCESS if the process has been frozen successfully.
      */
@@ -606,7 +588,7 @@ public:
      * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
      */
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
-    
+
     /**
      * @brief Unsubscribe location errorcode changed.
      *
@@ -626,9 +608,6 @@ public:
     void RemoveSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
     void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
     void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
-    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode GetGeofenceSupportedCoordTypes(std::vector<CoordinateSystemType>& coordinateSystemTypes);
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);
@@ -652,14 +631,13 @@ private:
 
     sptr<LocatorProxy> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
-    std::shared_ptr<LocationDataManager> locationDataManager_ { nullptr };
+    LocationDataManager* locationDataManager_ { nullptr };
     bool isServerExist_ = false;
     bool isCallbackResuming_ = false;
     std::mutex mutex_;
     std::mutex resumeMutex_;
     static std::mutex locatorMutex_;
     static std::shared_ptr<LocatorImpl> instance_;
-    bool isObserverReg_ = false;
     sptr<ISystemAbilityStatusChange> saStatusListener_ =
         sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
 };

@@ -52,7 +52,7 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.L
     GTEST_LOG_(INFO)
         << "LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerInitTest001 begin");
-    EXPECT_EQ(0, LocationConfigManager::GetInstance().Init());
+    EXPECT_EQ(0, LocationConfigManager::GetInstance()->Init());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerInitTest001 end");
 }
 
@@ -62,21 +62,21 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, Tes
         << "LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerSwitchStateTest001 begin");
     EXPECT_EQ(0,
-        LocationConfigManager::GetInstance().SetLocationSwitchState(STATE_CLOSE));
+        LocationConfigManager::GetInstance()->SetLocationSwitchState(STATE_CLOSE));
     EXPECT_EQ(STATE_CLOSE,
-        LocationConfigManager::GetInstance().GetLocationSwitchState());
+        LocationConfigManager::GetInstance()->GetLocationSwitchState());
 
     EXPECT_EQ(0,
-        LocationConfigManager::GetInstance().SetLocationSwitchState(STATE_OPEN));
+        LocationConfigManager::GetInstance()->SetLocationSwitchState(STATE_OPEN));
     EXPECT_EQ(STATE_OPEN,
-        LocationConfigManager::GetInstance().GetLocationSwitchState());
+        LocationConfigManager::GetInstance()->GetLocationSwitchState());
 
     EXPECT_EQ(-1,
-        LocationConfigManager::GetInstance().SetLocationSwitchState(STATE_UNKNOWN));
+        LocationConfigManager::GetInstance()->SetLocationSwitchState(STATE_UNKNOWN));
     EXPECT_EQ(STATE_OPEN,
-        LocationConfigManager::GetInstance().GetLocationSwitchState());
+        LocationConfigManager::GetInstance()->GetLocationSwitchState());
     EXPECT_EQ(true,
-        LocationConfigManager::GetInstance().IsExistFile(GetLocationSwitchConfigPath()));
+        LocationConfigManager::GetInstance()->IsExistFile(GetLocationSwitchConfigPath()));
     remove(GetLocationSwitchConfigPath().c_str());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerSwitchStateTest001 end");
 }
@@ -88,28 +88,28 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 begin");
     bool isConfirmed = false;
     EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true));
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true));
     EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, isConfirmed));
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, isConfirmed));
     
     EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true));
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true));
     EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, isConfirmed));
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, isConfirmed));
     
     EXPECT_EQ(ERRCODE_SUCCESS,
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true));
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true));
     EXPECT_EQ(ERRCODE_SUCCESS,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, isConfirmed));
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, isConfirmed));
     EXPECT_EQ(true, isConfirmed);
     
     EXPECT_EQ(ERRCODE_SUCCESS,
-        LocationConfigManager::GetInstance().SetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, false));
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, false));
     EXPECT_EQ(ERRCODE_SUCCESS,
-        LocationConfigManager::GetInstance().GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, isConfirmed));
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, isConfirmed));
     EXPECT_EQ(false, isConfirmed);
-    remove(LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(PRIVACY_TYPE_STARTUP).c_str());
-    remove(LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(PRIVACY_TYPE_CORE_LOCATION).c_str());
+    remove(LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(PRIVACY_TYPE_STARTUP).c_str());
+    remove(LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(PRIVACY_TYPE_CORE_LOCATION).c_str());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 end");
 }
 
@@ -119,12 +119,12 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerIsExistFileTest001, Tes
         << "LocationConfigManagerTest, LocationConfigManagerIsExistFileTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerIsExistFileTest001 begin");
     EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().IsExistFile("invalid_path"));
+        LocationConfigManager::GetInstance()->IsExistFile("invalid_path"));
     int userId = 0;
     CommonUtils::GetCurrentUserId(userId);
     std::string configPath = LOCATION_DIR + SWITCH_CONFIG_NAME + "_" + std::to_string(userId) + ".conf";
     EXPECT_EQ(false,
-        LocationConfigManager::GetInstance().IsExistFile("/wrongpath" + configPath));
+        LocationConfigManager::GetInstance()->IsExistFile("/wrongpath" + configPath));
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerIsExistFileTest001 end");
 }
 
@@ -133,7 +133,7 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerCreateFileTest001, Test
     GTEST_LOG_(INFO)
         << "LocationConfigManagerTest, LocationConfigManagerCreateFileTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerCreateFileTest001 begin");
-    EXPECT_EQ(true, LocationConfigManager::GetInstance().CreateFile("filename", "filedata"));
+    EXPECT_EQ(true, LocationConfigManager::GetInstance()->CreateFile("filename", "filedata"));
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerCreateFileTest001 end");
 }
 
@@ -142,7 +142,7 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeConfigTest00
     GTEST_LOG_(INFO)
         << "LocationConfigManagerTest, LocationConfigManagerCreateFileTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerCreateFileTest001 begin");
-    EXPECT_NE("", LocationConfigManager::GetInstance().GetPrivacyTypeConfigPath(PRIVACY_TYPE_INVALID_LEFT));
+    EXPECT_NE("", LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(PRIVACY_TYPE_INVALID_LEFT));
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerCreateFileTest001 end");
 }
 
@@ -152,7 +152,7 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerGetAgnssServerAddrTest0
         << "LocationConfigManagerTest, LocationConfigManagerGetAgnssServerAddrTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerAddrTest001 begin");
     std::string addrName;
-    LocationConfigManager::GetInstance().GetAgnssServerAddr(addrName);
+    LocationConfigManager::GetInstance()->GetAgnssServerAddr(addrName);
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerAddrTest001 end");
 }
 
@@ -161,8 +161,55 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerGetAgnssServerPortTest0
     GTEST_LOG_(INFO)
         << "LocationConfigManagerTest, LocationConfigManagerGetAgnssServerPortTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerPortTest001 begin");
-    LocationConfigManager::GetInstance().GetAgnssServerPort();
+    LocationConfigManager::GetInstance()->GetAgnssServerPort();
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerGetAgnssServerPortTest001 end");
+}
+
+HWTEST_F(LocationConfigManagerTest, GenerateStartCommand001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationConfigManagerTest, GenerateStartCommand001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] GenerateStartCommand001 begin");
+    LocationConfigManager::GetInstance()->GenerateStartCommand();
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] GenerateStartCommand001 end");
+}
+
+HWTEST_F(LocationConfigManagerTest, OpenPrivacyDialog001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationConfigManagerTest, OpenPrivacyDialog001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] OpenPrivacyDialog001 begin");
+    LocationConfigManager::GetInstance()->OpenPrivacyDialog();
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] OpenPrivacyDialog001 end");
+}
+
+HWTEST_F(LocationConfigManagerTest, ConnectExtensionAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationConfigManagerTest, ConnectExtensionAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] ConnectExtensionAbility001 begin");
+    AAFwk::Want want;
+    std::string connectStr = LocationConfigManager::GetInstance()->GenerateStartCommand();
+    LocationConfigManager::GetInstance()->ConnectExtensionAbility(want, connectStr);
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] ConnectExtensionAbility001 end");
+}
+
+HWTEST_F(LocationConfigManagerTest, SetCachePrivacyType001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationConfigManagerTest, SetCachePrivacyType001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] SetCachePrivacyType001 begin");
+    LocationConfigManager::GetInstance()->SetCachePrivacyType(111);
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] SetCachePrivacyType001 end");
+}
+
+HWTEST_F(LocationConfigManagerTest, GetCachePrivacyType001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationConfigManagerTest, GetCachePrivacyType001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] GetCachePrivacyType001 begin");
+    LocationConfigManager::GetInstance()->GetCachePrivacyType();
+    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] GetCachePrivacyType001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -37,6 +37,13 @@ static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 static constexpr int GNSS_FIX_CACHED_TIME = 60;
 static constexpr int NLP_FIX_CACHED_TIME = 45;
+
+ReportManager* ReportManager::GetInstance()
+{
+    static ReportManager data;
+    return &data;
+}
+
 ReportManager::ReportManager()
 {
     clock_gettime(CLOCK_REALTIME, &lastUpdateTime_);
@@ -47,13 +54,13 @@ ReportManager::~ReportManager() {}
 
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
-    auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+    auto fusionController = FusionController::GetInstance();
     if (fusionController == nullptr) {
         return false;
     }
     fusionController->FuseResult(abilityName, location);
     UpdateCacheLocation(location, abilityName);
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
@@ -84,7 +91,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        auto requestManger = DelayedSingleton<RequestManager>::GetInstance();
+        auto requestManger = RequestManager::GetInstance();
         if (requestManger != nullptr) {
             requestManger->UpdateRequestRecord(request, false);
         }
@@ -118,20 +125,22 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> fuseLocation;
     std::unique_ptr<Location> finalLocation;
     if (IsRequestFuse(request)) {
-        auto fusionController = DelayedSingleton<FusionController>::GetInstance();
+        auto fusionController = FusionController::GetInstance();
         if (fusionController == nullptr) {
             return false;
         }
         fuseLocation = fusionController->GetFuseLocation(location, request->GetLastLocation());
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
     finalLocation = GetPermittedLocation(request, IsRequestFuse(request) ? fuseLocation : location);
     if (!ResultCheck(finalLocation, request)) {
         // add location permission using record
-        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 0, 1);
+        int permUsedType = request->GetPermUsedType();
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
+            ACCESS_APPROXIMATELY_LOCATION, permUsedType, 0, 1);
         return false;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
@@ -147,7 +156,9 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             request->GetTokenId(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
         // add location permission using record
-        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, 1, 0);
+        int permUsedType = request->GetPermUsedType();
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
+            ACCESS_APPROXIMATELY_LOCATION, permUsedType, 1, 0);
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();
@@ -197,23 +208,22 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         }
         return nullptr;
     }
-    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
-        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-        LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
-        auto locationErrorCallback = request->GetLocationErrorCallBack();
-        if (locationErrorCallback != nullptr) {
-            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
-        }
-        return nullptr;
-    }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
-    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
-        PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+    if (PermissionManager::CheckLocationPermission(tokenId, firstTokenId)) {
+        return finalLocation;
+    }
+    if (PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
         finalLocation = ApproximatelyLocation(location);
+        return finalLocation;
     }
-    return finalLocation;
+    LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
+    auto locationErrorCallback = request->GetLocationErrorCallBack();
+    if (locationErrorCallback != nullptr) {
+        locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
+    }
+    return nullptr;
 }
 
 bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result)
@@ -242,7 +252,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     if (location == nullptr) {
         return false;
     }
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return false;
     }
@@ -288,7 +298,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
 void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (abilityName == GNSS_ABILITY) {
-        if (CommonUtils::CheckGnssLocationValidity(location)) {
+        if (HookUtils::CheckGnssLocationValidity(location)) {
             cacheGnssLocation_ = *location;
             lastLocation_ = *location;
         }
@@ -332,7 +342,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
 
 void ReportManager::UpdateRandom()
 {
-    auto locatorAbility = DelayedSingleton<LocatorAbility>::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return;
     }
@@ -394,16 +404,15 @@ bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
         return false;
     }
     if ((request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
-        request->GetRequestConfig()->GetPriority() == PRIORITY_FAST_FIRST_FIX) ||
-        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_NAVIGATION ||
-        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_SPORT ||
-        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_TRANSPORT ||
-        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_ACCURACY ||
-        request->GetRequestConfig()->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED ||
-        request->GetRequestConfig()->GetPriority() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION) {
-        return true;
+        request->GetRequestConfig()->GetPriority() == PRIORITY_LOW_POWER) ||
+        request->GetRequestConfig()->GetScenario() == SCENE_NO_POWER ||
+        request->GetRequestConfig()->GetScenario() == SCENE_DAILY_LIFE_SERVICE ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_DAILY_LIFE_SERVICE ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_LOW_POWER_CONSUMPTION ||
+        request->GetRequestConfig()->GetScenario() == LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+        return false;
     }
-    return false;
+    return true;
 }
 
 void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request,
@@ -423,7 +432,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
 {
-    auto locatorBackgroundProxy = DelayedSingleton<LocatorBackgroundProxy>::GetInstance().get();
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
         return false;
     }

@@ -15,8 +15,6 @@
 
 #include "fusion_controller_test.h"
 
-#include <singleton.h>
-
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "fusion_controller.h"
@@ -25,19 +23,22 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int UNKNOWN_TYPE = 0;
+const int64_t NANOS_PER_MILLI = 1000000L;
+const int64_t MILLI_PER_SECS = 1000L;
 const uint32_t FUSION_DEFAULT_FLAG = 0;
 const uint32_t FUSION_BASE_FLAG = 1;
 const uint32_t REPORT_FUSED_LOCATION_FLAG = FUSION_BASE_FLAG;
 void FusionControllerTest::SetUp()
 {
-    fusionController_ = DelayedSingleton<FusionController>::GetInstance();
+    fusionController_ = FusionController::GetInstance();
     EXPECT_NE(nullptr, fusionController_);
 }
 
 void FusionControllerTest::TearDown()
 {
+    fusionController_->fusedFlag_ = 0;
+    fusionController_->needReset_ = true;
     fusionController_ = nullptr;
-    DelayedSingleton<FusionController>::DestroyInstance();
 }
 
 HWTEST_F(FusionControllerTest, ActiveFusionStrategies001, TestSize.Level1)
@@ -206,9 +207,43 @@ HWTEST_F(FusionControllerTest, GetFuseLocation001, TestSize.Level1)
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] GetFuseLocation001 begin");
     std::unique_ptr<Location> location = std::make_unique<Location>();
     sptr<Location> lastFuseLocation = new (std::nothrow) Location();
-    
+    location->SetLocationSourceType(LocationSourceType::INDOOR_TYPE);
     EXPECT_NE(nullptr, fusionController_->GetFuseLocation(location, lastFuseLocation));
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] GetFuseLocation001 end");
+}
+
+HWTEST_F(FusionControllerTest, GetFuseLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "FusionControllerTest, GetFuseLocation002, TestSize.Level1";
+    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] GetFuseLocation002 begin");
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    sptr<Location> lastFuseLocation = new (std::nothrow) Location();
+    location->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
+    int64_t seconds1 = 1718276948;
+    int64_t seconds2 = 1718276945;
+    location->SetTimeSinceBoot(seconds1 * MILLI_PER_SECS * NANOS_PER_MILLI);
+    lastFuseLocation->SetLocationSourceType(LocationSourceType::INDOOR_TYPE);
+    lastFuseLocation->SetTimeSinceBoot(seconds2 * MILLI_PER_SECS * NANOS_PER_MILLI);
+    EXPECT_NE(nullptr, fusionController_->GetFuseLocation(location, lastFuseLocation));
+    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] GetFuseLocation002 end");
+}
+
+HWTEST_F(FusionControllerTest, GetFuseLocation003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "FusionControllerTest, GetFuseLocation003, TestSize.Level1";
+    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] GetFuseLocation003 begin");
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    sptr<Location> lastFuseLocation = new (std::nothrow) Location();
+    location->SetLocationSourceType(LocationSourceType::NETWORK_TYPE);
+    int64_t seconds1 = 1718276948;
+    int64_t seconds2 = 1718276945;
+    location->SetTimeSinceBoot(seconds1 * MILLI_PER_SECS * NANOS_PER_MILLI);
+    lastFuseLocation->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
+    lastFuseLocation->SetTimeSinceBoot(seconds2 * MILLI_PER_SECS * NANOS_PER_MILLI);
+    EXPECT_NE(nullptr, fusionController_->GetFuseLocation(location, lastFuseLocation));
+    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] GetFuseLocation003 end");
 }
 } // namespace Location
 } // namespace OHOS

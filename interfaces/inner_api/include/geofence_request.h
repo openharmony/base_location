@@ -19,7 +19,9 @@
 #include <mutex>
 #include <vector>
 #include "geofence_definition.h"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
+#endif
 #include "want_agent_helper.h"
 #include <parcel.h>
 
@@ -48,7 +50,9 @@ public:
         this->SetScenario(geofenceRequest.GetScenario());
         this->SetWantAgent(geofenceRequest.GetWantAgent());
         this->SetGeofenceTransitionEventList(geofenceRequest.GetGeofenceTransitionEventList());
+#ifdef NOTIFICATION_ENABLE
         this->SetNotificationRequestList(geofenceRequest.GetNotificationRequestList());
+#endif
         this->SetGeofenceTransitionCallback(geofenceRequest.GetGeofenceTransitionCallback());
         this->SetFenceId(geofenceRequest.GetFenceId());
         this->SetBundleName(geofenceRequest.GetBundleName());
@@ -106,25 +110,27 @@ public:
         }
     }
 
-    inline std::vector<Notification::NotificationRequest> GetNotificationRequestList()
+#ifdef NOTIFICATION_ENABLE
+    inline std::vector<OHOS::Notification::NotificationRequest> GetNotificationRequestList()
     {
         std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         return notificationRequestList_;
     }
 
-    inline void SetNotificationRequest(Notification::NotificationRequest request)
+    inline void SetNotificationRequest(OHOS::Notification::NotificationRequest request)
     {
         std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         notificationRequestList_.push_back(request);
     }
 
-    inline void SetNotificationRequestList(std::vector<Notification::NotificationRequest> requestList)
+    inline void SetNotificationRequestList(std::vector<OHOS::Notification::NotificationRequest> requestList)
     {
         std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
         for (auto it = requestList.begin(); it != requestList.end(); ++it) {
             notificationRequestList_.push_back(*it);
         }
     }
+#endif
 
     inline void SetGeofenceTransitionCallback(const sptr<IRemoteObject>& callback)
     {
@@ -161,7 +167,9 @@ public:
     static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
 private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
-    std::vector<Notification::NotificationRequest> notificationRequestList_;
+#ifdef NOTIFICATION_ENABLE
+    std::vector<OHOS::Notification::NotificationRequest> notificationRequestList_;
+#endif
     sptr<IRemoteObject> callback_ = nullptr;
     GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;

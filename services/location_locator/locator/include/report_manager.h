@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace Location {
-class ReportManager : public DelayedSingleton<ReportManager>  {
+class ReportManager {
 public:
     ReportManager();
     ~ReportManager();
@@ -44,6 +44,8 @@ public:
     void UpdateLocationByRequest(const uint32_t tokenId, const uint64_t tokenIdEx,
         std::unique_ptr<Location>& location);
     bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid);
+    static ReportManager* GetInstance();
+
 private:
     struct timespec lastUpdateTime_;
     double offsetRandom_;

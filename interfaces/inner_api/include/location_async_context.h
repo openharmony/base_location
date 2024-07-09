@@ -28,15 +28,14 @@
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #include "locating_required_data.h"
-#include "locating_required_data_callback_host.h"
+#include "locating_required_data_callback_napi.h"
 #include "locating_required_data_config.h"
 #include "location.h"
 #include "location_log.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "request_config.h"
 #include "satellite_status.h"
-#include "location_gnss_geofence_callback_host.h"
-#include "geofence_request.h"
+#include "location_gnss_geofence_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
@@ -220,7 +219,7 @@ public:
 class SingleLocationAsyncContext : public AsyncContext {
 public:
     int timeout_;
-    sptr<LocatorCallbackHost> callbackHost_;
+    sptr<LocatorCallbackNapi> callbackHost_;
     std::unique_ptr<RequestConfig> request_;
 
     explicit SingleLocationAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
@@ -261,7 +260,7 @@ public:
 class SingleScanAsyncContext : public AsyncContext {
 public:
     int timeout_;
-    sptr<LocatingRequiredDataCallbackHost> callbackHost_;
+    sptr<LocatingRequiredDataCallbackNapi> callbackHost_;
 
     explicit SingleScanAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(nullptr) {}
@@ -281,23 +280,6 @@ public:
     LocationErrorAsyncContext() = delete;
 
     ~LocationErrorAsyncContext() override {}
-};
-
-class GnssGeofenceAsyncContext : public AsyncContext {
-public:
-    int code_{-1};
-    GeofenceTransition transition_{-1, GEOFENCE_TRANSITION_INIT};
-    sptr<LocationGnssGeofenceCallbackHost> callbackHost_ = nullptr;
-    std::shared_ptr<GeofenceRequest> request_;
-    int fenceId_{-1};
-
-    explicit GnssGeofenceAsyncContext(
-        napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), fenceId_(-1) {}
-
-    GnssGeofenceAsyncContext() = delete;
-
-    ~GnssGeofenceAsyncContext() override {}
 };
 }  // namespace Location
 }  // namespace OHOS

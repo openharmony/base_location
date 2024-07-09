@@ -55,7 +55,7 @@ HWTEST_F(LocatorEventManagerTest, DftHandlerTest002, TestSize.Level1)
         << "LocatorEventManagerTest, DftHandlerTest002, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] DftHandlerTest002 begin");
     std::shared_ptr<DftHandler> dftHandler =
-        std::make_shared<DftHandler>(AppExecFwk::EventRunner::Create(true));
+        std::make_shared<DftHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     EXPECT_NE(nullptr, dftHandler);
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(0, dftHandler, 0);
@@ -69,7 +69,7 @@ HWTEST_F(LocatorEventManagerTest, LocatorDftManagerInitTest001, TestSize.Level1)
         << "LocatorEventManagerTest, LocatorDftManagerInitTest001, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocatorDftManagerInitTest001 begin");
     auto locatorDftManager =
-        DelayedSingleton<LocatorDftManager>::GetInstance();
+        LocatorDftManager::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
     locatorDftManager->Init();
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocatorDftManagerInitTest001 end");
@@ -81,7 +81,7 @@ HWTEST_F(LocatorEventManagerTest, LocatorDftManagerIpcCallingErrTest001, TestSiz
         << "LocatorEventManagerTest, LocatorDftManagerIpcCallingErrTest001, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocatorDftManagerIpcCallingErrTest001 begin");
     auto locatorDftManager =
-        DelayedSingleton<LocatorDftManager>::GetInstance();
+        LocatorDftManager::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
     locatorDftManager->IpcCallingErr(0);
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocatorDftManagerIpcCallingErrTest001 end");
@@ -93,7 +93,7 @@ HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest001, TestSize.Level1)
         << "LocatorEventManagerTest, LocationSessionStartTest001, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocationSessionStartTest001 begin");
     auto locatorDftManager =
-        DelayedSingleton<LocatorDftManager>::GetInstance();
+        LocatorDftManager::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
     locatorDftManager->LocationSessionStart(nullptr);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
@@ -134,7 +134,7 @@ HWTEST_F(LocatorEventManagerTest, LocationSessionStartTest002, TestSize.Level1)
         << "LocatorEventManagerTest, LocationSessionStartTest002, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocationSessionStartTest002 begin");
     auto locatorDftManager =
-        DelayedSingleton<LocatorDftManager>::GetInstance();
+        LocatorDftManager::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
     std::shared_ptr<Request> request1 = std::make_shared<Request>();
     request1->SetUid(1000);
@@ -176,7 +176,7 @@ HWTEST_F(LocatorEventManagerTest, LocatorDftManagerDistributionTest001, TestSize
         << "LocatorEventManagerTest, LocatorDftManagerDistributionTest001, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocatorDftManagerDistributionTest001 begin");
     auto locatorDftManager =
-        DelayedSingleton<LocatorDftManager>::GetInstance();
+        LocatorDftManager::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
     for (uint32_t i = 0; i <= COUNT_MAX; i++) {
         locatorDftManager->DistributionDisconnect();
@@ -193,7 +193,7 @@ HWTEST_F(LocatorEventManagerTest, LocatorDftManagerDistributionTest002, TestSize
         << "LocatorEventManagerTest, LocatorDftManagerDistributionTest002, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] LocatorDftManagerDistributionTest002 begin");
     auto locatorDftManager =
-        DelayedSingleton<LocatorDftManager>::GetInstance();
+        LocatorDftManager::GetInstance();
     EXPECT_NE(nullptr, locatorDftManager);
     locatorDftManager->SendDistributionDailyCount();
     locatorDftManager->SendRequestDailyCount();

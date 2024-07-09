@@ -51,6 +51,7 @@ public:
     virtual LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request) = 0;
     virtual LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes) = 0;
+    virtual LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location) = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
@@ -86,6 +87,7 @@ private:
     int AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int QuerySupportCoordinateSystemTypeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
 private:
     bool isMessageRequest_ = false;
     GnssMsgHandleMap GnssMsgHandleMap_;

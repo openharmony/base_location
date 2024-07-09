@@ -310,6 +310,114 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest016, TestSize.Level1)
         gnssAbilityStub->OnRemoteRequest(UNKNOWN_CODE, parcel, reply, option));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest016 end");
 }
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest017, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest017, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest017 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    ON_CALL(*gnssAbilityStub, AddFence(_)).WillByDefault(Return(ERRCODE_SUCCESS));
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        gnssAbilityStub->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO),
+        parcel, reply, option));
+    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest017 end");
+}
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest018, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest018, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest018 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    ON_CALL(*gnssAbilityStub, RemoveFence(_)).WillByDefault(Return(ERRCODE_SUCCESS));
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        gnssAbilityStub->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO),
+        parcel, reply, option));
+    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest018 end");
+}
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest019, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest019, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest019 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    ON_CALL(*gnssAbilityStub, AddGnssGeofence(_)).WillByDefault(Return(ERRCODE_SUCCESS));
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        gnssAbilityStub->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ADD_GNSS_GEOFENCE),
+        parcel, reply, option));
+    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest019 end");
+}
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest020, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest020, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest020 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    ON_CALL(*gnssAbilityStub, RemoveGnssGeofence(_)).WillByDefault(Return(ERRCODE_SUCCESS));
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        gnssAbilityStub->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE),
+        parcel, reply, option));
+    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest020 end");
+}
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest021, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest021, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest021 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    EXPECT_CALL(*gnssAbilityStub, QuerySupportCoordinateSystemType(_)).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(ERRCODE_SUCCESS, gnssAbilityStub->OnRemoteRequest(
+        static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE),
+        parcel, reply, option));
+    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest021 end");
+}
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest022, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest022, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest022 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    ON_CALL(*gnssAbilityStub, SendNetworkLocation(_)).WillByDefault(Return(ERRCODE_SUCCESS));
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(ERRCODE_SUCCESS,
+        gnssAbilityStub->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION),
+        parcel, reply, option));
+    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest022 end");
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT

@@ -13,6 +13,37 @@
 
 import("//base/location/config.gni")
 import("//build/ohos.gni")
+
+local_base_sources = [
+  "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/country_code_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/locating_required_data_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/location_gnss_geofence_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/locator_msdp_state_change_cb.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/location_config_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_ability.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_background_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_subscriber.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_msdp_monitor_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_required_data_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_skeleton.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/work_record_statistic.cpp",
+]
+
 ohos_shared_library("lbsservice_locator") {
   sanitize = {
     cfi = true
@@ -21,33 +52,7 @@ ohos_shared_library("lbsservice_locator") {
   }
   branch_protector_ret = "pac_ret"
 
-  sources = [
-    "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/country_code_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/locating_required_data_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/location_gnss_geofence_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/location_config_manager.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/locator_ability.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/locator_background_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_manager.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_subscriber.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/locator_required_data_manager.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/locator_skeleton.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
-    "$SUBSYSTEM_DIR/location_locator/locator/source/work_record_statistic.cpp",
-  ]
+  sources = local_base_sources
 
   include_dirs = [
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
@@ -59,21 +64,138 @@ ohos_shared_library("lbsservice_locator") {
     "$SUBSYSTEM_DIR/location_passive/passive/include",
   ]
 
-  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+  ]
 
   external_deps = [
     "ability_base:want",
-    "ability_base:zuri",
     "ability_runtime:app_manager",
-    "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
-    "init:libbegetutil",
+    "ipc:ipc_single",
+    "os_account:os_account_innerkits",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = []
+
+  ldflags = [
+    "-Wl,--as-needed",
+    "-Wl,--gc-sections",
+  ]
+
+  cflags_cc = [
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-flto=thin",
+    "-Os",
+  ]
+
+  if (communication_wifi_enable) {
+    external_deps += [ "wifi:wifi_sdk" ]
+    defines += [ "WIFI_ENABLE" ]
+  }
+
+  if (communication_bluetooth_enable) {
+    external_deps += [ "bluetooth:btframework" ]
+    defines += [ "BLUETOOTH_ENABLE" ]
+  }
+
+  if (location_feature_with_geocode) {
+    defines += [ "FEATURE_GEOCODE_SUPPORT" ]
+  }
+
+  if (location_feature_with_gnss) {
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
+
+  if (location_feature_with_network) {
+    defines += [ "FEATURE_NETWORK_SUPPORT" ]
+  }
+
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+  }
+
+  if (resourceschedule_background_task_mgr_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+    defines += [ "BGTASKMGR_SUPPORT" ]
+  }
+
+  if (is_emulator) {
+    defines += [ "EMULATOR_ENABLED" ]
+  }
+
+  if (ability_form_fwk_enable) {
+    external_deps += [ "form_fwk:fmskit_native" ]
+    defines += [ "FMSKIT_NATIVE_SUPPORT" ]
+  }
+
+  if (resourceschedule_schedule_service_enable) {
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+    defines += [ "RES_SCHED_SUPPROT" ]
+  }
+
+  if (notification_distributed_notification_service_enable) {
+    defines += [ "NOTIFICATION_ENABLE" ]
+  }
+
+  if (movement_client_enable) {
+    external_deps += [ "movement:movement_client" ]
+    defines += [ "MOVEMENT_CLIENT_ENABLE" ]
+  }
+
+  if (location_device_standby_enable) {
+    external_deps += [ "device_standby:standby_innerkits" ]
+    defines += [ "DEVICE_STANDBY_ENABLE" ]
+  }
+
+  # Used to control the export of dynamic library symbols.
+  version_script = "liblbsservice_locator_version_script.txt"
+
+  part_name = "location"
+  subsystem_name = "location"
+}
+
+ohos_static_library("lbsservice_locator_static") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  sources = local_base_sources
+
+  include_dirs = [
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+    "$SUBSYSTEM_DIR/location_geocode/geocode/include",
+    "$SUBSYSTEM_DIR/location_gnss/gnss/include",
+    "$SUBSYSTEM_DIR/location_locator/callback/include",
+    "$SUBSYSTEM_DIR/location_locator/locator/include",
+    "$SUBSYSTEM_DIR/location_network/network/include",
+    "$SUBSYSTEM_DIR/location_passive/passive/include",
+  ]
+
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libprivacy_sdk",
+    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
+    "hilog:libhilog",
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
@@ -124,6 +246,20 @@ ohos_shared_library("lbsservice_locator") {
   if (resourceschedule_schedule_service_enable) {
     external_deps += [ "resource_schedule_service:ressched_client" ]
     defines += [ "RES_SCHED_SUPPROT" ]
+  }
+
+  if (notification_distributed_notification_service_enable) {
+    defines += [ "NOTIFICATION_ENABLE" ]
+  }
+
+  if (movement_client_enable) {
+    external_deps += [ "movement:movement_client" ]
+    defines += [ "MOVEMENT_CLIENT_ENABLE" ]
+  }
+
+  if (location_device_standby_enable) {
+    external_deps += [ "device_standby:standby_innerkits" ]
+    defines += [ "DEVICE_STANDBY_ENABLE" ]
   }
 
   part_name = "location"

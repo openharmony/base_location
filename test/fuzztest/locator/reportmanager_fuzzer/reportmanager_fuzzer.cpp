@@ -17,7 +17,7 @@
 
 #include "i_locator_callback.h"
 #include "location.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "report_manager.h"
 #include "request.h"
 
@@ -29,15 +29,15 @@ namespace OHOS {
         if (size < MIN_DATA_LEN) {
             return true;
         }
-        std::shared_ptr<ReportManager> reportManager =
-            DelayedSingleton<ReportManager>::GetInstance();
+        auto reportManager =
+            ReportManager::GetInstance();
         if (reportManager == nullptr) {
             return false;
         }
         std::unique_ptr<OHOS::Location::Location> location =
             std::make_unique<OHOS::Location::Location>();
         auto locatorCallbackHostForTest =
-            sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+            sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
         sptr<ILocatorCallback> locatorCallback =
             sptr<ILocatorCallback>(locatorCallbackHostForTest);
         int index = 0;

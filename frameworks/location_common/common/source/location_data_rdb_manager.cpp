@@ -24,6 +24,7 @@ const int DEFAULT_USERID = 100;
 const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
 const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
+const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 
 std::string LocationDataRdbManager::GetLocationDataUri(std::string key)
 {
@@ -37,11 +38,23 @@ std::string LocationDataRdbManager::GetLocationDataUri(std::string key)
     return uri;
 }
 
+std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
+{
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_" +
+        std::to_string(userId) +
+        "?Proxy=true&key=" + key;
+    return uri;
+}
+
 int LocationDataRdbManager::QuerySwitchState()
 {
     int32_t state = DISABLED;
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
@@ -53,14 +66,14 @@ int LocationDataRdbManager::QuerySwitchState()
 LocationErrCode LocationDataRdbManager::SetSwitchState(int modeValue)
 {
     Uri locationDataEnableUri(LOCATION_DATA_URI);
-    return DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    return LocationDataRdbHelper::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
 }
 
 bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 {
     Uri locationWorkingStateUri(GetLocationDataUri(LOCATION_WORKING_STATE));
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         SetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: can not set value to db, errcode = %{public}d", __func__, errCode);
@@ -72,7 +85,7 @@ bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 bool LocationDataRdbManager::GetLocationWorkingState(int32_t& state)
 {
     Uri locationWorkingStateUri(GetLocationDataUri(LOCATION_WORKING_STATE));
-    LocationErrCode errCode = DelayedSingleton<LocationDataRdbHelper>::GetInstance()->
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: can not get value, errcode = %{public}d", __func__, errCode);
@@ -110,6 +123,32 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
     int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
+        return false;
+    }
+    return true;
+}
+
+bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)
+{
+    Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        SetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not set value, key = %{public}s, errcode = %{public}d", LOCATION_ENHANCE_STATUS.c_str(), errCode);
+        return false;
+    }
+    return true;
+}
+
+bool LocationDataRdbManager::GetLocationEnhanceStatus(int32_t& state)
+{
+    Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        GetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not get value, key = %{public}s, errcode = %{public}d", LOCATION_ENHANCE_STATUS.c_str(), errCode);
         return false;
     }
     return true;

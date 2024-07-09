@@ -17,11 +17,15 @@
 #include "location_log.h"
 #include "location_napi_errcode.h"
 #include "constant_definition.h"
+#include "geofence_sdk.h"
+#include "geofence_napi.h"
+#include "geofence_async_context.h"
 
 namespace OHOS {
 namespace Location {
 auto g_locatorClient = Locator::GetInstance();
-std::map<int, sptr<LocationGnssGeofenceCallbackHost>> g_gnssGeofenceCallbackHostMap;
+auto g_geofenceClient = GeofenceManager::GetInstance();
+std::map<int, sptr<LocationGnssGeofenceCallbackNapi>> g_gnssGeofenceCallbackHostMap;
 std::mutex g_gnssGeofenceCallbackHostMutex;
 
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
@@ -938,10 +942,10 @@ LocationErrCode CheckLocationSwitchState()
     return ERRCODE_SUCCESS;
 }
 
-sptr<LocatingRequiredDataCallbackHost> CreateSingleCallbackHost()
+sptr<LocatingRequiredDataCallbackNapi> CreateSingleCallbackHost()
 {
     auto callbackHost =
-        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
     if (callbackHost) {
         callbackHost->SetFixNumber(1);
     }
@@ -949,7 +953,7 @@ sptr<LocatingRequiredDataCallbackHost> CreateSingleCallbackHost()
 }
 
 SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
-    std::unique_ptr<LocatingRequiredDataConfig>& config, sptr<LocatingRequiredDataCallbackHost> callback)
+    std::unique_ptr<LocatingRequiredDataConfig>& config, sptr<LocatingRequiredDataCallbackNapi> callback)
 {
     auto asyncContext = new (std::nothrow) SingleScanAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
@@ -980,7 +984,7 @@ SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
             return;
         }
         auto context = static_cast<SingleScanAsyncContext*>(data);
-        
+
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
             std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
@@ -1056,9 +1060,13 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
-    ParseGnssGeofenceRequest(env, argv[0], gnssGeofenceRequest);
+    bool isValidParameter = ParseGnssGeofenceRequest(env, argv[0], gnssGeofenceRequest);
+    if (!isValidParameter) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
     auto locationGnssGeofenceCallbackHost =
-        sptr<LocationGnssGeofenceCallbackHost>(new (std::nothrow) LocationGnssGeofenceCallbackHost());
+        sptr<LocationGnssGeofenceCallbackNapi>(new (std::nothrow) LocationGnssGeofenceCallbackNapi());
     JsObjToGeofenceTransitionCallback(env, argv[0], locationGnssGeofenceCallbackHost);
     auto callbackPtr = sptr<IGnssGeofenceCallback>(locationGnssGeofenceCallbackHost);
     gnssGeofenceRequest->SetGeofenceTransitionCallback(callbackPtr->AsObject());
@@ -1072,7 +1080,7 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
 }
 
 GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& env,
-    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackHost> callback)
+    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackNapi> callback)
 {
     auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
@@ -1088,7 +1096,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
         auto gnssGeofenceRequest = context->request_;
         if (callbackHost != nullptr || gnssGeofenceRequest != nullptr) {
             auto callbackPtr = sptr<IGnssGeofenceCallback>(callbackHost);
-            auto errCode = g_locatorClient->AddGnssGeofence(gnssGeofenceRequest);
+            auto errCode = g_geofenceClient->AddGnssGeofence(gnssGeofenceRequest);
             if (errCode != ERRCODE_SUCCESS) {
                 context->errCode = errCode;
                 callbackHost->SetCount(0);
@@ -1165,7 +1173,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
         request->SetFenceId(context->fenceId_);
-        context->errCode = g_locatorClient->RemoveGnssGeofence(request);
+        context->errCode = g_geofenceClient->RemoveGnssGeofence(request);
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
             if (context->errCode != ERRCODE_SUCCESS) {
@@ -1191,13 +1199,11 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
             if (errCode == ERRCODE_SUCCESS) {
                 NAPI_CALL_RETURN_VOID(
                     context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+                RemoveCallbackToGnssGeofenceCallbackHostMap(context->fenceId_);
             } else {
                 context->errCode = errCode;
             }
-        } else {
-            context->errCode = ERRCODE_GEOFENCE_INCORRECT_ID;
         }
-        RemoveCallbackToGnssGeofenceCallbackHostMap(context->fenceId_);
         LBSLOGD(LOCATOR_STANDARD, "Push RemoveGnssGeofence result to client");
     };
     return asyncContext;
@@ -1213,7 +1219,7 @@ napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     std::vector<CoordinateSystemType> coordinateSystemTypes;
     LocationErrCode errorCode =
-        g_locatorClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
+        g_geofenceClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
@@ -1231,7 +1237,7 @@ napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
     return res;
 }
 
-void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackHost> callbackHost)
+void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackNapi> callbackHost)
 {
     std::unique_lock<std::mutex> lock(g_gnssGeofenceCallbackHostMutex);
     g_gnssGeofenceCallbackHostMap.insert(std::make_pair(fenceId, callbackHost));
@@ -1246,7 +1252,7 @@ void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId)
     }
 }
 
-sptr<LocationGnssGeofenceCallbackHost> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId)
+sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId)
 {
     std::unique_lock<std::mutex> lock(g_gnssGeofenceCallbackHostMutex);
     auto iter = g_gnssGeofenceCallbackHostMap.find(fenceId);

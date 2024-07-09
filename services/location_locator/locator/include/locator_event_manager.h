@@ -59,8 +59,9 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
-class LocatorDftManager : DelayedSingleton<LocatorDftManager> {
+class LocatorDftManager {
 public:
+    static LocatorDftManager* GetInstance();
     LocatorDftManager();
     ~LocatorDftManager();
     void Init();

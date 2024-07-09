@@ -33,14 +33,17 @@
 #include "geo_coding_mock_info.h"
 #include "geo_convert_callback_host.h"
 #include "geo_convert_skeleton.h"
+#include "ability_connect_callback_interface.h"
 
 namespace OHOS {
 namespace Location {
-class GeoConvertService : public SystemAbility, public GeoConvertServiceStub, DelayedSingleton<GeoConvertService> {
+class GeoConvertService : public SystemAbility, public GeoConvertServiceStub {
 DECLEAR_SYSTEM_ABILITY(GeoConvertService);
 
 public:
     DISALLOW_COPY_AND_MOVE(GeoConvertService);
+    static GeoConvertService* GetInstance();
+
     GeoConvertService();
     ~GeoConvertService() override;
     void OnStart() override;
@@ -85,6 +88,7 @@ private:
     std::mutex mutex_;
     sptr<IRemoteObject> serviceProxy_ = nullptr;
     std::condition_variable connectCondition_;
+    sptr<AAFwk::IAbilityConnection> conn_;
 };
 
 class GeoServiceDeathRecipient : public IRemoteObject::DeathRecipient {

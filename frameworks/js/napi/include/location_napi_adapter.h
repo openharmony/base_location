@@ -21,7 +21,8 @@
 #include "napi_util.h"
 #include "geofence_request.h"
 #include "constant_definition.h"
-#include "location_gnss_geofence_callback_host.h"
+#include "location_gnss_geofence_callback_napi.h"
+#include "geofence_async_context.h"
 
 namespace OHOS {
 namespace Location {
@@ -51,13 +52,13 @@ LocationErrCode CheckLocationSwitchState();
 napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info);
 napi_value AddGnssGeofence(napi_env env, napi_callback_info info);
 GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& env,
-    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackHost> callback);
+    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackNapi> callback);
 napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info);
 GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env& env, int fenceId);
 napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info);
-void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackHost> callbackHost);
+void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
 void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId);
-sptr<LocationGnssGeofenceCallbackHost> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId);
+sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId);
 #endif
 }  // namespace Location
 }  // namespace OHOS
