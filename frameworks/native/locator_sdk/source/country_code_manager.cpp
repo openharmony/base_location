@@ -275,7 +275,7 @@ bool CountryCodeManager::SubscribeSimEvent()
 {
     LBSLOGD(COUNTRY_CODE, "SubscribeSimEvent");
     EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGE);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED);
     EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::unique_lock<std::mutex> lock(simSubscriberMutex_, std::defer_lock);
     lock.lock();
@@ -283,7 +283,7 @@ bool CountryCodeManager::SubscribeSimEvent()
         simSubscriber_ = std::make_shared<SimSubscriber>(subscriberInfo);
     }
     lock.unlock();
-    bool result =EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
+    bool result = EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
     if (!result) {
         LBSLOGE(COUNTRY_CODE, "SubscribeSimEvent failed.");
     }
@@ -294,7 +294,7 @@ bool CountryCodeManager::SubscribeNetworkStatusEvent()
 {
     LBSLOGD(COUNTRY_CODE, "SubscribeNetworkStatusEvent");
     EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGE);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
     EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::unique_lock<std::mutex> lock(networkSubscriberMutex_, std::defer_lock);
     lock.lock();
