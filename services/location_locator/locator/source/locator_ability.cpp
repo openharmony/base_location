@@ -1050,8 +1050,8 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
 
 bool LocatorAbility::CheckIsReportPermitted(AppIdentity &identity)
 {
-    auto requests = GetRequests();
-    if (requests == nullptr || requests->empty()) {
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
+    if (requests_ == nullptr || requests_->empty()) {
         LBSLOGE(LOCATOR, "requests map is empty");
         return false;
     }
@@ -1059,7 +1059,7 @@ bool LocatorAbility::CheckIsReportPermitted(AppIdentity &identity)
     bool isPermitted = true;
     int switchState = DISABLED;
     GetSwitchState(switchState);
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
+    for (auto mapIter = requests_->begin(); mapIter != requests_->end(); mapIter++) {
         auto list = mapIter->second;
         for (auto request : list) {
             if (request == nullptr || request->GetTokenId() != identity.GetTokenId()) {
