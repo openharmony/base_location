@@ -24,6 +24,8 @@ namespace OHOS {
 namespace Location {
 class LocationSwitchCallbackHost : public IRemoteStub<ISwitchCallback> {
 public:
+    virtual int OnRemoteRequest(
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void OnSwitchChange(int switchState) override;
 };
 } // namespace Location

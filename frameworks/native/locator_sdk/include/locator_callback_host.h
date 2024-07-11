@@ -23,6 +23,8 @@ namespace OHOS {
 namespace Location {
 class LocatorCallbackHost : public IRemoteStub<ILocatorCallback> {
 public:
+    virtual int OnRemoteRequest(uint32_t code,
+        MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void OnLocationReport(const std::unique_ptr<Location>& location) override;
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;

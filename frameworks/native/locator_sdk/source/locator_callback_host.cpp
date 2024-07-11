@@ -14,9 +14,43 @@
  */
 
 #include "locator_callback_host.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {
+int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
+    MessageParcel& data, MessageParcel& reply, MessageOption& option)
+{
+    LBSLOGD(LOCATOR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest!");
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
+        return -1;
+    }
+
+    switch (code) {
+        case RECEIVE_LOCATION_INFO_EVENT: {
+            std::unique_ptr<Location> location = Location::Unmarshalling(data);
+            OnLocationReport(location);
+            break;
+        }
+        case RECEIVE_LOCATION_STATUS_EVENT: {
+            int status = data.ReadInt32();
+            OnLocatingStatusChange(status);
+            break;
+        }
+        case RECEIVE_ERROR_INFO_EVENT: {
+            int errorCode = data.ReadInt32();
+            LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive ERROR_EVENT. errorCode:%{public}d", errorCode);
+            OnErrorReport(errorCode);
+            break;
+        }
+        default: {
+            IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+            break;
+        }
+    }
+    return 0;
+}
 void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
 }

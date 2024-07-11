@@ -24,6 +24,8 @@ namespace OHOS {
 namespace Location {
 class CountryCodeCallbackHost : public IRemoteStub<ICountryCodeCallback> {
 public:
+    virtual int OnRemoteRequest(uint32_t code,
+        MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void OnCountryCodeChange(const std::shared_ptr<CountryCode>& country) override;
 };
 } // namespace Location
