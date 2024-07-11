@@ -259,4 +259,9 @@ if (location_feature_with_gnss) {
     part_name = "location"
     subsystem_name = "location"
   }
+
+  ohos_static_library("lbsservice_gnss_static") {
+    part_name = "location"
+    subsystem_name = "location"
+  }
 }
