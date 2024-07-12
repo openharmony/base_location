@@ -25,6 +25,10 @@
 #include "common_hisysevent.h"
 #include "agnss_ni_manager.h"
 
+#ifdef TIME_SERVICE_ENABLE
+#include "ntp_time_check.h"
+#include "time_service_client.h"
+#endif
 namespace OHOS {
 namespace Location {
 using namespace OHOS::HiviewDFX;
@@ -36,6 +40,17 @@ const int ELEVATION_DEGREES = 90;
 bool g_hasLocation = false;
 bool g_svIncrease = false;
 std::unique_ptr<SatelliteStatus> g_svInfo = nullptr;
+
+static void SetGpsTime(int64_t gpsTime)
+{
+#ifdef TIME_SERVICE_ENABLE
+    auto ntpTimeCheck = NtpTimeCheck::GetInstance();
+    if (ntpTimeCheck != nullptr) {
+        auto elapsedRealTime = MiscServices::TimeServiceClient::GetInstance()->GetBootTimeMs();
+        ntpTimeCheck->SetGpsTime(gpsTime, elapsedRealTime);
+    }
+#endif
+}
 
 int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 {
@@ -80,6 +95,7 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 #ifdef FEATURE_PASSIVE_SUPPORT
     gnssAbility->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
 #endif
+    SetGpsTime(locationNew->GetTimeStamp());
     IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;
 }
