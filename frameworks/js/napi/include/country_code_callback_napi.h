@@ -21,6 +21,7 @@
 #include "napi/native_api.h"
 #include "uv.h"
 #include "country_code.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {
@@ -36,10 +37,25 @@ public:
     void SetCallback(napi_ref cb);
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
+
+    template <typename T>
+    bool InitContext(T* context)
+    {
+        if (context == nullptr) {
+            LBSLOGE(COUNTRY_CODE_CALLBACK, "context == nullptr.");
+            return false;
+        }
+        context->env = env_;
+        callbackValid_ = handlerCb_ == nullptr ? false : true;
+        context->callbackValid = &callbackValid_;
+        context->callback[SUCCESS_CALLBACK] = handlerCb_;
+        return true;
+    }
 private:
     napi_env env_;
     napi_ref handlerCb_;
     std::mutex mutex_;
+    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS

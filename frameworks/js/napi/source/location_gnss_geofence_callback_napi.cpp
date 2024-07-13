@@ -34,6 +34,7 @@ LocationGnssGeofenceCallbackNapi::LocationGnssGeofenceCallbackNapi()
     fenceId_ = -1;
     type_ = GNSS_GEOFENCE_OPT_TYPE_ADD;
     result_ = GNSS_GEOFENCE_OPERATION_SUCCESS;
+    callbackValid_ = false;
     InitLatch();
 }
 
@@ -98,6 +99,10 @@ void LocationGnssGeofenceCallbackNapi::OnTransitionStatusChange(
         LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "loop == nullptr.");
         return;
     }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "handler is nullptr.");
+        return;
+    }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "work == nullptr.");
@@ -109,8 +114,10 @@ void LocationGnssGeofenceCallbackNapi::OnTransitionStatusChange(
         delete work;
         return;
     }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (!InitContext(context)) {
+        LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "InitContext fail");
+        return;
+    }
     context->transition_ = transition;
     work->data = context;
     UvQueueWork(loop, work);
@@ -148,7 +155,7 @@ void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 return;
             }
             context = static_cast<GnssGeofenceAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr) {
+            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
                 LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -166,7 +173,7 @@ void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &jsEvent[PARAM0]),
                 scope, context, work);
             GeofenceTransitionToJs(context->env, context->transition_, jsEvent[PARAM1]);
-            if (context->callback[SUCCESS_CALLBACK] != nullptr) {
+            if (context->callback[SUCCESS_CALLBACK] != nullptr && *(context->callbackValid)) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -192,15 +199,9 @@ void LocationGnssGeofenceCallbackNapi::DeleteHandler()
         LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    auto context = new (std::nothrow) AsyncContext(env_);
-    if (context == nullptr) {
-        LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "context == nullptr.");
-        return;
-    }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    DeleteQueueWork(context);
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
+    callbackValid_ = false;
 }
 
 void LocationGnssGeofenceCallbackNapi::CountDown()

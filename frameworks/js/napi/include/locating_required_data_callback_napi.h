@@ -46,6 +46,20 @@ public:
     void ClearSingleResult();
     void SetSingleResult(
         std::vector<std::shared_ptr<LocatingRequiredData>> singleResult);
+    
+    template <typename T>
+    bool InitContext(T* context)
+    {
+        if (context == nullptr) {
+            LBSLOGE(LOCATING_DATA_CALLBACK, "context == nullptr.");
+            return false;
+        }
+        context->env = env_;
+        callbackValid_ = handlerCb_ == nullptr ? false : true;
+        context->callbackValid = &callbackValid_;
+        context->callback[SUCCESS_CALLBACK] = handlerCb_;
+        return true;
+    }
 
     inline napi_env GetEnv() const
     {
@@ -93,6 +107,7 @@ public:
         fixNumber_ = fixNumber;
     }
 private:
+    bool callbackValid_;
     int fixNumber_;
     napi_env env_;
     napi_ref handlerCb_;
