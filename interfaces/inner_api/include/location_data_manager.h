@@ -47,7 +47,7 @@ public:
 private:
     std::mutex mutex_;
     std::mutex switchStateMutex_;
-    std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
+    std::vector<sptr<ISwitchCallback>> switchCallbacks_;
     int32_t cachedSwitchState_ = DISABLED;
     bool isStateCached_ = false;
     bool isObserverReg_ = false;
