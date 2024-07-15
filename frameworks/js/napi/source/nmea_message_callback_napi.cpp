@@ -29,6 +29,7 @@ NmeaMessageCallbackNapi::NmeaMessageCallbackNapi()
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
+    callbackValid_ = false;
 }
 
 NmeaMessageCallbackNapi::~NmeaMessageCallbackNapi()
@@ -84,6 +85,10 @@ bool NmeaMessageCallbackNapi::Send(const std::string msg)
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "loop == nullptr.");
         return false;
     }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "handler is nullptr.");
+        return false;
+    }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "work == nullptr.");
@@ -95,8 +100,10 @@ bool NmeaMessageCallbackNapi::Send(const std::string msg)
         delete work;
         return false;
     }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (!InitContext(context)) {
+        LBSLOGE(NMEA_MESSAGE_CALLBACK, "InitContext fail");
+        return false;
+    }
     context->msg = msg;
     work->data = context;
     UvQueueWork(loop, work);
@@ -118,7 +125,7 @@ void NmeaMessageCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<NmeaAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr) {
+            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -134,7 +141,7 @@ void NmeaMessageCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                 napi_create_string_utf8(context->env, context->msg.c_str(), NAPI_AUTO_LENGTH, &jsEvent),
                 scope, context, work);
-            if (context->callback[0] != nullptr) {
+            if (context->callback[0] != nullptr && *(context->callbackValid)) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -166,15 +173,9 @@ void NmeaMessageCallbackNapi::DeleteHandler()
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    auto context = new (std::nothrow) AsyncContext(env_);
-    if (context == nullptr) {
-        LBSLOGE(NMEA_MESSAGE_CALLBACK, "context == nullptr.");
-        return;
-    }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    DeleteQueueWork(context);
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
+    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

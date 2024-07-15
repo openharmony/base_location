@@ -40,6 +40,20 @@ public:
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
 
+    template <typename T>
+    bool InitContext(T* context)
+    {
+        if (context == nullptr) {
+            LBSLOGE(LOCATION_ERR_CALLBACK, "context == nullptr.");
+            return false;
+        }
+        context->env = env_;
+        callbackValid_ = handlerCb_ == nullptr ? false : true;
+        context->callbackValid = &callbackValid_;
+        context->callback[SUCCESS_CALLBACK] = handlerCb_;
+        return true;
+    }
+
     inline napi_env GetEnv() const
     {
         return env_;
@@ -64,6 +78,7 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     std::mutex mutex_;
+    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS
