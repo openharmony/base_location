@@ -74,7 +74,13 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
         lock.unlock();
         return;
     }
-
+    for (auto countryCodeCallback : countryCodeCallbacks_) {
+        if (countryCodeCallback && countryCodeCallback->AsObject() == callback) {
+            LBSLOGE(COUNTRY_CODE, "callback has registered");
+            lock.unlock();
+            return;
+        }
+    }
     sptr<ICountryCodeCallback> countryCodeCallback = iface_cast<ICountryCodeCallback>(callback);
     if (countryCodeCallback == nullptr) {
         LBSLOGE(COUNTRY_CODE, "iface_cast ICountryCodeCallback failed!");
@@ -102,6 +108,11 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
         lock.unlock();
         return;
     }
+    if (countryCodeCallbacks_.size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "countryCodeCallbacks_ size <= 0");
+        lock.unlock();
+        return;
+    }
     sptr<ICountryCodeCallback> countryCodeCallback = iface_cast<ICountryCodeCallback>(callback);
     if (countryCodeCallback == nullptr) {
         LBSLOGE(COUNTRY_CODE, "iface_cast ICountryCodeCallback failed!");
@@ -123,9 +134,7 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
         lock.unlock();
         return;
     }
-    if (countryCodeCallbacks_.size() > 0) {
-        countryCodeCallbacks_.erase(countryCodeCallbacks_.begin() + i);
-    }
+    countryCodeCallbacks_.erase(countryCodeCallbacks_.begin() + i);
     LBSLOGD(COUNTRY_CODE, "after unregister, countryCodeCallbacks_ size:%{public}s",
         std::to_string(countryCodeCallbacks_.size()).c_str());
     if (countryCodeCallbacks_.size() != 0) {
