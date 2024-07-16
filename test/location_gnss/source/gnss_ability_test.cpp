@@ -1237,7 +1237,6 @@ HWTEST_F(GnssAbilityTest, GnssOnStart001, TestSize.Level1)
     ASSERT_TRUE(gnssAbility != nullptr);
     gnssAbility->state_ = ServiceRunningState::STATE_RUNNING;
     gnssAbility->OnStart();
-    gnssAbility->gnssInterface_ = new (std::nothrow) GnssInterfaceTest();
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStart001 end");
 }
 

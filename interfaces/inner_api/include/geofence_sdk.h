@@ -67,11 +67,27 @@ public:
     LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
     LocationErrCode GetGeofenceSupportedCoordTypes(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
+    void ResetGeofenceSdkProxy(const wptr<IRemoteObject> &remote);
 private:
     sptr<GeofenceSdk> GetProxy();
 
     sptr<GeofenceSdk> client_ { nullptr };
+    sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
     std::mutex mutex_;
+    bool isServerExist_ = false;
+
+private:
+    class GeofenceManagerDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        explicit GeofenceManagerDeathRecipient(GeofenceManager &impl) : impl_(impl) {}
+        ~GeofenceManagerDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override
+        {
+            impl_.ResetGeofenceSdkProxy(remote);
+        }
+    private:
+        GeofenceManager &impl_;
+    };
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -1048,7 +1048,7 @@ napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info)
 
 napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
 {
-    LBSLOGD(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
@@ -1094,8 +1094,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
         auto gnssGeofenceRequest = context->request_;
-        if (callbackHost != nullptr || gnssGeofenceRequest != nullptr) {
-            auto callbackPtr = sptr<IGnssGeofenceCallback>(callbackHost);
+        if (callbackHost != nullptr && gnssGeofenceRequest != nullptr) {
             auto errCode = g_geofenceClient->AddGnssGeofence(gnssGeofenceRequest);
             if (errCode != ERRCODE_SUCCESS) {
                 context->errCode = errCode;
@@ -1132,7 +1131,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
 
 napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info)
 {
-    LBSLOGD(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;

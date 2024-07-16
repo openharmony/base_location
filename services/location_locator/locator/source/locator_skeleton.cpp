@@ -671,6 +671,7 @@ int LocatorAbilityStub::DoProcessFenceRequest(
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    LBSLOGI(LOCATOR, "PreAddGnssGeofence enter.");
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
@@ -693,6 +694,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRemoveGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    LBSLOGI(LOCATOR, "PreRemoveGnssGeofence enter.");
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
