@@ -41,7 +41,7 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    void UpdateUsingPermission(std::shared_ptr<Request> request);
+    void UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart);
     void HandlePermissionChanged(uint32_t tokenId);
     void UpdateLocationErrorCallbackToRequest(sptr<ILocatorCallback> callback, uint32_t tokenId, bool state);
     void SyncStillMovementState(bool state);
@@ -57,7 +57,7 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
-    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
+    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart);
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
     bool AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
         std::shared_ptr<WorkRecord>& workRecord);
