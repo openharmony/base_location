@@ -56,12 +56,12 @@ public:
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
 public:
-    using GnssMsgHandle = int (GnssAbilityStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using GnssMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using GnssMsgHandleMap = std::map<int, GnssMsgHandle>;
     GnssAbilityStub();
     virtual ~GnssAbilityStub() = default;
     void InitGnssMsgHandleMap();
+    void InitGnssEnhanceMsgHandleMap();
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;

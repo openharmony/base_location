@@ -127,7 +127,7 @@ private:
     void HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event);
 
-    using GnssEventProcessHandle = void (GnssHandler::*)(const AppExecFwk::InnerEvent::Pointer& event);
+    using GnssEventProcessHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
     using GnssEventProcessMap = std::map<uint32_t, GnssEventProcessHandle>;
     GnssEventProcessMap gnssEventProcessMap_;
 };

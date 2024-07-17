@@ -42,8 +42,7 @@ public:
 
 class GeoConvertServiceStub : public IRemoteStub<IGeoConvert> {
 public:
-    using GeoConvertMsgHandle = int (GeoConvertServiceStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using GeoConvertMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using GeoConvertMsgHandleMap = std::map<int, GeoConvertMsgHandle>;
     GeoConvertServiceStub();
     virtual ~GeoConvertServiceStub() = default;
