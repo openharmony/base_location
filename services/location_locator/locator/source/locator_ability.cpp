@@ -410,6 +410,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
         LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
     }
     UpdateSaAbility();
+    ApplyRequests(0);
     std::string state = isEnabled ? "enable" : "disable";
     ReportDataToResSched(state);
     WriteLocationSwitchStateEvent(state);
