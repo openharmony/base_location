@@ -39,8 +39,7 @@ public:
 
 class LocatorAbilityStub : public IRemoteStub<ILocator> {
 public:
-    using LocatorMsgHandle = int (LocatorAbilityStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using LocatorMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using LocatorMsgHandleMap = std::map<LocatorInterfaceCode, LocatorMsgHandle>;
 
     LocatorAbilityStub();
@@ -113,8 +112,11 @@ private:
     int DoProcessFenceRequest(
         LocatorInterfaceCode code, MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     void ConstructLocatorHandleMap();
+    void ConstructLocatorEnhanceHandleMap();
+    void ConstructLocatorMockHandleMap();
     void ConstructGeocodeHandleMap();
     void ConstructGnssHandleMap();
+    void ConstructGnssEnhanceHandleMap();
     sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();
 };
 

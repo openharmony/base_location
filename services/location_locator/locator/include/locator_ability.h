@@ -46,8 +46,7 @@ namespace OHOS {
 namespace Location {
 class LocatorHandler : public AppExecFwk::EventHandler {
 public:
-    using LocatorEventHandle = void (LocatorHandler::*)(
-        const AppExecFwk::InnerEvent::Pointer& event);
+    using LocatorEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
     using LocatorEventHandleMap = std::map<int, LocatorEventHandle>;
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;

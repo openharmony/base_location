@@ -39,7 +39,8 @@ std::mutex g_locationCallbackMapMutex;
 std::mutex g_gnssStatusInfoCallbacksMutex;
 std::mutex g_nmeaCallbacksMutex;
 std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
-std::map<std::string, void(CallbackResumeManager::*)()> g_resumeFuncMap;
+using CallbackResumeHandle = std::function<void()>;
+std::map<std::string, CallbackResumeHandle> g_resumeFuncMap;
 std::map<sptr<ILocatorCallback>, RequestConfig> g_locationCallbackMap;
 std::set<sptr<IRemoteObject>> g_gnssStatusInfoCallbacks;
 std::set<sptr<IRemoteObject>> g_nmeaCallbacks;
@@ -1364,9 +1365,9 @@ void CallbackResumeManager::InitResumeCallbackFuncMap()
     if (g_resumeFuncMap.size() != 0) {
         return;
     }
-    g_resumeFuncMap.insert(std::make_pair("satelliteStatusChange", &CallbackResumeManager::ResumeGnssStatusCallback));
-    g_resumeFuncMap.insert(std::make_pair("nmeaMessage", &CallbackResumeManager::ResumeNmeaMessageCallback));
-    g_resumeFuncMap.insert(std::make_pair("locationChange", &CallbackResumeManager::ResumeLocating));
+    g_resumeFuncMap.insert(std::make_pair("satelliteStatusChange", [this]() { return ResumeGnssStatusCallback(); }));
+    g_resumeFuncMap.insert(std::make_pair("nmeaMessage", [this]() { return ResumeNmeaMessageCallback(); }));
+    g_resumeFuncMap.insert(std::make_pair("locationChange", [this]() { return ResumeLocating(); }));
 }
 
 void CallbackResumeManager::ResumeCallback()
@@ -1375,7 +1376,7 @@ void CallbackResumeManager::ResumeCallback()
     std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
     for (auto iter = g_resumeFuncMap.begin(); iter != g_resumeFuncMap.end(); iter++) {
         auto resumeFunc = iter->second;
-        (this->*resumeFunc)();
+        resumeFunc();
     }
 }
 

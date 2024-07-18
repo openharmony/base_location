@@ -1710,23 +1710,42 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     if (locatorHandlerEventMap_.size() != 0) {
         return;
     }
-    locatorHandlerEventMap_[EVENT_UPDATE_SA] = &LocatorHandler::UpdateSaEvent;
-    locatorHandlerEventMap_[EVENT_INIT_REQUEST_MANAGER] = &LocatorHandler::InitRequestManagerEvent;
-    locatorHandlerEventMap_[EVENT_APPLY_REQUIREMENTS] = &LocatorHandler::ApplyRequirementsEvent;
-    locatorHandlerEventMap_[EVENT_RETRY_REGISTER_ACTION] = &LocatorHandler::RetryRegisterActionEvent;
-    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_MESSAGE] = &LocatorHandler::ReportLocationMessageEvent;
-    locatorHandlerEventMap_[EVENT_SEND_SWITCHSTATE_TO_HIFENCE] = &LocatorHandler::SendSwitchStateToHifenceEvent;
-    locatorHandlerEventMap_[EVENT_START_LOCATING] = &LocatorHandler::StartLocatingEvent;
-    locatorHandlerEventMap_[EVENT_STOP_LOCATING] = &LocatorHandler::StopLocatingEvent;
-    locatorHandlerEventMap_[EVENT_UPDATE_LASTLOCATION_REQUESTNUM] = &LocatorHandler::UpdateLastLocationRequestNum;
-    locatorHandlerEventMap_[EVENT_UNLOAD_SA] = &LocatorHandler::UnloadSaEvent;
-    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_SUCCESS] = &LocatorHandler::GetCachedLocationSuccess;
-    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_FAILED] = &LocatorHandler::GetCachedLocationFailed;
-    locatorHandlerEventMap_[EVENT_REG_LOCATION_ERROR] = &LocatorHandler::RegLocationErrorEvent;
-    locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] = &LocatorHandler::UnRegLocationErrorEvent;
-    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] = &LocatorHandler::ReportLocationErrorEvent;
-    locatorHandlerEventMap_[EVENT_SYNC_STILL_MOVEMENT_STATE] = &LocatorHandler::SyncStillMovementState;
-    locatorHandlerEventMap_[EVENT_SYNC_IDLE_STATE] = &LocatorHandler::SyncIdleState;
+    locatorHandlerEventMap_[EVENT_UPDATE_SA] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UpdateSaEvent(event); };
+    locatorHandlerEventMap_[EVENT_INIT_REQUEST_MANAGER] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { InitRequestManagerEvent(event); };
+    locatorHandlerEventMap_[EVENT_APPLY_REQUIREMENTS] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ApplyRequirementsEvent(event); };
+    locatorHandlerEventMap_[EVENT_RETRY_REGISTER_ACTION] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { RetryRegisterActionEvent(event); };
+    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_MESSAGE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportLocationMessageEvent(event); };
+    locatorHandlerEventMap_[EVENT_SEND_SWITCHSTATE_TO_HIFENCE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SendSwitchStateToHifenceEvent(event); };
+    locatorHandlerEventMap_[EVENT_START_LOCATING] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartLocatingEvent(event); };
+    locatorHandlerEventMap_[EVENT_STOP_LOCATING] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StopLocatingEvent(event); };
+    locatorHandlerEventMap_[EVENT_UPDATE_LASTLOCATION_REQUESTNUM] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UpdateLastLocationRequestNum(event); };
+    locatorHandlerEventMap_[EVENT_UNLOAD_SA] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UnloadSaEvent(event); };
+    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_SUCCESS] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { GetCachedLocationSuccess(event); };
+    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_FAILED] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { GetCachedLocationFailed(event); };
+    locatorHandlerEventMap_[EVENT_REG_LOCATION_ERROR] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { RegLocationErrorEvent(event); };
+    locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UnRegLocationErrorEvent(event); };
+    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportLocationErrorEvent(event); };
+    locatorHandlerEventMap_[EVENT_PERIODIC_CHECK] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { RequestCheckEvent(event); };
+    locatorHandlerEventMap_[EVENT_SYNC_STILL_MOVEMENT_STATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SyncStillMovementState(event); };
+    locatorHandlerEventMap_[EVENT_SYNC_IDLE_STATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SyncIdleState(event); };
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -1953,7 +1972,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto handleFunc = locatorHandlerEventMap_.find(eventId);
     if (handleFunc != locatorHandlerEventMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        (this->*memberFunc)(event);
+        memberFunc(event);
     } else {
         LBSLOGE(LOCATOR, "ProcessEvent event:%{public}d, unsupport service.", eventId);
     }

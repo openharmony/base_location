@@ -1550,35 +1550,35 @@ void GnssHandler::InitGnssEventProcessMap()
         return;
     }
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::EVENT_REPORT_MOCK_LOCATION)] =
-        &GnssHandler::HandleReportMockLocation;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleReportMockLocation(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST)] =
-        &GnssHandler::HandleSendLocationRequest;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSendLocationRequest(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        &GnssHandler::HandleSetMockedLocations;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetMockedLocations(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
-        &GnssHandler::HandleSendCommands;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSendCommands(event); };
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_SUBSCRIBER_SET_ID)] =
-        &GnssHandler::HandleSetSubscriberSetId;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetSubscriberSetId(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_AGNSS_REF_INFO)] =
-        &GnssHandler::HandleSetAgnssRefInfo;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetAgnssRefInfo(event); };
 #endif
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::RECONNECT_HDI)] =
-        &GnssHandler::HandleReconnectHdi;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleReconnectHdi(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] =
-        &GnssHandler::HandleSetEnable;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetEnable(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI)] =
-        &GnssHandler::HandleInitHdi;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleInitHdi(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE)] =
-        &GnssHandler::HandleAddFence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleAddFence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE)] =
-        &GnssHandler::HandleRemoveFence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRemoveFence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE)] =
-        &GnssHandler::HandleAddGeofence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleAddGeofence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE)] =
-        &GnssHandler::HandleRemoveGeofence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRemoveGeofence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
-        &GnssHandler::HandleSendNetworkLocation;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSendNetworkLocation(event); };
 }
 
 GnssHandler::~GnssHandler() {}
@@ -1595,7 +1595,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto handleFunc = gnssEventProcessMap_.find(eventId);
     if (handleFunc != gnssEventProcessMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        (this->*memberFunc)(event);
+        memberFunc(event);
     }
     gnssAbility->UnloadGnssSystemAbility();
 }
