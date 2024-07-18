@@ -99,6 +99,18 @@
     {
       "name": "wifi_three_vap_notify_yes_button",
       "value": "断开"
+    },
+    {
+      "name": "wifi_candidate_connect_notify_title",
+      "value": "连接到指定的候选WLAN?"
+    },
+    {
+      "name": "wifi_candidate_connect_notify_no_button",
+      "value": "取消"
+    },
+    {
+      "name": "wifi_candidate_connect_notify_yes_button",
+      "value": "连接"
     }
   ]
 }
