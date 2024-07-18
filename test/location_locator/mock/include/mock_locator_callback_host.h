@@ -23,12 +23,12 @@
 #include "iremote_object.h"
 #include "iremote_stub.h"
 
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "location.h"
 
 namespace OHOS {
 namespace Location {
-class MockLocatorCallbackHost : public LocatorCallbackHost {
+class MockLocatorCallbackHost : public LocatorCallbackNapi {
 public:
     MockLocatorCallbackHost() {}
     ~MockLocatorCallbackHost() {}

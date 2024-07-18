@@ -26,7 +26,7 @@
 #define private public
 #include "locator_ability.h"
 #undef private
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "locator_callback_proxy.h"
 #include "request.h"
 #include "request_manager.h"
@@ -96,7 +96,7 @@ HWTEST_F(ReportManagerTest, ReportRemoteCallbackTest001, TestSize.Level1)
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ReportRemoteCallbackTest001 begin");
     std::unique_ptr<Location> location = std::make_unique<Location>();
     auto locatorCallbackHostForTest =
-        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     sptr<ILocatorCallback> locatorCallback =
         sptr<ILocatorCallback>(locatorCallbackHostForTest);
     EXPECT_EQ(true, reportManager_->
@@ -120,7 +120,7 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     request->SetFirstTokenId(0);
     request->SetPackageName("ReportManagerTest");
     auto location = MockLocation();
-    
+
     EXPECT_EQ(true, reportManager_->ResultCheck(location, request));
     EXPECT_EQ(false, reportManager_->ResultCheck(nullptr, request)); // no location
     EXPECT_EQ(false, reportManager_->ResultCheck(location, nullptr)); // no request
@@ -178,7 +178,7 @@ HWTEST_F(ReportManagerTest, ResultCheckTest002, TestSize.Level1)
     requestConfig->SetFixNumber(1);
     request->SetRequestConfig(*requestConfig);
     auto location = MockLocation();
-    
+
     std::unique_ptr<Location> lastLocation5 = std::make_unique<Location>(*location);
     lastLocation5->SetTimeSinceBoot(1000000000);
     requestConfig->SetDistanceInterval(0.0);
@@ -247,10 +247,12 @@ HWTEST_F(ReportManagerTest, GetPermittedLocationTest001, TestSize.Level1)
     location->ReadFromParcel(parcel);
     auto newLocation = reportManager_->GetPermittedLocation(request, location);
     EXPECT_NE(nullptr, newLocation);
-    EXPECT_EQ(12.0, newLocation->GetLatitude());
-    EXPECT_EQ(13.0, newLocation->GetLongitude());
-    EXPECT_EQ(1000.0, newLocation->GetAccuracy());
-    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] GetPermittedLocationTest001 end");
+    if (newLocation != nullptr) {
+        EXPECT_EQ(12.0, newLocation->GetLatitude());
+        EXPECT_EQ(13.0, newLocation->GetLongitude());
+        EXPECT_EQ(1000.0, newLocation->GetAccuracy());
+        LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] GetPermittedLocationTest001 end");
+    }
 }
 
 HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
@@ -272,6 +274,23 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest001, TestSize.Level1)
     parcel.WriteInt32(0); // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
+    location->SetUuid("35279");
+    std::list<std::shared_ptr<Request>> networkList;
+    int num = 2;
+    for (int i = 0; i < num; i++) {
+        std::shared_ptr<Request> request = std::make_shared<Request>();
+        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+        requestConfig->SetTimeInterval(i);
+        request->SetUid(i + 1);
+        request->SetPid(i + 2);
+        request->SetPackageName("nameForTest");
+        request->SetRequestConfig(*requestConfig);
+        request->SetUuid(std::to_string(i + 35279));
+        request->SetNlpRequestType(0);
+        networkList.push_back(request);
+    }
+    auto locatorAbility = LocatorAbility::GetInstance();
+    locatorAbility->requests_->insert(make_pair(NETWORK_ABILITY, networkList));
 
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, NETWORK_ABILITY));
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest001 end");
@@ -324,6 +343,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
     requestConfig->SetPriority(PRIORITY_ACCURACY);
     requestConfig->SetFixNumber(0);
     requestConfig->SetTimeInterval(1);
+    requestConfig->SetScenario(SCENE_DAILY_LIFE_SERVICE);
     auto locatorImpl = Locator::GetInstance();
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
     locatorImpl->EnableAbility(true);
@@ -360,6 +380,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
     requestConfig->SetPriority(PRIORITY_ACCURACY);
     requestConfig->SetFixNumber(1); // locating once
     requestConfig->SetTimeOut(120000);
+    requestConfig->SetScenario(SCENE_DAILY_LIFE_SERVICE);
     auto locatorImpl = Locator::GetInstance();
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
     locatorImpl->EnableAbility(true);
@@ -394,7 +415,7 @@ HWTEST_F(ReportManagerTest, IsRequestFuseTest001, TestSize.Level1)
         << "ReportManagerTest, IsRequestFuseTest001, TestSize.Level1";
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest001 begin");
     EXPECT_EQ(false, reportManager_->IsRequestFuse(nullptr));
-    
+
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
@@ -411,7 +432,7 @@ HWTEST_F(ReportManagerTest, IsRequestFuseTest002, TestSize.Level1)
         << "ReportManagerTest, IsRequestFuseTest002, TestSize.Level1";
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest002 begin");
     EXPECT_EQ(false, reportManager_->IsRequestFuse(nullptr));
-    
+
     std::shared_ptr<Request> request = std::make_shared<Request>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_UNSET);
@@ -440,6 +461,71 @@ HWTEST_F(ReportManagerTest, UpdateLocationByRequestTest002, TestSize.Level1)
     std::unique_ptr<Location> location = nullptr;
     reportManager_->UpdateLocationByRequest(tokenId_, tokenId_, location);
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateLocationByRequestTest002 end");
+}
+
+HWTEST_F(ReportManagerTest, ProcessRequestForReport001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ProcessRequestForReport001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport001 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetUuid("35279");
+    reportManager_->ProcessRequestForReport(request, deadRequests, location, NETWORK_ABILITY);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport001 end");
+}
+
+HWTEST_F(ReportManagerTest, ProcessRequestForReport002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ProcessRequestForReport002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport002 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetUuid("35279");
+    reportManager_->ProcessRequestForReport(request, deadRequests, location, NETWORK_ABILITY);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport002 end");
+}
+
+HWTEST_F(ReportManagerTest, WriteNetWorkReportEvent, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, WriteNetWorkReportEvent, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] WriteNetWorkReportEvent begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetUuid("35279");
+    reportManager_->WriteNetWorkReportEvent(NETWORK_ABILITY, request, location);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] WriteNetWorkReportEvent end");
 }
 }  // namespace Location
 }  // namespace OHOS

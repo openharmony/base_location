@@ -34,8 +34,7 @@ public:
 
 class PassiveAbilityStub : public IRemoteStub<IPassiveAbility> {
 public:
-    using PassiveMsgHandle = int (PassiveAbilityStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using PassiveMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using PassiveMsgHandleMap = std::map<int, PassiveMsgHandle>;
     PassiveAbilityStub();
     virtual ~PassiveAbilityStub() = default;

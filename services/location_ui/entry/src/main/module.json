@@ -7,7 +7,8 @@
     "mainElement": "EntryAbility",
     "deviceTypes": [
       "phone",
-      "tablet"
+      "tablet",
+      "2in1"
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
@@ -35,7 +36,7 @@
         "srcEntry": "./ets/wifiability/WifiUIExtAbility.ets",
         "description": "WifiUIExtAbility",
         "label": "WifiUIExtAbility",
-        "exported": true,
+        "exported": false,
         "type": "sysDialog/common"
       },
       {
@@ -44,8 +45,8 @@
         "description": "service",
         "icon": "$media:app_icon",
         "type": "service",
-        "visible": true,
-        "exported": true
+        "visible": false,
+        "exported": false
       }
     ],
     "requestPermissions": [

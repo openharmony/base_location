@@ -36,15 +36,25 @@ void PassiveAbilityStub::InitPassiveMsgHandleMap()
         return;
     }
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST)] =
-        &PassiveAbilityStub::SendLocationRequestInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SendLocationRequestInner(data, reply, identity);
+        };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE)] =
-        &PassiveAbilityStub::SetEnableInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SetEnableInner(data, reply, identity);
+        };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK)] =
-        &PassiveAbilityStub::EnableMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return EnableMockInner(data, reply, identity);
+        };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK)] =
-        &PassiveAbilityStub::DisableMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return DisableMockInner(data, reply, identity);
+        };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        &PassiveAbilityStub::SetMockedLocationsInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SetMockedLocationsInner(data, reply, identity);
+        };
 }
 
 PassiveAbilityStub::PassiveAbilityStub()
@@ -112,7 +122,6 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(PASSIVE, "invalid token.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int ret = ERRCODE_SUCCESS;
@@ -120,10 +129,9 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     auto handleFunc = PassiveMsgHandleMap_.find(code);
     if (handleFunc != PassiveMsgHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        ret = (this->*memberFunc)(data, reply, identity);
+        ret = memberFunc(data, reply, identity);
     } else {
         LBSLOGE(PASSIVE, "OnReceived cmd = %{public}u, unsupport service.", code);
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     if (!isMessageRequest_) {

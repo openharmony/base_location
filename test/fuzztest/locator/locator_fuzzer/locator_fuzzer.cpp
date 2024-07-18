@@ -25,25 +25,25 @@
 #include "token_setproc.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #include "geo_coding_mock_info.h"
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #endif
 #include "i_locator_callback.h"
 #include "location.h"
-#include "location_switch_callback_host.h"
-#include "locator_callback_host.h"
+#include "location_switch_callback_napi.h"
+#include "locator_callback_napi.h"
 #include "location_log.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 #include "request_config.h"
 #ifdef FEATURE_GNSS_SUPPORT
@@ -54,7 +54,7 @@
 namespace OHOS {
 using namespace OHOS::Location;
 auto locatorCallbackHostForTest_ =
-    sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+    sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
 bool g_isGrant = false;
 const int32_t MAX_CODE_LEN  = 512;
 const int32_t MAX_CODE_NUM = 40;
@@ -97,7 +97,7 @@ bool LocatorProxySendRequestTest(const uint8_t* data, size_t size)
     int32_t result = remote->SendRequest(data[index++] % MAX_CODE_NUM, request, reply, option);
     return result == SUCCESS;
 }
-    
+
 void AddPermission()
 {
     if (!g_isGrant) {
@@ -127,7 +127,7 @@ bool CachedLocationsCallbackHostFuzzerTest(const uint8_t* data, size_t size)
 {
     int index = 0;
     auto cachedCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     MessageParcel request;
     MessageParcel reply;
     MessageOption option;
@@ -147,7 +147,7 @@ bool CountryCodeCallbackHostFuzzerTest(const uint8_t* data, size_t size)
 {
     int index = 0;
     auto callbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     MessageParcel request;
     MessageParcel reply;
     MessageOption option;
@@ -167,7 +167,7 @@ bool GnssStatusCallbackHostFuzzerTest(const uint8_t* data, size_t size)
 {
     int index = 0;
     auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     MessageParcel request;
     MessageParcel reply;
     MessageOption option;
@@ -186,7 +186,7 @@ bool LocationSwitchCallbackHostFuzzerTest(const uint8_t* data, size_t size)
 {
     int index = 0;
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     MessageParcel request;
     MessageParcel reply;
     MessageOption option;
@@ -204,7 +204,7 @@ bool LocationCallbackHostFuzzerTest(const uint8_t* data, size_t size)
 {
     int index = 0;
     auto callbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     MessageParcel request;
     MessageParcel reply;
     MessageOption option;
@@ -230,7 +230,7 @@ bool NmeaMessageCallbackHostFuzzerTest(const uint8_t* data, size_t size)
 {
     int index = 0;
     auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     MessageParcel request;
     MessageParcel reply;
     MessageOption option;

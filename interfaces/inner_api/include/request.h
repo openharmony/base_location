@@ -68,6 +68,8 @@ public:
     void SetNlpRequestType();
     void SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback);
     sptr<ILocatorCallback> GetLocationErrorCallBack();
+    void SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
+    sptr<IRemoteObject::DeathRecipient> GetLocatorCallbackRecipient();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
@@ -88,6 +90,7 @@ private:
     bool isUsingBackgroundPerm_;
     bool isUsingApproximatelyPerm_;
     int permUsedType_;
+    sptr<IRemoteObject::DeathRecipient> locatorCallbackRecipient_;
 };
 } // namespace Location
 } // namespace OHOS

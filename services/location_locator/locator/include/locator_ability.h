@@ -21,6 +21,7 @@
 #include <singleton.h>
 
 #include "event_handler.h"
+#include "ffrt.h"
 #include "system_ability.h"
 
 #include "app_identity.h"
@@ -45,8 +46,7 @@ namespace OHOS {
 namespace Location {
 class LocatorHandler : public AppExecFwk::EventHandler {
 public:
-    using LocatorEventHandle = void (LocatorHandler::*)(
-        const AppExecFwk::InnerEvent::Pointer& event);
+    using LocatorEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
     using LocatorEventHandleMap = std::map<int, LocatorEventHandle>;
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
@@ -178,7 +178,7 @@ public:
         int permUsedType, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();
     bool IsInvalidRequest(std::shared_ptr<Request>& request);
-    bool IsProcessRunning(pid_t pid);
+    bool IsProcessRunning(pid_t pid, const uint32_t tokenId);
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
@@ -214,11 +214,11 @@ private:
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
     std::mutex switchMutex_;
-    std::mutex requestsMutex_;
-    std::mutex receiversMutex_;
+    ffrt::mutex requestsMutex_;
+    ffrt::mutex receiversMutex_;
     std::mutex proxyMapMutex_;
-    std::mutex permissionMapMutex_;
-    std::mutex loadedSaMapMutex_;
+    ffrt::mutex permissionMapMutex_;
+    ffrt::mutex loadedSaMapMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requests_;
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> receivers_;
@@ -264,6 +264,15 @@ public:
 private:
     std::string uuid_;
     int32_t errCode_;
+};
+
+class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    LocatorCallbackDeathRecipient(int32_t tokenId);
+    ~LocatorCallbackDeathRecipient() override;
+private:
+    int32_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS

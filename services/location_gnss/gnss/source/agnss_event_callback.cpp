@@ -153,6 +153,7 @@ int32_t AGnssEventCallback::RequestAgnssRefInfo(AGnssRefInfoType type)
     return ERR_OK;
 }
 
+#ifdef TEL_CORE_SERVICE_ENABLE
 void AGnssEventCallback::JudgmentDataGsm(AGnssRefInfo& refInfo, sptr<CellInformation> infoItem)
 {
     auto gsmCellInfo = static_cast<Telephony::GsmCellInformation *>(infoItem.GetRefPtr());
@@ -203,6 +204,7 @@ void AGnssEventCallback::JudgmentDataUmts(AGnssRefInfo& refInfo, sptr<CellInform
         refInfo.cellId.cid = static_cast<unsigned int>(wcdmaCellInfo->GetCellId());
     }
 }
+#endif
 }  // namespace Location
 }  // namespace OHOS
 #endif

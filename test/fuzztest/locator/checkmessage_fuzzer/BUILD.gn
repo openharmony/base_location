@@ -40,14 +40,14 @@ ohos_fuzztest("CheckMessageFuzzTest") {
   sources = [ "checkmessage_fuzzer.cpp" ]
   deps = [
     "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
-    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
-    "$LOCATION_ROOT_DIR/services/location_geocode/geocode:lbsservice_geocode",
-    "$LOCATION_ROOT_DIR/services/location_gnss/gnss:lbsservice_gnss",
-    "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator",
-    "$LOCATION_ROOT_DIR/services/location_network/network:lbsservice_network",
-    "$LOCATION_ROOT_DIR/services/location_passive/passive:lbsservice_passive",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
+    "$LOCATION_ROOT_DIR/services/location_geocode/geocode:lbsservice_geocode_static",
+    "$LOCATION_ROOT_DIR/services/location_gnss/gnss:lbsservice_gnss_static",
+    "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator_static",
+    "$LOCATION_ROOT_DIR/services/location_network/network:lbsservice_network_static",
+    "$LOCATION_ROOT_DIR/services/location_passive/passive:lbsservice_passive_static",
     "//third_party/libuv:uv",
   ]
   external_deps = [
@@ -60,6 +60,7 @@ ohos_fuzztest("CheckMessageFuzzTest") {
     "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
     "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",

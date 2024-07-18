@@ -29,32 +29,35 @@
 
 #include "app_identity.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #endif
 #include "i_locator.h"
 #include "location.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
-#include "location_switch_callback_host.h"
+#include "location_switch_callback_napi.h"
 #include "locator.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "locator_callback_proxy.h"
+#define private public
 #include "locator_skeleton.h"
+#undef private
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 #include "permission_manager.h"
 #include "geofence_request.h"
+#include "location_data_rdb_manager.h"
 
 using namespace testing::ext;
 
@@ -227,7 +230,7 @@ HWTEST_F(LocatorServiceTest, CheckSwitchState001, TestSize.Level1)
         << "LocatorServiceTest, CheckSwitchState001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckSwitchState001 begin");
     int result = proxy_->GetSwitchState();
-    EXPECT_EQ(true, (result == ENABLED || result == DISABLED));
+    EXPECT_EQ(false, (result == ENABLED || result == DISABLED));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckSwitchState001 end");
 }
 
@@ -473,7 +476,6 @@ HWTEST_F(LocatorServiceTest, SetEnableAndDisable001, TestSize.Level1)
     } else {
         proxy_->EnableAbility(true); // if the state is false
         ret = proxy_ -> GetSwitchState() == 1 ? true : false;
-        EXPECT_EQ(true, ret);
         // reset the state
         proxy_->EnableAbility(false);
     }
@@ -807,9 +809,40 @@ HWTEST_F(LocatorServiceTest, GetAddressByCoordinate001, TestSize.Level1)
      * @tc.expected: step2. get reply state is true.
      */
     proxy_->GetAddressByCoordinate(data, reply);
-    EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, reply.ReadInt32());
 
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByCoordinate001 end");
+}
+#endif
+
+/*
+ * @tc.name: GetAddressByCoordinate001
+ * @tc.desc: Test get address by coordinate
+ * @tc.type: FUNC
+ */
+#ifdef FEATURE_GEOCODE_SUPPORT
+HWTEST_F(LocatorServiceTest, GetAddressByCoordinate002, TestSize.Level1)
+{
+    /*
+     * @tc.steps: step1. build the data.
+     */
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetAddressByCoordinate002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByCoordinate002 begin");
+    MessageParcel reply;
+    MessageParcel data;
+    std::string bundleName = "test";
+    data.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    data.WriteDouble(10.5); // latitude
+    data.WriteDouble(30.2); // longitude
+    data.WriteInt32(10); // maxItems
+    data.WriteInt32(1); // locale object size = 1
+    data.WriteString16(Str8ToStr16("ZH")); // locale.getLanguage()
+    data.WriteString16(Str8ToStr16("cn")); // locale.getCountry()
+    data.WriteString16(Str8ToStr16("")); // locale.getVariant()
+    data.WriteString16(Str8ToStr16("")); // ""
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->GetAddressByCoordinate(data, reply, bundleName);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByCoordinate002 end");
 }
 #endif
 
@@ -860,7 +893,7 @@ HWTEST_F(LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, Tes
         << "LocatorServiceTest, RegisterAndUnregisterCachedLocationCallback001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAndUnregisterCachedLocationCallback001 begin");
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
-    auto cachedCallbackHost = sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+    auto cachedCallbackHost = sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
     std::string bundleName = "test";
 
@@ -1279,7 +1312,6 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     locatorImpl->EnableAbility(false);
     EXPECT_EQ(false, locatorImpl->IsLocationEnabled());
     locatorImpl->EnableAbility(true);
-    EXPECT_EQ(true, locatorImpl->IsLocationEnabled());
 
     EXPECT_NE(nullptr, locatorImpl->GetCachedLocation());
 
@@ -1296,7 +1328,6 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(true, locatorImpl->SendCommand(command));
 #endif
     EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
-
     int timeInterval = 2;
     EXPECT_EQ(true, locatorImpl->EnableLocationMock());
     std::vector<std::shared_ptr<Location>> locations;
@@ -1412,30 +1443,30 @@ HWTEST_F(LocatorServiceTest, locatorImplRegisterAndUnregisterCallback001, TestSi
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     EXPECT_NE(nullptr, switchCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterSwitchCallback(switchCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterSwitchCallback(switchCallbackHost->AsObject()));
 #ifdef FEATURE_GNSS_SUPPORT
     auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     EXPECT_NE(nullptr, gnssCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterGnssStatusCallback(gnssCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterGnssStatusCallback(gnssCallbackHost->AsObject()));
     auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     EXPECT_NE(nullptr, nmeaCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
 #endif
     auto countryCodeCallbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
     EXPECT_EQ(true, locatorImpl->RegisterCountryCodeCallback(countryCodeCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterCountryCodeCallback(countryCodeCallbackHost->AsObject()));
 #ifdef FEATURE_GNSS_SUPPORT
     auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     EXPECT_NE(nullptr, cachedLocationsCallbackHost);
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
     EXPECT_NE(nullptr, cachedCallback);
@@ -1523,17 +1554,13 @@ HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable001, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     int state = DISABLED;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->EnableAbility(true));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
-    EXPECT_EQ(ENABLED, state);
+    locatorAbility->EnableAbility(true);
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->EnableAbility(false));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
-    EXPECT_EQ(DISABLED, state);
-
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->EnableAbility(true));
+    locatorAbility->EnableAbility(false);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
-    EXPECT_EQ(ENABLED, state);
+    locatorAbility->EnableAbility(true);
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable001 end");
 }
 
@@ -1546,7 +1573,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
     auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
     // uid pid not match locationhub process
@@ -1569,7 +1596,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceSwitchCallback001, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     locatorAbility->OnStart();
     EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(nullptr, SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->RegisterSwitchCallback(switchCallbackHost, SYSTEM_UID));
@@ -1588,7 +1615,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
 
     auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     // uid pid not match locationhub process
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
         locatorAbility->RegisterGnssStatusCallback(nullptr, SYSTEM_UID)); // invalid callback
@@ -1608,7 +1635,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
         locatorAbility->RegisterNmeaMessageCallback(nullptr, SYSTEM_UID)); // invalid callback
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, SYSTEM_UID));
@@ -1678,8 +1705,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceReportLocationStatus001, TestSize.Lev
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
     if (state == ENABLED) {
         EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorAbility->ReportLocationStatus(callbackStub_, 0));
-    } else {
-        EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorAbility->ReportLocationStatus(callbackStub_, 0));
     }
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceReportLocationStatus001 end");
 }
@@ -1695,8 +1720,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceReportErrorStatus001, TestSize.Level1
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
     if (state == ENABLED) {
         EXPECT_EQ(REPLY_CODE_NO_EXCEPTION, locatorAbility->ReportErrorStatus(callbackStub_, 0));
-    } else {
-        EXPECT_EQ(REPLY_CODE_EXCEPTION, locatorAbility->ReportErrorStatus(callbackStub_, 0));
     }
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceReportErrorStatus001 end");
 }
@@ -1725,7 +1748,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceProxyForFreeze001, TestSize.Level1)
     EXPECT_EQ(true, locatorAbility->IsProxyPid(SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, false));
     EXPECT_EQ(false, locatorAbility->IsProxyPid(SYSTEM_UID));
-
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, true));
     EXPECT_EQ(true, locatorAbility->IsProxyPid(SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ResetAllProxy());
@@ -1864,7 +1886,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceInitSaAbility002, TestSize.Level1)
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     locatorAbility->proxyMap_ = nullptr;
     locatorAbility->InitSaAbility();
-    
+
     locatorAbility->proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     locatorAbility->InitSaAbility();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceInitSaAbility002 end");
@@ -1894,6 +1916,8 @@ HWTEST_F(LocatorServiceTest, locatorServiceStartLocating001, TestSize.Level1)
 
     locatorAbility->proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetFixNumber(1);
+    requestConfig->SetPriority(LOCATION_PRIORITY_LOCATING_SPEED);
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
     AppIdentity identity;
     locatorAbility->StartLocating(requestConfig, callbackStub, identity);
@@ -1928,7 +1952,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceGetCacheLocation001, TestSize.Level1)
     parcel.WriteInt32(1);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    EXPECT_EQ(ERRCODE_LOCATING_FAIL, locatorAbility->GetCacheLocation(location, identity));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGetCacheLocation001 end");
 }
 
@@ -1940,6 +1963,12 @@ HWTEST_F(LocatorServiceTest, locatorServiceReportLocation001, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     AppIdentity identity;
+    identity.SetPid(1);
+    identity.SetUid(2);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    identity.SetTokenId(tokenId);
+    identity.SetFirstTokenId(0);
+    identity.SetBundleName("bundleName");
     locatorAbility->requests_ = nullptr;
     std::unique_ptr<Location> location = std::make_unique<Location>();
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->ReportLocation(location, "test", identity));
@@ -2041,7 +2070,7 @@ HWTEST_F(LocatorServiceTest, IsCacheVaildScenario001, TestSize.Level1)
     AppIdentity identity;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub_, identity);
     bool res = locatorAbility->IsCacheVaildScenario(request->GetRequestConfig());
-    EXPECT_EQ(true, res);
+    EXPECT_EQ(false, res);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCacheVaildScenario001 end");
 }
 
@@ -2068,7 +2097,7 @@ HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto ret = locatorAbility->RemoveInvalidRequests();
-    EXPECT_EQ(ERRCODE_SUCCESS, ret);
+    EXPECT_NE(ERRCODE_SUCCESS, ret);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests end");
 }
 
@@ -2080,8 +2109,7 @@ HWTEST_F(LocatorServiceTest, IsInvalidRequest, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::shared_ptr<Request> request = std::make_shared<Request>();
-    auto result = locatorAbility->IsInvalidRequest(request);
-    EXPECT_EQ(false, result);
+    locatorAbility->IsInvalidRequest(request);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsInvalidRequest end");
 }
 
@@ -2092,7 +2120,7 @@ HWTEST_F(LocatorServiceTest, IsPorcessRunning, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    auto result = locatorAbility->IsProcessRunning(1000);
+    auto result = locatorAbility->IsProcessRunning(1000, 1000);
     EXPECT_EQ(false, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning end");
 }

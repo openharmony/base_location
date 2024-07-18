@@ -38,15 +38,25 @@ ohos_shared_library("locator_agent") {
     cfi_cross_dso = true
     debug = false
   }
+
   branch_protector_ret = "pac_ret"
 
   deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
 
   external_deps = [
-    "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
+  ]
+
+  ldflags = [
+    "-Wl,--as-needed",
+    "-Wl,--gc-sections",
+  ]
+
+  cflags_cc = [
+    "-ffunction-sections",
+    "-fdata-sections",
   ]
 
   defines = []

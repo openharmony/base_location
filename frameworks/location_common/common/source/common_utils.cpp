@@ -407,12 +407,13 @@ bool CommonUtils::CheckAppForUser(int32_t uid)
 {
     int currentUserId = 0;
     int userId = 0;
-    if (!GetCurrentUserId(currentUserId)) {
-        currentUserId = 100;
+    bool ret = GetCurrentUserId(currentUserId);
+    if (!ret) {
+        return true;
     }
     auto result = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
     if (result != ERR_OK) {
-        return false;
+        return true;
     }
     if (userId != currentUserId) {
         return false;

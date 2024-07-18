@@ -20,12 +20,12 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #include "locator_callback_proxy.h"
 #include "i_locator.h"
 #include "locator_proxy.h"
-#include "location_switch_callback_host.h"
-#include "locator_callback_host.h"
+#include "location_switch_callback_napi.h"
+#include "locator_callback_napi.h"
 
 
 namespace OHOS {

@@ -83,6 +83,9 @@ static constexpr OHOS::HiviewDFX::HiLogLabel COUNTRY_CODE_CALLBACK = {
 static constexpr OHOS::HiviewDFX::HiLogLabel LOCATING_DATA_CALLBACK = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "LocatingDataCallback"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_ERR_CALLBACK = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "LocationErrorCallback"
+};
 static constexpr OHOS::HiviewDFX::HiLogLabel LOCATOR_CALLBACK = {LOG_CORE, LOCATION_LOG_DOMAIN, "LocatorCallback"};
 static constexpr OHOS::HiviewDFX::HiLogLabel GNSS = {LOG_CORE, LOCATION_LOG_DOMAIN, "GnssAbility"};
 static constexpr OHOS::HiviewDFX::HiLogLabel GNSS_TEST = {LOG_CORE, LOCATION_LOG_DOMAIN, "GnssAbilityTest"};
@@ -114,6 +117,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel NAPI_UTILS = {LOG_CORE, LOCATION_LO
 static constexpr OHOS::HiviewDFX::HiLogLabel GEOFENCE_SDK = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "geofenceSdk"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel GEOFENCE_SDK_TEST = {LOG_CORE, LOCATION_LOG_DOMAIN, "GeofenceSdkTest"};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H

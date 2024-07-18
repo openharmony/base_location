@@ -22,6 +22,7 @@ ohos_hap("location_dialog_hap") {
     ":location_dialog_resources",
   ]
 
+  publicity_file = "publicity.xml"
   certificate_profile = "signature/locationdialog.p7b"
   hap_name = "LocationDialog"
   subsystem_name = "application"

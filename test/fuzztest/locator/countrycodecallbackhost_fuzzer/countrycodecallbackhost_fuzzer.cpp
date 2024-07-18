@@ -25,7 +25,7 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #include "i_locator_callback.h"
 #include "location.h"
 #include "locator_ability.h"
@@ -67,8 +67,8 @@ bool CountryCodeCallbackHostFuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto callback = sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
-    callback->OnRemoteRequest(CountryCodeCallbackHost::COUNTRY_CODE_CHANGE_EVENT, requestParcel, reply, option);
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
+    callback->OnRemoteRequest(CountryCodeCallbackNapi::COUNTRY_CODE_CHANGE_EVENT, requestParcel, reply, option);
     return true;
 }
 } // namespace OHOS

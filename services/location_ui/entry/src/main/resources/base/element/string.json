@@ -98,7 +98,7 @@
     },
     {
       "name": "wifi_three_vap_notify_title",
-      "value": "A hotspot can't be created while WLAN Direct, Huawei Share, or screen mirroring are in use. Disconnect and try again."
+      "value": "A hotspot can't be created while WLAN Direct, or screen mirroring are in use. Disconnect and try again."
     },
     {
       "name": "wifi_three_vap_notify_no_button",

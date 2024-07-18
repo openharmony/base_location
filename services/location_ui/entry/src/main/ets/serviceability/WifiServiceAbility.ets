@@ -47,7 +47,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
             let status : number = want.parameters?.['status'] as number;
             let ssid : string = want.parameters?.['ssid'] as string;
             try {
-                let file = fs.openSync("/system/etc/wifi/portal_notification.png", fs.OpenMode.READ_ONLY);
+                let file = fs.openSync('/system/etc/wifi/portal_notification.png', fs.OpenMode.READ_ONLY);
                 const imageSourceApi: image.ImageSource = image.createImageSource(file.fd);
                 imageSourceApi.createPixelMap()
                 .then((pixelmap: image.PixelMap) => {
@@ -95,20 +95,20 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         let templateTitle: string = '';
         let templateText: string = '';
         switch (status) {
-            case this.WIFI_PORTAL_CONNECTED:
-                templateTitle = this.getFormatString($r('app.string.wifi_portal_connected_notify_title'), ssid);
-                templateText = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connected_notify_text').id);
-                break;
-            case this.WIFI_PORTAL_TIMEOUT:
-                templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connect_timeout_notify_title').id);
-                templateText = this.getFormatString($r('app.string.wifi_portal_connect_timeout_notify_text'), ssid);
-                break;
-            case this.WIFI_PORTAL_FOUND:
-                templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_found_notify_title').id);
-                templateText = this.getFormatString($r('app.string.wifi_portal_found_notify_text'), ssid);
-                break;
-            default:
-                break;
+          case this.WIFI_PORTAL_CONNECTED:
+            templateTitle = this.getFormatString($r('app.string.wifi_portal_connected_notify_title'), ssid);
+            templateText = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connected_notify_text').id);
+            break;
+          case this.WIFI_PORTAL_TIMEOUT:
+            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connect_timeout_notify_title').id);
+            templateText = this.getFormatString($r('app.string.wifi_portal_connect_timeout_notify_text'), ssid);
+            break;
+          case this.WIFI_PORTAL_FOUND:
+            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_found_notify_title').id);
+            templateText = this.getFormatString($r('app.string.wifi_portal_found_notify_text'), ssid);
+            break;
+          default:
+            break;
         }
         let notificationRequest: NotificationManager.NotificationRequest = {
             id: id,
@@ -120,15 +120,16 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 }
             },
             slotType: Notification.SlotType.SERVICE_INFORMATION,
+            isUnremovable: true,
             wantAgent: wantAgentObj,
             smallIcon: pixelmap
         };
 
-        Notification.publish(notificationRequest, (err,data) => {
+        Notification.publish(notificationRequest, (err, data) => {
             if (err) {
                 console.error(TAG, `Publish wifi notification failed, code is ${err}`);
             } else {
-                console.info(TAG, "Publish wifi notification success");
+                console.info(TAG, 'Publish wifi notification success');
             }
         });
     }
@@ -138,7 +139,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
             if (err) {
                 console.error(TAG, `Cancel wifi notification failed, code is ${err}`);
             } else {
-                console.info(TAG, "Cancel wifi notification success");
+                console.info(TAG, 'Cancel wifi notification success');
             }
         });
     }

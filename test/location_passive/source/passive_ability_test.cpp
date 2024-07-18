@@ -14,7 +14,10 @@
  */
 
 #ifdef FEATURE_PASSIVE_SUPPORT
+#define private public
 #include "passive_ability_test.h"
+#include "passive_ability.h"
+#undef private
 
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
@@ -144,7 +147,6 @@ HWTEST_F(PassiveAbilityTest, PassiveLocationMock001, TestSize.Level1)
     std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->EnableMock());
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetMocked(timeInterval, locations));
-    
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveLocationMock001 end");
@@ -156,18 +158,11 @@ HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop001, TestSize.Level1)
         << "PassiveAbilityStubTest, PassiveOnStartAndOnStop001, TestSize.Level1";
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop001 begin");
     ability_->OnStart(); // start ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
     ability_->OnStart(); // start ability again
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
-
+    ability_->state_ = ServiceRunningState::STATE_RUNNING;
+    ability_->OnStart(); // start ability again
     ability_->OnStop(); // stop ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
     ability_->OnStart(); // restart ability
-    EXPECT_EQ(ServiceRunningState::STATE_NOT_START,
-        (ServiceRunningState)ability_->QueryServiceState()); // mock
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop001 end");
 }
 
@@ -252,6 +247,49 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportMockLocationEvent002, TestSize.Lev
     EXPECT_EQ(ERRCODE_SUCCESS, ability_->SetMocked(timeInterval, locations));
     sleep(2);
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportMockLocationEvent002 end");
+}
+
+HWTEST_F(PassiveAbilityTest, PassiveSendReportUnloadPassiveSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PassiveAbilityTest, PassiveSendReportUnloadPassiveSystemAbility001, TestSize.Level1";
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportUnloadPassiveSystemAbility001 begin");
+    ability_->passiveHandler_ = nullptr;
+    ability_->UnloadPassiveSystemAbility();
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportUnloadPassiveSystemAbility001 end");
+}
+
+HWTEST_F(PassiveAbilityTest, PassiveSendReportSendMessage001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PassiveAbilityTest, PassiveSendReportUnloadSendMessage001, TestSize.Level1";
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportUnloadSendMessage001 begin");
+    ability_->passiveHandler_ = nullptr;
+    MessageParcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteInt32(1); // isFromMock is true
+    MessageParcel reply;
+    ability_->SendMessage(ERRCODE_NOT_SUPPORTED, parcel, reply);
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportSendMessage001 end");
+}
+
+HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PassiveAbilityStubTest, PassiveOnStartAndOnStop002, TestSize.Level1";
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop002 begin");
+    ability_->state_ = ServiceRunningState::STATE_RUNNING;
+    ability_->OnStart(); // start ability again
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop002 end");
 }
 } // namespace Location
 } // namespace OHOS

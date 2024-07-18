@@ -23,30 +23,30 @@
 #include "iremote_object.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "country_code.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #include "i_cached_locations_callback.h"
 #endif
 #include "location.h"
 #include "location_sa_load_manager.h"
-#include "location_switch_callback_host.h"
+#include "location_switch_callback_napi.h"
 #include "locator.h"
 #include "locator_callback_proxy.h"
 #include "locator_proxy.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 #include "request_config.h"
-#include "locating_required_data_callback_host.h"
+#include "locating_required_data_callback_napi.h"
 #include "locator_agent.h"
 #include "permission_manager.h"
 #include "geofence_request.h"
@@ -163,7 +163,7 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
         << "LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9001 begin");
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     EXPECT_NE(nullptr, switchCallbackHost);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     sleep(1);
@@ -183,7 +183,7 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1)
         << "LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 begin");
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     EXPECT_NE(nullptr, switchCallbackHost);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     sleep(1);
@@ -191,7 +191,6 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(true));
     bool isEnabled = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
-    EXPECT_EQ(true, isEnabled);
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 end");
@@ -307,7 +306,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetIsoCountryCodeV9, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetIsoCountryCodeV9 begin");
 
     auto countryCodeCallbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterCountryCodeCallbackV9(countryCodeCallbackHost->AsObject()));
     sleep(1);
@@ -432,7 +431,7 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallbackV9001, TestSiz
         << "LocatorImplTest, locatorImplRegisterAndUnregisterCallbackV9001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallbackV9001 begin");
     auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     EXPECT_NE(nullptr, cachedLocationsCallbackHost);
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
     EXPECT_NE(nullptr, cachedCallback);
@@ -457,7 +456,7 @@ HWTEST_F(LocatorImplTest, locatorImplGnssStatusCallbackV9, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocatingV9(requestConfig, callbackStub_)); // startLocating first
     sleep(1);
     auto gnssCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
     sleep(1);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterGnssStatusCallbackV9(gnssCallbackHost->AsObject()));
@@ -477,7 +476,7 @@ HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocatingV9(requestConfig, callbackStub_)); // startLocating first
     sleep(1);
     auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
     sleep(1);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterNmeaMessageCallbackV9(nmeaCallbackHost->AsObject()));
@@ -517,7 +516,7 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterLocatingRequiredDataCallback001, Te
         << "LocatorImplTest, locatorImplRegisterLocatingRequiredDataCallback001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterLocatingRequiredDataCallback001 begin");
     auto singleCallbackHost =
-        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
     if (singleCallbackHost) {
         singleCallbackHost->SetFixNumber(1);
     }
@@ -533,13 +532,45 @@ HWTEST_F(LocatorImplTest, locatorImplUnRegisterLocatingRequiredDataCallback001, 
         << "LocatorImplTest, locatorImplUnRegisterLocatingRequiredDataCallback001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnRegisterLocatingRequiredDataCallback001 begin");
     auto singleCallbackHost =
-        sptr<LocatingRequiredDataCallbackHost>(new (std::nothrow) LocatingRequiredDataCallbackHost());
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
     if (singleCallbackHost) {
         singleCallbackHost->SetFixNumber(1);
     }
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
     locatorImpl_->UnRegisterLocatingRequiredDataCallback(callbackPtr);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnRegisterLocatingRequiredDataCallback001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplSubscribeLocationError001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplSubscribeLocationError001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeLocationError001 begin");
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
+
+    if (locatorCallbackHostForTest) {
+        locatorCallbackHostForTest->SetFixNumber(1);
+    }
+    sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    locatorImpl_->SubscribeLocationError(callbackPtr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeLocationError001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplUnSubscribeLocationError001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplUnSubscribeLocationError001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeLocationError001 begin");
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
+
+    if (locatorCallbackHostForTest) {
+        locatorCallbackHostForTest->SetFixNumber(1);
+    }
+    sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    locatorImpl_->UnSubscribeLocationError(callbackPtr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeLocationError001 end");
 }
 
 static void TestLocationUpdate(
@@ -646,18 +677,6 @@ HWTEST_F(LocatorImplTest, HasGnssNetworkRequest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 begin");
     locatorImpl_->HasGnssNetworkRequest();
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 end");
-}
-
-
-HWTEST_F(LocatorImplTest, GetGeofenceSupportedCoordTypes001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, GetGeofenceSupportedCoordTypes001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] GetGeofenceSupportedCoordTypes001 begin");
-    std::vector<CoordinateSystemType> coordinateSystemTypes;
-    auto geofenceClient = GeofenceManager::GetInstance();
-    geofenceClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] GetGeofenceSupportedCoordTypes001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

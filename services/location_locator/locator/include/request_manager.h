@@ -22,6 +22,7 @@
 #include <singleton.h>
 #include <string>
 
+#include "ffrt.h"
 #include "iremote_object.h"
 
 #include "i_locator_callback.h"
@@ -40,7 +41,7 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    void UpdateUsingPermission(std::shared_ptr<Request> request);
+    void UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart);
     void HandlePermissionChanged(uint32_t tokenId);
     void UpdateLocationErrorCallbackToRequest(sptr<ILocatorCallback> callback, uint32_t tokenId, bool state);
     void SyncStillMovementState(bool state);
@@ -56,8 +57,7 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
-    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
-    void UpdateUsingApproximatelyStatus(std::shared_ptr<Request> request, bool isActive);
+    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart);
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
     bool AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
         std::shared_ptr<WorkRecord>& workRecord);
@@ -66,9 +66,9 @@ private:
     void ReportDataToResSched(std::string state, const pid_t uid);
     void IsStandby();
     std::map<int32_t, int32_t> runningUidMap_;
-    static std::mutex requestMutex_;
-    std::mutex runningUidsMutex_;
-    std::mutex permissionRecordMutex_;
+    static ffrt::mutex requestMutex_;
+    ffrt::mutex runningUidsMutex_;
+    ffrt::mutex permissionRecordMutex_;
     std::atomic_bool isDeviceIdleMode_;
     std::atomic_bool isDeviceStillState_;
 };

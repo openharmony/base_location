@@ -191,6 +191,33 @@ napi_value LocatingRequiredDataTypeConstructor(napi_env env)
     return locatingPriority;
 }
 
+napi_value LocationSourceTypeConstructor(napi_env env)
+{
+    napi_value locationSourceType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &locationSourceType));
+    SetEnumPropertyByInteger(env, locationSourceType, LocationSourceType::GNSS_TYPE, "GNSS");
+    SetEnumPropertyByInteger(env, locationSourceType, LocationSourceType::NETWORK_TYPE, "NETWORK");
+    SetEnumPropertyByInteger(env, locationSourceType, LocationSourceType::INDOOR_TYPE, "INDOOR");
+    SetEnumPropertyByInteger(env, locationSourceType, LocationSourceType::RTK_TYPE, "RTK");
+    return locationSourceType;
+}
+
+napi_value LocationErrorConstructor(napi_env env)
+{
+    napi_value locationError = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &locationError));
+    SetEnumPropertyByInteger(env, locationError, LocationErr::LOCATING_FAILED_DEFAULT, "LOCATING_FAILED_DEFAULT");
+    SetEnumPropertyByInteger(env, locationError,
+        LocationErr::LOCATING_FAILED_LOCATION_PERMISSION_DENIED, "LOCATING_FAILED_LOCATION_PERMISSION_DENIED");
+    SetEnumPropertyByInteger(env, locationError,
+        LocationErr::LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, "LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED");
+    SetEnumPropertyByInteger(env, locationError,
+        LocationErr::LOCATING_FAILED_LOCATION_SWITCH_OFF, "LOCATING_FAILED_LOCATION_SWITCH_OFF");
+    SetEnumPropertyByInteger(env, locationError,
+        LocationErr::LOCATING_FAILED_INTERNET_ACCESS_FAILURE, "LOCATING_FAILED_INTERNET_ACCESS_FAILURE");
+    return locationError;
+}
+
 #ifndef ENABLE_NAPI_MANAGER
 /*
  * Module initialization function
@@ -291,6 +318,8 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("UserActivityScenario", UserActivityScenarioTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocatingPriority", LocatingPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("PowerConsumptionScenario", PowerConsumptionScenarioTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocationSourceType", LocationSourceTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("LocationError", LocationErrorConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

@@ -18,18 +18,18 @@
 #include "message_parcel.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
 #include "country_code.h"
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #endif
 #include "location.h"
-#include "location_switch_callback_host.h"
-#include "locator_callback_host.h"
+#include "location_switch_callback_napi.h"
+#include "locator_callback_napi.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #include "satellite_status.h"
 #endif
 
@@ -52,7 +52,7 @@ HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
         << "CallbackTest, OnCacheLocationsReport001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnCacheLocationsReport001 begin");
     auto cachedLocationsCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     EXPECT_NE(nullptr, cachedLocationsCallbackHost);
     auto cachedLocationsCallbackProxy =
         new (std::nothrow) CachedLocationsCallbackProxy(cachedLocationsCallbackHost);
@@ -86,7 +86,7 @@ HWTEST_F(CallbackTest, OnSwitchChange001, TestSize.Level1)
         << "CallbackTest, OnSwitchChange001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnSwitchChange001 begin");
     auto switchCallbackHost =
-        sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+        sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     EXPECT_NE(nullptr, switchCallbackHost);
     auto switchCallbackProxy =
         new (std::nothrow) SwitchCallbackProxy(switchCallbackHost);
@@ -103,7 +103,7 @@ HWTEST_F(CallbackTest, OnMessageChange001, TestSize.Level1)
         << "CallbackTest, OnMessageChange001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnMessageChange001 begin");
     auto nmeaCallbackHost =
-        sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+        sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     EXPECT_NE(nullptr, nmeaCallbackHost);
     auto nmeaCallbackProxy =
         new (std::nothrow) NmeaMessageCallbackProxy(nmeaCallbackHost);
@@ -121,7 +121,7 @@ HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level1)
         << "CallbackTest, LocationCallbackProxy001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy001 begin");
     auto locatorCallbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     EXPECT_NE(nullptr, locatorCallbackHost);
     auto locatorCallbackProxy =
             new (std::nothrow) LocatorCallbackProxy(locatorCallbackHost);
@@ -136,7 +136,7 @@ HWTEST_F(CallbackTest, LocationCallbackProxy002, TestSize.Level1)
         << "CallbackTest, LocationCallbackProxy002, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy002 begin");
     auto locatorCallbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     EXPECT_NE(nullptr, locatorCallbackHost);
     auto locatorCallbackProxy =
             new (std::nothrow) LocatorCallbackProxy(locatorCallbackHost);
@@ -152,7 +152,7 @@ HWTEST_F(CallbackTest, LocationCallbackProxy003, TestSize.Level1)
         << "CallbackTest, LocationCallbackProxy003, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy003 begin");
     auto locatorCallbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     EXPECT_NE(nullptr, locatorCallbackHost);
     auto locatorCallbackProxy =
             new (std::nothrow) LocatorCallbackProxy(locatorCallbackHost);
@@ -169,7 +169,7 @@ HWTEST_F(CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1)
         << "CallbackTest, GnssStatusCallbackProxy001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackProxy001 begin");
     auto gnssStatusCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     EXPECT_NE(nullptr, gnssStatusCallbackHost);
     auto gnssStatusCallbackProxy =
         new (std::nothrow) GnssStatusCallbackProxy(gnssStatusCallbackHost);
@@ -199,7 +199,7 @@ HWTEST_F(CallbackTest, GnssStatusCallbackProxy002, TestSize.Level1)
         << "CallbackTest, GnssStatusCallbackProxy002, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackProxy002 begin");
     auto gnssStatusCallbackHost =
-        sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+        sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     EXPECT_NE(nullptr, gnssStatusCallbackHost);
     auto gnssStatusCallbackProxy =
         new (std::nothrow) GnssStatusCallbackProxy(gnssStatusCallbackHost);
@@ -215,7 +215,7 @@ HWTEST_F(CallbackTest, CountryCodeCallbackProxy001, TestSize.Level1)
         << "CallbackTest, CountryCodeCallbackProxy001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CountryCodeCallbackProxy001 begin");
     auto countryCodeCallbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
     auto countryCodeCallbackProxy =
         new (std::nothrow) CountryCodeCallbackProxy(countryCodeCallbackHost);
@@ -237,7 +237,7 @@ HWTEST_F(CallbackTest, CachedLocationsCallbackHost001, TestSize.Level1)
         << "CallbackTest, CachedLocationsCallbackHost001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CachedLocationsCallbackHost001 begin");
     auto cachedCallbackHost =
-        sptr<CachedLocationsCallbackHost>(new (std::nothrow) CachedLocationsCallbackHost());
+        sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     EXPECT_NE(nullptr, cachedCallbackHost);
     EXPECT_NE(true, cachedCallbackHost->IsRemoteDied());
 
@@ -255,7 +255,7 @@ HWTEST_F(CallbackTest, CountryCodeCallbackHost001, TestSize.Level1)
         << "CallbackTest, CountryCodeCallbackHost001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CountryCodeCallbackHost001 begin");
     auto callbackHost =
-            sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+            sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     EXPECT_NE(nullptr, callbackHost);
     callbackHost->SetEnv(nullptr);
     callbackHost->SetCallback(nullptr);
@@ -270,7 +270,7 @@ HWTEST_F(CallbackTest, GnssStatusCallbackHost001, TestSize.Level1)
         << "CallbackTest, GnssStatusCallbackHost001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] GnssStatusCallbackHost001 begin");
     auto gnssCallbackHost =
-            sptr<GnssStatusCallbackHost>(new (std::nothrow) GnssStatusCallbackHost());
+            sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
     EXPECT_NE(true, gnssCallbackHost->IsRemoteDied());
     gnssCallbackHost->OnStatusChange(nullptr);
     gnssCallbackHost->DeleteHandler();
@@ -284,7 +284,7 @@ HWTEST_F(CallbackTest, LocationSwitchCallbackHost001, TestSize.Level1)
         << "CallbackTest, LocationSwitchCallbackHost001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationSwitchCallbackHost001 begin");
     auto switchCallbackHost =
-            sptr<LocationSwitchCallbackHost>(new (std::nothrow) LocationSwitchCallbackHost());
+            sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     EXPECT_NE(true, switchCallbackHost->IsRemoteDied());
     switchCallbackHost->PackResult(true);
     switchCallbackHost->DeleteHandler();
@@ -297,8 +297,8 @@ HWTEST_F(CallbackTest, LocationCallbackHost001, TestSize.Level1)
         << "CallbackTest, LocationCallbackHost001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackHost001 begin");
     auto callbackHost =
-            sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
-    
+            sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
+
     std::unique_ptr<Location> location = std::make_unique<Location>();
     EXPECT_NE(true, callbackHost->IsSystemGeoLocationApi());
     EXPECT_NE(true, callbackHost->IsSingleLocationRequest());
@@ -317,7 +317,7 @@ HWTEST_F(CallbackTest, NmeaMessageCallbackHost001, TestSize.Level1)
         << "CallbackTest, NmeaMessageCallbackHost001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] NmeaMessageCallbackHost001 begin");
     auto nmeaCallbackHost =
-            sptr<NmeaMessageCallbackHost>(new (std::nothrow) NmeaMessageCallbackHost());
+            sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
     EXPECT_NE(true, nmeaCallbackHost->IsRemoteDied());
     nmeaCallbackHost->PackResult("msg");
     nmeaCallbackHost->DeleteHandler();
@@ -331,7 +331,7 @@ HWTEST_F(CallbackTest, CountryCodeCallbackProxy002, TestSize.Level1)
         << "CallbackTest, CountryCodeCallbackProxy002, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] CountryCodeCallbackProxy002 begin");
     auto countryCodeCallbackHost =
-        sptr<CountryCodeCallbackHost>(new (std::nothrow) CountryCodeCallbackHost());
+        sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
     EXPECT_NE(nullptr, countryCodeCallbackHost);
     auto countryCodeCallbackProxy =
         new (std::nothrow) CountryCodeCallbackProxy(countryCodeCallbackHost);
