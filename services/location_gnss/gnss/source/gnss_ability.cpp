@@ -55,12 +55,6 @@
 #include "ntp_time_check.h"
 #endif
 
-#ifdef NET_MANAGER_ENABLE
-#include "net_conn_observer.h"
-#include "net_conn_client.h"
-#include "net_specifier.h"
-#endif
-
 namespace OHOS {
 namespace Location {
 namespace {
@@ -117,6 +111,11 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 
 GnssAbility::~GnssAbility()
 {
+#ifdef NET_MANAGER_ENABLE
+    if (netWorkObserver_ != nullptr) {
+        NetManagerStandard::NetConnClient::GetInstance().UnregisterNetConnCallback(netWorkObserver_);
+    }
+#endif
 }
 
 bool GnssAbility::CheckIfHdiConnected()
@@ -509,18 +508,18 @@ void GnssAbility::MonitorNetwork()
     NetManagerStandard::NetAllCapabilities netAllCapabilities;
     netAllCapabilities.netCaps_.insert(NetManagerStandard::NetCap::NET_CAPABILITY_INTERNET);
     netSpecifier.netCapabilities_ = netAllCapabilities;
-    sptr<NetManagerStandard::NetSpecifier> specifier =
-        new (std::nothrow) NetManagerStandard::NetSpecifier(netSpecifier);
+    sptr<NetManagerStandard::NetSpecifier> specifier(
+        new (std::nothrow) NetManagerStandard::NetSpecifier(netSpecifier));
     if (specifier == nullptr) {
         LBSLOGE(GNSS, "new operator error.specifier is nullptr");
         return;
     }
-    sptr<NetConnObserver> observer = new (std::nothrow) NetConnObserver();
-    if (observer == nullptr) {
-        LBSLOGE(GNSS, "new operator error.observer is nullptr");
+    netWorkObserver_ = sptr<NetConnObserver>((new (std::nothrow) NetConnObserver()));
+    if (netWorkObserver_ == nullptr) {
+        LBSLOGE(GNSS, "new operator error.netWorkObserver_ is nullptr");
         return;
     }
-    int ret = NetManagerStandard::NetConnClient::GetInstance().RegisterNetConnCallback(specifier, observer, 0);
+    int ret = NetManagerStandard::NetConnClient::GetInstance().RegisterNetConnCallback(specifier, netWorkObserver_, 0);
     LBSLOGI(GNSS, "RegisterNetConnCallback retcode= %{public}d", ret);
 #endif
     return;
@@ -546,10 +545,11 @@ LocationErrCode GnssAbility::InjectTime()
         refInfo.time.time = currentTime;
         refInfo.time.elapsedRealtime = elapsedTime;
         refInfo.time.uncertaintyOfTime = ntpTimeCheck->GetUncertainty();
-        if (gnssInterface_ != nullptr) {
+        auto gnssInterface = IGnssInterface::Get();
+        if (gnssInterface != nullptr) {
             LBSLOGI(GNSS, "inject ntp time: %{public}s unert %{public}d",
                 std::to_string(currentTime).c_str(), ntpTimeCheck->GetUncertainty());
-            gnssInterface_->SetGnssReferenceInfo(refInfo);
+            gnssInterface->SetGnssReferenceInfo(refInfo);
         }
     }
 #endif

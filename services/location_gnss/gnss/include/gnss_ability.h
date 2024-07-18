@@ -48,6 +48,11 @@
 #ifdef TIME_SERVICE_ENABLE
 #include "time_manager.h"
 #endif
+#ifdef NET_MANAGER_ENABLE
+#include "net_conn_observer.h"
+#include "net_conn_client.h"
+#include "net_specifier.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -261,6 +266,9 @@ private:
     Location nlpLocation_;
 #ifdef TIME_SERVICE_ENABLE
     TimeManager ntpTime_;
+#endif
+#ifdef NET_MANAGER_ENABLE
+    sptr<NetConnObserver> netWorkObserver_ = nullptr;
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     sptr<IAGnssCallback> agnssCallback_;

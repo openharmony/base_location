@@ -33,6 +33,10 @@ int32_t NetConnObserver::NetCapabilitiesChange(sptr<NetHandle> &netHandle,
     const sptr<NetAllCapabilities> &netAllCap)
 {
     LBSLOGI(GNSS, "Observe network capabilities change");
+    if (netAllCap == nullptr) {
+        LBSLOGE(GNSS, "Observe network netAllCap is null");
+        return -1;
+    }
     if (netAllCap->netCaps_.count(NetCap::NET_CAPABILITY_INTERNET)) {
 #ifdef TIME_SERVICE_ENABLE
         auto npTimeHelper = NtpTimeHelper::GetInstance();
