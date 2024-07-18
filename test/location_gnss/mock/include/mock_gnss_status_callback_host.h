@@ -22,16 +22,16 @@
 #include "message_option.h"
 #include "message_parcel.h"
 
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #include "satellite_status.h"
 
 namespace OHOS {
 namespace Location {
-class MockGnssStatusCallbackHost : public GnssStatusCallbackHost {
+class MockGnssStatusCallbackHost : public GnssStatusCallbackNapi {
 public:
     MockGnssStatusCallbackHost() {}
     ~MockGnssStatusCallbackHost() {}
-    
+
     MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data,
         MessageParcel& reply, MessageOption& option));
     MOCK_METHOD(void, OnStatusChange, (const std::unique_ptr<SatelliteStatus>& statusInfo));

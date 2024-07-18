@@ -14,15 +14,17 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
+local_base_sources = [
+  "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
+  "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
+  "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
+  "$LOCATION_PASSIVE_ROOT/source/passive_ability.cpp",
+  "$LOCATION_PASSIVE_ROOT/source/passive_ability_skeleton.cpp",
+]
+
 if (location_feature_with_passive) {
   ohos_shared_library("lbsservice_passive") {
-    sources = [
-      "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-      "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
-      "$LOCATION_PASSIVE_ROOT/source/passive_ability.cpp",
-      "$LOCATION_PASSIVE_ROOT/source/passive_ability_skeleton.cpp",
-    ]
+    sources = local_base_sources
 
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
@@ -42,12 +44,70 @@ if (location_feature_with_passive) {
     ]
 
     external_deps = [
-      "c_utils:utils",
       "eventhandler:libeventhandler",
       "hilog:libhilog",
       "ipc:ipc_single",
       "safwk:system_ability_fwk",
-      "samgr:samgr_proxy",
+    ]
+
+    ldflags = [
+      "-Wl,--as-needed",
+      "-Wl,--gc-sections",
+    ]
+
+    cflags_cc = [
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Os",
+    ]
+
+    defines = []
+    if (location_feature_with_passive) {
+      defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    }
+
+    # Used to control the export of dynamic library symbols.
+    version_script = "liblbsservice_passive_version_script.txt"
+
+    part_name = "location"
+    subsystem_name = "location"
+  }
+
+  ohos_static_library("lbsservice_passive_static") {
+    sources = local_base_sources
+
+    include_dirs = [
+      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+      "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_PASSIVE_ROOT/include",
+    ]
+
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+    branch_protector_ret = "pac_ret"
+
+    deps = [
+      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    ]
+
+    external_deps = [
+      "eventhandler:libeventhandler",
+      "hilog:libhilog",
+      "ipc:ipc_single",
+      "safwk:system_ability_fwk",
+    ]
+
+    ldflags = [
+      "-Wl,--as-needed",
+      "-Wl,--gc-sections",
+    ]
+
+    cflags_cc = [
+      "-ffunction-sections",
+      "-fdata-sections",
     ]
 
     defines = []
@@ -60,6 +120,11 @@ if (location_feature_with_passive) {
   }
 } else {
   ohos_shared_library("lbsservice_passive") {
+    part_name = "location"
+    subsystem_name = "location"
+  }
+
+  ohos_static_library("lbsservice_passive_static") {
     part_name = "location"
     subsystem_name = "location"
   }

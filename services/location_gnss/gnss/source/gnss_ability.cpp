@@ -42,6 +42,11 @@
 #include "location_log_event_ids.h"
 #include "location_data_rdb_manager.h"
 
+#ifdef NOTIFICATION_ENABLE
+#include "notification_request.h"
+#include "notification_helper.h"
+#endif
+
 #include "hook_utils.h"
 #include "geofence_definition.h"
 
@@ -57,12 +62,17 @@ const uint32_t EVENT_INTERVAL_UNITE = 1000;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 #endif
+constexpr const char *LOCATION_HOST_NAME = "location_host";
 constexpr const char *GNSS_SERVICE_NAME = "gnss_interface_service";
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
-const std::string UNLOAD_GNSS_TASK = "gnss_sa_unload";
+#endif
+constexpr const char *UNLOAD_GNSS_TASK = "gnss_sa_unload";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 constexpr int32_t FENCE_MAX_ID = 1000000;
+#ifdef TIME_SERVICE_ENABLE
 constexpr int DEFAULT_UNCERTAINTY = 30;
+#endif
 constexpr int NLP_FIX_VALID_TIME = 2;
 }
 
@@ -77,15 +87,13 @@ GnssAbility* GnssAbility::GetInstance()
 
 GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 {
-    gnssInterface_ = nullptr;
     gnssCallback_ = nullptr;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     agnssCallback_ = nullptr;
-    agnssInterface_ = nullptr;
 #endif
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
-    gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true));
+    gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     if (gnssHandler_ != nullptr) {
         AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
             static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI), 0);
@@ -105,10 +113,19 @@ GnssAbility::~GnssAbility()
 
 bool GnssAbility::CheckIfHdiConnected()
 {
+    if (!IsDeviceLoaded(GNSS_SERVICE_NAME)) {
+        return false;
+    }
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-    return gnssInterface_ != nullptr && agnssInterface_ != nullptr;
-#else
-    return gnssInterface_ != nullptr;
+    if (!IsDeviceLoaded(AGNSS_SERVICE_NAME)) {
+        return false;
+    }
+#endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+    if (!IsDeviceLoaded(GEOFENCE_SERVICE_NAME)) {
+        return false;
+    }
+    return true;
 #endif
 }
 
@@ -131,6 +148,13 @@ void GnssAbility::OnStop()
 {
     state_ = ServiceRunningState::STATE_NOT_START;
     registerToAbility_ = false;
+    if (CheckIfHdiConnected()) {
+        auto startTime = CommonUtils::GetCurrentTimeStamp();
+        auto ret = RemoveHdi();
+        auto endTime = CommonUtils::GetCurrentTimeStamp();
+        WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "DisConnectHdi",
+            "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
+    }
     LBSLOGI(GNSS, "OnStop ability stopped.");
 }
 
@@ -155,10 +179,6 @@ LocationErrCode GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode GnssAbility::SetEnable(bool state)
 {
-    if (!CheckIfHdiConnected()) {
-        LBSLOGE(GNSS, "no need start or stop gnss");
-        return ERRCODE_SUCCESS;
-    }
     if (state) {
         EnableGnss();
         StartGnss();
@@ -180,13 +200,6 @@ void GnssAbility::UnloadGnssSystemAbility()
         return;
     }
     auto task = [this]() {
-        if (CheckIfHdiConnected()) {
-            auto startTime = CommonUtils::GetCurrentTimeStamp();
-            auto ret = RemoveHdi();
-            auto endTime = CommonUtils::GetCurrentTimeStamp();
-            WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "DisConnectHdi",
-                    "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
-        }
         LocationSaLoadManager::UnInitLocationSa(LOCATION_GNSS_SA_ID);
     };
     if (gnssHandler_ != nullptr) {
@@ -201,7 +214,7 @@ bool GnssAbility::CheckIfGnssConnecting()
 
 bool GnssAbility::IsGnssfenceRequestMapExist()
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     return gnssGeofenceRequestMap_.size() != 0;
 }
 
@@ -224,7 +237,7 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
         LBSLOGE(GNSS, "cast switch callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<std::mutex> lock(gnssMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     gnssStatusCallback_.push_back(gnssStatusCallback);
     LBSLOGD(GNSS, "after uid:%{public}d register, gnssStatusCallback size:%{public}s",
         uid, std::to_string(gnssStatusCallback_.size()).c_str());
@@ -243,7 +256,7 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
         return ERRCODE_INVALID_PARAM;
     }
 
-    std::unique_lock<std::mutex> lock(gnssMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     size_t i = 0;
     for (; i < gnssStatusCallback_.size(); i++) {
         sptr<IRemoteObject> remoteObject = gnssStatusCallback_[i]->AsObject();
@@ -276,7 +289,7 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
         LBSLOGE(GNSS, "cast nmea callback fail!");
         return ERRCODE_INVALID_PARAM;
     }
-    std::unique_lock<std::mutex> lock(nmeaMutex_);
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     nmeaCallback_.push_back(nmeaCallback);
     LBSLOGD(GNSS, "after uid:%{public}d register, nmeaCallback size:%{public}s",
         uid, std::to_string(nmeaCallback_.size()).c_str());
@@ -295,7 +308,7 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         return ERRCODE_INVALID_PARAM;
     }
 
-    std::unique_lock<std::mutex> lock(nmeaMutex_);
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     size_t i = 0;
     for (; i < nmeaCallback_.size(); i++) {
         sptr<IRemoteObject> remoteObject = nmeaCallback_[i]->AsObject();
@@ -367,7 +380,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         StartGnss();
     } else {
         // GNSS will stop only if all requests have stopped
-        if (CheckIfHdiConnected() && GetRequestNum() == 0) {
+        if (GetRequestNum() == 0) {
             StopGnss();
         }
     }
@@ -448,23 +461,25 @@ bool GnssAbility::GetCommandFlags(std::unique_ptr<LocationCommand>& commands, Gn
 
 LocationErrCode GnssAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     GnssAuxiliaryDataType flags;
     bool result = GetCommandFlags(commands, flags);
     LBSLOGE(GNSS, "GetCommandFlags,flags = %{public}d", flags);
     if (result) {
-        gnssInterface_->DeleteAuxiliaryData(flags);
+        gnssInterface->DeleteAuxiliaryData(flags);
     }
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode GnssAbility::SetPositionMode()
 {
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     GnssConfigPara para;
@@ -479,7 +494,7 @@ LocationErrCode GnssAbility::SetPositionMode()
         LBSLOGE(GNSS, "unknow mode");
         return ERRCODE_SUCCESS;
     }
-    int ret = gnssInterface_->SetGnssConfigPara(para);
+    int ret = gnssInterface->SetGnssConfigPara(para);
     if (ret != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "SetGnssConfigPara failed , ret =%{public}d", ret);
     }
@@ -489,8 +504,9 @@ LocationErrCode GnssAbility::SetPositionMode()
 LocationErrCode GnssAbility::InjectTime()
 {
 #ifdef TIME_SERVICE_ENABLE
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
 
@@ -505,7 +521,7 @@ LocationErrCode GnssAbility::InjectTime()
     refInfo.time.time = wallTime;
     refInfo.time.elapsedRealtime = elapsedTime;
     refInfo.time.uncertaintyOfTime = DEFAULT_UNCERTAINTY;
-    gnssInterface_->SetGnssReferenceInfo(refInfo);
+    gnssInterface->SetGnssReferenceInfo(refInfo);
 #endif
     return ERRCODE_SUCCESS;
 }
@@ -522,8 +538,9 @@ LocationErrCode GnssAbility::SendNetworkLocation(const std::unique_ptr<Location>
 
 LocationErrCode GnssAbility::InjectLocation()
 {
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ or location is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface or location is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (nlpLocation_.GetAccuracy() < 1e-9 || nlpLocation_.GetTimeStamp() == 0) {
@@ -537,7 +554,8 @@ LocationErrCode GnssAbility::InjectLocation()
     }
     GnssRefInfo refInfo;
     refInfo.type = GnssRefInfoType::GNSS_REF_INFO_LOCATION;
-    refInfo.gnssLocation.fieldValidity = GnssLocationValidity::GNSS_LOCATION_LAT_VALID;
+    refInfo.gnssLocation.fieldValidity =
+        GnssLocationValidity::GNSS_LOCATION_LAT_VALID | GnssLocationValidity::GNSS_LOCATION_LONG_VALID;
     refInfo.gnssLocation.latitude = nlpLocation_.GetLatitude();
     refInfo.gnssLocation.longitude = nlpLocation_.GetLongitude();
     refInfo.gnssLocation.altitude = nlpLocation_.GetAltitude();
@@ -550,7 +568,7 @@ LocationErrCode GnssAbility::InjectLocation()
     refInfo.gnssLocation.timeForFix = nlpLocation_.GetTimeStamp();
     refInfo.gnssLocation.timeSinceBoot = nlpLocation_.GetTimeSinceBoot();
     refInfo.gnssLocation.timeUncertainty = nlpLocation_.GetUncertaintyOfTimeSinceBoot();
-    gnssInterface_->SetGnssReferenceInfo(refInfo);
+    gnssInterface->SetGnssReferenceInfo(refInfo);
     return ERRCODE_SUCCESS;
 }
 
@@ -559,11 +577,12 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    auto geofence = request->GetGeofence();
-    if (geofenceInterface_ == nullptr) {
-        LBSLOGE(GNSS, "geofenceInterface_ is nullptr");
+    sptr<IGeofenceInterface> geofenceInterface = IGeofenceInterface::Get();
+    if (geofenceInterface == nullptr) {
+        LBSLOGE(GNSS, "geofenceInterface is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    auto geofence = request->GetGeofence();
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
     fenceInfo.latitude = geofence.latitude;
@@ -571,7 +590,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     fenceInfo.radius = geofence.radius;
     int monitorEvent = static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER) |
         static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT);
-    int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, static_cast<GeofenceEvent>(monitorEvent));
+    int32_t ret = geofenceInterface->AddGnssGeofence(fenceInfo, monitorEvent);
     LBSLOGD(GNSS, "Successfully AddFence!, %{public}d", ret);
 #endif
     if (ExecuteFenceProcess(GnssInterfaceCode::ADD_FENCE_INFO, request)) {
@@ -582,12 +601,17 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
 
 LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& request)
 {
+    if (request == nullptr) {
+        LBSLOGE(GNSS, "request is nullptr");
+        return ERRCODE_GEOFENCE_FAIL;
+    }
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    if (geofenceInterface_ == nullptr || request == nullptr) {
-        LBSLOGE(GNSS, "geofenceInterface_ is nullptr");
+    sptr<IGeofenceInterface> geofenceInterface = IGeofenceInterface::Get();
+    if (geofenceInterface == nullptr) {
+        LBSLOGE(GNSS, "geofenceInterface is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int32_t ret = geofenceInterface_->DeleteGnssGeofence(request->GetFenceId());
+    int32_t ret = geofenceInterface->DeleteGnssGeofence(request->GetFenceId());
     LBSLOGD(GNSS, "Successfully RemoveFence!, %{public}d", ret);
 #endif
     if (ExecuteFenceProcess(GnssInterfaceCode::REMOVE_FENCE_INFO, request)) {
@@ -599,7 +623,7 @@ LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& reque
 int32_t GnssAbility::GenerateFenceId()
 {
     LBSLOGD(GNSS, "GenerateFenceId");
-    std::lock_guard<std::mutex> lock(fenceIdMutex_);
+    std::lock_guard<ffrt::mutex> lock(fenceIdMutex_);
     if (fenceId_ > FENCE_MAX_ID) {
         fenceId_ = 0;
     }
@@ -613,11 +637,12 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    auto geofence = request->GetGeofence();
-    if (geofenceInterface_ == nullptr) {
-        LBSLOGE(GNSS, "geofenceInterface_ is nullptr");
+    sptr<IGeofenceInterface> geofenceInterface = IGeofenceInterface::Get();
+    if (geofenceInterface == nullptr) {
+        LBSLOGE(GNSS, "geofenceInterface is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    auto geofence = request->GetGeofence();
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
     fenceInfo.latitude = geofence.latitude;
@@ -629,7 +654,7 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
         GeofenceTransitionEvent status = transitionList[i];
         monitorEvent |= static_cast<uint32_t>(status);
     }
-    int32_t ret = geofenceInterface_->AddGnssGeofence(fenceInfo, static_cast<GeofenceEvent>(monitorEvent));
+    int32_t ret = geofenceInterface->AddGnssGeofence(fenceInfo, monitorEvent);
     LBSLOGD(GNSS, "Successfully AddGnssGeofence!, %{public}d", ret);
 #endif
     RegisterGnssGeofenceCallback(request, request->GetGeofenceTransitionCallback());
@@ -650,10 +675,10 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         LBSLOGE(GNSS, "register an invalid callback");
         return false;
     }
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
-    gnssGeofenceRequestMap_.insert(std::make_pair(request, callback));
+    gnssGeofenceRequestMap_.insert(std::make_pair(request, std::make_pair(callback, death)));
     return true;
 }
 
@@ -668,11 +693,12 @@ LocationErrCode GnssAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
         return ERRCODE_GEOFENCE_INCORRECT_ID;
     }
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    if (geofenceInterface_ == nullptr) {
-        LBSLOGE(GNSS, "geofenceInterface_ is nullptr");
+    sptr<IGeofenceInterface> geofenceInterface = IGeofenceInterface::Get();
+    if (geofenceInterface == nullptr) {
+        LBSLOGE(GNSS, "geofenceInterface is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int32_t ret = geofenceInterface_->DeleteGnssGeofence(request->GetFenceId());
+    int32_t ret = geofenceInterface->DeleteGnssGeofence(request->GetFenceId());
     LBSLOGD(GNSS, "Successfully DeleteGnssGeofence!, %{public}d", ret);
 #endif
 
@@ -687,7 +713,10 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
     for (auto iter = gnssGeofenceRequestMap_.begin(); iter != gnssGeofenceRequestMap_.end();) {
         auto requestInMap = iter->first;
         auto fenceIdInMap = requestInMap->GetFenceId();
+        auto callbackPair = iter->second;
+        auto callback = callbackPair.first;
         if (fenceId == fenceIdInMap) {
+            callback->RemoveDeathRecipient(callbackPair.second);
             iter = gnssGeofenceRequestMap_.erase(iter);
             break;
         } else {
@@ -701,7 +730,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
 
 bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId)
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     for (auto iter = gnssGeofenceRequestMap_.begin();
         iter != gnssGeofenceRequestMap_.end(); iter++) {
         auto requestInMap = iter->first;
@@ -719,10 +748,12 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
     if (callbackObj == nullptr) {
         return false;
     }
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     for (auto iter = gnssGeofenceRequestMap_.begin(); iter != gnssGeofenceRequestMap_.end();) {
-        auto callback = iter->second;
+        auto callbackPair = iter->second;
+        auto callback = callbackPair.first;
         if (callback == callbackObj) {
+            callback->RemoveDeathRecipient(callbackPair.second);
             iter = gnssGeofenceRequestMap_.erase(iter);
             break;
         } else {
@@ -738,7 +769,7 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
 void GnssAbility::ReportGeofenceOperationResult(
     int fenceId, GeofenceOperateType type, GeofenceOperateResult result)
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     auto geofenceRequest = GetGeofenceRequestByFenceId(fenceId);
     if (geofenceRequest == nullptr) {
         LBSLOGE(GNSS, "request is nullptr");
@@ -761,7 +792,7 @@ void GnssAbility::ReportGeofenceOperationResult(
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
 {
-    std::unique_lock<std::mutex> lock(gnssGeofenceRequestMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     auto request = GetGeofenceRequestByFenceId(fenceIndex);
     if (request == nullptr) {
         LBSLOGE(GNSS, "request is nullptr");
@@ -774,9 +805,6 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
     }
     sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
     auto transitionStatusList = request->GetGeofenceTransitionEventList();
-#ifdef NOTIFICATION_ENABLE
-    auto notificationRequestList = request->GetNotificationRequestList();
-#endif
     for (size_t i = 0; i < transitionStatusList.size(); i++) {
         if (transitionStatusList[i] !=
             static_cast<GeofenceTransitionEvent>(event)) {
@@ -787,6 +815,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         geofenceTransition.event = transitionStatusList[i];
         gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
 #ifdef NOTIFICATION_ENABLE
+        auto notificationRequestList = request->GetNotificationRequestList();
         if (transitionStatusList.size() == notificationRequestList.size()) {
             auto notificationRequest = notificationRequestList[i];
             notificationRequest.SetCreatorUid(IPCSkeleton::GetCallingUid());
@@ -818,7 +847,10 @@ bool GnssAbility::ExecuteFenceProcess(
     fenceStruct.requestCode = static_cast<int>(code);
     fenceStruct.retCode = true;
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
+    lock.lock();
     fenceStruct.callback = geofenceCallback_;
+    lock.unlock();
 #endif
     HookUtils::ExecuteHook(
         LocationProcessStage::FENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);
@@ -832,12 +864,16 @@ bool GnssAbility::SetGeofenceCallback()
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
-    if (geofenceInterface_ == nullptr || geofenceCallback_ == nullptr) {
-        LBSLOGE(GNSS, "geofenceInterface_ or geofenceCallback_ is nullptr");
+    sptr<IGeofenceInterface> geofenceInterface = IGeofenceInterface::Get();
+    if (geofenceInterface == nullptr) {
+        LBSLOGE(GNSS, "geofenceInterface get failed");
         return false;
     }
-    int32_t ret = geofenceInterface_->SetGeofenceCallback(geofenceCallback_);
+    int32_t ret = geofenceInterface->SetGeofenceCallback(geofenceCallback_);
     LBSLOGD(GNSS, "set geofence callback, ret:%{public}d", ret);
+    if (!ret) {
+        return false;
+    }
     return true;
 }
 #endif
@@ -848,7 +884,7 @@ void GnssAbility::ReportGnssSessionStatus(int status)
 
 void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 {
-    std::unique_lock<std::mutex> lock(nmeaMutex_);
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     for (auto nmeaCallback : nmeaCallback_) {
         nmeaCallback->OnMessageChange(timestamp, nmea);
     }
@@ -856,7 +892,7 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 
 void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 {
-    std::unique_lock<std::mutex> lock(gnssMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     for (auto gnssStatusCallback : gnssStatusCallback_) {
         gnssStatusCallback->OnStatusChange(sv);
     }
@@ -868,15 +904,24 @@ bool GnssAbility::EnableGnss()
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
-    if (gnssInterface_ == nullptr || gnssCallback_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ or gnssCallback_ is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface is nullptr");
         return false;
     }
     if (IsGnssEnabled()) {
         LBSLOGE(GNSS, "gnss has been enabled");
         return false;
     }
-    int32_t ret = gnssInterface_->EnableGnss(gnssCallback_);
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
+    lock.lock();
+    if (gnssCallback_ == nullptr) {
+        LBSLOGE(GNSS, "gnssCallback_ is nullptr");
+        lock.unlock();
+        return false;
+    }
+    int32_t ret = gnssInterface->EnableGnss(gnssCallback_);
+    lock.unlock();
     LBSLOGD(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_WORKING_STATUS_ENGINE_ON;
@@ -890,15 +935,16 @@ bool GnssAbility::EnableGnss()
 
 void GnssAbility::DisableGnss()
 {
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface is nullptr");
         return;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    int ret = gnssInterface_->DisableGnss();
+    int ret = gnssInterface->DisableGnss();
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_WORKING_STATUS_ENGINE_OFF;
     } else {
@@ -915,7 +961,7 @@ bool GnssAbility::IsGnssEnabled()
 
 void GnssAbility::RestGnssWorkStatus()
 {
-    std::unique_lock<std::mutex> uniqueLock(statusMutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
 }
 
@@ -925,8 +971,9 @@ void GnssAbility::StartGnss()
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return;
     }
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface is nullptr");
         return;
     }
     if (!IsGnssEnabled()) {
@@ -941,7 +988,7 @@ void GnssAbility::StartGnss()
         return;
     }
     SetPositionMode();
-    int ret = gnssInterface_->StartGnss(GNSS_START_TYPE_NORMAL);
+    int ret = gnssInterface->StartGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_BEGIN;
         WriteLocationInnerEvent(START_GNSS, {});
@@ -957,16 +1004,17 @@ void GnssAbility::StartGnss()
 
 void GnssAbility::StopGnss()
 {
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface_ is nullptr");
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface is nullptr");
         return;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    
-    int ret = gnssInterface_->StopGnss(GNSS_START_TYPE_NORMAL);
+
+    int ret = gnssInterface->StopGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_END;
         WriteLocationInnerEvent(STOP_GNSS, {});
@@ -980,59 +1028,150 @@ void GnssAbility::StopGnss()
     }
 }
 
-bool GnssAbility::ConnectHdi()
+bool GnssAbility::IsDeviceLoaded(const std::string &servName)
 {
     auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
     if (devmgr == nullptr) {
         LBSLOGE(GNSS, "fail to get devmgr.");
         return false;
     }
-    if (devmgr->LoadDevice(GNSS_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load gnss service failed!");
+    std::vector<OHOS::HDI::DeviceManager::V1_0::HdiDevHostInfo> deviceInfos;
+    int ret = devmgr->ListAllDevice(deviceInfos);
+    if (ret != HDF_SUCCESS) {
+        LBSLOGE(GNSS, "get listAllDevice failed");
         return false;
     }
-#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-    if (devmgr->LoadDevice(AGNSS_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load agnss service failed!");
-        return false;
-    }
-#endif
-    if (devmgr->LoadDevice(GEOFENCE_SERVICE_NAME) != 0) {
-        LBSLOGE(GNSS, "Load gnss service failed!");
-        return false;
-    }
-    std::unique_lock<std::mutex> lock(hdiMutex_, std::defer_lock);
-    lock.lock();
-    gnssInterface_ = IGnssInterface::Get();
-#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    geofenceInterface_ = IGeofenceInterface::Get();
-    if (geofenceInterface_ != nullptr) {
-        geofenceCallback_ = sptr<GeofenceEventCallback>(new (std::nothrow) GeofenceEventCallback);
-        SetGeofenceCallback();
-    }
-#endif
-#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
-    agnssInterface_ = IAGnssInterface::Get();
-    if (agnssInterface_ != nullptr) {
-        agnssCallback_ = new (std::nothrow) AGnssEventCallback();
-    }
-#endif
-    if (gnssInterface_ != nullptr) {
-        LBSLOGD(GNSS, "connect v2_0 hdi success.");
-        if (gnssCallback_ == nullptr) {
-            gnssCallback_ = new (std::nothrow) GnssEventCallback();
+    auto itDevicesInfo = deviceInfos.begin();
+    for (;itDevicesInfo != deviceInfos.end(); itDevicesInfo++) {
+        if (itDevicesInfo->hostName == LOCATION_HOST_NAME) {
+            break;
         }
-        RegisterLocationHdiDeathRecipient();
-        lock.unlock();
-        return true;
+    }
+    if (itDevicesInfo == deviceInfos.end()) {
+        LBSLOGE(GNSS, "The host is not found:%{public}s", LOCATION_HOST_NAME);
+        return false;
+    }
+    auto itDevInfo = itDevicesInfo->devInfo.begin();
+    for (;itDevInfo != itDevicesInfo->devInfo.end(); itDevInfo++) {
+        if (itDevInfo->servName == servName) {
+            break;
+        }
+    }
+    if (itDevInfo == itDevicesInfo->devInfo.end()) {
+        LBSLOGE(GNSS, "The devices is not found:%{public}s in host %{public}s", servName.c_str(), LOCATION_HOST_NAME);
+        return false;
+    }
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
+    LBSLOGI(GNSS, "check host:%{public}s dev:%{public}s loaded",
+        itDevicesInfo->hostName.c_str(), itDevInfo->servName.c_str());
+    return true;
+}
+
+bool GnssAbility::ConnectGnssHdi()
+{
+    auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
+    if (devmgr == nullptr) {
+        LBSLOGE(GNSS, "fail to get devmgr.");
+        return false;
+    }
+    if (!IsDeviceLoaded(GNSS_SERVICE_NAME)) {
+        if (devmgr->LoadDevice(GNSS_SERVICE_NAME) != HDF_SUCCESS) {
+            LBSLOGE(GNSS, "Load gnss service failed!");
+            return false;
+        }
+    }
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "gnssInterface get failed");
+        return false;
+    }
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
+    lock.lock();
+    if (gnssCallback_ == nullptr) {
+        gnssCallback_ = new (std::nothrow) GnssEventCallback();
     }
     lock.unlock();
-    LBSLOGE(GNSS, "connect v2_0 hdi failed.");
-    return false;
+    RegisterLocationHdiDeathRecipient();
+    LBSLOGI(GNSS, "ConnectGnssHdi success");
+    return true;
+}
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+bool GnssAbility::ConnectAgnssHdi()
+{
+    auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
+    if (devmgr == nullptr) {
+        LBSLOGE(GNSS, "fail to get devmgr.");
+        return false;
+    }
+    if (!IsDeviceLoaded(AGNSS_SERVICE_NAME)) {
+        if (devmgr->LoadDevice(AGNSS_SERVICE_NAME) != HDF_SUCCESS) {
+            LBSLOGE(GNSS, "Load agnss service failed!");
+            return false;
+        }
+    }
+    sptr<IAGnssInterface> agnssInterface = IAGnssInterface::Get();
+    if (agnssInterface == nullptr) {
+        LBSLOGE(GNSS, "agnssInterface get failed");
+        return false;
+    }
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_);
+    if (agnssCallback_ == nullptr) {
+        agnssCallback_ = new (std::nothrow) AGnssEventCallback();
+    }
+    LBSLOGI(GNSS, "ConnectAgnssHdi success");
+    return true;
+}
+#endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+bool GnssAbility::ConnectGeofenceHdi()
+{
+    auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
+    if (devmgr == nullptr) {
+        LBSLOGE(GNSS, "fail to get devmgr.");
+        return false;
+    }
+    if (!IsDeviceLoaded(GEOFENCE_SERVICE_NAME)) {
+        if (devmgr->LoadDevice(GEOFENCE_SERVICE_NAME) != HDF_SUCCESS) {
+            LBSLOGE(GNSS, "Load geofence service failed!");
+            return false;
+        }
+    }
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_);
+    if (geofenceCallback_ == nullptr) {
+        geofenceCallback_ = sptr<GeofenceEventCallback>(new (std::nothrow) GeofenceEventCallback);
+    }
+    bool ret = SetGeofenceCallback();
+    if (!ret) {
+        LBSLOGE(GNSS, "ConnectGeofenceHdi fail");
+        return false;
+    }
+    LBSLOGI(GNSS, "ConnectGeofenceHdi success");
+    return true;
+}
+#endif
+
+bool GnssAbility::ConnectHdi()
+{
+    if (!ConnectGnssHdi()) {
+        return false;
+    }
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+    if (!ConnectAgnssHdi()) {
+        return false;
+    }
+#endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+    if (!ConnectGeofenceHdi()) {
+        return false;
+    }
+#endif
+    LBSLOGI(GNSS, "connect v2_0 hdi success.");
+    return true;
 }
 
 bool GnssAbility::RemoveHdi()
 {
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_);
     auto devmgr = HDI::DeviceManager::V1_0::IDeviceManager::Get();
     if (devmgr == nullptr) {
         LBSLOGE(GNSS, "fail to get devmgr.");
@@ -1043,14 +1182,12 @@ bool GnssAbility::RemoveHdi()
         return false;
     }
     gnssCallback_ = nullptr;
-    gnssInterface_ = nullptr;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     if (devmgr->UnloadDevice(AGNSS_SERVICE_NAME) != 0) {
         LBSLOGE(GNSS, "Unload agnss service failed!");
         return false;
     }
     agnssCallback_ = nullptr;
-    agnssInterface_ = nullptr;
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     if (devmgr->UnloadDevice(GEOFENCE_SERVICE_NAME) != 0) {
@@ -1058,7 +1195,6 @@ bool GnssAbility::RemoveHdi()
         return false;
     }
     geofenceCallback_ = nullptr;
-    geofenceInterface_ = nullptr;
 #endif
     LBSLOGI(GNSS, "RemoveHdi success.");
     return true;
@@ -1067,10 +1203,6 @@ bool GnssAbility::RemoveHdi()
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 void GnssAbility::SetAgnssServer()
 {
-    if (agnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "agnssInterface_ is nullptr");
-        return;
-    }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
@@ -1082,25 +1214,32 @@ void GnssAbility::SetAgnssServer()
         return;
     }
     int port = LocationConfigManager::GetInstance()->GetAgnssServerPort();
+    sptr<IAGnssInterface> agnssInterface = IAGnssInterface::Get();
+    if (agnssInterface == nullptr) {
+        LBSLOGE(GNSS, "agnssInterface is nullptr");
+        return;
+    }
     AGnssServerInfo info;
     info.type = AGNSS_TYPE_SUPL;
     info.server = addrName;
     info.port = port;
-    agnssInterface_->SetAgnssServer(info);
+    agnssInterface->SetAgnssServer(info);
 }
 
 void GnssAbility::SetAgnssCallback()
 {
     LBSLOGD(GNSS, "enter SetAgnssCallback");
-    if (agnssInterface_ == nullptr || agnssCallback_ == nullptr) {
-        LBSLOGE(GNSS, "agnssInterface_ or agnssCallback_ is nullptr");
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_);
+    sptr<IAGnssInterface> agnssInterface = IAGnssInterface::Get();
+    if (agnssInterface == nullptr || agnssCallback_ == nullptr) {
+        LBSLOGE(GNSS, "agnssInterface or agnssCallback_ is nullptr");
         return;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    agnssInterface_->SetAgnssCallback(agnssCallback_);
+    agnssInterface->SetAgnssCallback(agnssCallback_);
 }
 
 void GnssAbility::SetSetId(const SubscriberSetId& id)
@@ -1117,15 +1256,16 @@ void GnssAbility::SetSetId(const SubscriberSetId& id)
 
 void GnssAbility::SetSetIdImpl(const SubscriberSetId& id)
 {
-    if (agnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "agnssInterface_ is nullptr");
+    sptr<IAGnssInterface> agnssInterface = IAGnssInterface::Get();
+    if (agnssInterface == nullptr) {
+        LBSLOGE(GNSS, "agnssInterface is nullptr");
         return;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    agnssInterface_->SetSubscriberSetId(id);
+    agnssInterface->SetSubscriberSetId(id);
 }
 
 void GnssAbility::SetRefInfo(const AGnssRefInfo& refInfo)
@@ -1141,15 +1281,16 @@ void GnssAbility::SetRefInfo(const AGnssRefInfo& refInfo)
 
 void GnssAbility::SetRefInfoImpl(const AGnssRefInfo &refInfo)
 {
-    if (agnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "agnssInterface_ is nullptr");
+    sptr<IAGnssInterface> agnssInterface = IAGnssInterface::Get();
+    if (agnssInterface == nullptr) {
+        LBSLOGE(GNSS, "agnssInterface is nullptr");
         return;
     }
     if (!IsGnssEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    agnssInterface_->SetAgnssRefInfo(refInfo);
+    agnssInterface->SetAgnssRefInfo(refInfo);
 }
 
 AGnssRefInfo AgnssRefInfoMessage::GetAgnssRefInfo()
@@ -1330,6 +1471,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             SendEvent(event, reply);
             break;
         }
+#ifdef NOTIFICATION_ENABLE
         case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE): {
             auto request = GeofenceRequest::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
@@ -1356,6 +1498,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             SendEvent(event, reply);
             break;
         }
+#endif
         case static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION): {
             auto request = Location::Unmarshalling(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
@@ -1382,11 +1525,12 @@ void GnssAbility::SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParce
 
 void GnssAbility::RegisterLocationHdiDeathRecipient()
 {
-    if (gnssInterface_ == nullptr) {
-        LBSLOGE(GNSS, "%{public}s: gnssInterface_ is nullptr", __func__);
+    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
+        LBSLOGE(GNSS, "%{public}s: gnssInterface is nullptr", __func__);
         return;
     }
-    sptr<IRemoteObject> obj = OHOS::HDI::hdi_objcast<IGnssInterface>(gnssInterface_);
+    sptr<IRemoteObject> obj = OHOS::HDI::hdi_objcast<IGnssInterface>(gnssInterface);
     if (obj == nullptr) {
         LBSLOGE(GNSS, "%{public}s: hdi obj is nullptr", __func__);
         return;
@@ -1406,35 +1550,35 @@ void GnssHandler::InitGnssEventProcessMap()
         return;
     }
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::EVENT_REPORT_MOCK_LOCATION)] =
-        &GnssHandler::HandleReportMockLocation;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleReportMockLocation(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST)] =
-        &GnssHandler::HandleSendLocationRequest;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSendLocationRequest(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        &GnssHandler::HandleSetMockedLocations;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetMockedLocations(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
-        &GnssHandler::HandleSendCommands;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSendCommands(event); };
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_SUBSCRIBER_SET_ID)] =
-        &GnssHandler::HandleSetSubscriberSetId;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetSubscriberSetId(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_AGNSS_REF_INFO)] =
-        &GnssHandler::HandleSetAgnssRefInfo;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetAgnssRefInfo(event); };
 #endif
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::RECONNECT_HDI)] =
-        &GnssHandler::HandleReconnectHdi;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleReconnectHdi(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] =
-        &GnssHandler::HandleSetEnable;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetEnable(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI)] =
-        &GnssHandler::HandleInitHdi;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleInitHdi(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE)] =
-        &GnssHandler::HandleAddFence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleAddFence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE)] =
-        &GnssHandler::HandleRemoveFence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRemoveFence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE)] =
-        &GnssHandler::HandleAddGeofence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleAddGeofence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE)] =
-        &GnssHandler::HandleRemoveGeofence;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRemoveGeofence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
-        &GnssHandler::HandleSendNetworkLocation;
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSendNetworkLocation(event); };
 }
 
 GnssHandler::~GnssHandler() {}
@@ -1451,7 +1595,7 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto handleFunc = gnssEventProcessMap_.find(eventId);
     if (handleFunc != gnssEventProcessMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        (this->*memberFunc)(event);
+        memberFunc(event);
     }
     gnssAbility->UnloadGnssSystemAbility();
 }
@@ -1566,9 +1710,7 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
         LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
         return;
     }
-    if (!gnssAbility->CheckIfHdiConnected()) {
-        gnssAbility->ConnectHdi();
-    }
+    gnssAbility->ConnectHdi();
     gnssAbility->EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     gnssAbility->SetAgnssCallback();

@@ -39,7 +39,9 @@
 #include "common_hisysevent.h"
 #include "hook_utils.h"
 #include "permission_manager.h"
+#ifdef DEVICE_STANDBY_ENABLE
 #include "standby_service_client.h"
+#endif
 
 #ifdef RES_SCHED_SUPPROT
 #include "res_type.h"
@@ -48,7 +50,7 @@
 
 namespace OHOS {
 namespace Location {
-std::mutex RequestManager::requestMutex_;
+ffrt::mutex RequestManager::requestMutex_;
 
 RequestManager* RequestManager::GetInstance()
 {
@@ -77,9 +79,9 @@ bool RequestManager::InitSystemListeners()
     return true;
 }
 
-void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
+void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart)
 {
-    std::unique_lock<std::mutex> lock(permissionRecordMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(permissionRecordMutex_, std::defer_lock);
     lock.lock();
     if (request == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "request is null");
@@ -88,26 +90,25 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
     }
     LBSLOGD(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
         request->GetTokenId(), request->GetFirstTokenId());
-    UpdateUsingApproximatelyPermission(request);
+    UpdateUsingApproximatelyPermission(request, isStart);
     lock.unlock();
 }
 
-void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request)
+void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart)
 {
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility == nullptr) {
+        return;
+    }
     uint32_t callingTokenId = request->GetTokenId();
-    uint32_t callingFirstTokenid = request->GetFirstTokenId();
-    int32_t uid = request->GetUid();
-    if (IsUidInProcessing(uid) &&
-        PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        if (!request->GetApproximatelyPermState()) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-            request->SetApproximatelyPermState(true);
-        }
-    } else {
-        if (request->GetApproximatelyPermState()) {
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-            request->SetApproximatelyPermState(false);
-        }
+    if (isStart && !request->GetApproximatelyPermState()) {
+        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
+            ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
+        request->SetApproximatelyPermState(true);
+    } else if (!isStart && request->GetApproximatelyPermState()) {
+        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        request->SetApproximatelyPermState(false);
     }
 }
 
@@ -150,7 +151,6 @@ void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
         locatorAbility->RegisterPermissionCallback(request->GetTokenId(),
             {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
         UpdateRequestRecord(request, true);
-        UpdateUsingPermission(request);
         locatorDftManager->LocationSessionStart(request);
     }
     // process location request
@@ -298,7 +298,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
-    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
     auto receivers = locatorAbility->GetReceivers();
     if (receivers == nullptr) {
@@ -345,7 +345,10 @@ void RequestManager::DeleteRequestRecord(std::shared_ptr<std::list<std::shared_p
     for (auto iter = requests->begin(); iter != requests->end(); ++iter) {
         auto request = *iter;
         UpdateRequestRecord(request, false);
-        UpdateUsingPermission(request);
+        UpdateUsingPermission(request, false);
+        if (request->GetLocatorCallBack() != nullptr && request->GetLocatorCallbackRecipient() != nullptr) {
+            request->GetLocatorCallBack()->AsObject()->RemoveDeathRecipient(request->GetLocatorCallbackRecipient());
+        }
         auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
         if (locatorBackgroundProxy == nullptr) {
             LBSLOGE(REQUEST_MANAGER, "DeleteRequestRecord: LocatorBackgroundProxy is nullptr.");
@@ -362,7 +365,7 @@ void RequestManager::HandleRequest()
         LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
         return;
     }
-    std::unique_lock<std::mutex> lock(requestMutex_, std::defer_lock);
+    std::unique_lock<ffrt::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
     auto requests = locatorAbility->GetRequests();
     lock.unlock();
@@ -386,10 +389,14 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
         auto request = *iter;
         if (!AddRequestToWorkRecord(abilityName, request, workRecord)) {
             UpdateUsingApproximatelyStatus(request, false);
+            WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
+                    "abilityName", abilityName, "requestAddress", request->GetUuid()});
+            UpdateUsingPermission(request, false);
             continue;
         } else {
             UpdateUsingApproximatelyStatus(request, true);
         }
+        UpdateUsingPermission(request, true);
         if (!ActiveLocatingStrategies(request)) {
             continue;
         }
@@ -476,9 +483,11 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     int switchState = DISABLED;
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr && locatorAbility->GetSwitchState(switchState) == ERRCODE_SUCCESS) {
-        if (switchState == DISABLED && locationErrorCallback != nullptr) {
+        if (switchState == DISABLED) {
+            if (locationErrorCallback != nullptr) {
+                locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
+            }
             LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
-            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
             return false;
         }
     }
@@ -657,7 +666,7 @@ void RequestManager::HandlePermissionChanged(uint32_t tokenId)
 
 bool RequestManager::IsUidInProcessing(int32_t uid)
 {
-    std::unique_lock<std::mutex> lock(runningUidsMutex_);
+    std::unique_lock<ffrt::mutex> lock(runningUidsMutex_);
     auto iter = runningUidMap_.find(uid);
     if (iter == runningUidMap_.end()) {
         return false;
@@ -667,7 +676,7 @@ bool RequestManager::IsUidInProcessing(int32_t uid)
 
 void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd)
 {
-    std::unique_lock<std::mutex> lock(runningUidsMutex_);
+    std::unique_lock<ffrt::mutex> lock(runningUidsMutex_);
     auto uid = request->GetUid();
     auto pid = request->GetPid();
     int32_t uidCount = 0;

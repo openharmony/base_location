@@ -64,13 +64,11 @@ void WriteLocationInnerEvent(const int event, std::initializer_list<std::string>
         }
         flag = !flag;
     }
-    WriteEvent("LBS_CHR_INNER_EVENT", "EVENT", event, "NAMES", names, "VALUES", values);
     HookUtils::ExecuteHookWhenReportInnerInfo(event, names, values);
 }
 
 void WriteLocationInnerEvent(const int event, std::vector<std::string> names, std::vector<std::string>& values)
 {
-    WriteEvent("LBS_CHR_INNER_EVENT", "EVENT", event, "NAMES", names, "VALUES", values);
     HookUtils::ExecuteHookWhenReportInnerInfo(event, names, values);
 }
 }  // namespace Location

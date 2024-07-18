@@ -55,7 +55,7 @@ HWTEST_F(LocatorEventManagerTest, DftHandlerTest002, TestSize.Level1)
         << "LocatorEventManagerTest, DftHandlerTest002, TestSize.Level1";
     LBSLOGI(LOCATOR_EVENT, "[LocatorEventManagerTest] DftHandlerTest002 begin");
     std::shared_ptr<DftHandler> dftHandler =
-        std::make_shared<DftHandler>(AppExecFwk::EventRunner::Create(true));
+        std::make_shared<DftHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     EXPECT_NE(nullptr, dftHandler);
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(0, dftHandler, 0);

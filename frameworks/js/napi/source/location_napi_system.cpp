@@ -15,17 +15,17 @@
 
 #include "location_napi_system.h"
 
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "location_log.h"
 #include "locator.h"
 #include "napi_util.h"
 
 namespace OHOS {
 namespace Location {
-sptr<LocatorCallbackHost> g_systemSingleLocatorCallbackHost =
-    sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
-sptr<LocatorCallbackHost> g_systemSubcribeCallbackHost =
-    sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+sptr<LocatorCallbackNapi> g_systemSingleLocatorCallbackHost =
+    sptr<LocatorCallbackNapi>(new (std::nothrow)LocatorCallbackNapi());
+sptr<LocatorCallbackNapi> g_systemSubcribeCallbackHost =
+    sptr<LocatorCallbackNapi>(new (std::nothrow)LocatorCallbackNapi());
 auto g_locatorImpl = Locator::GetInstance();
 
 napi_value GetLocationOnce(const napi_env& env,
@@ -188,7 +188,7 @@ void SubscribeSystemLocationChange(napi_env env,
                                    napi_ref& successHandlerRef,
                                    napi_ref& failHandlerRef,
                                    int fixNumber,
-                                   sptr<LocatorCallbackHost>& locatorCallbackHost)
+                                   sptr<LocatorCallbackNapi>& locatorCallbackHost)
 {
     auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
     if (locatorCallbackHost->GetSuccHandleCb() != nullptr ||

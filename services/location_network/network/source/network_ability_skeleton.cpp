@@ -38,17 +38,29 @@ void NetworkAbilityStub::InitNetworkMsgHandleMap()
         return;
     }
     NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST)] =
-        &NetworkAbilityStub::SendLocationRequestInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SendLocationRequestInner(data, reply, identity);
+        };
     NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        &NetworkAbilityStub::SetMockLocationsInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SetMockLocationsInner(data, reply, identity);
+        };
     NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST)] =
-        &NetworkAbilityStub::SelfRequestInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SelfRequestInner(data, reply, identity);
+        };
     NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE)] =
-        &NetworkAbilityStub::SetEnableInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SetEnableInner(data, reply, identity);
+        };
     NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::ENABLE_LOCATION_MOCK)] =
-        &NetworkAbilityStub::EnableMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return EnableMockInner(data, reply, identity);
+        };
     NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::DISABLE_LOCATION_MOCK)] =
-        &NetworkAbilityStub::DisableMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return DisableMockInner(data, reply, identity);
+        };
 }
 
 NetworkAbilityStub::NetworkAbilityStub()
@@ -124,12 +136,11 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     AppIdentity identity;
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
-    LBSLOGD(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
+    LBSLOGI(NETWORK, "OnRemoteRequest cmd = %{public}u, flags= %{public}d, pid= %{public}d, uid= %{public}d",
         code, option.GetFlags(), callingPid, callingUid);
 
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(NETWORK, "invalid token.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int ret = ERRCODE_SUCCESS;
@@ -137,10 +148,9 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     auto handleFunc = NetworkMsgHandleMap_.find(code);
     if (handleFunc != NetworkMsgHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        ret = (this->*memberFunc)(data, reply, identity);
+        ret = memberFunc(data, reply, identity);
     } else {
         LBSLOGE(NETWORK, "OnReceived cmd = %{public}u, unsupport service.", code);
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     if (!isMessageRequest_) {

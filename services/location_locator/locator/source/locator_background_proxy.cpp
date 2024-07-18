@@ -172,22 +172,6 @@ void LocatorBackgroundProxy::StartLocator()
 
 void LocatorBackgroundProxy::UpdateListOnRequestChange(const std::shared_ptr<Request>& request)
 {
-    if (request == nullptr) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "request is null");
-        return;
-    }
-    int32_t uid = request->GetUid();
-    std::string bundleName;
-    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Fail to Get bundle name: uid = %{public}d.", uid);
-        return;
-    }
-    UpdateListOnSuspend(request, !IsAppBackground(bundleName));
-    if (requestsList_->empty()) {
-        StopLocator();
-    } else {
-        StartLocator();
-    }
 }
 
 // called when the app freezes or wakes up
@@ -200,12 +184,6 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
     }
     if (!isUserSwitchSubscribed_) {
         isUserSwitchSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
-    }
-    UpdateListOnSuspend(request, active);
-    if (requestsList_->empty()) {
-        StopLocator();
-    } else {
-        StartLocator();
     }
 }
 
@@ -259,41 +237,6 @@ bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& req
 
 void LocatorBackgroundProxy::UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active)
 {
-    if (request == nullptr) {
-        return;
-    }
-    auto requestManager = RequestManager::GetInstance();
-    if (requestManager == nullptr) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "UpdateListOnSuspend: RequestManager is nullptr.");
-        return;
-    }
-    requestManager->UpdateUsingPermission(request);
-    std::unique_lock lock(requestListMutex_);
-    auto userId = GetUserId(request->GetUid());
-    auto iter = requestsMap_->find(userId);
-    if (iter == requestsMap_->end()) {
-        return;
-    }
-    auto requestsList = iter->second;
-    auto it = find(requestsList->begin(), requestsList->end(), request);
-    if (it != requestsList->end()) {
-        if (active || !CheckPermission(request)) {
-            LBSLOGD(LOCATOR_BACKGROUND_PROXY, "remove request:%{public}s from User:%{public}d",
-                request->ToString().c_str(), userId);
-            requestsList->remove(request);
-        }
-    } else {
-        if (request->GetRequestConfig() == nullptr) {
-            return;
-        }
-        //App in Location ContinuousTasks or app has visible cards are not add to requestList of LocatorBackgroundProxy
-        if (!active && CheckPermission(request) && request->GetRequestConfig()->GetFixNumber() == 0
-            && CheckMaxRequestNum(request->GetUid(), request->GetPackageName())) {
-            LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add request:%{public}s from User:%{public}d",
-                request->ToString().c_str(), userId);
-            requestsList->push_back(request);
-        }
-    }
 }
 
 void LocatorBackgroundProxy::UpdateListOnUserSwitch(int32_t userId)
@@ -570,9 +513,6 @@ bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
 bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
 {
     bool ret = false;
-    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
-        return ret;
-    }
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
         return ret;

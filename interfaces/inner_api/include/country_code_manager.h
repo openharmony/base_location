@@ -80,7 +80,7 @@ private:
 
     std::shared_ptr<CountryCode> lastCountryByLocation_;
     std::shared_ptr<CountryCode> lastCountry_;
-    std::unique_ptr<std::map<pid_t, sptr<ICountryCodeCallback>>> countryCodeCallback_;
+    std::vector<sptr<ICountryCodeCallback>> countryCodeCallbacks_;
     std::shared_ptr<SimSubscriber> simSubscriber_;
     std::shared_ptr<NetworkSubscriber> networkSubscriber_;
     std::mutex simSubscriberMutex_;

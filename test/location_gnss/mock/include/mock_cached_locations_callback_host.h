@@ -22,16 +22,16 @@
 #include "message_option.h"
 #include "message_parcel.h"
 
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #include "location.h"
 
 namespace OHOS {
 namespace Location {
-class MockCachedLocationsCallbackHost : public CachedLocationsCallbackHost {
+class MockCachedLocationsCallbackHost : public CachedLocationsCallbackNapi {
 public:
     MockCachedLocationsCallbackHost() {}
     ~MockCachedLocationsCallbackHost() {}
-    
+
     MOCK_METHOD(int, OnRemoteRequest, (uint32_t code, MessageParcel& data,
         MessageParcel& reply, MessageOption& option));
     MOCK_METHOD(void, OnCacheLocationsReport, (const std::vector<std::unique_ptr<Location>>& locations));

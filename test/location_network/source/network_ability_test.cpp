@@ -16,6 +16,9 @@
 #ifdef FEATURE_NETWORK_SUPPORT
 #include "network_ability_test.h"
 
+#define private public
+#include "network_ability.h"
+#undef private
 #include <cstdlib>
 #include "accesstoken_kit.h"
 #include "if_system_ability_manager.h"
@@ -32,10 +35,30 @@
 #include "location_dumper.h"
 #include "location_log.h"
 #include "network_ability_skeleton.h"
+#include "gmock/gmock.h"
+#include "common_utils.h"
+#include "mock_i_remote_object.h"
 
+#include <gtest/gtest.h>
 #include "network_callback_host.h"
 #include "permission_manager.h"
+#include "locationhub_ipc_interface_code.h"
+#include "location_data_rdb_manager.h"
 
+#include "locationhub_ipc_interface_code.h"
+#include "location_sa_load_manager.h"
+#include "system_ability_definition.h"
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
+#include "location_log.h"
+
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
+#include "parameter.h"
+#include "accesstoken_kit.h"
+#include "os_account_manager.h"
+
+using namespace testing;
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
@@ -127,6 +150,8 @@ HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 begin");
+    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false));
     /*
      * @tc.steps: step1.remove SA
      * @tc.expected: step1. object1 is null.
@@ -212,7 +237,6 @@ HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop001, TestSize.Level1)
         (ServiceRunningState)ability_->QueryServiceState()); // after mock
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop001 end");
 }
-
 
 HWTEST_F(NetworkAbilityTest, NetworkDump001, TestSize.Level1)
 {
@@ -304,6 +328,8 @@ HWTEST_F(NetworkAbilityTest, NetworkSendReportMockLocationEvent002, TestSize.Lev
  */
 HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1)
 {
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkConnectNlpService001, TestSize.Level1";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 begin");
     EXPECT_EQ(false, ability_->ReConnectNlpService());
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService001 end");
@@ -445,7 +471,21 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilityProcessReportLocationMock001, TestSiz
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock001 begin");
     ability_->mockLocationIndex_ = -1;
     ability_->networkHandler_ = nullptr;
-    ability_->ProcessReportLocationMock();
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteInt32(1); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    ability_->CacheLocationMock(locations);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock001 end");
 }
 
@@ -456,8 +496,7 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendReportMockLocationEvent001, TestS
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilitySendReportMockLocationEvent001 begin");
     ability_->networkHandler_ = nullptr;
     ability_->SendReportMockLocationEvent();
-
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));;
+    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
     ability_->SendReportMockLocationEvent();
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilitySendReportMockLocationEvent001 end");
 }
@@ -476,7 +515,7 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendMessage001, TestSize.Level1)
     ability_->networkHandler_ = nullptr;
     ability_->SendMessage(0, requestParcel, reply);
 
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));;
+    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
     ability_->SendMessage(0, requestParcel, reply);
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilitySendMessage001 end");
 }
@@ -489,6 +528,218 @@ HWTEST_F(NetworkAbilityTest, ResetServiceProxy001, TestSize.Level1)
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
     EXPECT_EQ(true, ability->ResetServiceProxy()); // Connect success
     LBSLOGI(NETWORK, "[NetworkAbilityTest] ResetServiceProxy001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RequestNetworkLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RequestNetworkLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation001 begin");
+    auto workRecord = std::make_shared<WorkRecord>();
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    EXPECT_NE(nullptr, nlpServiceProxy);
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    request->SetUid(1);
+    request->SetPid(2);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+    request->SetNlpRequestType(1);
+    workRecord->Add(request);
+    ability_->RequestNetworkLocation(*workRecord);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RemoveNetworkLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RemoveNetworkLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation001 begin");
+    auto workRecord = std::make_shared<WorkRecord>();
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    EXPECT_NE(nullptr, nlpServiceProxy);
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(0);
+    request->SetUid(1);
+    request->SetPid(2);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetUuid(std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM)));
+    request->SetNlpRequestType(1);
+    workRecord->Add(request);
+    ability_->RemoveNetworkLocation(*workRecord);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation001 end");
+}
+
+#ifdef FEATURE_PASSIVE_SUPPORT
+HWTEST_F(NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 begin");
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteInt32(1); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    ability_->ReportMockedLocation(locations);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 end");
+}
+#endif
+
+HWTEST_F(NetworkAbilityTest, RegisterNLPServiceDeathRecipient001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RegisterNLPServiceDeathRecipient001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient001 begin");
+    ability_->RegisterNLPServiceDeathRecipient();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, ReportLocationError001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReportLocationError001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportLocationError001 begin");
+    ability_->ReportLocationError(0, "", "");
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportLocationError001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 begin");
+    std::shared_ptr<Location> location = std::make_shared<Location>();
+    ability_-> ReportMockedLocation(location);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReportMockedLocation001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, OnRemoteDied001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, OnRemoteDied001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] OnRemoteDied001 begin");
+    auto deathRecipient = new (std::nothrow) NLPServiceDeathRecipient();
+    const wptr<IRemoteObject> object;
+    deathRecipient->OnRemoteDied(object);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] OnRemoteDied001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkOnStartAndOnStop002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkOnStartAndOnStop002, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop002 begin");
+    ability_->state_ = ServiceRunningState::STATE_RUNNING;
+    ability_->OnStart(); // start ability
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkOnStartAndOnStop002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkConnectNlpService002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkConnectNlpService002, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService002 begin");
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    EXPECT_NE(nullptr, nlpServiceProxy);
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    ability_->ConnectNlpService();
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkConnectNlpService002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, ReConnectNlpService002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, ReConnectNlpService002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService002 begin");
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    EXPECT_NE(nullptr, nlpServiceProxy);
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    ability_->ReConnectNlpService(); // Connect success
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] ReConnectNlpService002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, SetEnableAndDisable002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, SetEnableAndDisable002, TestSize.Level1";
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable002 begin");
+    /*
+     * @tc.steps: step1.remove SA
+     * @tc.expected: step1. object1 is null.
+     */
+    ability_->networkHandler_ = nullptr;
+    ability_->SetEnable(false); // after mock, sa obj is nullptr
+    /*
+     * @tc.steps: step2. test enable SA
+     * @tc.expected: step2. object2 is not null.
+     */
+    ability_->SetEnable(true); // after mock, sa obj is nullptr
+    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, UnloadNetworkSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, UnloadNetworkSystemAbility001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] UnloadNetworkSystemAbility001 begin");
+    ability_->networkHandler_ = nullptr;
+    ability_->UnloadNetworkSystemAbility();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] UnloadNetworkSystemAbility001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RequestNetworkLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RequestNetworkLocation002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation002 begin");
+    ability_->nlpServiceProxy_ = nullptr;
+    WorkRecord workRecord;
+    EXPECT_EQ(false, ability_->RequestNetworkLocation(workRecord));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestNetworkLocation002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RemoveNetworkLocation002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RemoveNetworkLocation002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation002 begin");
+    ability_->nlpServiceProxy_ = nullptr;
+    WorkRecord workRecord;
+    EXPECT_EQ(false, ability_->RemoveNetworkLocation(workRecord));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, RegisterNLPServiceDeathRecipient002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, RegisterNLPServiceDeathRecipient002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient002 begin");
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    EXPECT_NE(nullptr, nlpServiceProxy);
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    ability_->RegisterNLPServiceDeathRecipient();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient002 end");
 }
 } // namespace Location
 } // namespace OHOS

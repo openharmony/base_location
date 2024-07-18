@@ -21,20 +21,20 @@
 #include "iremote_proxy.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
-#include "country_code_callback_host.h"
+#include "country_code_callback_napi.h"
 #include "locator_callback_proxy.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #endif
 #include "i_locator.h"
 #include "locator_proxy.h"
-#include "location_switch_callback_host.h"
-#include "locator_callback_host.h"
+#include "location_switch_callback_napi.h"
+#include "locator_callback_napi.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 
 

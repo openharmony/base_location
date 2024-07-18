@@ -31,6 +31,7 @@ namespace OHOS {
 using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t LOCATION_PERM_NUM = 4;
+const int32_t WAIT_EVENT_TIME = 3;
 void MockNativePermission()
 {
     const char *perms[] = {
@@ -825,7 +826,10 @@ bool LocatorAbilityStub045FuzzTest(const char* data, size_t size)
     auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK),
         requestParcel, reply, option);
-
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
+    }
     return true;
 }
 } // namespace OHOS
@@ -886,6 +890,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub043FuzzTest(ch, size);
         OHOS::LocatorAbilityStub044FuzzTest(ch, size);
         OHOS::LocatorAbilityStub045FuzzTest(ch, size);
+        sleep(OHOS::WAIT_EVENT_TIME);
         free(ch);
         ch = nullptr;
     }
