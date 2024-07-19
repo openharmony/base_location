@@ -36,6 +36,7 @@ const uint32_t NETWORK_SELF_REQUEST = 4;
 const long NANOS_PER_MILLI = 1000000L;
 const long MAX_GNSS_LOCATION_COMPARISON_MS = 30 * MILLI_PER_SEC;
 const long MAX_INDOOR_LOCATION_COMPARISON_MS = 5 * MILLI_PER_SEC;
+const double MAX_INDOOR_LOCATION_SPEED = 3.0;
 
 FusionController* FusionController::GetInstance()
 {
@@ -111,9 +112,16 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
         return std::make_unique<Location>(*location);
     }
     if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
+        if (CheckIfLastGnssLocationValid(location, std::make_unique<Location>(*lastFuseLocation)) &&
+            lastFuseLocation->GetSpeed() >= MAX_INDOOR_LOCATION_SPEED) {
+            return std::make_unique<Location>(*lastFuseLocation);
+        }
         return std::make_unique<Location>(*location);
     } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE ||
                 location->GetLocationSourceType() == LocationSourceType::RTK_TYPE) {
+        if (location->GetSpeed() >= MAX_INDOOR_LOCATION_SPEED) {
+            return std::make_unique<Location>(*location);
+        }
         if (CheckIfLastIndoorLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
             return std::make_unique<Location>(*lastFuseLocation);
         }
