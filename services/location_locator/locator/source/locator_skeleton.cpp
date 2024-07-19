@@ -397,11 +397,12 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
-        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
-            identity.ToString().c_str());
-        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
-        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(LOCATOR, "check permission failed, [%{public}s]", identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
@@ -650,9 +651,6 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
         LBSLOGE(LOCATOR, "PreStartCacheLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (!CheckLocationSwitchState(reply)) {
-        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
     requestConfig->reportingPeriodSec = data.ReadInt32();
