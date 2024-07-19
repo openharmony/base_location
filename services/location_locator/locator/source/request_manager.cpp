@@ -88,7 +88,7 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request, con
         lock.unlock();
         return;
     }
-    UpdateUsingApproximatelyPermission(request);
+    UpdateUsingApproximatelyPermission(request, isStart);
     lock.unlock();
 }
 
