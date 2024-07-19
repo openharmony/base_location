@@ -152,8 +152,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
-        LBSLOGI(REPORT_MANAGER, "report location to %{public}d, TimeSinceBoot : %{public}s",
-            request->GetTokenId(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
+        LBSLOGI(REPORT_MANAGER, "TimeSinceBoot : %{public}s",
+            std::to_string(finalLocation->GetTimeSinceBoot()).c_str());
         locatorCallback->OnLocationReport(finalLocation);
         // add location permission using record
         int permUsedType = request->GetPermUsedType();
@@ -279,8 +279,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     long deltaMs = (location->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
     if (deltaMs < (minTime * MILLI_PER_SEC - MAX_SA_SCHEDULING_JITTER_MS)) {
         LBSLOGE(REPORT_MANAGER,
-            "%{public}d timeInterval check fail, do not report location, current deltaMs = %{public}ld",
-            request->GetTokenId(), deltaMs);
+            "timeInterval check fail, do not report location, current deltaMs = %{public}ld", deltaMs);
         return false;
     }
 
@@ -288,8 +287,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     double deltaDis = CommonUtils::CalDistance(location->GetLatitude(), location->GetLongitude(),
         request->GetLastLocation()->GetLatitude(), request->GetLastLocation()->GetLongitude());
     if (deltaDis - distanceInterval < 0) {
-        LBSLOGE(REPORT_MANAGER, "%{public}d distanceInterval check fail, do not report location",
-            request->GetTokenId());
+        LBSLOGE(REPORT_MANAGER, "distanceInterval check fail, do not report location");
         return false;
     }
     return true;

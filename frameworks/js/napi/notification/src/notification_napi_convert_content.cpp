@@ -601,7 +601,6 @@ napi_value NotificationNapi::GetMessageUserByBool(
     bool machine = false;
     napi_get_value_bool(env, machineResult, &machine);
     messageUser.SetMachine(machine);
-    ANS_LOGD("MessageUser::isMachine = %{public}d", machine);
 
     // isUserImportant: boolean
     NAPI_CALL(env, napi_has_named_property(env, result, "isUserImportant", &hasProperty));
