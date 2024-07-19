@@ -446,6 +446,13 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (request == nullptr) {
         return false;
     }
+<<<<<<<<< Temporary merge branch 1
+=========
+   
+>>>>>>>>> Temporary merge branch 2
+    if (!request->GetIsRequesting()) {
+        return false;
+    }
     if (!IsRequestAvailable(request)) {
         return false;
     }
