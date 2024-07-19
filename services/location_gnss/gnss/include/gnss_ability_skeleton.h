@@ -65,6 +65,7 @@ public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
+    virtual bool CancelIdleState() = 0;
     virtual void UnloadGnssSystemAbility() = 0;
 private:
     int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

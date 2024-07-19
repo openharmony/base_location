@@ -87,7 +87,7 @@ bool LocatorAbilityStub001FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK),
         requestParcel, reply, option);
 
@@ -104,7 +104,7 @@ bool LocatorAbilityStub002FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ENABLE_ABILITY),
         requestParcel, reply, option);
 
@@ -121,7 +121,7 @@ bool LocatorAbilityStub003FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK),
         requestParcel, reply, option);
 
@@ -138,7 +138,7 @@ bool LocatorAbilityStub004FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_CACHE_LOCATION),
         requestParcel, reply, option);
 
@@ -155,7 +155,7 @@ bool LocatorAbilityStub005FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_ISO_COUNTRY_CODE),
         requestParcel, reply, option);
 
@@ -172,7 +172,7 @@ bool LocatorAbilityStub006FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_SWITCH_STATE),
         requestParcel, reply, option);
 
@@ -189,7 +189,7 @@ bool LocatorAbilityStub007FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::IS_PRIVACY_COMFIRMED),
         requestParcel, reply, option);
 
@@ -206,7 +206,7 @@ bool LocatorAbilityStub008FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE),
         requestParcel, reply, option);
 
@@ -223,7 +223,7 @@ bool LocatorAbilityStub009FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_COUNTRY_CODE_CALLBACK),
         requestParcel, reply, option);
 
@@ -240,7 +240,7 @@ bool LocatorAbilityStub010FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_SWITCH_CALLBACK),
         requestParcel, reply, option);
     
@@ -257,7 +257,7 @@ bool LocatorAbilityStub011FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION),
         requestParcel, reply, option);
     
@@ -274,7 +274,7 @@ bool LocatorAbilityStub012FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::RESET_ALL_PROXY),
         requestParcel, reply, option);
     
@@ -291,7 +291,7 @@ bool LocatorAbilityStub013FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
     
@@ -308,7 +308,7 @@ bool LocatorAbilityStub014FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS),
         requestParcel, reply, option);
     return true;
@@ -324,7 +324,7 @@ bool LocatorAbilityStub015FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::START_LOCATING),
         requestParcel, reply, option);
 
@@ -341,7 +341,7 @@ bool LocatorAbilityStub016FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::STOP_LOCATING),
         requestParcel, reply, option);
 
@@ -358,7 +358,7 @@ bool LocatorAbilityStub017FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UPDATE_SA_ABILITY),
         requestParcel, reply, option);
     return true;
@@ -374,7 +374,7 @@ bool LocatorAbilityStub018FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK),
         requestParcel, reply, option);
 
@@ -391,7 +391,7 @@ bool LocatorAbilityStub019FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK),
         requestParcel, reply, option);
 
@@ -408,7 +408,7 @@ bool LocatorAbilityStub020FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GEO_IS_AVAILABLE),
         requestParcel, reply, option);
 
@@ -425,7 +425,7 @@ bool LocatorAbilityStub021FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE),
         requestParcel, reply, option);
 
@@ -442,7 +442,7 @@ bool LocatorAbilityStub022FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME),
         requestParcel, reply, option);
 
@@ -459,7 +459,7 @@ bool LocatorAbilityStub023FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO),
         requestParcel, reply, option);
 
@@ -476,7 +476,7 @@ bool LocatorAbilityStub024FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ADD_FENCE),
         requestParcel, reply, option);
 
@@ -493,7 +493,7 @@ bool LocatorAbilityStub025FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::FLUSH_CACHED_LOCATIONS),
         requestParcel, reply, option);
 
@@ -510,7 +510,7 @@ bool LocatorAbilityStub026FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_CACHED_LOCATION_SIZE),
         requestParcel, reply, option);
 
@@ -527,7 +527,7 @@ bool LocatorAbilityStub027FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_CACHED_CALLBACK),
         requestParcel, reply, option);
 
@@ -544,7 +544,7 @@ bool LocatorAbilityStub028FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_GNSS_STATUS_CALLBACK),
         requestParcel, reply, option);
 
@@ -561,7 +561,7 @@ bool LocatorAbilityStub029FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK),
         requestParcel, reply, option);
 
@@ -578,7 +578,7 @@ bool LocatorAbilityStub030FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_V9),
         requestParcel, reply, option);
 
@@ -595,7 +595,7 @@ bool LocatorAbilityStub031FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REMOVE_FENCE),
         requestParcel, reply, option);
 
@@ -612,7 +612,7 @@ bool LocatorAbilityStub032FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::SEND_COMMAND),
         requestParcel, reply, option);
 
@@ -629,7 +629,7 @@ bool LocatorAbilityStub033FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_CACHED_CALLBACK),
         requestParcel, reply, option);
 
@@ -646,7 +646,7 @@ bool LocatorAbilityStub034FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_GNSS_STATUS_CALLBACK),
         requestParcel, reply, option);
 
@@ -663,7 +663,7 @@ bool LocatorAbilityStub035FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK),
         requestParcel, reply, option);
 
@@ -679,7 +679,7 @@ bool LocatorAbilityStub036FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9),
         requestParcel, reply, option);
 
@@ -695,7 +695,7 @@ bool LocatorAbilityStub037FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_SWITCH_CALLBACK),
         requestParcel, reply, option);
 
@@ -711,7 +711,7 @@ bool LocatorAbilityStub038FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_LOCATION_ERROR),
         requestParcel, reply, option);
 
@@ -727,7 +727,7 @@ bool LocatorAbilityStub039FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATION_ERROR),
         requestParcel, reply, option);
 
@@ -743,7 +743,7 @@ bool LocatorAbilityStub040FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION_ERROR),
         requestParcel, reply, option);
 
@@ -759,7 +759,7 @@ bool LocatorAbilityStub041FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ADD_GNSS_GEOFENCE),
         requestParcel, reply, option);
 
@@ -775,7 +775,7 @@ bool LocatorAbilityStub042FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE),
         requestParcel, reply, option);
 
@@ -791,7 +791,7 @@ bool LocatorAbilityStub043FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE),
         requestParcel, reply, option);
 
@@ -807,7 +807,7 @@ bool LocatorAbilityStub044FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK),
         requestParcel, reply, option);
 
@@ -823,7 +823,7 @@ bool LocatorAbilityStub045FuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-    auto ability = sptr<LocatorAbilityStub>(new (std::nothrow) LocatorAbilityStub());
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK),
         requestParcel, reply, option);
     auto locatorAbility = LocatorAbility::GetInstance();

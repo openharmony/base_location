@@ -49,6 +49,7 @@ public:
     void InitGeoConvertHandleMap();
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    virtual bool CancelIdleState() = 0;
     virtual void UnloadGeoConvertSystemAbility() = 0;
 private:
     int IsGeoConvertAvailableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

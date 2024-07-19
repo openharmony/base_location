@@ -222,6 +222,16 @@ LocationErrCode NetworkAbility::SetEnable(bool state)
     return ERRCODE_SUCCESS;
 }
 
+bool NetworkAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(NETWORK, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
+}
+
 void NetworkAbility::UnloadNetworkSystemAbility()
 {
     if (networkHandler_ == nullptr) {

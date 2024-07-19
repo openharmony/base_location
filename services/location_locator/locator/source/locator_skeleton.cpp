@@ -1343,6 +1343,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         IPCSkeleton::SetCallingIdentity(callingIdentity);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    CancelIdleState();
     RemoveUnloadTask(code);
 
     auto handleFunc = locatorHandleMap_.find(static_cast<LocatorInterfaceCode>(code));
@@ -1391,28 +1392,6 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
         return ERR_OK;
     }
     return ERR_OK;
-}
-
-bool LocatorAbilityStub::RemoveUnloadTask(uint32_t code)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
-        return false;
-    }
-    locatorAbility->RemoveUnloadTask(code);
-    return true;
-}
-
-bool LocatorAbilityStub::PostUnloadTask(uint32_t code)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
-        return false;
-    }
-    locatorAbility->PostUnloadTask(code);
-    return true;
 }
 
 void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode,

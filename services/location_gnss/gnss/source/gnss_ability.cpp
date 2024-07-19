@@ -189,6 +189,16 @@ LocationErrCode GnssAbility::SetEnable(bool state)
     return ERRCODE_SUCCESS;
 }
 
+bool GnssAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(GNSS, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
+}
+
 void GnssAbility::UnloadGnssSystemAbility()
 {
     if (gnssHandler_ == nullptr) {
@@ -728,7 +738,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
     return true;
 }
 
-bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId)
+bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId)
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     for (auto iter = gnssGeofenceRequestMap_.begin();
