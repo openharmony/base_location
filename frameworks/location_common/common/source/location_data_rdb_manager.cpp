@@ -135,7 +135,10 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
 bool LocationDataRdbManager::ClearSwitchMode()
 {
     char valueArray[MAX_SIZE] = {0};
-    (void)sprintf_s(valueArray, sizeof(valueArray), "%d", DEFAULT_SWITCHMODE);
+    int code = sprintf_s(valueArray, sizeof(valueArray), "%d", DEFAULT_SWITCHMODE);
+    if (code <= 0) {
+        return false;
+    }
     std::unique_lock<std::mutex> lock(mutex_);
     int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {

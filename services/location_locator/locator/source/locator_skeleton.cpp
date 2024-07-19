@@ -1314,7 +1314,7 @@ bool LocatorAbilityStub::IsStopAction(uint32_t code)
     if (code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_SWITCH_CALLBACK) ||
         code == static_cast<uint32_t>(LocatorInterfaceCode::STOP_LOCATING) ||
         code == static_cast<uint32_t>(LocatorInterfaceCode::STOP_LOCATING) ||
-		code == static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK) ||
         code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_LOCATION_ERROR) ||
         code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK)) {
         return true;
@@ -1362,11 +1362,12 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         IPCSkeleton::SetCallingIdentity(callingIdentity);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    RemoveUnloadTask(code);
     if (!CheckRequestAvailable(code, identity)) {
+        IPCSkeleton::SetCallingIdentity(callingIdentity);
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return ERRCODE_PERMISSION_DENIED;
     }
+    RemoveUnloadTask(code);
     auto handleFunc = locatorHandleMap_.find(static_cast<LocatorInterfaceCode>(code));
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;

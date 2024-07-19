@@ -112,8 +112,6 @@ void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     }
 }
 
-
-
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
@@ -370,7 +368,7 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
             UpdateUsingPermission(request, false);
             continue;
         }
-		UpdateUsingPermission(request, true);
+        UpdateUsingPermission(request, true);
         if (!ActiveLocatingStrategies(request)) {
             continue;
         }
