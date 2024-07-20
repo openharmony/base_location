@@ -139,12 +139,12 @@ void GeofenceRequest::SetFenceId(int fenceId)
     fenceId_ = fenceId;
 }
 
-std::string GeofenceRequest::GetBundleName()
+const std::string& GeofenceRequest::GetBundleName()
 {
     return bundleName_;
 }
 
-void GeofenceRequest::SetBundleName(std::string bundleName)
+void GeofenceRequest::SetBundleName(const std::string& bundleName)
 {
     bundleName_ = bundleName;
 }

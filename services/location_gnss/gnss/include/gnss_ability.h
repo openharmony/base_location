@@ -174,6 +174,7 @@ public:
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
+    bool CancelIdleState() override;
     void UnloadGnssSystemAbility() override;
     void StartGnss();
     void StopGnss();
@@ -226,7 +227,7 @@ private:
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
     bool IsGnssfenceRequestMapExist();
-    bool CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId);
+    bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
     bool ConnectGnssHdi();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     bool ConnectAgnssHdi();

@@ -101,6 +101,16 @@ LocationErrCode PassiveAbility::SetEnable(bool state)
     return ERRCODE_SUCCESS;
 }
 
+bool PassiveAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(PASSIVE, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
+}
+
 void PassiveAbility::UnloadPassiveSystemAbility()
 {
     if (passiveHandler_ == nullptr) {

@@ -348,6 +348,16 @@ void LocatorAbility::UpdateSaAbilityHandler()
     SendSwitchState(isEnabled ? 1 : 0);
 }
 
+bool LocatorAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(LOCATOR, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
+}
+
 void LocatorAbility::RemoveUnloadTask(uint32_t code)
 {
     if (locatorHandler_ == nullptr) {

@@ -367,6 +367,7 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGE(GNSS, "invalid token.");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    CancelIdleState();
     int ret = ERRCODE_SUCCESS;
     isMessageRequest_ = false;
     auto handleFunc = GnssMsgHandleMap_.find(code);
