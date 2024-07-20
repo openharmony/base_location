@@ -71,6 +71,7 @@ private:
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
+    void SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -187,13 +188,13 @@ public:
     void UpdateLastLocationRequestNum();
     void SyncStillMovementState(bool stillState);
     void SyncIdleState(bool stillState);
+#ifdef FEATURE_GEOCODE_SUPPORT
+    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
+#endif
 
 private:
     bool Init();
     bool CheckSaValid();
-#ifdef FEATURE_GEOCODE_SUPPORT
-    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
-#endif
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif

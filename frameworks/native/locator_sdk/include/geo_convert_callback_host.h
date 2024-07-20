@@ -15,7 +15,6 @@
 
 #ifndef GEO_CONVERT_CALLBACK_HOST_H
 #define GEO_CONVERT_CALLBACK_HOST_H
-#ifdef FEATURE_GEOCODE_SUPPORT
 
 #include "i_geocode_callback.h"
 #include "iremote_stub.h"
@@ -41,4 +40,3 @@ private:
 } // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GEOCODE_SUPPORT
-#endif // GEO_CONVERT_CALLBACK_HOST_H

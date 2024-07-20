@@ -22,6 +22,9 @@
 #include <string>
 #include <vector>
 
+#include "event_runner.h"
+#include "event_handler.h"
+#include "ffrt.h"
 #include "if_system_ability_manager.h"
 #include "iremote_object.h"
 #include "message_parcel.h"
@@ -31,12 +34,26 @@
 #include "common_utils.h"
 #include "constant_definition.h"
 #include "geo_coding_mock_info.h"
-#include "geo_convert_callback_host.h"
 #include "geo_convert_skeleton.h"
 #include "ability_connect_callback_interface.h"
 
 namespace OHOS {
 namespace Location {
+
+class GeoConvertHandler : public AppExecFwk::EventHandler {
+public:
+    explicit GeoConvertHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~GeoConvertHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+};
+
+class GeoServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    GeoServiceDeathRecipient();
+    ~GeoServiceDeathRecipient() override;
+};
+
 class GeoConvertService : public SystemAbility, public GeoConvertServiceStub {
 DECLEAR_SYSTEM_ABILITY(GeoConvertService);
 
@@ -62,40 +79,34 @@ public:
     void UnloadGeoConvertSystemAbility() override;
 
     bool ConnectService();
-    bool ReConnectService();
     void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
     void NotifyDisConnected();
     bool ResetServiceProxy();
+    bool SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel, MessageOption& option);
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     int RemoteToService(uint32_t code, MessageParcel &data, MessageParcel &rep);
     void ReportAddressMock(MessageParcel &data, MessageParcel &reply);
     bool CheckIfGeoConvertConnecting();
-    bool WriteInfoToParcel(MessageParcel &data, MessageParcel &dataParcel, bool flag);
-    bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel &reply, bool flag);
     bool GetService();
     bool IsConnect();
     void RegisterGeoServiceDeathRecipient();
-    bool SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel, MessageOption& option);
+    void UnRegisterGeoServiceDeathRecipient();
 
     bool mockEnabled_ = false;
     bool registerToService_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo_;
     std::mutex mockInfoMutex_;
+    std::shared_ptr<GeoConvertHandler> geoConvertHandler_;
 
     std::mutex mutex_;
     sptr<IRemoteObject> serviceProxy_ = nullptr;
     std::condition_variable connectCondition_;
     sptr<AAFwk::IAbilityConnection> conn_;
-};
-
-class GeoServiceDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-    GeoServiceDeathRecipient();
-    ~GeoServiceDeathRecipient() override;
+    sptr<IRemoteObject::DeathRecipient> geoServiceRecipient_ = new (std::nothrow) GeoServiceDeathRecipient();
+    int32_t connectState_;
 };
 } // namespace OHOS
 } // namespace Location

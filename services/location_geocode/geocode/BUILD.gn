@@ -15,9 +15,9 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 local_base_sources = [
-  "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_callback_host.cpp",
   "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_service.cpp",
   "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_skeleton.cpp",
+  "$LOCATION_GEOCONVERT_ROOT/source/geo_request_message.cpp",
   "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
 ]
 
@@ -61,6 +61,8 @@ if (location_feature_with_geocode) {
     external_deps = [
       "ability_base:want",
       "ability_runtime:ability_manager",
+      "eventhandler:libeventhandler",
+      "ffrt:libffrt",
       "hilog:libhilog",
       "ipc:ipc_single",
       "safwk:system_ability_fwk",
@@ -111,6 +113,7 @@ if (location_feature_with_geocode) {
     external_deps = [
       "ability_base:want",
       "ability_runtime:ability_manager",
+      "ffrt:libffrt",
       "hilog:libhilog",
       "ipc:ipc_single",
       "safwk:system_ability_fwk",

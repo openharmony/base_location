@@ -58,6 +58,7 @@
 #include "app_state_data.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "geo_request_message.h"
 
 namespace OHOS {
 namespace Location {
@@ -82,6 +83,7 @@ const uint32_t EVENT_REPORT_LOCATION_ERROR = 0x0013;
 const uint32_t EVENT_PERIODIC_CHECK = 0x0016;
 const uint32_t EVENT_SYNC_STILL_MOVEMENT_STATE = 0x0018;
 const uint32_t EVENT_SYNC_IDLE_STATE = 0x0019;
+const uint32_t EVENT_SEND_GEOREQUEST = 0x0020;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -1220,10 +1222,21 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
     dataParcel.WriteDouble(data.ReadDouble()); // longitude
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
-    dataParcel.WriteString16(data.ReadString16()); // transId
-    dataParcel.WriteString16(data.ReadString16()); // country
+    auto transId = data.ReadString16();
+    auto country = data.ReadString16();
+    dataParcel.WriteRemoteObject(data.ReadRemoteObject()); // callback
+    dataParcel.WriteString16(transId); // transId
+    dataParcel.WriteString16(country); // country
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
-    SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
+    std::unique_ptr<GeoRequestMessage> geoRequestMessage = std::make_unique<GeoRequestMessage>();
+    geoRequestMessage->WriteInfoToGeoRequestMessage(dataParcel, geoRequestMessage, true);
+    geoRequestMessage->SetFlag(true);
+    geoRequestMessage->SetCode(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE));
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SEND_GEOREQUEST, geoRequestMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
     int errorCode = reply.ReadInt32();
     WriteLocationInnerEvent(GEOCODE_REQUEST, {
         "type", "ReverseGeocode",
@@ -1241,10 +1254,6 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
 void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
     MessageParcel dataParcel;
-    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return;
-    }
     dataParcel.WriteString16(data.ReadString16()); // locale
     dataParcel.WriteString16(data.ReadString16()); // description
     dataParcel.WriteInt32(data.ReadInt32()); // maxItems
@@ -1253,10 +1262,22 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
     dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
     dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
     dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
-    dataParcel.WriteString16(data.ReadString16()); // transId
-    dataParcel.WriteString16(data.ReadString16()); // country
+    auto transId = data.ReadString16();
+    auto country = data.ReadString16();
+    dataParcel.WriteRemoteObject(data.ReadRemoteObject()); // callback
+    dataParcel.WriteString16(transId); // transId
+    dataParcel.WriteString16(country); // country
+    
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
-    SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
+    std::unique_ptr<GeoRequestMessage> geoRequestMessage = std::make_unique<GeoRequestMessage>();
+    geoRequestMessage->WriteInfoToGeoRequestMessage(dataParcel, geoRequestMessage, false);
+    geoRequestMessage->SetFlag(false);
+    geoRequestMessage->SetCode(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME));
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SEND_GEOREQUEST, geoRequestMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
     int errorCode = reply.ReadInt32();
     WriteLocationInnerEvent(GEOCODE_REQUEST, {
         "type", "Geocode",
@@ -1747,6 +1768,8 @@ void LocatorHandler::InitLocatorHandlerEventMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SyncStillMovementState(event); };
     locatorHandlerEventMap_[EVENT_SYNC_IDLE_STATE] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SyncIdleState(event); };
+    locatorHandlerEventMap_[EVENT_SEND_GEOREQUEST] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SendGeoRequestEvent(event); };
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2003,6 +2026,24 @@ void LocatorHandler::SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event)
     if (requestManager != nullptr) {
         bool state = event->GetParam();
         requestManager->SyncIdleState(state);
+    }
+}
+
+void LocatorHandler::SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        std::unique_ptr<GeoRequestMessage> geoRequestMessage = event->GetUniqueObject<GeoRequestMessage>();
+        if (geoRequestMessage == nullptr) {
+            return;
+        }
+        MessageParcel dataParcel;
+        MessageParcel replyParcel;
+        if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+            return;
+        }
+        geoRequestMessage->WriteInfoToParcel(geoRequestMessage, dataParcel, geoRequestMessage->GetFlag());
+        locatorAbility->SendGeoRequest(geoRequestMessage->GetCode(), dataParcel, replyParcel);
     }
 }
 
