@@ -47,6 +47,7 @@ public:
     void SyncStillMovementState(bool state);
     void SyncIdleState(bool state);
     static RequestManager* GetInstance();
+    void IsStandby();
 
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
@@ -64,7 +65,6 @@ private:
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
     void ReportDataToResSched(std::string state, const pid_t uid);
-    void IsStandby();
     std::map<int32_t, int32_t> runningUidMap_;
     static ffrt::mutex requestMutex_;
     ffrt::mutex runningUidsMutex_;

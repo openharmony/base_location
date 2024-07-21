@@ -71,6 +71,11 @@ private:
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
+    void SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitSaAbilityEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
