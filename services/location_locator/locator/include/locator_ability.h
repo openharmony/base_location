@@ -51,6 +51,7 @@ public:
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
     void InitLocatorHandlerEventMap();
+    void ConstructGeocodeHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);

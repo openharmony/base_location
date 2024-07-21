@@ -29,10 +29,15 @@
 
 namespace OHOS {
 namespace Location {
-class GeoRequestMessage {
+enum class GeoCodeType {
+    REQUEST_GEOCODE = 1,
+    REQUEST_REVERSE_GEOCODE,
+};
+
+class GeoConvertRequest {
 public:
-    GeoRequestMessage();
-    ~GeoRequestMessage();
+    GeoConvertRequest();
+    ~GeoConvertRequest();
     std::string GetLocale();
     void SetLocale(std::string locale);
     double GetLatitude();
@@ -59,13 +64,12 @@ public:
     void SetTransId(std::string transId);
     std::string GetCountry();
     void SetCountry(std::string country);
-    bool GetFlag();
-    void SetFlag(bool flag);
-    int32_t GetCode();
-    void SetCode(int32_t code);
-    void WriteInfoToParcel(std::unique_ptr<GeoRequestMessage>& geoRequestMessage, MessageParcel &dataParcel, bool flag);
-    void WriteInfoToGeoRequestMessage(MessageParcel &data,
-        std::unique_ptr<GeoRequestMessage>& geoRequestMessage, bool flag);
+    GeoCodeType GetRequestType();
+    void SetRequestType(GeoCodeType requestType);
+    bool Marshalling(MessageParcel& parcel) const;
+    static std::unique_ptr<GeoConvertRequest> Unmarshalling(MessageParcel& parcel, GeoCodeType requestType);
+    static void OrderParcel(MessageParcel& in, MessageParcel& out, GeoCodeType requestType, std::string bundleName);
+    void ReadFromParcel(MessageParcel& parcel);
 private:
     std::string locale_;
     double latitude_;
@@ -80,8 +84,7 @@ private:
     sptr<IRemoteObject> callback_ = nullptr;
     std::string transId_;
     std::string country_;
-    bool flag_;
-    int32_t code_;
+    GeoCodeType requestType_;
 };
 } // namespace OHOS
 } // namespace Location

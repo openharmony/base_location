@@ -20,7 +20,7 @@
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
 #include "geo_address.h"
-#include "geo_request_message.h"
+#include "geo_convert_request.h"
 #include "common_utils.h"
 #include "location_config_manager.h"
 #include "location_dumper.h"
@@ -31,13 +31,8 @@ namespace OHOS {
 namespace Location {
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     GeoConvertService::GetInstance());
-static constexpr int REQUEST_GEOCODE = 1;
-static constexpr int REQUEST_REVERSE_GEOCODE = 2;
 const uint32_t EVENT_SEND_GEOREQUEST = 0x0100;
 const int GEOCONVERT_CONNECT_TIME_OUT = 1;
-const int CONNECT_STATE_IS_UNCONNCETED = 0;
-const int CONNECT_STATE_IS_CONNCETING = 1;
-const int CONNECT_STATE_IS_CONNCETED = 2;
 GeoConvertService* GeoConvertService::GetInstance()
 {
     static GeoConvertService data;
@@ -48,7 +43,6 @@ GeoConvertService::GeoConvertService() : SystemAbility(LOCATION_GEO_CONVERT_SA_I
 {
     geoConvertHandler_ =
         std::make_shared<GeoConvertHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
-    connectState_ = CONNECT_STATE_IS_UNCONNCETED;
     LBSLOGI(GEO_CONVERT, "GeoConvertService constructed.");
 }
 
@@ -80,7 +74,7 @@ void GeoConvertService::OnStop()
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         LBSLOGD(GEO_CONVERT, "GeoConvertService::OnStop and disconnect");
         UnRegisterGeoServiceDeathRecipient();
-        connectState_ = CONNECT_STATE_IS_UNCONNCETED;
+        SetServiceConnectState(ServiceConnectState::STATE_DISCONNECT);
     }
     LBSLOGI(GEO_CONVERT, "GeoConvertService::OnStop service stopped.");
 }
@@ -122,44 +116,42 @@ public:
 bool GeoConvertService::ConnectService()
 {
     LBSLOGD(GEO_CONVERT, "start ConnectService");
-    if (!IsConnect()) {
-        AAFwk::Want connectionWant;
-        std::string serviceName;
-        bool result = LocationConfigManager::GetInstance()->GetGeocodeServiceName(serviceName);
-        if (!result || serviceName.empty()) {
-            LBSLOGE(GEO_CONVERT, "get service name failed!");
-            return false;
-        }
-        std::string abilityName;
-        bool res = LocationConfigManager::GetInstance()->GetGeocodeAbilityName(abilityName);
-        if (!res || abilityName.empty()) {
-            LBSLOGE(GEO_CONVERT, "get service name failed!");
-            return false;
-        }
-        connectionWant.SetElementName(serviceName, abilityName);
-        conn_ = sptr<AAFwk::IAbilityConnection>(new (std::nothrow) AbilityConnection());
-        if (conn_ == nullptr) {
-            LBSLOGE(GEO_CONVERT, "get connection failed!");
-            return false;
-        }
-        int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn_, -1);
-        if (ret != ERR_OK) {
-            LBSLOGE(GEO_CONVERT, "Connect cloud service failed!");
-            return false;
-        }
-        std::unique_lock<std::mutex> uniqueLock(mutex_);
-        connectState_ = CONNECT_STATE_IS_CONNCETING;
-        auto waitStatus =
-            connectCondition_.wait_for(uniqueLock,
-            std::chrono::seconds(GEOCONVERT_CONNECT_TIME_OUT), [this]() { return serviceProxy_ != nullptr; });
-        if (!waitStatus) {
-            LBSLOGE(GEO_CONVERT, "Connect cloudService timeout!");
-            connectState_ = CONNECT_STATE_IS_UNCONNCETED;
-            return false;
-        }
-        connectState_ = CONNECT_STATE_IS_CONNCETED;
-        RegisterGeoServiceDeathRecipient();
+    AAFwk::Want connectionWant;
+    std::string serviceName;
+    bool result = LocationConfigManager::GetInstance()->GetGeocodeServiceName(serviceName);
+    if (!result || serviceName.empty()) {
+        LBSLOGE(GEO_CONVERT, "get service name failed!");
+        return false;
     }
+    std::string abilityName;
+    bool res = LocationConfigManager::GetInstance()->GetGeocodeAbilityName(abilityName);
+    if (!res || abilityName.empty()) {
+        LBSLOGE(GEO_CONVERT, "get service name failed!");
+        return false;
+    }
+    connectionWant.SetElementName(serviceName, abilityName);
+    conn_ = sptr<AAFwk::IAbilityConnection>(new (std::nothrow) AbilityConnection());
+    if (conn_ == nullptr) {
+        LBSLOGE(GEO_CONVERT, "get connection failed!");
+        return false;
+    }
+    SetServiceConnectState(ServiceConnectState::STATE_CONNECTTING);
+    int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn_, -1);
+    if (ret != ERR_OK) {
+        LBSLOGE(GEO_CONVERT, "Connect cloud service failed!");
+        return false;
+    }
+    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    auto waitStatus =
+        connectCondition_.wait_for(uniqueLock,
+        std::chrono::seconds(GEOCONVERT_CONNECT_TIME_OUT), [this]() { return serviceProxy_ != nullptr; });
+    if (!waitStatus) {
+        LBSLOGE(GEO_CONVERT, "Connect cloudService timeout!");
+        SetServiceConnectState(ServiceConnectState::STATE_DISCONNECT);
+        return false;
+    }
+    SetServiceConnectState(ServiceConnectState::STATE_CONNECTTED);
+    RegisterGeoServiceDeathRecipient();
     return true;
 }
 
@@ -206,11 +198,10 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
-    std::unique_ptr<GeoRequestMessage> geoRequestMessage = std::make_unique<GeoRequestMessage>();
-    geoRequestMessage->WriteInfoToGeoRequestMessage(data, geoRequestMessage, true);
-    geoRequestMessage->SetFlag(true);
+    GeoCodeType requestType = GeoCodeType::REQUEST_REVERSE_GEOCODE;
+    auto geoConvertRequest = GeoConvertRequest::Unmarshalling(data, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_SEND_GEOREQUEST, geoRequestMessage);
+        Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
     if (geoConvertHandler_ != nullptr) {
         geoConvertHandler_->SendEvent(event);
     }
@@ -256,11 +247,10 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
         reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return ERRCODE_GEOCODING_FAIL;
     }
-    std::unique_ptr<GeoRequestMessage> geoRequestMessage = std::make_unique<GeoRequestMessage>();
-    geoRequestMessage->WriteInfoToGeoRequestMessage(data, geoRequestMessage, false);
-    geoRequestMessage->SetFlag(false);
+    GeoCodeType requestType = GeoCodeType::REQUEST_GEOCODE;
+    auto geoConvertRequest = GeoConvertRequest::Unmarshalling(data, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_SEND_GEOREQUEST, geoRequestMessage);
+        Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
     if (geoConvertHandler_ != nullptr) {
         geoConvertHandler_->SendEvent(event);
     }
@@ -269,11 +259,7 @@ int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParc
 
 bool GeoConvertService::GetService()
 {
-    if (!IsConnect()) {
-        if (connectState_ == CONNECT_STATE_IS_CONNCETING) {
-            LBSLOGE(GEO_CONVERT, "service is not connecting.");
-            return false;
-        }
+    if (!IsConnect() && !IsConnecting()) {
         std::string serviceName;
         bool result = LocationConfigManager::GetInstance()->GetGeocodeServiceName(serviceName);
         if (!result || serviceName.empty()) {
@@ -293,7 +279,8 @@ bool GeoConvertService::GetService()
 bool GeoConvertService::IsConnect()
 {
     std::unique_lock<std::mutex> uniqueLock(mutex_);
-    return serviceProxy_ != nullptr;
+    return serviceProxy_ != nullptr &&
+        GetServiceConnectState() == ServiceConnectState::STATE_CONNECTTED;
 }
 
 bool GeoConvertService::EnableReverseGeocodingMock()
@@ -393,6 +380,7 @@ void GeoConvertService::UnRegisterGeoServiceDeathRecipient()
     }
     if (geoServiceRecipient_ != nullptr) {
         serviceProxy_->RemoveDeathRecipient(geoServiceRecipient_);
+        geoServiceRecipient_ = nullptr;
     }
 }
 
@@ -412,6 +400,24 @@ bool GeoConvertService::SendGeocodeRequest(int code, MessageParcel& dataParcel, 
     return true;
 }
 
+ServiceConnectState GeoConvertService::GetServiceConnectState()
+{
+    std::unique_lock<std::mutex> uniqueLock(connectStateMutex_);
+    return connectState_;
+}
+
+void GeoConvertService::SetServiceConnectState(ServiceConnectState connectState)
+{
+    std::unique_lock<std::mutex> uniqueLock(connectStateMutex_);
+    connectState_ = connectState;
+}
+
+bool GeoConvertService::IsConnecting()
+{
+    std::unique_lock<std::mutex> uniqueLock(connectStateMutex_);
+    return connectState_ == ServiceConnectState::STATE_CONNECTTING;
+}
+
 GeoServiceDeathRecipient::GeoServiceDeathRecipient()
 {
 }
@@ -426,6 +432,7 @@ void GeoServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
     if (geoConvertService != nullptr) {
         LBSLOGI(GEO_CONVERT, "geo OnRemoteDied");
         geoConvertService->ResetServiceProxy();
+        geoConvertService->SetServiceConnectState(ServiceConnectState::STATE_DISCONNECT);
     }
 }
 
@@ -444,16 +451,15 @@ void GeoConvertHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& even
     LBSLOGD(GEO_CONVERT, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_SEND_GEOREQUEST: {
-            std::unique_ptr<GeoRequestMessage> geoRequestMessage = event->GetUniqueObject<GeoRequestMessage>();
-            if (geoRequestMessage == nullptr) {
+            std::unique_ptr<GeoConvertRequest> geoConvertRequest = event->GetUniqueObject<GeoConvertRequest>();
+            if (geoConvertRequest == nullptr) {
                 return;
             }
             MessageParcel dataParcel;
             MessageParcel replyParcel;
             MessageOption option;
-            geoRequestMessage->WriteInfoToParcel(geoRequestMessage, dataParcel, geoRequestMessage->GetFlag());
-            bool ret = geoConvertService->SendGeocodeRequest(
-                geoRequestMessage->GetFlag() ? REQUEST_REVERSE_GEOCODE : REQUEST_GEOCODE,
+            geoConvertRequest->Marshalling(dataParcel);
+            bool ret = geoConvertService->SendGeocodeRequest(static_cast<int>(geoConvertRequest->GetRequestType()),
                 dataParcel, replyParcel, option);
             if (!ret) {
                 LBSLOGE(GEO_CONVERT, "SendGeocodeRequest failed errcode");

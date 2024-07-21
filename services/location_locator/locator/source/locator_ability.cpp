@@ -58,7 +58,7 @@
 #include "app_state_data.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "geo_request_message.h"
+#include "geo_convert_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -1231,27 +1231,12 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
 void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
     MessageParcel dataParcel;
-    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return;
-    }
-    dataParcel.WriteString16(data.ReadString16()); // locale
-    dataParcel.WriteDouble(data.ReadDouble()); // latitude
-    dataParcel.WriteDouble(data.ReadDouble()); // longitude
-    dataParcel.WriteInt32(data.ReadInt32()); // maxItems
-    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
-    auto transId = data.ReadString16();
-    auto country = data.ReadString16();
-    dataParcel.WriteRemoteObject(data.ReadRemoteObject()); // callback
-    dataParcel.WriteString16(transId); // transId
-    dataParcel.WriteString16(country); // country
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
-    std::unique_ptr<GeoRequestMessage> geoRequestMessage = std::make_unique<GeoRequestMessage>();
-    geoRequestMessage->WriteInfoToGeoRequestMessage(dataParcel, geoRequestMessage, true);
-    geoRequestMessage->SetFlag(true);
-    geoRequestMessage->SetCode(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE));
+    GeoCodeType requestType = GeoCodeType::REQUEST_REVERSE_GEOCODE;
+    GeoConvertRequest::OrderParcel(data, dataParcel, requestType, bundleName);
+    auto geoConvertRequest = GeoConvertRequest::Unmarshalling(dataParcel, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_SEND_GEOREQUEST, geoRequestMessage);
+        Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
@@ -1272,27 +1257,12 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
 void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
     MessageParcel dataParcel;
-    dataParcel.WriteString16(data.ReadString16()); // locale
-    dataParcel.WriteString16(data.ReadString16()); // description
-    dataParcel.WriteInt32(data.ReadInt32()); // maxItems
-    dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
-    dataParcel.WriteDouble(data.ReadDouble()); // minLongitude
-    dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
-    dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
-    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
-    auto transId = data.ReadString16();
-    auto country = data.ReadString16();
-    dataParcel.WriteRemoteObject(data.ReadRemoteObject()); // callback
-    dataParcel.WriteString16(transId); // transId
-    dataParcel.WriteString16(country); // country
-    
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
-    std::unique_ptr<GeoRequestMessage> geoRequestMessage = std::make_unique<GeoRequestMessage>();
-    geoRequestMessage->WriteInfoToGeoRequestMessage(dataParcel, geoRequestMessage, false);
-    geoRequestMessage->SetFlag(false);
-    geoRequestMessage->SetCode(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME));
+    GeoCodeType requestType = GeoCodeType::REQUEST_GEOCODE;
+    GeoConvertRequest::OrderParcel(data, dataParcel, requestType, bundleName);
+    auto geoConvertRequest = GeoConvertRequest::Unmarshalling(dataParcel, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_SEND_GEOREQUEST, geoRequestMessage);
+        Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
@@ -1794,6 +1764,11 @@ void LocatorHandler::InitLocatorHandlerEventMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { IsStandByEvent(event); };
     locatorHandlerEventMap_[EVENT_SET_LOCATION_WORKING_STATE] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
+    ConstructGeocodeHandleMap();
+}
+
+void LocatorHandler::ConstructGeocodeHandleMap()
+{
     locatorHandlerEventMap_[EVENT_SEND_GEOREQUEST] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SendGeoRequestEvent(event); };
 }
@@ -2068,8 +2043,8 @@ void LocatorHandler::SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& 
 {
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
-        std::unique_ptr<GeoRequestMessage> geoRequestMessage = event->GetUniqueObject<GeoRequestMessage>();
-        if (geoRequestMessage == nullptr) {
+        std::unique_ptr<GeoConvertRequest> geoConvertRequest = event->GetUniqueObject<GeoConvertRequest>();
+        if (geoConvertRequest == nullptr) {
             return;
         }
         MessageParcel dataParcel;
@@ -2077,8 +2052,12 @@ void LocatorHandler::SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& 
         if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
             return;
         }
-        geoRequestMessage->WriteInfoToParcel(geoRequestMessage, dataParcel, geoRequestMessage->GetFlag());
-        locatorAbility->SendGeoRequest(geoRequestMessage->GetCode(), dataParcel, replyParcel);
+        geoConvertRequest->Marshalling(dataParcel);
+        locatorAbility->SendGeoRequest(
+            geoConvertRequest->GetRequestType() == GeoCodeType::REQUEST_GEOCODE ?
+            static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME) :
+            static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE),
+            dataParcel, replyParcel);
     }
 }
 

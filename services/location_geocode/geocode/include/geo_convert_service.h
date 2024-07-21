@@ -39,6 +39,11 @@
 
 namespace OHOS {
 namespace Location {
+enum class ServiceConnectState {
+    STATE_DISCONNECT,
+    STATE_CONNECTTING,
+    STATE_CONNECTTED,
+};
 
 class GeoConvertHandler : public AppExecFwk::EventHandler {
 public:
@@ -84,6 +89,8 @@ public:
     void NotifyDisConnected();
     bool ResetServiceProxy();
     bool SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel, MessageOption& option);
+    ServiceConnectState GetServiceConnectState();
+    void SetServiceConnectState(ServiceConnectState connectState);
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -92,6 +99,7 @@ private:
     bool CheckIfGeoConvertConnecting();
     bool GetService();
     bool IsConnect();
+    bool IsConnecting();
     void RegisterGeoServiceDeathRecipient();
     void UnRegisterGeoServiceDeathRecipient();
 
@@ -106,8 +114,10 @@ private:
     sptr<IRemoteObject> serviceProxy_ = nullptr;
     std::condition_variable connectCondition_;
     sptr<AAFwk::IAbilityConnection> conn_;
-    sptr<IRemoteObject::DeathRecipient> geoServiceRecipient_ = new (std::nothrow) GeoServiceDeathRecipient();
-    int32_t connectState_;
+    sptr<IRemoteObject::DeathRecipient> geoServiceRecipient_ =
+        sptr<GeoServiceDeathRecipient>(new (std::nothrow) GeoServiceDeathRecipient());
+    std::mutex connectStateMutex_;
+    ServiceConnectState connectState_ = ServiceConnectState::STATE_DISCONNECT;
 };
 } // namespace OHOS
 } // namespace Location
