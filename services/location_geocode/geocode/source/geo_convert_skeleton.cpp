@@ -152,7 +152,7 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         LBSLOGE(GEO_CONVERT, "invalid token.");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
- 
+    CancelIdleState();
     int ret = ERRCODE_SUCCESS;
     auto handleFunc = geoConvertMsgHandleMap_.find(code);
     if (handleFunc != geoConvertMsgHandleMap_.end() && handleFunc->second != nullptr) {

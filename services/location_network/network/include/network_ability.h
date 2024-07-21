@@ -65,6 +65,7 @@ public:
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
+    bool CancelIdleState() override;
     void UnloadNetworkSystemAbility() override;
     void ProcessReportLocationMock();
     bool ConnectNlpService();

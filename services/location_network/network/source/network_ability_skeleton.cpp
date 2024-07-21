@@ -143,6 +143,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGE(NETWORK, "invalid token.");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    CancelIdleState();
     int ret = ERRCODE_SUCCESS;
     isMessageRequest_ = false;
     auto handleFunc = NetworkMsgHandleMap_.find(code);

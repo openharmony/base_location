@@ -76,9 +76,9 @@ public:
 
     void SetFenceId(int fenceId);
 
-    std::string GetBundleName();
+    const std::string& GetBundleName();
 
-    void SetBundleName(std::string bundleName);
+    void SetBundleName(const std::string& bundleName);
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;

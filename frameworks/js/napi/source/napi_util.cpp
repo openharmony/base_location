@@ -420,7 +420,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     return true;
 }
 
-napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName)
+napi_value GetArrayProperty(const napi_env& env, const napi_value& object, const std::string propertyName)
 {
     if (object == nullptr) {
         LBSLOGE(NAPI_UTILS, "object is nullptr.");

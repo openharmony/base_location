@@ -76,6 +76,7 @@ public:
     bool DisableReverseGeocodingMock() override;
     LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
+    bool CancelIdleState() override;
     void UnloadGeoConvertSystemAbility() override;
 
     bool ConnectService();
