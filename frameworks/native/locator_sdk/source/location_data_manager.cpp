@@ -80,8 +80,8 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         return ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(mutex_);
-    for (auto switchCallback : switchCallbacks_) {
-        if (switchCallback && switchCallback->AsObject() == callback) {
+    for (auto item : switchCallbacks_) {
+        if (item && item->AsObject() == callback) {
             LBSLOGE(LOCATOR, "callback has registered");
             return ERRCODE_SUCCESS;
         }

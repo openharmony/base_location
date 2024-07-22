@@ -74,8 +74,8 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
         lock.unlock();
         return;
     }
-    for (auto countryCodeCallback : countryCodeCallbacks_) {
-        if (countryCodeCallback && countryCodeCallback->AsObject() == callback) {
+    for (auto item : countryCodeCallbacks_) {
+        if (item && item->AsObject() == callback) {
             LBSLOGE(COUNTRY_CODE, "callback has registered");
             lock.unlock();
             return;
