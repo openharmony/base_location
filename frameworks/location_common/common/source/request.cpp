@@ -31,6 +31,7 @@ Request::Request()
     this->permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
+    bestLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
@@ -49,6 +50,7 @@ Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     this->permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
+    bestLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
@@ -200,6 +202,27 @@ void Request::SetLastLocation(const std::unique_ptr<Location>& location)
     this->lastLocation_->SetTimeStamp(location->GetTimeStamp());
     this->lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
     this->lastLocation_->SetLocationSourceType(location->GetLocationSourceType());
+}
+
+sptr<Location> Request::GetBestLocation()
+{
+    return bestLocation_;
+}
+
+void Request::SetBestLocation(const std::unique_ptr<Location>& location)
+{
+    if (this->bestLocation_ == nullptr) {
+        return;
+    }
+    this->bestLocation_->SetLatitude(location->GetLatitude());
+    this->bestLocation_->SetLongitude(location->GetLongitude());
+    this->bestLocation_->SetAltitude(location->GetAltitude());
+    this->bestLocation_->SetAccuracy(location->GetAccuracy());
+    this->bestLocation_->SetSpeed(location->GetSpeed());
+    this->bestLocation_->SetDirection(location->GetDirection());
+    this->bestLocation_->SetTimeStamp(location->GetTimeStamp());
+    this->bestLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
+    this->bestLocation_->SetLocationSourceType(location->GetLocationSourceType());
 }
 
 void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
