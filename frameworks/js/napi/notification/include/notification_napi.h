@@ -1261,8 +1261,6 @@ public:
         const napi_env &env, const napi_value &value, NotificationRequest &request);
     static bool IsValidRemoveReason(int32_t reasonType);
     static void NapiThrow(napi_env env, int32_t errCode);
-    static int32_t ErrorToExternal(uint32_t errCode);
-    static void CreateReturnValue(const napi_env &env, const CallbackPromiseInfo &info, const napi_value &result);
     static napi_value GetLockScreenPicture(
         const napi_env &env, const napi_value &contentResult, std::shared_ptr<NotificationBasicContent> basicContent);
 

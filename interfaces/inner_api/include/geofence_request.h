@@ -37,130 +37,48 @@ typedef struct {
 
 class GeofenceRequest : public Parcelable {
 public:
-    GeofenceRequest()
-    {
-        callback_ = nullptr;
-        scenario_ = -1;
-        fenceId_ = -1;
-    }
+    GeofenceRequest();
 
-    GeofenceRequest(GeofenceRequest& geofenceRequest)
-    {
-        this->SetGeofence(geofenceRequest.GetGeofence());
-        this->SetScenario(geofenceRequest.GetScenario());
-        this->SetWantAgent(geofenceRequest.GetWantAgent());
-        this->SetGeofenceTransitionEventList(geofenceRequest.GetGeofenceTransitionEventList());
-#ifdef NOTIFICATION_ENABLE
-        this->SetNotificationRequestList(geofenceRequest.GetNotificationRequestList());
-#endif
-        this->SetGeofenceTransitionCallback(geofenceRequest.GetGeofenceTransitionCallback());
-        this->SetFenceId(geofenceRequest.GetFenceId());
-        this->SetBundleName(geofenceRequest.GetBundleName());
-    }
+    GeofenceRequest(GeofenceRequest& geofenceRequest);
 
-    ~GeofenceRequest() {}
+    ~GeofenceRequest();
 
-    inline GeoFence GetGeofence()
-    {
-        return geofence_;
-    }
+    GeoFence GetGeofence();
+    void SetGeofence(GeoFence geofence);
 
-    inline void SetGeofence(GeoFence geofence)
-    {
-        geofence_ = geofence;
-    }
+    int GetScenario();
 
-    inline int GetScenario()
-    {
-        return scenario_;
-    }
+    void SetScenario(int scenario);
 
-    inline void SetScenario(int scenario)
-    {
-        scenario_ = scenario;
-    }
+    void SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent);
 
-    inline void SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent)
-    {
-        wantAgent_ = wantAgent;
-    }
+    AbilityRuntime::WantAgent::WantAgent GetWantAgent();
 
-    inline AbilityRuntime::WantAgent::WantAgent GetWantAgent()
-    {
-        return wantAgent_;
-    }
+    std::vector<GeofenceTransitionEvent> GetGeofenceTransitionEventList();
 
-    inline std::vector<GeofenceTransitionEvent> GetGeofenceTransitionEventList()
-    {
-        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-        return transitionStatusList_;
-    }
+    void SetGeofenceTransitionEvent(GeofenceTransitionEvent status);
 
-    inline void SetGeofenceTransitionEvent(GeofenceTransitionEvent status)
-    {
-        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-        transitionStatusList_.push_back(status);
-    }
-
-    inline void SetGeofenceTransitionEventList(std::vector<GeofenceTransitionEvent> statusList)
-    {
-        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-        for (auto it = statusList.begin(); it != statusList.end(); ++it) {
-            transitionStatusList_.push_back(*it);
-        }
-    }
+    void SetGeofenceTransitionEventList(std::vector<GeofenceTransitionEvent> statusList);
 
 #ifdef NOTIFICATION_ENABLE
-    inline std::vector<OHOS::Notification::NotificationRequest> GetNotificationRequestList()
-    {
-        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-        return notificationRequestList_;
-    }
+    std::vector<OHOS::Notification::NotificationRequest> GetNotificationRequestList();
 
-    inline void SetNotificationRequest(OHOS::Notification::NotificationRequest request)
-    {
-        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-        notificationRequestList_.push_back(request);
-    }
+    void SetNotificationRequest(OHOS::Notification::NotificationRequest request);
 
-    inline void SetNotificationRequestList(std::vector<OHOS::Notification::NotificationRequest> requestList)
-    {
-        std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
-        for (auto it = requestList.begin(); it != requestList.end(); ++it) {
-            notificationRequestList_.push_back(*it);
-        }
-    }
+    void SetNotificationRequestList(std::vector<OHOS::Notification::NotificationRequest> requestList);
 #endif
 
-    inline void SetGeofenceTransitionCallback(const sptr<IRemoteObject>& callback)
-    {
-        callback_ = callback;
-    }
+    void SetGeofenceTransitionCallback(const sptr<IRemoteObject>& callback);
 
-    inline sptr<IRemoteObject> GetGeofenceTransitionCallback()
-    {
-        return callback_;
-    }
+    sptr<IRemoteObject> GetGeofenceTransitionCallback();
 
-    inline int GetFenceId()
-    {
-        return fenceId_;
-    }
+    int GetFenceId();
 
-    inline void SetFenceId(int fenceId)
-    {
-        fenceId_ = fenceId;
-    }
+    void SetFenceId(int fenceId);
 
-    inline std::string GetBundleName()
-    {
-        return bundleName_;
-    }
+    const std::string& GetBundleName();
 
-    inline void SetBundleName(std::string bundleName)
-    {
-        bundleName_ = bundleName;
-    }
+    void SetBundleName(const std::string& bundleName);
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;

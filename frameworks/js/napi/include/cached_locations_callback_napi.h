@@ -50,6 +50,8 @@ public:
             return false;
         }
         context->env = env_;
+        callbackValid_ = handlerCb_ == nullptr ? false : true;
+        context->callbackValid = &callbackValid_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
     }
@@ -89,6 +91,7 @@ private:
     napi_ref handlerCb_;
     bool remoteDied_;
     std::mutex mutex_;
+    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS

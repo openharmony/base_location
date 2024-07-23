@@ -34,8 +34,7 @@ public:
 
 class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
 public:
-    using NetworkMsgHandle = int (NetworkAbilityStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using NetworkMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using NetworkMsgHandleMap = std::map<int, NetworkMsgHandle>;
     NetworkAbilityStub();
     virtual ~NetworkAbilityStub() = default;
@@ -43,6 +42,7 @@ public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
+    virtual bool CancelIdleState() = 0;
     virtual void UnloadNetworkSystemAbility() = 0;
 private:
     int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

@@ -50,6 +50,20 @@ public:
     void OnTransitionStatusChange(GeofenceTransition transition) override;
     void OnReportOperationResult(int fenceId, int type, int result) override;
 
+    template <typename T>
+    bool InitContext(T* context)
+    {
+        if (context == nullptr) {
+            LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "context == nullptr.");
+            return false;
+        }
+        context->env = env_;
+        callbackValid_ = handlerCb_ == nullptr ? false : true;
+        context->callbackValid = &callbackValid_;
+        context->callback[SUCCESS_CALLBACK] = handlerCb_;
+        return true;
+    }
+
     inline napi_env GetEnv() const
     {
         return env_;
@@ -91,6 +105,7 @@ private:
     std::mutex operationResultMutex_;
     CountDownLatch* latch_;
     int fenceId_;
+    bool callbackValid_;
     GnssGeofenceOperateType type_;
     GnssGeofenceOperateResult result_;
 };

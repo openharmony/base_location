@@ -41,12 +41,13 @@ public:
     void HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t flag);
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
-    void UpdateUsingPermission(std::shared_ptr<Request> request);
+    void UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart);
     void HandlePermissionChanged(uint32_t tokenId);
     void UpdateLocationErrorCallbackToRequest(sptr<ILocatorCallback> callback, uint32_t tokenId, bool state);
     void SyncStillMovementState(bool state);
     void SyncIdleState(bool state);
     static RequestManager* GetInstance();
+    void IsStandby();
 
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
@@ -57,14 +58,13 @@ private:
     void ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord);
     sptr<IRemoteObject> GetRemoteObject(std::string abilityName);
     bool IsUidInProcessing(int32_t uid);
-    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request);
+    void UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart);
     bool ActiveLocatingStrategies(const std::shared_ptr<Request>& request);
     bool AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
         std::shared_ptr<WorkRecord>& workRecord);
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
     void ReportDataToResSched(std::string state, const pid_t uid);
-    void IsStandby();
     std::map<int32_t, int32_t> runningUidMap_;
     static ffrt::mutex requestMutex_;
     ffrt::mutex runningUidsMutex_;

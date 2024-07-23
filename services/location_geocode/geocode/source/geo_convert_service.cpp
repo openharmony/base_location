@@ -408,6 +408,16 @@ LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
     return ERRCODE_SUCCESS;
 }
 
+bool GeoConvertService::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(GEO_CONVERT, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
+}
+
 void GeoConvertService::UnloadGeoConvertSystemAbility()
 {
     if (!CheckIfGeoConvertConnecting()) {

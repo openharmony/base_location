@@ -116,7 +116,7 @@ public:
     inline void SetAdditions(std::vector<std::string> additions, bool ifAppend)
     {
         if (!ifAppend) {
-            additions_.clear();
+            std::vector<std::string>().swap(additions_);
         }
         for (auto it = additions.begin(); it != additions.end(); ++it) {
             additions_.push_back(*it);

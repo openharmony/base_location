@@ -46,8 +46,7 @@ namespace OHOS {
 namespace Location {
 class LocatorHandler : public AppExecFwk::EventHandler {
 public:
-    using LocatorEventHandle = void (LocatorHandler::*)(
-        const AppExecFwk::InnerEvent::Pointer& event);
+    using LocatorEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
     using LocatorEventHandleMap = std::map<int, LocatorEventHandle>;
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
@@ -72,6 +71,11 @@ private:
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
+    void SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitSaAbilityEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -87,6 +91,9 @@ public:
     void OnStop() override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    bool CancelIdleState() override;
+    void RemoveUnloadTask(uint32_t code) override;
+    void PostUnloadTask(uint32_t code) override;
     ServiceRunningState QueryServiceState() const
    {
         return state_;
@@ -173,8 +180,6 @@ public:
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
-    void RemoveUnloadTask(uint32_t code);
-    void PostUnloadTask(uint32_t code);
     void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
         int permUsedType, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();

@@ -14,9 +14,31 @@
  */
 
 #include "location_switch_callback_host.h"
+#include "location_log.h"
 
 namespace OHOS {
 namespace Location {
+int LocationSwitchCallbackHost::OnRemoteRequest(
+    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
+{
+    LBSLOGD(SWITCH_CALLBACK, "LocationSwitchCallbackHost::OnRemoteRequest!");
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(SWITCH_CALLBACK, "invalid token.");
+        return -1;
+    }
+
+    switch (code) {
+        case RECEIVE_SWITCH_STATE_EVENT: {
+            OnSwitchChange(data.ReadInt32());
+            break;
+        }
+        default: {
+            IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+            break;
+        }
+    }
+    return 0;
+}
 void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
 {
 }
