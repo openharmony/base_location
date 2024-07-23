@@ -22,6 +22,7 @@
 
 #include "i_locator_callback.h"
 #include "locator_ability.h"
+#include "locator_callback_host.h"
 #include "request.h"
 #include "request_config.h"
 #include "permission_manager.h"
@@ -51,6 +52,10 @@ void RequestManagerTest::SetUp()
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetFixNumber(0);
     request_->SetRequestConfig(*requestConfig);
+    sptr<LocatorCallbackHost> locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    request_->SetLocatorCallBack(callback);
 }
 
 void RequestManagerTest::TearDown()

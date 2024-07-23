@@ -31,6 +31,7 @@
 #include "locator_proxy.h"
 #include "request.h"
 #include "request_manager.h"
+#include "mock_locator_ability_stub.h"
 
 namespace OHOS {
 namespace Location {
