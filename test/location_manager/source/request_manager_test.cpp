@@ -22,6 +22,7 @@
 
 #include "i_locator_callback.h"
 #include "locator_ability.h"
+#include "locator_callback_host.h"
 #include "request.h"
 #include "request_config.h"
 #include "permission_manager.h"
@@ -51,6 +52,10 @@ void RequestManagerTest::SetUp()
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetFixNumber(0);
     request_->SetRequestConfig(*requestConfig);
+    sptr<LocatorCallbackHost> locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    request_->SetLocatorCallBack(callback);
 }
 
 void RequestManagerTest::TearDown()
@@ -251,7 +256,7 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1)
         << "RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
-    requestManager_->UpdateUsingPermission(nullptr);
+    requestManager_->UpdateUsingPermission(nullptr, true);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest001 end");
 }
 
@@ -263,7 +268,7 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest002, TestSize.Level1)
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(false, request_->GetApproximatelyPermState());
-    requestManager_->UpdateUsingPermission(request_);
+    requestManager_->UpdateUsingPermission(request_, true);
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(true, request_->GetApproximatelyPermState());
@@ -279,7 +284,7 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest003, TestSize.Level1)
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(false, request_->GetApproximatelyPermState());
-    requestManager_->UpdateUsingPermission(request_);
+    requestManager_->UpdateUsingPermission(request_, true);
     // location permission is not recorded
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());

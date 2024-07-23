@@ -15,8 +15,8 @@
 #include "locator_required_data_manager_test.h"
 #define private public
 #include "locator_required_data_manager.h"
-#undef private
 #include "locating_required_data_callback_napi.h"
+#undef private
 #include "location_log.h"
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"

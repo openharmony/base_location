@@ -38,14 +38,16 @@ ohos_unittest("LocatorManagerAbilityTest") {
     "$LOCATION_ROOT_DIR/test/mock/include",
     "$SUBSYSTEM_DIR/location_locator/callback/include",
     "$SUBSYSTEM_DIR/location_locator/locator/include",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
   ]
 
   deps = [
-    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
-    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_agent:locator_agent",
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
-    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
+    "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -61,6 +63,7 @@ ohos_unittest("LocatorManagerAbilityTest") {
     "common_event_service:cesfwk_innerkits",
     "distributed_notification_service:ans_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",
