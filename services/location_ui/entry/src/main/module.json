@@ -55,6 +55,9 @@
       },
       {
         "name": "ohos.permission.SET_WIFI_CONFIG"
+      },
+      {
+        "name": "ohos.permission.PUBLISH_LOCATION_EVENT"
       }
     ]
   }

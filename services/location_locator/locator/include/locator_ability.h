@@ -174,6 +174,7 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests(int delay);
     void RegisterAction();
+    void RegisterLocationPrivacyAction();
     LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
     LocationErrCode ResetAllProxy();
     bool IsProxyPid(int32_t pid);
@@ -216,9 +217,11 @@ private:
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
+    bool isLocationPrivacyActionRegistered_ = false;
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
+    std::shared_ptr<LocatorEventSubscriber> locationPrivacyEventSubscriber_;
     std::mutex switchMutex_;
     ffrt::mutex requestsMutex_;
     ffrt::mutex receiversMutex_;
