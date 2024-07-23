@@ -52,6 +52,9 @@
     "requestPermissions": [
       {
         "name": "ohos.permission.GET_BUNDLE_INFO"
+      },
+      {
+        "name": "ohos.permission.SET_WIFI_CONFIG"
       }
     ]
   }
