@@ -167,6 +167,7 @@ void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::stri
 {
     if (systemAbilityId == COMMON_EVENT_SERVICE_ID) {
         RegisterAction();
+        RegisterLocationPrivacyAction();
     }
 }
 
@@ -176,6 +177,14 @@ void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
         LBSLOGE(LOCATOR, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
         return;
     }
+
+    if (locationPrivacyEventSubscriber_ != nullptr) {
+        bool ret = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locationPrivacyEventSubscriber_);
+        locationPrivacyEventSubscriber_ = nullptr;
+        LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", ret);
+        return;
+    }
+
     if (locatorEventSubscriber_ == nullptr) {
         LBSLOGE(LOCATOR, "OnRemoveSystemAbility subscribeer is nullptr");
         return;
@@ -1189,8 +1198,6 @@ void LocatorAbility::RegisterAction()
     }
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(MODE_CHANGED_EVENT);
-    matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
-    matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
@@ -1202,6 +1209,29 @@ void LocatorAbility::RegisterAction()
     } else {
         LBSLOGI(LOCATOR, "success to subscriber locator event, result = %{public}d", result);
         isActionRegistered = true;
+    }
+}
+
+void LocatorAbility::RegisterLocationPrivacyAction()
+{
+    if (isLocationPrivacyActionRegistered_) {
+        LBSLOGI(LOCATOR, "location privacy action has already registered");
+        return;
+    }
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
+    matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    locationPrivacyEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
+    subscriberInfo.SetPermission("ohos.permission.PUBLISH_LOCATION_EVENT");
+
+    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locationPrivacyEventSubscriber_);
+    if (!result) {
+        LBSLOGE(LOCATOR, "Failed to subscriber location privacy event, result = %{public}d", result);
+        isLocationPrivacyActionRegistered_ = false;
+    } else {
+        LBSLOGI(LOCATOR, "success to subscriber location privacy event, result = %{public}d", result);
+        isLocationPrivacyActionRegistered_ = true;
     }
 }
 
@@ -1842,6 +1872,7 @@ void LocatorHandler::RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Poin
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->RegisterAction();
+        locatorAbility->RegisterLocationPrivacyAction();
     }
 }
 
