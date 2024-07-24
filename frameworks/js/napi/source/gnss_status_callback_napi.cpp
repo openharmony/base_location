@@ -30,6 +30,7 @@ GnssStatusCallbackNapi::GnssStatusCallbackNapi()
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
+    callbackValid_ = false;
 }
 
 GnssStatusCallbackNapi::~GnssStatusCallbackNapi()
@@ -77,6 +78,10 @@ bool GnssStatusCallbackNapi::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
         LBSLOGE(GNSS_STATUS_CALLBACK, "loop == nullptr.");
         return false;
     }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(GNSS_STATUS_CALLBACK, "handler is nullptr.");
+        return false;
+    }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "work == nullptr.");
@@ -88,8 +93,10 @@ bool GnssStatusCallbackNapi::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
         delete work;
         return false;
     }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (!InitContext(context)) {
+        LBSLOGE(GNSS_STATUS_CALLBACK, "InitContext fail");
+        return false;
+    }
     context->statusInfo = std::move(statusInfo);
     work->data = context;
     UvQueueWork(loop, work);
@@ -110,7 +117,7 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<GnssStatusAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr) {
+            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -128,7 +135,7 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                     scope, context, work);
                 SatelliteStatusToJs(context->env, context->statusInfo, jsEvent);
             }
-            if (context->callback[0] != nullptr) {
+            if (context->callback[0] != nullptr && *(context->callbackValid)) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -158,15 +165,9 @@ void GnssStatusCallbackNapi::DeleteHandler()
         LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    auto context = new (std::nothrow) AsyncContext(env_);
-    if (context == nullptr) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "context == nullptr.");
-        return;
-    }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    DeleteQueueWork(context);
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
+    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

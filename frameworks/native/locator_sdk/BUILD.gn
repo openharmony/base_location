@@ -155,6 +155,8 @@ ohos_static_library("locator_sdk_static") {
     defines += [ "EMULATOR_ENABLED" ]
   }
 
+  defines += [ "TEST_CASES_ENABLED" ]
+
   cflags_cc = [
     "-std=c++17",
     "-fno-rtti",

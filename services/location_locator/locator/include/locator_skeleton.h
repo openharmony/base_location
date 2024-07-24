@@ -39,12 +39,14 @@ public:
 
 class LocatorAbilityStub : public IRemoteStub<ILocator> {
 public:
-    using LocatorMsgHandle = int (LocatorAbilityStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using LocatorMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using LocatorMsgHandleMap = std::map<LocatorInterfaceCode, LocatorMsgHandle>;
 
     LocatorAbilityStub();
     virtual ~LocatorAbilityStub() = default;
+    virtual bool CancelIdleState() = 0;
+    virtual void RemoveUnloadTask(uint32_t code) = 0;
+    virtual void PostUnloadTask(uint32_t code) = 0;
     void InitLocatorHandleMap();
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
@@ -107,14 +109,15 @@ private:
     bool CheckPreciseLocationPermissions(MessageParcel &reply, AppIdentity &identity);
     bool CheckLocationSwitchState(MessageParcel &reply);
     static void SaDumpInfo(std::string& result);
-    bool RemoveUnloadTask(uint32_t code);
-    bool PostUnloadTask(uint32_t code);
     void WriteLocationDenyReportEvent(uint32_t code, int errCode, MessageParcel &data, AppIdentity &identity);
     int DoProcessFenceRequest(
         LocatorInterfaceCode code, MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     void ConstructLocatorHandleMap();
+    void ConstructLocatorEnhanceHandleMap();
+    void ConstructLocatorMockHandleMap();
     void ConstructGeocodeHandleMap();
     void ConstructGnssHandleMap();
+    void ConstructGnssEnhanceHandleMap();
     sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();
 };
 

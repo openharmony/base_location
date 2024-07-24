@@ -28,6 +28,7 @@ CountryCodeCallbackNapi::CountryCodeCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
+    callbackValid_ = false;
 }
 
 CountryCodeCallbackNapi::~CountryCodeCallbackNapi()
@@ -65,6 +66,10 @@ bool CountryCodeCallbackNapi::Send(const std::shared_ptr<CountryCode>& country)
         LBSLOGE(COUNTRY_CODE_CALLBACK, "env_ == nullptr.");
         return false;
     }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(COUNTRY_CODE_CALLBACK, "handler is nullptr.");
+        return false;
+    }
     if (country == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "country == nullptr.");
         return false;
@@ -85,8 +90,10 @@ bool CountryCodeCallbackNapi::Send(const std::shared_ptr<CountryCode>& country)
         delete work;
         return false;
     }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (!InitContext(context)) {
+        LBSLOGE(COUNTRY_CODE_CALLBACK, "InitContext fail");
+        return false;
+    }
     context->country = country;
     work->data = context;
     UvQueueWork(loop, work);
@@ -107,7 +114,7 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CountryCodeContext *>(work->data);
-            if (context == nullptr || context->env == nullptr) {
+            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -127,7 +134,7 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             } else {
                 LBSLOGE(LOCATOR_STANDARD, "country is nullptr!");
             }
-            if (context->callback[0] != nullptr) {
+            if (context->callback[0] != nullptr && *(context->callbackValid)) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
@@ -170,15 +177,9 @@ void CountryCodeCallbackNapi::DeleteHandler()
         LBSLOGE(COUNTRY_CODE_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    auto context = new (std::nothrow) AsyncContext(env_);
-    if (context == nullptr) {
-        LBSLOGE(COUNTRY_CODE_CALLBACK, "context == nullptr.");
-        return;
-    }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    DeleteQueueWork(context);
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
+    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

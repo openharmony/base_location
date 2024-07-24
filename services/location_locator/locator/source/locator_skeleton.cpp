@@ -42,50 +42,136 @@ void LocatorAbilityStub::InitLocatorHandleMap()
         return;
     }
     ConstructLocatorHandleMap();
+    ConstructLocatorEnhanceHandleMap();
+    ConstructLocatorMockHandleMap();
     ConstructGeocodeHandleMap();
     ConstructGnssHandleMap();
+    ConstructGnssEnhanceHandleMap();
 }
 
 void LocatorAbilityStub::ConstructLocatorHandleMap()
 {
-    locatorHandleMap_[LocatorInterfaceCode::GET_SWITCH_STATE] = &LocatorAbilityStub::PreGetSwitchState;
-    locatorHandleMap_[LocatorInterfaceCode::REG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreRegisterSwitchCallback;
-    locatorHandleMap_[LocatorInterfaceCode::UNREG_SWITCH_CALLBACK] = &LocatorAbilityStub::PreUnregisterSwitchCallback;
-    locatorHandleMap_[LocatorInterfaceCode::START_LOCATING] = &LocatorAbilityStub::PreStartLocating;
-    locatorHandleMap_[LocatorInterfaceCode::STOP_LOCATING] = &LocatorAbilityStub::PreStopLocating;
-    locatorHandleMap_[LocatorInterfaceCode::GET_CACHE_LOCATION] = &LocatorAbilityStub::PreGetCacheLocation;
-    locatorHandleMap_[LocatorInterfaceCode::ENABLE_ABILITY] = &LocatorAbilityStub::PreEnableAbility;
-    locatorHandleMap_[LocatorInterfaceCode::UPDATE_SA_ABILITY] = &LocatorAbilityStub::PreUpdateSaAbility;
-    locatorHandleMap_[LocatorInterfaceCode::IS_PRIVACY_COMFIRMED] = &LocatorAbilityStub::PreIsLocationPrivacyConfirmed;
+    locatorHandleMap_[LocatorInterfaceCode::GET_SWITCH_STATE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreGetSwitchState(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REG_SWITCH_CALLBACK] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRegisterSwitchCallback(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_SWITCH_CALLBACK] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreUnregisterSwitchCallback(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::START_LOCATING] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreStartLocating(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::STOP_LOCATING] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreStopLocating(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::GET_CACHE_LOCATION] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreGetCacheLocation(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::ENABLE_ABILITY] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreEnableAbility(data, reply, identity);
+        };
+}
+
+void LocatorAbilityStub::ConstructLocatorEnhanceHandleMap()
+{
+    locatorHandleMap_[LocatorInterfaceCode::UPDATE_SA_ABILITY] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreUpdateSaAbility(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::IS_PRIVACY_COMFIRMED] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreIsLocationPrivacyConfirmed(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::SET_PRIVACY_COMFIRM_STATUS] =
-        &LocatorAbilityStub::PreSetLocationPrivacyConfirmStatus;
-    locatorHandleMap_[LocatorInterfaceCode::ENABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreEnableLocationMock;
-    locatorHandleMap_[LocatorInterfaceCode::DISABLE_LOCATION_MOCK] = &LocatorAbilityStub::PreDisableLocationMock;
-    locatorHandleMap_[LocatorInterfaceCode::SET_MOCKED_LOCATIONS] = &LocatorAbilityStub::PreSetMockedLocations;
-    locatorHandleMap_[LocatorInterfaceCode::PROXY_PID_FOR_FREEZE] = &LocatorAbilityStub::PreProxyForFreeze;
-    locatorHandleMap_[LocatorInterfaceCode::RESET_ALL_PROXY] = &LocatorAbilityStub::PreResetAllProxy;
-    locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION] = &LocatorAbilityStub::PreReportLocation;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreSetLocationPrivacyConfirmStatus(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::PROXY_PID_FOR_FREEZE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreProxyForFreeze(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::RESET_ALL_PROXY] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreResetAllProxy(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreReportLocation(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::REG_LOCATING_REQUIRED_DATA_CALLBACK] =
-        &LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRegisterLocatingRequiredDataCallback(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK] =
-        &LocatorAbilityStub::PreUnregisterLocatingRequiredDataCallback;
-    locatorHandleMap_[LocatorInterfaceCode::REG_LOCATION_ERROR] = &LocatorAbilityStub::PreRegisterLocationError;
-    locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATION_ERROR] = &LocatorAbilityStub::PreUnregisterLocationError;
-    locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION_ERROR] = &LocatorAbilityStub::PreReportLocationError;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreUnregisterLocatingRequiredDataCallback(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REG_LOCATION_ERROR] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRegisterLocationError(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_LOCATION_ERROR] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreUnregisterLocationError(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REPORT_LOCATION_ERROR] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreReportLocationError(data, reply, identity);
+        };
+}
+
+void LocatorAbilityStub::ConstructLocatorMockHandleMap()
+{
+    locatorHandleMap_[LocatorInterfaceCode::ENABLE_LOCATION_MOCK] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreEnableLocationMock(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::DISABLE_LOCATION_MOCK] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreDisableLocationMock(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::SET_MOCKED_LOCATIONS] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreSetMockedLocations(data, reply, identity);
+        };
 }
 
 void LocatorAbilityStub::ConstructGeocodeHandleMap()
 {
 #ifdef FEATURE_GEOCODE_SUPPORT
-    locatorHandleMap_[LocatorInterfaceCode::GEO_IS_AVAILABLE] = &LocatorAbilityStub::PreIsGeoConvertAvailable;
-    locatorHandleMap_[LocatorInterfaceCode::GET_FROM_COORDINATE] = &LocatorAbilityStub::PreGetAddressByCoordinate;
-    locatorHandleMap_[LocatorInterfaceCode::GET_FROM_LOCATION_NAME] = &LocatorAbilityStub::PreGetAddressByLocationName;
+    locatorHandleMap_[LocatorInterfaceCode::GEO_IS_AVAILABLE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreIsGeoConvertAvailable(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::GET_FROM_COORDINATE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreGetAddressByCoordinate(data, reply, identity);
+            };
+    locatorHandleMap_[LocatorInterfaceCode::GET_FROM_LOCATION_NAME] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreGetAddressByLocationName(data, reply, identity);
+    };
     locatorHandleMap_[LocatorInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK] =
-        &LocatorAbilityStub::PreEnableReverseGeocodingMock;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreEnableReverseGeocodingMock(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK] =
-        &LocatorAbilityStub::PreDisableReverseGeocodingMock;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreDisableReverseGeocodingMock(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO] =
-        &LocatorAbilityStub::PreSetReverseGeocodingMockInfo;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreSetReverseGeocodingMockInfo(data, reply, identity);
+        };
 #endif
 }
 
@@ -93,28 +179,75 @@ void LocatorAbilityStub::ConstructGnssHandleMap()
 {
 #ifdef FEATURE_GNSS_SUPPORT
     locatorHandleMap_[LocatorInterfaceCode::REG_GNSS_STATUS_CALLBACK] =
-        &LocatorAbilityStub::PreRegisterGnssStatusCallback;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRegisterGnssStatusCallback(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::UNREG_GNSS_STATUS_CALLBACK] =
-        &LocatorAbilityStub::PreUnregisterGnssStatusCallback;
-    locatorHandleMap_[LocatorInterfaceCode::REG_NMEA_CALLBACK] = &LocatorAbilityStub::PreRegisterNmeaMessageCallback;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreUnregisterGnssStatusCallback(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REG_NMEA_CALLBACK] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRegisterNmeaMessageCallback(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::UNREG_NMEA_CALLBACK] =
-        &LocatorAbilityStub::PreUnregisterNmeaMessageCallback;
-    locatorHandleMap_[LocatorInterfaceCode::REG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStartCacheLocating;
-    locatorHandleMap_[LocatorInterfaceCode::UNREG_CACHED_CALLBACK] = &LocatorAbilityStub::PreStopCacheLocating;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreUnregisterNmeaMessageCallback(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REG_CACHED_CALLBACK] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreStartCacheLocating(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::UNREG_CACHED_CALLBACK] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreStopCacheLocating(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::GET_CACHED_LOCATION_SIZE] =
-        &LocatorAbilityStub::PreGetCachedGnssLocationsSize;
-    locatorHandleMap_[LocatorInterfaceCode::FLUSH_CACHED_LOCATIONS] = &LocatorAbilityStub::PreFlushCachedGnssLocations;
-    locatorHandleMap_[LocatorInterfaceCode::SEND_COMMAND] = &LocatorAbilityStub::PreSendCommand;
-    locatorHandleMap_[LocatorInterfaceCode::ADD_FENCE] = &LocatorAbilityStub::PreAddFence;
-    locatorHandleMap_[LocatorInterfaceCode::REMOVE_FENCE] = &LocatorAbilityStub::PreRemoveFence;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreGetCachedGnssLocationsSize(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::FLUSH_CACHED_LOCATIONS] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreFlushCachedGnssLocations(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::SEND_COMMAND] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreSendCommand(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::REG_NMEA_CALLBACK_V9] =
-        &LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRegisterNmeaMessageCallbackV9(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9] =
-        &LocatorAbilityStub::PreUnregisterNmeaMessageCallbackV9;
-    locatorHandleMap_[LocatorInterfaceCode::ADD_GNSS_GEOFENCE] = &LocatorAbilityStub::PreAddGnssGeofence;
-    locatorHandleMap_[LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE] = &LocatorAbilityStub::PreRemoveGnssGeofence;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreUnregisterNmeaMessageCallbackV9(data, reply, identity);
+        };
+#endif
+}
+
+void LocatorAbilityStub::ConstructGnssEnhanceHandleMap()
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    locatorHandleMap_[LocatorInterfaceCode::ADD_FENCE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreAddFence(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REMOVE_FENCE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRemoveFence(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::ADD_GNSS_GEOFENCE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreAddGnssGeofence(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreRemoveGnssGeofence(data, reply, identity);
+        };
     locatorHandleMap_[LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE] =
-        &LocatorAbilityStub::PreQuerySupportCoordinateSystemType;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreQuerySupportCoordinateSystemType(data, reply, identity);
+        };
 #endif
 }
 
@@ -264,11 +397,12 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
-        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
-            identity.ToString().c_str());
-        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
-        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(LOCATOR, "check permission failed, [%{public}s]", identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
@@ -518,9 +652,6 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (!CheckLocationSwitchState(reply)) {
-        return ERRCODE_SWITCH_OFF;
-    }
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
     requestConfig->reportingPeriodSec = data.ReadInt32();
     requestConfig->wakeUpCacheQueueFull = data.ReadBool();
@@ -671,6 +802,7 @@ int LocatorAbilityStub::DoProcessFenceRequest(
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    LBSLOGI(LOCATOR, "PreAddGnssGeofence enter.");
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
@@ -693,6 +825,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
 #ifdef FEATURE_GNSS_SUPPORT
 int LocatorAbilityStub::PreRemoveGnssGeofence(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    LBSLOGI(LOCATOR, "PreRemoveGnssGeofence enter.");
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
@@ -1206,20 +1339,17 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR, "invalid token.");
         IPCSkeleton::SetCallingIdentity(callingIdentity);
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    CancelIdleState();
     RemoveUnloadTask(code);
 
     auto handleFunc = locatorHandleMap_.find(static_cast<LocatorInterfaceCode>(code));
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        ret = (this->*memberFunc)(data, reply, identity);
+        ret = memberFunc(data, reply, identity);
     } else {
         LBSLOGE(LOCATOR, "OnReceived cmd = %{public}u, unsupport service.", code);
-#if !defined(FEATURE_GNSS_SUPPORT) || !defined(FEATURE_GEOCODE_SUPPORT)
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-#endif
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     IPCSkeleton::SetCallingIdentity(callingIdentity);
@@ -1260,28 +1390,6 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
         return ERR_OK;
     }
     return ERR_OK;
-}
-
-bool LocatorAbilityStub::RemoveUnloadTask(uint32_t code)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
-        return false;
-    }
-    locatorAbility->RemoveUnloadTask(code);
-    return true;
-}
-
-bool LocatorAbilityStub::PostUnloadTask(uint32_t code)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
-        return false;
-    }
-    locatorAbility->PostUnloadTask(code);
-    return true;
 }
 
 void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode,

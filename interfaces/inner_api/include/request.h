@@ -49,6 +49,8 @@ public:
     void SetRequesting(bool state);
     sptr<Location> GetLastLocation();
     void SetLastLocation(const std::unique_ptr<Location>& location);
+    sptr<Location> GetBestLocation();
+    void SetBestLocation(const std::unique_ptr<Location>& location);
     uint32_t GetTokenId();
     uint32_t GetFirstTokenId();
     uint64_t GetTokenIdEx();
@@ -80,6 +82,7 @@ private:
     uint32_t firstTokenId_;
     int nlpRequestType_;
     sptr<Location> lastLocation_;
+    sptr<Location> bestLocation_;
     std::string packageName_;
     std::string uuid_;
     sptr<RequestConfig> requestConfig_;

@@ -29,17 +29,29 @@ void GeoConvertServiceStub::InitGeoConvertHandleMap()
         return;
     }
     geoConvertMsgHandleMap_[static_cast<uint32_t>(GeoConvertInterfaceCode::IS_AVAILABLE)] =
-        &GeoConvertServiceStub::IsGeoConvertAvailableInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return IsGeoConvertAvailableInner(data, reply, identity);
+        };
     geoConvertMsgHandleMap_[static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_COORDINATE)] =
-        &GeoConvertServiceStub::GetAddressByCoordinateInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return GetAddressByCoordinateInner(data, reply, identity);
+        };
     geoConvertMsgHandleMap_[static_cast<uint32_t>(GeoConvertInterfaceCode::GET_FROM_LOCATION_NAME_BY_BOUNDARY)] =
-        &GeoConvertServiceStub::GetAddressByLocationNameInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return GetAddressByLocationNameInner(data, reply, identity);
+        };
     geoConvertMsgHandleMap_[static_cast<uint32_t>(GeoConvertInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK)] =
-        &GeoConvertServiceStub::EnableReverseGeocodingMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return EnableReverseGeocodingMockInner(data, reply, identity);
+        };
     geoConvertMsgHandleMap_[static_cast<uint32_t>(GeoConvertInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK)] =
-        &GeoConvertServiceStub::DisableReverseGeocodingMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return DisableReverseGeocodingMockInner(data, reply, identity);
+        };
     geoConvertMsgHandleMap_[static_cast<uint32_t>(GeoConvertInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO)] =
-        &GeoConvertServiceStub::SetGeocodingMockInfoInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SetGeocodingMockInfoInner(data, reply, identity);
+        };
 }
 
 GeoConvertServiceStub::GeoConvertServiceStub()
@@ -138,20 +150,16 @@ int GeoConvertServiceStub::OnRemoteRequest(uint32_t code,
         code, option.GetFlags(), callingPid, callingUid, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(GEO_CONVERT, "invalid token.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
- 
+    CancelIdleState();
     int ret = ERRCODE_SUCCESS;
     auto handleFunc = geoConvertMsgHandleMap_.find(code);
     if (handleFunc != geoConvertMsgHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        ret = (this->*memberFunc)(data, reply, identity);
+        ret = memberFunc(data, reply, identity);
     } else {
         LBSLOGE(GEO_CONVERT, "OnReceived cmd = %{public}u, unsupport service.", code);
-#if !defined(FEATURE_GNSS_SUPPORT) || !defined(FEATURE_GEOCODE_SUPPORT)
-        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
-#endif
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     UnloadGeoConvertSystemAbility();

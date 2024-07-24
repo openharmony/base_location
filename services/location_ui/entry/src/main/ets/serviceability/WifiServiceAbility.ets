@@ -120,6 +120,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 }
             },
             slotType: Notification.SlotType.SERVICE_INFORMATION,
+            isUnremovable: true,
             wantAgent: wantAgentObj,
             smallIcon: pixelmap
         };

@@ -14,22 +14,22 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
-local_base_sources = [
-  "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
-  "$LOCATION_GNSS_ROOT/source/agnss_ni_manager.cpp",
-  "$LOCATION_GNSS_ROOT/source/geofence_event_callback.cpp",
-  "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
-  "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
-  "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
-  "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
-  "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
-  "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
-  "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
-  "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-  "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
-]
-
 if (location_feature_with_gnss) {
+  local_base_sources = [
+    "$LOCATION_GNSS_ROOT/source/agnss_event_callback.cpp",
+    "$LOCATION_GNSS_ROOT/source/agnss_ni_manager.cpp",
+    "$LOCATION_GNSS_ROOT/source/geofence_event_callback.cpp",
+    "$LOCATION_GNSS_ROOT/source/gnss_ability.cpp",
+    "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
+    "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
+    "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
+    "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
+    "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
+    "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
+    "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
+    "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
+  ]
+
   ohos_shared_library("lbsservice_gnss") {
     sources = local_base_sources
 
@@ -256,6 +256,11 @@ if (location_feature_with_gnss) {
   }
 } else {
   ohos_shared_library("lbsservice_gnss") {
+    part_name = "location"
+    subsystem_name = "location"
+  }
+
+  ohos_static_library("lbsservice_gnss_static") {
     part_name = "location"
     subsystem_name = "location"
   }

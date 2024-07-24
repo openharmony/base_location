@@ -35,10 +35,27 @@ GeofenceManager::GeofenceManager()
 GeofenceManager::~GeofenceManager()
 {}
 
+void GeofenceManager::ResetGeofenceSdkProxy(const wptr<IRemoteObject> &remote)
+{
+    if (remote == nullptr) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s: remote is nullptr.", __func__);
+        return;
+    }
+    if (client_ == nullptr || !isServerExist_) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s: proxy is nullptr.", __func__);
+        return;
+    }
+    if (remote.promote() != nullptr) {
+        remote.promote()->RemoveDeathRecipient(recipient_);
+    }
+    isServerExist_ = false;
+    LBSLOGI(GEOFENCE_SDK, "%{public}s: finish.", __func__);
+}
+
 sptr<GeofenceSdk> GeofenceManager::GetProxy()
 {
     std::unique_lock<std::mutex> lock(mutex_);
-    if (client_ != nullptr) {
+    if (client_ != nullptr && isServerExist_) {
         return client_;
     }
 
@@ -52,6 +69,12 @@ sptr<GeofenceSdk> GeofenceManager::GetProxy()
         LBSLOGE(GEOFENCE_SDK, "%{public}s: get remote service failed.", __func__);
         return nullptr;
     }
+    recipient_ = sptr<GeofenceManagerDeathRecipient>(new (std::nothrow) GeofenceManagerDeathRecipient(*this));
+    if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(recipient_))) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s: deathRecipient add failed.", __func__);
+        return nullptr;
+    }
+    isServerExist_ = true;
     client_ = sptr<GeofenceSdk>(new (std::nothrow) GeofenceSdk(obj));
     return client_;
 }
@@ -91,7 +114,6 @@ LocationErrCode GeofenceManager::AddGnssGeofence(std::shared_ptr<GeofenceRequest
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(GEOFENCE_SDK, "GeofenceManager::AddGnssGeofence()");
     sptr<GeofenceSdk> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
@@ -160,7 +182,7 @@ LocationErrCode GeofenceSdk::HandleGnssfenceRequest(
     }
     request->Marshalling(data);
     LocationErrCode errorCode = SendMsgWithDataReplyV9(static_cast<int>(code), data, reply);
-    LBSLOGD(GEOFENCE_SDK, "Transact ErrCodes = %{public}d", errorCode);
+    LBSLOGI(GEOFENCE_SDK, "Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 
@@ -182,7 +204,7 @@ LocationErrCode GeofenceSdk::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
     data.WriteInt32(request->GetFenceId());
     LocationErrCode errorCode = SendMsgWithDataReplyV9(
         static_cast<int>(LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE), data, reply);
-    LBSLOGD(GEOFENCE_SDK, "Transact ErrCodes = %{public}d", errorCode);
+    LBSLOGI(GEOFENCE_SDK, "Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 
@@ -214,12 +236,12 @@ LocationErrCode GeofenceSdk::SendMsgWithDataReplyV9(const int msgId, MessageParc
         LBSLOGE(GEOFENCE_SDK, "SendMsgWithDataReply remote is null");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    LBSLOGI(GEOFENCE_SDK, "%{public}s: %{public}d", __func__, msgId);
     int error = remote->SendRequest(msgId, data, reply, option);
     if (error != NO_ERROR) {
         LBSLOGE(GEOFENCE_SDK, "msgid = %{public}d, send request error: %{public}d", msgId, error);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(GEOFENCE_SDK, "Proxy::SendMsgWithDataReply result from server.");
     return LocationErrCode(reply.ReadInt32());
 }
 }
