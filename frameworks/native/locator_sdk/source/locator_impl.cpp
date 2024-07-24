@@ -21,6 +21,7 @@
 #include "common_utils.h"
 #include "country_code.h"
 
+#include "geo_convert_callback_host.h"
 #include "location_data_rdb_observer.h"
 #include "location_data_rdb_helper.h"
 #include "location_data_rdb_manager.h"
@@ -353,21 +354,20 @@ void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::sha
         return;
     }
     MessageParcel reply;
+    sptr<GeoConvertCallbackHost> callback = new (std::nothrow) GeoConvertCallbackHost();
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
+        return;
+    }
+    data.WriteRemoteObject(callback->AsObject());
     proxy->GetAddressByCoordinate(data, reply);
     int exception = reply.ReadInt32();
     if (exception == ERRCODE_PERMISSION_DENIED) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
     } else if (exception != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        int resultSize = reply.ReadInt32();
-        if (resultSize > GeoAddress::MAX_RESULT) {
-            resultSize = GeoAddress::MAX_RESULT;
-        }
-        for (int i = 0; i < resultSize; i++) {
-            replyList.push_back(GeoAddress::Unmarshalling(reply));
-        }
     }
+    replyList = callback->GetResult();
 }
 
 void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
@@ -381,21 +381,21 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
         return;
     }
     MessageParcel reply;
+    sptr<GeoConvertCallbackHost> callback = new (std::nothrow) GeoConvertCallbackHost();
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
+        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
+        return;
+    }
+    data.WriteRemoteObject(callback->AsObject());
     proxy->GetAddressByLocationName(data, reply);
     int exception = reply.ReadInt32();
     if (exception == ERRCODE_PERMISSION_DENIED) {
         LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
     } else if (exception != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        int resultSize = reply.ReadInt32();
-        if (resultSize > GeoAddress::MAX_RESULT) {
-            resultSize = GeoAddress::MAX_RESULT;
-        }
-        for (int i = 0; i < resultSize; i++) {
-            replyList.push_back(GeoAddress::Unmarshalling(reply));
-        }
     }
+    replyList = callback->GetResult();
 }
 
 bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
@@ -870,7 +870,17 @@ LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    sptr<GeoConvertCallbackHost> callback = new (std::nothrow) GeoConvertCallbackHost();
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
+        return ERRCODE_REVERSE_GEOCODING_FAIL;
+    }
+    data.WriteRemoteObject(callback->AsObject());
     LocationErrCode errCode = proxy->GetAddressByCoordinateV9(data, replyList);
+    replyList = callback->GetResult();
+    if (replyList.size() == 0) {
+        return ERRCODE_REVERSE_GEOCODING_FAIL;
+    }
     return errCode;
 }
 
@@ -886,7 +896,19 @@ LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    MessageParcel reply;
+    sptr<GeoConvertCallbackHost> callback = new (std::nothrow) GeoConvertCallbackHost();
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
+        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
+        return ERRCODE_GEOCODING_FAIL;
+    }
+    data.WriteRemoteObject(callback->AsObject());
     LocationErrCode errCode = proxy->GetAddressByLocationNameV9(data, replyList);
+    replyList = callback->GetResult();
+    if (replyList.size() == 0) {
+        return ERRCODE_GEOCODING_FAIL;
+    }
     return errCode;
 }
 

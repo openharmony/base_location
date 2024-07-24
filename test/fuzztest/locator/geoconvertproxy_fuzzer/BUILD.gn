@@ -47,6 +47,7 @@ if (location_feature_with_geocode) {
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",
       "eventhandler:libeventhandler",
+      "ffrt:libffrt",
       "hilog:libhilog",
       "hisysevent:libhisysevent",
       "init:libbegetutil",

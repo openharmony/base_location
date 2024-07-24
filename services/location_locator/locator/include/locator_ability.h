@@ -51,6 +51,7 @@ public:
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
     void InitLocatorHandlerEventMap();
+    void ConstructGeocodeHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -71,6 +72,7 @@ private:
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
+    void SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event);
     void InitSaAbilityEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -194,13 +196,13 @@ public:
     void UpdateLastLocationRequestNum();
     void SyncStillMovementState(bool stillState);
     void SyncIdleState(bool stillState);
+#ifdef FEATURE_GEOCODE_SUPPORT
+    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
+#endif
 
 private:
     bool Init();
     bool CheckSaValid();
-#ifdef FEATURE_GEOCODE_SUPPORT
-    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
-#endif
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
