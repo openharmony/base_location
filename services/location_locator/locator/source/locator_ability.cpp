@@ -181,7 +181,8 @@ void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
     if (locationPrivacyEventSubscriber_ != nullptr) {
         bool ret = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locationPrivacyEventSubscriber_);
         locationPrivacyEventSubscriber_ = nullptr;
-        LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", ret);
+        isLocationPrivacyActionRegistered_ = false;
+        LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locationPrivacyEventSubscriber_ result = %{public}d", ret);
         return;
     }
 
@@ -190,6 +191,7 @@ void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
         return;
     }
     bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locatorEventSubscriber_);
+    isActionRegistered = false;
     LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
 }
 
