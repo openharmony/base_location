@@ -58,6 +58,7 @@ void LocatorSkeletonTest::SetUp()
      */
     LoadSystemAbility();
     MockNativePermission();
+    MockNativeMockPermission();
 }
 
 void LocatorSkeletonTest::TearDown()
@@ -95,11 +96,33 @@ void LocatorSkeletonTest::MockNativePermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "ohos.permission.MOCK_LOCATION",
+        .processName = "tddTestApkname01",
         .aplStr = "system_basic",
     };
     tokenId_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId_);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
+
+void LocatorSkeletonTest::MockNativeMockPermission()
+{
+    const char *perms[] = {
+        ACCESS_LOCATION.c_str(), ACCESS_BACKGROUND_LOCATION.c_str(),
+        MANAGE_SECURE_SETTINGS.c_str(), RUNNING_STATE_OBSERVER.c_str(),
+        ACCESS_MOCK_LOCATION.c_str(),
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = LOCATION_PERM_NUM,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "tddTestApkname02",
+        .aplStr = "system_basic",
+    };
+    tokenId2_ = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId2_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
@@ -733,7 +756,7 @@ HWTEST_F(LocatorSkeletonTest, PreEnableLocationMock, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -752,7 +775,7 @@ HWTEST_F(LocatorSkeletonTest, PreDisableLocationMock, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -771,7 +794,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetMockedLocations, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -790,7 +813,7 @@ HWTEST_F(LocatorSkeletonTest, PreEnableReverseGeocodingMock, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -809,7 +832,7 @@ HWTEST_F(LocatorSkeletonTest, PreDisableReverseGeocodingMock, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -828,7 +851,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetReverseGeocodingMockInfo, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -847,7 +870,7 @@ HWTEST_F(LocatorSkeletonTest, PreProxyForFreeze, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -866,7 +889,7 @@ HWTEST_F(LocatorSkeletonTest, PreResetAllProxy, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -905,7 +928,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterLocatingRequiredDataCallback, TestSize.
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -920,12 +943,11 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterLocatingRequiredDataCallback, TestSiz
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreUnregisterLocatingRequiredDataCallback begin");
     auto locatorAbilityStub = sptr<MockLocatorAbilityStub>(new (std::nothrow) MockLocatorAbilityStub());
     MessageParcel data;
-
     MessageParcel reply;
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -944,7 +966,7 @@ HWTEST_F(LocatorSkeletonTest, PreQuerySupportCoordinateSystemType, TestSize.Leve
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -963,7 +985,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterLocationError, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -977,14 +999,14 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterLocationError, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorSkeletonTest, PreUnregisterLocationError, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreUnregisterLocationError begin");
+    
     auto locatorAbilityStub = sptr<MockLocatorAbilityStub>(new (std::nothrow) MockLocatorAbilityStub());
     MessageParcel data;
-
     MessageParcel reply;
     AppIdentity identity;
     identity.SetPid(1);
     identity.SetUid(2);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
+    uint32_t tokenId = static_cast<uint32_t>(tokenId2_);
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
@@ -1020,10 +1042,56 @@ HWTEST_F(LocatorSkeletonTest, OnRemoteRequest, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] OnRemoteRequest begin");
     auto locatorAbilityStub = sptr<MockLocatorAbilityStub>(new (std::nothrow) MockLocatorAbilityStub());
     MessageParcel data;
+    data.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
     locatorAbilityStub->OnRemoteRequest(3, data, reply, option);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] OnRemoteRequest end");
+}
+
+HWTEST_F(LocatorSkeletonTest, RemoveUnloadTask, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorSkeletonTest, RemoveUnloadTask TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] RemoveUnloadTask begin");
+    auto locatorAbilityStub = sptr<MockLocatorAbilityStub>(new (std::nothrow) MockLocatorAbilityStub());
+    locatorAbilityStub->RemoveUnloadTask(3);
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] RemoveUnloadTask end");
+}
+
+HWTEST_F(LocatorSkeletonTest, PostUnloadTask, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorSkeletonTest, PostUnloadTask, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PostUnloadTask begin");
+    auto locatorAbilityStub = sptr<MockLocatorAbilityStub>(new (std::nothrow) MockLocatorAbilityStub());
+    locatorAbilityStub->PostUnloadTask(3);
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PostUnloadTask end");
+}
+
+HWTEST_F(LocatorSkeletonTest, WriteLocationDenyReportEvent, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorSkeletonTest, WriteLocationDenyReportEvent TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] WriteLocationDenyReportEvent begin");
+    MessageParcel data;
+    data.WriteInterfaceToken(LocatorProxy::GetDescriptor());
+    AppIdentity identity;
+    auto locatorAbilityStub = sptr<MockLocatorAbilityStub>(new (std::nothrow) MockLocatorAbilityStub());
+    locatorAbilityStub->WriteLocationDenyReportEvent(0, 0, data, identity);
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] WriteLocationDenyReportEvent end");
+}
+
+HWTEST_F(LocatorSkeletonTest, OnRemoteDied, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorSkeletonTest, OnRemoteDied TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] OnRemoteDied begin");
+    const wptr<IRemoteObject> remote;
+    auto switchCallbackDeathRecipient =
+        sptr<SwitchCallbackDeathRecipient>(new (std::nothrow) SwitchCallbackDeathRecipient());
+    switchCallbackDeathRecipient->OnRemoteDied(remote);
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PostUnloadTask end");
 }
 }  // namespace Location
 }  // namespace OHOS
