@@ -608,6 +608,7 @@ public:
     void RemoveSatelliteStatusChangeCallBack(const sptr<IRemoteObject>& callback);
     void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
     void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
+    void SetIsServerExist(bool isServerExist);
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);

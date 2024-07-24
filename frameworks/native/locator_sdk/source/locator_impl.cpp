@@ -1071,9 +1071,13 @@ LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shar
 LocationErrCode LocatorImpl::ProxyForFreeze(std::set<int> pidList, bool isProxy)
 {
     if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
+        LBSLOGI(LOCATOR_STANDARD, "%{public}s locator sa is not available.", __func__);
+        isServerExist_ = false;
         return ERRCODE_SUCCESS;
     }
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s init locator sa failed", __func__);
+        isServerExist_ = false;
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyForFreeze()");
@@ -1090,9 +1094,11 @@ LocationErrCode LocatorImpl::ResetAllProxy()
 {
     if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_LOCATOR_SA_ID)) {
         LBSLOGI(LOCATOR_STANDARD, "%{public}s, no need reset proxy", __func__);
+        isServerExist_ = false;
         return ERRCODE_SUCCESS;
     }
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        isServerExist_ = false;
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ResetAllProxy()");
@@ -1220,6 +1226,7 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
     }
     isServerExist_ = true;
     client_ = sptr<LocatorProxy>(new (std::nothrow) LocatorProxy(obj));
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s: create locator proxy", __func__);
     if (saStatusListener_ == nullptr) {
         saStatusListener_ = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
     }
@@ -1359,6 +1366,11 @@ bool LocatorImpl::HasGnssNetworkRequest()
     return ret;
 }
 
+void LocatorImpl::SetIsServerExist(bool isServerExist)
+{
+    isServerExist_ = isServerExist;
+}
+
 void CallbackResumeManager::InitResumeCallbackFuncMap()
 {
     std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
@@ -1447,6 +1459,10 @@ void LocatorSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, c
 void LocatorSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     LBSLOGD(LOCATOR_STANDARD, "%{public}s enter", __func__);
+    auto locatorImpl = LocatorImpl::GetInstance();
+    if (locatorImpl != nullptr) {
+        locatorImpl->SetIsServerExist(false);
+    }
     std::unique_lock<std::mutex> lock(mutex_);
     needResume_ = true;
 }
