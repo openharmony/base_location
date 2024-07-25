@@ -21,7 +21,7 @@ namespace Location {
 int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(LOCATOR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest!");
+    LBSLOGD(LOCATOR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! code %{public}d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
         return -1;
@@ -51,6 +51,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
     }
     return 0;
 }
+
 void LocatorCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
 }

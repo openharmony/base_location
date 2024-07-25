@@ -13,24 +13,25 @@
  * limitations under the License.
  */
 
-#include "country_code_callback_host.h"
+#include "gnss_status_callback_host.h"
+
 #include "location_log.h"
 
 namespace OHOS {
 namespace Location {
-int CountryCodeCallbackHost::OnRemoteRequest(
+int GnssStatusCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(COUNTRY_CODE_CALLBACK, "CountryCodeCallbackHost::OnRemoteRequest! code %{punlic}d", code);
+    LBSLOGD(GNSS_STATUS_CALLBACK, "GnssStatusCallbackHost::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(COUNTRY_CODE_CALLBACK, "invalid token.");
+        LBSLOGE(GNSS_STATUS_CALLBACK, "invalid token.");
         return -1;
     }
 
     switch (code) {
-        case COUNTRY_CODE_CHANGE_EVENT: {
-            auto countryCodePtr = CountryCode::Unmarshalling(data);
-            OnCountryCodeChange(countryCodePtr);
+        case RECEIVE_STATUS_INFO_EVENT: {
+            std::unique_ptr<SatelliteStatus> statusInfo = SatelliteStatus::Unmarshalling(data);
+            OnStatusChange(statusInfo);
             break;
         }
         default: {
@@ -41,7 +42,7 @@ int CountryCodeCallbackHost::OnRemoteRequest(
     return 0;
 }
 
-void CountryCodeCallbackHost::OnCountryCodeChange(const std::shared_ptr<CountryCode>& country)
+void GnssStatusCallbackHost::OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo)
 {
 }
 }  // namespace Location

@@ -53,19 +53,20 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
 int LocationDataRdbManager::QuerySwitchState()
 {
     int32_t state = DISABLED;
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
         return DEFAULT_STATE;
     }
+    SetSwitchMode(state);
     return state;
 }
 
 LocationErrCode LocationDataRdbManager::SetSwitchState(int modeValue)
 {
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
     return LocationDataRdbHelper::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
 }
@@ -99,7 +100,7 @@ int LocationDataRdbManager::GetSwitchMode()
     char result[MAX_SIZE] = {0};
     std::string value = "";
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
-    if (res <= 0 || strlen(result) == 0) {
+    if (res < 0 || strlen(result) == 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
         return UNKNOW_ERROR;
     }
