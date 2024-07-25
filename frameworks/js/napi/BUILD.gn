@@ -44,6 +44,7 @@ if (notification_distributed_notification_service_enable) {
   ]
 
   notification_external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "ability_runtime:napi_common",
     "distributed_notification_service:ans_innerkits",
