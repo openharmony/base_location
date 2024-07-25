@@ -202,6 +202,5 @@ HWTEST_F(LocationConfigManagerTest, SetCachePrivacyType001, TestSize.Level1)
     LocationConfigManager::GetInstance()->SetCachePrivacyType(111);
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] SetCachePrivacyType001 end");
 }
-
 }  // namespace Location
 }  // namespace OHOS
