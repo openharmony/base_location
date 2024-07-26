@@ -63,6 +63,15 @@ int NetworkCallbackHost::OnRemoteRequest(
 void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGD(NETWORK, "NetworkCallbackHost::OnLocationReport");
+    auto networkAbility = NetworkAbility::GetInstance();
+    if (networkAbility == nullptr) {
+        LBSLOGE(NETWORK, "ReportLocation: network ability is nullptr.");
+        return;
+    }
+    if (networkAbility->IsMockEnabled()) {
+        LBSLOGE(GNSS, "location mock is enabled, do not report network location!");
+        return;
+    }
     std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
     NetworkAbility::GetInstance()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
     NetworkAbility::GetInstance()->ReportLocationInfo(PASSIVE_ABILITY, locationNew);

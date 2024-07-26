@@ -77,12 +77,12 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
         WriteNetWorkReportEvent(abilityName, request, location);
-        if (abilityName == NETWORK_ABILITY && (request->GetUuid() == location->GetUuid())) {
-            ProcessRequestForReport(request, deadRequests, location, abilityName);
-            break;
-        } else if (abilityName == NETWORK_ABILITY && (request->GetUuid() != location->GetUuid())) {
-            continue;
-        } else {
+        if (abilityName == NETWORK_ABILITY) {
+            if (request->GetUuid() == location->GetUuid() || location->GetIsFromMock()) {
+                ProcessRequestForReport(request, deadRequests, location, abilityName);
+                break;
+            }
+        } else if (abilityName == GNSS_ABILITY || abilityName == PASSIVE_ABILITY ) {
             ProcessRequestForReport(request, deadRequests, location, abilityName);
         }
     }
@@ -272,7 +272,8 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         LBSLOGE(REPORT_MANAGER, "accuracy check fail, do not report location");
         return false;
     }
-    if (CommonUtils::DoubleEqual(request->GetLastLocation()->GetLatitude(), MIN_LATITUDE - 1)) {
+    if (CommonUtils::DoubleEqual(request->GetLastLocation()->GetLatitude(), MIN_LATITUDE - 1) ||
+        request->GetLastLocation()->GetIsFromMock() != location->GetIsFromMock()) {
         LBSLOGD(REPORT_MANAGER, "no valid cache location, no need to check");
         return true;
     }
