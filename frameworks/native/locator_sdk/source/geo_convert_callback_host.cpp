@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_callback_host.h"
 
 #include <sys/time.h>
@@ -23,6 +22,7 @@
 namespace OHOS {
 namespace Location {
 static const int MAX_RESULT = 10;
+const int GEOCODE_TIME_OUT = 3;
 int GeoConvertCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
@@ -96,4 +96,3 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertCallbackHost::GetResult()
 }
 } // namespace Location
 } // namespace OHOS
-#endif // FEATURE_GEOCODE_SUPPORT

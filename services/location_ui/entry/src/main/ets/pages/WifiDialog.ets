@@ -28,6 +28,7 @@ struct dialogPlusPage {
   @State secondaryButtonValue: Resource = $r('app.string.wifi_cdd_notify_yes_button');
   private WIFI_DIALOG_CDD: number = 0;
   private WIFI_DIALOG_THREE_VAP: number = 1;
+  private WIFI_DIALOG_CANDIDATE_CONNECT: number = 2;
 
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear')
@@ -43,6 +44,11 @@ struct dialogPlusPage {
             this.title = $r('app.string.wifi_three_vap_notify_title');
             this.primaryButtonValue = $r('app.string.wifi_three_vap_notify_no_button');
             this.secondaryButtonValue = $r('app.string.wifi_three_vap_notify_yes_button');
+            break;
+        case this.WIFI_DIALOG_CANDIDATE_CONNECT:
+            this.title = $r('app.string.wifi_candidate_connect_notify_title');
+            this.primaryButtonValue = $r('app.string.wifi_candidate_connect_notify_no_button');
+            this.secondaryButtonValue = $r('app.string.wifi_candidate_connect_notify_yes_button');
             break;
         default:
             break;

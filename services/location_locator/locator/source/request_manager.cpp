@@ -66,7 +66,6 @@ RequestManager::RequestManager()
     if (locatorDftManager != nullptr) {
         locatorDftManager->Init();
     }
-    IsStandby();
 }
 
 RequestManager::~RequestManager()
@@ -88,8 +87,6 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request, con
         lock.unlock();
         return;
     }
-    LBSLOGD(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
-        request->GetTokenId(), request->GetFirstTokenId());
     UpdateUsingApproximatelyPermission(request, isStart);
     lock.unlock();
 }
@@ -427,15 +424,18 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 void RequestManager::IsStandby()
 {
 #ifdef DEVICE_STANDBY_ENABLE
+    LBSLOGI(LOCATOR, "%{public}s called", __func__);
     bool isStandby = false;
     DevStandbyMgr::StandbyServiceClient& standbyServiceClient = DevStandbyMgr::StandbyServiceClient::GetInstance();
     ErrCode code = standbyServiceClient.IsDeviceInStandby(isStandby);
     if (code == ERR_OK && isStandby) {
         isDeviceIdleMode_.store(true);
+        LBSLOGI(LOCATOR, "isStandby = true");
         return;
     }
 #endif
     isDeviceIdleMode_.store(false);
+    LBSLOGI(LOCATOR, "isStandby = false");
 }
 
 bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,

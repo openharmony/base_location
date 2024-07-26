@@ -296,6 +296,9 @@ LocationErrCode LocationGnssGeofenceCallbackNapi::DealGeofenceOperationResult()
         case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_PARAMS_INVALID:
             errCode = ERRCODE_SERVICE_UNAVAILABLE;
             break;
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_GEOFENCE_ID_UNKNOWN:
+            errCode = ERRCODE_GEOFENCE_INCORRECT_ID;
+            break;
         default:
             break;
     }

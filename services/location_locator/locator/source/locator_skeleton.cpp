@@ -397,11 +397,12 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
-        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
-            identity.ToString().c_str());
-        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
-        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
+        LBSLOGE(LOCATOR, "check permission failed, [%{public}s]", identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
@@ -650,9 +651,6 @@ int LocatorAbilityStub::PreStartCacheLocating(MessageParcel &data, MessageParcel
         LBSLOGE(LOCATOR, "PreStartCacheLocating: LocatorAbility is nullptr.");
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (!CheckLocationSwitchState(reply)) {
-        return ERRCODE_SWITCH_OFF;
     }
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
     requestConfig->reportingPeriodSec = data.ReadInt32();
@@ -1367,6 +1365,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return ERRCODE_PERMISSION_DENIED;
     }
+    CancelIdleState();
     RemoveUnloadTask(code);
     auto handleFunc = locatorHandleMap_.find(static_cast<LocatorInterfaceCode>(code));
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
@@ -1414,28 +1413,6 @@ int32_t LocatorAbilityStub::Dump(int32_t fd, const std::vector<std::u16string>& 
         return ERR_OK;
     }
     return ERR_OK;
-}
-
-bool LocatorAbilityStub::RemoveUnloadTask(uint32_t code)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
-        return false;
-    }
-    locatorAbility->RemoveUnloadTask(code);
-    return true;
-}
-
-bool LocatorAbilityStub::PostUnloadTask(uint32_t code)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s: LocatorAbility is nullptr.", __func__);
-        return false;
-    }
-    locatorAbility->PostUnloadTask(code);
-    return true;
 }
 
 void LocatorAbilityStub::WriteLocationDenyReportEvent(uint32_t code, int errCode,

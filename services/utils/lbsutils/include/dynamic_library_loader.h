@@ -41,8 +41,10 @@ public:
     {
         if (handle_) {
             LBSLOGI(COMMON_UTILS, "%{public}s close so [%{public}s]", __func__, libPath_.c_str());
+#ifndef TEST_CASES_ENABLED
             dlclose(handle_);
             handle_ = nullptr;
+#endif
         }
     }
 

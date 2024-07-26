@@ -124,6 +124,7 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGE(PASSIVE, "invalid token.");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    CancelIdleState();
     int ret = ERRCODE_SUCCESS;
     isMessageRequest_ = false;
     auto handleFunc = PassiveMsgHandleMap_.find(code);
