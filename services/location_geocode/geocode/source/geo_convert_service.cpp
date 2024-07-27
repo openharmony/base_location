@@ -413,6 +413,10 @@ void GeoConvertService::UnloadGeoConvertSystemAbility()
     if (!CheckIfGeoConvertConnecting()) {
         LocationSaLoadManager::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
     }
+    if (conn_ != nullptr) {
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        LBSLOGD(GEO_CONVERT, "DisableReverseGeocodingMock::OnStop and disconnect");
+    }
 }
 
 bool GeoConvertService::CheckIfGeoConvertConnecting()
