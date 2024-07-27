@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,32 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef NETWORK_ABILITY_TEST_H
-#define NETWORK_ABILITY_TEST_H
-#ifdef FEATURE_NETWORK_SUPPORT
+#ifndef MOCK_LOCATOR_ABILITY_STUB_H
+#define MOCK_LOCATOR_ABILITY_STUB_H
 
-#include <gtest/gtest.h>
+#include "gmock/gmock.h"
 
-#define private public
-#define protected public
-#include "network_ability.h"
-#undef protected
-#undef private
-#include "network_ability_proxy.h"
+#include "message_option.h"
+#include "message_parcel.h"
+#include "iremote_object.h"
+#include "iremote_stub.h"
+
+#include "locator_skeleton.h"
 
 namespace OHOS {
 namespace Location {
-class NetworkAbilityTest : public testing::Test {
+class MockLocatorAbilityStub : public LocatorAbilityStub {
 public:
-    void SetUp();
-    void TearDown();
-    static void TearDownTestCase();
-    void MockNativePermission();
-    
-    sptr<NetworkAbilityProxy> proxy_;
-    sptr<NetworkAbility> ability_;
+    MockLocatorAbilityStub() {}
+    ~MockLocatorAbilityStub() {}
+    MOCK_METHOD(void, RemoveUnloadTask, (uint32_t code));
+    MOCK_METHOD(void, PostUnloadTask, (uint32_t code));
+    MOCK_METHOD(bool, CancelIdleState, ());
 };
 } // namespace Location
 } // namespace OHOS
-#endif // FEATURE_NETWORK_SUPPORT
-#endif // NETWORK_ABILITY_TEST_H
+#endif // MOCK_LOCATOR_ABILITY_STUB_H

@@ -51,6 +51,7 @@ public:
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
     void InitLocatorHandlerEventMap();
+    void ConstructGeocodeHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -71,6 +72,12 @@ private:
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
+    void SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitSaAbilityEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -86,6 +93,9 @@ public:
     void OnStop() override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    bool CancelIdleState() override;
+    void RemoveUnloadTask(uint32_t code) override;
+    void PostUnloadTask(uint32_t code) override;
     ServiceRunningState QueryServiceState() const
    {
         return state_;
@@ -166,14 +176,13 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests(int delay);
     void RegisterAction();
+    void RegisterLocationPrivacyAction();
     LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
     LocationErrCode ResetAllProxy();
     bool IsProxyPid(int32_t pid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
-    void RemoveUnloadTask(uint32_t code);
-    void PostUnloadTask(uint32_t code);
     void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
         int permUsedType, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();
@@ -187,13 +196,13 @@ public:
     void UpdateLastLocationRequestNum();
     void SyncStillMovementState(bool stillState);
     void SyncIdleState(bool stillState);
+#ifdef FEATURE_GEOCODE_SUPPORT
+    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
+#endif
 
 private:
     bool Init();
     bool CheckSaValid();
-#ifdef FEATURE_GEOCODE_SUPPORT
-    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
-#endif
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
@@ -210,9 +219,11 @@ private:
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
+    bool isLocationPrivacyActionRegistered_ = false;
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
+    std::shared_ptr<LocatorEventSubscriber> locationPrivacyEventSubscriber_;
     std::mutex switchMutex_;
     ffrt::mutex requestsMutex_;
     ffrt::mutex receiversMutex_;

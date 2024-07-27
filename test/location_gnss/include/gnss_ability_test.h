@@ -38,13 +38,14 @@ class GnssAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    static void TearDownTestCase();
     void MockNativePermission();
-
     sptr<GnssAbilityProxy> proxy_;
     sptr<GnssStatusCallbackNapi> callbackStub_;
     sptr<GnssAbility> ability_;
     sptr<NmeaMessageCallbackNapi> nemaCallbackStub_;
     sptr<CachedLocationsCallbackNapi> cachedLocationCallbackStub_;
+    sptr<AGnssEventCallback> agnssCallback_;
 };
 } // namespace Location
 } // namespace OHOS

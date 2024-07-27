@@ -80,6 +80,12 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         return ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(mutex_);
+    for (auto item : switchCallbacks_) {
+        if (item && item->AsObject() == callback) {
+            LBSLOGE(LOCATOR, "callback has registered");
+            return ERRCODE_SUCCESS;
+        }
+    }
     switchCallbacks_.push_back(switchCallback);
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_.size()).c_str());
@@ -99,6 +105,10 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
     }
 
     std::unique_lock<std::mutex> lock(mutex_);
+    if (switchCallbacks_.size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "switchCallbacks_ size <= 0");
+        return ERRCODE_SUCCESS;
+    }
     size_t i = 0;
     for (; i < switchCallbacks_.size(); i++) {
         if (switchCallbacks_[i] == nullptr) {
@@ -113,9 +123,7 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
         LBSLOGD(GNSS, "switch callback is not in vector");
         return ERRCODE_SUCCESS;
     }
-    if (switchCallbacks_.size() > 0) {
-        switchCallbacks_.erase(switchCallbacks_.begin() + i);
-    }
+    switchCallbacks_.erase(switchCallbacks_.begin() + i);
     LBSLOGD(LOCATOR, "after unregister, switch callback size:%{public}s",
         std::to_string(switchCallbacks_.size()).c_str());
     return ERRCODE_SUCCESS;

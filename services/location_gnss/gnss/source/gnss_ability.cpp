@@ -189,6 +189,16 @@ LocationErrCode GnssAbility::SetEnable(bool state)
     return ERRCODE_SUCCESS;
 }
 
+bool GnssAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(GNSS, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
+}
+
 void GnssAbility::UnloadGnssSystemAbility()
 {
     if (gnssHandler_ == nullptr) {
@@ -257,6 +267,10 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
     }
 
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
+    if (gnssStatusCallback_.size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "gnssStatusCallback_ size <= 0");
+        return ERRCODE_SUCCESS;
+    }
     size_t i = 0;
     for (; i < gnssStatusCallback_.size(); i++) {
         sptr<IRemoteObject> remoteObject = gnssStatusCallback_[i]->AsObject();
@@ -268,9 +282,7 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
         LBSLOGD(GNSS, "gnssStatus callback is not in vector");
         return ERRCODE_SUCCESS;
     }
-    if (gnssStatusCallback_.size() > 0) {
-        gnssStatusCallback_.erase(gnssStatusCallback_.begin() + i);
-    }
+    gnssStatusCallback_.erase(gnssStatusCallback_.begin() + i);
     LBSLOGD(GNSS, "after unregister, gnssStatus callback size:%{public}s",
         std::to_string(gnssStatusCallback_.size()).c_str());
     return ERRCODE_SUCCESS;
@@ -309,6 +321,10 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
     }
 
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
+    if (nmeaCallback_.size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "nmeaCallback_ size <= 0");
+        return ERRCODE_SUCCESS;
+    }
     size_t i = 0;
     for (; i < nmeaCallback_.size(); i++) {
         sptr<IRemoteObject> remoteObject = nmeaCallback_[i]->AsObject();
@@ -320,9 +336,7 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         LBSLOGD(GNSS, "nmea callback is not in vector");
         return ERRCODE_SUCCESS;
     }
-    if (nmeaCallback_.size() > 0) {
-        nmeaCallback_.erase(nmeaCallback_.begin() + i);
-    }
+    nmeaCallback_.erase(nmeaCallback_.begin() + i);
     LBSLOGD(GNSS, "after unregister, nmea callback size:%{public}s",
         std::to_string(nmeaCallback_.size()).c_str());
     return ERRCODE_SUCCESS;
@@ -728,7 +742,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
     return true;
 }
 
-bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId)
+bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId)
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     for (auto iter = gnssGeofenceRequestMap_.begin();

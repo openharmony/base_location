@@ -129,7 +129,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         if (fusionController == nullptr) {
             return false;
         }
-        fuseLocation = fusionController->GetFuseLocation(location, request->GetLastLocation());
+        fuseLocation = fusionController->GetFuseLocation(location, request->GetBestLocation());
+        request->SetBestLocation(fuseLocation);
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {

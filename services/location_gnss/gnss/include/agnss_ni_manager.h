@@ -59,6 +59,8 @@ public:
     void SubscribeSaStatusChangeListerner();
     void RegisterAgnssNiEvent();
     void UnRegisterAgnssNiEvent();
+    void RegisterNiResponseEvent();
+    void UnRegisterNiResponseEvent();
     void CheckWapSuplInit(const EventFwk::Want &want);
     void CheckSmsSuplInit(const EventFwk::Want &want);
     void OnCallStateChanged(const EventFwk::Want &want);
@@ -79,6 +81,7 @@ private:
     int64_t emergencyCallEndTime_ = 0;
     sptr<IGnssInterface> gnssInterface_ = nullptr;
     std::shared_ptr<GnssCommonEventSubscriber> subscriber_ = nullptr;
+    std::shared_ptr<GnssCommonEventSubscriber> niResponseSubscriber_ = nullptr;
     sptr<SystemAbilityStatusChangeListener> statusChangeListener_ = nullptr;
     std::mutex mutex_;
     std::mutex callStateMutex_;

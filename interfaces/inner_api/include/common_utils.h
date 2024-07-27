@@ -78,7 +78,6 @@ const int MILLI_PER_SEC = 1000;
 const int MICRO_PER_MILLI = 1000;
 const int CONNECT_TIME_OUT = 10;
 const int DISCONNECT_TIME_OUT = 10;
-const int GEOCODE_TIME_OUT = 60;
 
 const char DEFAULT_STRING[] = "error";
 const std::wstring DEFAULT_WSTRING = L"error";

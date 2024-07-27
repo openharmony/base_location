@@ -222,6 +222,16 @@ LocationErrCode NetworkAbility::SetEnable(bool state)
     return ERRCODE_SUCCESS;
 }
 
+bool NetworkAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(NETWORK, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
+}
+
 void NetworkAbility::UnloadNetworkSystemAbility()
 {
     if (networkHandler_ == nullptr) {
@@ -275,7 +285,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     } else {
         RemoveNetworkLocation(workRecord);
         if (GetRequestNum() == 0 && conn_ != nullptr) {
-            LBSLOGD(NETWORK, "RequestRecord disconnect");
+            LBSLOGI(NETWORK, "RequestRecord disconnect");
             AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         }
     }
