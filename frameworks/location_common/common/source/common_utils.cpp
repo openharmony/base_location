@@ -28,6 +28,7 @@
 #include "constant_definition.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
+#include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
 
@@ -127,7 +128,7 @@ bool CommonUtils::GetCurrentUserId(int &userId)
     std::vector<int> activeIds;
     int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
     if (ret != 0) {
-        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds failed ret:%{public}d", ret);
+        LBSLOGI(COMMON_UTILS, "GetCurrentUserId failed ret:%{public}d", ret);
         return false;
     }
     if (activeIds.empty()) {
@@ -400,6 +401,24 @@ std::string CommonUtils::GenerateUuid()
         ss << g_dis(g_gen);
     };
     return ss.str();
+}
+
+bool CommonUtils::CheckAppForUser(int32_t uid)
+{
+    int currentUserId = 0;
+    int userId = 0;
+    bool ret = GetCurrentUserId(currentUserId);
+    if (!ret) {
+        return true;
+    }
+    auto result = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    if (result != ERR_OK) {
+        return true;
+    }
+    if (userId != currentUserId) {
+        return false;
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

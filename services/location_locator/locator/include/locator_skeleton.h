@@ -116,6 +116,8 @@ private:
     void ConstructLocatorEnhanceHandleMap();
     void ConstructLocatorMockHandleMap();
     void ConstructGeocodeHandleMap();
+    bool IsStopAction(uint32_t code);
+    bool CheckRequestAvailable(uint32_t code, AppIdentity &identity);
     void ConstructGnssHandleMap();
     void ConstructGnssEnhanceHandleMap();
     sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();

@@ -1307,25 +1307,45 @@ int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParce
     return ERRCODE_SUCCESS;
 }
 
+bool LocatorAbilityStub::IsStopAction(uint32_t code)
+{
+    if (code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_SWITCH_CALLBACK) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::STOP_LOCATING) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::STOP_LOCATING) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_LOCATION_ERROR) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK)) {
+        return true;
+    }
+    return false;
+}
+
+bool LocatorAbilityStub::CheckRequestAvailable(uint32_t code, AppIdentity &identity)
+{
+    if (IsStopAction(code)) {
+        return true;
+    }
+    if (PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        return true;
+    }
+    if (!CommonUtils::CheckAppForUser(identity.GetUid())) {
+        return false;
+    }
+    return true;
+}
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     int ret = ERRCODE_SUCCESS;
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint64_t callingTokenIdEx = IPCSkeleton::GetCallingFullTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-
     AppIdentity identity;
-    identity.SetPid(callingPid);
-    identity.SetUid(callingUid);
-    identity.SetTokenId(callingTokenId);
-    identity.SetTokenIdEx(callingTokenIdEx);
-    identity.SetFirstTokenId(callingFirstTokenid);
+    identity.SetPid(IPCSkeleton::GetCallingPid());
+    identity.SetUid(IPCSkeleton::GetCallingUid());
+    identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
+    identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
     std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(callingUid, bundleName)) {
-        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", callingUid);
+    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
     }
     identity.SetBundleName(bundleName);
     if (code != static_cast<uint32_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
@@ -1335,15 +1355,18 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
             std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     }
     std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
-
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATOR, "invalid token.");
         IPCSkeleton::SetCallingIdentity(callingIdentity);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (!CheckRequestAvailable(code, identity)) {
+        IPCSkeleton::SetCallingIdentity(callingIdentity);
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
+    }
     CancelIdleState();
     RemoveUnloadTask(code);
-
     auto handleFunc = locatorHandleMap_.find(static_cast<LocatorInterfaceCode>(code));
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;

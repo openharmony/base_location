@@ -176,6 +176,7 @@ public:
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
     static std::string GenerateUuid();
+    static bool CheckAppForUser(int32_t uid);
 };
 
 class CountDownLatch {
