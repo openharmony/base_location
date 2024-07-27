@@ -25,7 +25,7 @@
 #include "async_context.h"
 #include "constant_definition.h"
 #include "location_log.h"
-#include "location_gnss_geofence_callback_host.h"
+#include "location_gnss_geofence_callback_napi.h"
 #include "geofence_definition.h"
 #include "geofence_request.h"
 
@@ -35,7 +35,7 @@ class GnssGeofenceAsyncContext : public AsyncContext {
 public:
     int code_{-1};
     GeofenceTransition transition_{-1, GEOFENCE_TRANSITION_INIT};
-    sptr<LocationGnssGeofenceCallbackHost> callbackHost_ = nullptr;
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost_ = nullptr;
     std::shared_ptr<GeofenceRequest> request_;
     int fenceId_{-1};
 

@@ -16,7 +16,7 @@
 #include "requestmanager_fuzzer.h"
 
 #include "i_locator_callback.h"
-#include "locator_callback_host.h"
+#include "locator_callback_napi.h"
 #include "request.h"
 #include "request_config.h"
 #include "request_manager.h"
@@ -34,7 +34,7 @@ namespace OHOS {
         std::shared_ptr<Request> request = std::make_shared<Request>();
         requestManager->InitSystemListeners();
         auto locatorCallbackHostForTest =
-            sptr<LocatorCallbackHost>(new (std::nothrow) LocatorCallbackHost());
+            sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
         sptr<ILocatorCallback> locatorCallback =
             sptr<ILocatorCallback>(locatorCallbackHostForTest);
         requestManager->HandleStopLocating(locatorCallback);
@@ -46,7 +46,7 @@ namespace OHOS {
         requestManager->UpdateRequestRecord(request, true);
         requestManager->UpdateRequestRecord(request, false);
         requestManager->HandleRequest();
-        requestManager->UpdateUsingPermission(request);
+        requestManager->UpdateUsingPermission(request, true);
         requestManager->HandlePermissionChanged(data[index++]);
         return true;
     }

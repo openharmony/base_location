@@ -23,7 +23,9 @@
 #include "location_data_rdb_manager.h"
 #include "location_log.h"
 #include "nlohmann/json.hpp"
+#ifdef NOTIFICATION_ENABLE
 #include "notification_helper.h"
+#endif
 #include "securec.h"
 #include "sms_service_manager_client.h"
 #include "string_utils.h"
@@ -40,10 +42,12 @@ constexpr uint32_t TIME_AFTER_EMERGENCY_CALL = 10 * 1000;
 constexpr int32_t INVALID_SUBID = -1;
 const std::string URN_APPLICATION_ID = "x-oma-application:ulp.ua";
 const std::string AGNSS_NI_SERVICE_NAME = "agnss_ni";
-const int32_t GNSS_AGNSS_NI_NOTIFICATION_ID = LOCATION_GNSS_SA_ID * 100;
 const std::string LOCATION_DIALOG_BUNDLE_NAME = "com.ohos.locationdialog";
 const std::string AGNSS_NI_DIALOG_ABILITY_NAME = "ConfirmUIExtAbility";
+#ifdef NOTIFICATION_ENABLE
+const int32_t GNSS_AGNSS_NI_NOTIFICATION_ID = LOCATION_GNSS_SA_ID * 100;
 constexpr uint32_t NOTIFICATION_AUTO_DELETED_TIME = 1000;
+#endif
 
 AGnssNiManager* AGnssNiManager::GetInstance()
 {
@@ -83,8 +87,6 @@ void AGnssNiManager::RegisterAgnssNiEvent()
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_SMS_WAPPUSH_RECEIVE_COMPLETED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_SMS_RECEIVE_COMPLETED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_CALL_STATE_CHANGED);
-    matchingSkills.AddEvent(AGNSS_NI_ACCEPT_EVENT);
-    matchingSkills.AddEvent(AGNSS_NI_REJECT_EVENT);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     subscriber_ = std::make_shared<GnssCommonEventSubscriber>(subscriberInfo);
 
@@ -101,10 +103,33 @@ void AGnssNiManager::RegisterAgnssNiEvent()
     }
 }
 
+void AGnssNiManager::RegisterNiResponseEvent()
+{
+    MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(AGNSS_NI_ACCEPT_EVENT);
+    matchingSkills.AddEvent(AGNSS_NI_REJECT_EVENT);
+    CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    subscriberInfo.SetPermission("ohos.permission.PUBLISH_LOCATION_EVENT");
+    niResponseSubscriber_ = std::make_shared<GnssCommonEventSubscriber>(subscriberInfo);
+
+    uint32_t count = 0;
+    bool result = false;
+    while (!result && count <= MAX_RETRY_TIMES) {
+        result = CommonEventManager::SubscribeCommonEvent(niResponseSubscriber_);
+        count++;
+    }
+    if (count > MAX_RETRY_TIMES || !result) {
+        LBSLOGE(GNSS, "Failed to subscriber ni response event");
+    } else {
+        LBSLOGI(GNSS, "success to subscriber ni response event");
+    }
+}
+
 void AGnssNiManager::Run()
 {
     LBSLOGI(GNSS, "AGNSS-NI: Run");
     RegisterAgnssNiEvent();
+    RegisterNiResponseEvent();
     gnssInterface_ = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
     if (gnssInterface_ == nullptr) {
         auto gnssAbility = GnssAbility::GetInstance();
@@ -128,6 +153,17 @@ void AGnssNiManager::UnRegisterAgnssNiEvent()
     bool result = CommonEventManager::UnSubscribeCommonEvent(subscriber_);
     subscriber_ = nullptr;
     LBSLOGI(GNSS, "unSubscriber gnss event, result = %{public}d", result);
+}
+
+void AGnssNiManager::UnRegisterNiResponseEvent()
+{
+    if (niResponseSubscriber_ == nullptr) {
+        LBSLOGE(GNSS, "UnRegisterAgnssNiEvent subscriber_ is null");
+        return;
+    }
+    bool result = CommonEventManager::UnSubscribeCommonEvent(niResponseSubscriber_);
+    niResponseSubscriber_ = nullptr;
+    LBSLOGI(GNSS, "unSubscriber ni response event, result = %{public}d", result);
 }
 
 void AGnssNiManager::AgnssNiSuplInit()
@@ -325,6 +361,7 @@ std::string AGnssNiManager::DecodeNiString(std::string original, int coding)
 
 void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
 {
+#ifdef NOTIFICATION_ENABLE
     std::shared_ptr<Notification::NotificationNormalContent> notificationNormalContent =
         std::make_shared<Notification::NotificationNormalContent>();
     std::string title = "Location Request";
@@ -353,6 +390,9 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
         return;
     }
     LBSLOGI(GNSS, "GNSS service publish notification success");
+#else
+    LBSLOGI(GNSS, "GNSS service publish notification not support");
+#endif
 }
 
 void AGnssNiManager::SendUserResponse(GnssNiResponseCmd responseCmd)
@@ -420,6 +460,7 @@ void SystemAbilityStatusChangeListener::OnRemoveSystemAbility(int32_t systemAbil
         return;
     }
     agnssNiManager->UnRegisterAgnssNiEvent();
+    agnssNiManager->UnRegisterNiResponseEvent();
     return;
 }
 

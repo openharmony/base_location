@@ -58,6 +58,7 @@
 #include "app_state_data.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "geo_convert_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -80,8 +81,13 @@ const uint32_t EVENT_REG_LOCATION_ERROR = 0x0011;
 const uint32_t EVENT_UNREG_LOCATION_ERROR = 0x0012;
 const uint32_t EVENT_REPORT_LOCATION_ERROR = 0x0013;
 const uint32_t EVENT_PERIODIC_CHECK = 0x0016;
+const uint32_t EVENT_SYNC_LOCATION_STATUS = 0x0017;
 const uint32_t EVENT_SYNC_STILL_MOVEMENT_STATE = 0x0018;
 const uint32_t EVENT_SYNC_IDLE_STATE = 0x0019;
+const uint32_t EVENT_INIT_MSDP_MONITOR_MANAGER = 0x0020;
+const uint32_t EVENT_IS_STAND_BY = 0x0021;
+const uint32_t EVENT_SET_LOCATION_WORKING_STATE = 0x0022;
+const uint32_t EVENT_SEND_GEOREQUEST = 0x0023;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -104,6 +110,8 @@ LocatorAbility* LocatorAbility::GetInstance()
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
+    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true,
+        AppExecFwk::ThreadMode::FFRT));
     switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
@@ -112,6 +120,16 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     permissionMap_ = std::make_shared<std::map<uint32_t, std::shared_ptr<PermissionStatusChangeCb>>>();
     InitRequestManagerMap();
     reportManager_ = ReportManager::GetInstance();
+    deviceId_ = CommonUtils::InitDeviceId();
+#ifdef MOVEMENT_CLIENT_ENABLE
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendHighPriorityEvent(EVENT_INIT_MSDP_MONITOR_MANAGER, 0, 0);
+    }
+#endif
+    requestManager_ = RequestManager::GetInstance();
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendHighPriorityEvent(EVENT_IS_STAND_BY, 0, 0);
+    }
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
@@ -130,11 +148,10 @@ void LocatorAbility::OnStart()
     }
     state_ = ServiceRunningState::STATE_RUNNING;
     AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
-    if (!LocationDataRdbManager::SetLocationWorkingState(0)) {
-        LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendHighPriorityEvent(EVENT_SET_LOCATION_WORKING_STATE, 0, 0);
+        locatorHandler_->SendHighPriorityEvent(EVENT_SYNC_LOCATION_STATUS, 0, 0);
     }
-    int switchState = DEFAULT_STATE;
-    GetSwitchState(switchState);
     LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
 }
 
@@ -152,6 +169,7 @@ void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::stri
 {
     if (systemAbilityId == COMMON_EVENT_SERVICE_ID) {
         RegisterAction();
+        RegisterLocationPrivacyAction();
     }
 }
 
@@ -161,11 +179,21 @@ void LocatorAbility::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
         LBSLOGE(LOCATOR, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
         return;
     }
+
+    if (locationPrivacyEventSubscriber_ != nullptr) {
+        bool ret = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locationPrivacyEventSubscriber_);
+        locationPrivacyEventSubscriber_ = nullptr;
+        isLocationPrivacyActionRegistered_ = false;
+        LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locationPrivacyEventSubscriber_ result = %{public}d", ret);
+        return;
+    }
+
     if (locatorEventSubscriber_ == nullptr) {
         LBSLOGE(LOCATOR, "OnRemoveSystemAbility subscribeer is nullptr");
         return;
     }
     bool result = OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(locatorEventSubscriber_);
+    isActionRegistered = false;
     LBSLOGI(LOCATOR, "UnSubscribeCommonEvent locatorEventSubscriber_ result = %{public}d", result);
 }
 
@@ -180,14 +208,7 @@ bool LocatorAbility::Init()
         LBSLOGE(LOCATOR, "Init add system ability failed!");
         return false;
     }
-
-    deviceId_ = CommonUtils::InitDeviceId();
-    requestManager_ = RequestManager::GetInstance();
-#ifdef MOVEMENT_CLIENT_ENABLE
-    LocatorMsdpMonitorManager::GetInstance();
-#endif
-    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
-    InitSaAbility();
+    UpdateSaAbility();
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
         locatorHandler_->SendHighPriorityEvent(EVENT_PERIODIC_CHECK, 0, EVENT_PERIODIC_INTERVAL);
@@ -198,7 +219,7 @@ bool LocatorAbility::Init()
 
 void LocatorAbility::InitRequestManagerMap()
 {
-    std::unique_lock<std::mutex> lock(requestsMutex_);
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
     if (requests_ != nullptr) {
 #ifdef FEATURE_GNSS_SUPPORT
         std::list<std::shared_ptr<Request>> gnssList;
@@ -217,13 +238,13 @@ void LocatorAbility::InitRequestManagerMap()
 
 std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> LocatorAbility::GetRequests()
 {
-    std::unique_lock<std::mutex> lock(requestsMutex_);
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
     return requests_;
 }
 
 int LocatorAbility::GetActiveRequestNum()
 {
-    std::unique_lock<std::mutex> lock(requestsMutex_);
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
     int num = 0;
 #ifdef FEATURE_GNSS_SUPPORT
     auto gpsListIter = requests_->find(GNSS_ABILITY);
@@ -244,7 +265,7 @@ int LocatorAbility::GetActiveRequestNum()
 
 std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> LocatorAbility::GetReceivers()
 {
-    std::unique_lock<std::mutex> lock(receiversMutex_);
+    std::unique_lock<ffrt::mutex> lock(receiversMutex_);
     return receivers_;
 }
 
@@ -319,7 +340,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     }
     locatorBackgroundProxy->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
-    std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
     for (auto iter = loadedSaMap_->begin(); iter != loadedSaMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
         MessageParcel data;
@@ -346,6 +367,16 @@ void LocatorAbility::UpdateSaAbilityHandler()
         }
     }
     SendSwitchState(isEnabled ? 1 : 0);
+}
+
+bool LocatorAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(LOCATOR, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
 }
 
 void LocatorAbility::RemoveUnloadTask(uint32_t code)
@@ -410,6 +441,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
         LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
     }
     UpdateSaAbility();
+    ApplyRequests(0);
     std::string state = isEnabled ? "enable" : "disable";
     ReportDataToResSched(state);
     WriteLocationSwitchStateEvent(state);
@@ -787,7 +819,7 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
 
 void LocatorAbility::UpdateLoadedSaMap()
 {
-    std::unique_lock<std::mutex> lock(loadedSaMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
     loadedSaMap_->clear();
     if (LocationSaLoadManager::CheckIfSystemAbilityAvailable(LOCATION_GNSS_SA_ID)) {
         sptr<IRemoteObject> objectGnss =
@@ -888,6 +920,9 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     }
     reportManager_->UpdateRandom();
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
+    callback->AsObject()->AddDeathRecipient(death);
+    request->SetLocatorCallbackRecipient(death);
     HookUtils::ExecuteHookWhenStartLocation(request);
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(request->GetTokenId(),
@@ -900,6 +935,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 #else
     if (NeedReportCacheLocation(request, callback)) {
         LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
+        callback->AsObject()->RemoveDeathRecipient(death);
     } else {
         HandleStartLocating(request, callback);
     }
@@ -1046,8 +1082,8 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
 
 bool LocatorAbility::CheckIsReportPermitted(AppIdentity &identity)
 {
-    auto requests = GetRequests();
-    if (requests == nullptr || requests->empty()) {
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
+    if (requests_ == nullptr || requests_->empty()) {
         LBSLOGE(LOCATOR, "requests map is empty");
         return false;
     }
@@ -1055,7 +1091,7 @@ bool LocatorAbility::CheckIsReportPermitted(AppIdentity &identity)
     bool isPermitted = true;
     int switchState = DISABLED;
     GetSwitchState(switchState);
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
+    for (auto mapIter = requests_->begin(); mapIter != requests_->end(); mapIter++) {
         auto list = mapIter->second;
         for (auto request : list) {
             if (request == nullptr || request->GetTokenId() != identity.GetTokenId()) {
@@ -1166,8 +1202,6 @@ void LocatorAbility::RegisterAction()
     }
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(MODE_CHANGED_EVENT);
-    matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
-    matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
@@ -1179,6 +1213,29 @@ void LocatorAbility::RegisterAction()
     } else {
         LBSLOGI(LOCATOR, "success to subscriber locator event, result = %{public}d", result);
         isActionRegistered = true;
+    }
+}
+
+void LocatorAbility::RegisterLocationPrivacyAction()
+{
+    if (isLocationPrivacyActionRegistered_) {
+        LBSLOGI(LOCATOR, "location privacy action has already registered");
+        return;
+    }
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
+    matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
+    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    locationPrivacyEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
+    subscriberInfo.SetPermission("ohos.permission.PUBLISH_LOCATION_EVENT");
+
+    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locationPrivacyEventSubscriber_);
+    if (!result) {
+        LBSLOGE(LOCATOR, "Failed to subscriber location privacy event, result = %{public}d", result);
+        isLocationPrivacyActionRegistered_ = false;
+    } else {
+        LBSLOGI(LOCATOR, "success to subscriber location privacy event, result = %{public}d", result);
+        isLocationPrivacyActionRegistered_ = true;
     }
 }
 
@@ -1206,19 +1263,15 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
 void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
     MessageParcel dataParcel;
-    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return;
-    }
-    dataParcel.WriteString16(data.ReadString16()); // locale
-    dataParcel.WriteDouble(data.ReadDouble()); // latitude
-    dataParcel.WriteDouble(data.ReadDouble()); // longitude
-    dataParcel.WriteInt32(data.ReadInt32()); // maxItems
-    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
-    dataParcel.WriteString16(data.ReadString16()); // transId
-    dataParcel.WriteString16(data.ReadString16()); // country
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
-    SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE), dataParcel, reply);
+    GeoCodeType requestType = GeoCodeType::REQUEST_REVERSE_GEOCODE;
+    GeoConvertRequest::OrderParcel(data, dataParcel, requestType, bundleName);
+    auto geoConvertRequest = GeoConvertRequest::Unmarshalling(dataParcel, requestType);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
     int errorCode = reply.ReadInt32();
     WriteLocationInnerEvent(GEOCODE_REQUEST, {
         "type", "ReverseGeocode",
@@ -1236,22 +1289,15 @@ void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &
 void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName)
 {
     MessageParcel dataParcel;
-    if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return;
-    }
-    dataParcel.WriteString16(data.ReadString16()); // locale
-    dataParcel.WriteString16(data.ReadString16()); // description
-    dataParcel.WriteInt32(data.ReadInt32()); // maxItems
-    dataParcel.WriteDouble(data.ReadDouble()); // minLatitude
-    dataParcel.WriteDouble(data.ReadDouble()); // minLongitude
-    dataParcel.WriteDouble(data.ReadDouble()); // maxLatitude
-    dataParcel.WriteDouble(data.ReadDouble()); // maxLongitude
-    dataParcel.WriteString16(Str8ToStr16(bundleName)); // bundleName
-    dataParcel.WriteString16(data.ReadString16()); // transId
-    dataParcel.WriteString16(data.ReadString16()); // country
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
-    SendGeoRequest(static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME), dataParcel, reply);
+    GeoCodeType requestType = GeoCodeType::REQUEST_GEOCODE;
+    GeoConvertRequest::OrderParcel(data, dataParcel, requestType, bundleName);
+    auto geoConvertRequest = GeoConvertRequest::Unmarshalling(dataParcel, requestType);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
     int errorCode = reply.ReadInt32();
     WriteLocationInnerEvent(GEOCODE_REQUEST, {
         "type", "Geocode",
@@ -1379,7 +1425,7 @@ bool LocatorAbility::IsProxyPid(int32_t pid)
 void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
     const std::vector<std::string>& permissionNameList)
 {
-    std::unique_lock<std::mutex> lock(permissionMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(permissionMapMutex_);
     if (permissionMap_ == nullptr) {
         LBSLOGE(LOCATOR, "permissionMap is null.");
         return;
@@ -1400,7 +1446,7 @@ void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
 
 void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
 {
-    std::unique_lock<std::mutex> lock(permissionMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(permissionMapMutex_);
     if (permissionMap_ == nullptr) {
         LBSLOGE(LOCATOR, "permissionMap is null.");
         return;
@@ -1523,7 +1569,7 @@ LocationErrCode LocatorAbility::RemoveInvalidRequests()
     int32_t requestNum = 0;
     int32_t invalidRequestNum = 0;
     {
-        std::unique_lock<std::mutex> lock(requestsMutex_);
+        std::unique_lock<ffrt::mutex> lock(requestsMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
         auto gpsListIter = requests_->find(GNSS_ABILITY);
         if (gpsListIter != requests_->end()) {
@@ -1570,15 +1616,19 @@ bool LocatorAbility::IsInvalidRequest(std::shared_ptr<Request>& request)
         return true;
     }
 
-    if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND && !IsProcessRunning(request->GetPid())) {
+    if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND && !IsProcessRunning(request->GetPid(), request->GetTokenId())) {
         LBSLOGI(LOCATOR, "request process is not running");
         return true;
     }
     return false;
 }
 
-bool LocatorAbility::IsProcessRunning(pid_t pid)
+bool LocatorAbility::IsProcessRunning(pid_t pid, const uint32_t tokenId)
 {
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        return true;
+    }
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(LOCATOR, "Get system ability manager failed.");
@@ -1702,23 +1752,57 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     if (locatorHandlerEventMap_.size() != 0) {
         return;
     }
-    locatorHandlerEventMap_[EVENT_UPDATE_SA] = &LocatorHandler::UpdateSaEvent;
-    locatorHandlerEventMap_[EVENT_INIT_REQUEST_MANAGER] = &LocatorHandler::InitRequestManagerEvent;
-    locatorHandlerEventMap_[EVENT_APPLY_REQUIREMENTS] = &LocatorHandler::ApplyRequirementsEvent;
-    locatorHandlerEventMap_[EVENT_RETRY_REGISTER_ACTION] = &LocatorHandler::RetryRegisterActionEvent;
-    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_MESSAGE] = &LocatorHandler::ReportLocationMessageEvent;
-    locatorHandlerEventMap_[EVENT_SEND_SWITCHSTATE_TO_HIFENCE] = &LocatorHandler::SendSwitchStateToHifenceEvent;
-    locatorHandlerEventMap_[EVENT_START_LOCATING] = &LocatorHandler::StartLocatingEvent;
-    locatorHandlerEventMap_[EVENT_STOP_LOCATING] = &LocatorHandler::StopLocatingEvent;
-    locatorHandlerEventMap_[EVENT_UPDATE_LASTLOCATION_REQUESTNUM] = &LocatorHandler::UpdateLastLocationRequestNum;
-    locatorHandlerEventMap_[EVENT_UNLOAD_SA] = &LocatorHandler::UnloadSaEvent;
-    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_SUCCESS] = &LocatorHandler::GetCachedLocationSuccess;
-    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_FAILED] = &LocatorHandler::GetCachedLocationFailed;
-    locatorHandlerEventMap_[EVENT_REG_LOCATION_ERROR] = &LocatorHandler::RegLocationErrorEvent;
-    locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] = &LocatorHandler::UnRegLocationErrorEvent;
-    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] = &LocatorHandler::ReportLocationErrorEvent;
-    locatorHandlerEventMap_[EVENT_SYNC_STILL_MOVEMENT_STATE] = &LocatorHandler::SyncStillMovementState;
-    locatorHandlerEventMap_[EVENT_SYNC_IDLE_STATE] = &LocatorHandler::SyncIdleState;
+    locatorHandlerEventMap_[EVENT_UPDATE_SA] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UpdateSaEvent(event); };
+    locatorHandlerEventMap_[EVENT_INIT_REQUEST_MANAGER] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { InitRequestManagerEvent(event); };
+    locatorHandlerEventMap_[EVENT_APPLY_REQUIREMENTS] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ApplyRequirementsEvent(event); };
+    locatorHandlerEventMap_[EVENT_RETRY_REGISTER_ACTION] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { RetryRegisterActionEvent(event); };
+    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_MESSAGE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportLocationMessageEvent(event); };
+    locatorHandlerEventMap_[EVENT_SEND_SWITCHSTATE_TO_HIFENCE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SendSwitchStateToHifenceEvent(event); };
+    locatorHandlerEventMap_[EVENT_START_LOCATING] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartLocatingEvent(event); };
+    locatorHandlerEventMap_[EVENT_STOP_LOCATING] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StopLocatingEvent(event); };
+    locatorHandlerEventMap_[EVENT_UPDATE_LASTLOCATION_REQUESTNUM] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UpdateLastLocationRequestNum(event); };
+    locatorHandlerEventMap_[EVENT_UNLOAD_SA] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UnloadSaEvent(event); };
+    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_SUCCESS] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { GetCachedLocationSuccess(event); };
+    locatorHandlerEventMap_[EVENT_GET_CACHED_LOCATION_FAILED] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { GetCachedLocationFailed(event); };
+    locatorHandlerEventMap_[EVENT_REG_LOCATION_ERROR] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { RegLocationErrorEvent(event); };
+    locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UnRegLocationErrorEvent(event); };
+    locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportLocationErrorEvent(event); };
+    locatorHandlerEventMap_[EVENT_PERIODIC_CHECK] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { RequestCheckEvent(event); };
+    locatorHandlerEventMap_[EVENT_SYNC_LOCATION_STATUS] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SyncSwitchStatus(event); };
+    locatorHandlerEventMap_[EVENT_SYNC_STILL_MOVEMENT_STATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SyncStillMovementState(event); };
+    locatorHandlerEventMap_[EVENT_SYNC_IDLE_STATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SyncIdleState(event); };
+    locatorHandlerEventMap_[EVENT_INIT_MSDP_MONITOR_MANAGER] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { InitMonitorManagerEvent(event); };
+    locatorHandlerEventMap_[EVENT_IS_STAND_BY] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { IsStandByEvent(event); };
+    locatorHandlerEventMap_[EVENT_SET_LOCATION_WORKING_STATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
+    ConstructGeocodeHandleMap();
+}
+
+void LocatorHandler::ConstructGeocodeHandleMap()
+{
+    locatorHandlerEventMap_[EVENT_SEND_GEOREQUEST] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SendGeoRequestEvent(event); };
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -1788,6 +1872,7 @@ void LocatorHandler::RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Poin
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->RegisterAction();
+        locatorAbility->RegisterLocationPrivacyAction();
     }
 }
 
@@ -1937,6 +2022,15 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
     }
 }
 
+void LocatorHandler::SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    int state = LocationDataRdbManager::QuerySwitchState();
+    int cacheState = LocationDataRdbManager::GetSwitchMode();
+    if (state != DEFAULT_STATE && state != cacheState) {
+        LocationDataRdbManager::SetSwitchMode(state);
+    }
+}
+
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     uint32_t eventId = event->GetInnerEventId();
@@ -1945,7 +2039,7 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto handleFunc = locatorHandlerEventMap_.find(eventId);
     if (handleFunc != locatorHandlerEventMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        (this->*memberFunc)(event);
+        memberFunc(event);
     } else {
         LBSLOGE(LOCATOR, "ProcessEvent event:%{public}d, unsupport service.", eventId);
     }
@@ -1975,6 +2069,71 @@ void LocatorHandler::SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event)
     if (requestManager != nullptr) {
         bool state = event->GetParam();
         requestManager->SyncIdleState(state);
+    }
+}
+
+void LocatorHandler::SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        std::unique_ptr<GeoConvertRequest> geoConvertRequest = event->GetUniqueObject<GeoConvertRequest>();
+        if (geoConvertRequest == nullptr) {
+            return;
+        }
+        MessageParcel dataParcel;
+        MessageParcel replyParcel;
+        if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
+            return;
+        }
+        geoConvertRequest->Marshalling(dataParcel);
+        locatorAbility->SendGeoRequest(
+            geoConvertRequest->GetRequestType() == GeoCodeType::REQUEST_GEOCODE ?
+            static_cast<int>(LocatorInterfaceCode::GET_FROM_LOCATION_NAME) :
+            static_cast<int>(LocatorInterfaceCode::GET_FROM_COORDINATE),
+            dataParcel, replyParcel);
+    }
+}
+
+void LocatorHandler::InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+#ifdef MOVEMENT_CLIENT_ENABLE
+    LocatorMsdpMonitorManager::GetInstance();
+#endif
+}
+
+void LocatorHandler::IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto requestManager = RequestManager::GetInstance();
+    if (requestManager != nullptr) {
+        requestManager->IsStandby();
+    }
+}
+
+void LocatorHandler::SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    if (!LocationDataRdbManager::SetLocationWorkingState(0)) {
+        LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
+    }
+}
+
+LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)
+{
+    tokenId_ = tokenId;
+}
+
+LocatorCallbackDeathRecipient::~LocatorCallbackDeathRecipient()
+{
+}
+
+void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
+        locatorAbility->StopLocating(callback);
+        locatorAbility->PostUnloadTask(DEFAULT_CODE);
+        LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
 }
 } // namespace Location

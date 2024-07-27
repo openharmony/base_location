@@ -20,6 +20,9 @@
 
 namespace OHOS {
 namespace Location {
+constexpr const char* LOCATOR_STANDBY_NAP = "napped";
+constexpr const char* LOCATOR_STANDBY_SLEEPING = "sleeping";
+
 LocatorEventSubscriber::LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info)
     : CommonEventSubscriber(info) {}
 
@@ -46,11 +49,11 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
         return;
     }
-    if (MODE_CHANGED_EVENT.compare(action) == 0) {
+    if (std::string(MODE_CHANGED_EVENT).compare(action) == 0) {
         locatorAbility->UpdateSaAbility();
-    } else if (LOCATION_PRIVACY_ACCEPT_EVENT.compare(action) == 0) {
+    } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
-    } else if (LOCATION_PRIVACY_REJECT_EVENT.compare(action) == 0) {
+    } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {
         locatorAbility->EnableAbility(false);
     }
 }

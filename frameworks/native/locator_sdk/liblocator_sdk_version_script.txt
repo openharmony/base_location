@@ -1,0 +1,11 @@
+{
+  global:
+    "*LocatorImpl*";
+    "*GetInstance*";
+    "*LocatorProxy*";
+    "*LocationSwitchCallbackHost*";
+    "*LocatorCallbackHost*";
+    "*CountryCodeCallbackHost*";
+  local:
+    *;
+};

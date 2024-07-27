@@ -40,16 +40,16 @@ const std::string DEFAULT_ABILITY = "default";
 const std::string LOCATION_DIR = "/data/service/el1/public/location/";
 const std::string SWITCH_CONFIG_NAME = "location_switch";
 const std::string PRIVACY_CONFIG_NAME = "location_privacy";
-const std::string NLP_SERVICE_NAME = "const.location.nlp_service_name";
-const std::string NLP_ABILITY_NAME = "const.location.nlp_ability_name";
-const std::string GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
-const std::string GEOCODE_ABILITY_NAME = "const.location.geocode_ability_name";
-const std::string SUPL_MODE_NAME = "const.location.supl_mode";
-const std::string EDM_POLICY_NAME = "persist.edm.location_policy";
-const std::string AGNSS_SERVER_ADDR = "const.location.agnss_server_addr";
-const std::string AGNSS_SERVER_PORT = "const.location.agnss_server_port";
+constexpr const char* NLP_SERVICE_NAME = "const.location.nlp_service_name";
+constexpr const char* NLP_ABILITY_NAME = "const.location.nlp_ability_name";
+constexpr const char* GEOCODE_SERVICE_NAME = "const.location.geocode_service_name";
+constexpr const char* GEOCODE_ABILITY_NAME = "const.location.geocode_ability_name";
+constexpr const char* SUPL_MODE_NAME = "const.location.supl_mode";
+constexpr const char* EDM_POLICY_NAME = "persist.edm.location_policy";
+constexpr const char* AGNSS_SERVER_ADDR = "const.location.agnss_server_addr";
+constexpr const char* AGNSS_SERVER_PORT = "const.location.agnss_server_port";
 
-const std::string BUILD_INFO = "ro.build.characteristics";
+constexpr const char* BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
 const int DEFAULT_UID = 10001;
 const int SYSTEM_UID = 1000;
@@ -78,7 +78,6 @@ const int MILLI_PER_SEC = 1000;
 const int MICRO_PER_MILLI = 1000;
 const int CONNECT_TIME_OUT = 10;
 const int DISCONNECT_TIME_OUT = 10;
-const int GEOCODE_TIME_OUT = 60;
 
 const char DEFAULT_STRING[] = "error";
 const std::wstring DEFAULT_WSTRING = L"error";
@@ -177,6 +176,7 @@ public:
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
     static std::string GenerateUuid();
+    static bool CheckAppForUser(int32_t uid);
 };
 
 class CountDownLatch {

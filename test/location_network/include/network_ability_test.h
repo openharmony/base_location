@@ -32,6 +32,7 @@ class NetworkAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    static void TearDownTestCase();
     void MockNativePermission();
     
     sptr<NetworkAbilityProxy> proxy_;

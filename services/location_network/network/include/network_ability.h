@@ -23,6 +23,7 @@
 #include "ability_connect_callback_interface.h"
 #include "event_handler.h"
 #include "event_runner.h"
+#include "ffrt.h"
 #include "system_ability.h"
 
 #include "common_utils.h"
@@ -34,8 +35,6 @@ namespace OHOS {
 namespace Location {
 static constexpr int REQUEST_NETWORK_LOCATION = 1;
 static constexpr int REMOVE_NETWORK_LOCATION = 2;
-const std::string SERVICE_CONFIG_FILE = "/system/etc/location/location_service.conf";
-const std::string ABILITY_NAME = "LocationServiceAbility";
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
     explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
@@ -66,6 +65,7 @@ public:
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
+    bool CancelIdleState() override;
     void UnloadNetworkSystemAbility() override;
     void ProcessReportLocationMock();
     bool ConnectNlpService();
@@ -85,10 +85,10 @@ private:
     bool RemoveNetworkLocation(WorkRecord &workRecord);
     void RegisterNLPServiceDeathRecipient();
     bool IsConnect();
-    
-    std::mutex mutex_;
+
+    ffrt::mutex mutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
-    std::condition_variable connectCondition_;
+    ffrt::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;

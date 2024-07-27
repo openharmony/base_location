@@ -54,6 +54,7 @@
                 "drivers_interface_location_gnss",
                 "drivers_interface_location_geofence",
                 "eventhandler",
+                "ffrt",
                 "form_fwk",
                 "hdf_core",
                 "hisysevent",
@@ -76,14 +77,13 @@
                 "movement",
                 "device_standby",
                 "time_service"
-            ],
-            "third_party": [
-                "libuv"
             ]
         },
         "build": {
             "group_type": {
-                "base_group": [],
+                "base_group": [
+                    "//base/location/services/utils:lbsresources"
+                ],
                 "fwk_group": [
                     "//base/location/frameworks/native/locator_sdk:locator_sdk",
                     "//base/location/frameworks/js/napi:geolocation",
@@ -140,6 +140,7 @@
                 "//base/location/test/location_geofence:unittest",
                 "//base/location/test/location_gnss:unittest",
                 "//base/location/test/location_locator:unittest",
+                "//base/location/test/location_manager:unittest",
                 "//base/location/test/location_network:unittest",
                 "//base/location/test/location_passive:unittest",
                 "//base/location/test/location_mock_ipc:unittest",

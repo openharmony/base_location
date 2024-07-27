@@ -28,6 +28,7 @@
 #endif
 
 #include "event_handler.h"
+#include "ffrt.h"
 #include "system_ability.h"
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include "agnss_event_callback.h"
@@ -43,10 +44,6 @@
 #include "locationhub_ipc_interface_code.h"
 #include "geofence_event_callback.h"
 #include "ipc_skeleton.h"
-#ifdef NOTIFICATION_ENABLE
-#include "notification_request.h"
-#include "notification_helper.h"
-#endif
 
 namespace OHOS {
 namespace Location {
@@ -130,7 +127,7 @@ private:
     void HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event);
 
-    using GnssEventProcessHandle = void (GnssHandler::*)(const AppExecFwk::InnerEvent::Pointer& event);
+    using GnssEventProcessHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
     using GnssEventProcessMap = std::map<uint32_t, GnssEventProcessHandle>;
     GnssEventProcessMap gnssEventProcessMap_;
 };
@@ -177,6 +174,7 @@ public:
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     void SendReportMockLocationEvent() override;
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
+    bool CancelIdleState() override;
     void UnloadGnssSystemAbility() override;
     void StartGnss();
     void StopGnss();
@@ -191,9 +189,6 @@ public:
     void SetSetIdImpl(const SubscriberSetId &id);
     void SetRefInfo(const AGnssRefInfo& refInfo);
     void SetRefInfoImpl(const AGnssRefInfo &refInfo);
-#endif
-#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    bool SetGeofenceCallback();
 #endif
     void ReConnectHdiImpl();
     bool IsMockEnabled();
@@ -232,34 +227,41 @@ private:
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
     bool IsGnssfenceRequestMapExist();
-    bool CheckBundleNameInGnssGeofenceRequestMap(std::string bundleName, int fenceId);
+    bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
+    bool ConnectGnssHdi();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+    bool ConnectAgnssHdi();
+#endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+    bool SetGeofenceCallback();
+    bool ConnectGeofenceHdi();
+#endif
+    bool IsDeviceLoaded(const std::string &servName);
 
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
     std::shared_ptr<GnssHandler> gnssHandler_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
-    std::mutex gnssMutex_;
-    std::mutex nmeaMutex_;
-    std::mutex hdiMutex_;
-    std::mutex statusMutex_;
+    ffrt::mutex gnssMutex_;
+    ffrt::mutex nmeaMutex_;
+    ffrt::mutex hdiMutex_;
+    ffrt::mutex statusMutex_;
     std::vector<sptr<IGnssStatusCallback>> gnssStatusCallback_;
     std::vector<sptr<INmeaMessageCallback>> nmeaCallback_;
-    sptr<IGnssInterface> gnssInterface_;
     sptr<IGnssCallback> gnssCallback_;
     Location nlpLocation_;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     sptr<IAGnssCallback> agnssCallback_;
-    sptr<IAGnssInterface> agnssInterface_;
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    sptr<IGeofenceInterface> geofenceInterface_;
     sptr<IGeofenceCallback> geofenceCallback_;
 #endif
     int32_t fenceId_;
-    std::mutex fenceIdMutex_;
-    std::mutex gnssGeofenceRequestMapMutex_;
-    std::map<std::shared_ptr<GeofenceRequest>, sptr<IRemoteObject>> gnssGeofenceRequestMap_;
+    ffrt::mutex fenceIdMutex_;
+    ffrt::mutex gnssGeofenceRequestMapMutex_;
+    std::map<std::shared_ptr<GeofenceRequest>,
+        std::pair<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>> gnssGeofenceRequestMap_;
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {

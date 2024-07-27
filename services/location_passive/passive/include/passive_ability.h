@@ -64,6 +64,7 @@ public:
     void SendReportMockLocationEvent() override;
     bool IsMockEnabled();
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
+    bool CancelIdleState() override;
     void UnloadPassiveSystemAbility() override;
 private:
     bool Init();

@@ -21,6 +21,7 @@
 #include <singleton.h>
 
 #include "event_handler.h"
+#include "ffrt.h"
 #include "system_ability.h"
 
 #include "app_identity.h"
@@ -45,12 +46,12 @@ namespace OHOS {
 namespace Location {
 class LocatorHandler : public AppExecFwk::EventHandler {
 public:
-    using LocatorEventHandle = void (LocatorHandler::*)(
-        const AppExecFwk::InnerEvent::Pointer& event);
+    using LocatorEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
     using LocatorEventHandleMap = std::map<int, LocatorEventHandle>;
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
     void InitLocatorHandlerEventMap();
+    void ConstructGeocodeHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -71,6 +72,12 @@ private:
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
+    void SendGeoRequestEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitSaAbilityEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
@@ -86,6 +93,9 @@ public:
     void OnStop() override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    bool CancelIdleState() override;
+    void RemoveUnloadTask(uint32_t code) override;
+    void PostUnloadTask(uint32_t code) override;
     ServiceRunningState QueryServiceState() const
    {
         return state_;
@@ -166,19 +176,18 @@ public:
     void UpdateSaAbilityHandler();
     void ApplyRequests(int delay);
     void RegisterAction();
+    void RegisterLocationPrivacyAction();
     LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
     LocationErrCode ResetAllProxy();
     bool IsProxyPid(int32_t pid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
-    void RemoveUnloadTask(uint32_t code);
-    void PostUnloadTask(uint32_t code);
     void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
         int permUsedType, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();
     bool IsInvalidRequest(std::shared_ptr<Request>& request);
-    bool IsProcessRunning(pid_t pid);
+    bool IsProcessRunning(pid_t pid, const uint32_t tokenId);
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
@@ -187,13 +196,13 @@ public:
     void UpdateLastLocationRequestNum();
     void SyncStillMovementState(bool stillState);
     void SyncIdleState(bool stillState);
+#ifdef FEATURE_GEOCODE_SUPPORT
+    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
+#endif
 
 private:
     bool Init();
     bool CheckSaValid();
-#ifdef FEATURE_GEOCODE_SUPPORT
-    LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
-#endif
 #ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
@@ -210,15 +219,17 @@ private:
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
+    bool isLocationPrivacyActionRegistered_ = false;
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
+    std::shared_ptr<LocatorEventSubscriber> locationPrivacyEventSubscriber_;
     std::mutex switchMutex_;
-    std::mutex requestsMutex_;
-    std::mutex receiversMutex_;
+    ffrt::mutex requestsMutex_;
+    ffrt::mutex receiversMutex_;
     std::mutex proxyMapMutex_;
-    std::mutex permissionMapMutex_;
-    std::mutex loadedSaMapMutex_;
+    ffrt::mutex permissionMapMutex_;
+    ffrt::mutex loadedSaMapMutex_;
     std::unique_ptr<std::map<pid_t, sptr<ISwitchCallback>>> switchCallbacks_;
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> requests_;
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> receivers_;
@@ -264,6 +275,15 @@ public:
 private:
     std::string uuid_;
     int32_t errCode_;
+};
+
+class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    LocatorCallbackDeathRecipient(int32_t tokenId);
+    ~LocatorCallbackDeathRecipient() override;
+private:
+    int32_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS

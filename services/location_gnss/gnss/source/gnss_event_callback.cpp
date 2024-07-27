@@ -52,8 +52,12 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     locationNew->SetAccuracy(location.horizontalAccuracy);
     locationNew->SetSpeed(location.speed);
     locationNew->SetDirection(location.bearing);
+    locationNew->SetAltitudeAccuracy(location.verticalAccuracy);
+    locationNew->SetSpeedAccuracy(location.speedAccuracy);
+    locationNew->SetDirectionAccuracy(location.bearingAccuracy);
     locationNew->SetTimeStamp(location.timeForFix);
     locationNew->SetTimeSinceBoot(location.timeSinceBoot);
+    locationNew->SetUncertaintyOfTimeSinceBoot(location.timeUncertainty);
     locationNew->SetIsFromMock(false);
     locationNew->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
     if (gnssAbility->IsMockEnabled()) {
@@ -103,7 +107,7 @@ int32_t GnssEventCallback::ReportNmea(int64_t timestamp, const std::string& nmea
     return ERR_OK;
 }
 
-int32_t GnssEventCallback::ReportGnssCapabilities(GnssCapabilities capabilities)
+int32_t GnssEventCallback::ReportGnssCapabilities(unsigned int capabilities)
 {
     return ERR_OK;
 }

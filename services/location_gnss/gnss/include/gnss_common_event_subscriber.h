@@ -27,8 +27,8 @@ using namespace EventFwk;
 using CommonEventSubscriber = OHOS::EventFwk::CommonEventSubscriber;
 using CommonEventData = OHOS::EventFwk::CommonEventData;
 using CommonEventSubscribeInfo = OHOS::EventFwk::CommonEventSubscribeInfo;
-const std::string AGNSS_NI_ACCEPT_EVENT = "usual.event.AGNSS_NI_ACCEPT";
-const std::string AGNSS_NI_REJECT_EVENT = "usual.event.AGNSS_NI_REJECT";
+constexpr const char* AGNSS_NI_ACCEPT_EVENT = "usual.event.AGNSS_NI_ACCEPT";
+constexpr const char* AGNSS_NI_REJECT_EVENT = "usual.event.AGNSS_NI_REJECT";
 
 class GnssCommonEventSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
 public:

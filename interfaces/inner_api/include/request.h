@@ -49,6 +49,8 @@ public:
     void SetRequesting(bool state);
     sptr<Location> GetLastLocation();
     void SetLastLocation(const std::unique_ptr<Location>& location);
+    sptr<Location> GetBestLocation();
+    void SetBestLocation(const std::unique_ptr<Location>& location);
     uint32_t GetTokenId();
     uint32_t GetFirstTokenId();
     uint64_t GetTokenIdEx();
@@ -68,6 +70,8 @@ public:
     void SetNlpRequestType();
     void SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback);
     sptr<ILocatorCallback> GetLocationErrorCallBack();
+    void SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
+    sptr<IRemoteObject::DeathRecipient> GetLocatorCallbackRecipient();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
@@ -78,6 +82,7 @@ private:
     uint32_t firstTokenId_;
     int nlpRequestType_;
     sptr<Location> lastLocation_;
+    sptr<Location> bestLocation_;
     std::string packageName_;
     std::string uuid_;
     sptr<RequestConfig> requestConfig_;
@@ -88,6 +93,7 @@ private:
     bool isUsingBackgroundPerm_;
     bool isUsingApproximatelyPerm_;
     int permUsedType_;
+    sptr<IRemoteObject::DeathRecipient> locatorCallbackRecipient_;
 };
 } // namespace Location
 } // namespace OHOS

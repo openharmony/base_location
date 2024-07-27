@@ -19,11 +19,7 @@
 #ifdef TEL_CORE_SERVICE_ENABLE
 #include "core_service_client.h"
 #endif
-#ifdef I18N_ENABLE
-#include "locale_config.h"
-#endif
 #include "parameter.h"
-
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "common_utils.h"
@@ -31,6 +27,7 @@
 #include "country_code.h"
 #include "location_log.h"
 #include "locator_impl.h"
+#include "lbs_res_loader.h"
 
 namespace OHOS {
 namespace Location {
@@ -44,7 +41,6 @@ CountryCodeManager::CountryCodeManager()
 {
     lastCountryByLocation_ = std::make_shared<CountryCode>();
     lastCountry_ = std::make_shared<CountryCode>();
-    countryCodeCallback_ = std::make_unique<std::map<pid_t, sptr<ICountryCodeCallback>>>();
     simSubscriber_ = nullptr;
     networkSubscriber_ = nullptr;
     SubscribeLocaleConfigEvent();
@@ -57,13 +53,12 @@ CountryCodeManager::~CountryCodeManager()
 void CountryCodeManager::NotifyAllListener()
 {
     std::unique_lock lock(countryCodeCallbackMutex_);
-    if (lastCountry_ == nullptr || countryCodeCallback_ == nullptr) {
+    if (lastCountry_ == nullptr) {
         LBSLOGE(COUNTRY_CODE, "NotifyAllListener cancel, para is invalid");
         return;
     }
     auto country = std::make_shared<CountryCode>(*lastCountry_);
-    for (auto iter = countryCodeCallback_->begin(); iter != countryCodeCallback_->end(); iter++) {
-        sptr<ICountryCodeCallback> callback = (iter->second);
+    for (auto callback : countryCodeCallbacks_) {
         if (callback) {
             callback->OnCountryCodeChange(country);
         }
@@ -74,23 +69,28 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
 {
     std::unique_lock<std::mutex> lock(countryCodeCallbackMutex_, std::defer_lock);
     lock.lock();
-    if (callback == nullptr || countryCodeCallback_ == nullptr) {
+    if (callback == nullptr) {
         LBSLOGE(COUNTRY_CODE, "callback is invalid");
         lock.unlock();
         return;
     }
-
+    for (auto item : countryCodeCallbacks_) {
+        if (item && item->AsObject() == callback) {
+            LBSLOGE(COUNTRY_CODE, "callback has registered");
+            lock.unlock();
+            return;
+        }
+    }
     sptr<ICountryCodeCallback> countryCodeCallback = iface_cast<ICountryCodeCallback>(callback);
     if (countryCodeCallback == nullptr) {
         LBSLOGE(COUNTRY_CODE, "iface_cast ICountryCodeCallback failed!");
         lock.unlock();
         return;
     }
-    countryCodeCallback_->erase(uid);
-    countryCodeCallback_->insert(std::make_pair(uid, countryCodeCallback));
-    LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallback_ size:%{public}s",
-        uid, std::to_string(countryCodeCallback_->size()).c_str());
-    if (countryCodeCallback_->size() != 1) {
+    countryCodeCallbacks_.push_back(countryCodeCallback);
+    LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallbacks_ size:%{public}s",
+        uid, std::to_string(countryCodeCallbacks_.size()).c_str());
+    if (countryCodeCallbacks_.size() != 1) {
         lock.unlock();
         return;
     }
@@ -103,8 +103,13 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
 {
     std::unique_lock<std::mutex> lock(countryCodeCallbackMutex_, std::defer_lock);
     lock.lock();
-    if (callback == nullptr || countryCodeCallback_ == nullptr) {
+    if (callback == nullptr) {
         LBSLOGE(COUNTRY_CODE, "unregister an invalid callback");
+        lock.unlock();
+        return;
+    }
+    if (countryCodeCallbacks_.size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "countryCodeCallbacks_ size <= 0");
         lock.unlock();
         return;
     }
@@ -114,19 +119,25 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
         lock.unlock();
         return;
     }
-
-    pid_t uid = -1;
-    for (auto iter = countryCodeCallback_->begin(); iter != countryCodeCallback_->end(); iter++) {
-        sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
+    size_t i = 0;
+    for (; i < countryCodeCallbacks_.size(); i++) {
+        if (countryCodeCallbacks_[i] == nullptr) {
+            continue;
+        }
+        sptr<IRemoteObject> remoteObject = countryCodeCallbacks_[i]->AsObject();
         if (remoteObject == callback) {
-            uid = iter->first;
             break;
         }
     }
-    countryCodeCallback_->erase(uid);
-    LBSLOGD(COUNTRY_CODE, "after uid:%{public}d unregister, countryCodeCallback_ size:%{public}s",
-        uid, std::to_string(countryCodeCallback_->size()).c_str());
-    if (countryCodeCallback_->size() != 0) {
+    if (i >= countryCodeCallbacks_.size()) {
+        LBSLOGD(GNSS, "countryCode callback is not in vector");
+        lock.unlock();
+        return;
+    }
+    countryCodeCallbacks_.erase(countryCodeCallbacks_.begin() + i);
+    LBSLOGD(COUNTRY_CODE, "after unregister, countryCodeCallbacks_ size:%{public}s",
+        std::to_string(countryCodeCallbacks_.size()).c_str());
+    if (countryCodeCallbacks_.size() != 0) {
         lock.unlock();
         return;
     }
@@ -138,7 +149,7 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
 bool CountryCodeManager::IsCountryCodeRegistered()
 {
     std::unique_lock lock(countryCodeCallbackMutex_);
-    return countryCodeCallback_->size() != 0;
+    return countryCodeCallbacks_.size() != 0;
 }
 
 std::string CountryCodeManager::GetCountryCodeByLastLocation()
@@ -257,7 +268,8 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 #endif
 #ifdef I18N_ENABLE
     if (countryCodeStr8.empty()) {
-        countryCodeStr8 = Global::I18n::LocaleConfig::GetSystemRegion();
+        LbsResLoader resLoader;
+        countryCodeStr8 = resLoader.GetSystemRegion();
         type = COUNTRY_CODE_FROM_LOCALE;
     }
 #endif
@@ -276,16 +288,16 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 bool CountryCodeManager::SubscribeSimEvent()
 {
     LBSLOGD(COUNTRY_CODE, "SubscribeSimEvent");
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(SIM_STATE_CHANGE_ACTION);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED);
+    EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::unique_lock<std::mutex> lock(simSubscriberMutex_, std::defer_lock);
     lock.lock();
     if (simSubscriber_ == nullptr) {
         simSubscriber_ = std::make_shared<SimSubscriber>(subscriberInfo);
     }
     lock.unlock();
-    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
+    bool result = EventFwk::CommonEventManager::SubscribeCommonEvent(simSubscriber_);
     if (!result) {
         LBSLOGE(COUNTRY_CODE, "SubscribeSimEvent failed.");
     }
@@ -295,16 +307,16 @@ bool CountryCodeManager::SubscribeSimEvent()
 bool CountryCodeManager::SubscribeNetworkStatusEvent()
 {
     LBSLOGD(COUNTRY_CODE, "SubscribeNetworkStatusEvent");
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(SEARCH_NET_WORK_STATE_CHANGE_ACTION);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
+    EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::unique_lock<std::mutex> lock(networkSubscriberMutex_, std::defer_lock);
     lock.lock();
     if (networkSubscriber_ == nullptr) {
         networkSubscriber_ = std::make_shared<NetworkSubscriber>(subscriberInfo);
     }
     lock.unlock();
-    bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(networkSubscriber_);
+    bool result = EventFwk::CommonEventManager::SubscribeCommonEvent(networkSubscriber_);
     if (!result) {
         LBSLOGE(COUNTRY_CODE, "SubscribeNetworkStatusEvent failed.");
     }
@@ -323,7 +335,7 @@ bool CountryCodeManager::SubscribeLocaleConfigEvent()
         manager->GetIsoCountryCode();
     };
 
-    int ret = WatchParameter(LOCALE_KEY.c_str(), eventCallback, nullptr);
+    int ret = WatchParameter(LOCALE_KEY, eventCallback, nullptr);
     if (ret != SUCCESS) {
         LBSLOGD(COUNTRY_CODE, "WatchParameter fail");
         return false;
@@ -419,7 +431,7 @@ void CountryCodeManager::ReSubscribeEvent()
 {
     std::unique_lock<std::mutex> lock(countryCodeCallbackMutex_, std::defer_lock);
     lock.lock();
-    if (countryCodeCallback_->size() <= 0) {
+    if (countryCodeCallbacks_.size() <= 0) {
         LBSLOGD(COUNTRY_CODE, "no valid callback registed, no need to subscribe");
         lock.unlock();
         return;
@@ -433,7 +445,7 @@ void CountryCodeManager::ReUnsubscribeEvent()
 {
     std::unique_lock<std::mutex> lock(countryCodeCallbackMutex_, std::defer_lock);
     lock.lock();
-    if (countryCodeCallback_->size() <= 0) {
+    if (countryCodeCallbacks_.size() <= 0) {
         LBSLOGE(COUNTRY_CODE, "no valid callback registed, no need to unsubscribe");
         lock.unlock();
         return;

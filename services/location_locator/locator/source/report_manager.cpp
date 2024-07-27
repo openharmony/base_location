@@ -129,7 +129,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         if (fusionController == nullptr) {
             return false;
         }
-        fuseLocation = fusionController->GetFuseLocation(location, request->GetLastLocation());
+        fuseLocation = fusionController->GetFuseLocation(location, request->GetBestLocation());
+        request->SetBestLocation(fuseLocation);
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
@@ -206,6 +207,10 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         if (locationErrorCallback != nullptr) {
             locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
         }
+        return nullptr;
+    }
+    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx) &&
+        !CommonUtils::CheckAppForUser(uid)) {
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
@@ -300,25 +305,42 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
     if (abilityName == GNSS_ABILITY) {
         if (HookUtils::CheckGnssLocationValidity(location)) {
             cacheGnssLocation_ = *location;
-            lastLocation_ = *location;
+            UpdateLastLocation(location);
         }
     } else if (abilityName == NETWORK_ABILITY &&
         location->GetLocationSourceType() != LocationSourceType::INDOOR_TYPE) {
         cacheNlpLocation_ = *location;
-        lastLocation_ = *location;
+        UpdateLastLocation(location);
     } else {
-        lastLocation_ = *location;
+        UpdateLastLocation(location);
+    }
+}
+
+void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location)
+{
+    int currentUserId = 0;
+    if (CommonUtils::GetCurrentUserId(currentUserId)) {
+        std::unique_lock<std::mutex> lock(lastLocationMutex_);
+        lastLocationsMap_.insert(std::make_pair(currentUserId, std::make_shared<Location>(*location)));
     }
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
 {
-    auto lastLocation = std::make_unique<Location>(lastLocation_);
-    if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
-        LBSLOGE(REPORT_MANAGER, "%{public}s no valid cache location", __func__);
-        return nullptr;
+    int currentUserId = 0;
+    if (CommonUtils::GetCurrentUserId(currentUserId)) {
+        std::unique_lock<std::mutex> lock(lastLocationMutex_);
+        auto iter = lastLocationsMap_.find(currentUserId);
+        if (iter == lastLocationsMap_.end()) {
+            return nullptr;
+        }
+        std::unique_ptr<Location> lastLocation = std::make_unique<Location>(*(iter->second));
+        if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
+            return nullptr;
+        }
+        return lastLocation;
     }
-    return lastLocation;
+    return nullptr;
 }
 
 std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<Request>& request)

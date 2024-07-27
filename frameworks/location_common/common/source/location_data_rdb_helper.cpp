@@ -29,6 +29,9 @@
 
 namespace OHOS {
 namespace Location {
+constexpr const char* LOCATION_DATA_COLUMN_KEYWORD = "KEYWORD";
+constexpr const char* LOCATION_DATA_COLUMN_VALUE = "VALUE";
+
 LocationDataRdbHelper* LocationDataRdbHelper::GetInstance()
 {
     static LocationDataRdbHelper data;

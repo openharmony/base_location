@@ -51,7 +51,8 @@ const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
 NetworkAbility::NetworkAbility() : SystemAbility(LOCATION_NETWORK_LOCATING_SA_ID, true)
 {
     SetAbility(NETWORK_ABILITY);
-    networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
+    networkHandler_ =
+        std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     LBSLOGI(NETWORK, "ability constructed.");
 }
 
@@ -149,7 +150,7 @@ bool NetworkAbility::ConnectNlpService()
             LBSLOGE(NETWORK, "Connect cloud service failed, ret = %{public}d", ret);
             return false;
         }
-        std::unique_lock<std::mutex> uniqueLock(mutex_);
+        std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
         auto waitStatus = connectCondition_.wait_for(
             uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return nlpServiceProxy_ != nullptr; });
         if (!waitStatus) {
@@ -183,21 +184,21 @@ bool NetworkAbility::ReConnectNlpService()
 
 bool NetworkAbility::ResetServiceProxy()
 {
-    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     nlpServiceProxy_ = nullptr;
     return true;
 }
 
 void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
 {
-    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     nlpServiceProxy_ = remoteObject;
     connectCondition_.notify_all();
 }
 
 void NetworkAbility::NotifyDisConnected()
 {
-    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     nlpServiceProxy_ = nullptr;
     connectCondition_.notify_all();
 }
@@ -219,6 +220,16 @@ LocationErrCode NetworkAbility::SetEnable(bool state)
         AppExecFwk::InnerEvent::Get(EVENT_STOP_ALL_LOCATION_REQUEST, 0);
     networkHandler_->SendHighPriorityEvent(event);
     return ERRCODE_SUCCESS;
+}
+
+bool NetworkAbility::CancelIdleState()
+{
+    bool ret = CancelIdle();
+    if (!ret) {
+        LBSLOGE(NETWORK, "%{public}s cancel idle failed!", __func__);
+        return false;
+    }
+    return true;
 }
 
 void NetworkAbility::UnloadNetworkSystemAbility()
@@ -268,7 +279,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             return;
         }
     }
-    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     if (isAdded) {
         RequestNetworkLocation(workRecord);
     } else {
@@ -480,7 +491,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
 
 void NetworkAbility::RegisterNLPServiceDeathRecipient()
 {
-    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "%{public}s: nlpServiceProxy_ is nullptr", __func__);
         return;
@@ -491,7 +502,7 @@ void NetworkAbility::RegisterNLPServiceDeathRecipient()
 
 bool NetworkAbility::IsConnect()
 {
-    std::unique_lock<std::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     return nlpServiceProxy_ != nullptr;
 }
 

@@ -396,26 +396,26 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertConnectService001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService001 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertReConnectService001, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GeoConvertConnectService002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertReConnectService001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService001 begin");
+        << "GeoConvertServiceTest, GeoConvertConnectService002, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService002 begin");
     service_->serviceProxy_ = nullptr;
-    service_->ReConnectService();
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService001 end");
+    service_->ConnectService();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService002 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertReConnectService002, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GeoConvertConnectService003, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertReConnectService002, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService002 begin");
+        << "GeoConvertServiceTest, GeoConvertConnectService003, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService003 begin");
     sptr<IRemoteObject> serviceProxy =
         CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
     service_->serviceProxy_ = serviceProxy;
-    service_->ReConnectService();
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService002 end");
+    service_->ConnectService();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService003 end");
 }
 
 HWTEST_F(GeoConvertServiceTest, GeoConvertNotifyConnected001, TestSize.Level1)
@@ -466,56 +466,6 @@ HWTEST_F(GeoConvertServiceTest, RegisterGeoServiceSendGeocodeRequest001, TestSiz
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] RegisterGeoServiceSendGeocodeRequest001 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertWriteInfoToParcel001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, RegisterGeoServiceDeathRecipient001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] RegisterGeoServiceDeathRecipient001 begin");
-    MessageParcel dataParcel;
-    MessageParcel replyParcel;
-    dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
-    dataParcel.WriteString16(Str8ToStr16("北京")); // input description of a location
-    dataParcel.WriteDouble(0.0); // minLatitude
-    dataParcel.WriteDouble(0.0); // minLongitude
-    dataParcel.WriteDouble(0.0); // maxLatitude
-    dataParcel.WriteDouble(0.0); // maxLongitude
-    dataParcel.WriteInt32(5); // maxItem
-    dataParcel.WriteInt32(1); // description
-    dataParcel.WriteString16(Str8ToStr16("ZH")); // language
-    dataParcel.WriteString16(Str8ToStr16("cn")); // country
-    dataParcel.WriteString16(Str8ToStr16("")); // description
-    dataParcel.WriteString16(u"ohos"); // package name
-    bool flag1 = false;
-    bool flag2 = true;
-    EXPECT_EQ(true, service_->WriteInfoToParcel(dataParcel, replyParcel, flag1));
-    EXPECT_EQ(true, service_->WriteInfoToParcel(dataParcel, replyParcel, flag2));
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] RegisterGeoServiceDeathRecipient001 end");
-}
-
-HWTEST_F(GeoConvertServiceTest, GeoConvertWriteResultToParcel001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertWriteResultToParcel001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertWriteResultToParcel001 begin");
-    std::list<std::shared_ptr<GeoAddress>> result;
-    MessageParcel replyParcel;
-    bool flag = true;
-    service_->WriteResultToParcel(result, replyParcel, flag);
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertWriteResultToParcel001 end");
-}
-
-HWTEST_F(GeoConvertServiceTest, GeoConvertWriteResultToParcel002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertWriteResultToParcel002, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertWriteResultToParcel002 begin");
-    std::list<std::shared_ptr<GeoAddress>> result(10);
-    MessageParcel replyParcel;
-    bool flag = true;
-    service_->WriteResultToParcel(result, replyParcel, flag);
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertWriteResultToParcel002 end");
-}
-
 HWTEST_F(GeoConvertServiceTest, GeoConvertReportAddressMock001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -539,6 +489,101 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertReportAddressMock001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReportAddressMock001 end");
 }
 
+HWTEST_F(GeoConvertServiceTest, GeoConvertReportAddressMock002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoConvertReportAddressMock002, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReportAddressMock002 begin");
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    dataParcel.WriteString16(Str8ToStr16("北京")); // input description of a location
+    dataParcel.WriteDouble(0.0); // minLatitude
+    dataParcel.WriteDouble(0.0); // minLongitude
+    dataParcel.WriteDouble(0.0); // maxLatitude
+    dataParcel.WriteDouble(0.0); // maxLongitude
+    dataParcel.WriteInt32(5); // maxItem
+    dataParcel.WriteInt32(1); // description
+    dataParcel.WriteString16(Str8ToStr16("ZH")); // language
+    dataParcel.WriteString16(Str8ToStr16("cn")); // country
+    dataParcel.WriteString16(Str8ToStr16("")); // description
+    dataParcel.WriteString16(u"ohos"); // package name
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>();
+    mockInfo.push_back(info);
+    info->ReadFromParcel(dataParcel);
+    service_->mockInfo_ = mockInfo;
+    service_->ReportAddressMock(dataParcel, replyParcel);
+    MessageParcel dataParcel2;
+    dataParcel2.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    dataParcel2.WriteDouble(1.0); // minLatitude
+    dataParcel2.WriteDouble(0.0); // minLongitude
+    info->ReadFromParcel(dataParcel2);
+    mockInfo.push_back(info);
+    service_->mockInfo_ = mockInfo;
+    service_->ReportAddressMock(dataParcel, replyParcel);
+    MessageParcel dataParcel3;
+    dataParcel3.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    dataParcel3.WriteDouble(1.0); // minLatitude
+    dataParcel3.WriteDouble(1.0); // minLongitude
+    info->ReadFromParcel(dataParcel3);
+    mockInfo.push_back(info);
+    service_->mockInfo_ = mockInfo;
+    service_->ReportAddressMock(dataParcel, replyParcel);
+    MessageParcel dataParcel4;
+    dataParcel4.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    dataParcel4.WriteDouble(0.0); // minLatitude
+    dataParcel4.WriteDouble(1.0); // minLongitude
+    info->ReadFromParcel(dataParcel4);
+    mockInfo.push_back(info);
+    service_->mockInfo_ = mockInfo;
+    service_->ReportAddressMock(dataParcel, replyParcel);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReportAddressMock002 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GetAddressByLocationName002, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName002 begin");
+
+    /*
+     * @tc.steps: step1.read test data.
+     */
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    dataParcel.WriteString16(Str8ToStr16("北京")); // input description of a location
+    dataParcel.WriteDouble(0.0); // minLatitude
+    dataParcel.WriteDouble(0.0); // minLongitude
+    dataParcel.WriteDouble(0.0); // maxLatitude
+    dataParcel.WriteDouble(0.0); // maxLongitude
+    dataParcel.WriteInt32(5); // maxItem
+    dataParcel.WriteInt32(1); // description
+    dataParcel.WriteString16(Str8ToStr16("ZH")); // language
+    dataParcel.WriteString16(Str8ToStr16("cn")); // country
+    dataParcel.WriteString16(Str8ToStr16("")); // description
+    dataParcel.WriteString16(u"ohos"); // package name
+
+    /*
+     * @tc.steps: step2. test get address by location's name.
+     * @tc.expected: step2. no exception head info.
+     */
+    proxy_->GetAddressByLocationName(dataParcel, replyParcel);
+    EXPECT_EQ(ERRCODE_GEOCODING_FAIL, replyParcel.ReadInt32());
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName002 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GeoServiceDeathRecipientOnRemoteDied001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GeoServiceDeathRecipientOnRemoteDied001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoServiceDeathRecipientOnRemoteDied001 begin");
+    auto recipient = new (std::nothrow) GeoServiceDeathRecipient();
+    wptr<IRemoteObject> remote;
+    recipient->OnRemoteDied(remote);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoServiceDeathRecipientOnRemoteDied001 end");
+}
 }  // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GEOCODE_SUPPORT
