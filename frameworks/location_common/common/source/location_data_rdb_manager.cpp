@@ -53,12 +53,19 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
 int LocationDataRdbManager::QuerySwitchState()
 {
     int32_t state = DISABLED;
+    int res = LocationDataRdbManager::GetSwitchMode();
+    if (res == DISABLED || res == ENABLED) {
+        return res;
+    }
     Uri locationDataEnableUri(LOCATION_DATA_URI);
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
         return DEFAULT_STATE;
+    }
+    if (res == DEFAULT_STATE) {
+        LocationDataRdbManager::SetSwitchMode(state);
     }
     return state;
 }
@@ -126,6 +133,23 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
         return false;
     }
     return true;
+}
+
+void LocationDataRdbManager::SyncSwitchStatus()
+{
+    int state = DISABLED;
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
+    }
+    int cacheState = LocationDataRdbManager::GetSwitchMode();
+    if (cacheState == DEFAULT_STATE && state != DEFAULT_STATE) {
+        LocationDataRdbManager::SetSwitchMode(state);
+    } else if (cacheState != DEFAULT_STATE && state != cacheState) {
+        LocationDataRdbManager::SetSwitchState(cacheState);
+    }
 }
 
 bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)

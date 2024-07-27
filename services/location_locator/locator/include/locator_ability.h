@@ -51,6 +51,7 @@ public:
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
     void InitLocatorHandlerEventMap();
+    void ConstructDbHandleMap();
     void ConstructGeocodeHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
@@ -78,6 +79,7 @@ private:
     void InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 

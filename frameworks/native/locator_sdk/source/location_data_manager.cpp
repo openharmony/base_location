@@ -20,16 +20,13 @@
 #include "switch_callback_proxy.h"
 #include "constant_definition.h"
 #include "location_data_rdb_helper.h"
+#include "location_data_rdb_manager.h"
 #include "location_log.h"
 #include "common_hisysevent.h"
-#include "if_system_ability_manager.h"
-#include "system_ability_definition.h"
-#include "iservice_registry.h"
-#include "location_data_rdb_observer.h"
-#include "location_data_rdb_manager.h"
-
+#include "parameter.h"
 namespace OHOS {
 namespace Location {
+const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
 LocationDataManager* LocationDataManager::GetInstance()
 {
     static LocationDataManager data;
@@ -38,18 +35,6 @@ LocationDataManager* LocationDataManager::GetInstance()
 
 LocationDataManager::LocationDataManager()
 {
-    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
-        return;
-    }
-    if (saStatusListener_ == nullptr) {
-        saStatusListener_ = sptr<DataShareSystemAbilityListener>(new DataShareSystemAbilityListener());
-    }
-    int32_t result = sam->SubscribeSystemAbility(DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID, saStatusListener_);
-    if (result != ERR_OK) {
-        LBSLOGE(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
-    }
 }
 
 LocationDataManager::~LocationDataManager()
@@ -89,6 +74,9 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
     switchCallbacks_.push_back(switchCallback);
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_.size()).c_str());
+    if (switchCallbacks_.size() == 1) {
+        RegisterDatashareObserver();
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -149,36 +137,27 @@ void LocationDataManager::ResetIsObserverReg()
 
 void LocationDataManager::RegisterDatashareObserver()
 {
-    auto locationDataRdbHelper = LocationDataRdbHelper::GetInstance();
-    auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
-    if (locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
-        return;
-    }
-    if (!isObserverReg_) {
-        Uri locationDataEnableUri(LOCATION_DATA_URI);
-        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
-        isObserverReg_ = true;
-    }
-}
+    auto eventCallback = [](const char *key, const char *value, void *context) {
+        LBSLOGD(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed");
+        int32_t state = DISABLED;
+        state = LocationDataRdbManager::QuerySwitchState();
+        auto manager = LocationDataManager::GetInstance();
+        if (manager == nullptr) {
+            LBSLOGE(LOCATOR, "SubscribeLocaleConfigEvent LocationDataRdbManager is nullptr");
+            return;
+        }
+        bool switch_state = (state == ENABLED);
+        manager->SetCachedSwitchState(switch_state);
+        manager->ReportSwitchState(switch_state);
+        LocationDataRdbManager::SyncSwitchStatus();
+    };
 
-void DataShareSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
-{
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
-    auto locationDataManager = LocationDataManager::GetInstance();
-    if (locationDataManager == nullptr) {
+    int ret = WatchParameter(LOCATION_SWITCH_MODE, eventCallback, nullptr);
+    if (ret != SUCCESS) {
+        LBSLOGD(LOCATOR, "WatchParameter fail");
         return;
     }
-    locationDataManager->RegisterDatashareObserver();
-}
-
-void DataShareSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
-{
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
-    auto locationDataManager = LocationDataManager::GetInstance();
-    if (locationDataManager == nullptr) {
-        return;
-    }
-    locationDataManager->ResetIsObserverReg();
+    return;
 }
 }  // namespace Location
 }  // namespace OHOS

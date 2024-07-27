@@ -38,6 +38,7 @@ public:
     static std::string GetLocationDataSecureUri(std::string key);
     static bool SetLocationEnhanceStatus(int32_t state);
     static bool GetLocationEnhanceStatus(int32_t& state);
+    static void SyncSwitchStatus();
 };
 } // namespace Location
 } // namespace OHOS

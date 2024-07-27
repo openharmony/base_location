@@ -70,16 +70,12 @@ LocatorImpl::~LocatorImpl()
 bool LocatorImpl::IsLocationEnabled()
 {
     int32_t state = DISABLED;
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        return (res == ENABLED);
-    }
-    auto locationDataRdbHelper =
-        LocationDataRdbHelper::GetInstance();
-    if (locationDataRdbHelper == nullptr) {
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    state = LocationDataRdbManager::QuerySwitchState();
+    state = proxy->GetSwitchState();
     return (state == ENABLED);
 }
 
@@ -579,17 +575,12 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
     int32_t state = DISABLED;
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        isEnabled = (res == ENABLED);
-        return ERRCODE_SUCCESS;
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto locationDataRdbHelper =
-        LocationDataRdbHelper::GetInstance();
-    if (locationDataRdbHelper == nullptr) {
-        return ERRCODE_NOT_SUPPORTED;
-    }
-    state = LocationDataRdbManager::QuerySwitchState();
+    state = proxy->GetSwitchState();
     isEnabled = (state == ENABLED);
     return ERRCODE_SUCCESS;
 }

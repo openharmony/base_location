@@ -88,6 +88,7 @@ const uint32_t EVENT_INIT_MSDP_MONITOR_MANAGER = 0x0020;
 const uint32_t EVENT_IS_STAND_BY = 0x0021;
 const uint32_t EVENT_SET_LOCATION_WORKING_STATE = 0x0022;
 const uint32_t EVENT_SEND_GEOREQUEST = 0x0023;
+const uint32_t EVENT_SET_SWITCH_STATE_TO_DB = 0x0024;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -428,17 +429,16 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
     int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
-    if (modeValue == currentSwitchState) {
+    if (modeValue == currentSwitchState && currentSwitchState != DEFAULT_STATE) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
-    if (LocationDataRdbManager::SetSwitchState(modeValue) != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (currentSwitchState != DEFAULT_STATE) {
-        // update param
-        LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
+    // update param
+    LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
     }
     UpdateSaAbility();
     ApplyRequests(0);
@@ -450,16 +450,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        state = res;
-        return ERRCODE_SUCCESS;
-    }
     state = LocationDataRdbManager::QuerySwitchState();
-    if (res == DEFAULT_STATE && state != DEFAULT_STATE) {
-        // update param
-        LocationDataRdbManager::SetSwitchMode(state);
-    }
     return ERRCODE_SUCCESS;
 }
 
@@ -1794,8 +1785,7 @@ void LocatorHandler::InitLocatorHandlerEventMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { InitMonitorManagerEvent(event); };
     locatorHandlerEventMap_[EVENT_IS_STAND_BY] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { IsStandByEvent(event); };
-    locatorHandlerEventMap_[EVENT_SET_LOCATION_WORKING_STATE] =
-        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
+    ConstructDbHandleMap();
     ConstructGeocodeHandleMap();
 }
 
@@ -1803,6 +1793,14 @@ void LocatorHandler::ConstructGeocodeHandleMap()
 {
     locatorHandlerEventMap_[EVENT_SEND_GEOREQUEST] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SendGeoRequestEvent(event); };
+}
+
+void LocatorHandler::ConstructDbHandleMap()
+{
+    locatorHandlerEventMap_[EVENT_SET_LOCATION_WORKING_STATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
+    locatorHandlerEventMap_[EVENT_SET_SWITCH_STATE_TO_DB] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetSwitchStateToDbEvent(event); };
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2024,11 +2022,7 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
 
 void LocatorHandler::SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    int state = LocationDataRdbManager::QuerySwitchState();
-    int cacheState = LocationDataRdbManager::GetSwitchMode();
-    if (state != DEFAULT_STATE && state != cacheState) {
-        LocationDataRdbManager::SetSwitchMode(state);
-    }
+    LocationDataRdbManager::SyncSwitchStatus();
 }
 
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2113,6 +2107,15 @@ void LocatorHandler::SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::
 {
     if (!LocationDataRdbManager::SetLocationWorkingState(0)) {
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
+    }
+}
+
+void LocatorHandler::SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    int modeValue = event->GetParam();
+    if (LocationDataRdbManager::SetSwitchState(modeValue) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
+        return;
     }
 }
 
