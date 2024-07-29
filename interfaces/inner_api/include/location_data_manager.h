@@ -17,6 +17,7 @@
 #define LOCATION_DATA_MANAGER_H
 
 #include <map>
+#include <atomic>
 #include <singleton.h>
 #include "iremote_object.h"
 #include "constant_definition.h"
@@ -50,7 +51,7 @@ private:
     std::vector<sptr<ISwitchCallback>> switchCallbacks_;
     int32_t cachedSwitchState_ = DISABLED;
     bool isStateCached_ = false;
-    bool isObserverReg_ = false;
+    std::atomic_bool isObserverReg_ = false;
     sptr<ISystemAbilityStatusChange> saStatusListener_ =
         sptr<DataShareSystemAbilityListener>(new DataShareSystemAbilityListener());
 };

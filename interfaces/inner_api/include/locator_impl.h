@@ -16,7 +16,6 @@
 #define LOCATOR_IMPL_H
 
 #include <vector>
-#include <atomic>
 
 #include "iremote_object.h"
 
@@ -639,7 +638,6 @@ private:
     std::mutex mutex_;
     std::mutex resumeMutex_;
     static std::mutex locatorMutex_;
-	std::atomic_bool isObserverReg_ = false;
     static std::shared_ptr<LocatorImpl> instance_;
     sptr<ISystemAbilityStatusChange> saStatusListener_ =
         sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
