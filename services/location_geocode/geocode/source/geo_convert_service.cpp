@@ -345,6 +345,7 @@ void GeoConvertService::DisconnectAbilityConnect()
 {
     if (conn_ != nullptr) {
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        SetServiceConnectState(ServiceConnectState::STATE_DISCONNECT);
         LBSLOGI(GEO_CONVERT, "UnloadGeoConvert OnStop and disconnect");
     }
 }
