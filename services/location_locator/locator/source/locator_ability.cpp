@@ -1644,7 +1644,7 @@ bool LocatorAbility::IsProcessRunning(pid_t pid, const uint32_t tokenId)
     int32_t res = iAppManager->GetAllRunningProcesses(runningProcessList);
     if (res != ERR_OK) {
         LBSLOGE(LOCATOR, "Failed to get all running process.");
-        return false;
+        return true;
     }
     auto it = std::find_if(runningProcessList.begin(), runningProcessList.end(), [pid] (auto runningProcessInfo) {
         return pid == runningProcessInfo.pid_;
