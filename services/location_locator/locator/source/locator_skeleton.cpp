@@ -1337,23 +1337,19 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     int ret = ERRCODE_SUCCESS;
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
-    uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
-    uint64_t callingTokenIdEx = IPCSkeleton::GetCallingFullTokenID();
-    uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    // first token id is invalid
-    if (callingUid == callingFirstTokenid && callingUid == static_cast<pid_t>(getuid())
-        && callingPid == getpid()) {
-        callingFirstTokenid = 0;
-    }
-
     AppIdentity identity;
     identity.SetPid(IPCSkeleton::GetCallingPid());
     identity.SetUid(IPCSkeleton::GetCallingUid());
     identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
     identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
+
+    // first token id is invalid
+    if (identity.GetUid() == identity.GetFirstTokenId() && identity.GetUid() == static_cast<pid_t>(getuid())
+        && identity.GetPid() == getpid()) {
+        identity.SetFirstTokenId(0);
+    }
+
     std::string bundleName = "";
     if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
