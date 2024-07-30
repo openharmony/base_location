@@ -97,7 +97,7 @@ public:
     void RemoveUnloadTask(uint32_t code) override;
     void PostUnloadTask(uint32_t code) override;
     ServiceRunningState QueryServiceState() const
-   {
+    {
         return state_;
     }
     void InitSaAbility();
