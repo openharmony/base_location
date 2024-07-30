@@ -407,6 +407,9 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
         LBSLOGE(NETWORK, "location mock is enabled, do not report network location!");
         return ERR_OK;
     }
+    location->SetTimeSinceBoot(CommonUtils::GetSinceBootTime());
+    location->SetTimeStamp(CommonUtils::GetCurrentTimeStamp() * MICRO_PER_MILLI);
+    location->SetLocationSourceType(LocationSourceType::NETWORK_TYPE);
     ReportLocationInfo(NETWORK_ABILITY, location);
 #ifdef FEATURE_PASSIVE_SUPPORT
     ReportLocationInfo(PASSIVE_ABILITY, location);

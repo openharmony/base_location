@@ -41,6 +41,7 @@ static std::random_device g_randomDevice;
 static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
+const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {
@@ -419,6 +420,18 @@ bool CommonUtils::CheckAppForUser(int32_t uid)
         return false;
     }
     return true;
+}
+
+int64_t CommonUtils::GetSinceBootTime()
+{
+    int result;
+    struct timespec ts;
+    result = clock_gettime(CLOCK_BOOTTIME, &ts);
+    if (result == 0) {
+        return ts.tv_sec * SEC_TO_NANO + ts.tv_nsec;
+    } else {
+        return 0;
+    }
 }
 } // namespace Location
 } // namespace OHOS

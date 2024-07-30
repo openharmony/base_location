@@ -177,6 +177,7 @@ public:
     static bool GetEdmPolicy(std::string& name);
     static std::string GenerateUuid();
     static bool CheckAppForUser(int32_t uid);
+    static int64_t GetSinceBootTime();
 };
 
 class CountDownLatch {
