@@ -32,7 +32,10 @@ namespace Location {
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     GeoConvertService::GetInstance());
 const uint32_t EVENT_SEND_GEOREQUEST = 0x0100;
+const char* UNLOAD_GEOCONVERT_TASK = "geoconvert_sa_unload";
 const int GEOCONVERT_CONNECT_TIME_OUT = 1;
+const uint32_t EVENT_INTERVAL_UNITE = 1000;
+const int UNLOAD_GEOCONVERT_DELAY_TIME = 5 * EVENT_INTERVAL_UNITE;
 GeoConvertService* GeoConvertService::GetInstance()
 {
     static GeoConvertService data;
@@ -48,6 +51,9 @@ GeoConvertService::GeoConvertService() : SystemAbility(LOCATION_GEO_CONVERT_SA_I
 
 GeoConvertService::~GeoConvertService()
 {
+    if (geoConvertHandler_ != nullptr) {
+        geoConvertHandler_->RemoveTask(UNLOAD_GEOCONVERT_TASK);
+    }
     conn_ = nullptr;
 }
 
@@ -320,8 +326,26 @@ bool GeoConvertService::CancelIdleState()
 
 void GeoConvertService::UnloadGeoConvertSystemAbility()
 {
-    if (!CheckIfGeoConvertConnecting()) {
+    if (geoConvertHandler_ == nullptr) {
+        LBSLOGE(GEO_CONVERT, "%{public}s geoConvertHandler_ is nullptr", __func__);
+        return;
+    }
+    geoConvertHandler_->RemoveTask(UNLOAD_GEOCONVERT_TASK);
+    if (CheckIfGeoConvertConnecting()) {
+        return;
+    }
+    auto task = [this]() {
         LocationSaLoadManager::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+        GeoConvertService::GetInstance()->DisconnectAbilityConnect();
+    };
+    geoConvertHandler_->PostTask(task, UNLOAD_GEOCONVERT_TASK, UNLOAD_GEOCONVERT_DELAY_TIME);
+}
+
+void GeoConvertService::DisconnectAbilityConnect()
+{
+    if (conn_ != nullptr) {
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        LBSLOGI(GEO_CONVERT, "UnloadGeoConvert OnStop and disconnect");
     }
 }
 

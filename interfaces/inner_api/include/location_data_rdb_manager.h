@@ -17,6 +17,7 @@
 #define LOCATION_DATA_RDB_MANAGER_H
 #include <unistd.h>
 #include <string>
+#include <mutex>
 
 #include "constant_definition.h"
 
@@ -35,9 +36,12 @@ public:
     static bool GetLocationWorkingState(int32_t& state);
     static int GetSwitchMode();
     static bool SetSwitchMode(int value);
+    static bool ClearSwitchMode();
     static std::string GetLocationDataSecureUri(std::string key);
     static bool SetLocationEnhanceStatus(int32_t state);
     static bool GetLocationEnhanceStatus(int32_t& state);
+private:
+    static std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS

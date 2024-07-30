@@ -18,7 +18,23 @@
 
 namespace OHOS {
 namespace Location {
-GeoConvertRequest::GeoConvertRequest() {}
+GeoConvertRequest::GeoConvertRequest()
+{
+    locale_ = "";
+    latitude_ = 0.0;
+    longitude_ = 0.0;
+    maxItems_ = 0;
+    description_ = "";
+    maxLatitude_ = 0.0;
+    maxLongitude_ = 0.0;
+    minLatitude_ = 0.0;
+    minLongitude_ = 0.0;
+    bundleName_ = "";
+    callback_ = nullptr;
+    transId_ = "";
+    country_ = "";
+    requestType_ = GeoCodeType::REQUEST_GEOCODE;
+}
 
 GeoConvertRequest::~GeoConvertRequest() {}
 
