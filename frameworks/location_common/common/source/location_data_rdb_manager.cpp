@@ -53,7 +53,7 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
 int LocationDataRdbManager::QuerySwitchState()
 {
     int32_t state = DISABLED;
-    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -66,7 +66,7 @@ int LocationDataRdbManager::QuerySwitchState()
 
 LocationErrCode LocationDataRdbManager::SetSwitchState(int modeValue)
 {
-    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
+    Uri locationDataEnableUri(LOCATION_DATA_URI);
     return LocationDataRdbHelper::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
 }
