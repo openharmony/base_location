@@ -36,7 +36,6 @@ public:
     ~NetworkAbilityProxy() = default;
     LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
     LocationErrCode SetEnable(bool state) override;
-    LocationErrCode SelfRequest(bool state) override;
     LocationErrCode EnableMock() override;
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;

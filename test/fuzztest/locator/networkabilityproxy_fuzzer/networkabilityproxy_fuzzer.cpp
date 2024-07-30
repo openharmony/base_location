@@ -69,10 +69,6 @@ bool NetworkAbilityProxy001FuzzTest(const uint8_t* data, size_t size)
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     proxy->SetEnable(false);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    proxy->SelfRequest(true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    proxy->SelfRequest(false);
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
     proxy->EnableMock();
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));

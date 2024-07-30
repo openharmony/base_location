@@ -29,7 +29,6 @@ namespace Location {
 class INetworkAbility : public ISubAbility {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"location.INetworkAbility");
-    virtual LocationErrCode SelfRequest(bool state) = 0;
 };
 
 class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
@@ -47,7 +46,6 @@ public:
 private:
     int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SelfRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

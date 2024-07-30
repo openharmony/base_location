@@ -283,12 +283,12 @@ bool WorkRecord::Find(int uid, std::string name, std::string uuid)
 void WorkRecord::Clear()
 {
     std::unique_lock<std::mutex> lock(workRecordMutex_);
-    uids_.clear();
-    pids_.clear();
-    names_.clear();
-    timeInterval_.clear();
-    uuid_.clear();
-    nlpRequestType_.clear();
+    std::vector<int>().swap(uids_);
+    std::vector<int>().swap(pids_);
+    std::vector<std::string>().swap(names_);
+    std::vector<int>().swap(timeInterval_);
+    std::vector<std::string>().swap(uuid_);
+    std::vector<int>().swap(nlpRequestType_);
     num_ = 0;
 }
 

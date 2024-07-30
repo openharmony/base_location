@@ -45,7 +45,6 @@ public:
     void SetAbility(std::string name);
     void LocationRequest(WorkRecord &workrecord);
     void Enable(bool state, const sptr<IRemoteObject> ability);
-    void HandleSelfRequest(pid_t pid, pid_t uid, bool state);
     void HandleRefrashRequirements();
     int GetRequestNum();
     bool EnableLocationMock();

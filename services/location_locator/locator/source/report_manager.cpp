@@ -58,7 +58,6 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
     if (fusionController == nullptr) {
         return false;
     }
-    fusionController->FuseResult(abilityName, location);
     UpdateCacheLocation(location, abilityName);
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {

@@ -29,10 +29,6 @@ namespace OHOS {
             std::make_shared<FusionController>();
         int index = 0;
         fusionController->ActiveFusionStrategies(data[index++]);
-        std::string abilityName((const char*) data, size);
-        fusionController->Process(abilityName);
-        auto location = std::make_unique<OHOS::Location::Location>();
-        fusionController->FuseResult(abilityName, location);
         return true;
     }
 }
