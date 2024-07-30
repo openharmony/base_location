@@ -82,7 +82,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
                 ProcessRequestForReport(request, deadRequests, location, abilityName);
                 break;
             }
-        } else if (abilityName == GNSS_ABILITY || abilityName == PASSIVE_ABILITY ) {
+        } else if (abilityName == GNSS_ABILITY || abilityName == PASSIVE_ABILITY) {
             ProcessRequestForReport(request, deadRequests, location, abilityName);
         }
     }
