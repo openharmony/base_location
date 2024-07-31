@@ -332,6 +332,9 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = LocationDataRdbManager::QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
+    if (state == DEFAULT_STATE) {
+        return;
+    }
     bool isEnabled = (state == ENABLED);
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
