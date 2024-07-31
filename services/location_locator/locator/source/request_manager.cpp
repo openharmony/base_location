@@ -523,6 +523,8 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
         return;
     }
+    LBSLOGI(LOCATOR, "%{public}s: %{public}s workRecord uid_ size %{public}d",
+        __func__, abilityName.c_str(), workRecord.Size());
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
 #ifdef FEATURE_GNSS_SUPPORT
@@ -539,10 +541,6 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
         passiveProxy->SendLocationRequest(workRecord);
 #endif
-    }
-    auto fusionController = FusionController::GetInstance();
-    if (fusionController != nullptr) {
-        fusionController->Process(abilityName);
     }
 }
 

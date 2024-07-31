@@ -93,48 +93,6 @@ HWTEST_F(FusionControllerTest, ActiveFusionStrategies005, TestSize.Level1)
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies005 end");
 }
 
-HWTEST_F(FusionControllerTest, Process001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "FusionControllerTest, Process001, TestSize.Level1";
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] Process001 begin");
-    fusionController_->Process(GNSS_ABILITY);
-    EXPECT_EQ(true, fusionController_->needReset_);
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] Process001 end");
-}
-
-HWTEST_F(FusionControllerTest, Process002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "FusionControllerTest, Process002, TestSize.Level1";
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] Process002 begin");
-    fusionController_->Process(PASSIVE_ABILITY); // is not gnss ability
-    EXPECT_EQ(true, fusionController_->needReset_);
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] Process002 end");
-}
-
-HWTEST_F(FusionControllerTest, FuseResult001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "FusionControllerTest, FuseResult001, TestSize.Level1";
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] FuseResult001 begin");
-    auto location = std::make_unique<Location>();
-    ASSERT_TRUE(fusionController_ != nullptr);
-    fusionController_->FuseResult(GNSS_ABILITY, location);
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] FuseResult001 end");
-}
-
-HWTEST_F(FusionControllerTest, FuseResult002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "FusionControllerTest, FuseResult002, TestSize.Level1";
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] FuseResult002 begin");
-    auto location = std::make_unique<Location>();
-    ASSERT_TRUE(fusionController_ != nullptr);
-    fusionController_->FuseResult(NETWORK_ABILITY, location); // is not gnss ability
-    LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] FuseResult002 end");
-}
-
 HWTEST_F(FusionControllerTest, ChooseBestLocation001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

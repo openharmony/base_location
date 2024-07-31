@@ -1471,17 +1471,6 @@ HWTEST_F(GnssAbilityTest, SubAbilityCommonGetRequestNum001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[SubAbilityCommonTest] GetRequestNum001 end");
 }
 
-HWTEST_F(GnssAbilityTest, SubAbilityCommonHandleSelfRequest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "SubAbilityCommonTest, HandleSelfRequest001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[SubAbilityCommonTest] HandleSelfRequest001 begin");
-    ability_->HandleSelfRequest(0, 0, false);
-
-    ability_->GetTimeIntervalMock();
-    LBSLOGI(LOCATOR, "[SubAbilityCommonTest] HandleSelfRequest001 end");
-}
-
 HWTEST_F(GnssAbilityTest, GetCommandFlags001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

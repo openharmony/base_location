@@ -31,7 +31,6 @@ const uint32_t REPORT_FUSED_LOCATION_FLAG = FUSION_BASE_FLAG;
 
 #ifdef FEATURE_NETWORK_SUPPORT
 const uint32_t QUICK_FIX_FLAG = FUSION_BASE_FLAG << 1;
-const uint32_t NETWORK_SELF_REQUEST = 4;
 #endif
 const long NANOS_PER_MILLI = 1000000L;
 const long MAX_GNSS_LOCATION_COMPARISON_MS = 30 * MILLI_PER_SEC;
@@ -61,46 +60,6 @@ void FusionController::ActiveFusionStrategies(int type)
             break;
     }
 }
-
-void FusionController::Process(std::string abilityName)
-{
-    needReset_ = true;
-    if (GNSS_ABILITY.compare(abilityName) != 0) {
-        return;
-    }
-    LBSLOGD(FUSION_CONTROLLER, "fused flag:%{public}u", fusedFlag_);
-#ifdef FEATURE_NETWORK_SUPPORT
-    RequestQuickFix(fusedFlag_ & QUICK_FIX_FLAG);
-#endif
-}
-
-void FusionController::FuseResult(std::string abilityName, const std::unique_ptr<Location>& location)
-{
-    if (GNSS_ABILITY.compare(abilityName) == 0) {
-#ifdef FEATURE_NETWORK_SUPPORT
-        RequestQuickFix(false);
-#endif
-    }
-}
-
-#ifdef FEATURE_NETWORK_SUPPORT
-void FusionController::RequestQuickFix(bool state)
-{
-    sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID);
-    if (remoteObject == nullptr) {
-        LBSLOGW(FUSION_CONTROLLER, "can not get network ability remote object");
-        return;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor())) {
-        return;
-    }
-    data.WriteBool(state);
-    remoteObject->SendRequest(NETWORK_SELF_REQUEST, data, reply, option);
-}
-#endif
 
 std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique_ptr<Location>& location,
     const std::unique_ptr<Location>& lastFuseLocation)
