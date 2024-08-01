@@ -24,7 +24,6 @@ const int DEFAULT_USERID = 100;
 const int DEFAULT_SWITCHMODE = 2;
 const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
-const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
 std::mutex LocationDataRdbManager::mutex_;
 const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 
@@ -54,27 +53,27 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
 
 int LocationDataRdbManager::QuerySwitchState()
 {
-    int32_t state = DISABLED;
+    int32_t state = DEFAULT_STATE;
     int res = LocationDataRdbManager::GetSwitchMode();
     if (res == DISABLED || res == ENABLED) {
         return res;
     }
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
         return DEFAULT_STATE;
     }
-    if (res == DEFAULT_STATE) {
-        LocationDataRdbManager::SetSwitchMode(state);
+    if (res == DEFAULT_STATE && state != DEFAULT_STATE) {
+        LocationDataRdbManager::SetSwitchStateToSyspara(state);
     }
     return state;
 }
 
-LocationErrCode LocationDataRdbManager::SetSwitchState(int modeValue)
+LocationErrCode LocationDataRdbManager::SetSwitchStateToDb(int modeValue)
 {
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
     return LocationDataRdbHelper::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
 }
@@ -126,7 +125,7 @@ int LocationDataRdbManager::GetSwitchMode()
     return std::stoi(value);
 }
 
-bool LocationDataRdbManager::SetSwitchMode(int value)
+bool LocationDataRdbManager::SetSwitchStateToSyspara(int value)
 {
     char valueArray[MAX_SIZE] = {0};
     (void)sprintf_s(valueArray, sizeof(valueArray), "%d", value);
@@ -141,8 +140,8 @@ bool LocationDataRdbManager::SetSwitchMode(int value)
 
 void LocationDataRdbManager::SyncSwitchStatus()
 {
-    int state = DISABLED;
-    Uri locationDataEnableUri(LOCATION_DATA_URI);
+    int state = DEFAULT_STATE;
+    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -150,9 +149,9 @@ void LocationDataRdbManager::SyncSwitchStatus()
     }
     int cacheState = LocationDataRdbManager::GetSwitchMode();
     if (cacheState == DEFAULT_STATE && state != DEFAULT_STATE) {
-        LocationDataRdbManager::SetSwitchMode(state);
+        LocationDataRdbManager::SetSwitchStateToSyspara(state);
     } else if (cacheState != DEFAULT_STATE && state != cacheState) {
-        LocationDataRdbManager::SetSwitchState(cacheState);
+        LocationDataRdbManager::SetSwitchStateToDb(cacheState);
     }
 }
 

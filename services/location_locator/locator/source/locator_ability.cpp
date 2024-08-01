@@ -59,6 +59,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "geo_convert_request.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace Location {
@@ -437,17 +438,12 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
         return ERRCODE_SUCCESS;
     }
     // update param
-    LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
+    LocationDataRdbManager::SetSwitchStateToSyspara(isEnabled ? ENABLED : DISABLED);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
     }
-    UpdateSaAbility();
-    ApplyRequests(0);
-    std::string state = isEnabled ? "enable" : "disable";
-    ReportDataToResSched(state);
-    WriteLocationSwitchStateEvent(state);
     return ERRCODE_SUCCESS;
 }
 
@@ -2026,6 +2022,16 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
 void LocatorHandler::SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event)
 {
     LocationDataRdbManager::SyncSwitchStatus();
+    
+    auto eventCallback = [](const char *key, const char *value, void *context) {
+        LocationDataRdbManager::SyncSwitchStatus();
+    };
+
+    int ret = WatchParameter(LOCATION_SWITCH_MODE, eventCallback, nullptr);
+    if (ret != SUCCESS) {
+        LBSLOGE(LOCATOR, "WatchParameter fail");
+        return;
+    }
 }
 
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2116,9 +2122,17 @@ void LocatorHandler::SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::
 void LocatorHandler::SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     int modeValue = event->GetParam();
-    if (LocationDataRdbManager::SetSwitchState(modeValue) != ERRCODE_SUCCESS) {
+    if (LocationDataRdbManager::SetSwitchStateToDb(modeValue) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
         return;
+    }
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->UpdateSaAbility();
+        locatorAbility->ApplyRequests(0);
+        std::string state = isEnabled ? "enable" : "disable";
+        locatorAbility->ReportDataToResSched(state);
+        WriteLocationSwitchStateEvent(state);
     }
 }
 
