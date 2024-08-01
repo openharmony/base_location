@@ -26,7 +26,6 @@
 #include "parameter.h"
 namespace OHOS {
 namespace Location {
-const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
 LocationDataManager* LocationDataManager::GetInstance()
 {
     static LocationDataManager data;
@@ -75,7 +74,7 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_.size()).c_str());
     if (switchCallbacks_.size() == 1) {
-        RegisterDatashareObserver();
+        RegisterLocationSwitchObserver();
     }
     return ERRCODE_SUCCESS;
 }
@@ -117,13 +116,6 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
     return ERRCODE_SUCCESS;
 }
 
-void LocationDataManager::SetCachedSwitchState(int state)
-{
-    std::unique_lock<std::mutex> lock(switchStateMutex_);
-    isStateCached_ = true;
-    cachedSwitchState_ = state;
-}
-
 bool LocationDataManager::IsSwitchStateReg()
 {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -135,26 +127,28 @@ void LocationDataManager::ResetIsObserverReg()
     isObserverReg_ = false;
 }
 
-void LocationDataManager::RegisterDatashareObserver()
+void LocationDataManager::RegisterLocationSwitchObserver()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
-        LBSLOGD(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed");
-        int32_t state = DISABLED;
+        int32_t state = DEFAULT_STATE;
         state = LocationDataRdbManager::QuerySwitchState();
         auto manager = LocationDataManager::GetInstance();
         if (manager == nullptr) {
             LBSLOGE(LOCATOR, "SubscribeLocaleConfigEvent LocationDataRdbManager is nullptr");
             return;
         }
+        if (state == DEFAULT_STATE) {
+            LBSLOGE(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed. state %{public}d. do not report", state);
+            return;
+        }
         bool switch_state = (state == ENABLED);
-        manager->SetCachedSwitchState(switch_state);
+        LBSLOGI(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed. switch_state %{public}d", switch_state);
         manager->ReportSwitchState(switch_state);
-        LocationDataRdbManager::SyncSwitchStatus();
     };
 
     int ret = WatchParameter(LOCATION_SWITCH_MODE, eventCallback, nullptr);
     if (ret != SUCCESS) {
-        LBSLOGD(LOCATOR, "WatchParameter fail");
+        LBSLOGE(LOCATOR, "WatchParameter fail");
         return;
     }
     return;
