@@ -1430,6 +1430,9 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
+    location->SetTimeSinceBoot(CommonUtils::GetSinceBootTime());
+    location->SetTimeStamp(CommonUtils::GetCurrentTimeStamp() * MICRO_PER_MILLI);
+    location->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
     ReportLocationInfo(GNSS_ABILITY, location);
 #ifdef FEATURE_PASSIVE_SUPPORT
     ReportLocationInfo(PASSIVE_ABILITY, location);

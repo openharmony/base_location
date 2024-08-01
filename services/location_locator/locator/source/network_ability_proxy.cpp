@@ -68,24 +68,6 @@ LocationErrCode NetworkAbilityProxy::SetEnable(bool state)
     return LocationErrCode(reply.ReadInt32());
 }
 
-LocationErrCode NetworkAbilityProxy::SelfRequest(bool state)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(NETWORK, "write interfaceToken fail!");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    data.WriteBool(state);
-    int error =
-        Remote()->SendRequest(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST), data, reply, option);
-    if (error != ERR_OK) {
-        LBSLOGI(NETWORK, "%{public}s Transact Error = %{public}d", __func__, error);
-    }
-    return LocationErrCode(reply.ReadInt32());
-}
-
 LocationErrCode NetworkAbilityProxy::EnableMock()
 {
     MessageParcel data;

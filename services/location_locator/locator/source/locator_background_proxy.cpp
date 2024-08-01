@@ -30,6 +30,7 @@
 #include "locator_ability.h"
 #include "request_manager.h"
 #include "permission_manager.h"
+#include "location_data_rdb_manager.h"
 
 #include "accesstoken_kit.h"
 #include "tokenid_kit.h"
@@ -284,6 +285,11 @@ int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
 void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
 {
     UpdateListOnUserSwitch(userId);
+    LocationDataRdbManager::ClearSwitchMode();
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->ApplyRequests(1);
+    }
     if (!requestsList_->empty()) {
         StartLocator();
     } else {

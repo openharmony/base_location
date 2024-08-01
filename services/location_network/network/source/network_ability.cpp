@@ -255,13 +255,6 @@ bool NetworkAbility::CheckIfNetworkConnecting()
     return IsMockEnabled() || !GetLocationMock().empty() || GetRequestNum() != 0;
 }
 
-LocationErrCode NetworkAbility::SelfRequest(bool state)
-{
-    LBSLOGD(NETWORK, "SelfRequest %{public}d", state);
-    HandleSelfRequest(IPCSkeleton::GetCallingPid(), IPCSkeleton::GetCallingUid(), state);
-    return ERRCODE_SUCCESS;
-}
-
 void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     if (!IsConnect()) {
@@ -285,7 +278,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     } else {
         RemoveNetworkLocation(workRecord);
         if (GetRequestNum() == 0 && conn_ != nullptr) {
-            LBSLOGD(NETWORK, "RequestRecord disconnect");
+            LBSLOGI(NETWORK, "RequestRecord disconnect");
             AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         }
     }
@@ -301,7 +294,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
         return false;
     }
-    LBSLOGD(NETWORK, "start network location");
+    LBSLOGI(NETWORK, "start network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
     sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
     if (callback == nullptr) {
         LBSLOGE(NETWORK, "can not get valid callback.");
@@ -333,7 +326,7 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return false;
     }
-    LBSLOGD(NETWORK, "stop network location");
+    LBSLOGI(NETWORK, "stop network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -407,6 +400,9 @@ int32_t NetworkAbility::ReportMockedLocation(const std::shared_ptr<Location> loc
         LBSLOGE(NETWORK, "location mock is enabled, do not report network location!");
         return ERR_OK;
     }
+    location->SetTimeSinceBoot(CommonUtils::GetSinceBootTime());
+    location->SetTimeStamp(CommonUtils::GetCurrentTimeStamp() * MICRO_PER_MILLI);
+    location->SetLocationSourceType(LocationSourceType::NETWORK_TYPE);
     ReportLocationInfo(NETWORK_ABILITY, location);
 #ifdef FEATURE_PASSIVE_SUPPORT
     ReportLocationInfo(PASSIVE_ABILITY, location);
@@ -476,12 +472,6 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
             } else {
                 reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
             }
-            break;
-        }
-        case static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST): {
-            int64_t param = data.ReadBool() ? 1 : 0;
-            networkHandler_->SendEvent(code, param, 0) ? reply.WriteInt32(ERRCODE_SUCCESS) :
-                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
             break;
         }
         default:
@@ -568,12 +558,6 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
                 networkAbility->SetMocked(timeInterval, mockLocations);
             }
             break;
-        }
-        case static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST): {
-            bool state = event->GetParam();
-            networkAbility->SelfRequest(state);
-            // no need unload sa, return
-            return;
         }
         default:
             break;
