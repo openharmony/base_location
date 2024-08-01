@@ -66,7 +66,6 @@ RequestManager::RequestManager()
     if (locatorDftManager != nullptr) {
         locatorDftManager->Init();
     }
-    IsStandby();
 }
 
 RequestManager::~RequestManager()
@@ -79,7 +78,7 @@ bool RequestManager::InitSystemListeners()
     return true;
 }
 
-void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
+void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart)
 {
     std::unique_lock<ffrt::mutex> lock(permissionRecordMutex_, std::defer_lock);
     lock.lock();
@@ -88,34 +87,25 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request)
         lock.unlock();
         return;
     }
-    LBSLOGD(REQUEST_MANAGER, "UpdateUsingPermission : tokenId = %{public}d, firstTokenId = %{public}d",
-        request->GetTokenId(), request->GetFirstTokenId());
-    UpdateUsingApproximatelyPermission(request);
+    UpdateUsingApproximatelyPermission(request, isStart);
     lock.unlock();
 }
 
-void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request)
+void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility == nullptr) {
         return;
     }
     uint32_t callingTokenId = request->GetTokenId();
-    uint32_t callingFirstTokenid = request->GetFirstTokenId();
-    int32_t uid = request->GetUid();
-    if (IsUidInProcessing(uid) &&
-        PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        if (!request->GetApproximatelyPermState()) {
-            PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-            locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
-                ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
-            request->SetApproximatelyPermState(true);
-        }
-    } else {
-        if (request->GetApproximatelyPermState()) {
-            PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-            request->SetApproximatelyPermState(false);
-        }
+    if (isStart && !request->GetApproximatelyPermState()) {
+        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
+            ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
+        request->SetApproximatelyPermState(true);
+    } else if (!isStart && request->GetApproximatelyPermState()) {
+        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        request->SetApproximatelyPermState(false);
     }
 }
 
@@ -133,7 +123,6 @@ void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
         locatorAbility->RegisterPermissionCallback(request->GetTokenId(),
             {ACCESS_APPROXIMATELY_LOCATION, ACCESS_LOCATION, ACCESS_BACKGROUND_LOCATION});
         UpdateRequestRecord(request, true);
-        UpdateUsingPermission(request);
         locatorDftManager->LocationSessionStart(request);
     }
     // process location request
@@ -328,7 +317,7 @@ void RequestManager::DeleteRequestRecord(std::shared_ptr<std::list<std::shared_p
     for (auto iter = requests->begin(); iter != requests->end(); ++iter) {
         auto request = *iter;
         UpdateRequestRecord(request, false);
-        UpdateUsingPermission(request);
+        UpdateUsingPermission(request, false);
         if (request->GetLocatorCallBack() != nullptr && request->GetLocatorCallbackRecipient() != nullptr) {
             request->GetLocatorCallBack()->AsObject()->RemoveDeathRecipient(request->GetLocatorCallbackRecipient());
         }
@@ -373,8 +362,10 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
         if (!AddRequestToWorkRecord(abilityName, request, workRecord)) {
             WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
                     "abilityName", abilityName, "requestAddress", request->GetUuid()});
+            UpdateUsingPermission(request, false);
             continue;
         }
+        UpdateUsingPermission(request, true);
         if (!ActiveLocatingStrategies(request)) {
             continue;
         }
@@ -412,6 +403,9 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
  */
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
+    if (!request->GetIsRequesting()) {
+        return false;
+    }
     // for frozen app, do not add to workRecord
     if (LocatorAbility::GetInstance()->IsProxyPid(request->GetPid())) {
         return false;
@@ -430,15 +424,18 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 void RequestManager::IsStandby()
 {
 #ifdef DEVICE_STANDBY_ENABLE
+    LBSLOGI(LOCATOR, "%{public}s called", __func__);
     bool isStandby = false;
     DevStandbyMgr::StandbyServiceClient& standbyServiceClient = DevStandbyMgr::StandbyServiceClient::GetInstance();
     ErrCode code = standbyServiceClient.IsDeviceInStandby(isStandby);
     if (code == ERR_OK && isStandby) {
         isDeviceIdleMode_.store(true);
+        LBSLOGI(LOCATOR, "isStandby = true");
         return;
     }
 #endif
     isDeviceIdleMode_.store(false);
+    LBSLOGI(LOCATOR, "isStandby = false");
 }
 
 bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
@@ -447,21 +444,18 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (request == nullptr) {
         return false;
     }
-    UpdateUsingPermission(request);
-    if (!request->GetIsRequesting()) {
-        return false;
-    }
     if (!IsRequestAvailable(request)) {
         return false;
     }
-
     auto locationErrorCallback = request->GetLocationErrorCallBack();
     int switchState = DISABLED;
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr && locatorAbility->GetSwitchState(switchState) == ERRCODE_SUCCESS) {
-        if (switchState == DISABLED && locationErrorCallback != nullptr) {
+        if (switchState == DISABLED) {
+            if (locationErrorCallback != nullptr) {
+                locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
+            }
             LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
-            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
             return false;
         }
     }
@@ -498,6 +492,13 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (requestConfig == nullptr) {
         return false;
     }
+
+    if (!PermissionManager::CheckSystemPermission(tokenId, request->GetTokenIdEx()) &&
+        !CommonUtils::CheckAppForUser(uid)) {
+        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
+        return false;
+    }
+
     if (HookUtils::ExecuteHookWhenAddWorkRecord(isDeviceStillState_.load(), isDeviceIdleMode_.load(),
         abilityName, bundleName)) {
         LBSLOGI(REQUEST_MANAGER, "Enter idle and still status, not add request");
@@ -522,6 +523,8 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
         return;
     }
+    LBSLOGI(LOCATOR, "%{public}s: %{public}s workRecord uid_ size %{public}d",
+        __func__, abilityName.c_str(), workRecord.Size());
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
 #ifdef FEATURE_GNSS_SUPPORT
@@ -538,10 +541,6 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
         passiveProxy->SendLocationRequest(workRecord);
 #endif
-    }
-    auto fusionController = FusionController::GetInstance();
-    if (fusionController != nullptr) {
-        fusionController->Process(abilityName);
     }
 }
 

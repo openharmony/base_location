@@ -34,8 +34,7 @@ public:
 
 class PassiveAbilityStub : public IRemoteStub<IPassiveAbility> {
 public:
-    using PassiveMsgHandle = int (PassiveAbilityStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using PassiveMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using PassiveMsgHandleMap = std::map<int, PassiveMsgHandle>;
     PassiveAbilityStub();
     virtual ~PassiveAbilityStub() = default;
@@ -43,6 +42,7 @@ public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
+    virtual bool CancelIdleState() = 0;
     virtual void UnloadPassiveSystemAbility() = 0;
 private:
     int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

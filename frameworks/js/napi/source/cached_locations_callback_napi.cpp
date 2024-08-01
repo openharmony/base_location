@@ -28,6 +28,7 @@ CachedLocationsCallbackNapi::CachedLocationsCallbackNapi()
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
+    callbackValid_ = false;
 }
 
 CachedLocationsCallbackNapi::~CachedLocationsCallbackNapi()
@@ -81,6 +82,10 @@ bool CachedLocationsCallbackNapi::Send(std::vector<std::unique_ptr<Location>>& l
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "loop == nullptr.");
         return false;
     }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "handler is nullptr.");
+        return false;
+    }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "work == nullptr.");
@@ -92,8 +97,10 @@ bool CachedLocationsCallbackNapi::Send(std::vector<std::unique_ptr<Location>>& l
         delete work;
         return false;
     }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (!InitContext(context)) {
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "InitContext fail");
+        return false;
+    }
     for (std::unique_ptr<Location>& location : locations) {
         context->locationList.emplace_back(std::move(location));
     }
@@ -116,7 +123,7 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CachedLocationAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr) {
+            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -132,7 +139,7 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
                 scope, context, work);
             LocationsToJs(context->env, context->locationList, jsEvent);
-            if (context->callback[0] != nullptr) {
+            if (context->callback[0] != nullptr && *(context->callbackValid)) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -162,15 +169,9 @@ void CachedLocationsCallbackNapi::DeleteHandler()
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    auto context = new (std::nothrow) AsyncContext(env_);
-    if (context == nullptr) {
-        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context == nullptr.");
-        return;
-    }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    DeleteQueueWork(context);
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
+    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

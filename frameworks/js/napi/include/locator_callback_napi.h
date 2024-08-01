@@ -61,13 +61,14 @@ public:
             return false;
         }
         context->env = env_;
+        callbackValid_ = handlerCb_ == nullptr ? false : true;
+        context->callbackValid = &callbackValid_;
         if (IsSystemGeoLocationApi()) {
             context->callback[SUCCESS_CALLBACK] = successHandlerCb_;
             context->callback[FAIL_CALLBACK] = failHandlerCb_;
             context->callback[COMPLETE_CALLBACK] = completeHandlerCb_;
         } else {
             context->callback[SUCCESS_CALLBACK] = handlerCb_;
-            context->deferred = deferred_;
         }
         return true;
     }
@@ -132,16 +133,6 @@ public:
         fixNumber_ = fixNumber;
     }
 
-    inline napi_deferred GetDeferred() const
-    {
-        return deferred_;
-    }
-
-    inline void SetDeferred(const napi_deferred& deferred)
-    {
-        deferred_ = deferred;
-    }
-
     inline void SetLocationPriority(const int locationPriority)
     {
         locationPriority_ = locationPriority;
@@ -168,12 +159,12 @@ private:
     napi_ref failHandlerCb_;
     napi_ref completeHandlerCb_;
     int fixNumber_;
-    napi_deferred deferred_;
     std::mutex mutex_;
     CountDownLatch* latch_;
     std::shared_ptr<Location> singleLocation_;
     int locationPriority_;
     bool inHdArea_;
+    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -33,52 +33,99 @@ void GnssAbilityStub::InitGnssMsgHandleMap()
         return;
     }
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST)] =
-        &GnssAbilityStub::SendLocationRequestInner;
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        &GnssAbilityStub::SetMockLocationsInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SendLocationRequestInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] =
-        &GnssAbilityStub::SetEnableInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SetEnableInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REFRESH_REQUESTS)] =
-        &GnssAbilityStub::RefreshRequirementsInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return RefreshRequirementsInner(data, reply, identity);
+    };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS)] =
-        &GnssAbilityStub::RegisterGnssStatusCallbackInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return RegisterGnssStatusCallbackInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::UNREG_GNSS_STATUS)] =
-        &GnssAbilityStub::UnregisterGnssStatusCallbackInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return UnregisterGnssStatusCallbackInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA)] =
-        &GnssAbilityStub::RegisterNmeaMessageCallbackInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return RegisterNmeaMessageCallbackInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::UNREG_NMEA)] =
-        &GnssAbilityStub::UnregisterNmeaMessageCallbackInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return UnregisterNmeaMessageCallbackInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REG_CACHED)] =
-        &GnssAbilityStub::RegisterCachedCallbackInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return RegisterCachedCallbackInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::UNREG_CACHED)] =
-        &GnssAbilityStub::UnregisterCachedCallbackInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return UnregisterCachedCallbackInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_CACHED_SIZE)] =
-        &GnssAbilityStub::GetCachedGnssLocationsSizeInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return GetCachedGnssLocationsSizeInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::FLUSH_CACHED)] =
-        &GnssAbilityStub::FlushCachedGnssLocationsInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return FlushCachedGnssLocationsInner(data, reply, identity);
+        };
+}
+
+void GnssAbilityStub::InitGnssEnhanceMsgHandleMap()
+{
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
-        &GnssAbilityStub::SendCommandInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SendCommandInner(data, reply, identity);
+        };
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SetMockLocationsInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ENABLE_LOCATION_MOCK)] =
-        &GnssAbilityStub::EnableMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return EnableMockInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK)] =
-        &GnssAbilityStub::DisableMockInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return DisableMockInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO)] =
-        &GnssAbilityStub::AddFenceInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return AddFenceInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO)] =
-        &GnssAbilityStub::RemoveFenceInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return RemoveFenceInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ADD_GNSS_GEOFENCE)] =
-        &GnssAbilityStub::AddGnssGeofenceInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return AddGnssGeofenceInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE)] =
-        &GnssAbilityStub::RemoveGnssGeofenceInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return RemoveGnssGeofenceInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE)] =
-        &GnssAbilityStub::QuerySupportCoordinateSystemTypeInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return QuerySupportCoordinateSystemTypeInner(data, reply, identity);
+        };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
-        &GnssAbilityStub::SendNetworkLocationInner;
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return SendNetworkLocationInner(data, reply, identity);
+        };
 }
 
 GnssAbilityStub::GnssAbilityStub()
 {
     InitGnssMsgHandleMap();
+    InitGnssEnhanceMsgHandleMap();
 }
 
 int GnssAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
@@ -320,12 +367,13 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
         LBSLOGE(GNSS, "invalid token.");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    CancelIdleState();
     int ret = ERRCODE_SUCCESS;
     isMessageRequest_ = false;
     auto handleFunc = GnssMsgHandleMap_.find(code);
     if (handleFunc != GnssMsgHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        ret = (this->*memberFunc)(data, reply, identity);
+        ret = memberFunc(data, reply, identity);
     } else {
         LBSLOGE(GNSS, "OnReceived cmd = %{public}u, unsupport service.", code);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);

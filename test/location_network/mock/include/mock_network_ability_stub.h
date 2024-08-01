@@ -36,13 +36,13 @@ public:
     MockNetworkAbilityStub() {}
     ~MockNetworkAbilityStub() {}
     MOCK_METHOD(void, SendMessage, (uint32_t code, MessageParcel &data, MessageParcel &reply));
-    MOCK_METHOD(LocationErrCode, SelfRequest, (bool state));
     MOCK_METHOD(LocationErrCode, SendLocationRequest, (WorkRecord &workrecord));
     MOCK_METHOD(LocationErrCode, SetEnable, (bool state));
     MOCK_METHOD(LocationErrCode, EnableMock, ());
     MOCK_METHOD(LocationErrCode, DisableMock, ());
     MOCK_METHOD(LocationErrCode, SetMocked, (const int timeInterval,
         const std::vector<std::shared_ptr<Location>> &location));
+    MOCK_METHOD(bool, CancelIdleState, ());
     MOCK_METHOD(void, UnloadNetworkSystemAbility, ());
 };
 } // namespace Location

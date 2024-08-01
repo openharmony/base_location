@@ -1094,8 +1094,7 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
         auto gnssGeofenceRequest = context->request_;
-        if (callbackHost != nullptr || gnssGeofenceRequest != nullptr) {
-            auto callbackPtr = sptr<IGnssGeofenceCallback>(callbackHost);
+        if (callbackHost != nullptr && gnssGeofenceRequest != nullptr) {
             auto errCode = g_geofenceClient->AddGnssGeofence(gnssGeofenceRequest);
             if (errCode != ERRCODE_SUCCESS) {
                 context->errCode = errCode;

@@ -27,8 +27,6 @@ namespace Location {
 class FusionController {
 public:
     void ActiveFusionStrategies(int type);
-    void Process(std::string abilityName);
-    void FuseResult(std::string abilityName, const std::unique_ptr<Location>& location);
     std::unique_ptr<Location> chooseBestLocation(const std::unique_ptr<Location>& gnssLocation,
         const std::unique_ptr<Location>& networkLocation);
     std::unique_ptr<Location> GetFuseLocation(
@@ -36,9 +34,6 @@ public:
     static FusionController* GetInstance();
 
 private:
-#ifdef FEATURE_NETWORK_SUPPORT
-    void RequestQuickFix(bool state);
-#endif
     bool CheckIfLastIndoorLocationValid(const std::unique_ptr<Location>& location,
         const std::unique_ptr<Location>& lastFuseLocation);
     bool CheckIfLastGnssLocationValid(const std::unique_ptr<Location>& location,

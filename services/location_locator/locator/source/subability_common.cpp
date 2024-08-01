@@ -153,30 +153,6 @@ void SubAbility::Enable(bool state, const sptr<IRemoteObject> ability)
     }
 }
 
-void SubAbility::HandleSelfRequest(pid_t pid, pid_t uid, bool state)
-{
-    std::unique_ptr<WorkRecord> records = std::make_unique<WorkRecord>();
-    std::string name = Str16ToStr8(u"ohos");
-    std::string uuid = std::to_string(CommonUtils::IntRandom(MIN_INT_RANDOM, MAX_INT_RANDOM));
-    records->Set(*lastRecord_);
-    if (state) {
-        std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-        requestConfig->SetTimeInterval(interval_);
-        std::shared_ptr<Request> request = std::make_shared<Request>();
-        request->SetUid(uid);
-        request->SetPid(pid);
-        request->SetPackageName(name);
-        request->SetRequestConfig(*requestConfig);
-        request->SetUuid(uuid);
-        request->SetNlpRequestType(NlpRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY);
-        records->Add(request);
-    } else {
-        records->Remove(uid, pid, name, uuid);
-    }
-    LocationRequest(*records);
-    records->Clear();
-}
-
 bool SubAbility::EnableLocationMock()
 {
     LBSLOGI(label_, "EnableLocationMock current state is %{public}d", mockEnabled_);

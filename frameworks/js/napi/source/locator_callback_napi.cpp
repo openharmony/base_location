@@ -40,10 +40,10 @@ LocatorCallbackNapi::LocatorCallbackNapi()
     successHandlerCb_ = nullptr;
     failHandlerCb_ = nullptr;
     completeHandlerCb_ = nullptr;
-    deferred_ = nullptr;
     fixNumber_ = 0;
     inHdArea_ = true;
     singleLocation_ = nullptr;
+    callbackValid_ = false;
     locationPriority_ = 0;
     InitLatch();
 }
@@ -121,7 +121,7 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
             delete work;
             return;
         }
-        if (context->env == nullptr || context->loc == nullptr) {
+        if (context->env == nullptr || context->loc == nullptr || context->callbackValid == nullptr) {
             delete context;
             delete work;
             return;
@@ -138,7 +138,7 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
         } else {
             LocationToJs(context->env, context->loc, jsEvent);
         }
-        if (context->callback[0] != nullptr) {
+        if (context->callback[0] != nullptr && *(context->callbackValid)) {
             napi_value undefine = nullptr;
             napi_value handler = nullptr;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -148,11 +148,6 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
             if (napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
                 LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
             }
-        } else if (context->deferred != nullptr) {
-            CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                ((jsEvent != nullptr) ? napi_resolve_deferred(context->env, context->deferred, jsEvent) :
-                napi_reject_deferred(context->env, context->deferred, jsEvent)),
-                scope, context, work);
         }
         DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
     });
@@ -169,7 +164,7 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 return;
             }
             context = static_cast<AsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr) {
+            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -181,7 +176,7 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 delete work;
                 return;
             }
-            if (context->callback[FAIL_CALLBACK] != nullptr) {
+            if (context->callback[FAIL_CALLBACK] != nullptr && *(context->callbackValid)) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -211,6 +206,10 @@ bool LocatorCallbackNapi::SendErrorCode(const int& errorCode)
     }
     if (env_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "env_ is nullptr.");
+        return false;
+    }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "handler is nullptr.");
         return false;
     }
     uv_loop_s *loop = nullptr;
@@ -245,6 +244,10 @@ void LocatorCallbackNapi::OnLocationReport(const std::unique_ptr<Location>& loca
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
         LBSLOGD(LOCATOR_CALLBACK, "env_ is nullptr.");
+        return;
+    }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(LOCATOR_CALLBACK, "handler is nullptr.");
         return;
     }
     NAPI_CALL_RETURN_VOID(env_, napi_get_uv_event_loop(env_, &loop));
@@ -293,22 +296,26 @@ void LocatorCallbackNapi::DeleteHandler()
         LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
         return;
     }
-    auto context = new (std::nothrow) AsyncContext(env_);
-    if (context == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
-        return;
-    }
-    if (!InitContext(context)) {
-        LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
-    }
-    DeleteQueueWork(context);
     if (IsSystemGeoLocationApi()) {
-        successHandlerCb_ = nullptr;
-        failHandlerCb_ = nullptr;
-        completeHandlerCb_ = nullptr;
+        if (successHandlerCb_ != nullptr) {
+            NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, successHandlerCb_));
+            successHandlerCb_ = nullptr;
+        }
+        if (failHandlerCb_ != nullptr) {
+            NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, failHandlerCb_));
+            failHandlerCb_ = nullptr;
+        }
+        if (completeHandlerCb_ != nullptr) {
+            NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, completeHandlerCb_));
+            completeHandlerCb_ = nullptr;
+        }
     } else {
-        handlerCb_ = nullptr;
+        if (handlerCb_ != nullptr) {
+            NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+            handlerCb_ = nullptr;
+        }
     }
+    callbackValid_ = false;
 }
 
 bool LocatorCallbackNapi::IsSystemGeoLocationApi()

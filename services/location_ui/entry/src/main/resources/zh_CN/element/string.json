@@ -90,7 +90,7 @@
     },
     {
       "name": "wifi_three_vap_notify_title",
-      "value": "检测到 WLAN 共享通道已被占用。若您正使用 WLAN 直连、华为分享、多屏互动等互联应用，断开后才可开启个人热点。是否断开？"
+      "value": "检测到 WLAN 共享通道已被占用。若您正使用 WLAN 直连、多屏互动等互联应用，断开后才可开启个人热点。是否断开？"
     },
     {
       "name": "wifi_three_vap_notify_no_button",
@@ -99,6 +99,18 @@
     {
       "name": "wifi_three_vap_notify_yes_button",
       "value": "断开"
+    },
+    {
+      "name": "wifi_candidate_connect_notify_title",
+      "value": "连接到指定的候选WLAN?"
+    },
+    {
+      "name": "wifi_candidate_connect_notify_no_button",
+      "value": "取消"
+    },
+    {
+      "name": "wifi_candidate_connect_notify_yes_button",
+      "value": "连接"
     }
   ]
 }

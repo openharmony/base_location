@@ -30,6 +30,7 @@ LocatingRequiredDataCallbackNapi::LocatingRequiredDataCallbackNapi()
     remoteDied_ = false;
     fixNumber_ = 0;
     InitLatch();
+    callbackValid_ = false;
 }
 
 LocatingRequiredDataCallbackNapi::~LocatingRequiredDataCallbackNapi()
@@ -101,6 +102,10 @@ bool LocatingRequiredDataCallbackNapi::Send(const std::vector<std::shared_ptr<Lo
         LBSLOGE(LOCATING_DATA_CALLBACK, "loop == nullptr.");
         return false;
     }
+    if (handlerCb_ == nullptr) {
+        LBSLOGE(LOCATING_DATA_CALLBACK, "handler is nullptr.");
+        return false;
+    }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         LBSLOGE(LOCATING_DATA_CALLBACK, "work == nullptr.");
@@ -112,8 +117,10 @@ bool LocatingRequiredDataCallbackNapi::Send(const std::vector<std::shared_ptr<Lo
         delete work;
         return false;
     }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
+    if (!InitContext(context)) {
+        LBSLOGE(LOCATING_DATA_CALLBACK, "InitContext fail");
+        return false;
+    }
     context->locatingRequiredDataList_ = data;
     work->data = context;
     UvQueueWork(loop, work);
@@ -134,7 +141,7 @@ void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 return;
             }
             context = static_cast<LocatingRequiredDataAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr) {
+            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
                 LBSLOGE(LOCATING_DATA_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -151,7 +158,7 @@ void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 napi_create_array_with_length(context->env, context->locatingRequiredDataList_.size(), &jsEvent),
                 scope, context, work);
             LocatingRequiredDataToJsObj(context->env, context->locatingRequiredDataList_, jsEvent);
-            if (context->callback[0] != nullptr) {
+            if (context->callback[0] != nullptr && *(context->callbackValid)) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -183,15 +190,9 @@ void LocatingRequiredDataCallbackNapi::DeleteHandler()
         LBSLOGE(LOCATING_DATA_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    auto context = new (std::nothrow) AsyncContext(env_);
-    if (context == nullptr) {
-        LBSLOGE(LOCATING_DATA_CALLBACK, "context == nullptr.");
-        return;
-    }
-    context->env = env_;
-    context->callback[SUCCESS_CALLBACK] = handlerCb_;
-    DeleteQueueWork(context);
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
+    callbackValid_ = false;
 }
 
 bool LocatingRequiredDataCallbackNapi::IsSingleLocationRequest()

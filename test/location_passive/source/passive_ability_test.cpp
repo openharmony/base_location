@@ -38,6 +38,8 @@ namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const std::string ARGS_HELP = "-h";
+const std::string UNLOAD_PASSIVE_TASK = "passive_sa_unload";
+const int32_t WAIT_EVENT_TIME = 3;
 void PassiveAbilityTest::SetUp()
 {
     /*
@@ -56,6 +58,13 @@ void PassiveAbilityTest::TearDown()
      * @tc.teardown: release memory.
      */
     proxy_ = nullptr;
+    ability_->passiveHandler_->RemoveTask(UNLOAD_PASSIVE_TASK);
+    ability_ = nullptr;
+}
+
+void PassiveAbilityTest::TearDownTestCase()
+{
+    sleep(WAIT_EVENT_TIME);
 }
 
 void PassiveAbilityTest::MockNativePermission()
@@ -254,7 +263,6 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportUnloadPassiveSystemAbility001, Tes
     GTEST_LOG_(INFO)
         << "PassiveAbilityTest, PassiveSendReportUnloadPassiveSystemAbility001, TestSize.Level1";
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportUnloadPassiveSystemAbility001 begin");
-    ability_->passiveHandler_ = nullptr;
     ability_->UnloadPassiveSystemAbility();
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportUnloadPassiveSystemAbility001 end");
 }
@@ -264,7 +272,6 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportSendMessage001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "PassiveAbilityTest, PassiveSendReportUnloadSendMessage001, TestSize.Level1";
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportUnloadSendMessage001 begin");
-    ability_->passiveHandler_ = nullptr;
     MessageParcel parcel;
     parcel.WriteDouble(10.6); // latitude
     parcel.WriteDouble(10.5); // longitude

@@ -21,16 +21,17 @@ namespace OHOS {
 namespace Location {
 Request::Request()
 {
-    this->pid_ = -1;
-    this->uid_ = -1;
-    this->tokenId_ = 0;
-    this->tokenIdEx_ = 0;
-    this->firstTokenId_ = 0;
-    this->packageName_ = "";
-    this->isRequesting_ = false;
-    this->permUsedType_ = 0;
+    pid_ = -1;
+    uid_ = -1;
+    tokenId_ = 0;
+    tokenIdEx_ = 0;
+    firstTokenId_ = 0;
+    packageName_ = "";
+    isRequesting_ = false;
+    permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
+    bestLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
@@ -40,15 +41,16 @@ Request::Request()
 Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
-    this->pid_ = -1;
-    this->uid_ = -1;
-    this->tokenId_ = 0;
-    this->firstTokenId_ = 0;
-    this->packageName_ = "";
-    this->isRequesting_ = false;
-    this->permUsedType_ = 0;
+    pid_ = -1;
+    uid_ = -1;
+    tokenId_ = 0;
+    firstTokenId_ = 0;
+    packageName_ = "";
+    isRequesting_ = false;
+    permUsedType_ = 0;
     requestConfig_ = new (std::nothrow) RequestConfig();
     lastLocation_ = new (std::nothrow) Location();
+    bestLocation_ = new (std::nothrow) Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
@@ -70,15 +72,15 @@ Request::~Request() {}
 
 void Request::SetRequestConfig(RequestConfig& requestConfig)
 {
-    if (this->requestConfig_ == nullptr) {
+    if (requestConfig_ == nullptr) {
         return;
     }
-    this->requestConfig_->Set(requestConfig);
+    requestConfig_->Set(requestConfig);
 }
 
 void Request::SetLocatorCallBack(const sptr<ILocatorCallback>& callback)
 {
-    this->callBack_ = callback;
+    callBack_ = callback;
 }
 
 sptr<RequestConfig> Request::GetRequestConfig()
@@ -93,7 +95,7 @@ sptr<ILocatorCallback> Request::GetLocatorCallBack()
 
 void Request::SetUid(pid_t uid)
 {
-    this->uid_ = uid;
+    uid_ = uid;
 }
 
 pid_t Request::GetUid()
@@ -103,7 +105,7 @@ pid_t Request::GetUid()
 
 void Request::SetPid(pid_t pid)
 {
-    this->pid_ = pid;
+    pid_ = pid;
 }
 
 pid_t Request::GetPid()
@@ -113,7 +115,7 @@ pid_t Request::GetPid()
 
 void Request::SetTokenId(uint32_t tokenId)
 {
-    this->tokenId_ = tokenId;
+    tokenId_ = tokenId;
 }
 
 uint32_t Request::GetTokenId()
@@ -128,12 +130,12 @@ int Request::GetPermUsedType()
 
 void Request::SetPermUsedType(int type)
 {
-    this->permUsedType_ = type;
+    permUsedType_ = type;
 }
 
 void Request::SetTokenIdEx(uint64_t tokenIdEx)
 {
-    this->tokenIdEx_ = tokenIdEx;
+    tokenIdEx_ = tokenIdEx;
 }
 
 uint64_t Request::GetTokenIdEx()
@@ -143,7 +145,7 @@ uint64_t Request::GetTokenIdEx()
 
 void Request::SetFirstTokenId(uint32_t firstTokenId)
 {
-    this->firstTokenId_ = firstTokenId;
+    firstTokenId_ = firstTokenId;
 }
 
 uint32_t Request::GetFirstTokenId()
@@ -153,7 +155,7 @@ uint32_t Request::GetFirstTokenId()
 
 void Request::SetPackageName(std::string packageName)
 {
-    this->packageName_ = packageName;
+    packageName_ = packageName;
 }
 
 std::string Request::GetPackageName()
@@ -168,7 +170,7 @@ bool Request::GetIsRequesting()
 
 void Request::SetRequesting(bool state)
 {
-    this->isRequesting_ = state;
+    isRequesting_ = state;
 }
 
 sptr<Location> Request::GetLastLocation()
@@ -183,23 +185,44 @@ std::string Request::GetUuid()
 
 void Request::SetUuid(std::string uuid)
 {
-    this->uuid_ = uuid;
+    uuid_ = uuid;
 }
 
 void Request::SetLastLocation(const std::unique_ptr<Location>& location)
 {
-    if (this->lastLocation_ == nullptr) {
+    if (lastLocation_ == nullptr || location == nullptr) {
         return;
     }
-    this->lastLocation_->SetLatitude(location->GetLatitude());
-    this->lastLocation_->SetLongitude(location->GetLongitude());
-    this->lastLocation_->SetAltitude(location->GetAltitude());
-    this->lastLocation_->SetAccuracy(location->GetAccuracy());
-    this->lastLocation_->SetSpeed(location->GetSpeed());
-    this->lastLocation_->SetDirection(location->GetDirection());
-    this->lastLocation_->SetTimeStamp(location->GetTimeStamp());
-    this->lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
-    this->lastLocation_->SetLocationSourceType(location->GetLocationSourceType());
+    lastLocation_->SetLatitude(location->GetLatitude());
+    lastLocation_->SetLongitude(location->GetLongitude());
+    lastLocation_->SetAltitude(location->GetAltitude());
+    lastLocation_->SetAccuracy(location->GetAccuracy());
+    lastLocation_->SetSpeed(location->GetSpeed());
+    lastLocation_->SetDirection(location->GetDirection());
+    lastLocation_->SetTimeStamp(location->GetTimeStamp());
+    lastLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
+    lastLocation_->SetLocationSourceType(location->GetLocationSourceType());
+}
+
+sptr<Location> Request::GetBestLocation()
+{
+    return bestLocation_;
+}
+
+void Request::SetBestLocation(const std::unique_ptr<Location>& location)
+{
+    if (bestLocation_ == nullptr || location == nullptr) {
+        return;
+    }
+    bestLocation_->SetLatitude(location->GetLatitude());
+    bestLocation_->SetLongitude(location->GetLongitude());
+    bestLocation_->SetAltitude(location->GetAltitude());
+    bestLocation_->SetAccuracy(location->GetAccuracy());
+    bestLocation_->SetSpeed(location->GetSpeed());
+    bestLocation_->SetDirection(location->GetDirection());
+    bestLocation_->SetTimeStamp(location->GetTimeStamp());
+    bestLocation_->SetTimeSinceBoot(location->GetTimeSinceBoot());
+    bestLocation_->SetLocationSourceType(location->GetLocationSourceType());
 }
 
 void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
@@ -343,7 +366,7 @@ std::string Request::ToString() const
 
 void Request::SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback)
 {
-    this->locationErrorcallBack_ = callback;
+    locationErrorcallBack_ = callback;
 }
 
 sptr<ILocatorCallback> Request::GetLocationErrorCallBack()

@@ -141,6 +141,7 @@
                 "//base/location/test/location_geofence:unittest",
                 "//base/location/test/location_gnss:unittest",
                 "//base/location/test/location_locator:unittest",
+                "//base/location/test/location_manager:unittest",
                 "//base/location/test/location_network:unittest",
                 "//base/location/test/location_passive:unittest",
                 "//base/location/test/location_mock_ipc:unittest",

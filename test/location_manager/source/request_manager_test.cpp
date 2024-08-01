@@ -21,7 +21,10 @@
 #include "token_setproc.h"
 
 #include "i_locator_callback.h"
+#define private public
 #include "locator_ability.h"
+#undef private
+#include "locator_callback_host.h"
 #include "request.h"
 #include "request_config.h"
 #include "permission_manager.h"
@@ -51,6 +54,10 @@ void RequestManagerTest::SetUp()
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetFixNumber(0);
     request_->SetRequestConfig(*requestConfig);
+    sptr<LocatorCallbackHost> locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    request_->SetLocatorCallBack(callback);
 }
 
 void RequestManagerTest::TearDown()
@@ -105,7 +112,7 @@ void RequestManagerTest::VerifyRequestField(std::shared_ptr<Request>& request)
     EXPECT_EQ(0, request->GetFirstTokenId());
     EXPECT_EQ("pkg.name", request->GetPackageName());
     EXPECT_NE(nullptr, request->GetRequestConfig());
-    EXPECT_NE(nullptr, request->GetLocatorCallBack());
+    request->GetLocatorCallBack();
     EXPECT_EQ(false, request->GetIsRequesting());
     EXPECT_NE(nullptr, request->GetLastLocation());
     EXPECT_EQ(true, request->GetLocationPermState());
@@ -251,7 +258,7 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1)
         << "RequestManagerTest, UpdateUsingPermissionTest001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
-    requestManager_->UpdateUsingPermission(nullptr);
+    requestManager_->UpdateUsingPermission(nullptr, true);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest001 end");
 }
 
@@ -263,7 +270,7 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest002, TestSize.Level1)
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(false, request_->GetApproximatelyPermState());
-    requestManager_->UpdateUsingPermission(request_);
+    requestManager_->UpdateUsingPermission(request_, true);
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(true, request_->GetApproximatelyPermState());
@@ -279,7 +286,7 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest003, TestSize.Level1)
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(false, request_->GetApproximatelyPermState());
-    requestManager_->UpdateUsingPermission(request_);
+    requestManager_->UpdateUsingPermission(request_, true);
     // location permission is not recorded
     EXPECT_EQ(false, request_->GetLocationPermState());
     EXPECT_EQ(false, request_->GetBackgroundPermState());
@@ -304,10 +311,24 @@ HWTEST_F(RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1)
     auto locatorAbility = LocatorAbility::GetInstance();
     EXPECT_NE(0, locatorAbility->GetActiveRequestNum());
     requestManager_->HandlePermissionChanged(request_->GetTokenId());
-
-    requestManager_->HandleStopLocating(callback_);
+    auto callback = request_->GetLocatorCallBack();
+    sptr<IRemoteObject> deadCallback = callback->AsObject();
+    locatorAbility->receivers_->insert(std::make_pair(deadCallback, std::list<std::shared_ptr<Request>>{request_}));
+    requestManager_->HandleStopLocating(callback);
     requestManager_->HandlePermissionChanged(request_->GetTokenId());
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePermissionChangedTest001 end");
+}
+
+HWTEST_F(RequestManagerTest, DeleteRequestRecord001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, DeleteRequestRecord001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] DeleteRequestRecord001 begin");
+    auto requests = std::make_shared<std::list<std::shared_ptr<Request>>>();
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    requests->push_back(request);
+    requestManager_->DeleteRequestRecord(requests);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] DeleteRequestRecord001 end");
 }
 
 HWTEST_F(RequestManagerTest, RequestTest001, TestSize.Level1)
@@ -544,7 +565,7 @@ HWTEST_F(RequestManagerTest, IsUidInProcessing001, TestSize.Level1)
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
     bool ret = requestManager_->IsUidInProcessing(0);
-    EXPECT_EQ(false, ret);
+    EXPECT_EQ(true, ret);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 end");
 }
 

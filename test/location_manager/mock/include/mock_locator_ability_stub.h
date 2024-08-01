@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,21 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef COUNTRY_CODE_CALLBACK_HOST_H
-#define COUNTRY_CODE_CALLBACK_HOST_H
+#ifndef MOCK_LOCATOR_ABILITY_STUB_H
+#define MOCK_LOCATOR_ABILITY_STUB_H
 
-#include "i_country_code_callback.h"
+#include "gmock/gmock.h"
+
+#include "message_option.h"
+#include "message_parcel.h"
+#include "iremote_object.h"
 #include "iremote_stub.h"
-#include "country_code.h"
+
+#include "locator_skeleton.h"
 
 namespace OHOS {
 namespace Location {
-class CountryCodeCallbackHost : public IRemoteStub<ICountryCodeCallback> {
+class MockLocatorAbilityStub : public LocatorAbilityStub {
 public:
-    virtual int OnRemoteRequest(uint32_t code,
-        MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    void OnCountryCodeChange(const std::shared_ptr<CountryCode>& country) override;
+    MockLocatorAbilityStub() {}
+    ~MockLocatorAbilityStub() {}
+    MOCK_METHOD(void, RemoveUnloadTask, (uint32_t code));
+    MOCK_METHOD(void, PostUnloadTask, (uint32_t code));
+    MOCK_METHOD(bool, CancelIdleState, ());
 };
 } // namespace Location
 } // namespace OHOS
-#endif // COUNTRY_CODE_CALLBACK_HOST_H
+#endif // MOCK_LOCATOR_ABILITY_STUB_H

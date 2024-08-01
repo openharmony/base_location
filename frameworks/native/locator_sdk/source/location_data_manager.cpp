@@ -38,7 +38,6 @@ LocationDataManager* LocationDataManager::GetInstance()
 
 LocationDataManager::LocationDataManager()
 {
-    switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
@@ -59,15 +58,10 @@ LocationDataManager::~LocationDataManager()
 
 LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 {
-    if (switchCallbacks_ == nullptr) {
-        LBSLOGE(LOCATOR, "switchCallbacks_ is nullptr");
-        return ERRCODE_INVALID_PARAM;
-    }
     int state = isEnabled ? ENABLED : DISABLED;
-
     std::unique_lock<std::mutex> lock(mutex_);
-    for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
-        sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
+    for (auto switchCallback : switchCallbacks_) {
+        sptr<IRemoteObject> remoteObject = switchCallback->AsObject();
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
         callback->OnSwitchChange(state);
     }
@@ -76,7 +70,7 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 
 LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (callback == nullptr || switchCallbacks_ == nullptr) {
+    if (callback == nullptr) {
         LBSLOGE(LOCATOR, "register an invalid switch callback");
         return ERRCODE_INVALID_PARAM;
     }
@@ -86,16 +80,21 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         return ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(mutex_);
-    switchCallbacks_->erase(uid);
-    switchCallbacks_->insert(std::make_pair(uid, switchCallback));
+    for (auto item : switchCallbacks_) {
+        if (item && item->AsObject() == callback) {
+            LBSLOGE(LOCATOR, "callback has registered");
+            return ERRCODE_SUCCESS;
+        }
+    }
+    switchCallbacks_.push_back(switchCallback);
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
-        uid, std::to_string(switchCallbacks_->size()).c_str());
+        uid, std::to_string(switchCallbacks_.size()).c_str());
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 {
-    if (callback == nullptr || switchCallbacks_ == nullptr) {
+    if (callback == nullptr) {
         LBSLOGE(LOCATOR, "unregister an invalid switch callback");
         return ERRCODE_INVALID_PARAM;
     }
@@ -105,18 +104,28 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
         return ERRCODE_INVALID_PARAM;
     }
 
-    pid_t uid = -1;
     std::unique_lock<std::mutex> lock(mutex_);
-    for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
-        sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
+    if (switchCallbacks_.size() <= 0) {
+        LBSLOGE(COUNTRY_CODE, "switchCallbacks_ size <= 0");
+        return ERRCODE_SUCCESS;
+    }
+    size_t i = 0;
+    for (; i < switchCallbacks_.size(); i++) {
+        if (switchCallbacks_[i] == nullptr) {
+            continue;
+        }
+        sptr<IRemoteObject> remoteObject = switchCallbacks_[i]->AsObject();
         if (remoteObject == callback) {
-            uid = iter->first;
             break;
         }
     }
-    switchCallbacks_->erase(uid);
-    LBSLOGD(LOCATOR, "after uid:%{public}d unregister, switch callback size:%{public}s",
-        uid, std::to_string(switchCallbacks_->size()).c_str());
+    if (i >= switchCallbacks_.size()) {
+        LBSLOGD(GNSS, "switch callback is not in vector");
+        return ERRCODE_SUCCESS;
+    }
+    switchCallbacks_.erase(switchCallbacks_.begin() + i);
+    LBSLOGD(LOCATOR, "after unregister, switch callback size:%{public}s",
+        std::to_string(switchCallbacks_.size()).c_str());
     return ERRCODE_SUCCESS;
 }
 
@@ -130,7 +139,7 @@ void LocationDataManager::SetCachedSwitchState(int state)
 bool LocationDataManager::IsSwitchStateReg()
 {
     std::unique_lock<std::mutex> lock(mutex_);
-    return (switchCallbacks_->size() > 0);
+    return (switchCallbacks_.size() > 0);
 }
 
 void LocationDataManager::ResetIsObserverReg()

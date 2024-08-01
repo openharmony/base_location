@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (c) 2024 Huawei Device Co., Ltd.
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -11,7 +12,5 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<?xml version="1.0" encoding="UTF-8">
 
 <packageInfo package="com.ohos.locationdialog" label="LocationDialog" feature="提供位置服务弹窗功能" author="华为终端有限公司"></packageInfo>

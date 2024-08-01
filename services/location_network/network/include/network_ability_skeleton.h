@@ -29,13 +29,11 @@ namespace Location {
 class INetworkAbility : public ISubAbility {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"location.INetworkAbility");
-    virtual LocationErrCode SelfRequest(bool state) = 0;
 };
 
 class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
 public:
-    using NetworkMsgHandle = int (NetworkAbilityStub::*)(
-        MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    using NetworkMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
     using NetworkMsgHandleMap = std::map<int, NetworkMsgHandle>;
     NetworkAbilityStub();
     virtual ~NetworkAbilityStub() = default;
@@ -43,11 +41,11 @@ public:
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     virtual void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
+    virtual bool CancelIdleState() = 0;
     virtual void UnloadNetworkSystemAbility() = 0;
 private:
     int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SelfRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);

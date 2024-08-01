@@ -58,13 +58,13 @@ public:
     }
     LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
     LocationErrCode SetEnable(bool state) override;
-    LocationErrCode SelfRequest(bool state) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
     void RequestRecord(WorkRecord &workRecord, bool isAdded) override;
     LocationErrCode EnableMock() override;
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
     void SendReportMockLocationEvent() override;
+    bool CancelIdleState() override;
     void UnloadNetworkSystemAbility() override;
     void ProcessReportLocationMock();
     bool ConnectNlpService();

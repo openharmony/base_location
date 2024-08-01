@@ -15,6 +15,7 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 local_base_sources = [
+  "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_request.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/country_code_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",

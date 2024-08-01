@@ -35,13 +35,13 @@
 #include "report_manager.h"
 
 #ifdef FEATURE_GNSS_SUPPORT
-#include "cached_locations_callback_host.h"
+#include "cached_locations_callback_napi.h"
 #endif
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
-#include "gnss_status_callback_host.h"
+#include "gnss_status_callback_napi.h"
 #endif
 #include "i_locator.h"
 #include "location.h"
@@ -53,7 +53,7 @@
 #include "locator_callback_proxy.h"
 #include "locator_skeleton.h"
 #ifdef FEATURE_GNSS_SUPPORT
-#include "nmea_message_callback_host.h"
+#include "nmea_message_callback_napi.h"
 #endif
 #include "permission_manager.h"
 #include "geofence_request.h"

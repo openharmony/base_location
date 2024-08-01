@@ -31,6 +31,7 @@
 #include "locator_proxy.h"
 #include "request.h"
 #include "request_manager.h"
+#include "mock_locator_ability_stub.h"
 
 namespace OHOS {
 namespace Location {
@@ -39,9 +40,11 @@ public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
+    void MockNativeMockPermission();
     void LoadSystemAbility();
 
     uint64_t tokenId_;
+    uint64_t tokenId2_;
 };
 } // namespace Location
 } // namespace OHOS
