@@ -178,42 +178,6 @@ HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 end");
 }
 
-/*
- * @tc.name: SelfRequest001
- * @tc.desc: test self request function
- * @tc.type: FUNC
- */
-HWTEST_F(NetworkAbilityTest, SelfRequest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, SelfRequest001, TestSize.Level1";
-    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest001 begin");
-    /*
-     * @tc.steps: step1. send location request
-     * @tc.expected: step1. no exception happens.
-     */
-    EXPECT_EQ(ERRCODE_SWITCH_OFF, proxy_->SelfRequest(true));
-    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest001 end");
-}
-
-/*
- * @tc.name: SelfRequest002
- * @tc.desc: test self request function
- * @tc.type: FUNC
- */
-HWTEST_F(NetworkAbilityTest, SelfRequest002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, SelfRequest002, TestSize.Level1";
-    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest002 begin");
-    /*
-     * @tc.steps: step1. send location request
-     * @tc.expected: step1. no exception happens.
-     */
-    EXPECT_EQ(ERRCODE_SWITCH_OFF, proxy_->SelfRequest(false));
-    LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SelfRequest002 end");
-}
-
 HWTEST_F(NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

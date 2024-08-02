@@ -45,10 +45,6 @@ void NetworkAbilityStub::InitNetworkMsgHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return SetMockLocationsInner(data, reply, identity);
         };
-    NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SelfRequestInner(data, reply, identity);
-        };
     NetworkMsgHandleMap_[static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE)] =
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return SetEnableInner(data, reply, identity);
@@ -84,19 +80,6 @@ int NetworkAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel
         return ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
-    isMessageRequest_ = true;
-    return ERRCODE_SUCCESS;
-}
-
-int NetworkAbilityStub::SelfRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
-{
-    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return ERRCODE_PERMISSION_DENIED;
-    }
-    if (CheckLocationSwitchState(reply)) {
-        return ERRCODE_SWITCH_OFF;
-    }
-    SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST), data, reply);
     isMessageRequest_ = true;
     return ERRCODE_SUCCESS;
 }

@@ -403,6 +403,9 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
  */
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
+    if (!request->GetIsRequesting()) {
+        return false;
+    }
     // for frozen app, do not add to workRecord
     if (LocatorAbility::GetInstance()->IsProxyPid(request->GetPid())) {
         return false;
@@ -441,13 +444,9 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (request == nullptr) {
         return false;
     }
-    if (!request->GetIsRequesting()) {
-        return false;
-    }
     if (!IsRequestAvailable(request)) {
         return false;
     }
-
     auto locationErrorCallback = request->GetLocationErrorCallBack();
     int switchState = DISABLED;
     auto locatorAbility = LocatorAbility::GetInstance();
@@ -493,6 +492,13 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (requestConfig == nullptr) {
         return false;
     }
+
+    if (!PermissionManager::CheckSystemPermission(tokenId, request->GetTokenIdEx()) &&
+        !CommonUtils::CheckAppForUser(uid)) {
+        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
+        return false;
+    }
+
     if (HookUtils::ExecuteHookWhenAddWorkRecord(isDeviceStillState_.load(), isDeviceIdleMode_.load(),
         abilityName, bundleName)) {
         LBSLOGI(REQUEST_MANAGER, "Enter idle and still status, not add request");
@@ -517,6 +523,8 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
         return;
     }
+    LBSLOGI(LOCATOR, "%{public}s: %{public}s workRecord uid_ size %{public}d",
+        __func__, abilityName.c_str(), workRecord.Size());
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
 #ifdef FEATURE_GNSS_SUPPORT
@@ -533,10 +541,6 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         std::unique_ptr<PassiveAbilityProxy> passiveProxy = std::make_unique<PassiveAbilityProxy>(remoteObject);
         passiveProxy->SendLocationRequest(workRecord);
 #endif
-    }
-    auto fusionController = FusionController::GetInstance();
-    if (fusionController != nullptr) {
-        fusionController->Process(abilityName);
     }
 }
 

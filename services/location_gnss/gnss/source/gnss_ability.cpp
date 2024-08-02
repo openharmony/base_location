@@ -52,6 +52,7 @@
 
 #ifdef TIME_SERVICE_ENABLE
 #include "time_service_client.h"
+#include "ntp_time_check.h"
 #endif
 
 namespace OHOS {
@@ -70,10 +71,8 @@ constexpr const char *GEOFENCE_SERVICE_NAME = "geofence_interface_service";
 constexpr const char *UNLOAD_GNSS_TASK = "gnss_sa_unload";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 constexpr int32_t FENCE_MAX_ID = 1000000;
-#ifdef TIME_SERVICE_ENABLE
-constexpr int DEFAULT_UNCERTAINTY = 30;
-#endif
 constexpr int NLP_FIX_VALID_TIME = 2;
+const int64_t INVALID_TIME = 0;
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -104,11 +103,17 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     if (agnssNiManager != nullptr) {
         agnssNiManager->SubscribeSaStatusChangeListerner();
     }
+    MonitorNetwork();
     LBSLOGI(GNSS, "ability constructed.");
 }
 
 GnssAbility::~GnssAbility()
 {
+#ifdef NET_MANAGER_ENABLE
+    if (netWorkObserver_ != nullptr) {
+        NetManagerStandard::NetConnClient::GetInstance().UnregisterNetConnCallback(netWorkObserver_);
+    }
+#endif
 }
 
 bool GnssAbility::CheckIfHdiConnected()
@@ -515,27 +520,69 @@ LocationErrCode GnssAbility::SetPositionMode()
     return ERRCODE_SUCCESS;
 }
 
+void GnssAbility::MonitorNetwork()
+{
+#ifdef NET_MANAGER_ENABLE
+    NetManagerStandard::NetSpecifier netSpecifier;
+    NetManagerStandard::NetAllCapabilities netAllCapabilities;
+    netAllCapabilities.netCaps_.insert(NetManagerStandard::NetCap::NET_CAPABILITY_INTERNET);
+    netSpecifier.netCapabilities_ = netAllCapabilities;
+    sptr<NetManagerStandard::NetSpecifier> specifier(
+        new (std::nothrow) NetManagerStandard::NetSpecifier(netSpecifier));
+    if (specifier == nullptr) {
+        LBSLOGE(GNSS, "new operator error.specifier is nullptr");
+        return;
+    }
+    netWorkObserver_ = sptr<NetConnObserver>((new (std::nothrow) NetConnObserver()));
+    if (netWorkObserver_ == nullptr) {
+        LBSLOGE(GNSS, "new operator error.netWorkObserver_ is nullptr");
+        return;
+    }
+    int ret = NetManagerStandard::NetConnClient::GetInstance().RegisterNetConnCallback(specifier, netWorkObserver_, 0);
+    LBSLOGI(GNSS, "RegisterNetConnCallback retcode= %{public}d", ret);
+#endif
+    return;
+}
+
 LocationErrCode GnssAbility::InjectTime()
 {
 #ifdef TIME_SERVICE_ENABLE
-    sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
-    if (gnssInterface == nullptr) {
-        LBSLOGE(GNSS, "gnssInterface is nullptr");
+    LBSLOGD(GNSS, "InjectTime");
+    int64_t currentTime = ntpTime_.GetCurrentTime();
+    if (currentTime == INVALID_TIME) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-
-    GnssRefInfo refInfo;
-    refInfo.type = GnssRefInfoType::GNSS_REF_INFO_TIME;
-    auto wallTime = MiscServices::TimeServiceClient::GetInstance()->GetWallTimeMs();
     auto elapsedTime = MiscServices::TimeServiceClient::GetInstance()->GetBootTimeMs();
-    if (wallTime < 0 || elapsedTime < 0) {
-        LBSLOGE(GNSS, "get time failed");
+    if (elapsedTime < 0) {
+        LBSLOGE(GNSS, "get boot time failed");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    refInfo.time.time = wallTime;
-    refInfo.time.elapsedRealtime = elapsedTime;
-    refInfo.time.uncertaintyOfTime = DEFAULT_UNCERTAINTY;
-    gnssInterface->SetGnssReferenceInfo(refInfo);
+    auto ntpTimeCheck = NtpTimeCheck::GetInstance();
+    if (ntpTimeCheck != nullptr && ntpTimeCheck->CheckNtpTime(currentTime, elapsedTime)) {
+        GnssRefInfo refInfo;
+        refInfo.type = GnssRefInfoType::GNSS_REF_INFO_TIME;
+        refInfo.time.time = currentTime;
+        refInfo.time.elapsedRealtime = elapsedTime;
+        refInfo.time.uncertaintyOfTime = ntpTimeCheck->GetUncertainty();
+        auto gnssInterface = IGnssInterface::Get();
+        if (gnssInterface != nullptr) {
+            LBSLOGI(GNSS, "inject ntp time: %{public}s unert %{public}d",
+                std::to_string(currentTime).c_str(), ntpTimeCheck->GetUncertainty());
+            gnssInterface->SetGnssReferenceInfo(refInfo);
+        }
+    }
+#endif
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode GnssAbility::UpdateNtpTime(int64_t ntpTime, int64_t elapsedTime)
+{
+#ifdef TIME_SERVICE_ENABLE
+    if (ntpTime <= 0 || elapsedTime <= 0) {
+        LBSLOGE(GNSS, "failed to UpdateNtpTime");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ntpTime_.SetCurrentTime(ntpTime, elapsedTime);
 #endif
     return ERRCODE_SUCCESS;
 }
@@ -569,7 +616,9 @@ LocationErrCode GnssAbility::InjectLocation()
     GnssRefInfo refInfo;
     refInfo.type = GnssRefInfoType::GNSS_REF_INFO_LOCATION;
     refInfo.gnssLocation.fieldValidity =
-        GnssLocationValidity::GNSS_LOCATION_LAT_VALID | GnssLocationValidity::GNSS_LOCATION_LONG_VALID;
+        GnssLocationValidity::GNSS_LOCATION_LAT_VALID |
+        GnssLocationValidity::GNSS_LOCATION_LONG_VALID |
+        GnssLocationValidity::GNSS_LOCATION_HORIZONTAL_ACCURACY_VALID;
     refInfo.gnssLocation.latitude = nlpLocation_.GetLatitude();
     refInfo.gnssLocation.longitude = nlpLocation_.GetLongitude();
     refInfo.gnssLocation.altitude = nlpLocation_.GetAltitude();
@@ -1430,6 +1479,9 @@ int32_t GnssAbility::ReportMockedLocation(const std::shared_ptr<Location> locati
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         return ERR_OK;
     }
+    location->SetTimeSinceBoot(CommonUtils::GetSinceBootTime());
+    location->SetTimeStamp(CommonUtils::GetCurrentTimeStamp() * MICRO_PER_MILLI);
+    location->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
     ReportLocationInfo(GNSS_ABILITY, location);
 #ifdef FEATURE_PASSIVE_SUPPORT
     ReportLocationInfo(PASSIVE_ABILITY, location);

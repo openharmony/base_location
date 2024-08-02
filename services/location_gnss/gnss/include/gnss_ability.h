@@ -45,6 +45,15 @@
 #include "geofence_event_callback.h"
 #include "ipc_skeleton.h"
 
+#ifdef TIME_SERVICE_ENABLE
+#include "time_manager.h"
+#endif
+#ifdef NET_MANAGER_ENABLE
+#include "net_conn_observer.h"
+#include "net_conn_client.h"
+#include "net_specifier.h"
+#endif
+
 namespace OHOS {
 namespace Location {
 #ifdef __aarch64__
@@ -211,6 +220,8 @@ public:
     LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location) override;
     LocationErrCode InjectLocation();
     LocationErrCode InjectTime();
+    LocationErrCode UpdateNtpTime(int64_t ntpTime, int64_t elapsedTime);
+    void MonitorNetwork();
 
 private:
     bool Init();
@@ -251,6 +262,12 @@ private:
     std::vector<sptr<INmeaMessageCallback>> nmeaCallback_;
     sptr<IGnssCallback> gnssCallback_;
     Location nlpLocation_;
+#ifdef TIME_SERVICE_ENABLE
+    TimeManager ntpTime_;
+#endif
+#ifdef NET_MANAGER_ENABLE
+    sptr<NetConnObserver> netWorkObserver_ = nullptr;
+#endif
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     sptr<IAGnssCallback> agnssCallback_;
 #endif

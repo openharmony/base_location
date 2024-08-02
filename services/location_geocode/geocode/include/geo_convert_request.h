@@ -81,7 +81,7 @@ private:
     double minLatitude_;
     double minLongitude_;
     std::string bundleName_;
-    sptr<IRemoteObject> callback_ = nullptr;
+    sptr<IRemoteObject> callback_;
     std::string transId_;
     std::string country_;
     GeoCodeType requestType_;

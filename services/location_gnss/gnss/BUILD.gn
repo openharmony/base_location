@@ -23,6 +23,12 @@ if (location_feature_with_gnss) {
     "$LOCATION_GNSS_ROOT/source/gnss_ability_skeleton.cpp",
     "$LOCATION_GNSS_ROOT/source/gnss_common_event_subscriber.cpp",
     "$LOCATION_GNSS_ROOT/source/gnss_event_callback.cpp",
+    "$LOCATION_GNSS_ROOT/source/ntp/elapsed_real_time_check.cpp",
+    "$LOCATION_GNSS_ROOT/source/ntp/gps_time_manager.cpp",
+    "$LOCATION_GNSS_ROOT/source/ntp/net_conn_observer.cpp",
+    "$LOCATION_GNSS_ROOT/source/ntp/ntp_time_check.cpp",
+    "$LOCATION_GNSS_ROOT/source/ntp/ntp_time_helper.cpp",
+    "$LOCATION_GNSS_ROOT/source/ntp/time_manager.cpp",
     "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
     "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
     "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
@@ -36,6 +42,7 @@ if (location_feature_with_gnss) {
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_GNSS_ROOT/include",
+      "$LOCATION_GNSS_ROOT/include/ntp",
       "$LOCATION_LOCATOR_ROOT/include",
     ]
 
@@ -143,6 +150,11 @@ if (location_feature_with_gnss) {
       defines += [ "TIME_SERVICE_ENABLE" ]
     }
 
+    if (net_manager_enable) {
+      external_deps += [ "netmanager_base:net_conn_manager_if" ]
+      defines += [ "NET_MANAGER_ENABLE" ]
+    }
+
     # Used to control the export of dynamic library symbols.
     version_script = "liblbsservice_gnss_version_script.txt"
 
@@ -156,6 +168,7 @@ if (location_feature_with_gnss) {
     include_dirs = [
       "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
       "$LOCATION_GNSS_ROOT/include",
+      "$LOCATION_GNSS_ROOT/include/ntp",
       "$LOCATION_LOCATOR_ROOT/include",
     ]
 
@@ -249,6 +262,11 @@ if (location_feature_with_gnss) {
     if (time_service_enable) {
       external_deps += [ "time_service:time_client" ]
       defines += [ "TIME_SERVICE_ENABLE" ]
+    }
+
+    if (net_manager_enable) {
+      external_deps += [ "netmanager_base:net_conn_manager_if" ]
+      defines += [ "NET_MANAGER_ENABLE" ]
     }
 
     part_name = "location"

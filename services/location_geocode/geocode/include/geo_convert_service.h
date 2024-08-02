@@ -86,6 +86,7 @@ public:
 
     bool ConnectService();
     void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
+    void DisconnectAbilityConnect();
     void NotifyDisConnected();
     bool ResetServiceProxy();
     bool SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel, MessageOption& option);

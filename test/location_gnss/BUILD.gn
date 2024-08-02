@@ -26,6 +26,7 @@ if (location_feature_with_gnss) {
       "$GNSS_UNIT_TEST_DIR/source/gnss_ability_test.cpp",
       "$GNSS_UNIT_TEST_DIR/source/gnss_event_callback_test.cpp",
       "$GNSS_UNIT_TEST_DIR/source/gnss_interface_test.cpp",
+      "$GNSS_UNIT_TEST_DIR/source/ntp_time_test.cpp",
       "$LOCATION_ROOT_DIR/test/mock/src/mock_service_registry.cpp",
     ]
 
