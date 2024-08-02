@@ -280,6 +280,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         if (GetRequestNum() == 0 && conn_ != nullptr) {
             LBSLOGI(NETWORK, "RequestRecord disconnect");
             AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+            conn_ = nullptr;
         }
     }
 }
