@@ -113,7 +113,7 @@ void LocatorImpl::EnableAbility(bool enable)
         return;
     }
     LocationErrCode errCode = proxy->EnableAbilityV9(enable);
-    if (errorCode != ERRCODE_SUCCESS) {
+    if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s EnableAbilityV9 failed. %{public}d", __func__, errCode);
     }
 }
@@ -585,9 +585,6 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     }
     int32_t state = DEFAULT_STATE;
     state = proxy->GetSwitchState();
-    if (state == DEFAULT_STATE) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     isEnabled = (state == ENABLED);
     return ERRCODE_SUCCESS;
 }

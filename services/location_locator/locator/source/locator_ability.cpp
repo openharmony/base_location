@@ -90,6 +90,7 @@ const uint32_t EVENT_IS_STAND_BY = 0x0021;
 const uint32_t EVENT_SET_LOCATION_WORKING_STATE = 0x0022;
 const uint32_t EVENT_SEND_GEOREQUEST = 0x0023;
 const uint32_t EVENT_SET_SWITCH_STATE_TO_DB = 0x0024;
+const uint32_t EVENT_WATCH_SWITCH_PARAMETER = 0x0025;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -153,6 +154,7 @@ void LocatorAbility::OnStart()
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_SET_LOCATION_WORKING_STATE, 0, 0);
         locatorHandler_->SendHighPriorityEvent(EVENT_SYNC_LOCATION_STATUS, 0, 0);
+        locatorHandler_->SendHighPriorityEvent(EVENT_WATCH_SWITCH_PARAMETER, 0, 0);
     }
     LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
 }
@@ -1799,6 +1801,8 @@ void LocatorHandler::ConstructDbHandleMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
     locatorHandlerEventMap_[EVENT_SET_SWITCH_STATE_TO_DB] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SetSwitchStateToDbEvent(event); };
+    locatorHandlerEventMap_[EVENT_WATCH_SWITCH_PARAMETER] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { WatchSwitchParameter(event); };
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2021,7 +2025,10 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
 void LocatorHandler::SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event)
 {
     LocationDataRdbManager::SyncSwitchStatus();
-    
+}
+
+void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event)
+{
     auto eventCallback = [](const char *key, const char *value, void *context) {
         LocationDataRdbManager::SyncSwitchStatus();
     };

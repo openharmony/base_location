@@ -80,6 +80,7 @@ private:
     void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
 
