@@ -191,7 +191,7 @@ HWTEST_F(LocatorSkeletonTest, PreStartLocating, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    LocationDataRdbManager::SetSwitchState(ENABLED);
+    LocationDataRdbManager::SetSwitchStateToDb(ENABLED);
     locatorAbilityStub->PreStartLocating(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreStartLocating end");
 }
@@ -236,7 +236,7 @@ HWTEST_F(LocatorSkeletonTest, PreGetCacheLocation, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    LocationDataRdbManager::SetSwitchState(ENABLED);
+    LocationDataRdbManager::SetSwitchStateToDb(ENABLED);
     auto result = locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
     EXPECT_EQ(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreGetCacheLocation end");
@@ -989,7 +989,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterLocationError, TestSize.Level1)
     identity.SetTokenId(tokenId);
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
-    LocationDataRdbManager::SetSwitchState(ENABLED);
+    LocationDataRdbManager::SetSwitchStateToDb(ENABLED);
     locatorAbilityStub->PreRegisterLocationError(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRegisterLocationError end");
 }

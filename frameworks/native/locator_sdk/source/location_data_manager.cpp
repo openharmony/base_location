@@ -20,14 +20,10 @@
 #include "switch_callback_proxy.h"
 #include "constant_definition.h"
 #include "location_data_rdb_helper.h"
+#include "location_data_rdb_manager.h"
 #include "location_log.h"
 #include "common_hisysevent.h"
-#include "if_system_ability_manager.h"
-#include "system_ability_definition.h"
-#include "iservice_registry.h"
-#include "location_data_rdb_observer.h"
-#include "location_data_rdb_manager.h"
-
+#include "parameter.h"
 namespace OHOS {
 namespace Location {
 LocationDataManager* LocationDataManager::GetInstance()
@@ -38,18 +34,6 @@ LocationDataManager* LocationDataManager::GetInstance()
 
 LocationDataManager::LocationDataManager()
 {
-    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
-        return;
-    }
-    if (saStatusListener_ == nullptr) {
-        saStatusListener_ = sptr<DataShareSystemAbilityListener>(new DataShareSystemAbilityListener());
-    }
-    int32_t result = sam->SubscribeSystemAbility(DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID, saStatusListener_);
-    if (result != ERR_OK) {
-        LBSLOGE(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
-    }
 }
 
 LocationDataManager::~LocationDataManager()
@@ -89,6 +73,9 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
     switchCallbacks_.push_back(switchCallback);
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_.size()).c_str());
+    if (switchCallbacks_.size() == 1) {
+        RegisterLocationSwitchObserver();
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -129,13 +116,6 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
     return ERRCODE_SUCCESS;
 }
 
-void LocationDataManager::SetCachedSwitchState(int state)
-{
-    std::unique_lock<std::mutex> lock(switchStateMutex_);
-    isStateCached_ = true;
-    cachedSwitchState_ = state;
-}
-
 bool LocationDataManager::IsSwitchStateReg()
 {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -147,38 +127,31 @@ void LocationDataManager::ResetIsObserverReg()
     isObserverReg_ = false;
 }
 
-void LocationDataManager::RegisterDatashareObserver()
+void LocationDataManager::RegisterLocationSwitchObserver()
 {
-    auto locationDataRdbHelper = LocationDataRdbHelper::GetInstance();
-    auto dataRdbObserver = sptr<LocationDataRdbObserver>(new (std::nothrow) LocationDataRdbObserver());
-    if (locationDataRdbHelper == nullptr || dataRdbObserver == nullptr) {
-        return;
-    }
-    if (!isObserverReg_) {
-        Uri locationDataEnableUri(LOCATION_DATA_URI);
-        locationDataRdbHelper->RegisterDataObserver(locationDataEnableUri, dataRdbObserver);
-        isObserverReg_ = true;
-    }
-}
+    auto eventCallback = [](const char *key, const char *value, void *context) {
+        int32_t state = DEFAULT_STATE;
+        state = LocationDataRdbManager::QuerySwitchState();
+        auto manager = LocationDataManager::GetInstance();
+        if (manager == nullptr) {
+            LBSLOGE(LOCATOR, "SubscribeLocaleConfigEvent LocationDataRdbManager is nullptr");
+            return;
+        }
+        if (state == DEFAULT_STATE) {
+            LBSLOGE(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed. state %{public}d. do not report", state);
+            return;
+        }
+        bool switch_state = (state == ENABLED);
+        LBSLOGI(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed. switch_state %{public}d", switch_state);
+        manager->ReportSwitchState(switch_state);
+    };
 
-void DataShareSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
-{
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
-    auto locationDataManager = LocationDataManager::GetInstance();
-    if (locationDataManager == nullptr) {
+    int ret = WatchParameter(LOCATION_SWITCH_MODE, eventCallback, nullptr);
+    if (ret != SUCCESS) {
+        LBSLOGE(LOCATOR, "WatchParameter fail");
         return;
     }
-    locationDataManager->RegisterDatashareObserver();
-}
-
-void DataShareSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
-{
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s enter", __func__);
-    auto locationDataManager = LocationDataManager::GetInstance();
-    if (locationDataManager == nullptr) {
-        return;
-    }
-    locationDataManager->ResetIsObserverReg();
+    return;
 }
 }  // namespace Location
 }  // namespace OHOS

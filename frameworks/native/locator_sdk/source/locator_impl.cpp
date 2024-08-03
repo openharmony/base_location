@@ -69,17 +69,17 @@ LocatorImpl::~LocatorImpl()
 
 bool LocatorImpl::IsLocationEnabled()
 {
-    int32_t state = DISABLED;
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        return (res == ENABLED);
+    LBSLOGD(LOCATION_NAPI, "IsLocationEnabled");
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto locationDataRdbHelper =
-        LocationDataRdbHelper::GetInstance();
-    if (locationDataRdbHelper == nullptr) {
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    state = LocationDataRdbManager::QuerySwitchState();
+    int32_t state = DEFAULT_STATE;
+    state = proxy->GetSwitchState();
     return (state == ENABLED);
 }
 
@@ -113,11 +113,8 @@ void LocatorImpl::EnableAbility(bool enable)
         return;
     }
     LocationErrCode errCode = proxy->EnableAbilityV9(enable);
-    // cache the value
-    if (errCode == ERRCODE_SUCCESS) {
-        if (locationDataManager_ != nullptr) {
-            locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
-        }
+    if (errorCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s EnableAbilityV9 failed. %{public}d", __func__, errCode);
     }
 }
 
@@ -578,18 +575,19 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
-    int32_t state = DISABLED;
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        isEnabled = (res == ENABLED);
-        return ERRCODE_SUCCESS;
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto locationDataRdbHelper =
-        LocationDataRdbHelper::GetInstance();
-    if (locationDataRdbHelper == nullptr) {
-        return ERRCODE_NOT_SUPPORTED;
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    state = LocationDataRdbManager::QuerySwitchState();
+    int32_t state = DEFAULT_STATE;
+    state = proxy->GetSwitchState();
+    if (state == DEFAULT_STATE) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     isEnabled = (state == ENABLED);
     return ERRCODE_SUCCESS;
 }
@@ -629,12 +627,6 @@ LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->EnableAbilityV9(enable);
-    // cache the value
-    if (errCode == ERRCODE_SUCCESS) {
-        if (locationDataManager_ != nullptr) {
-            locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
-        }
-    }
     return errCode;
 }
 
