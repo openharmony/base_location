@@ -201,6 +201,7 @@ public:
 #ifdef FEATURE_GEOCODE_SUPPORT
     LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
+    void ReportDataToResSched(std::string state);
 
 private:
     bool Init();
@@ -216,7 +217,6 @@ private:
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
-    void ReportDataToResSched(std::string state);
     bool CheckIsReportPermitted(AppIdentity &identity);
 
     bool registerToAbility_ = false;
