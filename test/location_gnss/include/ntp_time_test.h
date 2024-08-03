@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,21 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef COUNTRY_CODE_CALLBACK_HOST_H
-#define COUNTRY_CODE_CALLBACK_HOST_H
+#ifndef NTP_TIME_TEST_H
+#define NTP_TIME_TEST_H
 
-#include "i_country_code_callback.h"
-#include "iremote_stub.h"
-#include "country_code.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace Location {
-class CountryCodeCallbackHost : public IRemoteStub<ICountryCodeCallback> {
+class NtpTimeTest : public testing::Test {
 public:
-    virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    void OnCountryCodeChange(const std::shared_ptr<CountryCode>& country) override;
+    void SetUp();
+    void TearDown();
 };
 } // namespace Location
 } // namespace OHOS
-#endif // COUNTRY_CODE_CALLBACK_HOST_H
+#endif // NTP_TIME_TEST_H

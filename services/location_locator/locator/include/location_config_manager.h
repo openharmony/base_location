@@ -61,7 +61,6 @@ public:
     void OpenPrivacyDialog();
     void ConnectExtensionAbility(const AAFwk::Want &want, const std::string &commandStr);
     std::string GenerateStartCommand();
-    int GetCachePrivacyType();
     bool SetCachePrivacyType(int value);
 
     /*

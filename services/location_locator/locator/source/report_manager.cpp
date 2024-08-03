@@ -35,8 +35,8 @@ const long NANOS_PER_MILLI = 1000000L;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
-static constexpr int GNSS_FIX_CACHED_TIME = 60;
-static constexpr int NLP_FIX_CACHED_TIME = 45;
+static constexpr int GNSS_FIX_CACHED_TIME = 25;
+static constexpr int NLP_FIX_CACHED_TIME = 25;
 
 ReportManager* ReportManager::GetInstance()
 {
