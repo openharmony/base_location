@@ -425,7 +425,7 @@ void LocatorAbility::SendSwitchState(const int state)
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return LocatorRequiredDataManager::GetInstance()->IsConnecting() && GetActiveRequestNum() > 0;
+    return LocatorRequiredDataManager::GetInstance()->IsConnecting() || GetActiveRequestNum() > 0;
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
@@ -935,8 +935,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 
 bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
 {
-    if (requestConfig->GetFixNumber() == 1 &&
-        requestConfig->GetPriority() != LOCATION_PRIORITY_ACCURACY &&
+    if (requestConfig->GetPriority() != LOCATION_PRIORITY_ACCURACY &&
         ((requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
         (requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_FAST_FIRST_FIX)) ||
@@ -971,7 +970,7 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
     if (reportManager_ == nullptr || request == nullptr) {
         return false;
     }
-    // report cache location in single location request
+    // report cache location
     if (IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
         auto cacheLocation = reportManager_->GetCacheLocation(request);
         if (cacheLocation != nullptr && callback != nullptr) {
@@ -1622,19 +1621,19 @@ bool LocatorAbility::IsProcessRunning(pid_t pid, const uint32_t tokenId)
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(LOCATOR, "Get system ability manager failed.");
-        return false;
+        return true;
     }
     sptr<AppExecFwk::IAppMgr> iAppManager =
         iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
     if (iAppManager == nullptr) {
         LBSLOGE(LOCATOR, "Failed to get ability manager service.");
-        return false;
+        return true;
     }
     std::vector<AppExecFwk::RunningProcessInfo> runningProcessList;
     int32_t res = iAppManager->GetAllRunningProcesses(runningProcessList);
     if (res != ERR_OK) {
         LBSLOGE(LOCATOR, "Failed to get all running process.");
-        return false;
+        return true;
     }
     auto it = std::find_if(runningProcessList.begin(), runningProcessList.end(), [pid] (auto runningProcessInfo) {
         return pid == runningProcessInfo.pid_;

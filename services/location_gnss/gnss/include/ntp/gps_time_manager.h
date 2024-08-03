@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,21 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef COUNTRY_CODE_CALLBACK_HOST_H
-#define COUNTRY_CODE_CALLBACK_HOST_H
+#ifndef GPS_TIME_MANAGER_H
+#define GPS_TIME_MANAGER_H
+#ifdef FEATURE_GNSS_SUPPORT
+#ifdef TIME_SERVICE_ENABLE
 
-#include "i_country_code_callback.h"
-#include "iremote_stub.h"
-#include "country_code.h"
+#include "time_manager.h"
 
 namespace OHOS {
 namespace Location {
-class CountryCodeCallbackHost : public IRemoteStub<ICountryCodeCallback> {
+class GpsTimeManager {
 public:
-    virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    void OnCountryCodeChange(const std::shared_ptr<CountryCode>& country) override;
+    GpsTimeManager();
+    ~GpsTimeManager();
+    int64_t GetGpsTime();
+    void SetGpsTime(int64_t gpsTime, int64_t bootTimeMs);
+
+private:
+    bool CheckValid(int64_t gpsTime, int64_t lastSystemTime);
+    TimeManager timeManager_;
+    bool validFlag_ {false};
+    int64_t lastSystemTime_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // COUNTRY_CODE_CALLBACK_HOST_H
+
+#endif // TIME_SERVICE_ENABLE
+#endif // FEATURE_GNSS_SUPPORT
+#endif // GPS_TIME_MANAGER_H
