@@ -31,6 +31,7 @@ local_base_sources = [
   "$LOCATION_NATIVE_DIR/locator_sdk/source/country_code_callback_host.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/country_code_manager.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/geo_convert_callback_host.cpp",
+  "$LOCATION_NATIVE_DIR/locator_sdk/source/gnss_status_callback_host.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/location_data_manager.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/location_data_rdb_observer.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/location_switch_callback_host.cpp",

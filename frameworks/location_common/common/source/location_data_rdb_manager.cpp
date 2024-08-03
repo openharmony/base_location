@@ -62,6 +62,7 @@ int LocationDataRdbManager::QuerySwitchState()
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
         return DEFAULT_STATE;
     }
+    SetSwitchMode(state);
     return state;
 }
 
@@ -102,7 +103,7 @@ int LocationDataRdbManager::GetSwitchMode()
     std::string value = "";
     std::unique_lock<std::mutex> lock(mutex_);
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
-    if (res <= 0 || strlen(result) == 0) {
+    if (res < 0 || strlen(result) == 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
         return UNKNOW_ERROR;
     }

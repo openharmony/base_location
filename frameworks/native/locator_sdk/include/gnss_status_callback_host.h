@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef COUNTRY_CODE_CALLBACK_HOST_H
-#define COUNTRY_CODE_CALLBACK_HOST_H
+#ifndef GNSS_STATUS_CALLBACK_HOST_H
+#define GNSS_STATUS_CALLBACK_HOST_H
 
-#include "i_country_code_callback.h"
 #include "iremote_stub.h"
-#include "country_code.h"
+#include "i_gnss_status_callback.h"
+#include "satellite_status.h"
 
 namespace OHOS {
 namespace Location {
-class CountryCodeCallbackHost : public IRemoteStub<ICountryCodeCallback> {
+class GnssStatusCallbackHost : public IRemoteStub<IGnssStatusCallback> {
 public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    void OnCountryCodeChange(const std::shared_ptr<CountryCode>& country) override;
+    void OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo) override;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // COUNTRY_CODE_CALLBACK_HOST_H
+#endif // GNSS_STATUS_CALLBACK_HOST_H
