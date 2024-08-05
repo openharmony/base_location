@@ -42,6 +42,13 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
+class NLPServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    NLPServiceDeathRecipient();
+    ~NLPServiceDeathRecipient() override;
+};
+
 class NetworkAbility : public SystemAbility, public NetworkAbilityStub, public SubAbility {
 DECLEAR_SYSTEM_ABILITY(NetworkAbility);
 
@@ -83,23 +90,19 @@ private:
     bool RequestNetworkLocation(WorkRecord &workRecord);
     bool RemoveNetworkLocation(WorkRecord &workRecord);
     void RegisterNLPServiceDeathRecipient();
+    void UnRegisterNLPServiceDeathRecipient();
     bool IsConnect();
 
-    ffrt::mutex mutex_;
+    ffrt::mutex nlpServiceMutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
     ffrt::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
+    sptr<IRemoteObject::DeathRecipient> nlpServiceRecipient_ = sptr<NLPServiceDeathRecipient>(new
+        (std::nothrow) NLPServiceDeathRecipient());
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     sptr<AAFwk::IAbilityConnection> conn_;
-};
-
-class NLPServiceDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-    NLPServiceDeathRecipient();
-    ~NLPServiceDeathRecipient() override;
 };
 } // namespace Location
 } // namespace OHOS
