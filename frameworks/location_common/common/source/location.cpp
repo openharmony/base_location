@@ -100,6 +100,9 @@ void Location::VectorString16ToVectorString8(const std::vector<std::u16string>& 
 {
     for (auto &addition : additions) {
         auto additionString = Str16ToStr8(addition);
+        if (additionString.size() == 0) {
+            return;
+        }
         additions_.push_back(additionString);
         auto pos = additionString.find(":");
         auto key = additionString.substr(0, pos);
