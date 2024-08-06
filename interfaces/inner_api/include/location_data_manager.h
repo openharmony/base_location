@@ -33,7 +33,6 @@ public:
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     bool IsSwitchStateReg();
-    void ResetIsObserverReg();
     void RegisterLocationSwitchObserver();
     static LocationDataManager* GetInstance();
 
@@ -41,7 +40,6 @@ private:
     std::mutex mutex_;
     std::mutex switchStateMutex_;
     std::vector<sptr<ISwitchCallback>> switchCallbacks_;
-    bool isObserverReg_ = false;
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -122,11 +122,6 @@ bool LocationDataManager::IsSwitchStateReg()
     return (switchCallbacks_.size() > 0);
 }
 
-void LocationDataManager::ResetIsObserverReg()
-{
-    isObserverReg_ = false;
-}
-
 void LocationDataManager::RegisterLocationSwitchObserver()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
