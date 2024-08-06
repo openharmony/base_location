@@ -1345,8 +1345,8 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
 
     // first token id is invalid
-    if (identity.GetUid() == identity.GetFirstTokenId() && identity.GetUid() == static_cast<pid_t>(getuid())
-        && identity.GetPid() == getpid()) {
+    if (identity.GetUid() == static_cast<pid_t>(identity.GetFirstTokenId()) &&
+        identity.GetUid() == static_cast<pid_t>(getuid()) && identity.GetPid() == getpid()) {
         identity.SetFirstTokenId(0);
     }
 
