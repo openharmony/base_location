@@ -104,7 +104,6 @@ void LocatorSkeletonTest::MockNativePermission()
     };
     tokenId_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId_);
-    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] tokenId_ %{public}llu", tokenId_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
@@ -127,7 +126,6 @@ void LocatorSkeletonTest::MockNativeWithoutMockPermission()
     };
     tokenId2_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId2_);
-    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] tokenId2_ %{public}llu", tokenId2_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
@@ -150,7 +148,6 @@ void LocatorSkeletonTest::MockNativeWithoutSecurePermission()
     };
     tokenId3_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId3_);
-    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] tokenId2_ %{public}llu", tokenId3_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
@@ -171,7 +168,6 @@ void LocatorSkeletonTest::MockNativeWithoutLocationPermission()
     };
     tokenId4_ = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId4_);
-    LBSLOGI(LOCATOR, "[LocatorSkeletonWithoutPermissionTest] tokenId_ %{public}llu", tokenId4_);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
