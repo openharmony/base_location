@@ -1616,10 +1616,12 @@ HWTEST_F(LocatorServiceTest, locatorServiceGnssStatusCallback001, TestSize.Level
 
     auto gnssCallbackHost =
         sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
+    AppIdentity identity;
+    identity.SetPid(1);
     // uid pid not match locationhub process
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-        locatorAbility->RegisterGnssStatusCallback(nullptr, SYSTEM_UID)); // invalid callback
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(gnssCallbackHost, SYSTEM_UID));
+        locatorAbility->RegisterGnssStatusCallback(nullptr, identity)); // invalid callback
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(gnssCallbackHost, identity));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(nullptr)); // invalid callback
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(gnssCallbackHost));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceGnssStatusCallback001 end");
@@ -1636,9 +1638,11 @@ HWTEST_F(LocatorServiceTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto nmeaCallbackHost =
         sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
+    AppIdentity identity;
+    identity.SetPid(1);
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-        locatorAbility->RegisterNmeaMessageCallback(nullptr, SYSTEM_UID)); // invalid callback
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, SYSTEM_UID));
+        locatorAbility->RegisterNmeaMessageCallback(nullptr, identity)); // invalid callback
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(nmeaCallbackHost, identity));
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(nullptr)); // invalid callback
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(nmeaCallbackHost));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceNmeaMessageCallback001 end");

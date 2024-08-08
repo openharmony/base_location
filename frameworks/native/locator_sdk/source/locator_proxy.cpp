@@ -590,7 +590,7 @@ LocationErrCode LocatorProxy::UnregisterNmeaMessageCallbackV9(const sptr<IRemote
     data.WriteObject<IRemoteObject>(callback);
     LocationErrCode errorCode =
         SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9), data, reply);
-    LBSLOGD(LOCATOR_STANDARD, "Proxy::RegisterNmeaMessageCallbackV9 Transact ErrCodes = %{public}d", errorCode);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnRegisterNmeaMessageCallbackV9 Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
 

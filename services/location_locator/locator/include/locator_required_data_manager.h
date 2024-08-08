@@ -33,6 +33,7 @@
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
 #include "system_ability_status_change_stub.h"
+#include "app_identity.h"
 #ifdef WIFI_ENABLE
 #include "wifi_scan.h"
 #endif
@@ -203,7 +204,7 @@ class LocatorRequiredDataManager {
 public:
     LocatorRequiredDataManager();
     ~LocatorRequiredDataManager();
-    __attribute__((no_sanitize("cfi"))) LocationErrCode RegisterCallback(
+    __attribute__((no_sanitize("cfi"))) LocationErrCode RegisterCallback(AppIdentity &identity,
         std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
@@ -223,6 +224,7 @@ public:
 private:
     void WifiInfoInit();
     bool isWifiCallbackRegistered();
+    bool CheckDataPermissionforUser(AppIdentity &identity);
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
     bool isWifiCallbackRegistered_ = false;
@@ -231,7 +233,7 @@ private:
         sptr<WifiServiceStatusChange>(new WifiServiceStatusChange());
 #endif
     std::mutex mutex_;
-    std::vector<sptr<ILocatingRequiredDataCallback>> callbacks_;
+    std::map<sptr<ILocatingRequiredDataCallback>, AppIdentity> callbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<ScanListHandler> scanListHandler_;
 };

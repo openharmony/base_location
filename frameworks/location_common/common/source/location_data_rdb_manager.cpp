@@ -24,9 +24,9 @@ const int DEFAULT_USERID = 100;
 const int DEFAULT_SWITCHMODE = 2;
 const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
-std::mutex LocationDataRdbManager::mutex_;
-const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 
+const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
+std::mutex LocationDataRdbManager::locationSwitchModeMutex_;
 std::string LocationDataRdbManager::GetLocationDataUri(std::string key)
 {
     int userId = 0;
@@ -106,7 +106,7 @@ int LocationDataRdbManager::GetSwitchMode()
 {
     char result[MAX_SIZE] = {0};
     std::string value = "";
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(locationSwitchModeMutex_);
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
     if (res < 0 || strlen(result) == 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
@@ -129,7 +129,7 @@ bool LocationDataRdbManager::SetSwitchStateToSyspara(int value)
 {
     char valueArray[MAX_SIZE] = {0};
     (void)sprintf_s(valueArray, sizeof(valueArray), "%d", value);
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(locationSwitchModeMutex_);
     int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
@@ -162,9 +162,10 @@ bool LocationDataRdbManager::ClearSwitchMode()
     if (code <= 0) {
         return false;
     }
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(locationSwitchModeMutex_);
     int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {
+        LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
         return false;
     }
     return true;

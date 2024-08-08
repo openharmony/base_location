@@ -531,14 +531,16 @@ LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, M
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback,
+    AppIdentity &identity)
 {
-    LBSLOGD(LOCATOR, "uid is: %{public}d", uid);
+    LBSLOGD(LOCATOR, "uid is: %{public}d", identity.GetUid());
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    identity.Marshalling(dataToStub);
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_GNSS_STATUS), dataToStub, replyToStub);
 }
@@ -558,13 +560,15 @@ LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteO
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback,
+    AppIdentity &identity)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    identity.Marshalling(dataToStub);
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_NMEA), dataToStub, replyToStub);
 }

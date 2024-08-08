@@ -63,7 +63,9 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     dataConfig->SetNeedStartScan(true);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, nullptr);
+    AppIdentity identity;
+    identity.SetPid(1);
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, nullptr);
     EXPECT_EQ(ERRCODE_INVALID_PARAM, errorCode);
     errorCode = locatorDataManager->UnregisterCallback(nullptr);
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, errorCode);
@@ -82,9 +84,11 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
+    AppIdentity identity;
+    identity.SetPid(1);
     auto callback =
         sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 end");
 }
@@ -101,9 +105,11 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
+    AppIdentity identity;
+    identity.SetPid(1);
     auto callback =
         sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback003 end");
 }

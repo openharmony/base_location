@@ -33,6 +33,7 @@
 #include "location_log_event_ids.h"
 #include "geofence_request.h"
 #include "permission_manager.h"
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -487,7 +488,8 @@ int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, Messa
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(locatorAbility->RegisterGnssStatusCallback(client, identity.GetUid()));
+
+    reply.WriteInt32(locatorAbility->RegisterGnssStatusCallback(client, identity));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -528,7 +530,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
+    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -569,7 +571,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
+    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -1104,7 +1106,7 @@ int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &d
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     client->AddDeathRecipient(scanRecipient_);
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, client);
 
     reply.WriteInt32(errorCode);
     return ERRCODE_SUCCESS;
@@ -1325,13 +1327,14 @@ bool LocatorAbilityStub::CheckRequestAvailable(uint32_t code, AppIdentity &ident
     if (IsStopAction(code)) {
         return true;
     }
-    if (PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (PermissionManager::CheckIsSystemSA(identity.GetTokenId())) {
         return true;
     }
-    if (!CommonUtils::CheckAppForUser(identity.GetUid())) {
-        return false;
+    if (CommonUtils::CheckAppForUser(identity.GetUid(), identity.GetBundleName())) {
+        return true;
     }
-    return true;
+    LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
+    return false;
 }
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)

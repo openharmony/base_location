@@ -492,9 +492,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (requestConfig == nullptr) {
         return false;
     }
-
-    if (!PermissionManager::CheckSystemPermission(tokenId, request->GetTokenIdEx()) &&
-        !CommonUtils::CheckAppForUser(uid)) {
+    if (!PermissionManager::CheckIsSystemSA(tokenId) && !CommonUtils::CheckAppForUser(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
         return false;
     }

@@ -40,7 +40,7 @@ public:
     static bool GetLocationEnhanceStatus(int32_t& state);
     static void SyncSwitchStatus();
 private:
-    static std::mutex mutex_;
+    static std::mutex locationSwitchModeMutex_;
 };
 } // namespace Location
 } // namespace OHOS

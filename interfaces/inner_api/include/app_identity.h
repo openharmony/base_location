@@ -17,10 +17,11 @@
 #define APP_IDENTITY_H
 
 #include <string>
+#include <parcel.h>
 
 namespace OHOS {
 namespace Location {
-class AppIdentity {
+class AppIdentity : public Parcelable {
 public:
     AppIdentity();
     explicit AppIdentity(pid_t uid, pid_t pid, uint32_t tokenId, uint64_t tokenIdEx, uint32_t firstTokenId);
@@ -84,6 +85,32 @@ public:
     inline void SetBundleName(std::string bundleName)
     {
         bundleName_ = bundleName;
+    }
+    void ReadFromParcel(Parcel& parcel)
+    {
+        uid_ = parcel.ReadInt32();
+        pid_ = parcel.ReadInt32();
+        tokenId_ = parcel.ReadInt32();
+        tokenIdEx_ = parcel.ReadInt64();
+        firstTokenId_ = parcel.ReadInt32();
+        bundleName_ = parcel.ReadString();
+    }
+
+    bool Marshalling(Parcel& parcel) const
+    {
+        return parcel.WriteInt32(uid_) &&
+           parcel.WriteInt32(pid_) &&
+           parcel.WriteInt32(tokenId_) &&
+           parcel.WriteInt64(tokenIdEx_) &&
+           parcel.WriteInt32(firstTokenId_) &&
+           parcel.WriteString(bundleName_);
+    }
+
+    static std::shared_ptr<AppIdentity> Unmarshalling(Parcel& parcel)
+    {
+        auto identity = std::make_shared<AppIdentity>();
+        identity->ReadFromParcel(parcel);
+        return identity;
     }
 
     std::string ToString() const;
