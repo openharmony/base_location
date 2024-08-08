@@ -31,6 +31,26 @@
 
 namespace OHOS {
 namespace Location {
+class LocationErrRequest {
+public:
+    LocationErrRequest();
+    ~LocationErrRequest();
+    pid_t GetUid();
+    void SetUid(pid_t uid);
+    pid_t GetPid();
+    void SetPid(pid_t pid);
+    int32_t GetLastReportErrcode();
+    void SetLastReportErrcode(int32_t lastReportErrcode);
+    void SetLocatorErrCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
+    sptr<IRemoteObject::DeathRecipient> GetLocatorErrCallbackRecipient();
+private:
+    void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
+
+    pid_t uid_;
+    pid_t pid_;
+    int32_t lastReportErrcode_;
+    sptr<IRemoteObject::DeathRecipient> locatorErrCallbackRecipient_;
+};
 class RequestManager {
 public:
     RequestManager();
@@ -43,11 +63,14 @@ public:
     void HandleRequest();
     void UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart);
     void HandlePermissionChanged(uint32_t tokenId);
-    void UpdateLocationErrorCallbackToRequest(sptr<ILocatorCallback> callback, uint32_t tokenId, bool state);
+    void RegisterLocationErrorCallback(sptr<ILocatorCallback> callback, AppIdentity appIdentity);
+    void UnRegisterLocationErrorCallback(sptr<ILocatorCallback> callback);
+    void ReportLocationError(const int errorCode, std::shared_ptr<Request> request);
     void SyncStillMovementState(bool state);
     void SyncIdleState(bool state);
     static RequestManager* GetInstance();
     void IsStandby();
+    void UpdateLocationError(std::shared_ptr<Request> request);
 
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
@@ -66,11 +89,22 @@ private:
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
     void ReportDataToResSched(std::string state, const pid_t uid);
     std::map<int32_t, int32_t> runningUidMap_;
+    std::map<sptr<ILocatorCallback>, std::shared_ptr<LocatorErrRequest>> locationErrorCallbackMap_;
     static ffrt::mutex requestMutex_;
     ffrt::mutex runningUidsMutex_;
+    ffrt::mutex locationErrorCallbackMutex_;
     ffrt::mutex permissionRecordMutex_;
     std::atomic_bool isDeviceIdleMode_;
     std::atomic_bool isDeviceStillState_;
+};
+
+class LocatorErrCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    LocatorErrCallbackDeathRecipient(int32_t tokenId);
+    ~LocatorErrCallbackDeathRecipient() override;
+private:
+    int32_t tokenId_;
 };
 } // namespace Location
 } // namespace OHOS

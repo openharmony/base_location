@@ -54,15 +54,12 @@ ReportManager::~ReportManager() {}
 
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
+    int switchState = DISABLED;
+    auto locatorAbility = LocatorAbility::GetInstance();
+    auto requestManger = RequestManager::GetInstance();
     auto fusionController = FusionController::GetInstance();
-    if (fusionController == nullptr) {
-        return false;
-    }
     UpdateCacheLocation(location, abilityName);
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        return false;
-    }
     auto requestMap = locatorAbility->GetRequests();
     if (requestMap == nullptr) {
         return false;
@@ -159,6 +156,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         int permUsedType = request->GetPermUsedType();
         locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
             ACCESS_APPROXIMATELY_LOCATION, permUsedType, 1, 0);
+        ReportManager::GetInstance()->UpdateLocationError(request);
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();
@@ -202,10 +200,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
-        auto locationErrorCallback = request->GetLocationErrorCallBack();
-        if (locationErrorCallback != nullptr) {
-            locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
-        }
+        ReportManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
         return nullptr;
     }
     if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx) &&
@@ -223,10 +218,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         return finalLocation;
     }
     LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
-    auto locationErrorCallback = request->GetLocationErrorCallBack();
-    if (locationErrorCallback != nullptr) {
-        locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
-    }
+    ReportManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
     return nullptr;
 }
 
