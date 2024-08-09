@@ -345,7 +345,7 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
     } else {
         if (scanListHandler_ != nullptr) {
             scanListHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, DEFAULT_TIMEOUT_4S);
-    }
+        }
     }
 #endif
     LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
