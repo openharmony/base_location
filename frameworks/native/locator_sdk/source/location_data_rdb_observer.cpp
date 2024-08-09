@@ -50,9 +50,8 @@ void LocationDataRdbObserver::HandleSwitchStateChanged()
         return;
     }
 
-    int32_t state = DISABLED;
+    int32_t state = DEFAULT_STATE;
     state = LocationDataRdbManager::QuerySwitchState();
-    locationDataManager->SetCachedSwitchState(state);
     locationDataManager->ReportSwitchState(state);
 }
 } // namespace Location

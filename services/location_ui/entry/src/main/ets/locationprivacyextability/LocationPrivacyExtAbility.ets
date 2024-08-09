@@ -38,7 +38,7 @@ export default class LocationPrivacyExtAbility extends UIExtensionAbility {
         let storage: LocalStorage = new LocalStorage(param);
         session.loadContent('pages/LocationPrivacyDialog', storage);
         session.setWindowBackgroundColor('#00000000');
-        AppStorage.setOrCreate('ConfirmSession',session);
+        AppStorage.setOrCreate('ConfirmSession', session);
     }
 
     onSessionDestroy(session: UIExtensionContentSession) {

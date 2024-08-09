@@ -21,7 +21,7 @@ namespace Location {
 int LocationSwitchCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(SWITCH_CALLBACK, "LocationSwitchCallbackHost::OnRemoteRequest!");
+    LBSLOGD(SWITCH_CALLBACK, "LocationSwitchCallbackHost::OnRemoteRequest! code %{punlic}d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(SWITCH_CALLBACK, "invalid token.");
         return -1;
@@ -39,6 +39,7 @@ int LocationSwitchCallbackHost::OnRemoteRequest(
     }
     return 0;
 }
+
 void LocationSwitchCallbackHost::OnSwitchChange(int switchState)
 {
 }

@@ -17,8 +17,8 @@ import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSessi
 import commonEventManager from '@ohos.commonEventManager';
 
 let TAG = '[Location-Privacy]==>';
-const LOCATION_PRIVACY_ACCEPT_EVENT: string = "usual.event.LOCATION_PRIVACY_ACCEPT";
-const LOCATION_PRIVACY_REJECT_EVENT: string = "usual.event.LOCATION_PRIVACY_REJECT";
+const LOCATION_PRIVACY_ACCEPT_EVENT: string = 'usual.event.LOCATION_PRIVACY_ACCEPT';
+const LOCATION_PRIVACY_REJECT_EVENT: string = 'usual.event.LOCATION_PRIVACY_REJECT';
 
 @Entry
 @Component
