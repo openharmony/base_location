@@ -297,12 +297,15 @@ HWTEST_F(LocatorRequiredDataManagerTest, ProcessEvent001, TestSize.Level1)
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(EVENT_START_SCAN, 0);
     locatorDataManager->scanHandler_->ProcessEvent(event);
+    sleep(1);
     AppExecFwk::InnerEvent::Pointer event1 =
         AppExecFwk::InnerEvent::Get(EVENT_STOP_SCAN, 0);
     locatorDataManager->scanHandler_->ProcessEvent(event1);
+    sleep(1);
     AppExecFwk::InnerEvent::Pointer event2 =
         AppExecFwk::InnerEvent::Get(EVENT_GET_WIFI_LIST, 0);
     locatorDataManager->scanHandler_->ProcessEvent(event2);
+    sleep(1);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] ProcessEvent001 end");
 }
 

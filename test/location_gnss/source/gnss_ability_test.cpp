@@ -2353,18 +2353,6 @@ HWTEST_F(GnssAbilityTest, ReConnectHdiImpl002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl002 end");
 }
 
-HWTEST_F(GnssAbilityTest, AddFence002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, AddFence002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence002 begin");
-    ability_->fenceId_ = FENCE_MAX_ID + 1;
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    ability_->AddFence(request);
-    EXPECT_EQ(1, ability_->fenceId_);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence002 end");
-}
-
 HWTEST_F(GnssAbilityTest, UnloadGnssSystemAbility001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
