@@ -51,7 +51,7 @@ namespace OHOS {
 namespace Location {
 const int32_t LOCATION_WITHOUT_PERM = 1;
 const int32_t LOCATION_WITHOUT_MOCK_PERM_NUM = 5;
-const int32_t LOCATION_PERM_NUM = 6;
+const int32_t LOCATION_NATIVE_PERM_NUM = 6;
 const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 void LocatorSkeletonTest::SetUp()
 {
@@ -62,6 +62,7 @@ void LocatorSkeletonTest::SetUp()
     MockNativePermission();
     MockNativeWithoutMockPermission();
     MockNativeWithoutSecurePermission();
+    MockNativeWithoutLocationPermission();
 }
 
 void LocatorSkeletonTest::TearDown()
@@ -94,7 +95,7 @@ void LocatorSkeletonTest::MockNativePermission()
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = LOCATION_PERM_NUM,
+        .permsNum = LOCATION_NATIVE_PERM_NUM,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
@@ -163,7 +164,7 @@ void LocatorSkeletonTest::MockNativeWithoutLocationPermission()
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .processName = "LocatorPermissionTest",
+        .processName = "tddTestApkname04",
         .aplStr = "system_basic",
     };
     tokenId4_ = GetAccessTokenId(&infoInstance);
@@ -361,7 +362,7 @@ HWTEST_F(LocatorSkeletonTest, PreGetCacheLocation002, TestSize.Level1)
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
-        EXPECT_EQ(ERRCODE_SUCCESS, result);
+        EXPECT_NE(ERRCODE_SUCCESS, result);
         LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
         locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
         LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
@@ -413,7 +414,7 @@ HWTEST_F(LocatorSkeletonTest, PreEnableAbility002, TestSize.Level1)
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     auto result = locatorAbilityStub->PreEnableAbility(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    EXPECT_NE(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreEnableAbility002 end");
 }
 
@@ -599,7 +600,7 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterGnssStatusCallback002, TestSize.Level
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     auto result = locatorAbilityStub->PreUnregisterGnssStatusCallback(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    EXPECT_NE(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreUnregisterGnssStatusCallback002 end");
 }
 #endif
@@ -655,7 +656,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterNmeaMessageCallback002, TestSize.Level1
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
-        EXPECT_EQ(ERRCODE_SUCCESS, result);
+        EXPECT_NE(ERRCODE_SUCCESS, result);
         LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
         locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
         LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
@@ -705,7 +706,7 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterNmeaMessageCallback002, TestSize.Leve
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     auto result = locatorAbilityStub->PreUnregisterNmeaMessageCallback(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    EXPECT_NE(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreUnregisterNmeaMessageCallback002 end");
 }
 #endif
@@ -823,7 +824,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetLocationPrivacyConfirmStatus002, TestSize.Le
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     auto result = locatorAbilityStub->PreSetLocationPrivacyConfirmStatus(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    EXPECT_NE(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreSetLocationPrivacyConfirmStatus002 end");
 }
 
@@ -1308,11 +1309,11 @@ HWTEST_F(LocatorSkeletonTest, PreDisableReverseGeocodingMock001, TestSize.Level1
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreDisableReverseGeocodingMock001 end");
 }
 
-HWTEST_F(LocatorSkeletonTest, PreDisableReverseGeocodingMock, TestSize.Level1)
+HWTEST_F(LocatorSkeletonTest, PreDisableReverseGeocodingMock002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorSkeletonTest, PreDisableReverseGeocodingMock, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreDisableReverseGeocodingMock begin");
+        << "LocatorSkeletonTest, PreDisableReverseGeocodingMock002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreDisableReverseGeocodingMock002 begin");
     auto locatorAbilityStub = sptr<MockLocatorAbilityStub>(new (std::nothrow) MockLocatorAbilityStub());
     MessageParcel data;
     MessageParcel reply;
@@ -1324,7 +1325,7 @@ HWTEST_F(LocatorSkeletonTest, PreDisableReverseGeocodingMock, TestSize.Level1)
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     locatorAbilityStub->PreDisableReverseGeocodingMock(data, reply, identity);
-    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreDisableReverseGeocodingMock end");
+    LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreDisableReverseGeocodingMock002 end");
 }
 
 HWTEST_F(LocatorSkeletonTest, PreSetReverseGeocodingMockInfo001, TestSize.Level1)

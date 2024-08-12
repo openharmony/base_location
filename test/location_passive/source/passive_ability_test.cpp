@@ -39,7 +39,7 @@ namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const std::string ARGS_HELP = "-h";
 const std::string UNLOAD_PASSIVE_TASK = "passive_sa_unload";
-const int32_t WAIT_EVENT_TIME = 3;
+const int32_t WAIT_EVENT_TIME = 1;
 void PassiveAbilityTest::SetUp()
 {
     /*
@@ -57,8 +57,9 @@ void PassiveAbilityTest::TearDown()
     /*
      * @tc.teardown: release memory.
      */
-    proxy_ = nullptr;
     ability_->passiveHandler_->RemoveTask(UNLOAD_PASSIVE_TASK);
+    sleep(WAIT_EVENT_TIME);
+    proxy_ = nullptr;
     ability_ = nullptr;
 }
 
@@ -297,6 +298,16 @@ HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop002, TestSize.Level1)
     ability_->state_ = ServiceRunningState::STATE_RUNNING;
     ability_->OnStart(); // start ability again
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop002 end");
+}
+
+HWTEST_F(PassiveAbilityTest, PassiveInit002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PassiveAbilityStubTest, PassiveInit002, TestSize.Level1";
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveInit002 begin");
+    ability_->registerToAbility_ = true;
+    ability_->Init(); // start ability again
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveInit002 end");
 }
 } // namespace Location
 } // namespace OHOS
