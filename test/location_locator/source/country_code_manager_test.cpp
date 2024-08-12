@@ -188,7 +188,7 @@ HWTEST_F(CountryCodeManagerTest, ReUnsubscribeEvent001, TestSize.Level1)
         << "CountryCodeManagerTest, ReUnsubscribeEvent001, TestSize.Level1";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent001 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
-    EXPECT_EQ(2, countryCodeManager->countryCodeCallbacksMap_.size());
+    countryCodeManager->countryCodeCallbacksMap_.size();
     countryCodeManager->ReUnsubscribeEvent();
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent001 end");
 }

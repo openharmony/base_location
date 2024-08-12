@@ -286,7 +286,6 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
     LBSLOGD(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
     if (state == 0) {
         LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
-        return;
     }
     auto dataManager = LocatorRequiredDataManager::GetInstance();
     if (dataManager == nullptr) {
@@ -356,12 +355,16 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
     if (wifiScanPtr_ == nullptr) {
         return;
     }
-    if (scanListHandler_ != nullptr) {
-        scanListHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, DEFAULT_TIMEOUT_4S);
-    }
     int ret = wifiScanPtr_->Scan();
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
+        if (scanListHandler_ != nullptr) {
+            scanListHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, 0);
+        }
+    } else {
+        if (scanListHandler_ != nullptr) {
+            scanListHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, DEFAULT_TIMEOUT_4S);
+        }
     }
 #endif
     LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);

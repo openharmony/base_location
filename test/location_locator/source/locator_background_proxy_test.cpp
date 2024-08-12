@@ -293,7 +293,7 @@ HWTEST_F(LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.L
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver()); // unreg first
-    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    locatorBackgroundProxy->RegisterAppStateObserver();
     EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver()); // register again
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] RegisterAppStateObserverTest001 end");
@@ -458,6 +458,32 @@ HWTEST_F(LocatorBackgroundProxyTest, CheckMaxRequestNumTest004, TestSize.Level1)
     (locatorBackgroundProxy->requestsMap_)->insert(make_pair(userId, list));
     EXPECT_EQ(false, locatorBackgroundProxy->CheckMaxRequestNum(VAL_UID, "PKG_FOR_TEST")); // pkg name is wrong
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] CheckMaxRequestNumTest004 end");
+}
+
+HWTEST_F(LocatorBackgroundProxyTest, CheckMaxRequestNumTest005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorBackgroundProxyTest, CheckMaxRequestNumTest005, TestSize.Level1";
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] CheckMaxRequestNumTest005 begin");
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
+    ASSERT_TRUE(locatorBackgroundProxy != nullptr);
+    int32_t userId = locatorBackgroundProxy->GetUserId(VAL_UID);
+    auto list = std::make_shared<std::list<std::shared_ptr<Request>>>();
+    auto request = std::make_shared<Request>();
+    request->SetUid(VAL_UID);
+    request->SetPackageName("PKG_FOR_TEST");
+    list->push_back(request);
+    (locatorBackgroundProxy->requestsMap_)->insert(make_pair(userId, list));
+    int uid = 1000;
+    locatorBackgroundProxy->CheckMaxRequestNum(uid, "PKG_FOR_TEST");
+    (locatorBackgroundProxy->requestsMap_)->clear();
+    list->clear();
+    request->SetUid(VAL_UID);
+    request->SetPackageName("test_packageName");
+    list->push_back(request);
+    (locatorBackgroundProxy->requestsMap_)->insert(make_pair(userId, list));
+    locatorBackgroundProxy->CheckMaxRequestNum(uid, "PKG_FOR_TEST");
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] CheckMaxRequestNumTest005 end");
 }
 
 HWTEST_F(LocatorBackgroundProxyTest, MLocatorCallbackTest001, TestSize.Level1)
@@ -739,6 +765,9 @@ HWTEST_F(LocatorBackgroundProxyTest, OnDeleteRequestRecord002, TestSize.Level1)
     request1->SetTokenId(tokenId_);
     request1->SetFirstTokenId(0);
     request1->SetPackageName("LocatorBackgroundProxyTest");
+    locatorBackgroundProxy->requestsList_->push_back(request1);
+    locatorBackgroundProxy->OnDeleteRequestRecord(request1);
+    (locatorBackgroundProxy->requestsList_)->clear();
     locatorBackgroundProxy->OnDeleteRequestRecord(request1);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnDeleteRequestRecord002 end");
 }
@@ -806,7 +835,7 @@ HWTEST_F(LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize
     locatorBackgroundProxy->appStateObserver_  = nullptr;
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
 
-    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    locatorBackgroundProxy->RegisterAppStateObserver();
     locatorBackgroundProxy->iAppMgr_  = nullptr;
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
 

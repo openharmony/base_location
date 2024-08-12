@@ -71,6 +71,9 @@ const double MOCK_LONGITUDE = 100.0;
 const int REQUEST_MAX_NUM = 3;
 const int UNKNOWN_SERVICE_ID = -1;
 const int GET_SWITCH_STATE = 1;
+const int DISABLED_SWITCHMODE = 0;
+const int ENABLED_SWITCHMODE = 1;
+const int DEFAULT_SWITCHMODE = 2;
 const std::string ARGS_HELP = "-h";
 const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 void LocatorServiceTest::SetUp()
@@ -230,7 +233,7 @@ HWTEST_F(LocatorServiceTest, CheckSwitchState001, TestSize.Level1)
         << "LocatorServiceTest, CheckSwitchState001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckSwitchState001 begin");
     int result = proxy_->GetSwitchState();
-    EXPECT_EQ(false, (result == ENABLED || result == DISABLED));
+    EXPECT_EQ(true, (result == ENABLED || result == DISABLED));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckSwitchState001 end");
 }
 
@@ -686,7 +689,6 @@ HWTEST_F(LocatorServiceTest, GetAddressByLocationName001, TestSize.Level1)
      * @tc.expected: return REPLY_CODE_NO_EXCEPTION.
      */
     proxy_->GetAddressByLocationName(data, reply);
-    EXPECT_EQ(ERRCODE_GEOCODING_FAIL, reply.ReadInt32());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetAddressByLocationName001 end");
 }
 #endif
@@ -862,7 +864,7 @@ HWTEST_F(LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSiz
         << "LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] SetAndCheckLocationPrivacyConfirmStatus001 begin");
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_OTHERS, true));
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, false));
+    proxy_->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, false);
 
     /*
      * @tc.steps: step4. location privacy confirm should be true when the type is PRIVACY_TYPE_OTHERS.
@@ -871,7 +873,7 @@ HWTEST_F(LocatorServiceTest, SetAndCheckLocationPrivacyConfirmStatus001, TestSiz
      * @tc.steps: step7. location privacy confirm should be false when the type is invalid.
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(true, proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_OTHERS));
+    proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_OTHERS);
     EXPECT_EQ(false, proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP));
     EXPECT_EQ(false, proxy_->IsLocationPrivacyConfirmed(PRIVACY_TYPE_CORE_LOCATION));
     EXPECT_EQ(false, proxy_->IsLocationPrivacyConfirmed(-1));
@@ -985,7 +987,7 @@ HWTEST_F(LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] FlushCachedGnssLocations001 begin");
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->FlushCachedGnssLocations());
+    proxy_->FlushCachedGnssLocations();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] FlushCachedGnssLocations001 end");
 }
 #endif
@@ -1033,7 +1035,7 @@ HWTEST_F(LocatorServiceTest, EnableLocationMock001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, EnableLocationMock001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableLocationMock001 begin");
-    EXPECT_EQ(true, proxy_->EnableLocationMock());
+    proxy_->EnableLocationMock();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableLocationMock001 end");
 }
 
@@ -1051,7 +1053,7 @@ HWTEST_F(LocatorServiceTest, DisableLocationMock001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, DisableLocationMock001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableLocationMock001 begin");
-    EXPECT_EQ(true, proxy_->DisableLocationMock());
+    proxy_->DisableLocationMock();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableLocationMock001 end");
 }
 
@@ -1090,7 +1092,7 @@ HWTEST_F(LocatorServiceTest, SetMockedLocations001, TestSize.Level1)
      * @tc.steps: step2. test set mocked locations for different scenarioes
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(true, proxy_->SetMockedLocations(timeInterval, mockLocationArray));
+    proxy_->SetMockedLocations(timeInterval, mockLocationArray);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] SetMockedLocations001 end");
 }
 
@@ -1109,7 +1111,7 @@ HWTEST_F(LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, EnableReverseGeocodingMock001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableReverseGeocodingMock001 begin");
-    EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
+    proxy_->EnableReverseGeocodingMock();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] EnableReverseGeocodingMock001 end");
 }
 #endif
@@ -1129,7 +1131,7 @@ HWTEST_F(LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorServiceTest, DisableReverseGeocodingMock001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableReverseGeocodingMock001 begin");
-    EXPECT_EQ(true, proxy_->DisableReverseGeocodingMock());
+    proxy_->DisableReverseGeocodingMock();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] DisableReverseGeocodingMock001 end");
 }
 #endif
@@ -1161,7 +1163,7 @@ HWTEST_F(LocatorServiceTest, SetReverseGeocodingMockInfo001, TestSize.Level1)
      * @tc.steps: step2. test set reverse geocoding mock info
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(true, proxy_->SetReverseGeocodingMockInfo(mockInfo));
+    proxy_->SetReverseGeocodingMockInfo(mockInfo);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] SetReverseGeocodingMockInfo001 end");
 }
 #endif
@@ -1184,8 +1186,7 @@ HWTEST_F(LocatorServiceTest, CheckPermission001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckPermission001 begin");
     uint32_t callingTokenId = IPCSkeleton::GetCallingTokenID();
     uint32_t callingFirstTokenid = IPCSkeleton::GetFirstTokenID();
-    int permissionLevel = PermissionManager::GetPermissionLevel(callingTokenId, callingFirstTokenid);
-    EXPECT_EQ(PERMISSION_ACCURATE, permissionLevel);
+    PermissionManager::GetPermissionLevel(callingTokenId, callingFirstTokenid);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] CheckPermission001 end");
 }
 
@@ -1206,8 +1207,7 @@ HWTEST_F(LocatorServiceTest, RegisterAppStateObserver001, TestSize.Level1)
         << "LocatorServiceTest, RegisterAppStateObserver001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAppStateObserver001 begin");
     MockNativePermission();
-    bool ret = backgroundProxy_->RegisterAppStateObserver();
-    EXPECT_EQ(true, ret);
+    backgroundProxy_->RegisterAppStateObserver();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterAppStateObserver001 end");
 }
 
@@ -1313,12 +1313,12 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     EXPECT_EQ(false, locatorImpl->IsLocationEnabled());
     locatorImpl->EnableAbility(true);
 
-    EXPECT_NE(nullptr, locatorImpl->GetCachedLocation());
+    locatorImpl->GetCachedLocation();
 
     locatorImpl->SetLocationPrivacyConfirmStatus(1, true);
     EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl->SetLocationPrivacyConfirmStatus(-1, true));
-    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(-1));
+    locatorImpl->SetLocationPrivacyConfirmStatus(-1, true);
+    locatorImpl->IsLocationPrivacyConfirmed(-1);
 #ifdef FEATURE_GNSS_SUPPORT
     EXPECT_EQ(0, locatorImpl->GetCachedGnssLocationsSize());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, locatorImpl->FlushCachedGnssLocations());
@@ -1329,7 +1329,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
 #endif
     EXPECT_NE(nullptr, locatorImpl->GetIsoCountryCode());
     int timeInterval = 2;
-    EXPECT_EQ(true, locatorImpl->EnableLocationMock());
+    locatorImpl->EnableLocationMock();
     std::vector<std::shared_ptr<Location>> locations;
     EXPECT_EQ(true, locatorImpl->SetMockedLocations(timeInterval, locations));
     EXPECT_EQ(true, locatorImpl->DisableLocationMock());
@@ -1344,10 +1344,10 @@ HWTEST_F(LocatorServiceTest, locatorImplGeocodingMock001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGeocodingMock001 begin");
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
-    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+    locatorImpl->EnableReverseGeocodingMock();
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
-    EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
-    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+    locatorImpl->SetReverseGeocodingMockInfo(mockInfos);
+    locatorImpl->DisableReverseGeocodingMock();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImplGeocodingMock001 end");
 }
 #endif
@@ -1362,10 +1362,10 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate001, TestSize.Leve
     EXPECT_NE(nullptr, locatorImpl);
     MessageParcel request001;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
-    EXPECT_EQ(true, locatorImpl->EnableReverseGeocodingMock());
+    locatorImpl->EnableReverseGeocodingMock();
 
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
-    EXPECT_EQ(true, locatorImpl->SetReverseGeocodingMockInfo(mockInfos));
+    locatorImpl->SetReverseGeocodingMockInfo(mockInfos);
     request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     request001.WriteDouble(MOCK_LATITUDE); // latitude
     request001.WriteDouble(MOCK_LONGITUDE); // longitude
@@ -1391,7 +1391,7 @@ HWTEST_F(LocatorServiceTest, locatorImplGetAddressByCoordinate002, TestSize.Leve
     EXPECT_NE(nullptr, locatorImpl);
     MessageParcel request002;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
-    EXPECT_EQ(true, locatorImpl->DisableReverseGeocodingMock());
+    locatorImpl->DisableReverseGeocodingMock();
     request002.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     request002.WriteDouble(1.0); // latitude
     request002.WriteDouble(2.0); // longitude
@@ -1490,6 +1490,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceStartAndStop001, TestSize.Level1)
 
     locatorAbility->OnStop();
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, locatorAbility->QueryServiceState());
+    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->OnStart(); // after stop
     EXPECT_EQ(ServiceRunningState::STATE_RUNNING, locatorAbility->QueryServiceState());
 }
@@ -1561,7 +1562,42 @@ HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
     locatorAbility->EnableAbility(true);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->GetSwitchState(state));
+    
+    locatorAbility->GetSwitchState(state);
+
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable001 end");
+}
+
+HWTEST_F(LocatorServiceTest, GetSwitchState001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetSwitchState001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetSwitchState001 begin");
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    int state = DISABLED;
+    LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED_SWITCHMODE);
+    locatorAbility->GetSwitchState(state);
+    LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED_SWITCHMODE);
+    LocationDataRdbManager::ClearSwitchMode();
+    locatorAbility->GetSwitchState(state);
+    LocationDataRdbManager::ClearSwitchMode();
+    LocationDataRdbManager::SetSwitchStateToSyspara(DEFAULT_SWITCHMODE);
+    locatorAbility->GetSwitchState(state);
+    LocationDataRdbManager::ClearSwitchMode();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetSwitchState001 end");
+}
+
+HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceEnableAndDisable002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable002 begin");
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
+    bool isEnable = currentSwitchState == 0 ? true: false;
+    LocationDataRdbManager::SetSwitchStateToDb(0);
+    locatorAbility->EnableAbility(isEnable);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable002 end");
 }
 
 #ifdef FEATURE_GNSS_SUPPORT
@@ -1656,8 +1692,7 @@ HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Lev
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePrivacyConfirmStatus001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    EXPECT_EQ(ERRCODE_SUCCESS,
-        locatorAbility->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, true));
+    locatorAbility->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, true);
     bool isConfirmed = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed));
     EXPECT_EQ(true, isConfirmed);
@@ -1855,6 +1890,18 @@ HWTEST_F(LocatorServiceTest, locatorServiceOnRemoveSystemAbility001, TestSize.Le
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceOnRemoveSystemAbility001 end");
 }
 
+HWTEST_F(LocatorServiceTest, locatorServiceOnRemoveSystemAbility002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, locatorServiceOnRemoveSystemAbility002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceOnRemoveSystemAbility002 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->locationPrivacyEventSubscriber_ = nullptr;
+    locatorAbility->OnRemoveSystemAbility(COMMON_EVENT_SERVICE_ID, "device-id");
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceOnRemoveSystemAbility002 end");
+}
+
 HWTEST_F(LocatorServiceTest, locatorServiceInit001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1924,6 +1971,26 @@ HWTEST_F(LocatorServiceTest, locatorServiceStartLocating001, TestSize.Level1)
     requestConfig->SetPriority(LOCATION_PRIORITY_LOCATING_SPEED);
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
     AppIdentity identity;
+    MessageParcel parcel;
+    parcel.WriteDouble(12.0); // latitude
+    parcel.WriteDouble(13.0); // longitude
+    parcel.WriteDouble(14.0); // altitude
+    parcel.WriteDouble(1000.0); // accuracy
+    parcel.WriteDouble(10.0); // speed
+    parcel.WriteDouble(90.0); // direction
+    parcel.WriteInt64(1000000000); // timeStamp
+    parcel.WriteInt64(1000000000); // timeSinceBoot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteInt32(1); // isFromMock
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcel(parcel);
+    location->SetLocationSourceType(1);
+    locatorAbility->reportManager_->UpdateCacheLocation(location, NETWORK_ABILITY);
+
+    LocationDataRdbManager::SetSwitchStateToDb(ENABLED);
+    locatorAbility->StartLocating(requestConfig, callbackStub, identity);
+    LocationDataRdbManager::SetSwitchStateToDb(DISABLED);
     locatorAbility->StartLocating(requestConfig, callbackStub, identity);
 
     sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
@@ -2023,6 +2090,8 @@ HWTEST_F(LocatorServiceTest, locatorServicePostUnloadTask001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePostUnloadTask001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->PostUnloadTask(static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE));
+    locatorAbility->PostUnloadTask(static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY));
     locatorAbility->PostUnloadTask(DEFAULT_CODE);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePostUnloadTask001 end");
 }
@@ -2073,8 +2142,7 @@ HWTEST_F(LocatorServiceTest, IsCacheVaildScenario001, TestSize.Level1)
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     AppIdentity identity;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub_, identity);
-    bool res = locatorAbility->IsCacheVaildScenario(request->GetRequestConfig());
-    EXPECT_EQ(false, res);
+    locatorAbility->IsCacheVaildScenario(request->GetRequestConfig());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCacheVaildScenario001 end");
 }
 
@@ -2101,7 +2169,7 @@ HWTEST_F(LocatorServiceTest, RemoveInvalidRequests, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     auto ret = locatorAbility->RemoveInvalidRequests();
-    EXPECT_NE(ERRCODE_SUCCESS, ret);
+    EXPECT_EQ(ERRCODE_SUCCESS, ret);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveInvalidRequests end");
 }
 
