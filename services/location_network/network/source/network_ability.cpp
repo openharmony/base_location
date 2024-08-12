@@ -538,10 +538,6 @@ NetworkHandler::~NetworkHandler() {}
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto networkAbility = NetworkAbility::GetInstance();
-    if (networkAbility == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: NetworkAbility is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {

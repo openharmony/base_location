@@ -25,10 +25,6 @@ void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& resu
 {
     auto requestManager = RequestManager::GetInstance();
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (requestManager == nullptr || locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PermStateChangeCallback: RequestManager or LocatorAbility is nullptr.");
-        return;
-    }
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
     requestManager->HandlePermissionChanged(result.tokenID);
     locatorAbility->ApplyRequests(1);

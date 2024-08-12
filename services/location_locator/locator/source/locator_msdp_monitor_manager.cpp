@@ -84,10 +84,6 @@ void LocatorMsdpMonitorManager::UpdateStillMovementState(bool stillState)
     LBSLOGI(LOCATOR, "device movement state change, isDeviceStillState_ %{public}d",
         isDeviceStillState_.load());
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "LocatorMsdpMonitorManager::UpdateStillMovementState LocatorAbility is nullptr.");
-        return;
-    }
     locatorAbility->SyncStillMovementState(stillState);
 }
 
