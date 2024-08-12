@@ -69,17 +69,21 @@ LocatorImpl::~LocatorImpl()
 
 bool LocatorImpl::IsLocationEnabled()
 {
-    int32_t state = DISABLED;
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        return (res == ENABLED);
+    LBSLOGD(LOCATION_NAPI, "IsLocationEnabled");
+    int32_t state = DEFAULT_SWITCH_STATE;
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    if (state == DISABLED || state == ENABLED) {
+        return (state == ENABLED);
     }
-    auto locationDataRdbHelper =
-        LocationDataRdbHelper::GetInstance();
-    if (locationDataRdbHelper == nullptr) {
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    state = LocationDataRdbManager::QuerySwitchState();
+    state = proxy->GetSwitchState();
     return (state == ENABLED);
 }
 
@@ -113,11 +117,8 @@ void LocatorImpl::EnableAbility(bool enable)
         return;
     }
     LocationErrCode errCode = proxy->EnableAbilityV9(enable);
-    // cache the value
-    if (errCode == ERRCODE_SUCCESS) {
-        if (locationDataManager_ != nullptr) {
-            locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
-        }
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s EnableAbilityV9 failed. %{public}d", __func__, errCode);
     }
 }
 
@@ -191,7 +192,10 @@ bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pi
     if (locationDataManager_ == nullptr) {
         return false;
     }
-    return locationDataManager_->RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid()) == ERRCODE_SUCCESS;
+    AppIdentity appIdentity;
+    appIdentity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    appIdentity.SetUid(IPCSkeleton::GetCallingUid());
+    return locationDataManager_->RegisterSwitchCallback(callback, appIdentity) == ERRCODE_SUCCESS;
 }
 
 bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
@@ -578,18 +582,38 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
-    int32_t state = DISABLED;
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        isEnabled = (res == ENABLED);
+    int32_t state = DEFAULT_SWITCH_STATE;
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    if (state == DISABLED || state == ENABLED) {
+        isEnabled = (state == ENABLED);
         return ERRCODE_SUCCESS;
     }
-    auto locationDataRdbHelper =
-        LocationDataRdbHelper::GetInstance();
-    if (locationDataRdbHelper == nullptr) {
-        return ERRCODE_NOT_SUPPORTED;
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    state = LocationDataRdbManager::QuerySwitchState();
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    state = proxy->GetSwitchState();
+    isEnabled = (state == ENABLED);
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocatorImpl::IsLocationEnabledForUser(bool &isEnabled, int32_t userId)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
+    int32_t state = DEFAULT_SWITCH_STATE;
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForUser(userId);
+    if (state == DISABLED || state == ENABLED) {
+        isEnabled = (state == ENABLED);
+        return ERRCODE_SUCCESS;
+    }
+    auto ret = LocationDataRdbManager::GetSwitchStateFromDbForUser(state, userId);
+    if (ret != ERRCODE_SUCCESS) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     isEnabled = (state == ENABLED);
     return ERRCODE_SUCCESS;
 }
@@ -629,12 +653,24 @@ LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->EnableAbilityV9(enable);
-    // cache the value
-    if (errCode == ERRCODE_SUCCESS) {
-        if (locationDataManager_ != nullptr) {
-            locationDataManager_->SetCachedSwitchState(enable ? ENABLED : DISABLED);
-        }
+    return errCode;
+}
+
+LocationErrCode LocatorImpl::EnableAbilityForUser(bool enable, int32_t userId)
+{
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    LocationErrCode errorCode = CheckEdmPolicy(enable);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->EnableAbilityForUser(enable, userId);
     return errCode;
 }
 
@@ -698,8 +734,11 @@ LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>&
     if (locationDataManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    AppIdentity appIdentity;
+    appIdentity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    appIdentity.SetUid(IPCSkeleton::GetCallingUid());
     return locationDataManager_->
-        RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid());
+        RegisterSwitchCallback(callback, appIdentity);
 }
 
 LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)

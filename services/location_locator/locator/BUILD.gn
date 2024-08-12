@@ -78,6 +78,7 @@ ohos_shared_library("lbsservice_locator") {
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "init:libbeget_proxy",
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",

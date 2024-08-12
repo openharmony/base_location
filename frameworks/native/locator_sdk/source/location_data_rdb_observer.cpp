@@ -37,23 +37,6 @@ LocationDataRdbObserver::~LocationDataRdbObserver() = default;
 void LocationDataRdbObserver::OnChange()
 {
     LBSLOGD(LOCATOR, "LocationDataRdbObserver::%{public}s enter", __func__);
-    HandleSwitchStateChanged();
-}
-
-void LocationDataRdbObserver::HandleSwitchStateChanged()
-{
-    auto rdbHelper = LocationDataRdbHelper::GetInstance();
-    auto locationDataManager = LocationDataManager::GetInstance();
-    if (rdbHelper == nullptr || locationDataManager == nullptr ||
-        !locationDataManager->IsSwitchStateReg()) {
-        LBSLOGE(LOCATOR, "%{public}s: param is nullptr", __func__);
-        return;
-    }
-
-    int32_t state = DISABLED;
-    state = LocationDataRdbManager::QuerySwitchState();
-    locationDataManager->SetCachedSwitchState(state);
-    locationDataManager->ReportSwitchState(state);
 }
 } // namespace Location
 } // namespace OHOS

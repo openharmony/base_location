@@ -832,6 +832,22 @@ bool LocatorAbilityStub045FuzzTest(const char* data, size_t size)
     }
     return true;
 }
+
+bool LocatorAbilityStub046FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ENABLE_ABILITY_BY_USERID),
+        requestParcel, reply, option);
+    return true;
+}
+
 } // namespace OHOS
 
 void GeoCodeFuzzTest(const char* ch, size_t size)
@@ -844,6 +860,13 @@ void GeoCodeFuzzTest(const char* ch, size_t size)
     OHOS::LocatorAbilityStub023FuzzTest(ch, size);
 }
 
+void SwitchFuzzTest(const char* ch, size_t size)
+{
+    OHOS::LocatorAbilityStub002FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub006FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub046FuzzTest(ch, size);
+}
+
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -851,12 +874,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (ch != nullptr) {
         OHOS::MockNativePermission();
         GeoCodeFuzzTest(ch, size);
+        SwitchFuzzTest(ch, size);
         OHOS::LocatorAbilityStub001FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub002FuzzTest(ch, size);
         OHOS::LocatorAbilityStub003FuzzTest(ch, size);
         OHOS::LocatorAbilityStub004FuzzTest(ch, size);
         OHOS::LocatorAbilityStub005FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub006FuzzTest(ch, size);
         OHOS::LocatorAbilityStub007FuzzTest(ch, size);
         OHOS::LocatorAbilityStub008FuzzTest(ch, size);
         OHOS::LocatorAbilityStub009FuzzTest(ch, size);

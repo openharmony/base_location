@@ -59,6 +59,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "geo_convert_request.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace Location {
@@ -88,6 +89,9 @@ const uint32_t EVENT_INIT_MSDP_MONITOR_MANAGER = 0x0020;
 const uint32_t EVENT_IS_STAND_BY = 0x0021;
 const uint32_t EVENT_SET_LOCATION_WORKING_STATE = 0x0022;
 const uint32_t EVENT_SEND_GEOREQUEST = 0x0023;
+const uint32_t EVENT_SET_SWITCH_STATE_TO_DB = 0x0024;
+const uint32_t EVENT_WATCH_SWITCH_PARAMETER = 0x0025;
+const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -151,6 +155,7 @@ void LocatorAbility::OnStart()
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_SET_LOCATION_WORKING_STATE, 0, 0);
         locatorHandler_->SendHighPriorityEvent(EVENT_SYNC_LOCATION_STATUS, 0, 0);
+        locatorHandler_->SendHighPriorityEvent(EVENT_WATCH_SWITCH_PARAMETER, 0, 0);
     }
     LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
 }
@@ -332,7 +337,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = LocationDataRdbManager::QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
-    if (state == DEFAULT_STATE) {
+    if (state == DEFAULT_SWITCH_STATE) {
         return;
     }
     bool isEnabled = (state == ENABLED);
@@ -423,46 +428,48 @@ void LocatorAbility::SendSwitchState(const int state)
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return LocatorRequiredDataManager::GetInstance()->IsConnecting() && GetActiveRequestNum() > 0;
+    return LocatorRequiredDataManager::GetInstance()->IsConnecting() || GetActiveRequestNum() > 0;
 }
 
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
-    int modeValue = isEnabled ? 1 : 0;
+    int modeValue = isEnabled ? ENABLED : DISABLED;
     int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
     if (modeValue == currentSwitchState) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
-    if (LocationDataRdbManager::SetSwitchState(modeValue) != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    // update param
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(isEnabled ? ENABLED : DISABLED);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
     }
-    if (currentSwitchState != DEFAULT_STATE) {
-        // update param
-        LocationDataRdbManager::SetSwitchMode(isEnabled ? ENABLED : DISABLED);
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
+{
+    LBSLOGI(LOCATOR, "EnableAbilityForUser %{public}d, UserId %{public}d", isEnabled, userId);
+    // update param
+    int modeValue = isEnabled ? ENABLED : DISABLED;
+    std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
+    locatorSwitchMessage->SetModeValue(modeValue);
+    locatorSwitchMessage->SetUserId(userId);
+    LocationDataRdbManager::SetSwitchStateToSysparaForUser(isEnabled ? ENABLED : DISABLED, userId);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID Send Success", __func__);
     }
-    UpdateSaAbility();
-    ApplyRequests(0);
-    std::string state = isEnabled ? "enable" : "disable";
-    ReportDataToResSched(state);
-    WriteLocationSwitchStateEvent(state);
     return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorAbility::GetSwitchState(int& state)
 {
-    int res = LocationDataRdbManager::GetSwitchMode();
-    if (res == DISABLED || res == ENABLED) {
-        state = res;
-        return ERRCODE_SUCCESS;
-    }
     state = LocationDataRdbManager::QuerySwitchState();
-    if (res == DEFAULT_STATE && state != DEFAULT_STATE) {
-        // update param
-        LocationDataRdbManager::SetSwitchMode(state);
-    }
     return ERRCODE_SUCCESS;
 }
 
@@ -1743,6 +1750,26 @@ int32_t LocatorErrorMessage::GetErrCode()
     return errCode_;
 }
 
+void LocatorSwitchMessage::SetUserId(int32_t userId)
+{
+    userId_ = userId;
+}
+
+int32_t LocatorSwitchMessage::GetUserId()
+{
+    return userId_;
+}
+
+void LocatorSwitchMessage::SetModeValue(int32_t modeValue)
+{
+    modeValue_ = modeValue;
+}
+
+int32_t LocatorSwitchMessage::GetModeValue()
+{
+    return modeValue_;
+}
+
 LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
 {
     InitLocatorHandlerEventMap();
@@ -1797,8 +1824,7 @@ void LocatorHandler::InitLocatorHandlerEventMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { InitMonitorManagerEvent(event); };
     locatorHandlerEventMap_[EVENT_IS_STAND_BY] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { IsStandByEvent(event); };
-    locatorHandlerEventMap_[EVENT_SET_LOCATION_WORKING_STATE] =
-        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
+    ConstructDbHandleMap();
     ConstructGeocodeHandleMap();
 }
 
@@ -1806,6 +1832,18 @@ void LocatorHandler::ConstructGeocodeHandleMap()
 {
     locatorHandlerEventMap_[EVENT_SEND_GEOREQUEST] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SendGeoRequestEvent(event); };
+}
+
+void LocatorHandler::ConstructDbHandleMap()
+{
+    locatorHandlerEventMap_[EVENT_SET_LOCATION_WORKING_STATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
+    locatorHandlerEventMap_[EVENT_SET_SWITCH_STATE_TO_DB] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetSwitchStateToDbEvent(event); };
+    locatorHandlerEventMap_[EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetSwitchStateToDbForUserEvent(event); };
+    locatorHandlerEventMap_[EVENT_WATCH_SWITCH_PARAMETER] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { WatchSwitchParameter(event); };
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2027,11 +2065,37 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
 
 void LocatorHandler::SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    int state = LocationDataRdbManager::QuerySwitchState();
-    int cacheState = LocationDataRdbManager::GetSwitchMode();
-    if (state != DEFAULT_STATE && state != cacheState) {
-        LocationDataRdbManager::SetSwitchMode(state);
+    LocationDataRdbManager::SyncSwitchStatus();
+}
+
+bool LocatorHandler::IsSwitchObserverReg()
+{
+    std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
+    return isSwitchObserverReg_;
+}
+
+void LocatorHandler::SetIsSwitchObserverReg(bool isSwitchObserverReg)
+{
+    std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
+    isSwitchObserverReg_ = isSwitchObserverReg;
+}
+
+
+void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    if (IsSwitchObserverReg()) {
+        return;
     }
+    auto eventCallback = [](const char *key, const char *value, void *context) {
+        LocationDataRdbManager::SyncSwitchStatus();
+    };
+
+    int ret = WatchParameter(LOCATION_SWITCH_MODE, eventCallback, nullptr);
+    if (ret != SUCCESS) {
+        LBSLOGE(LOCATOR, "WatchParameter fail");
+        return;
+    }
+    SetIsSwitchObserverReg(true);
 }
 
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2117,6 +2181,49 @@ void LocatorHandler::SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::
     if (!LocationDataRdbManager::SetLocationWorkingState(0)) {
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
+}
+
+void LocatorHandler::SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    int modeValue = event->GetParam();
+    if (LocationDataRdbManager::SetSwitchStateToDb(modeValue) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
+        return;
+    }
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->UpdateSaAbility();
+        locatorAbility->ApplyRequests(0);
+        bool isEnabled = (modeValue == ENABLED);
+        std::string state = isEnabled ? "enable" : "disable";
+        locatorAbility->ReportDataToResSched(state);
+        WriteLocationSwitchStateEvent(state);
+    }
+}
+
+void LocatorHandler::SetSwitchStateToDbForUserEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = event->GetUniqueObject<LocatorSwitchMessage>();
+    if (locatorSwitchMessage == nullptr) {
+        return;
+    }
+    auto modeValue = locatorSwitchMessage->GetModeValue();
+    auto userId = locatorSwitchMessage->GetUserId();
+    if (LocationDataRdbManager::SetSwitchStateToDbForUser(modeValue, userId) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
+        return;
+    }
+    LocatorAbility::GetInstance()->UpdateSaAbility();
+    LocatorAbility::GetInstance()->ApplyRequests(0);
+    int currentUserId = 0;
+    if (CommonUtils::GetCurrentUserId(currentUserId) && userId != currentUserId) {
+        return;
+    }
+    bool isEnabled = (modeValue == ENABLED);
+    std::string state = isEnabled ? "enable" : "disable";
+    // background task only check the current user switch state
+    LocatorAbility::GetInstance()->ReportDataToResSched(state);
+    WriteLocationSwitchStateEvent(state);
 }
 
 LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)
