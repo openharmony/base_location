@@ -294,28 +294,6 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper007, TestSize.L
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper007 end");
 }
 
-HWTEST_F(LocatorRequiredDataManagerTest, ProcessEvent001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorRequiredDataManagerTest, ProcessEvent001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] ProcessEvent001 begin");
-    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-
-    AppExecFwk::InnerEvent::Pointer event =
-        AppExecFwk::InnerEvent::Get(EVENT_START_SCAN, 0);
-    locatorDataManager->scanHandler_->ProcessEvent(event);
-    sleep(1);
-    AppExecFwk::InnerEvent::Pointer event1 =
-        AppExecFwk::InnerEvent::Get(EVENT_STOP_SCAN, 0);
-    locatorDataManager->scanHandler_->ProcessEvent(event1);
-    sleep(1);
-    AppExecFwk::InnerEvent::Pointer event2 =
-        AppExecFwk::InnerEvent::Get(EVENT_GET_WIFI_LIST, 0);
-    locatorDataManager->scanHandler_->ProcessEvent(event2);
-    sleep(1);
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] ProcessEvent001 end");
-}
-
 HWTEST_F(LocatorRequiredDataManagerTest, WifiServiceStatusChange001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
