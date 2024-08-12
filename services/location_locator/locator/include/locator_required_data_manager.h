@@ -35,7 +35,7 @@
 #include "system_ability_status_change_stub.h"
 #ifdef WIFI_ENABLE
 #include "wifi_scan.h"
-#include "wifi_device.h"
+#include "kits/c/wifi_device.h"
 #endif
 
 namespace OHOS {
@@ -212,7 +212,9 @@ public:
     __attribute__((no_sanitize("cfi"))) void GetWifiScanList(std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
 private:
     void WifiInfoInit();
+    bool isWifiCallbackRegistered();
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
+    bool isWifiCallbackRegistered_ = false;
     std::mutex wifiRegisteredMutex_;
     WifiEvent wifiScanEventCallback_ = {0};
 #endif

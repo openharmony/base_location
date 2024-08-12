@@ -100,10 +100,6 @@ ohos_shared_library("lbsservice_locator") {
   ]
 
   if (communication_wifi_enable) {
-    include_dirs += [
-      "$WIFI_MANAGER_ROOT/interfaces/kits/c",
-      "$WIFI_MANAGER_ROOT/frameworks/native/interfaces",
-    ]
     external_deps += [ "wifi:wifi_sdk" ]
     defines += [ "WIFI_ENABLE" ]
   }
