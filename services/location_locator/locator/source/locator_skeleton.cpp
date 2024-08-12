@@ -264,7 +264,7 @@ int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &re
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int state = DISABLED;
+    int state = DEFAULT_SWITCH_STATE;
     LocationErrCode errorCode = locatorAbility->GetSwitchState(state);
     reply.WriteInt32(errorCode);
     if (errorCode == ERRCODE_SUCCESS) {

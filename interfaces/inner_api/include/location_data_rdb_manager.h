@@ -32,9 +32,9 @@ public:
     static LocationErrCode SetSwitchStateToDb(int modeValue);
     static bool SetLocationWorkingState(int32_t state);
     static bool GetLocationWorkingState(int32_t& state);
-    static int GetSwitchMode();
+    static int GetSwitchStateFromSyspara();
     static bool SetSwitchStateToSyspara(int value);
-    static bool ClearSwitchMode();
+    static bool SetDefaultSwitchStateToSyspara();
     static std::string GetLocationDataSecureUri(std::string key);
     static bool SetLocationEnhanceStatus(int32_t state);
     static bool GetLocationEnhanceStatus(int32_t& state);

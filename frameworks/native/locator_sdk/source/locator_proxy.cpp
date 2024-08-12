@@ -49,7 +49,7 @@ int LocatorProxy::GetSwitchState()
     MessageParcel reply;
     int error = SendMsgWithReply(static_cast<int>(LocatorInterfaceCode::GET_SWITCH_STATE), reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState Transact ErrCode = %{public}d", error);
-    int state = 0;
+    int state = DEFAULT_SWITCH_STATE;
     if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
         state = reply.ReadInt32();
     }

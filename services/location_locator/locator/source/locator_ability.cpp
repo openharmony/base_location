@@ -336,7 +336,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     int state = LocationDataRdbManager::QuerySwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
-    if (state == DEFAULT_STATE) {
+    if (state == DEFAULT_SWITCH_STATE) {
         return;
     }
     bool isEnabled = (state == ENABLED);
@@ -435,7 +435,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
     int modeValue = isEnabled ? 1 : 0;
     int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
-    if (modeValue == currentSwitchState && currentSwitchState != DEFAULT_STATE) {
+    if (modeValue == currentSwitchState) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
@@ -2027,6 +2027,12 @@ void LocatorHandler::SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& eve
     LocationDataRdbManager::SyncSwitchStatus();
 }
 
+bool LocatorHandler::IsSwitchStateReg()
+{
+    std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
+    return isSwitchObserverReg_;
+}
+
 void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
@@ -2038,6 +2044,8 @@ void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer&
         LBSLOGE(LOCATOR, "WatchParameter fail");
         return;
     }
+    std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
+    isSwitchObserverReg_ = true;
 }
 
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)

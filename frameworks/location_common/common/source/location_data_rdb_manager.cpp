@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace Location {
 const int DEFAULT_USERID = 100;
-const int DEFAULT_SWITCHMODE = 2;
+const int DEFAULT_SWITCH_STATE = 2;
 const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
 std::mutex LocationDataRdbManager::mutex_;
@@ -53,8 +53,8 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
 
 int LocationDataRdbManager::QuerySwitchState()
 {
-    int32_t state = DEFAULT_STATE;
-    int res = LocationDataRdbManager::GetSwitchMode();
+    int32_t state = DEFAULT_SWITCH_STATE;
+    int res = LocationDataRdbManager::GetSwitchStateFromSyspara();
     if (res == DISABLED || res == ENABLED) {
         return res;
     }
@@ -63,9 +63,9 @@ int LocationDataRdbManager::QuerySwitchState()
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
-        return DEFAULT_STATE;
+        return DEFAULT_SWITCH_STATE;
     }
-    if (res == DEFAULT_STATE && state != DEFAULT_STATE) {
+    if (res == DEFAULT_SWITCH_STATE && state != DEFAULT_SWITCH_STATE) {
         LocationDataRdbManager::SetSwitchStateToSyspara(state);
     }
     return state;
@@ -102,7 +102,7 @@ bool LocationDataRdbManager::GetLocationWorkingState(int32_t& state)
     return true;
 }
 
-int LocationDataRdbManager::GetSwitchMode()
+int LocationDataRdbManager::GetSwitchStateFromSyspara()
 {
     char result[MAX_SIZE] = {0};
     std::string value = "";
@@ -110,17 +110,17 @@ int LocationDataRdbManager::GetSwitchMode()
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
     if (res < 0 || strlen(result) == 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
-        return UNKNOW_ERROR;
+        return DEFAULT_SWITCH_STATE;
     }
     value = result;
     for (auto ch : value) {
         if (std::isdigit(ch) == 0) {
             LBSLOGE(COMMON_UTILS, "wrong para");
-            return UNKNOW_ERROR;
+            return DEFAULT_SWITCH_STATE;
         }
     }
     if (value.size() == 0) {
-        return UNKNOW_ERROR;
+        return DEFAULT_SWITCH_STATE;
     }
     return std::stoi(value);
 }
@@ -140,25 +140,26 @@ bool LocationDataRdbManager::SetSwitchStateToSyspara(int value)
 
 void LocationDataRdbManager::SyncSwitchStatus()
 {
-    int state = DEFAULT_STATE;
+    int dbState = DEFAULT_SWITCH_STATE;
     Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
-        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, dbState);
     if (errCode != ERRCODE_SUCCESS) {
+        //It needs to be updated when it is the default, and there is no need to return.
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
     }
-    int cacheState = LocationDataRdbManager::GetSwitchMode();
-    if (cacheState == DEFAULT_STATE && state != DEFAULT_STATE) {
-        LocationDataRdbManager::SetSwitchStateToSyspara(state);
-    } else if (cacheState != DEFAULT_STATE && state != cacheState) {
-        LocationDataRdbManager::SetSwitchStateToDb(cacheState);
+    int sysparaState = LocationDataRdbManager::GetSwitchStateFromSyspara();
+    if (sysparaState == DEFAULT_SWITCH_STATE && dbState != DEFAULT_SWITCH_STATE) {
+        LocationDataRdbManager::SetSwitchStateToSyspara(dbState);
+    } else if (sysparaState != DEFAULT_SWITCH_STATE && dbState != sysparaState) {
+        LocationDataRdbManager::SetSwitchStateToDb(sysparaState);
     }
 }
 
-bool LocationDataRdbManager::ClearSwitchMode()
+bool LocationDataRdbManager::SetDefaultSwitchStateToSyspara()
 {
     char valueArray[MAX_SIZE] = {0};
-    int code = sprintf_s(valueArray, sizeof(valueArray), "%d", DEFAULT_SWITCHMODE);
+    int code = sprintf_s(valueArray, sizeof(valueArray), "%d", DEFAULT_SWITCH_STATE);
     if (code <= 0) {
         return false;
     }

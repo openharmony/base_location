@@ -244,6 +244,8 @@ private:
     ReportManager* reportManager_;
     std::mutex proxyPidsMutex_;
     std::set<int32_t> proxyPids_;
+    ffrt::mutex isSwitchObserverRegMutex_;
+    bool isSwitchObserverReg_ = false;
 };
 
 class LocationMessage {

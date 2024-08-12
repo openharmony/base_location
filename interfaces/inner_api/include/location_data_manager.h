@@ -32,13 +32,14 @@ public:
     LocationErrCode ReportSwitchState(bool isEnabled);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
-    bool IsSwitchStateReg();
+    bool IsSwitchObserverReg();
     void RegisterLocationSwitchObserver();
     static LocationDataManager* GetInstance();
 
 private:
     std::mutex mutex_;
-    std::mutex switchStateMutex_;
+    std::mutex isSwitchObserverRegMutex_;
+    bool isSwitchObserverReg_ = false;
     std::vector<sptr<ISwitchCallback>> switchCallbacks_;
 };
 }  // namespace Location

@@ -127,7 +127,7 @@ enum class ServiceRunningState {
 enum {
     DISABLED = 0,
     ENABLED = 1,
-    DEFAULT_STATE = 2
+    DEFAULT_SWITCH_STATE = 2
 };
 
 enum {
