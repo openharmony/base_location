@@ -28,10 +28,6 @@ void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEvent
     std::string action = want.GetAction();
 
     auto agnssNiManager = AGnssNiManager::GetInstance();
-    if (agnssNiManager == nullptr) {
-        LBSLOGE(GNSS, "agnssNiManager nullptr");
-        return;
-    }
     if (action == CommonEventSupport::COMMON_EVENT_SMS_RECEIVE_COMPLETED) {
         LBSLOGI(GNSS, "[AGNSS NI]:receive sms msg");
         agnssNiManager->CheckSmsSuplInit(want);

@@ -1677,10 +1677,6 @@ GnssHandler::~GnssHandler() {}
 void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(GNSS, "ProcessEvent event:%{public}d", eventId);
     auto handleFunc = gnssEventProcessMap_.find(eventId);
@@ -1694,20 +1690,12 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 void GnssHandler::HandleReportMockLocation(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     gnssAbility->ProcessReportLocationMock();
 }
 
 void GnssHandler::HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
     if (workrecord != nullptr) {
         gnssAbility->LocationRequest(*workrecord);
@@ -1717,10 +1705,6 @@ void GnssHandler::HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointe
 void GnssHandler::HandleSetMockedLocations(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     int timeInterval = event->GetParam();
     auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
     if (vcLoc != nullptr) {
@@ -1735,10 +1719,6 @@ void GnssHandler::HandleSetMockedLocations(const AppExecFwk::InnerEvent::Pointer
 void GnssHandler::HandleSendCommands(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::unique_ptr<LocationCommand> locationCommand = event->GetUniqueObject<LocationCommand>();
     if (locationCommand != nullptr) {
         gnssAbility->SendCommand(locationCommand);
@@ -1748,10 +1728,6 @@ void GnssHandler::HandleSendCommands(const AppExecFwk::InnerEvent::Pointer& even
 void GnssHandler::HandleSetSubscriberSetId(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::unique_ptr<SubscriberSetId> subscriberSetId = event->GetUniqueObject<SubscriberSetId>();
     if (subscriberSetId != nullptr) {
         gnssAbility->SetSetIdImpl(*subscriberSetId);
@@ -1761,10 +1737,6 @@ void GnssHandler::HandleSetSubscriberSetId(const AppExecFwk::InnerEvent::Pointer
 void GnssHandler::HandleSetAgnssRefInfo(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::unique_ptr<AgnssRefInfoMessage> agnssRefInfoMessage = event->GetUniqueObject<AgnssRefInfoMessage>();
     if (agnssRefInfoMessage != nullptr) {
         AGnssRefInfo refInfo = agnssRefInfoMessage->GetAgnssRefInfo();
@@ -1776,20 +1748,12 @@ void GnssHandler::HandleSetAgnssRefInfo(const AppExecFwk::InnerEvent::Pointer& e
 void GnssHandler::HandleReconnectHdi(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     gnssAbility->ReConnectHdiImpl();
 }
 
 void GnssHandler::HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     int state = event->GetParam();
     gnssAbility->SetEnable(state != 0);
 }
@@ -1797,10 +1761,6 @@ void GnssHandler::HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event)
 void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     gnssAbility->ConnectHdi();
     gnssAbility->EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
@@ -1811,10 +1771,6 @@ void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
 void GnssHandler::HandleAddFence(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
         gnssAbility->AddFence(request);
@@ -1824,10 +1780,6 @@ void GnssHandler::HandleAddFence(const AppExecFwk::InnerEvent::Pointer& event)
 void GnssHandler::HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
         gnssAbility->RemoveFence(request);
@@ -1837,10 +1789,6 @@ void GnssHandler::HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event
 void GnssHandler::HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
         gnssAbility->AddGnssGeofence(request);
@@ -1850,10 +1798,6 @@ void GnssHandler::HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event
 void GnssHandler::HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
         gnssAbility->RemoveGnssGeofence(request);
@@ -1863,10 +1807,6 @@ void GnssHandler::HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& ev
 void GnssHandler::HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ProcessEvent: gnss ability is nullptr");
-        return;
-    }
     std::unique_ptr<Location> location = event->GetUniqueObject<Location>();
     if (location != nullptr) {
         int64_t time = location->GetTimeStamp();
