@@ -58,10 +58,6 @@ int32_t AGnssEventCallback::RequestSubscriberSetId(SubscriberSetIdType type)
     setId.type = HDI::Location::Agnss::V2_0::AGNSS_SETID_TYPE_IMSI;
     setId.id = imsi;
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "RequestSubscriberSetId: gnss ability is nullptr");
-        return ERR_OK;
-    }
     gnssAbility->SetSetId(setId);
     return ERR_OK;
 }
