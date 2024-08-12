@@ -151,10 +151,6 @@ void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDev
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByBtHost(device);
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     dataManager->ReportData(result);
 }
 
@@ -172,10 +168,6 @@ void LocatorBleCallbackWapper::OnScanCallback(const Bluetooth::BleScanResult &re
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> res = GetLocatingRequiredDataByBle(result);
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     dataManager->ReportData(res);
 }
 
@@ -272,10 +264,6 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
         LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
     }
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     if (!dataManager->IsConnecting()) {
         LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
         return;
@@ -356,10 +344,6 @@ ScanHandler::~ScanHandler() {}
 void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(LOCATOR, "ScanHandler ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
@@ -383,10 +367,6 @@ ScanListHandler::~ScanListHandler() {}
 void ScanListHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(LOCATOR, "ScanListHandler ProcessEvent event:%{public}d", eventId);
     switch (eventId) {

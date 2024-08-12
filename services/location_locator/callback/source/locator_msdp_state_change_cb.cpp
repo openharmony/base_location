@@ -26,10 +26,6 @@ void DeviceMovementCallback::OnMovementChanged(const Msdp::MovementDataUtils::Mo
         movementData.type, movementData.value);
     if (movementData.type == Msdp::MovementDataUtils::MovementType::TYPE_STILL) {
         auto locatorMsdpMonitorManager = LocatorMsdpMonitorManager::GetInstance();
-        if (locatorMsdpMonitorManager == nullptr) {
-            LBSLOGE(LOCATOR, "OnReceiveEvent: LocatorMsdpMonitorManager is nullptr.");
-            return;
-        }
         if (movementData.value == Msdp::MovementDataUtils::MovementValue::VALUE_ENTER) {
             locatorMsdpMonitorManager->UpdateStillMovementState(true);
         } else {

@@ -471,10 +471,6 @@ GeoConvertHandler::~GeoConvertHandler() {}
 void GeoConvertHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto geoConvertService = GeoConvertService::GetInstance();
-    if (geoConvertService == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: GeoConvertService is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(GEO_CONVERT, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
