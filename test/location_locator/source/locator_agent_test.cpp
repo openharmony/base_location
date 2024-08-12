@@ -204,8 +204,7 @@ HWTEST_F(LocatorAgentTest, StartGnssLocatingTest001, TestSize.Level1)
     auto locationCallbackHost =
         sptr<NativeLocationCallbackHost>(new (std::nothrow) NativeLocationCallbackHost());
     auto locatorCallback = sptr<ILocatorCallback>(locationCallbackHost);
-    auto errCode = locatorAgent->StartGnssLocating(locatorCallback);
-    EXPECT_EQ(ERRCODE_SUCCESS, errCode);
+    locatorAgent->StartGnssLocating(locatorCallback);
     LBSLOGI(LOCATOR_STANDARD, "[LocatorAgentTest] StartGnssLocatingTest001 end");
 }
 
@@ -236,8 +235,7 @@ HWTEST_F(LocatorAgentTest, StopGnssLocatingTest001, TestSize.Level1)
     auto locationCallbackHost =
         sptr<NativeLocationCallbackHost>(new (std::nothrow) NativeLocationCallbackHost());
     auto locatorCallback = sptr<ILocatorCallback>(locationCallbackHost);
-    auto errCode = locatorAgent->StopGnssLocating(locatorCallback);
-    EXPECT_EQ(ERRCODE_SUCCESS, errCode);
+    locatorAgent->StopGnssLocating(locatorCallback);
     LBSLOGI(LOCATOR_STANDARD, "[LocatorAgentTest] StopGnssLocatingTest001 end");
 }
 

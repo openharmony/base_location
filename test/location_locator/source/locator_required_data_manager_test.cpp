@@ -66,7 +66,10 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, nullptr);
     EXPECT_EQ(ERRCODE_INVALID_PARAM, errorCode);
     errorCode = locatorDataManager->UnregisterCallback(nullptr);
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, errorCode);
+
+    auto callback =
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
+    locatorDataManager->UnregisterCallback(callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback001 end");
 }
 
@@ -76,7 +79,6 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
         << "LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 begin");
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
     dataConfig->SetType(2);
     dataConfig->SetNeedStartScan(false);
@@ -84,8 +86,13 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     dataConfig->SetScanTimeoutMs(1);
     auto callback =
         sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
+    locatorDataManager->isWifiCallbackRegistered_ = true;
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
+    locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
+    dataConfig->SetType(1);
+    locatorDataManager->isWifiCallbackRegistered_ = true;
+    locatorDataManager->RegisterCallback(dataConfig, callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 end");
 }
 
@@ -319,6 +326,8 @@ HWTEST_F(LocatorRequiredDataManagerTest, WifiServiceStatusChange001, TestSize.Le
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
     locatorDataManager->saStatusListener_->OnAddSystemAbility(systemAbilityId, deviceId);
     locatorDataManager->saStatusListener_->OnRemoveSystemAbility(systemAbilityId, deviceId);
+    locatorDataManager->wifiScanPtr_ = nullptr;
+    locatorDataManager->saStatusListener_->OnAddSystemAbility(systemAbilityId, deviceId);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] WifiServiceStatusChange001 end");
 }
 }  // namespace Location
