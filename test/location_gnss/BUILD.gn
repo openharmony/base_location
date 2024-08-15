@@ -130,6 +130,11 @@ if (location_feature_with_gnss) {
       external_deps += [ "time_service:time_client" ]
       defines += [ "TIME_SERVICE_ENABLE" ]
     }
+
+    if (net_manager_enable) {
+      external_deps += [ "netmanager_base:net_conn_manager_if" ]
+      defines += [ "NET_MANAGER_ENABLE" ]
+    }
     module_out_path = module_output_path
   }
 } else {
