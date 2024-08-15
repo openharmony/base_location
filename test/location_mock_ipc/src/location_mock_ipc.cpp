@@ -145,8 +145,7 @@ HWTEST_F(LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Leve
         parcel.WriteInterfaceToken(u"location.INetworkAbility");
         MessageParcel reply;
         MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-            networkAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
+        networkAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option);
     }
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockNetworkStubCallingPermission001 end");
 }

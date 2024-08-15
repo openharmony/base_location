@@ -28,11 +28,12 @@ class PassiveAbilityTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
+    static void SetUpTestCase();
     static void TearDownTestCase();
-    void MockNativePermission();
+    static void MockNativePermission();
     
-    sptr<PassiveAbilityProxy> proxy_;
-    sptr<PassiveAbility> ability_;
+    static sptr<PassiveAbility> ability_;
+    static sptr<PassiveAbilityProxy> proxy_;
 };
 } // namespace Location
 } // namespace OHOS

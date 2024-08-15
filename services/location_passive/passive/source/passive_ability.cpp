@@ -240,9 +240,6 @@ PassiveHandler::~PassiveHandler() {}
 void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto passiveAbility = PassiveAbility::GetInstance();
-    if (passiveAbility == nullptr) {
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(PASSIVE, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {

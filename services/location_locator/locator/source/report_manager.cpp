@@ -122,16 +122,10 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> finalLocation;
     if (IsRequestFuse(request)) {
         auto fusionController = FusionController::GetInstance();
-        if (fusionController == nullptr) {
-            return false;
-        }
         fuseLocation = fusionController->GetFuseLocation(location, request->GetBestLocation());
         request->SetBestLocation(fuseLocation);
     }
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        return false;
-    }
     finalLocation = GetPermittedLocation(request, IsRequestFuse(request) ? fuseLocation : location);
     if (!ResultCheck(finalLocation, request)) {
         // add location permission using record
@@ -249,9 +243,6 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
         return false;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        return false;
-    }
     if (locatorAbility->IsProxyPid(request->GetPid())) {
         LBSLOGE(REPORT_MANAGER, "pid:%{public}d is proxy by freeze, no need to report", request->GetPid());
         return false;
@@ -313,7 +304,7 @@ void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location
     int currentUserId = 0;
     if (CommonUtils::GetCurrentUserId(currentUserId)) {
         std::unique_lock<std::mutex> lock(lastLocationMutex_);
-        lastLocationsMap_.insert(std::make_pair(currentUserId, std::make_shared<Location>(*location)));
+        lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
     }
 }
 
@@ -357,9 +348,6 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
 void ReportManager::UpdateRandom()
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        return;
-    }
     int num = locatorAbility->GetActiveRequestNum();
     if (num > 0) {
         LBSLOGD(REPORT_MANAGER, "Exists %{public}d active request, cannot refresh offset", num);
@@ -447,9 +435,6 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
 {
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    if (locatorBackgroundProxy == nullptr) {
-        return false;
-    }
     if (!locatorBackgroundProxy->IsAppBackground(bundleName)) {
         return false;
     }

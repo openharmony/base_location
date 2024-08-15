@@ -157,8 +157,14 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveUnloadTaskTest001, TestSize.Lev
         << "LocatorAbilityTest, LocatorAbilityRemoveUnloadTaskTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveUnloadTask001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     int code = 1;
+    locatorAbility->locatorHandler_ = nullptr;
+    locatorAbility->RemoveUnloadTask(code);
+    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
+    locatorAbility->RemoveUnloadTask(code);
+    code = static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE);
+    locatorAbility->RemoveUnloadTask(code);
+    code = static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY);
     locatorAbility->RemoveUnloadTask(code);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveUnloadTaskTest001 end");
 }
@@ -423,6 +429,44 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted001, TestSize.L
     locatorAbility->requests_ = nullptr;
     locatorAbility->CheckIsReportPermitted(identity);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted002 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    AppIdentity identity;
+    locatorAbility->requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
+    locatorAbility->CheckIsReportPermitted(identity);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted002 end");
+}
+
+HWTEST_F(LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted003 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    AppIdentity identity;
+    identity.SetTokenId(1);
+    auto request1 = std::make_shared<Request>();
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    request1->SetLocationErrorCallBack(callbackStub);
+    request1->SetTokenId(1);
+    auto request2 = std::make_shared<Request>();
+    request2->SetTokenId(2);
+    request2->SetLocationErrorCallBack(callbackStub);
+    std::list<std::shared_ptr<Request>> list;
+    list.push_back(request1);
+    list.push_back(request2);
+    locatorAbility->requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
+    locatorAbility->requests_->insert(make_pair(GNSS_ABILITY, list));
+    locatorAbility->CheckIsReportPermitted(identity);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted003 end");
 }
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityEnableReverseGeocodingMock001, TestSize.Level1)
@@ -864,6 +908,36 @@ HWTEST_F(LocatorAbilityTest, LocatorCallbackDeathRecipient001, TestSize.Level1)
     wptr<IRemoteObject> remote;
     recipient->OnRemoteDied(remote);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorCallbackDeathRecipient001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, LocatorHandler003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, LocatorHandler003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler003 begin");
+    std::shared_ptr<AppExecFwk::EventRunner> runner;
+    auto locatorHandler =
+        new (std::nothrow) LocatorHandler(runner);
+    int state = 1;
+    AppExecFwk::InnerEvent::Pointer event  =
+        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
+    locatorHandler->RequestCheckEvent(event);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler003 end");
+}
+
+HWTEST_F(LocatorAbilityTest, LocatorHandler004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, LocatorHandler004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler004 begin");
+    std::shared_ptr<AppExecFwk::EventRunner> runner;
+    auto locatorHandler =
+        new (std::nothrow) LocatorHandler(runner);
+    int state = 1;
+    AppExecFwk::InnerEvent::Pointer event  =
+        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
+    locatorHandler->SyncStillMovementState(event);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler004 end");
 }
 }  // namespace Location
 }  // namespace OHOS

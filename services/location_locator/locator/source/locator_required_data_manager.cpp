@@ -149,10 +149,6 @@ void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDev
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByBtHost(device);
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     dataManager->ReportData(result);
 }
 
@@ -170,10 +166,6 @@ void LocatorBleCallbackWapper::OnScanCallback(const Bluetooth::BleScanResult &re
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> res = GetLocatingRequiredDataByBle(result);
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     dataManager->ReportData(res);
 }
 
@@ -284,13 +276,8 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state)
     LBSLOGD(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
     if (state == 0) {
         LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
-        return;
     }
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     if (!dataManager->IsConnecting()) {
         LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
         return;
@@ -337,12 +324,16 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
     if (wifiScanPtr_ == nullptr) {
         return;
     }
-    if (scanListHandler_ != nullptr) {
-        scanListHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, DEFAULT_TIMEOUT_4S);
-    }
     int ret = wifiScanPtr_->Scan();
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
+        if (scanListHandler_ != nullptr) {
+            scanListHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, 0);
+        }
+    } else {
+        if (scanListHandler_ != nullptr) {
+            scanListHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, DEFAULT_TIMEOUT_4S);
+        }
     }
 #endif
     LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
@@ -367,10 +358,6 @@ ScanHandler::~ScanHandler() {}
 void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(LOCATOR, "ScanHandler ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
@@ -394,10 +381,6 @@ ScanListHandler::~ScanListHandler() {}
 void ScanListHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (dataManager == nullptr) {
-        LBSLOGE(LOCATOR, "ProcessEvent: dataManager is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(LOCATOR, "ScanListHandler ProcessEvent event:%{public}d", eventId);
     switch (eventId) {

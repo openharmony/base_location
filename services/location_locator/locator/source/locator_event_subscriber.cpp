@@ -34,10 +34,6 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
     LBSLOGI(LOCATOR_EVENT, "received action = %{public}s", action.c_str());
     if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED.compare(action) == 0) {
         auto locatorAbility = LocatorAbility::GetInstance();
-        if (locatorAbility == nullptr) {
-            LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
-            return;
-        }
         const bool napped = event.GetWant().GetBoolParam(LOCATOR_STANDBY_NAP, 0);
         const bool sleeping = event.GetWant().GetBoolParam(LOCATOR_STANDBY_SLEEPING, 0);
         LBSLOGD(LOCATOR_EVENT, "device idle napped: %{public}d, sleeping: %{public}d", napped, sleeping);
@@ -45,14 +41,11 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         return;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR_EVENT, "OnReceiveEvent: LocatorAbility is nullptr.");
-        return;
-    }
     if (std::string(MODE_CHANGED_EVENT).compare(action) == 0) {
         locatorAbility->UpdateSaAbility();
     } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
+        locatorAbility->EnableAbility(true);
     } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {
         locatorAbility->EnableAbility(false);
     }

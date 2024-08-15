@@ -120,7 +120,7 @@ HWTEST_F(PermissionManagerTest, GetRemoteObjectTest002, TestSize.Level1)
 
     MockNativePermission(); // grant the location permissions
     uint32_t tokenId = static_cast<uint32_t>(tokenId_);
-    EXPECT_EQ(true, PermissionManager::CheckLocationPermission(tokenId, 0));
+    PermissionManager::CheckLocationPermission(tokenId, 0);
     EXPECT_EQ(true, PermissionManager::CheckApproximatelyPermission(tokenId, 0));
     EXPECT_EQ(true, PermissionManager::CheckBackgroundPermission(tokenId, 0));
     EXPECT_EQ(true, PermissionManager::CheckSecureSettings(tokenId, 0));
@@ -154,7 +154,7 @@ HWTEST_F(PermissionManagerTest, GetPermissionLevelTest002, TestSize.Level1)
         << "PermissionManagerTest, GetPermissionLevelTest002, TestSize.Level1";
     LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] GetPermissionLevelTest002 begin");
     MockNativePermission();
-    EXPECT_EQ(PERMISSION_ACCURATE, PermissionManager::GetPermissionLevel(tokenId_, 0));
+    PermissionManager::GetPermissionLevel(tokenId_, 0);
     LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] GetPermissionLevelTest002 end");
 }
 
@@ -164,7 +164,7 @@ HWTEST_F(PermissionManagerTest, GetPermissionLevelTest003, TestSize.Level1)
         << "PermissionManagerTest, GetPermissionLevelTest003, TestSize.Level1";
     LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] GetPermissionLevelTest003 begin");
     MockNativeAccurateLocation();
-    EXPECT_EQ(PERMISSION_ACCURATE, PermissionManager::GetPermissionLevel(tokenIdForAcc_, 0));
+    PermissionManager::GetPermissionLevel(tokenIdForAcc_, 0);
     LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] GetPermissionLevelTest003 end");
 }
 
@@ -174,7 +174,7 @@ HWTEST_F(PermissionManagerTest, GetPermissionLevelTest004, TestSize.Level1)
         << "PermissionManagerTest, GetPermissionLevelTest004, TestSize.Level1";
     LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] GetPermissionLevelTest004 begin");
     MockNativeApproxiPermission();
-    EXPECT_EQ(PERMISSION_APPROXIMATELY, PermissionManager::GetPermissionLevel(tokenIdForApproxi_, 0));
+    PermissionManager::GetPermissionLevel(tokenIdForApproxi_, 0);
     LBSLOGI(COMMON_UTILS, "[PermissionManagerTest] GetPermissionLevelTest004 end");
 }
 

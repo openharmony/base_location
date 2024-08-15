@@ -33,7 +33,7 @@ private:
     bool CheckValid(int64_t gpsTime, int64_t lastSystemTime);
     TimeManager timeManager_;
     bool validFlag_ {false};
-    int64_t lastSystemTime_;
+    int64_t lastSystemTime_ = 0;
 };
 } // namespace Location
 } // namespace OHOS

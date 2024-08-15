@@ -341,10 +341,6 @@ void LocatorAbility::UpdateSaAbilityHandler()
     }
     bool isEnabled = (state == ENABLED);
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    if (locatorBackgroundProxy == nullptr) {
-        LBSLOGE(LOCATOR, "UpdateSaAbilityHandler: LocatorBackgroundProxy is nullptr");
-        return;
-    }
     locatorBackgroundProxy->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
     std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
@@ -1793,7 +1789,7 @@ void LocatorHandler::UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
 void LocatorHandler::InitRequestManagerEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto requestManager = RequestManager::GetInstance();
-    if (requestManager == nullptr || !requestManager->InitSystemListeners()) {
+    if (!requestManager->InitSystemListeners()) {
         LBSLOGE(LOCATOR, "InitSystemListeners failed");
     }
 }

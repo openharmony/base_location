@@ -25,7 +25,9 @@
 #include "iremote_stub.h"
 
 #include "constant_definition.h"
+#define private public
 #include "gnss_ability_skeleton.h"
+#undef private
 #include "location.h"
 #include "work_record.h"
 #include "geofence_request.h"
