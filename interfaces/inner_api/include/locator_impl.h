@@ -308,12 +308,29 @@ public:
     LocationErrCode IsLocationEnabledV9(bool &isEnabled);
 
     /**
+     * @brief Obtain current location switch status.
+     *
+     * @param isEnabled Indicates if the location switch on.
+     * @return Returns ERRCODE_SUCCESS if obtain current location switch status succeed.
+     */
+    LocationErrCode IsLocationEnabledForUser(bool &isEnabled, int32_t userId);
+
+    /**
      * @brief Enable location switch.
      *
      * @param enable Status of the location switch to be set.
      * @return Returns ERRCODE_SUCCESS if enable location switch succeed.
      */
     LocationErrCode EnableAbilityV9(bool enable);
+
+    /**
+     * @brief Enable location switch.
+     *
+     * @param enable Status of the location switch to be set.
+     * @param userId userId of the user.
+     * @return Returns ERRCODE_SUCCESS if enable location switch succeed.
+     */
+    LocationErrCode EnableAbilityForUser(bool enable, int32_t userId);
 
     /**
      * @brief Subscribe location changed.

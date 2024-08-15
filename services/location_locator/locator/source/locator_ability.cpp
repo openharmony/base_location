@@ -91,6 +91,7 @@ const uint32_t EVENT_SET_LOCATION_WORKING_STATE = 0x0022;
 const uint32_t EVENT_SEND_GEOREQUEST = 0x0023;
 const uint32_t EVENT_SET_SWITCH_STATE_TO_DB = 0x0024;
 const uint32_t EVENT_WATCH_SWITCH_PARAMETER = 0x0025;
+const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -429,7 +430,7 @@ bool LocatorAbility::CheckIfLocatorConnecting()
 LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
-    int modeValue = isEnabled ? 1 : 0;
+    int modeValue = isEnabled ? ENABLED : DISABLED;
     int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
     if (modeValue == currentSwitchState && currentSwitchState != DEFAULT_STATE) {
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
@@ -441,6 +442,27 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
         Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
+    }
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
+{
+    LBSLOGI(LOCATOR, "EnableAbilityForUser %{public}d, UserId %{public}d", isEnabled, userId);
+    // update param
+    int modeValue = isEnabled ? ENABLED : DISABLED;
+    std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
+    locatorSwitchMessage->SetModeValue(modeValue);
+    locatorSwitchMessage->SetUserId(userId);
+    int currentUserId = 0;
+    // Only current users need to update Syspara
+    if (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId) {
+        LocationDataRdbManager::SetSwitchStateToSyspara(isEnabled ? ENABLED : DISABLED);
+    }
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID Send Success", __func__);
     }
     return ERRCODE_SUCCESS;
 }
@@ -1727,6 +1749,26 @@ int32_t LocatorErrorMessage::GetErrCode()
     return errCode_;
 }
 
+void LocatorSwitchMessage::SetUserId(int32_t userId)
+{
+    userId_ = userId;
+}
+
+int32_t LocatorSwitchMessage::GetUserId()
+{
+    return userId_;
+}
+
+void LocatorSwitchMessage::SetModeValue(int32_t modeValue)
+{
+    modeValue_ = modeValue;
+}
+
+int32_t LocatorSwitchMessage::GetModeValue()
+{
+    return modeValue_;
+}
+
 LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
 {
     InitLocatorHandlerEventMap();
@@ -1797,6 +1839,8 @@ void LocatorHandler::ConstructDbHandleMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SetLocationWorkingStateEvent(event); };
     locatorHandlerEventMap_[EVENT_SET_SWITCH_STATE_TO_DB] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { SetSwitchStateToDbEvent(event); };
+    locatorHandlerEventMap_[EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SetSwitchStateToDbForUserEvent(event); };
     locatorHandlerEventMap_[EVENT_WATCH_SWITCH_PARAMETER] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { WatchSwitchParameter(event); };
 }
@@ -2133,6 +2177,31 @@ void LocatorHandler::SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Point
         locatorAbility->ReportDataToResSched(state);
         WriteLocationSwitchStateEvent(state);
     }
+}
+
+void LocatorHandler::SetSwitchStateToDbForUserEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = event->GetUniqueObject<LocatorSwitchMessage>();
+    if (locatorSwitchMessage == nullptr) {
+        return;
+    }
+    auto modeValue = locatorSwitchMessage->GetModeValue();
+    auto userId = locatorSwitchMessage->GetUserId();
+    if (LocationDataRdbManager::SetSwitchStateToDbForUser(modeValue, userId) != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
+        return;
+    }
+    LocatorAbility::GetInstance()->UpdateSaAbility();
+    LocatorAbility::GetInstance()->ApplyRequests(0);
+    int currentUserId = 0;
+    if (CommonUtils::GetCurrentUserId(currentUserId) && userId != currentUserId) {
+        return;
+    }
+    bool isEnabled = (modeValue == ENABLED);
+    std::string state = isEnabled ? "enable" : "disable";
+    // background task only check the current user switch state
+    LocatorAbility::GetInstance()->ReportDataToResSched(state);
+    WriteLocationSwitchStateEvent(state);
 }
 
 LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)

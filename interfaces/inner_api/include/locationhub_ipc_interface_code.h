@@ -69,7 +69,8 @@ enum class LocatorInterfaceCode {
     GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE = 47,
     REG_LOCATION_ERROR = 48,
     UNREG_LOCATION_ERROR = 49,
-    REPORT_LOCATION_ERROR = 50
+    REPORT_LOCATION_ERROR = 50,
+    ENABLE_ABILITY_BY_USERID = 51
 };
 
 enum class GeoConvertInterfaceCode {
