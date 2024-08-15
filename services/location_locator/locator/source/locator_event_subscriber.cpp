@@ -45,6 +45,7 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         locatorAbility->UpdateSaAbility();
     } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
+        locatorAbility->EnableAbility(true);
     } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {
         locatorAbility->EnableAbility(false);
     }
