@@ -360,6 +360,8 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
         LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
     if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
+        LBSLOGE(LOCATOR, "OpenPrivacyDialog");
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = locatorAbility->EnableAbility(isEnabled);
     std::string bundleName;
