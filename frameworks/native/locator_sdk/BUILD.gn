@@ -58,15 +58,16 @@ ohos_shared_library("locator_sdk") {
 
   sources = local_base_sources
 
-  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
+  ]
 
   public_external_deps = [
     "ability_runtime:dataobs_manager",
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "init:libbeget_proxy",
-    "ipc:ipc_single",
-    "samgr:samgr_proxy",
   ]
 
   defines = []
@@ -126,7 +127,10 @@ ohos_static_library("locator_sdk_static") {
 
   sources = local_base_sources
 
-  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
+  ]
 
   public_external_deps = [
     "ability_runtime:dataobs_manager",

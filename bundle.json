@@ -83,7 +83,8 @@
         "build": {
             "group_type": {
                 "base_group": [
-                    "//base/location/services/utils:lbsresources"
+                    "//base/location/services/utils:lbsresources",
+                    "//base/location/frameworks/base_module:lbsbase_module"
                 ],
                 "fwk_group": [
                     "//base/location/frameworks/native/locator_sdk:locator_sdk",

@@ -81,7 +81,7 @@ sptr<GeofenceSdk> GeofenceManager::GetProxy()
 
 LocationErrCode GeofenceManager::AddFenceV9(std::shared_ptr<GeofenceRequest> &request)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::AddFenceV9()");
@@ -96,7 +96,7 @@ LocationErrCode GeofenceManager::AddFenceV9(std::shared_ptr<GeofenceRequest> &re
 
 LocationErrCode GeofenceManager::RemoveFenceV9(std::shared_ptr<GeofenceRequest> &request)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::RemoveFenceV9()");
@@ -111,7 +111,7 @@ LocationErrCode GeofenceManager::RemoveFenceV9(std::shared_ptr<GeofenceRequest> 
 
 LocationErrCode GeofenceManager::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<GeofenceSdk> proxy = GetProxy();
@@ -125,7 +125,7 @@ LocationErrCode GeofenceManager::AddGnssGeofence(std::shared_ptr<GeofenceRequest
 
 LocationErrCode GeofenceManager::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::RemoveGnssGeofence()");
@@ -141,7 +141,7 @@ LocationErrCode GeofenceManager::RemoveGnssGeofence(std::shared_ptr<GeofenceRequ
 LocationErrCode GeofenceManager::GetGeofenceSupportedCoordTypes(
     std::vector<CoordinateSystemType>& coordinateSystemTypes)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::%{public}s", __func__);

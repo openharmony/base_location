@@ -51,6 +51,15 @@ private:
     std::mutex locatorMutex_;
     bool state_ = false;
 };
+
+class SaLoadWithStatistic {
+public:
+    SaLoadWithStatistic();
+    ~SaLoadWithStatistic();
+
+    static bool InitLocationSa(int32_t systemAbilityId);
+    static bool UnInitLocationSa(int32_t systemAbilityId);
+};
 }  // namespace Location
 }  // namespace OHOS
 #endif // OHOS_LOCATION_SA_LOAD_MANAGER_H
