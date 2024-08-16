@@ -1707,7 +1707,7 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { UnRegLocationErrorEvent(event); };
     locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] =
-        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportLocationErrorEvent(event); };
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportNetworkLocatingErrorEvent(event); };
     locatorHandlerEventMap_[EVENT_PERIODIC_CHECK] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { RequestCheckEvent(event); };
     locatorHandlerEventMap_[EVENT_SYNC_LOCATION_STATUS] =
@@ -1916,12 +1916,11 @@ void LocatorHandler::UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Point
         return;
     }
     if (requestManager != nullptr) {
-        requestManager->RegisterLocationErrorCallback(callbackMessage->GetCallback(),
-            callbackMessage->GetAppIdentity());
+        requestManager->UnRegisterLocationErrorCallback(callbackMessage->GetCallback());
     }
 }
 
-void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = event->GetUniqueObject<LocatorErrorMessage>();
     if (locatorErrorMessage == nullptr) {
@@ -1938,9 +1937,10 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
     if (requestListIter == requestMap->end()) {
         return;
     }
-    for (auto iter : requestListIter) {
+    auto requestList = requestListIter->second;
+    for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
-        if (uuid == request->GetUuid()) {
+        if (uuid.compare(request->GetUuid()) == 0) {
             RequestManager::GetInstance()->ReportLocationError(errCode, request);
             break;
         }

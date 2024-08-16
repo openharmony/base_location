@@ -51,6 +51,7 @@ private:
     int32_t lastReportErrcode_;
     sptr<IRemoteObject::DeathRecipient> locatorErrCallbackRecipient_;
 };
+
 class RequestManager {
 public:
     RequestManager();
@@ -89,7 +90,7 @@ private:
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
     void ReportDataToResSched(std::string state, const pid_t pid, const pid_t uid);
     std::map<int32_t, int32_t> runningUidMap_;
-    std::map<sptr<ILocatorCallback>, std::shared_ptr<LocatorErrRequest>> locationErrorCallbackMap_;
+    std::map<sptr<IRemoteObject>, std::shared_ptr<LocationErrRequest>> locationErrorCallbackMap_;
     static ffrt::mutex requestMutex_;
     ffrt::mutex runningUidsMutex_;
     ffrt::mutex locationErrorCallbackMutex_;

@@ -579,11 +579,8 @@ HWTEST_F(RequestManagerTest, UpdateLocationErrorCallbackToRequest001, TestSize.L
         << "RequestManagerTest, UpdateLocationErrorCallbackToRequest001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateLocationErrorCallbackToRequest001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
-    sptr<LocatorCallbackHost> locatorCallbackHost =
-        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
-    sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(locatorCallbackHost);
-    requestManager_->RegisterLocationErrorCallback(callback, 0, false);
-    requestManager_->RegisterLocationErrorCallback(callback, 0, true);
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    requestManager_->UpdateLocationError(request);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateLocationErrorCallbackToRequest001 end");
 }
 

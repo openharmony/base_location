@@ -28,7 +28,7 @@ std::shared_ptr<LocatorImpl> Locator::GetInstance()
     if (instance_ == nullptr) {
         std::unique_lock<std::mutex> lock(mutex_);
         if (instance_ == nullptr) {
-            LocatorImpl> locator = std::make_shared<LocatorImpl>();
+            std::shared_ptr<LocatorImpl> locator = std::make_shared<LocatorImpl>();
             instance_ = locator;
         }
     }

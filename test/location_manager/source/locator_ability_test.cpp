@@ -418,57 +418,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityGetCacheLocation001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityGetCacheLocation001 end");
 }
 
-HWTEST_F(LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    AppIdentity identity;
-    locatorAbility->requests_ = nullptr;
-    locatorAbility->CheckIsReportPermitted(identity);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted001 end");
-}
-
-HWTEST_F(LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted002 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    AppIdentity identity;
-    locatorAbility->requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
-    locatorAbility->CheckIsReportPermitted(identity);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted002 end");
-}
-
-HWTEST_F(LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted003, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted003 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    AppIdentity identity;
-    identity.SetTokenId(1);
-    auto request1 = std::make_shared<Request>();
-    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
-    request1->SetLocationErrorCallBack(callbackStub);
-    request1->SetTokenId(1);
-    auto request2 = std::make_shared<Request>();
-    request2->SetTokenId(2);
-    request2->SetLocationErrorCallBack(callbackStub);
-    std::list<std::shared_ptr<Request>> list;
-    list.push_back(request1);
-    list.push_back(request2);
-    locatorAbility->requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
-    locatorAbility->requests_->insert(make_pair(GNSS_ABILITY, list));
-    locatorAbility->CheckIsReportPermitted(identity);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted003 end");
-}
-
 HWTEST_F(LocatorAbilityTest, LocatorAbilityEnableReverseGeocodingMock001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
