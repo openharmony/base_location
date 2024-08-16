@@ -38,7 +38,7 @@ export default class ConfirmUIExtAbility extends UIExtensionAbility {
         let storage: LocalStorage = new LocalStorage(param);
         session.loadContent('pages/ConfirmDialog', storage);
         session.setWindowBackgroundColor('#00000000');
-        AppStorage.setOrCreate('ConfirmSession',session);
+        AppStorage.setOrCreate('ConfirmSession', session);
     }
 
     onSessionDestroy(session: UIExtensionContentSession) {

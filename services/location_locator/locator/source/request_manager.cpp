@@ -664,7 +664,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount += 1;
         if (uidCount == 1) {
             WriteAppLocatingStateEvent("start", pid, uid);
-            ReportDataToResSched("start", uid);
+            ReportDataToResSched("start", pid, uid);
         }
     } else {
         WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
@@ -672,7 +672,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount -= 1;
         if (uidCount == 0) {
             WriteAppLocatingStateEvent("stop", pid, uid);
-            ReportDataToResSched("stop", uid);
+            ReportDataToResSched("stop", pid, uid);
         }
     }
     if (uidCount > 0) {
@@ -680,10 +680,11 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
     }
 }
 
-void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
+void RequestManager::ReportDataToResSched(std::string state, const pid_t pid, const pid_t uid)
 {
 #ifdef RES_SCHED_SUPPROT
     std::unordered_map<std::string, std::string> payload;
+    payload["pid"] = std::to_string(pid);
     payload["uid"] = std::to_string(uid);
     payload["state"] = state;
     uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS_CHANGE;
