@@ -367,7 +367,7 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
     std::string bundleName;
     bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
     // settings first enable location, need to update privacy state
-    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState &&
+    if (code == ERRCODE_SUCCESS && errCode == ERRCODE_SUCCESS && isEnabled && !privacyState &&
         result && !bundleName.empty() && identity.GetBundleName() == bundleName) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
     }
