@@ -82,6 +82,10 @@ private:
     void SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
+
+    bool IsSwitchObserverReg();
+    ffrt::mutex isSwitchObserverRegMutex_;
+    bool isSwitchObserverReg_ = false;
 };
 
 class LocatorAbility : public SystemAbility, public LocatorAbilityStub {
@@ -244,8 +248,6 @@ private:
     ReportManager* reportManager_;
     std::mutex proxyPidsMutex_;
     std::set<int32_t> proxyPids_;
-    ffrt::mutex isSwitchObserverRegMutex_;
-    bool isSwitchObserverReg_ = false;
 };
 
 class LocationMessage {

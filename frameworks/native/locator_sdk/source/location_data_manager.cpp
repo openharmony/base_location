@@ -73,7 +73,7 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
     switchCallbacks_.push_back(switchCallback);
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_.size()).c_str());
-    if (IsSwitchStateReg()) {
+    if (!IsSwitchObserverReg()) {
         RegisterLocationSwitchObserver();
     }
     return ERRCODE_SUCCESS;
@@ -116,7 +116,7 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
     return ERRCODE_SUCCESS;
 }
 
-bool LocationDataManager::IsSwitchStateReg()
+bool LocationDataManager::IsSwitchObserverReg()
 {
     std::unique_lock<std::mutex> lock(isSwitchObserverRegMutex_);
     return isSwitchObserverReg_;

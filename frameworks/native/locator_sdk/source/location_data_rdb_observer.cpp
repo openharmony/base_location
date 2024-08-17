@@ -42,17 +42,6 @@ void LocationDataRdbObserver::OnChange()
 
 void LocationDataRdbObserver::HandleSwitchStateChanged()
 {
-    auto rdbHelper = LocationDataRdbHelper::GetInstance();
-    auto locationDataManager = LocationDataManager::GetInstance();
-    if (rdbHelper == nullptr || locationDataManager == nullptr ||
-        !locationDataManager->IsSwitchStateReg()) {
-        LBSLOGE(LOCATOR, "%{public}s: param is nullptr", __func__);
-        return;
-    }
-
-    int32_t state = DEFAULT_SWITCH_STATE;
-    state = LocationDataRdbManager::QuerySwitchState();
-    locationDataManager->ReportSwitchState(state);
 }
 } // namespace Location
 } // namespace OHOS

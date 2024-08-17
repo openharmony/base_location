@@ -2019,7 +2019,7 @@ void LocatorHandler::SyncSwitchStatus(const AppExecFwk::InnerEvent::Pointer& eve
     LocationDataRdbManager::SyncSwitchStatus();
 }
 
-bool LocatorHandler::IsSwitchStateReg()
+bool LocatorHandler::IsSwitchObserverReg()
 {
     std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
     return isSwitchObserverReg_;
@@ -2027,6 +2027,9 @@ bool LocatorHandler::IsSwitchStateReg()
 
 void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event)
 {
+    if (IsSwitchObserverReg()) {
+        return;
+    }
     auto eventCallback = [](const char *key, const char *value, void *context) {
         LocationDataRdbManager::SyncSwitchStatus();
     };

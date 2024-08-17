@@ -21,8 +21,6 @@
 namespace OHOS {
 namespace Location {
 const int DEFAULT_USERID = 100;
-const int DEFAULT_SWITCH_STATE = 2;
-const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
 std::mutex LocationDataRdbManager::mutex_;
 const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
@@ -145,7 +143,7 @@ void LocationDataRdbManager::SyncSwitchStatus()
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, dbState);
     if (errCode != ERRCODE_SUCCESS) {
-        //It needs to be updated when it is the default, and there is no need to return.
+        // It needs to be updated when it is the default, and there is no need to return.
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
     }
     int sysparaState = LocationDataRdbManager::GetSwitchStateFromSyspara();
