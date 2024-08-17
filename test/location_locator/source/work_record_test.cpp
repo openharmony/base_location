@@ -29,6 +29,7 @@ namespace OHOS {
 namespace Location {
 const int WRONG_UID = 1001;
 const int MAX_RECORD_COUNT = 100;
+const uint32_t WORKING_STATE = 1;
 
 void WorkRecordTest::SetUp()
 {
@@ -318,6 +319,27 @@ HWTEST_F(WorkRecordTest, WorkRecordStatistic002, TestSize.Level1)
     auto workRecordStatistic = WorkRecordStatistic::GetInstance();
     workRecordStatistic->Update("network", 0);
     LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic002 end");
+}
+
+HWTEST_F(WorkRecordTest, WorkRecordStatistic003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, WorkRecordStatistic003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic003 begin");
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    workRecordStatistic->DestroyInstance();
+    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic003 end");
+}
+
+HWTEST_F(WorkRecordTest, WorkRecordStatistic004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, WorkRecordStatistic004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic004 begin");
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    workRecordStatistic->location_working_state_ = WORKING_STATE;
+    workRecordStatistic->UpdateLocationWorkingState();
+    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic004 end");
 }
 } // namespace Location
 } // namespace OHOS

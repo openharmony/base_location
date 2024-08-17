@@ -78,6 +78,21 @@ HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest002, TestSize.Level1)
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest002 end");
 }
 
+HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityStubTest, NetworkAbilityStubTest003, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest003 begin");
+    auto networkAbilityStub = sptr<MockNetworkAbilityStub>(new (std::nothrow) MockNetworkAbilityStub());
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(NetworkAbilityProxy::GetDescriptor());
+    MessageParcel reply;
+    MessageOption option;
+    networkAbilityStub->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST),
+        parcel, reply, option);
+    LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilityStubTest003 end");
+}
+
 HWTEST_F(NetworkAbilityStubTest, NetworkAbilityStubTest004, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

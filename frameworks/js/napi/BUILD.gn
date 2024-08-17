@@ -70,6 +70,7 @@ ohos_shared_library("geolocation") {
   sources = local_base_sources
 
   deps = [
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
@@ -115,6 +116,7 @@ ohos_static_library("geolocation_static") {
   sources = local_base_sources
 
   deps = [
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
@@ -154,6 +156,7 @@ ohos_shared_library("geolocationmanager") {
   sources = local_base_sources
 
   deps = [
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",

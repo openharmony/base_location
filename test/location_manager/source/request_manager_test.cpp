@@ -135,13 +135,16 @@ HWTEST_F(RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1)
         << "RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
+    auto locatorAbility = LocatorAbility::GetInstance();
+    locatorAbility->receivers_ = nullptr;
     requestManager_->HandleStartLocating(request_);
     requestManager_->HandleStopLocating(nullptr); // can't stop locating
 
     requestManager_->HandleStartLocating(request_); // can start locating
     requestManager_->HandleStopLocating(callback_); // can stop locating
 
-    requestManager_->HandleStartLocating(nullptr); // can't start locating
+    locatorAbility->receivers_ = nullptr;
+    requestManager_->HandleStartLocating(request_); // can't start locating
     requestManager_->HandleStopLocating(callback_); // can stop locating, but not locating
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating001 end");
 }
@@ -313,6 +316,7 @@ HWTEST_F(RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1)
     requestManager_->HandlePermissionChanged(request_->GetTokenId());
     auto callback = request_->GetLocatorCallBack();
     sptr<IRemoteObject> deadCallback = callback->AsObject();
+    locatorAbility->receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     locatorAbility->receivers_->insert(std::make_pair(deadCallback, std::list<std::shared_ptr<Request>>{request_}));
     requestManager_->HandleStopLocating(callback);
     requestManager_->HandlePermissionChanged(request_->GetTokenId());

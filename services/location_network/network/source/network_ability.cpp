@@ -243,7 +243,7 @@ void NetworkAbility::UnloadNetworkSystemAbility()
         return;
     }
     auto task = [this]() {
-        LocationSaLoadManager::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+        SaLoadWithStatistic::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     };
     if (networkHandler_ != nullptr) {
         networkHandler_->PostTask(task, UNLOAD_NETWORK_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -280,7 +280,8 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         if (GetRequestNum() == 0 && conn_ != nullptr) {
             LBSLOGI(NETWORK, "RequestRecord disconnect");
             AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
-            conn_ = nullptr;
+            UnRegisterNLPServiceDeathRecipient();
+            conn_ = nullptr ;
         }
     }
 }
@@ -487,9 +488,24 @@ void NetworkAbility::RegisterNLPServiceDeathRecipient()
         LBSLOGE(NETWORK, "%{public}s: nlpServiceProxy_ is nullptr", __func__);
         return;
     }
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NLPServiceDeathRecipient());
-    nlpServiceProxy_->AddDeathRecipient(death);
+    if (nlpServiceRecipient_ != nullptr) {
+        nlpServiceProxy_->AddDeathRecipient(nlpServiceRecipient_);
+    }
 }
+
+void NetworkAbility::UnRegisterNLPServiceDeathRecipient()
+{
+    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+    if (nlpServiceProxy_ == nullptr) {
+        LBSLOGE(NETWORK, "%{public}s: nlpServiceProxy_ is nullptr", __func__);
+        return;
+    }
+    if (nlpServiceRecipient_ != nullptr) {
+        nlpServiceProxy_->RemoveDeathRecipient(nlpServiceRecipient_);
+        nlpServiceRecipient_ = nullptr;
+    }
+}
+
 
 bool NetworkAbility::IsConnect()
 {
@@ -522,10 +538,6 @@ NetworkHandler::~NetworkHandler() {}
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto networkAbility = NetworkAbility::GetInstance();
-    if (networkAbility == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: NetworkAbility is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {

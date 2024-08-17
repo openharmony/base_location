@@ -42,7 +42,10 @@ ohos_shared_library("geofence_sdk") {
 
   sources = local_base_sources
 
-  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
+  ]
 
   public_external_deps = [
     "hilog:libhilog",
@@ -97,7 +100,10 @@ ohos_static_library("geofence_sdk_static") {
 
   sources = local_base_sources
 
-  deps = [ "$LOCATION_COMMON_DIR:lbsservice_common" ]
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
+  ]
 
   public_external_deps = [
     "hilog:libhilog",

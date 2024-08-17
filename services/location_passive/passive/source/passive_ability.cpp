@@ -122,7 +122,7 @@ void PassiveAbility::UnloadPassiveSystemAbility()
         return;
     }
     auto task = [this]() {
-        LocationSaLoadManager::UnInitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
+        SaLoadWithStatistic::UnInitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     };
     if (passiveHandler_ != nullptr) {
         passiveHandler_->PostTask(task, UNLOAD_PASSIVE_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -240,9 +240,6 @@ PassiveHandler::~PassiveHandler() {}
 void PassiveHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto passiveAbility = PassiveAbility::GetInstance();
-    if (passiveAbility == nullptr) {
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(PASSIVE, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {

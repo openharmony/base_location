@@ -336,7 +336,7 @@ void GeoConvertService::UnloadGeoConvertSystemAbility()
         return;
     }
     auto task = [this]() {
-        LocationSaLoadManager::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+        SaLoadWithStatistic::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
         GeoConvertService::GetInstance()->DisconnectAbilityConnect();
     };
     geoConvertHandler_->PostTask(task, UNLOAD_GEOCONVERT_TASK, UNLOAD_GEOCONVERT_DELAY_TIME);
@@ -346,6 +346,7 @@ void GeoConvertService::DisconnectAbilityConnect()
 {
     if (conn_ != nullptr) {
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        UnRegisterGeoServiceDeathRecipient();
         SetServiceConnectState(ServiceConnectState::STATE_DISCONNECT);
         conn_ = nullptr;
         LBSLOGI(GEO_CONVERT, "UnloadGeoConvert OnStop and disconnect");
@@ -470,10 +471,6 @@ GeoConvertHandler::~GeoConvertHandler() {}
 void GeoConvertHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto geoConvertService = GeoConvertService::GetInstance();
-    if (geoConvertService == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: GeoConvertService is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(GEO_CONVERT, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {

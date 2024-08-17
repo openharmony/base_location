@@ -123,10 +123,6 @@ void LocatorBackgroundProxy::StartLocatorThread()
 {
     auto requestManager = RequestManager::GetInstance();
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (requestManager == nullptr || locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "StartLocatorThread: RequestManager or LocatorAbility is nullptr");
-        return;
-    }
     std::this_thread::sleep_for(std::chrono::seconds(timeInterval_));
     std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
     lock.lock();
@@ -146,10 +142,6 @@ void LocatorBackgroundProxy::StartLocatorThread()
 void LocatorBackgroundProxy::StopLocatorThread()
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "StopLocatorThread: LocatorAbility is nullptr.");
-        return;
-    }
     std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
     lock.lock();
     if (!isLocating_) {
@@ -331,10 +323,6 @@ void LocatorBackgroundProxy::mLocatorCallback::OnLocationReport(const std::uniqu
 {
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "locator background OnLocationReport");
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    if (locatorBackgroundProxy == nullptr) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "OnLocationReport: LocatorBackgroundProxy is nullptr.");
-        return;
-    }
     auto requestsList = locatorBackgroundProxy->GetRequestsInProxy();
     if (requestsList.empty()) {
         locatorBackgroundProxy->StopLocator();
@@ -366,10 +354,6 @@ void LocatorBackgroundProxy::UserSwitchSubscriber::OnReceiveEvent(const OHOS::Ev
     int32_t userId = event.GetCode();
     const auto action = event.GetWant().GetAction();
     auto locatorProxy = LocatorBackgroundProxy::GetInstance();
-    if (locatorProxy == nullptr) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "OnReceiveEvent: LocatorBackgroundProxy is nullptr.");
-        return;
-    }
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "action = %{public}s, userId = %{public}d", action.c_str(), userId);
     if (action == OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
         locatorProxy->OnUserSwitch(userId);
@@ -534,10 +518,6 @@ AppStateChangeCallback::~AppStateChangeCallback()
 void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
 {
     auto requestManager = RequestManager::GetInstance();
-    if (requestManager == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "OnForegroundApplicationChanged: RequestManager is nullptr.");
-        return;
-    }
     int32_t pid = appStateData.pid;
     int32_t uid = appStateData.uid;
     int32_t state = appStateData.state;

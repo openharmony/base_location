@@ -42,6 +42,7 @@ if (location_feature_with_network) {
     branch_protector_ret = "pac_ret"
 
     deps = [
+      "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     ]
 
@@ -100,6 +101,7 @@ if (location_feature_with_network) {
     branch_protector_ret = "pac_ret"
 
     deps = [
+      "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     ]
 

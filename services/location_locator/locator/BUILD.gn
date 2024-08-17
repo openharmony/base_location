@@ -67,6 +67,7 @@ ohos_shared_library("lbsservice_locator") {
 
   deps = [
     "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
   ]
 
@@ -187,6 +188,7 @@ ohos_static_library("lbsservice_locator_static") {
 
   deps = [
     "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
   ]
 
