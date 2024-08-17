@@ -27,9 +27,12 @@ const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
 const std::string LOCATION_WORKING_STATE = "location_working_state";
 class LocationDataRdbManager {
 public:
-    static std::string GetLocationDataUri(std::string key);
+    static std::string GetLocationDataUriByCurrentUserId(std::string key);
+    static std::string GetLocationDataUriForUser(std::string key, int32_t userId);
+    static LocationErrCode GetSwitchStateFromDbForUser(int32_t& state, int32_t userId);
     static int QuerySwitchState();
     static LocationErrCode SetSwitchStateToDb(int modeValue);
+    static LocationErrCode SetSwitchStateToDbForUser(int modeValue, int32_t userId);
     static bool SetLocationWorkingState(int32_t state);
     static bool GetLocationWorkingState(int32_t& state);
     static int GetSwitchMode();
