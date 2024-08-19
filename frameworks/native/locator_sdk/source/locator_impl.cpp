@@ -70,6 +70,11 @@ LocatorImpl::~LocatorImpl()
 bool LocatorImpl::IsLocationEnabled()
 {
     LBSLOGD(LOCATION_NAPI, "IsLocationEnabled");
+    int32_t state = DEFAULT_STATE;
+    state = LocationDataRdbManager::GetSwitchMode();
+    if (state == DISABLED || state == ENABLED) {
+        return (state == ENABLED);
+    }
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -78,7 +83,6 @@ bool LocatorImpl::IsLocationEnabled()
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    int32_t state = DEFAULT_STATE;
     state = proxy->GetSwitchState();
     return (state == ENABLED);
 }
@@ -575,6 +579,12 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
+    int32_t state = DEFAULT_STATE;
+    state = LocationDataRdbManager::GetSwitchMode();
+    if (state == DISABLED || state == ENABLED) {
+        isEnabled = (state == ENABLED);
+        return ERRCODE_SUCCESS;
+    }
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -583,7 +593,6 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int32_t state = DEFAULT_STATE;
     state = proxy->GetSwitchState();
     isEnabled = (state == ENABLED);
     return ERRCODE_SUCCESS;
