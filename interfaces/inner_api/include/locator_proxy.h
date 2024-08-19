@@ -81,6 +81,7 @@ public:
     LocationErrCode UpdateSaAbilityV9();
     LocationErrCode GetSwitchStateV9(bool &isEnabled);
     LocationErrCode EnableAbilityV9(bool isEnabled);
+    LocationErrCode EnableAbilityForUser(bool isEnabled, int32_t userId);
     LocationErrCode RegisterSwitchCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode UnregisterSwitchCallbackV9(const sptr<IRemoteObject> &callback);
     LocationErrCode RegisterGnssStatusCallbackV9(const sptr<IRemoteObject> &callback);

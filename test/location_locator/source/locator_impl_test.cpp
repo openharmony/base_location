@@ -58,6 +58,7 @@ namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const int INVALID_PRIVACY_TYPE = -1;
+const int32_t DEFAULT_USER = 100;
 #ifdef FEATURE_GNSS_SUPPORT
 const int INVALID_CACHED_SIZE = 0;
 #endif
@@ -676,6 +677,19 @@ HWTEST_F(LocatorImplTest, HasGnssNetworkRequest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 begin");
     locatorImpl_->HasGnssNetworkRequest();
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplEnableAbilityForUser, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplEnableAbilityForUser, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser begin");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(false, DEFAULT_USER));
+    bool isEnabled = false;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledForUser(isEnabled, DEFAULT_USER));
+    EXPECT_EQ(false, isEnabled);
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(true, DEFAULT_USER));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser end");
 }
 }  // namespace Location
 }  // namespace OHOS

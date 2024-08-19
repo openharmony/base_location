@@ -598,6 +598,30 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     return ERRCODE_SUCCESS;
 }
 
+LocationErrCode LocatorImpl::IsLocationEnabledForUser(bool &isEnabled, int32_t userId)
+{
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    int currentUserId = 0;
+    if (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId) {
+        return IsLocationEnabledV9(isEnabled);
+    }
+    int32_t state = DEFAULT_STATE;
+    auto ret = LocationDataRdbManager::GetSwitchStateFromDbForUser(state, userId);
+    if (ret != ERRCODE_SUCCESS) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    isEnabled = (state == ENABLED);
+    return ERRCODE_SUCCESS;
+}
+
 LocationErrCode LocatorImpl::CheckEdmPolicy(bool enable)
 {
     std::string policy = "";
@@ -633,6 +657,24 @@ LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errCode = proxy->EnableAbilityV9(enable);
+    return errCode;
+}
+
+LocationErrCode LocatorImpl::EnableAbilityForUser(bool enable, int32_t userId)
+{
+    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errorCode = CheckEdmPolicy(enable);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->EnableAbilityForUser(enable, userId);
     return errCode;
 }
 

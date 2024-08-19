@@ -25,12 +25,20 @@ const int MAX_SIZE = 100;
 std::mutex LocationDataRdbManager::mutex_;
 const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 
-std::string LocationDataRdbManager::GetLocationDataUri(std::string key)
+std::string LocationDataRdbManager::GetLocationDataUriByCurrentUserId(std::string key)
 {
     int userId = 0;
     if (!CommonUtils::GetCurrentUserId(userId)) {
         userId = DEFAULT_USERID;
     }
+    std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_" +
+        std::to_string(userId) +
+        "?Proxy=true&key=" + key;
+    return uri;
+}
+
+std::string LocationDataRdbManager::GetLocationDataUriForUser(std::string key, int32_t userId)
+{
     std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_" +
         std::to_string(userId) +
         "?Proxy=true&key=" + key;
@@ -56,7 +64,7 @@ int LocationDataRdbManager::QuerySwitchState()
     if (res == DISABLED || res == ENABLED) {
         return res;
     }
-    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
+    Uri locationDataEnableUri(GetLocationDataUriByCurrentUserId("location_enable"));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -71,14 +79,28 @@ int LocationDataRdbManager::QuerySwitchState()
 
 LocationErrCode LocationDataRdbManager::SetSwitchStateToDb(int modeValue)
 {
-    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
+    Uri locationDataEnableUri(GetLocationDataUriByCurrentUserId("location_enable"));
     return LocationDataRdbHelper::GetInstance()->
         SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
 }
 
+LocationErrCode LocationDataRdbManager::SetSwitchStateToDbForUser(int modeValue, int32_t userId)
+{
+    Uri locationDataEnableUri(GetLocationDataUriForUser("location_enable", userId));
+    return LocationDataRdbHelper::GetInstance()->
+        SetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, modeValue);
+}
+
+LocationErrCode LocationDataRdbManager::GetSwitchStateFromDbForUser(int32_t& state, int32_t userId)
+{
+    Uri locationDataEnableUri(GetLocationDataUriForUser("location_enable", userId));
+    return LocationDataRdbHelper::GetInstance()->
+        GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
+}
+
 bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 {
-    Uri locationWorkingStateUri(GetLocationDataUri(LOCATION_WORKING_STATE));
+    Uri locationWorkingStateUri(GetLocationDataUriByCurrentUserId(LOCATION_WORKING_STATE));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         SetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -90,7 +112,7 @@ bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 
 bool LocationDataRdbManager::GetLocationWorkingState(int32_t& state)
 {
-    Uri locationWorkingStateUri(GetLocationDataUri(LOCATION_WORKING_STATE));
+    Uri locationWorkingStateUri(GetLocationDataUriByCurrentUserId(LOCATION_WORKING_STATE));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -139,7 +161,7 @@ bool LocationDataRdbManager::SetSwitchStateToSyspara(int value)
 void LocationDataRdbManager::SyncSwitchStatus()
 {
     int dbState = DEFAULT_SWITCH_STATE;
-    Uri locationDataEnableUri(GetLocationDataUri("location_enable"));
+    Uri locationDataEnableUri(GetLocationDataUriByCurrentUserId("location_enable"));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, dbState);
     if (errCode != ERRCODE_SUCCESS) {
