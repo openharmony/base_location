@@ -39,7 +39,7 @@ int64_t TimeManager::GetCurrentTime()
         return INVALID_TIME;
     }
 
-    int64_t timeTillNow = MiscServices::TimeServiceClient::GetInstance()->GetBootTimeMs() - timeSynsBoot_;
+    int64_t timeTillNow = MiscServices::TimeServiceClient::GetInstance()->GetBootTimeMs() - timeSinceBoot_;
     if (timeTillNow >= expireTime_) {
         LBSLOGI(GNSS, "getCurrentTime INVALID_TIME");
         return INVALID_TIME;
@@ -52,9 +52,9 @@ int64_t TimeManager::GetCurrentTime()
 void TimeManager::SetCurrentTime(int64_t msTime, int64_t msTimeSynsBoot)
 {
     timestamp_ = msTime;
-    timeSynsBoot_ = msTimeSynsBoot;
+    timeSinceBoot_ = msTimeSynsBoot;
     LBSLOGI(GNSS, "setCurrentTime timestamp_:%{public}s,  mTimeReference:%{public}s",
-        std::to_string(timestamp_).c_str(), std::to_string(timeSynsBoot_).c_str());
+        std::to_string(timestamp_).c_str(), std::to_string(timeSinceBoot_).c_str());
 }
 
 int64_t TimeManager::GetTimestamp()

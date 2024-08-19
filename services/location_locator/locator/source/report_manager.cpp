@@ -311,7 +311,7 @@ void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location
     int currentUserId = 0;
     if (CommonUtils::GetCurrentUserId(currentUserId)) {
         std::unique_lock<std::mutex> lock(lastLocationMutex_);
-        lastLocationsMap_.insert(std::make_pair(currentUserId, std::make_shared<Location>(*location)));
+        lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
     }
 }
 

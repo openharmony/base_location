@@ -65,7 +65,7 @@ std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataSha
         Initialize();
     }
     return DataShare::DataShareHelper::Creator(remoteObj_,
-        LocationDataRdbManager::GetLocationDataUri("location_enable"));
+        LocationDataRdbManager::GetLocationDataUriByCurrentUserId("location_enable"));
 }
 
 void LocationDataRdbHelper::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper)

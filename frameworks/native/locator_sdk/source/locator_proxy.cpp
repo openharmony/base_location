@@ -457,6 +457,22 @@ LocationErrCode LocatorProxy::EnableAbilityV9(bool isEnabled)
     return errorCode;
 }
 
+LocationErrCode LocatorProxy::EnableAbilityForUser(bool isEnabled, int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    data.WriteBool(isEnabled);
+    data.WriteInt32(userId);
+    LocationErrCode errorCode =
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::ENABLE_ABILITY_BY_USERID), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableAbility Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
+
+
 LocationErrCode LocatorProxy::UpdateSaAbilityV9()
 {
     LocationErrCode errorCode = SendSimpleMsgV9(static_cast<int>(LocatorInterfaceCode::UPDATE_SA_ABILITY));
