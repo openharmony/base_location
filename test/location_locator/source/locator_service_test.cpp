@@ -1578,12 +1578,9 @@ HWTEST_F(LocatorServiceTest, GetSwitchState001, TestSize.Level1)
     LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
     LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED_SWITCHMODE);
-    LocationDataRdbManager::SetDefaultSwitchStateToSyspara();
     locatorAbility->GetSwitchState(state);
-    LocationDataRdbManager::SetDefaultSwitchStateToSyspara();
     LocationDataRdbManager::SetSwitchStateToSyspara(DEFAULT_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
-    LocationDataRdbManager::SetDefaultSwitchStateToSyspara();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetSwitchState001 end");
 }
 

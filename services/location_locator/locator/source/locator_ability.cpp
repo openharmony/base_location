@@ -454,11 +454,7 @@ LocationErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t use
     std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
     locatorSwitchMessage->SetModeValue(modeValue);
     locatorSwitchMessage->SetUserId(userId);
-    int currentUserId = 0;
-    // Only current users need to update Syspara
-    if (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId) {
-        LocationDataRdbManager::SetSwitchStateToSyspara(isEnabled ? ENABLED : DISABLED);
-    }
+    LocationDataRdbManager::SetSwitchStateToSysparaForUser(isEnabled ? ENABLED : DISABLED, userId);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {

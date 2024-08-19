@@ -132,25 +132,133 @@ int LocationDataRdbManager::GetSwitchStateFromSyspara()
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
         return DEFAULT_SWITCH_STATE;
     }
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
     value = result;
-    for (auto ch : value) {
-        if (std::isdigit(ch) == 0) {
-            LBSLOGE(COMMON_UTILS, "wrong para");
-            return DEFAULT_SWITCH_STATE;
+    auto switchVec = CommonUtils::split(value, ",");
+    for (auto item : switchVec) {
+        auto switchStateForUser = CommonUtils::split(item, "_")
+        if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
+            std::isdigit(switchStateForUser[1][0]) == 0) {
+            return std::stoi(switchStateForUser[1]);
         }
     }
-    if (value.size() == 0) {
-        return DEFAULT_SWITCH_STATE;
-    }
-    return std::stoi(value);
+    return DEFAULT_SWITCH_STATE;
 }
 
 bool LocationDataRdbManager::SetSwitchStateToSyspara(int value)
 {
     char valueArray[MAX_SIZE] = {0};
-    (void)sprintf_s(valueArray, sizeof(valueArray), "%d", value);
+    char result[MAX_SIZE] = {0};
     std::unique_lock<std::mutex> lock(mutex_);
-    int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
+    auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
+    if (res < 0 || strlen(result) == 0) {
+        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
+    }
+    std::string oldSwitchStr = "";
+    std::string newSwitchStr = "";
+    oldSwitchStr = result;
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    auto switchVec = CommonUtils::split(value, ",");
+    bool isFind = false;
+    if (oldSwitchStr.size() > 1) {
+        for (auto item : switchVec) {
+            auto switchStateForUser = CommonUtils::split(item, "_")
+            if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
+                std::isdigit(switchStateForUser[1][0]) == 0) {
+                isFind = true;
+                newSwitchStr += std::to_string(userId) + "_" + std::to_string(value) + ",";
+            } else if (item.size() > 0) {
+                newSwitchStr += item + ",";
+            } 
+        }
+    } 
+    if (!isFind) {
+        newSwitchStr += std::to_string(userId) + "_" + std::to_string(value);
+    }
+    
+    auto ret = sprintf_s(valueArray, sizeof(valueArray), "%s", newSwitchStr.c_str());
+    if (ret < 0) {
+        LBSLOGE(COMMON_UTILS, "sprintf_s failed, ret: %{public}d", ret);
+    }
+    
+    res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
+    if (res < 0) {
+        LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
+        return false;
+    }
+    return true;
+}
+
+int LocationDataRdbManager::GetSwitchStateFromSysparaForUser(int32_t userId)
+{
+    char result[MAX_SIZE] = {0};
+    std::string value = "";
+    std::unique_lock<std::mutex> lock(mutex_);
+    auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
+    if (res < 0 || strlen(result) == 0) {
+        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
+        return DEFAULT_SWITCH_STATE;
+    }
+    value = result;
+    auto switchVec = CommonUtils::split(value, ",");
+    for (auto item : switchVec) {
+        auto switchStateForUser = CommonUtils::split(item, "_")
+        if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
+            std::isdigit(switchStateForUser[1][0]) == 0) {
+            return std::stoi(switchStateForUser[1]);
+        }
+    }
+    return DEFAULT_SWITCH_STATE;
+}
+
+bool LocationDataRdbManager::SetSwitchStateToSysparaForUser(int value, int32_t userId)
+{
+    char valueArray[MAX_SIZE] = {0};
+    char result[MAX_SIZE] = {0};
+    std::unique_lock<std::mutex> lock(mutex_);
+    auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
+    if (res < 0 || strlen(result) == 0) {
+        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
+    }
+    std::string oldSwitchStr = "";
+    std::string newSwitchStr = "";
+    oldSwitchStr = result;
+    auto switchVec = CommonUtils::split(value, ",");
+    bool isFind = false;
+    int currentUserId = 0;
+    if (oldSwitchStr.size() <= 1) {
+        if (!CommonUtils::GetCurrentUserId(currentUserId)) {
+            currentUserId = DEFAULT_USERID;
+        }
+        newSwitchStr += std::to_string(currentUserId) + "_" + std::to_string(value) + ",";
+    } else {
+        for (auto item : switchVec) {
+            auto switchStateForUser = CommonUtils::split(item, "_")
+            if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
+                std::isdigit(switchStateForUser[1][0]) == 0) {
+                isFind = true;
+                newSwitchStr += std::to_string(userId) + "_" + std::to_string(value) + ",";
+            } else if (item.size() > 0) {
+                newSwitchStr += item + ",";
+            } 
+        }
+    }
+    if (!isFind && (currentUserId != userId)) {
+        newSwitchStr += std::to_string(userId) + "_" + std::to_string(value);
+    }
+    
+    auto ret = sprintf_s(valueArray, sizeof(valueArray), "%s", newSwitchStr.c_str());
+    if (ret < 0) {
+        LBSLOGE(COMMON_UTILS, "sprintf_s failed, ret: %{public}d", ret);
+    }
+    
+    res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
         return false;
@@ -174,21 +282,6 @@ void LocationDataRdbManager::SyncSwitchStatus()
     } else if (sysparaState != DEFAULT_SWITCH_STATE && dbState != sysparaState) {
         LocationDataRdbManager::SetSwitchStateToDb(sysparaState);
     }
-}
-
-bool LocationDataRdbManager::SetDefaultSwitchStateToSyspara()
-{
-    char valueArray[MAX_SIZE] = {0};
-    int code = sprintf_s(valueArray, sizeof(valueArray), "%d", DEFAULT_SWITCH_STATE);
-    if (code <= 0) {
-        return false;
-    }
-    std::unique_lock<std::mutex> lock(mutex_);
-    int res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
-    if (res < 0) {
-        return false;
-    }
-    return true;
 }
 
 bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)

@@ -277,7 +277,6 @@ int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
 void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
 {
     UpdateListOnUserSwitch(userId);
-    LocationDataRdbManager::SetDefaultSwitchStateToSyspara();
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->ApplyRequests(1);

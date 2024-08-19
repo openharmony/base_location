@@ -601,6 +601,12 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 LocationErrCode LocatorImpl::IsLocationEnabledForUser(bool &isEnabled, int32_t userId)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
+    int32_t state = DEFAULT_SWITCH_STATE;
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForUser(userId);
+    if (state == DISABLED || state == ENABLED) {
+        isEnabled = (state == ENABLED);
+        return ERRCODE_SUCCESS;
+    }
     if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -609,11 +615,6 @@ LocationErrCode LocatorImpl::IsLocationEnabledForUser(bool &isEnabled, int32_t u
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int currentUserId = 0;
-    if (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId) {
-        return IsLocationEnabledV9(isEnabled);
-    }
-    int32_t state = DEFAULT_STATE;
     auto ret = LocationDataRdbManager::GetSwitchStateFromDbForUser(state, userId);
     if (ret != ERRCODE_SUCCESS) {
         return ERRCODE_SERVICE_UNAVAILABLE;
