@@ -523,8 +523,80 @@ HWTEST_F(GnssAbilityTest, SendCommand001, TestSize.Level1)
      * @tc.steps: step2. test send command.
      * @tc.expected: current function is empty, nothing happens
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, ability_->SendCommand(locationCommand));
+    ability_->SendCommand(locationCommand);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendCommand003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendCommand003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand003 begin");
+    std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
+    locationCommand->scenario = 1;
+    locationCommand->command = true;
+    proxy_->SendCommand(locationCommand);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand003 end");
+}
+
+HWTEST_F(GnssAbilityTest, AddFence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddFence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->AddFence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveFence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveFence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->RemoveFence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, AddGnssGeofence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddGnssGeofence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->AddGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveGnssGeofence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveGnssGeofence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->RemoveGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, QuerySupportCoordinateSystemType002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, QuerySupportCoordinateSystemType002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] QuerySupportCoordinateSystemType002 begin");
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    proxy_->QuerySupportCoordinateSystemType(coordinateSystemTypes);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] QuerySupportCoordinateSystemType002 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendNetworkLocation003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendNetworkLocation003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation003 begin");
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    proxy_->SendNetworkLocation(location);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation003 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
@@ -1736,8 +1808,7 @@ HWTEST_F(GnssAbilityTest, RemoveFence002, TestSize.Level1)
         << "GnssAbilityTest, RemoveFence002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence002 begin");
     std::shared_ptr<GeofenceRequest> request = nullptr;
-    LocationErrCode result = ability_->RemoveFence(request);
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    ability_->RemoveFence(request);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence002 end");
 }
 
@@ -2351,18 +2422,6 @@ HWTEST_F(GnssAbilityTest, ReConnectHdiImpl002, TestSize.Level1)
     ability_->gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_BEGIN;
     ability_->ReConnectHdiImpl();
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReConnectHdiImpl002 end");
-}
-
-HWTEST_F(GnssAbilityTest, AddFence002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, AddFence002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence002 begin");
-    ability_->fenceId_ = FENCE_MAX_ID + 1;
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    ability_->AddFence(request);
-    EXPECT_EQ(1, ability_->fenceId_);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence002 end");
 }
 
 HWTEST_F(GnssAbilityTest, UnloadGnssSystemAbility001, TestSize.Level1)

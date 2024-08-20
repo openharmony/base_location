@@ -33,6 +33,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int UNKNOWN_CODE = -1;
+const int UID = 1;
+const int PID = 1;
 void GnssAbilityStubTest::SetUp()
 {
 }
@@ -417,6 +419,41 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest022, TestSize.Level1)
         parcel, reply, option));
     EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest022 end");
+}
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest023, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest023, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest023 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    MessageParcel data;
+    MessageParcel reply;
+    AppIdentity identity;
+    identity.SetUid(UID);
+    identity.SetPid(PID);
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendLocationRequestInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SetMockLocationsInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SetEnableInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RefreshRequirementsInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RegisterGnssStatusCallbackInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->UnregisterGnssStatusCallbackInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RegisterNmeaMessageCallbackInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->UnregisterNmeaMessageCallbackInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RegisterCachedCallbackInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->UnregisterCachedCallbackInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->GetCachedGnssLocationsSizeInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->FlushCachedGnssLocationsInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendCommandInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->EnableMockInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->DisableMockInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->AddFenceInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RemoveFenceInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->AddGnssGeofenceInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RemoveGnssGeofenceInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->QuerySupportCoordinateSystemTypeInner(data, reply, identity));
+    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendNetworkLocationInner(data, reply, identity));
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest023 end");
 }
 }  // namespace Location
 }  // namespace OHOS

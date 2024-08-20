@@ -80,6 +80,7 @@ private:
     void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetSwitchStateToDbForUserEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
 };
@@ -109,6 +110,7 @@ public:
     LocationErrCode UpdateSaAbility();
     LocationErrCode GetSwitchState(int& state);
     LocationErrCode EnableAbility(bool isEnabled);
+    LocationErrCode EnableAbilityForUser(bool isEnabled, int32_t userId);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
 #ifdef FEATURE_GNSS_SUPPORT
@@ -278,6 +280,17 @@ public:
 private:
     std::string uuid_;
     int32_t errCode_;
+};
+
+class LocatorSwitchMessage {
+public:
+    void SetUserId(int32_t userId);
+    int32_t GetUserId();
+    void SetModeValue(int32_t modeValue);
+    int32_t GetModeValue();
+private:
+    int32_t modeValue_;
+    int32_t userId_;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

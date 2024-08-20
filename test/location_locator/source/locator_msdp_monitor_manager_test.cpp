@@ -36,6 +36,9 @@ HWTEST_F(LocatorMsdpMonitorManagerTest, RegisterMovementCallBack001, TestSize.Le
         << "WorkRecordTest, RegisterMovementCallBack001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] RegisterMovementCallBack001 begin");
     auto locatorMsdpMonitorManager = LocatorMsdpMonitorManager::GetInstance();
+    locatorMsdpMonitorManager->deviceMovementCallback_ =
+        sptr<DeviceMovementCallback>(new DeviceMovementCallback());
+    locatorMsdpMonitorManager->RegisterMovementCallBack();
     locatorMsdpMonitorManager->UnRegisterMovementCallBack();
    
     LBSLOGI(LOCATOR, "[WorkRecordTest] RegisterMovementCallBack001 end");
@@ -57,10 +60,21 @@ HWTEST_F(LocatorMsdpMonitorManagerTest, GetStillMovementState001, TestSize.Level
     GTEST_LOG_(INFO)
         << "WorkRecordTest, GetStillMovementState001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] GetStillMovementState001 begin");
-    auto MsdpMotionServiceStatusChange = LocatorMsdpMonitorManager::GetInstance();
-    MsdpMotionServiceStatusChange->GetStillMovementState();
+    auto locatorMsdpMonitorManager = LocatorMsdpMonitorManager::GetInstance();
+    locatorMsdpMonitorManager->GetStillMovementState();
    
     LBSLOGI(LOCATOR, "[WorkRecordTest] GetStillMovementState001 end");
+}
+
+HWTEST_F(LocatorMsdpMonitorManagerTest, OnAddSystemAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "WorkRecordTest, OnAddSystemAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[WorkRecordTest] OnAddSystemAbility001 begin");
+    auto locatorMsdpMonitorManager = LocatorMsdpMonitorManager::GetInstance();
+    locatorMsdpMonitorManager->saStatusListener_->OnRemoveSystemAbility();
+   
+    LBSLOGI(LOCATOR, "[WorkRecordTest] OnAddSystemAbility001 end");
 }
 
 HWTEST_F(LocatorMsdpMonitorManagerTest, OnRemoveSystemAbility001, TestSize.Level1)
@@ -69,7 +83,7 @@ HWTEST_F(LocatorMsdpMonitorManagerTest, OnRemoveSystemAbility001, TestSize.Level
         << "WorkRecordTest, OnRemoveSystemAbility001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[WorkRecordTest] OnRemoveSystemAbility001 begin");
     auto locatorMsdpMonitorManager = LocatorMsdpMonitorManager::GetInstance();
-    locatorMsdpMonitorManager->OnRemoveSystemAbility();
+    locatorMsdpMonitorManager->saStatusListener_->OnRemoveSystemAbility();
    
     LBSLOGI(LOCATOR, "[WorkRecordTest] OnRemoveSystemAbility001 end");
 }

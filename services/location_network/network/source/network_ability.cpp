@@ -41,6 +41,7 @@ const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
 const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+const uint32_t DELAY_RESTART_MS = 500;
 constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
@@ -248,7 +249,7 @@ void NetworkAbility::UnloadNetworkSystemAbility()
         return;
     }
     auto task = [this]() {
-        LocationSaLoadManager::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
+        SaLoadWithStatistic::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     };
     if (networkHandler_ != nullptr) {
         networkHandler_->PostTask(task, UNLOAD_NETWORK_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -500,11 +501,13 @@ void NetworkAbility::RegisterNlpServiceDeathRecipient()
         nlpServiceRecipient_ = sptr<NlpServiceDeathRecipient>(new (std::nothrow) NlpServiceDeathRecipient());
     }
     nlpServiceProxy_->AddDeathRecipient(nlpServiceRecipient_);
+    LBSLOGI(NETWORK, "%{public}s: success", __func__);
 }
 
 void NetworkAbility::UnregisterNlpServiceDeathRecipient()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
+    LBSLOGI(NETWORK, "UnRegisterNLPServiceDeathRecipient enter");
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "%{public}s: nlpServiceProxy_ is nullptr", __func__);
         return;
@@ -520,6 +523,16 @@ bool NetworkAbility::IsConnect()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     return nlpServiceProxy_ != nullptr;
+}
+
+void NetworkAbility::RestartNlpRequests()
+{
+    if (GetRequestNum() > 0) {
+        if (networkHandler_ != nullptr) {
+            networkHandler_->SendHighPriorityEvent(EVENT_RESTART_ALL_LOCATION_REQUEST, 0, DELAY_RESTART_MS);
+            LBSLOGI(NETWORK, "CheckNetworkRequests needRecoverRequests");
+        }
+    }
 }
 
 void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid)
@@ -547,10 +560,6 @@ NetworkHandler::~NetworkHandler() {}
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto networkAbility = NetworkAbility::GetInstance();
-    if (networkAbility == nullptr) {
-        LBSLOGE(NETWORK, "ProcessEvent: NetworkAbility is nullptr");
-        return;
-    }
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(NETWORK, "ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
@@ -602,10 +611,12 @@ NlpServiceDeathRecipient::~NlpServiceDeathRecipient()
 void NlpServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     auto networkAbility = NetworkAbility::GetInstance();
-    if (networkAbility != nullptr) {
-        LBSLOGI(NETWORK, "nlp ResetServiceProxy");
-        networkAbility->ResetServiceProxy();
+    if (networkAbility == nullptr) {
+        LBSLOGE(NETWORK, "OnRemoteDied: NetworkAbility is nullptr");
+        return;
     }
+    networkAbility->ResetServiceProxy();
+    networkAbility->RestartNlpRequests();
 }
 } // namespace Location
 } // namespace OHOS

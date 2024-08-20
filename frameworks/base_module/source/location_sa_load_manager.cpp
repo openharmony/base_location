@@ -130,16 +130,11 @@ bool LocationSaLoadManager::InitLocationSa(int32_t systemAbilityId)
         LBSLOGD(COMMON_UTILS, "sa has been loaded");
         return true;
     }
-    bool ret = true;
-    auto startTime = CommonUtils::GetCurrentTimeStamp();
     auto instance = LocationSaLoadManager::GetInstance();
     if (instance == nullptr || instance->LoadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "sa load failed.");
-        ret = false;
+        return false;
     }
-    auto endTime = CommonUtils::GetCurrentTimeStamp();
-    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "load",
-        "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
     return true;
 }
 
@@ -149,16 +144,11 @@ bool LocationSaLoadManager::UnInitLocationSa(int32_t systemAbilityId)
         LBSLOGD(LOCATOR, "sa has been unloaded");
         return true;
     }
-    bool ret = true;
-    auto startTime = CommonUtils::GetCurrentTimeStamp();
     auto instance = LocationSaLoadManager::GetInstance();
     if (instance == nullptr || instance->UnloadLocationSa(systemAbilityId) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "sa unload failed.");
-        ret = false;
+        return false;
     }
-    auto endTime = CommonUtils::GetCurrentTimeStamp();
-    WriteLocationInnerEvent(SA_LOAD, {"saId", std::to_string(systemAbilityId), "type", "unload",
-        "ret", std::to_string(ret), "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
     return true;
 }
 

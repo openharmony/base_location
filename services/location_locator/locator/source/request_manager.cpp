@@ -94,9 +94,6 @@ void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request, con
 void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        return;
-    }
     uint32_t callingTokenId = request->GetTokenId();
     if (isStart && !request->GetApproximatelyPermState()) {
         PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
@@ -113,9 +110,6 @@ void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
     auto locatorDftManager = LocatorDftManager::GetInstance();
-    if (locatorAbility == nullptr || locatorDftManager == nullptr) {
-        return;
-    }
     // restore request to all request list
     bool isNewRequest = RestorRequest(request);
     // update request map
@@ -134,9 +128,6 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
     std::unique_lock lock(requestMutex_);
 
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        return false;
-    }
     auto receivers = locatorAbility->GetReceivers();
     if (receivers == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "receivers is empty");
@@ -201,10 +192,6 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, bool 
 void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::string abilityName, bool shouldInsert)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
     std::unique_lock lock(requestMutex_);
     auto requests = locatorAbility->GetRequests();
     if (requests == nullptr) {
@@ -266,10 +253,6 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         return;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
     std::unique_lock<ffrt::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
     auto receivers = locatorAbility->GetReceivers();
@@ -322,10 +305,6 @@ void RequestManager::DeleteRequestRecord(std::shared_ptr<std::list<std::shared_p
             request->GetLocatorCallBack()->AsObject()->RemoveDeathRecipient(request->GetLocatorCallbackRecipient());
         }
         auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-        if (locatorBackgroundProxy == nullptr) {
-            LBSLOGE(REQUEST_MANAGER, "DeleteRequestRecord: LocatorBackgroundProxy is nullptr.");
-            break;
-        }
         locatorBackgroundProxy->OnDeleteRequestRecord(request);
     }
 }
@@ -333,10 +312,6 @@ void RequestManager::DeleteRequestRecord(std::shared_ptr<std::list<std::shared_p
 void RequestManager::HandleRequest()
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
     std::unique_lock<ffrt::mutex> lock(requestMutex_, std::defer_lock);
     lock.lock();
     auto requests = locatorAbility->GetRequests();
@@ -515,7 +490,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
     int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
-    if (!LocationSaLoadManager::InitLocationSa(systemAbilityId)) {
+    if (!SaLoadWithStatistic::InitLocationSa(systemAbilityId)) {
         return ;
     }
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
@@ -548,10 +523,6 @@ sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
 {
     sptr<IRemoteObject> remoteObject = nullptr;
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return remoteObject;
-    }
     auto remoteManagerMap = locatorAbility->GetProxyMap();
     if (remoteManagerMap == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "proxy map is empty");
@@ -573,10 +544,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         return;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
     auto requests = locatorAbility->GetRequests();
     if (requests == nullptr || requests->empty()) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
@@ -607,10 +574,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
 void RequestManager::HandlePermissionChanged(uint32_t tokenId)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged locatorAbility is null");
-        return;
-    }
     auto requests = locatorAbility->GetRequests();
     if (requests == nullptr || requests->empty()) {
         LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged requests map is empty");
@@ -697,10 +660,6 @@ void RequestManager::UpdateLocationErrorCallbackToRequest(
     sptr<ILocatorCallback> callback, uint32_t tokenId, bool state)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
     auto requests = locatorAbility->GetRequests();
     if (requests == nullptr || requests->empty()) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");

@@ -78,8 +78,6 @@ struct dialogPlusPage {
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
       data: 'message',
-      subscriberPermissions: [''],
-      isOrdered: true,
       isSticky: false,
       parameters: { 'message': 'agnss-ni-reject' }
     }
@@ -104,8 +102,6 @@ struct dialogPlusPage {
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
       data: 'message',
-      subscriberPermissions: [''],
-      isOrdered: true,
       isSticky: false,
       parameters: { 'message': 'agnss-ni-accept' }
     }

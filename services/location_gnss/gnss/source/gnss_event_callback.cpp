@@ -55,10 +55,6 @@ static void SetGpsTime(int64_t gpsTime)
 int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ReportLocation: gnss ability is nullptr.");
-        return ERR_OK;
-    }
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     std::shared_ptr<Location> locationNew = std::make_shared<Location>();
     locationNew->SetLatitude(location.latitude);
@@ -103,10 +99,6 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
 int32_t GnssEventCallback::ReportGnssWorkingStatus(GnssWorkingStatus status)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ReportGnssWorkingStatus: gnss ability is nullptr.");
-        return ERR_OK;
-    }
     gnssAbility->ReportGnssSessionStatus(static_cast<int>(status));
     return ERR_OK;
 }
@@ -114,10 +106,6 @@ int32_t GnssEventCallback::ReportGnssWorkingStatus(GnssWorkingStatus status)
 int32_t GnssEventCallback::ReportNmea(int64_t timestamp, const std::string& nmea, int32_t length)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ReportNmea: gnss ability is nullptr.");
-        return ERR_OK;
-    }
     std::string nmeaStr = nmea;
     gnssAbility->ReportNmea(timestamp, nmeaStr);
     return ERR_OK;
@@ -131,10 +119,6 @@ int32_t GnssEventCallback::ReportGnssCapabilities(unsigned int capabilities)
 int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& info)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "ReportSatelliteStatusInfo: gnss ability is nullptr.");
-        return ERR_OK;
-    }
     std::unique_ptr<SatelliteStatus> svStatus = std::make_unique<SatelliteStatus>();
     if (info.satellitesNumber < 0) {
         LBSLOGD(GNSS, "SvStatusCallback, satellites_num < 0!");
@@ -215,8 +199,8 @@ void GnssEventCallback::SendDummySvInfo()
 void GnssEventCallback::ReportDummySv(const std::unique_ptr<SatelliteStatus> &sv)
 {
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr || sv == nullptr) {
-        LBSLOGE(GNSS, "%{public}s gnss ability or sv is nullptr.", __func__);
+    if (sv == nullptr) {
+        LBSLOGE(GNSS, "%{public}s sv is nullptr.", __func__);
         return;
     }
     gnssAbility->ReportSv(sv);
@@ -264,10 +248,6 @@ int32_t GnssEventCallback::RequestGnssReferenceInfo(GnssRefInfoType type)
 {
     LBSLOGI(GNSS, "RequestGnssReferenceInfo: request type %{public}d", static_cast<int>(type));
     auto gnssAbility = GnssAbility::GetInstance();
-    if (gnssAbility == nullptr) {
-        LBSLOGE(GNSS, "%{public}s gnss ability is nullptr.", __func__);
-        return ERR_OK;
-    }
     switch (type) {
         case GnssRefInfoType::GNSS_REF_INFO_TIME:
             gnssAbility->InjectTime();
@@ -295,10 +275,6 @@ int32_t GnssEventCallback::ReportCachedLocation(const std::vector<LocationInfo>&
 int32_t GnssEventCallback::ReportGnssNiNotification(const GnssNiNotificationRequest& notification)
 {
     auto agnssNiManager = AGnssNiManager::GetInstance();
-    if (agnssNiManager == nullptr) {
-        LBSLOGE(GNSS, "ReportGnssNiNotification: agnssNiManager is nullptr.");
-        return ERR_OK;
-    }
     agnssNiManager->HandleNiNotification(notification);
     return ERR_OK;
 }

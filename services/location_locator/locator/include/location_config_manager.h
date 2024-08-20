@@ -64,6 +64,14 @@ public:
     bool SetCachePrivacyType(int value);
 
     /*
+     * @Description get settings bundle name
+     *
+     * @param name - bundle name
+     * @return bool - true success
+     */
+    bool GetSettingsBundleName(std::string& name);
+
+    /*
      * @Description get nlp service name
      *
      * @param name - service name

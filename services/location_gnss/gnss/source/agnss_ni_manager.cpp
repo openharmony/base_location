@@ -133,10 +133,6 @@ void AGnssNiManager::Run()
     gnssInterface_ = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
     if (gnssInterface_ == nullptr) {
         auto gnssAbility = GnssAbility::GetInstance();
-        if (gnssAbility == nullptr) {
-            LBSLOGE(GNSS, "AGNSS-NI: gnss ability is nullptr");
-            return;
-        }
         if (!gnssAbility->CheckIfHdiConnected()) {
             gnssAbility->ConnectHdi();
             gnssInterface_ = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
@@ -181,10 +177,6 @@ static bool IsFromDefaultSubId(const OHOS::EventFwk::Want &want)
 {
     int32_t subId = want.GetIntParam("slotId", INVALID_SUBID);
     auto msgManager = DelayedSingleton<Telephony::SmsServiceManagerClient>::GetInstance();
-    if (msgManager == nullptr) {
-        LBSLOGE(GNSS, "short message manager nullptr");
-        return false;
-    }
     int32_t defaultId = msgManager->GetDefaultSmsSlotId();
     LBSLOGD(GNSS, "current subId %{public}d, defaultSubId %{public}d", subId, defaultId);
     if (subId != INVALID_SUBID && subId != defaultId) {
@@ -276,9 +268,6 @@ void AGnssNiManager::OnCallStateChanged(const EventFwk::Want &want)
         auto tmpPhoneNumber = Str8ToStr16(phoneNumber);
         std::unique_lock<std::mutex> lock(callStateMutex_);
         auto clientPtr = DelayedSingleton<Telephony::CallManagerClient>::GetInstance();
-        if (clientPtr == nullptr) {
-            return;
-        }
         clientPtr->Init(OHOS::TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
         clientPtr->IsEmergencyPhoneNumber(tmpPhoneNumber, slotId, isInEmergencyCall_);
         if (isInEmergencyCall_) {
@@ -438,10 +427,6 @@ void SystemAbilityStatusChangeListener::OnAddSystemAbility(int32_t systemAbility
         return;
     }
     auto agnssNiManager = AGnssNiManager::GetInstance();
-    if (agnssNiManager == nullptr) {
-        LBSLOGE(GNSS, "agnssNiManager nullptr");
-        return;
-    }
     agnssNiManager->Run();
 
     return;
@@ -455,10 +440,6 @@ void SystemAbilityStatusChangeListener::OnRemoveSystemAbility(int32_t systemAbil
         return;
     }
     auto agnssNiManager = AGnssNiManager::GetInstance();
-    if (agnssNiManager == nullptr) {
-        LBSLOGE(GNSS, "agnssNiManager nullptr");
-        return;
-    }
     agnssNiManager->UnRegisterAgnssNiEvent();
     agnssNiManager->UnRegisterNiResponseEvent();
     return;

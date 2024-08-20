@@ -60,6 +60,7 @@ private:
     int PreStopLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreGetCacheLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreEnableAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreEnableAbilityForUser(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUpdateSaAbility(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
 #ifdef FEATURE_GEOCODE_SUPPORT
     int PreIsGeoConvertAvailable(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
