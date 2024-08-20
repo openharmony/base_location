@@ -41,6 +41,7 @@ const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
 const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+const uint32_t DELAY_RESTART_MS = 500;
 constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
@@ -491,10 +492,12 @@ void NetworkAbility::RegisterNLPServiceDeathRecipient()
     if (nlpServiceRecipient_ != nullptr) {
         nlpServiceProxy_->AddDeathRecipient(nlpServiceRecipient_);
     }
+    LBSLOGI(NETWORK, "%{public}s: success", __func__);
 }
 
 void NetworkAbility::UnRegisterNLPServiceDeathRecipient()
 {
+    LBSLOGI(NETWORK, "UnRegisterNLPServiceDeathRecipient enter");
     std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "%{public}s: nlpServiceProxy_ is nullptr", __func__);
@@ -511,6 +514,16 @@ bool NetworkAbility::IsConnect()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     return nlpServiceProxy_ != nullptr;
+}
+
+void NetworkAbility::RestartNlpRequests()
+{
+    if (GetRequestNum() > 0) {
+        if (networkHandler_ != nullptr) {
+            networkHandler_->SendHighPriorityEvent(EVENT_RESTART_ALL_LOCATION_REQUEST, 0, DELAY_RESTART_MS);
+            LBSLOGI(NETWORK, "CheckNetworkRequests needRecoverRequests");
+        }
+    }
 }
 
 void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid)
@@ -589,10 +602,12 @@ NLPServiceDeathRecipient::~NLPServiceDeathRecipient()
 void NLPServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     auto networkAbility = NetworkAbility::GetInstance();
-    if (networkAbility != nullptr) {
-        LBSLOGI(NETWORK, "nlp ResetServiceProxy");
-        networkAbility->ResetServiceProxy();
+    if (networkAbility == nullptr) {
+        LBSLOGE(NETWORK, "OnRemoteDied: NetworkAbility is nullptr");
+        return;
     }
+    networkAbility->ResetServiceProxy();
+    networkAbility->RestartNlpRequests();
 }
 } // namespace Location
 } // namespace OHOS
