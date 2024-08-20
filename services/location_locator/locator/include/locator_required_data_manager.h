@@ -186,6 +186,13 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
+class ScanListHandler : public AppExecFwk::EventHandler {
+public:
+    explicit ScanListHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~ScanListHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+};
+
 class WifiServiceStatusChange : public SystemAbilityStatusChangeStub {
 public:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
@@ -226,6 +233,7 @@ private:
     std::mutex mutex_;
     std::vector<sptr<ILocatingRequiredDataCallback>> callbacks_;
     std::shared_ptr<ScanHandler> scanHandler_;
+    std::shared_ptr<ScanListHandler> scanListHandler_;
 };
 } // namespace Location
 } // namespace OHOS
