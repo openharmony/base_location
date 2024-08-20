@@ -24,8 +24,13 @@
 #include "location_log.h"
 #include "common_hisysevent.h"
 #include "parameter.h"
+#include "permission_manager.h"
 namespace OHOS {
 namespace Location {
+const int APP_INFO_SIZE = 3;
+const int APP_INFO_UID_INDEX = 0;
+const int APP_INFO_TOKENID_INDEX = 1;
+const int APP_INFO_LASTSTATE_INDEX = 2;
 LocationDataManager* LocationDataManager::GetInstance()
 {
     static LocationDataManager data;
@@ -44,35 +49,57 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 {
     int state = isEnabled ? ENABLED : DISABLED;
     std::unique_lock<std::mutex> lock(mutex_);
-    for (auto switchCallback : switchCallbacks_) {
-        sptr<IRemoteObject> remoteObject = switchCallback->AsObject();
+    for (auto item : switchCallbackMap_) {
+        auto appInfo = item.second;
+        if (appInfo.size() < APP_INFO_SIZE) {
+            continue;
+        }
+        int uid = appInfo[APP_INFO_UID_INDEX];
+        int tokenId = appInfo[APP_INFO_TOKENID_INDEX];
+        int lastState = appInfo[APP_INFO_LASTSTATE_INDEX];
+        if (!PermissionManager::CheckIsSystemSa(tokenId) &&
+            !CommonUtils::CheckAppForUser(uid)) {
+            LBSLOGE(LOCATOR, "It is not a listener of Current user, no need to report. uid : %{public}d", uid);
+            continue;
+        }
+        if (state == lastState) {
+            // current state is same to before, no need to report
+            continue;
+        }
+        sptr<IRemoteObject> remoteObject = item.first;
+        if (remoteObject == nullptr) {
+            LBSLOGE(LOCATOR, "remoteObject callback is nullptr");
+            continue;
+        }
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
+        LBSLOGI(LOCATOR, "ReportSwitchState to uid : %{public}d , state = %{public}d", uid, state);
         callback->OnSwitchChange(state);
+        appInfo[APP_INFO_LASTSTATE_INDEX] = state;
+        switchCallbackMap_[remoteObject] = appInfo;
     }
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteObject>& callback,
+    AppIdentity& identity)
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR, "register an invalid switch callback");
         return ERRCODE_INVALID_PARAM;
     }
-    sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
-    if (switchCallback == nullptr) {
-        LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return ERRCODE_INVALID_PARAM;
-    }
     std::unique_lock<std::mutex> lock(mutex_);
-    for (auto item : switchCallbacks_) {
-        if (item && item->AsObject() == callback) {
-            LBSLOGE(LOCATOR, "callback has registered");
-            return ERRCODE_SUCCESS;
-        }
+    auto iter = switchCallbackMap_.find(callback);
+    if (iter != switchCallbackMap_.end()) {
+        LBSLOGE(LOCATOR, "callback has registered");
+        return ERRCODE_SUCCESS;
     }
-    switchCallbacks_.push_back(switchCallback);
+    std::vector<int> appInfo;
+    appInfo.push_back(identity.GetUid());
+    appInfo.push_back(identity.GetTokenId());
+    appInfo.push_back(DEFAULT_SWITCH_STATE);
+    switchCallbackMap_[callback] = appInfo;
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
-        uid, std::to_string(switchCallbacks_.size()).c_str());
+        identity.GetUid(), std::to_string(switchCallbackMap_.size()).c_str());
     if (!IsSwitchObserverReg()) {
         RegisterLocationSwitchObserver();
     }
@@ -85,34 +112,13 @@ LocationErrCode LocationDataManager::UnregisterSwitchCallback(const sptr<IRemote
         LBSLOGE(LOCATOR, "unregister an invalid switch callback");
         return ERRCODE_INVALID_PARAM;
     }
-    sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
-    if (switchCallback == nullptr) {
-        LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return ERRCODE_INVALID_PARAM;
-    }
-
     std::unique_lock<std::mutex> lock(mutex_);
-    if (switchCallbacks_.size() <= 0) {
-        LBSLOGE(COUNTRY_CODE, "switchCallbacks_ size <= 0");
-        return ERRCODE_SUCCESS;
+    auto iter = switchCallbackMap_.find(callback);
+    if (iter != switchCallbackMap_.end()) {
+        switchCallbackMap_.erase(iter);
     }
-    size_t i = 0;
-    for (; i < switchCallbacks_.size(); i++) {
-        if (switchCallbacks_[i] == nullptr) {
-            continue;
-        }
-        sptr<IRemoteObject> remoteObject = switchCallbacks_[i]->AsObject();
-        if (remoteObject == callback) {
-            break;
-        }
-    }
-    if (i >= switchCallbacks_.size()) {
-        LBSLOGD(GNSS, "switch callback is not in vector");
-        return ERRCODE_SUCCESS;
-    }
-    switchCallbacks_.erase(switchCallbacks_.begin() + i);
     LBSLOGD(LOCATOR, "after unregister, switch callback size:%{public}s",
-        std::to_string(switchCallbacks_.size()).c_str());
+        std::to_string(switchCallbackMap_.size()).c_str());
     return ERRCODE_SUCCESS;
 }
 
@@ -120,6 +126,12 @@ bool LocationDataManager::IsSwitchObserverReg()
 {
     std::unique_lock<std::mutex> lock(isSwitchObserverRegMutex_);
     return isSwitchObserverReg_;
+}
+
+void LocationDataManager::SetIsSwitchObserverReg(bool isSwitchObserverReg)
+{
+    std::unique_lock<std::mutex> lock(isSwitchObserverRegMutex_);
+    isSwitchObserverReg_ = isSwitchObserverReg;
 }
 
 void LocationDataManager::RegisterLocationSwitchObserver()
@@ -133,11 +145,11 @@ void LocationDataManager::RegisterLocationSwitchObserver()
             return;
         }
         if (state == DEFAULT_SWITCH_STATE) {
-            LBSLOGE(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed. state %{public}d. do not report", state);
+            LBSLOGE(LOCATOR, "LOCATION_SWITCH_MODE changed. state %{public}d. do not report", state);
             return;
         }
         bool switchState = (state == ENABLED);
-        LBSLOGI(COUNTRY_CODE, "LOCATION_SWITCH_MODE changed. switchState %{public}d", switchState);
+        LBSLOGI(LOCATOR, "LOCATION_SWITCH_MODE changed. switchState %{public}d", switchState);
         manager->ReportSwitchState(switchState);
     };
 
@@ -146,8 +158,7 @@ void LocationDataManager::RegisterLocationSwitchObserver()
         LBSLOGE(LOCATOR, "WatchParameter fail");
         return;
     }
-    std::unique_lock<std::mutex> lock(isSwitchObserverRegMutex_);
-    isSwitchObserverReg_ = true;
+    SetIsSwitchObserverReg(true);
     return;
 }
 }  // namespace Location

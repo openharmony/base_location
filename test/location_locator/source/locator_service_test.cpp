@@ -1575,11 +1575,11 @@ HWTEST_F(LocatorServiceTest, GetSwitchState001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetSwitchState001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     int state = DISABLED;
-    LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED_SWITCHMODE);
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
-    LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED_SWITCHMODE);
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
-    LocationDataRdbManager::SetSwitchStateToSyspara(DEFAULT_SWITCHMODE);
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DEFAULT_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetSwitchState001 end");
 }

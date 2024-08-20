@@ -85,6 +85,7 @@ private:
     LocatorEventHandleMap locatorHandlerEventMap_;
 
     bool IsSwitchObserverReg();
+    void SetIsSwitchObserverReg(bool isSwitchObserverReg);
     ffrt::mutex isSwitchObserverRegMutex_;
     bool isSwitchObserverReg_ = false;
 };

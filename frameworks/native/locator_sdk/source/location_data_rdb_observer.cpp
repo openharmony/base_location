@@ -37,11 +37,6 @@ LocationDataRdbObserver::~LocationDataRdbObserver() = default;
 void LocationDataRdbObserver::OnChange()
 {
     LBSLOGD(LOCATOR, "LocationDataRdbObserver::%{public}s enter", __func__);
-    HandleSwitchStateChanged();
-}
-
-void LocationDataRdbObserver::HandleSwitchStateChanged()
-{
 }
 } // namespace Location
 } // namespace OHOS

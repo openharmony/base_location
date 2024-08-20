@@ -22,6 +22,7 @@
 #include "constant_definition.h"
 #include "i_switch_callback.h"
 #include "common_utils.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -30,9 +31,10 @@ public:
     LocationDataManager();
     ~LocationDataManager();
     LocationErrCode ReportSwitchState(bool isEnabled);
-    LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, AppIdentity& appIdentity);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     bool IsSwitchObserverReg();
+    void SetIsSwitchObserverReg(bool isSwitchObserverReg);
     void RegisterLocationSwitchObserver();
     static LocationDataManager* GetInstance();
 
@@ -40,7 +42,7 @@ private:
     std::mutex mutex_;
     std::mutex isSwitchObserverRegMutex_;
     bool isSwitchObserverReg_ = false;
-    std::vector<sptr<ISwitchCallback>> switchCallbacks_;
+    std::map<sptr<IRemoteObject>, std::vector<int>> switchCallbackMap_;
 };
 }  // namespace Location
 }  // namespace OHOS

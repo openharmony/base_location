@@ -437,7 +437,7 @@ LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
         return ERRCODE_SUCCESS;
     }
     // update param
-    LocationDataRdbManager::SetSwitchStateToSyspara(isEnabled ? ENABLED : DISABLED);
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(isEnabled ? ENABLED : DISABLED);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
@@ -2065,6 +2065,12 @@ bool LocatorHandler::IsSwitchObserverReg()
     return isSwitchObserverReg_;
 }
 
+void LocatorHandler::SetIsSwitchObserverReg(bool isSwitchObserverReg)
+{
+    std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
+    isSwitchObserverReg_ = isSwitchObserverReg;
+}
+
 void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event)
 {
     if (IsSwitchObserverReg()) {
@@ -2079,8 +2085,7 @@ void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer&
         LBSLOGE(LOCATOR, "WatchParameter fail");
         return;
     }
-    std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
-    isSwitchObserverReg_ = true;
+    SetIsSwitchObserverReg(true);
 }
 
 void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)

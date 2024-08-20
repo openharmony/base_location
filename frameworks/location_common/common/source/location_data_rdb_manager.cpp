@@ -17,6 +17,7 @@
 #include "common_utils.h"
 #include "location_data_rdb_helper.h"
 #include "parameter.h"
+#include <nlohmann/json.hpp>
 
 namespace OHOS {
 namespace Location {
@@ -59,11 +60,11 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
 
 int LocationDataRdbManager::QuerySwitchState()
 {
-    int32_t state = DEFAULT_SWITCH_STATE;
-    int res = LocationDataRdbManager::GetSwitchStateFromSyspara();
+    int res = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
     if (res == DISABLED || res == ENABLED) {
         return res;
     }
+    int32_t state = DEFAULT_SWITCH_STATE;
     Uri locationDataEnableUri(GetLocationDataUriByCurrentUserId("location_enable"));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
@@ -72,7 +73,7 @@ int LocationDataRdbManager::QuerySwitchState()
         return DEFAULT_SWITCH_STATE;
     }
     if (res == DEFAULT_SWITCH_STATE && state != DEFAULT_SWITCH_STATE) {
-        LocationDataRdbManager::SetSwitchStateToSyspara(state);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(state);
     }
     return state;
 }
@@ -122,77 +123,22 @@ bool LocationDataRdbManager::GetLocationWorkingState(int32_t& state)
     return true;
 }
 
-int LocationDataRdbManager::GetSwitchStateFromSyspara()
+int LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser()
 {
-    char result[MAX_SIZE] = {0};
-    std::string value = "";
-    std::unique_lock<std::mutex> lock(mutex_);
-    auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
-    if (res < 0 || strlen(result) == 0) {
-        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
-        return DEFAULT_SWITCH_STATE;
-    }
-    int userId = 0;
+    int32_t userId = 0;
     if (!CommonUtils::GetCurrentUserId(userId)) {
         userId = DEFAULT_USERID;
     }
-    value = result;
-    auto switchVec = CommonUtils::split(value, ",");
-    for (auto item : switchVec) {
-        auto switchStateForUser = CommonUtils::split(item, "_")
-        if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
-            std::isdigit(switchStateForUser[1][0]) == 0) {
-            return std::stoi(switchStateForUser[1]);
-        }
-    }
-    return DEFAULT_SWITCH_STATE;
+    return GetSwitchStateFromSysparaForUser(userId);
 }
 
-bool LocationDataRdbManager::SetSwitchStateToSyspara(int value)
+bool LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(int value)
 {
-    char valueArray[MAX_SIZE] = {0};
-    char result[MAX_SIZE] = {0};
-    std::unique_lock<std::mutex> lock(mutex_);
-    auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
-    if (res < 0 || strlen(result) == 0) {
-        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
-    }
-    std::string oldSwitchStr = "";
-    std::string newSwitchStr = "";
-    oldSwitchStr = result;
-    int userId = 0;
+    int32_t userId = 0;
     if (!CommonUtils::GetCurrentUserId(userId)) {
         userId = DEFAULT_USERID;
     }
-    auto switchVec = CommonUtils::split(value, ",");
-    bool isFind = false;
-    if (oldSwitchStr.size() > 1) {
-        for (auto item : switchVec) {
-            auto switchStateForUser = CommonUtils::split(item, "_")
-            if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
-                std::isdigit(switchStateForUser[1][0]) == 0) {
-                isFind = true;
-                newSwitchStr += std::to_string(userId) + "_" + std::to_string(value) + ",";
-            } else if (item.size() > 0) {
-                newSwitchStr += item + ",";
-            } 
-        }
-    } 
-    if (!isFind) {
-        newSwitchStr += std::to_string(userId) + "_" + std::to_string(value);
-    }
-    
-    auto ret = sprintf_s(valueArray, sizeof(valueArray), "%s", newSwitchStr.c_str());
-    if (ret < 0) {
-        LBSLOGE(COMMON_UTILS, "sprintf_s failed, ret: %{public}d", ret);
-    }
-    
-    res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
-    if (res < 0) {
-        LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
-        return false;
-    }
-    return true;
+    return SetSwitchStateToSysparaForUser(value, userId);
 }
 
 int LocationDataRdbManager::GetSwitchStateFromSysparaForUser(int32_t userId)
@@ -206,58 +152,59 @@ int LocationDataRdbManager::GetSwitchStateFromSysparaForUser(int32_t userId)
         return DEFAULT_SWITCH_STATE;
     }
     value = result;
-    auto switchVec = CommonUtils::split(value, ",");
-    for (auto item : switchVec) {
-        auto switchStateForUser = CommonUtils::split(item, "_")
-        if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
-            std::isdigit(switchStateForUser[1][0]) == 0) {
-            return std::stoi(switchStateForUser[1]);
-        }
+    nlohmann::json switchInfo = nlohmann::json::parse(value, nullptr, false);
+    if (switchInfo.is_discarded()) {
+        LBSLOGE(COMMON_UTILS, "switchInfo parse failed");
+        return DEFAULT_SWITCH_STATE;
     }
-    return DEFAULT_SWITCH_STATE;
+    if (!switchInfo.contains(std::to_string(userId))) {
+        LBSLOGE(COMMON_UTILS, "userId switch %{public}d is not exist", userId);
+        return DEFAULT_SWITCH_STATE;
+    }
+    auto jsonItem = switchInfo.at(std::to_string(userId));
+    if (!jsonItem.is_number()) {
+        LBSLOGE(COMMON_UTILS, "switch state is invalid");
+        return DEFAULT_SWITCH_STATE;
+    }
+    auto state = jsonItem.get<int>();
+    return state;
 }
 
 bool LocationDataRdbManager::SetSwitchStateToSysparaForUser(int value, int32_t userId)
 {
-    char valueArray[MAX_SIZE] = {0};
     char result[MAX_SIZE] = {0};
     std::unique_lock<std::mutex> lock(mutex_);
+    nlohmann::json oldSwitchInfo;
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
     if (res < 0 || strlen(result) == 0) {
-        LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
-    }
-    std::string oldSwitchStr = "";
-    std::string newSwitchStr = "";
-    oldSwitchStr = result;
-    auto switchVec = CommonUtils::split(value, ",");
-    bool isFind = false;
-    int currentUserId = 0;
-    if (oldSwitchStr.size() <= 1) {
-        if (!CommonUtils::GetCurrentUserId(currentUserId)) {
-            currentUserId = DEFAULT_USERID;
-        }
-        newSwitchStr += std::to_string(currentUserId) + "_" + std::to_string(value) + ",";
+        // If there is no value in sysparam, go on and write it.
+        LBSLOGI(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
     } else {
-        for (auto item : switchVec) {
-            auto switchStateForUser = CommonUtils::split(item, "_")
-            if (switchStateForUser.size() > 1 && switchStateForUser[0] == std::to_string(userId) &&
-                std::isdigit(switchStateForUser[1][0]) == 0) {
-                isFind = true;
-                newSwitchStr += std::to_string(userId) + "_" + std::to_string(value) + ",";
-            } else if (item.size() > 0) {
-                newSwitchStr += item + ",";
-            } 
+        std::string SwitchStr = result;
+        oldSwitchInfo = nlohmann::json::parse(SwitchStr, nullptr, false);
+        if (oldSwitchInfo.is_discarded()) {
+            LBSLOGI(COMMON_UTILS, "switchInfo parse failed");
+            // If there is no valid value in sysparam, go on and overwrite it.
         }
     }
-    if (!isFind && (currentUserId != userId)) {
-        newSwitchStr += std::to_string(userId) + "_" + std::to_string(value);
+    nlohmann::json newSwitchInfo;
+    std::vector<int> activeIds;
+    // copy oldSwitchInfo to newSwitchInfo
+    if (CommonUtils::GetAllUserId(activeIds)) {
+        for (auto && [key, state] : oldSwitchInfo.items()) {
+            if (IsUserIdInActiveIds(activeIds, key)) {
+                newSwitchInfo[key] = state;
+            }
+        }
     }
-    
+    newSwitchInfo[std::to_string(userId)] = value;
+    std::string newSwitchStr = newSwitchInfo.dump();
+    char valueArray[MAX_SIZE] = {0};
     auto ret = sprintf_s(valueArray, sizeof(valueArray), "%s", newSwitchStr.c_str());
-    if (ret < 0) {
+    if (ret <= 0) {
         LBSLOGE(COMMON_UTILS, "sprintf_s failed, ret: %{public}d", ret);
+        return false;
     }
-    
     res = SetParameter(LOCATION_SWITCH_MODE, valueArray);
     if (res < 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s failed, res: %{public}d", __func__, res);
@@ -276,9 +223,9 @@ void LocationDataRdbManager::SyncSwitchStatus()
         // It needs to be updated when it is the default, and there is no need to return.
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
     }
-    int sysparaState = LocationDataRdbManager::GetSwitchStateFromSyspara();
+    int sysparaState = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
     if (sysparaState == DEFAULT_SWITCH_STATE && dbState != DEFAULT_SWITCH_STATE) {
-        LocationDataRdbManager::SetSwitchStateToSyspara(dbState);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(dbState);
     } else if (sysparaState != DEFAULT_SWITCH_STATE && dbState != sysparaState) {
         LocationDataRdbManager::SetSwitchStateToDb(sysparaState);
     }
@@ -308,6 +255,16 @@ bool LocationDataRdbManager::GetLocationEnhanceStatus(int32_t& state)
         return false;
     }
     return true;
+}
+
+bool LocationDataRdbManager::IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId)
+{
+    for (auto id : activeIds) {
+        if (std::to_string(id).compare(userId) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 } // namespace Location
 } // namespace OHOS

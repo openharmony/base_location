@@ -179,6 +179,7 @@ public:
     static std::string GenerateUuid();
     static bool CheckAppForUser(int32_t uid);
     static int64_t GetSinceBootTime();
+    static bool GetAllUserId(std::vector<int>& activeIds);
 };
 
 class CountDownLatch {
