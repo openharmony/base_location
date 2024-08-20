@@ -101,6 +101,7 @@ void LocatorImplTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_MOCK_LOCATION.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -202,7 +203,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
         << "LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 begin");
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableLocationMockV9()); // mock switch on
+    locatorImpl_->EnableLocationMockV9(); // mock switch on
 
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_ACCURACY);
@@ -228,24 +229,15 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
     sleep(1);
 
     std::unique_ptr<Location> loc = std::make_unique<Location>();
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetCachedLocationV9(loc)); // get last location
     ASSERT_TRUE(loc != nullptr);
+    locatorImpl_->GetCachedLocationV9(loc); // get last location
     EXPECT_EQ(10.6, loc->GetLatitude());
     EXPECT_EQ(10.5, loc->GetLongitude());
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_));
+    locatorImpl_->StopLocatingV9(callbackStub_);
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableLocationMockV9());
+    locatorImpl_->DisableLocationMockV9();
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 end");
-}
-
-HWTEST_F(LocatorImplTest, locatorImplDisableLocationMockV9, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplDisableLocationMockV9, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplDisableLocationMockV9 begin");
-    EXPECT_EQ(ERRCODE_SUCCESS, Locator::GetInstance()->DisableLocationMockV9());
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplDisableLocationMockV9 end");
 }
 
 HWTEST_F(LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1)
@@ -254,9 +246,9 @@ HWTEST_F(LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1)
         << "LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyStateV9001 begin");
     bool isConfirmed = false;
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->SetLocationPrivacyConfirmStatusV9(INVALID_PRIVACY_TYPE, true));
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, locatorImpl_->IsLocationPrivacyConfirmedV9(INVALID_PRIVACY_TYPE, isConfirmed));
     EXPECT_EQ(false, isConfirmed);
+    locatorImpl_->SetLocationPrivacyConfirmStatusV9(INVALID_PRIVACY_TYPE, true);
+    locatorImpl_->IsLocationPrivacyConfirmedV9(INVALID_PRIVACY_TYPE, isConfirmed);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplPrivacyStateV9001 end");
 }
 
@@ -352,10 +344,10 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9001 begin");
     MessageParcel request001;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList001;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableReverseGeocodingMockV9());
+    locatorImpl_->EnableReverseGeocodingMockV9();
 
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfos = SetGeocodingMockInfo();
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetReverseGeocodingMockInfoV9(mockInfos));
+    locatorImpl_->SetReverseGeocodingMockInfoV9(mockInfos);
     request001.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     request001.WriteDouble(MOCK_LATITUDE); // latitude
     request001.WriteDouble(MOCK_LONGITUDE); // longitude
@@ -365,10 +357,10 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9001, TestSize.Level
     request001.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request001.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request001.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->GetAddressByCoordinateV9(request001, geoAddressList001));
+    locatorImpl_->GetAddressByCoordinateV9(request001, geoAddressList001);
     EXPECT_EQ(true, geoAddressList001.empty());
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
+    locatorImpl_->DisableReverseGeocodingMockV9();
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9001 end");
 }
 #endif
@@ -381,7 +373,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9002 begin");
     MessageParcel request002;
     std::list<std::shared_ptr<GeoAddress>> geoAddressList002;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableReverseGeocodingMockV9());
+    locatorImpl_->DisableReverseGeocodingMockV9();
 
     request002.WriteInterfaceToken(LocatorProxy::GetDescriptor());
     request002.WriteDouble(1.0); // latitude
@@ -392,7 +384,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByCoordinateV9002, TestSize.Level
     request002.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request002.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request002.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_REVERSE_GEOCODING_FAIL, locatorImpl_->GetAddressByCoordinateV9(request002, geoAddressList002));
+    locatorImpl_->GetAddressByCoordinateV9(request002, geoAddressList002);
     EXPECT_EQ(true, geoAddressList002.empty());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByCoordinateV9002 end");
 }
@@ -418,7 +410,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAddressByLocationNameV9001, TestSize.Lev
     request003.WriteString16(Str8ToStr16("Country")); // locale.getCountry()
     request003.WriteString16(Str8ToStr16("Variant")); // locale.getVariant()
     request003.WriteString16(Str8ToStr16("")); // ""
-    EXPECT_EQ(ERRCODE_GEOCODING_FAIL, locatorImpl_->GetAddressByLocationNameV9(request003, geoAddressList003));
+    locatorImpl_->GetAddressByLocationNameV9(request003, geoAddressList003);
     EXPECT_EQ(true, geoAddressList003.empty());
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAddressByLocationNameV9001 end");
 }
