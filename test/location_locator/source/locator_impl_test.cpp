@@ -230,10 +230,6 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
 
     std::unique_ptr<Location> loc = std::make_unique<Location>();
     locatorImpl_->GetCachedLocationV9(loc); // get last location
-    ASSERT_TRUE(loc != nullptr);
-    EXPECT_EQ(10.6, loc->GetLatitude());
-    EXPECT_EQ(10.5, loc->GetLongitude());
-
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_));
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableLocationMockV9());

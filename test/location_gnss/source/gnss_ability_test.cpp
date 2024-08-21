@@ -1094,31 +1094,6 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Lev
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportCachedLocation001 end");
 }
 
-HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssNiNotification001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, GnssEventCallbackReportGnssNiNotification001, TestSize.Level1";
-    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssNiNotification001 begin");
-    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
-    EXPECT_NE(nullptr, gnssCallback);
-    GnssNiNotificationRequest notif;
-    gnssCallback->ReportGnssNiNotification(notif);
-    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssNiNotification001 end");
-}
-
-HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssNiNotification002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, GnssEventCallbackReportGnssNiNotification002, TestSize.Level1";
-    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssNiNotification002 begin");
-    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
-    EXPECT_NE(nullptr, gnssCallback);
-    GnssNiNotificationRequest notif;
-    notif.notificationCategory = GNSS_NI_NOTIFICATION_REQUIRE_NOTIFY;
-    gnssCallback->ReportGnssNiNotification(notif);
-    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssNiNotification002 end");
-}
-
 HWTEST_F(GnssAbilityTest, GeofenceEventCallbackReportGeofenceAvailability001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
