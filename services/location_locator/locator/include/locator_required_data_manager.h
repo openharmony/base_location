@@ -206,7 +206,7 @@ private:
 public:
     void ResetCallbackRegisteredStatus();
     __attribute__((no_sanitize("cfi"))) bool RegisterWifiCallBack();
-    __attribute__((no_sanitize("cfi"))) bool UnRegisterWifiCallBack();
+    __attribute__((no_sanitize("cfi"))) bool UnregisterWifiCallBack();
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByWifi(
         const std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
     __attribute__((no_sanitize("cfi"))) void GetWifiScanList(std::vector<Wifi::WifiScanInfo>& wifiScanInfo);

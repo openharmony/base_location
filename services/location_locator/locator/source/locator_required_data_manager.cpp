@@ -24,6 +24,7 @@ namespace Location {
 const uint32_t EVENT_START_SCAN = 0x0100;
 const uint32_t EVENT_STOP_SCAN = 0x0200;
 const uint32_t EVENT_GET_WIFI_LIST = 0x0300;
+const uint32_t EVENT_UNREGISTER_WIFI_CALLBACK = 0x0400;
 const int32_t DEFAULT_TIMEOUT_4S = 4000;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
@@ -102,9 +103,10 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
     }
     LBSLOGD(LOCATOR, "after UnregisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
     if (scanHandler_ != nullptr && callbacks_.size() == 0) {
-        bool ret = UnRegisterWifiCallBack();
+        bool ret = UnregisterWifiCallBack();
         if (!ret) {
-            LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
+            // retry UnregisterWifiCallBack
+            scanHandler_->SendEvent(EVENT_UNREGISTER_WIFI_CALLBACK, 0, 0);
         }
         scanHandler_->SendEvent(EVENT_STOP_SCAN, 0, 0);
     }
@@ -201,13 +203,14 @@ __attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::RegisterWif
     int32_t ret = RegisterWifiEvent(&wifiScanEventCallback_);
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan RegisterCallBack failed!", __func__);
+        isWifiCallbackRegistered_ = false;
         return false;
     }
     isWifiCallbackRegistered_ = true;
     return true;
 }
 
-__attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::UnRegisterWifiCallBack()
+__attribute__((no_sanitize("cfi"))) bool LocatorRequiredDataManager::UnregisterWifiCallBack()
 {
     LBSLOGD(LOCATOR, "%{public}s enter", __func__);
     std::unique_lock<std::mutex> lock(wifiRegisteredMutex_);
@@ -353,6 +356,10 @@ void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case EVENT_STOP_SCAN: {
             dataManager->StartWifiScan(false);
+            break;
+        }
+        case EVENT_UNREGISTER_WIFI_CALLBACK: {
+            dataManager->UnregisterWifiCallBack();
             break;
         }
         default:
