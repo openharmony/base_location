@@ -34,27 +34,27 @@
     },
     {
       "name": "ni_notify_title",
-      "value": "定位请求"
+      "value": "Location Request"
     },
     {
       "name": "ni_notify_message",
-      "value": "请求人 "
+      "value": "Requested by "
     },
     {
       "name": "confirm_button",
-      "value": "同意"
+      "value": "Agree"
     },
     {
       "name": "cancel_button",
-      "value": "取消"
+      "value": "Cancel"
     },
     {
       "name": "location_target_statement_title",
-      "value": "定位服务"
+      "value": "Location Services"
     },
     {
       "name": "location_target_statement_content",
-      "value": "“定位服务”联网并使用GNSS或网络信息(WLAN、蜂窝网络、蓝牙、IP)为您提供基于位置的服务。启用后，设备的位置信息会被分享给已授予定位权限的服务。您的位置信息也将用于系统服务，如更新时区、紧急呼叫等。"
+      "value": "Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When enabled, the device's location information will be shared with services that have been granted location permissions. Your location information will also be used for system services, such as updating time zone, emergency calls."
     },
     {
       "name": "LocationPrivacyExtAbility_label",
