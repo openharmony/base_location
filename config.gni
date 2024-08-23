@@ -33,6 +33,7 @@ LOCATION_NOTIFICATION_DIR = "$LOCATION_ROOT_DIR/frameworks/native/notification"
 LOCATION_COMMON_DIR = "$LOCATION_ROOT_DIR/frameworks/location_common/common"
 ability_runtime_path = "//foundation/ability/ability_runtime"
 ability_runtime_napi_path = "${ability_runtime_path}/frameworks/js/napi"
+WIFI_MANAGER_ROOT = "//foundation/communication/wifi/wifi"
 
 declare_args() {
   location_feature_with_geocode = true
