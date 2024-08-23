@@ -45,6 +45,7 @@ Location::Location()
     uncertaintyOfTimeSinceBoot_ = 0;
     locationSourceType_ = 0;
     uuid_ = "";
+    fieldValidity_ = 0;
 }
 
 Location::Location(Location& location)
@@ -70,6 +71,7 @@ Location::Location(Location& location)
     uncertaintyOfTimeSinceBoot_ = location.GetUncertaintyOfTimeSinceBoot();
     locationSourceType_ = location.GetLocationSourceType();
     uuid_ = location.GetUuid();
+    fieldValidity_ = location.GetFieldValidity();
 }
 
 void Location::ReadFromParcel(Parcel& parcel)
@@ -93,6 +95,7 @@ void Location::ReadFromParcel(Parcel& parcel)
     uncertaintyOfTimeSinceBoot_ = parcel.ReadInt64();
     locationSourceType_ = parcel.ReadInt32();
     uuid_ = Str16ToStr8(parcel.ReadString16());
+    fieldValidity_ = parcel.ReadInt32();
     VectorString16ToVectorString8(additions);
 }
 
@@ -145,7 +148,8 @@ bool Location::Marshalling(Parcel& parcel) const
            parcel.WriteDouble(directionAccuracy_) &&
            parcel.WriteDouble(uncertaintyOfTimeSinceBoot_) &&
            parcel.WriteInt32(locationSourceType_) &&
-           parcel.WriteString16(Str8ToStr16(uuid_));
+           parcel.WriteString16(Str8ToStr16(uuid_)) &&
+           parcel.WriteInt32(fieldValidity_);
 }
 
 std::vector<std::u16string> Location::VectorString8ToVectorString16() const
@@ -175,7 +179,8 @@ std::string Location::ToString() const
         ", directionAccuracy : " + std::to_string(directionAccuracy_) +
         ", uncertaintyOfTimeSinceBoot : " + std::to_string(uncertaintyOfTimeSinceBoot_) +
         ", locationSourceType : " + std::to_string(locationSourceType_) +
-        ", uuid : " + uuid_;
+        ", uuid : " + uuid_ +
+        ", fieldValidity : " + std::to_string(fieldValidity_);
     return str;
 }
 
