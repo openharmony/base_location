@@ -54,9 +54,9 @@ public:
             LBSLOGE(LOCATING_DATA_CALLBACK, "context == nullptr.");
             return false;
         }
+        uint32_t refCount = INVALID_REF_COUNT;
+        napi_reference_ref(env_, handlerCb_, &refCount);
         context->env = env_;
-        callbackValid_ = handlerCb_ == nullptr ? false : true;
-        context->callbackValid = &callbackValid_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
     }
@@ -107,12 +107,10 @@ public:
         fixNumber_ = fixNumber;
     }
 private:
-    bool callbackValid_;
     int fixNumber_;
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
-    std::mutex mutex_;
     std::mutex singleResultMutex_;
     CountDownLatch* latch_;
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult_;
