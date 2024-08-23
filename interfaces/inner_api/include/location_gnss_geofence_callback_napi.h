@@ -57,9 +57,9 @@ public:
             LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "context == nullptr.");
             return false;
         }
+        uint32_t refCount = INVALID_REF_COUNT;
+        napi_reference_ref(env_, handlerCb_, &refCount);
         context->env = env_;
-        callbackValid_ = handlerCb_ == nullptr ? false : true;
-        context->callbackValid = &callbackValid_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
     }
@@ -101,11 +101,9 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
-    std::mutex mutex_;
     std::mutex operationResultMutex_;
     CountDownLatch* latch_;
     int fenceId_;
-    bool callbackValid_;
     GnssGeofenceOperateType type_;
     GnssGeofenceOperateResult result_;
 };

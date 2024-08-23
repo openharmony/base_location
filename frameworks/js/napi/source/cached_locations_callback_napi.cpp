@@ -23,12 +23,12 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_mutex;
 CachedLocationsCallbackNapi::CachedLocationsCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
-    callbackValid_ = false;
 }
 
 CachedLocationsCallbackNapi::~CachedLocationsCallbackNapi()
@@ -75,7 +75,7 @@ bool CachedLocationsCallbackNapi::IsRemoteDied()
 
 bool CachedLocationsCallbackNapi::Send(std::vector<std::unique_ptr<Location>>& locations)
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -123,7 +123,7 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CachedLocationAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -135,11 +135,12 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
+            std::unique_lock<std::mutex> guard(g_mutex);
             napi_value jsEvent = nullptr;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
                 scope, context, work);
             LocationsToJs(context->env, context->locationList, jsEvent);
-            if (context->callback[0] != nullptr && *(context->callbackValid)) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -152,6 +153,11 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
+            uint32_t refCount = INVALID_REF_COUNT;
+            napi_reference_unref(context->env, context->callback[0], &refCount);
+            if (refCount == 0) {
+                NAPI_CALL_RETURN_VOID(context->env, napi_delete_reference(context->env, context->callback[0]));
+            }
             delete context;
             delete work;
     });
@@ -164,14 +170,17 @@ void CachedLocationsCallbackNapi::OnCacheLocationsReport(const std::vector<std::
 
 void CachedLocationsCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    uint32_t refCount = INVALID_REF_COUNT;
+    napi_reference_unref(env_, handlerCb_, &refCount);
+    if (refCount == 0) {
+        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    }
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

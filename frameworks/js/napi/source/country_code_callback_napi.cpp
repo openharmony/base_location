@@ -24,11 +24,11 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_mutex;
 CountryCodeCallbackNapi::CountryCodeCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 
 CountryCodeCallbackNapi::~CountryCodeCallbackNapi()
@@ -60,7 +60,7 @@ int CountryCodeCallbackNapi::OnRemoteRequest(
 
 bool CountryCodeCallbackNapi::Send(const std::shared_ptr<CountryCode>& country)
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "env_ == nullptr.");
@@ -114,7 +114,7 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CountryCodeContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -126,6 +126,7 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
+            std::unique_lock<std::mutex> guard(g_mutex);
             napi_value jsEvent;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
                 scope, context, work);
@@ -134,7 +135,7 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             } else {
                 LBSLOGE(LOCATOR_STANDARD, "country is nullptr!");
             }
-            if (context->callback[0] != nullptr && *(context->callbackValid)) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
@@ -147,6 +148,11 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
+            uint32_t refCount = INVALID_REF_COUNT;
+            napi_reference_unref(context->env, context->callback[0], &refCount);
+            if (refCount == 0) {
+                NAPI_CALL_RETURN_VOID(context->env, napi_delete_reference(context->env, context->callback[0]));
+            }
             delete context;
             delete work;
     });
@@ -160,26 +166,29 @@ void CountryCodeCallbackNapi::OnCountryCodeChange(const std::shared_ptr<CountryC
 
 void CountryCodeCallbackNapi::SetEnv(napi_env env)
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     env_ = env;
 }
 
 void CountryCodeCallbackNapi::SetCallback(napi_ref cb)
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     handlerCb_ = cb;
 }
 
 void CountryCodeCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    uint32_t refCount = INVALID_REF_COUNT;
+    napi_reference_unref(env_, handlerCb_, &refCount);
+    if (refCount == 0) {
+        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    }
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

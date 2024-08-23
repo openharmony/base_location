@@ -25,12 +25,12 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_mutex;
 GnssStatusCallbackNapi::GnssStatusCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
-    callbackValid_ = false;
 }
 
 GnssStatusCallbackNapi::~GnssStatusCallbackNapi()
@@ -71,7 +71,7 @@ bool GnssStatusCallbackNapi::IsRemoteDied()
 
 bool GnssStatusCallbackNapi::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -117,7 +117,7 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<GnssStatusAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -129,25 +129,30 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
+            std::unique_lock<std::mutex> guard(g_mutex);
             napi_value jsEvent = nullptr;
             if (context->statusInfo != nullptr) {
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
                     scope, context, work);
                 SatelliteStatusToJs(context->env, context->statusInfo, jsEvent);
             }
-            if (context->callback[0] != nullptr && *(context->callbackValid)) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                     scope, context, work);
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                     napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
-                if (napi_call_function(context->env, nullptr, handler, 1,
-                    &jsEvent, &undefine) != napi_ok) {
+                if (napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(GNSS_STATUS_CALLBACK, "Report event failed");
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
+            uint32_t refCount = INVALID_REF_COUNT;
+            napi_reference_unref(context->env, context->callback[0], &refCount);
+            if (refCount == 0) {
+                NAPI_CALL_RETURN_VOID(context->env, napi_delete_reference(context->env, context->callback[0]));
+            }
             delete context;
             delete work;
     });
@@ -160,14 +165,17 @@ void GnssStatusCallbackNapi::OnStatusChange(const std::unique_ptr<SatelliteStatu
 
 void GnssStatusCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(mutex_);
+    std::unique_lock<std::mutex> guard(g_mutex);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    uint32_t refCount = INVALID_REF_COUNT;
+    napi_reference_unref(env_, handlerCb_, &refCount);
+    if (refCount == 0) {
+        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    }
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS
