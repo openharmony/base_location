@@ -24,7 +24,6 @@
 
 namespace OHOS {
 namespace Location {
-static std::mutex g_mutex;
 NmeaMessageCallbackNapi::NmeaMessageCallbackNapi()
 {
     env_ = nullptr;
@@ -78,7 +77,7 @@ napi_value NmeaMessageCallbackNapi::PackResult(const std::string msg)
 
 bool NmeaMessageCallbackNapi::Send(const std::string msg)
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -137,7 +136,6 @@ void NmeaMessageCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            std::unique_lock<std::mutex> guard(g_mutex);
             napi_value jsEvent;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                 napi_create_string_utf8(context->env, context->msg.c_str(), NAPI_AUTO_LENGTH, &jsEvent),
@@ -173,7 +171,7 @@ void NmeaMessageCallbackNapi::OnMessageChange(int64_t timestamp, const std::stri
 
 void NmeaMessageCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "handler or env is nullptr.");
         return;
@@ -182,8 +180,8 @@ void NmeaMessageCallbackNapi::DeleteHandler()
     napi_reference_unref(env_, handlerCb_, &refCount);
     if (refCount == 0) {
         NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+        handlerCb_ = nullptr;
     }
-    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS

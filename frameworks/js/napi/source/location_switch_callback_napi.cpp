@@ -20,7 +20,6 @@
 
 namespace OHOS {
 namespace Location {
-static std::mutex g_mutex;
 LocationSwitchCallbackNapi::LocationSwitchCallbackNapi()
 {
     env_ = nullptr;
@@ -72,7 +71,7 @@ napi_value LocationSwitchCallbackNapi::PackResult(bool switchState)
 
 bool LocationSwitchCallbackNapi::Send(int switchState)
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -133,7 +132,6 @@ void LocationSwitchCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            std::unique_lock<std::mutex> guard(g_mutex);
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
@@ -165,7 +163,7 @@ void LocationSwitchCallbackNapi::OnSwitchChange(int switchState)
 
 void LocationSwitchCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(SWITCH_CALLBACK, "handler or env is nullptr.");
         return;
@@ -174,8 +172,8 @@ void LocationSwitchCallbackNapi::DeleteHandler()
     napi_reference_unref(env_, handlerCb_, &refCount);
     if (refCount == 0) {
         NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+        handlerCb_ = nullptr;
     }
-    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS

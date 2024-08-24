@@ -111,6 +111,7 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
+    std::mutex mutex_;
     std::mutex singleResultMutex_;
     CountDownLatch* latch_;
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult_;

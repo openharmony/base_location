@@ -101,6 +101,7 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
+    std::mutex mutex_;
     std::mutex operationResultMutex_;
     CountDownLatch* latch_;
     int fenceId_;

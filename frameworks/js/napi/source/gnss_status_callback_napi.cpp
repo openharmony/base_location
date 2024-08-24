@@ -25,7 +25,6 @@
 
 namespace OHOS {
 namespace Location {
-static std::mutex g_mutex;
 GnssStatusCallbackNapi::GnssStatusCallbackNapi()
 {
     env_ = nullptr;
@@ -71,7 +70,7 @@ bool GnssStatusCallbackNapi::IsRemoteDied()
 
 bool GnssStatusCallbackNapi::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -129,7 +128,6 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            std::unique_lock<std::mutex> guard(g_mutex);
             napi_value jsEvent = nullptr;
             if (context->statusInfo != nullptr) {
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
@@ -165,7 +163,7 @@ void GnssStatusCallbackNapi::OnStatusChange(const std::unique_ptr<SatelliteStatu
 
 void GnssStatusCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
         return;
@@ -174,8 +172,8 @@ void GnssStatusCallbackNapi::DeleteHandler()
     napi_reference_unref(env_, handlerCb_, &refCount);
     if (refCount == 0) {
         NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+        handlerCb_ = nullptr;
     }
-    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS

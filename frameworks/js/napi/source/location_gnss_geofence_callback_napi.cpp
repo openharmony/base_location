@@ -26,7 +26,6 @@
 
 namespace OHOS {
 namespace Location {
-static std::mutex g_mutex;
 LocationGnssGeofenceCallbackNapi::LocationGnssGeofenceCallbackNapi()
 {
     env_ = nullptr;
@@ -92,7 +91,7 @@ int LocationGnssGeofenceCallbackNapi::OnRemoteRequest(
 void LocationGnssGeofenceCallbackNapi::OnTransitionStatusChange(
     GeofenceTransition transition)
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_RETURN_VOID(env_, napi_get_uv_event_loop(env_, &loop));
     if (loop == nullptr) {
@@ -167,7 +166,6 @@ void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 delete work;
                 return;
             }
-            std::unique_lock<std::mutex> guard(g_mutex);
             napi_value jsEvent[PARAM2];
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent[PARAM1]),
                 scope, context, work);
@@ -182,16 +180,16 @@ void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                     napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
                     scope, context, work);
-                if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
-                    jsEvent, &undefine) != napi_ok) {
+                if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE, jsEvent, &undefine) != napi_ok) {
                     LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "Report event failed");
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             uint32_t refCount = INVALID_REF_COUNT;
-            napi_reference_unref(context->env, context->callback[0], &refCount);
+            napi_reference_unref(context->env, context->callback[SUCCESS_CALLBACK], &refCount);
             if (refCount == 0) {
-                NAPI_CALL_RETURN_VOID(context->env, napi_delete_reference(context->env, context->callback[0]));
+                NAPI_CALL_RETURN_VOID(context->env,
+                    napi_delete_reference(context->env, context->callback[SUCCESS_CALLBACK]));
             }
             delete context;
             delete work;
@@ -200,7 +198,7 @@ void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
 
 void LocationGnssGeofenceCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "handler or env is nullptr.");
         return;
@@ -209,8 +207,8 @@ void LocationGnssGeofenceCallbackNapi::DeleteHandler()
     napi_reference_unref(env_, handlerCb_, &refCount);
     if (refCount == 0) {
         NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+        handlerCb_ = nullptr;
     }
-    handlerCb_ = nullptr;
 }
 
 void LocationGnssGeofenceCallbackNapi::CountDown()

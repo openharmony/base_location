@@ -88,6 +88,7 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     bool remoteDied_;
+    std::mutex mutex_;
 };
 } // namespace Location
 } // namespace OHOS
