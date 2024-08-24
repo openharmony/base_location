@@ -61,15 +61,12 @@ public:
             return false;
         }
         context->env = env_;
-        uint32_t refCount = INVALID_REF_COUNT;
         if (IsSystemGeoLocationApi()) {
-            napi_reference_ref(env_, successHandlerCb_, &refCount);
-            napi_reference_ref(env_, failHandlerCb_, &refCount);
-            napi_reference_ref(env_, completeHandlerCb_, &refCount);
             context->callback[SUCCESS_CALLBACK] = successHandlerCb_;
             context->callback[FAIL_CALLBACK] = failHandlerCb_;
             context->callback[COMPLETE_CALLBACK] = completeHandlerCb_;
         } else {
+            uint32_t refCount = INVALID_REF_COUNT;
             napi_reference_ref(env_, handlerCb_, &refCount);
             context->callback[SUCCESS_CALLBACK] = handlerCb_;
         }
@@ -148,7 +145,7 @@ public:
 
     inline std::shared_ptr<Location> GetSingleLocation()
     {
-        std::unique_lock<std::mutex> guard(locationMutex_);
+        std::unique_lock<std::mutex> guard(mutex_);
         return singleLocation_;
     }
     bool NeedSetSingleLocation(const std::unique_ptr<Location>& location);
@@ -162,7 +159,7 @@ private:
     napi_ref failHandlerCb_;
     napi_ref completeHandlerCb_;
     int fixNumber_;
-    std::mutex locationMutex_;
+    std::mutex mutex_;
     CountDownLatch* latch_;
     std::shared_ptr<Location> singleLocation_;
     int locationPriority_;

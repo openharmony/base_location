@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace Location {
-static std::mutex g_mutex;
 LocatingRequiredDataCallbackNapi::LocatingRequiredDataCallbackNapi()
 {
     env_ = nullptr;
@@ -95,7 +94,7 @@ bool LocatingRequiredDataCallbackNapi::Send(const std::vector<std::shared_ptr<Lo
     if (IsSingleLocationRequest()) {
         return false;
     }
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
     if (loop == nullptr) {
@@ -153,7 +152,6 @@ void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 delete work;
                 return;
             }
-            std::unique_lock<std::mutex> guard(g_mutex);
             napi_value jsEvent = nullptr;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                 napi_create_array_with_length(context->env, context->locatingRequiredDataList_.size(), &jsEvent),
@@ -191,7 +189,7 @@ void LocatingRequiredDataCallbackNapi::OnLocatingDataChange(
 
 void LocatingRequiredDataCallbackNapi::DeleteHandler()
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (handlerCb_ == nullptr || env_ == nullptr) {
         LBSLOGE(LOCATING_DATA_CALLBACK, "handler or env is nullptr.");
         return;
@@ -200,8 +198,8 @@ void LocatingRequiredDataCallbackNapi::DeleteHandler()
     napi_reference_unref(env_, handlerCb_, &refCount);
     if (refCount == 0) {
         NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+        handlerCb_ = nullptr;
     }
-    handlerCb_ = nullptr;
 }
 
 bool LocatingRequiredDataCallbackNapi::IsSingleLocationRequest()

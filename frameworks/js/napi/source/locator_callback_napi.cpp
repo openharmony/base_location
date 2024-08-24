@@ -33,7 +33,6 @@
 
 namespace OHOS {
 namespace Location {
-static std::mutex g_mutex;
 LocatorCallbackNapi::LocatorCallbackNapi()
 {
     env_ = nullptr;
@@ -131,7 +130,6 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
             DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
             return;
         }
-        std::unique_lock<std::mutex> guard(g_mutex);
         napi_value jsEvent = nullptr;
         CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent), scope, context, work);
         if (context->callback[1]) {
@@ -184,7 +182,6 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 delete work;
                 return;
             }
-            std::unique_lock<std::mutex> guard(g_mutex);
             if (context->callback[FAIL_CALLBACK] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
@@ -201,12 +198,6 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
-            uint32_t refCount = INVALID_REF_COUNT;
-            napi_reference_unref(context->env, context->callback[FAIL_CALLBACK], &refCount);
-            if (refCount == 0) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[FAIL_CALLBACK]));
-            }
             delete context;
             delete work;
     });
@@ -214,7 +205,7 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
 
 bool LocatorCallbackNapi::SendErrorCode(const int& errorCode)
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (!IsSystemGeoLocationApi() && !IsSingleLocationRequest()) {
         LBSLOGE(LOCATOR_CALLBACK, "this is Callback type,cant send error msg.");
         return false;
@@ -255,7 +246,7 @@ bool LocatorCallbackNapi::SendErrorCode(const int& errorCode)
 
 void LocatorCallbackNapi::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
         LBSLOGD(LOCATOR_CALLBACK, "env_ is nullptr.");
@@ -306,7 +297,7 @@ void LocatorCallbackNapi::DeleteAllCallbacks()
 void LocatorCallbackNapi::DeleteHandler()
 {
     LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
-    std::unique_lock<std::mutex> guard(g_mutex);
+    std::unique_lock<std::mutex> guard(mutex_);
     if (env_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
         return;
@@ -401,7 +392,7 @@ bool LocatorCallbackNapi::IfReportAccuracyLocation()
 
 void LocatorCallbackNapi::SetSingleLocation(const std::unique_ptr<Location>& location)
 {
-    std::unique_lock<std::mutex> guard(locationMutex_);
+    std::unique_lock<std::mutex> guard(mutex_);
     singleLocation_ = std::make_shared<Location>(*location);
 }
 } // namespace Location
