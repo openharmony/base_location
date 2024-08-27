@@ -101,16 +101,16 @@
       "value": "断开"
     },
     {
-      "name":"wifi_candidate_connect_notify_title",
-      "value":"连接至指定的候选 WLAN？"
+      "name": "wifi_candidate_connect_notify_title",
+      "value": "连接至指定的候选 WLAN？"
     },
     {
-      "name":"wifi_candidate_connect_notify_no_button",
-      "value":"取消"
+      "name": "wifi_candidate_connect_notify_no_button",
+      "value": "取消"
     },
     {
-      "name":"wifi_candidate_connect_notify_yes_button",
-      "value":"连接"
+      "name": "wifi_candidate_connect_notify_yes_button",
+      "value": "连接"
     }
   ]
 }
