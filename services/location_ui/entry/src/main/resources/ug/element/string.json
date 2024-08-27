@@ -1,0 +1,16 @@
+{
+    "string":[
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"ئۇلاش"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"بەلگىلەنگەن نامزات WLAN غا ئۇلامسىز؟"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"بىكار قىلىش"
+        }
+    ]
+}

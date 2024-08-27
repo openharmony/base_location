@@ -1,0 +1,16 @@
+{
+    "string":[
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"[TS_962302]_Connect"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"[TS_962293]_Connect to this WLAN network?"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"[TS_962307]_Cancel"
+        }
+    ]
+}

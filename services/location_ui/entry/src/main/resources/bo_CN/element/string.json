@@ -1,0 +1,16 @@
+{
+    "string":[
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"སྦྲེལ་མཐུད།"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"དམིགས་བཙུགས་གྲབས་འདེམས་ WLAN ལ་སྦྲེལ་གྱི་ཡིན་ནམ།"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"འདོར་བ།"
+        }
+    ]
+}

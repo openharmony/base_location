@@ -109,16 +109,16 @@
       "value": "Disconnect"
     },
     {
-      "name": "wifi_candidate_connect_notify_title",
-      "value": "Connect to a specified candidate WLAN?"
+      "name":"wifi_candidate_connect_notify_title",
+      "value":"Connect to this WLAN network?"
     },
     {
-      "name": "wifi_candidate_connect_notify_no_button",
-      "value": "Cancel"
+      "name":"wifi_candidate_connect_notify_no_button",
+      "value":"Cancel"
     },
     {
-      "name": "wifi_candidate_connect_notify_yes_button",
-      "value": "Connect"
+      "name":"wifi_candidate_connect_notify_yes_button",
+      "value":"Connect"
     }
   ]
 }
