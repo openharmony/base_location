@@ -1235,8 +1235,8 @@ void LocatorAbility::RegisterLocationPrivacyAction()
     matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
     matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
-    locationPrivacyEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
     subscriberInfo.SetPermission("ohos.permission.PUBLISH_LOCATION_EVENT");
+    locationPrivacyEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locationPrivacyEventSubscriber_);
     if (!result) {
