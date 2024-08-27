@@ -935,7 +935,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     request->SetLocatorCallbackRecipient(death);
     HookUtils::ExecuteHookWhenStartLocation(request);
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
-        Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(request->GetTokenId(),
+        Security::AccessToken::AccessTokenKit::GetPermissionUsedType(request->GetTokenId(),
         ACCESS_APPROXIMATELY_LOCATION);
     request->SetPermUsedType(static_cast<int>(type));
 
@@ -1853,7 +1853,7 @@ void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Poin
     }
     int64_t tokenId = event->GetParam();
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
-        Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
+        Security::AccessToken::AccessTokenKit::GetPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->UpdateLastLocationRequestNum();
@@ -1872,7 +1872,7 @@ void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Point
     }
     int64_t tokenId = event->GetParam();
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
-        Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
+        Security::AccessToken::AccessTokenKit::GetPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         locatorAbility->UpdateLastLocationRequestNum();
