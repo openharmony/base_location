@@ -110,7 +110,7 @@
     },
     {
       "name": "wifi_candidate_connect_notify_title",
-      "value": "Connect to a specified candidate WLAN?"
+      "value": "Connect to this WLAN network?"
     },
     {
       "name": "wifi_candidate_connect_notify_no_button",
