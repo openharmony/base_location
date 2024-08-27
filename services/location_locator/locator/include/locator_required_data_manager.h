@@ -212,7 +212,8 @@ public:
     __attribute__((no_sanitize("cfi"))) void GetWifiScanList(std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
 private:
     void WifiInfoInit();
-    bool isWifiCallbackRegistered();
+    bool IsWifiCallbackRegistered();
+    void SetIsWifiCallbackRegistered(bool isWifiCallbackRegistered);
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     bool isWifiCallbackRegistered_ = false;
     std::mutex wifiRegisteredMutex_;
