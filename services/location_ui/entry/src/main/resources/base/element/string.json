@@ -66,23 +66,23 @@
     },
     {
       "name": "wifi_portal_connected_notify_text",
-      "value": "Touch to login/authorize"
+      "value": "Tap to log in."
     },
     {
       "name": "wifi_portal_connect_timeout_notify_title",
-      "value": "WLAN authentication expired"
+      "value": "Authentication expired"
     },
     {
       "name": "wifi_portal_connect_timeout_notify_text",
-      "value": "Touch here to log in to %s"
+      "value": "Tap to log in to %s."
     },
     {
       "name": "wifi_portal_found_notify_title",
-      "value": "Authorize Wi-Fi network"
+      "value": "Authentication required"
     },
     {
       "name": "wifi_portal_found_notify_text",
-      "value": "Touch here to log in to %s"
+      "value": "Tap to log in to %s."
     },
     {
       "name": "wifi_cdd_notify_title",
@@ -98,7 +98,7 @@
     },
     {
       "name": "wifi_three_vap_notify_title",
-      "value": "A hotspot can't be created while WLAN Direct, or screen mirroring are in use. Disconnect and try again."
+      "value": "Can't create a hotspot while the WLAN channel is in use. If you're using WLAN Direct or screen casting, disconnect and try again."
     },
     {
       "name": "wifi_three_vap_notify_no_button",

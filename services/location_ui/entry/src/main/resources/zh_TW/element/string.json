@@ -35,6 +35,54 @@
         {
             "name":"location_target_statement_content",
             "value":"「定位服務」需要連線網路，並使用 GNSS 或網路資訊（WLAN、蜂巢式網路、藍牙、IP），以便為您提供基於位置的服務。啟用後，會將裝置的位置資訊分享給已授予定位權限的服務。您的位置資訊也將用於系統服務，例如更新時區、緊急通話等。"
+        },
+        {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"取消"
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"中斷連線"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"輕觸進行登入/驗證%s"
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"偵測到 WLAN 共享通道已佔用。若您正在使用 WLAN Direct、多螢幕互動等互聯應用程式，中斷連線後才能啟用個人熱點。是否中斷連線？"
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"發現需要驗證的 WLAN 網路"
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"已連線%s"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"此 WLAN 網路驗證已過期"
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"輕觸進行登入/驗證%s"
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"不使用"
+        },
+        {
+            "name":"wifi_cdd_notify_title",
+            "value":"目前 WLAN 不可上網。是否繼續使用此 WLAN？"
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"輕觸進行登入/驗證"
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"使用"
         }
     ]
 }

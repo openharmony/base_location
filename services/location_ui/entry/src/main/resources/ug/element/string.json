@@ -35,6 +35,54 @@
         {
             "name":"location_target_statement_content",
             "value":"ئورۇن مۇلازىمىتى تورغا ئۇلىنىدۇ؛ GNSS ياكى تور ئۇچۇرى (WLAN، كۆنەك تور، كۆكچىش، IP) ئارقىلىق سىزگە ئورۇن مۇلازىمىتى تەمىنلەيدۇ. ئاچقاندىن كېيىن، ئۈسكۈنىنىڭ ئورۇن ئۇچۇرى ئىجازەت بېرىلگەن مۇلازىمەت بىلەن ئورتاقلىنىدۇ. ئورۇن ئۇچۇرى يەنە ۋاقىت رايونى يېڭىلاش، جىددىي قۇتقۇزۇش تېلېفونى قىلىش قاتارلىق سىستېما مۇلازىمەتلىرى ئۈچۈنمۇ ئىشلىتىلىدۇ."
+        },
+        {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"بىكار قىلىش"
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"ئۈزۈش"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"بۇ يەرنى چېكىپ %s غا تىزىملاپ كىرىڭ/دەلىللەڭ."
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"نۆۋەتتە WLAN ئورتاقلىشىش قانىلى ئالدىراش. WLAN Direct، كۆپ ئېكران ئۆزئارالىقى قاتارلىقلارنى ئىشلىتىۋاتقان بولسىڭىز، ئاۋۋال ئۈزۈپ، ئاندىن تور نۇقتىسى ئېچىڭ."
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"دەلىللەيدىغان WLAN تورى"
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"\u200f%s ئۇلاق"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"بۇ WLAN دەلىللەنمىسىنىڭ ۋاقتى ئۆتكەن."
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"بۇ يەرنى چېكىپ %s غا تىزىملاپ كىرىڭ/دەلىللەڭ."
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"ياق"
+        },
+        {
+            "name":"wifi_cdd_notify_title",
+            "value":"نۆۋەتتىكى WLAN دا ئىنتېرنېت يوق، داۋاملىق ئىشلىتەمسىز؟"
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"بۇ يەرنى چېكىپ تىزىملاپ كىرىڭ/دەلىللەڭ."
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"شۇنداق"
         }
     ]
 }
