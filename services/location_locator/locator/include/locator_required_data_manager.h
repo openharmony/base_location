@@ -36,20 +36,15 @@
 #include "app_identity.h"
 #ifdef WIFI_ENABLE
 #include "wifi_scan.h"
+#include "kits/c/wifi_device.h"
 #endif
 
 namespace OHOS {
 namespace Location {
 #ifdef WIFI_ENABLE
-class LocatorWifiScanEventCallback : public Wifi::IWifiScanCallback {
+class LocatorWifiScanEventCallback {
 public:
-    explicit LocatorWifiScanEventCallback() {}
-    ~LocatorWifiScanEventCallback() {}
-    void OnWifiScanStateChanged(int state) override;
-    sptr<IRemoteObject> AsObject() override
-    {
-        return nullptr;
-    }
+    static void OnWifiScanStateChanged(int state, int size);
 };
 #endif
 
@@ -187,17 +182,11 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
-class ScanListHandler : public AppExecFwk::EventHandler {
+class WifiSdkHandler : public AppExecFwk::EventHandler {
 public:
-    explicit ScanListHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
-    ~ScanListHandler() override;
+    explicit WifiSdkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~WifiSdkHandler() override;
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
-};
-
-class WifiServiceStatusChange : public SystemAbilityStatusChangeStub {
-public:
-    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 };
 
 class LocatorRequiredDataManager {
@@ -218,23 +207,23 @@ private:
 public:
     void ResetCallbackRegisteredStatus();
     __attribute__((no_sanitize("cfi"))) bool RegisterWifiCallBack();
+    __attribute__((no_sanitize("cfi"))) bool UnregisterWifiCallBack();
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByWifi(
         const std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
     __attribute__((no_sanitize("cfi"))) void GetWifiScanList(std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
 private:
     void WifiInfoInit();
-    bool isWifiCallbackRegistered();
+    bool IsWifiCallbackRegistered();
+    void SetIsWifiCallbackRegistered(bool isWifiCallbackRegistered);
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
-    sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
     bool isWifiCallbackRegistered_ = false;
     std::mutex wifiRegisteredMutex_;
-    sptr<ISystemAbilityStatusChange> saStatusListener_ =
-        sptr<WifiServiceStatusChange>(new WifiServiceStatusChange());
+    WifiEvent wifiScanEventCallback_ = {0};
 #endif
     std::mutex mutex_;
     std::map<sptr<ILocatingRequiredDataCallback>, AppIdentity> callbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
-    std::shared_ptr<ScanListHandler> scanListHandler_;
+    std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
 };
 } // namespace Location
 } // namespace OHOS

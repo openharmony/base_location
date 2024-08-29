@@ -45,9 +45,9 @@ public:
             LBSLOGE(COUNTRY_CODE_CALLBACK, "context == nullptr.");
             return false;
         }
+        uint32_t refCount = INVALID_REF_COUNT;
+        napi_reference_ref(env_, handlerCb_, &refCount);
         context->env = env_;
-        callbackValid_ = handlerCb_ == nullptr ? false : true;
-        context->callbackValid = &callbackValid_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
     }
@@ -55,7 +55,6 @@ private:
     napi_env env_;
     napi_ref handlerCb_;
     std::mutex mutex_;
-    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS

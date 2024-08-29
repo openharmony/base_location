@@ -28,6 +28,7 @@
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "locator.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -70,6 +71,11 @@ LocatorImpl::~LocatorImpl()
 bool LocatorImpl::IsLocationEnabled()
 {
     LBSLOGD(LOCATION_NAPI, "IsLocationEnabled");
+    int32_t state = DEFAULT_SWITCH_STATE;
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    if (state == DISABLED || state == ENABLED) {
+        return (state == ENABLED);
+    }
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -78,7 +84,6 @@ bool LocatorImpl::IsLocationEnabled()
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    int32_t state = DEFAULT_STATE;
     state = proxy->GetSwitchState();
     return (state == ENABLED);
 }
@@ -188,7 +193,10 @@ bool LocatorImpl::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pi
     if (locationDataManager_ == nullptr) {
         return false;
     }
-    return locationDataManager_->RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid()) == ERRCODE_SUCCESS;
+    AppIdentity appIdentity;
+    appIdentity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    appIdentity.SetUid(IPCSkeleton::GetCallingUid());
+    return locationDataManager_->RegisterSwitchCallback(callback, appIdentity) == ERRCODE_SUCCESS;
 }
 
 bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
@@ -586,6 +594,12 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
+    int32_t state = DEFAULT_SWITCH_STATE;
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    if (state == DISABLED || state == ENABLED) {
+        isEnabled = (state == ENABLED);
+        return ERRCODE_SUCCESS;
+    }
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -594,7 +608,6 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int32_t state = DEFAULT_STATE;
     state = proxy->GetSwitchState();
     isEnabled = (state == ENABLED);
     return ERRCODE_SUCCESS;
@@ -603,19 +616,12 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 LocationErrCode LocatorImpl::IsLocationEnabledForUser(bool &isEnabled, int32_t userId)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    int32_t state = DEFAULT_SWITCH_STATE;
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForUser(userId);
+    if (state == DISABLED || state == ENABLED) {
+        isEnabled = (state == ENABLED);
+        return ERRCODE_SUCCESS;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    int currentUserId = 0;
-    if (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId) {
-        return IsLocationEnabledV9(isEnabled);
-    }
-    int32_t state = DEFAULT_STATE;
     auto ret = LocationDataRdbManager::GetSwitchStateFromDbForUser(state, userId);
     if (ret != ERRCODE_SUCCESS) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -740,8 +746,11 @@ LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>&
     if (locationDataManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    AppIdentity appIdentity;
+    appIdentity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    appIdentity.SetUid(IPCSkeleton::GetCallingUid());
     return locationDataManager_->
-        RegisterSwitchCallback(callback, IPCSkeleton::GetCallingUid());
+        RegisterSwitchCallback(callback, appIdentity);
 }
 
 LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)

@@ -1494,7 +1494,7 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
         return false;
     }
     if ((config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) &&
-        (config->GetScenario() > LOCATION_SCENE_DAILY_LIFE_SERVICE ||
+        (config->GetScenario() > LOCATION_SCENE_RIDE ||
         config->GetScenario() < LOCATION_SCENE_NAVIGATION) &&
         (config->GetScenario() > LOCATION_SCENE_NO_POWER_CONSUMPTION ||
         config->GetScenario() < LOCATION_SCENE_HIGH_POWER_CONSUMPTION)) {

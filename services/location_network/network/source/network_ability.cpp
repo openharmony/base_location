@@ -41,6 +41,7 @@ const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
 const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+const uint32_t DELAY_RESTART_MS = 500;
 constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
@@ -58,6 +59,7 @@ NetworkAbility::NetworkAbility() : SystemAbility(LOCATION_NETWORK_LOCATING_SA_ID
 
 NetworkAbility::~NetworkAbility()
 {
+    std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
     conn_ = nullptr;
 }
 
@@ -140,17 +142,21 @@ bool NetworkAbility::ConnectNlpService()
             return false;
         }
         connectionWant.SetElementName(serviceName, abilityName);
+        std::unique_lock<ffrt::mutex> lock(connMutex_, std::defer_lock);
+        connMutex_.lock();
         conn_ = sptr<AAFwk::IAbilityConnection>(new (std::nothrow) AbilityConnection());
         if (conn_ == nullptr) {
             LBSLOGE(NETWORK, "get connection failed!");
+            connMutex_.unlock();
             return false;
         }
         int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn_, -1);
+        connMutex_.unlock();
         if (ret != ERR_OK) {
             LBSLOGE(NETWORK, "Connect cloud service failed, ret = %{public}d", ret);
             return false;
         }
-        std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+        std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
         auto waitStatus = connectCondition_.wait_for(
             uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return nlpServiceProxy_ != nullptr; });
         if (!waitStatus) {
@@ -159,7 +165,7 @@ bool NetworkAbility::ConnectNlpService()
             return false;
         }
     }
-    RegisterNLPServiceDeathRecipient();
+    RegisterNlpServiceDeathRecipient();
     return true;
 }
 
@@ -184,21 +190,21 @@ bool NetworkAbility::ReConnectNlpService()
 
 bool NetworkAbility::ResetServiceProxy()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     nlpServiceProxy_ = nullptr;
     return true;
 }
 
 void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     nlpServiceProxy_ = remoteObject;
     connectCondition_.notify_all();
 }
 
 void NetworkAbility::NotifyDisConnected()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     nlpServiceProxy_ = nullptr;
     connectCondition_.notify_all();
 }
@@ -272,26 +278,22 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             return;
         }
     }
-    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
     if (isAdded) {
         RequestNetworkLocation(workRecord);
     } else {
         RemoveNetworkLocation(workRecord);
+        std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
         if (GetRequestNum() == 0 && conn_ != nullptr) {
             LBSLOGI(NETWORK, "RequestRecord disconnect");
             AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
-            UnRegisterNLPServiceDeathRecipient();
-            conn_ = nullptr ;
+            UnregisterNlpServiceDeathRecipient();
+            conn_ = nullptr;
         }
     }
 }
 
 bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
 {
-    if (nlpServiceProxy_ == nullptr) {
-        LBSLOGE(NETWORK, "nlpProxy is nullptr.");
-        return false;
-    }
     if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
         return false;
@@ -302,7 +304,13 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "can not get valid callback.");
         return false;
     }
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
+    if (nlpServiceProxy_ == nullptr) {
+        LBSLOGE(NETWORK, "nlpProxy is nullptr.");
+        return false;
+    }
     MessageParcel data;
+    
     MessageParcel reply;
     MessageOption option;
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
@@ -324,6 +332,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
 
 bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
 {
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return false;
@@ -481,21 +490,24 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
     }
 }
 
-void NetworkAbility::RegisterNLPServiceDeathRecipient()
+void NetworkAbility::RegisterNlpServiceDeathRecipient()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "%{public}s: nlpServiceProxy_ is nullptr", __func__);
         return;
     }
-    if (nlpServiceRecipient_ != nullptr) {
-        nlpServiceProxy_->AddDeathRecipient(nlpServiceRecipient_);
+    if (nlpServiceRecipient_ == nullptr) {
+        nlpServiceRecipient_ = sptr<NlpServiceDeathRecipient>(new (std::nothrow) NlpServiceDeathRecipient());
     }
+    nlpServiceProxy_->AddDeathRecipient(nlpServiceRecipient_);
+    LBSLOGI(NETWORK, "%{public}s: success", __func__);
 }
 
-void NetworkAbility::UnRegisterNLPServiceDeathRecipient()
+void NetworkAbility::UnregisterNlpServiceDeathRecipient()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
+    LBSLOGI(NETWORK, "UnRegisterNLPServiceDeathRecipient enter");
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "%{public}s: nlpServiceProxy_ is nullptr", __func__);
         return;
@@ -509,8 +521,18 @@ void NetworkAbility::UnRegisterNLPServiceDeathRecipient()
 
 bool NetworkAbility::IsConnect()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(mutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     return nlpServiceProxy_ != nullptr;
+}
+
+void NetworkAbility::RestartNlpRequests()
+{
+    if (GetRequestNum() > 0) {
+        if (networkHandler_ != nullptr) {
+            networkHandler_->SendHighPriorityEvent(EVENT_RESTART_ALL_LOCATION_REQUEST, 0, DELAY_RESTART_MS);
+            LBSLOGI(NETWORK, "CheckNetworkRequests needRecoverRequests");
+        }
+    }
 }
 
 void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid)
@@ -578,21 +600,23 @@ void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     networkAbility->UnloadNetworkSystemAbility();
 }
 
-NLPServiceDeathRecipient::NLPServiceDeathRecipient()
+NlpServiceDeathRecipient::NlpServiceDeathRecipient()
 {
 }
 
-NLPServiceDeathRecipient::~NLPServiceDeathRecipient()
+NlpServiceDeathRecipient::~NlpServiceDeathRecipient()
 {
 }
 
-void NLPServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+void NlpServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     auto networkAbility = NetworkAbility::GetInstance();
-    if (networkAbility != nullptr) {
-        LBSLOGI(NETWORK, "nlp ResetServiceProxy");
-        networkAbility->ResetServiceProxy();
+    if (networkAbility == nullptr) {
+        LBSLOGE(NETWORK, "OnRemoteDied: NetworkAbility is nullptr");
+        return;
     }
+    networkAbility->ResetServiceProxy();
+    networkAbility->RestartNlpRequests();
 }
 } // namespace Location
 } // namespace OHOS

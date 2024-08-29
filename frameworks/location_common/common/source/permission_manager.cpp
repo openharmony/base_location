@@ -128,7 +128,7 @@ bool PermissionManager::CheckSystemPermission(uint32_t callerTokenId, uint64_t c
     return isSysApp;
 }
 
-bool PermissionManager::CheckIsSystemSA(uint32_t tokenId)
+bool PermissionManager::CheckIsSystemSa(uint32_t tokenId)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
