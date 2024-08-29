@@ -11,6 +11,30 @@
         {
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"[TS_962307]_Cancel"
+        },
+        {
+            "name":"confirm_button",
+            "value":"[TS_962297]_Agree"
+        },
+        {
+            "name":"cancel_button",
+            "value":"[TS_962308]_Cancel"
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"[TS_962312]_Location Services"
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"[TS_962298]_Location request"
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"[TS_962313]_Requested by"
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"[TS_962306]_Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls."
         }
     ]
 }
