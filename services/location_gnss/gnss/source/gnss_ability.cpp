@@ -881,7 +881,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         auto notificationRequestList = request->GetNotificationRequestList();
         if (transitionStatusList.size() == notificationRequestList.size()) {
             auto notificationRequest = notificationRequestList[i];
-            notificationRequest.SetCreatorUid(IPCSkeleton::GetCallingUid());
+            notificationRequest.SetCreatorUid(request->GetUid());
             Notification::NotificationHelper::PublishNotification(notificationRequest);
         } else {
             LBSLOGE(GNSS, "transitionStatusList size does not equals to notificationRequestList size");

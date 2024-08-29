@@ -80,6 +80,10 @@ public:
 
     void SetBundleName(const std::string& bundleName);
 
+    int32_t GetUid();
+
+    void SetUid(int32_t uid);
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
@@ -92,6 +96,7 @@ private:
     GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;
     int fenceId_;
+    int32_t uid_;
     AbilityRuntime::WantAgent::WantAgent wantAgent_;
     std::string bundleName_;
     mutable std::mutex geofenceRequestMutex_;
