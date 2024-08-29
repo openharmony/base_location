@@ -224,7 +224,6 @@ public:
 private:
     void WifiInfoInit();
     bool isWifiCallbackRegistered();
-    bool CheckDataPermissionforUser(AppIdentity &identity);
     std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     sptr<LocatorWifiScanEventCallback> wifiScanEventCallback_;
     bool isWifiCallbackRegistered_ = false;

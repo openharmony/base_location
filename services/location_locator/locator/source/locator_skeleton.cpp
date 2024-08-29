@@ -541,11 +541,6 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreRegisterNmeaMessageCallbackV9: LocatorAbility is nullptr.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity));
     return ERRCODE_SUCCESS;
 }
@@ -1170,10 +1165,7 @@ bool LocatorAbilityStub::CheckRequestAvailable(uint32_t code, AppIdentity &ident
     if (IsStopAction(code)) {
         return true;
     }
-    if (PermissionManager::CheckIsSystemSA(identity.GetTokenId())) {
-        return true;
-    }
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), identity.GetBundleName())) {
+    if (CommonUtils::CheckPermissionforUser(identity)) {
         return true;
     }
     LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());

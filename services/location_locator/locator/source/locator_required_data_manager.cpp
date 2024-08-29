@@ -66,7 +66,13 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         }
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
-        callbacksMap_.insert(std::make_pair(dataCallback, identity));
+        auto iter = callbacksMap_.find(dataCallback);
+        if (iter != callbacksMap_.end()) {
+            LBSLOGE(LOCATOR, "dataCallback has registered!");
+            lock.unlock();
+            return ERRCODE_SUCCESS;
+        }
+        callbacksMap_.insert[dataCallback] = identity;
         if (config->GetNeedStartScan() && callbacksMap_.size() == 1) {
             timeInterval_ = config->GetScanIntervalMs();
             if (scanHandler_ != nullptr) {
@@ -299,24 +305,11 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
     for (const auto& pair : callbacksMap_) {
         auto locatingRequiredDataCallback = pair.first;
         AppIdentity identity = pair.second;
-        if (CheckDataPermissionforUser(identity)) {
+        if (CheckPermissionforUser(identity)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
         }
     }
 }
-
-bool LocatorRequiredDataManager::CheckDataPermissionforUser(AppIdentity &identity)
-{
-    if (PermissionManager::CheckIsSystemSA(identity.GetTokenId())) {
-        return true;
-    }
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), identity.GetBundleName())) {
-        return true;
-    }
-    LBSLOGE(LOCATOR, "CheckDataPermissionforUser fail: %{public}d", identity.GetUid());
-    return false;
-}
-
 
 __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiScan(bool flag)
 {

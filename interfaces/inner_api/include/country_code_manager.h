@@ -55,7 +55,6 @@ private:
     bool SubscribeLocaleConfigEvent();
     bool UnsubscribeSimEvent();
     bool UnsubscribeNetworkStatusEvent();
-    bool CheckPermissionforUser(AppIdentity &identity);
 
     class LocatorCallback : public IRemoteStub<ILocatorCallback> {
     public:

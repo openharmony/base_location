@@ -240,7 +240,7 @@ private:
     bool IsGnssfenceRequestMapExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
     bool ConnectGnssHdi();
-    bool CheckGnssPermissionforUser(AppIdentity &identity);
+
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     bool ConnectAgnssHdi();
 #endif

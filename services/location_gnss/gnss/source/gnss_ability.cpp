@@ -278,7 +278,6 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
         LBSLOGE(COUNTRY_CODE, "gnssStatusCallbackMap_ size <= 0");
         return ERRCODE_SUCCESS;
     }
-    size_t i = 0;
     std::map<sptr<IGnssStatusCallback>, AppIdentity>::iterator iter;
     for (iter = gnssStatusCallbackMap_.begin(); iter != gnssStatusCallbackMap_.end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->first->AsObject();
@@ -342,7 +341,6 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         }
     }
     if (iter != nmeaCallbackMap_.end()) {
-        AppIdentity nmeaIdentity = iter->second;
         nmeaCallbackMap_.erase(iter);
     }
 
@@ -955,22 +953,10 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
     for (const auto& pair : nmeaCallbackMap_) {
         auto nmeaCallback = pair.first;
         AppIdentity nmeaIdentity = pair.second;
-        if (CheckGnssPermissionforUser(nmeaIdentity)) {
+        if (CheckPermissionforUser(nmeaIdentity)) {
             nmeaCallback->OnMessageChange(timestamp, nmea);
         }
     }
-}
-
-bool GnssAbility::CheckGnssPermissionforUser(AppIdentity &identity)
-{
-    if (PermissionManager::CheckIsSystemSA(identity.GetTokenId())) {
-        return true;
-    }
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), identity.GetBundleName())) {
-        return true;
-    }
-    LBSLOGE(LOCATOR, "CheckGnssPermissionforUser fail: %{public}d", identity.GetUid());
-    return false;
 }
 
 void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
@@ -979,7 +965,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
     for (const auto& pair : gnssStatusCallbackMap_) {
         auto gnssStatusCallback = pair.first;
         AppIdentity gnssStatusIdentity = pair.second;
-        if (CheckGnssPermissionforUser(gnssStatusIdentity)) {
+        if (CheckPermissionforUser(gnssStatusIdentity)) {
             gnssStatusCallback->OnStatusChange(sv);
         }
     }

@@ -68,18 +68,6 @@ void CountryCodeManager::NotifyAllListener()
     }
 }
 
-bool CountryCodeManager::CheckPermissionforUser(AppIdentity &identity)
-{
-    if (PermissionManager::CheckIsSystemSA(identity.GetTokenId())) {
-        return true;
-    }
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), identity.GetBundleName())) {
-        return true;
-    }
-    return false;
-}
-
-
 void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity)
 {
     std::unique_lock<std::mutex> lock(countryCodeCallbackMutex_, std::defer_lock);
@@ -95,7 +83,13 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
         lock.unlock();
         return;
     }
-    countryCodeCallbacksMap_.insert(std::make_pair(countryCodeCallback, identity));
+    auto iter = countryCodeCallbacksMap_.find(countryCodeCallback);
+    if (iter != countryCodeCallbacksMap_.end()) {
+        LBSLOGE(COUNTRY_CODE, "ICountryCodeCallback has registered!");
+        lock.unlock();
+        return;
+    }
+    countryCodeCallbacksMap_[countryCodeCallback] = identity;
     LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallbacksMap_ size:%{public}s",
         identity.GetUid(), std::to_string(countryCodeCallbacksMap_.size()).c_str());
     if (countryCodeCallbacksMap_.size() != 1) {

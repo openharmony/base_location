@@ -196,8 +196,11 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         }
         return nullptr;
     }
-    if (!PermissionManager::CheckIsSystemSA(tokenId) &&
-        !CommonUtils::CheckAppForUser(uid, bundleName)) {
+    AppIdentity identity;
+    identity.SetUid(IPCSkeleton::GetCallingUid());
+    identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    if (!CommonUtils::CheckPermissionforUser(identity)) {
+        //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
         auto locationErrorCallback = request->GetLocationErrorCallBack();
         if (locationErrorCallback != nullptr) {

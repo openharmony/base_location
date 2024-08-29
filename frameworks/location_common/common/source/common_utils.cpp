@@ -404,11 +404,13 @@ std::string CommonUtils::GenerateUuid()
     return ss.str();
 }
 
-
-bool CommonUtils::CheckAppForUser(int32_t uid, std::string bundleName)
+bool CommonUtils::CheckAppForUser(int32_t uid)
 {
-    if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
-        return true;
+    std::string bundleName = "";
+    if (CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+        if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
+            return true;
+        }
     }
     int currentUserId = 0;
     int userId = 0;
@@ -436,6 +438,17 @@ int64_t CommonUtils::GetSinceBootTime()
     } else {
         return 0;
     }
+}
+
+bool CommonUtils::CheckPermissionforUser(AppIdentity &identity)
+{
+    if (PermissionManager::CheckIsSystemSA(identity.GetTokenId())) {
+        return true;
+    }
+    if (CommonUtils::CheckAppForUser(identity.GetUid())) {
+        return true;
+    }
+    return false;
 }
 } // namespace Location
 } // namespace OHOS
