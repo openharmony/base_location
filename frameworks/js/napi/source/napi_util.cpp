@@ -211,7 +211,9 @@ bool GeoAddressesToJsObj(const napi_env& env,
             SetValueStringArray(env, "descriptions", descriptionArray, eachObj);
         }
         SetValueInt32(env, "descriptionsSize", geoAddress->descriptionsSize_, eachObj);
-        SetValueBool(env, "isFromMock", geoAddress->isFromMock_, eachObj);
+        if (geoAddress->GetIsSystemApp()) {
+            SetValueBool(env, "isFromMock", geoAddress->isFromMock_, eachObj);
+        }
         NAPI_CALL_BASE(env, napi_set_element(env, arrayResult, idx++, eachObj), false);
     }
     return true;

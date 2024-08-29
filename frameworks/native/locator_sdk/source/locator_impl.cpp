@@ -28,7 +28,7 @@
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "locator.h"
-#include "app_identity.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -373,6 +373,16 @@ void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::sha
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     }
     replyList = callback->GetResult();
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
+    }
 }
 
 void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
@@ -401,6 +411,16 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     }
     replyList = callback->GetResult();
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
+    }
 }
 
 bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
@@ -921,6 +941,16 @@ LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
     if (replyList.size() == 0) {
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
+    }
     return errCode;
 }
 
@@ -948,6 +978,16 @@ LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
     replyList = callback->GetResult();
     if (replyList.size() == 0) {
         return ERRCODE_GEOCODING_FAIL;
+    }
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
     }
     return errCode;
 }
