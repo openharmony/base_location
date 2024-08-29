@@ -27,6 +27,8 @@ const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
 const std::string LOCATION_WORKING_STATE = "location_working_state";
 class LocationDataRdbManager {
 public:
+    static int GetSwitchStateFromSysparaForCurrentUser();
+    static bool SetSwitchStateToSysparaForCurrentUser(int value);
     static std::string GetLocationDataUriByCurrentUserId(std::string key);
     static std::string GetLocationDataUriForUser(std::string key, int32_t userId);
     static LocationErrCode GetSwitchStateFromDbForUser(int32_t& state, int32_t userId);
@@ -35,13 +37,13 @@ public:
     static LocationErrCode SetSwitchStateToDbForUser(int modeValue, int32_t userId);
     static bool SetLocationWorkingState(int32_t state);
     static bool GetLocationWorkingState(int32_t& state);
-    static int GetSwitchMode();
-    static bool SetSwitchStateToSyspara(int value);
-    static bool ClearSwitchMode();
+    static int GetSwitchStateFromSysparaForUser(int32_t userId);
+    static bool SetSwitchStateToSysparaForUser(int value, int32_t userId);
     static std::string GetLocationDataSecureUri(std::string key);
     static bool SetLocationEnhanceStatus(int32_t state);
     static bool GetLocationEnhanceStatus(int32_t& state);
     static void SyncSwitchStatus();
+    static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
 private:
     static std::mutex mutex_;
 };

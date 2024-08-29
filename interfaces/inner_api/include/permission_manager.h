@@ -45,6 +45,7 @@ public:
     static bool CheckRssProcessName(uint32_t tokenId);
     static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
     static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
+    static bool CheckIsSystemSa(uint32_t tokenId);
 };
 } // namespace Location
 } // namespace OHOS

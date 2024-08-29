@@ -31,6 +31,7 @@
 #include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
+#include "os_account_info.h"
 
 namespace OHOS {
 namespace Location {
@@ -137,6 +138,24 @@ bool CommonUtils::GetCurrentUserId(int &userId)
         return false;
     }
     userId = activeIds[0];
+    return true;
+}
+
+bool CommonUtils::GetAllUserId(std::vector<int>& activeIds)
+{
+    std::vector<AccountSA::OsAccountInfo> accountInfos;
+    int ret = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accountInfos);
+    if (ret != 0) {
+        LBSLOGE(COMMON_UTILS, "GetAllUserId failed ret:%{public}d", ret);
+        return false;
+    }
+    for (auto &info : accountInfos) {
+        activeIds.push_back(info.GetLocalId());
+    }
+    if (activeIds.empty()) {
+        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
+        return false;
+    }
     return true;
 }
 
@@ -416,7 +435,7 @@ bool CommonUtils::CheckAppForUser(int32_t uid)
     if (result != ERR_OK) {
         return true;
     }
-    if (userId != currentUserId) {
+    if (userId != 0 && userId != currentUserId) {
         return false;
     }
     return true;

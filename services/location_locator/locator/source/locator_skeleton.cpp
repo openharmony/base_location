@@ -262,9 +262,8 @@ LocatorAbilityStub::LocatorAbilityStub()
 
 int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = LocatorAbility::GetInstance();
-    int state = DISABLED;
-    LocationErrCode errorCode = locatorAbility->GetSwitchState(state);
+    int state = DEFAULT_SWITCH_STATE;
+    LocationErrCode errorCode =  LocatorAbility::GetInstance()->GetSwitchState(state);
     reply.WriteInt32(errorCode);
     if (errorCode == ERRCODE_SUCCESS) {
         reply.WriteInt32(state);
