@@ -53,6 +53,16 @@ double GeoAddress::GetLongitude()
     return longitude_;
 }
 
+bool GeoAddress::GetIsSystemApp()
+{
+    return isSystemApp_;
+}
+
+void GeoAddress::SetIsSystemApp(bool isSystemApp)
+{
+    isSystemApp_ = isSystemApp;
+}
+
 std::unique_ptr<GeoAddress> GeoAddress::Unmarshalling(Parcel& parcel)
 {
     std::unique_ptr<GeoAddress> geoAddress = std::make_unique<GeoAddress>();
