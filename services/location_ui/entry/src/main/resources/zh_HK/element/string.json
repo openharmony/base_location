@@ -11,6 +11,30 @@
         {
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"取消"
+        },
+        {
+            "name":"confirm_button",
+            "value":"同意"
+        },
+        {
+            "name":"cancel_button",
+            "value":"取消"
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"定位服務"
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"定位請求"
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"請求人"
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"「定位服務」連線網絡並使用 GNSS 或網絡資訊（WLAN、流動網絡、藍牙和 IP）為您提供以位置為基礎的服務。啟用後，裝置的位置資訊會分享給已授予定位權限的服務。您的位置資訊也將用於系統服務，例如更新時區、緊急電話等。"
         }
     ]
 }
