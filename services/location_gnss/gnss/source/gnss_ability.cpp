@@ -249,13 +249,8 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
-    sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
-    if (gnssStatusCallback == nullptr) {
-        LBSLOGE(GNSS, "cast switch callback fail!");
-        return ERRCODE_INVALID_PARAM;
-    }
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
-    gnssStatusCallbackMap_.insert(std::make_pair(gnssStatusCallback, identity));
+    gnssStatusCallbackMap_[callback] = identity;
     LBSLOGD(GNSS, "RegisterGnssStatusCallback uid:%{public}d register, gnssStatusCallback size:%{public}s",
         identity.GetUid(), std::to_string(gnssStatusCallbackMap_.size()).c_str());
     return ERRCODE_SUCCESS;
@@ -267,25 +262,8 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
         LBSLOGE(GNSS, "unregister an invalid gnssStatus callback");
         return ERRCODE_INVALID_PARAM;
     }
-    sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
-    if (gnssStatusCallback == nullptr) {
-        LBSLOGE(GNSS, "cast gnssStatus callback fail!");
-        return ERRCODE_INVALID_PARAM;
-    }
-
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
-    if (gnssStatusCallbackMap_.size() <= 0) {
-        LBSLOGE(COUNTRY_CODE, "gnssStatusCallbackMap_ size <= 0");
-        return ERRCODE_SUCCESS;
-    }
-    std::map<sptr<IGnssStatusCallback>, AppIdentity>::iterator iter;
-    for (iter = gnssStatusCallbackMap_.begin(); iter != gnssStatusCallbackMap_.end(); iter++) {
-        sptr<IRemoteObject> remoteObject = iter->first->AsObject();
-        LBSLOGE(GNSS, "UnregisterGnssStatusCallback gnssStatusCallbackMap_");
-        if (remoteObject == callback) {
-            break;
-        }
-    }
+    auto iter = gnssStatusCallbackMap_.find(callback);
     if (iter != gnssStatusCallbackMap_.end()) {
         gnssStatusCallbackMap_.erase(iter);
     }
@@ -303,13 +281,8 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
-    sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
-    if (nmeaCallback == nullptr) {
-        LBSLOGE(GNSS, "cast nmea callback fail!");
-        return ERRCODE_INVALID_PARAM;
-    }
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
-    nmeaCallbackMap_.insert(std::make_pair(nmeaCallback, identity));
+    nmeaCallbackMap_[callback] = identity;
     LBSLOGD(GNSS, "after uid:%{public}d register, nmeaCallback size:%{public}s",
         identity.GetUid(), std::to_string(nmeaCallbackMap_.size()).c_str());
     return ERRCODE_SUCCESS;
@@ -321,25 +294,8 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         LBSLOGE(GNSS, "unregister an invalid nmea callback");
         return ERRCODE_INVALID_PARAM;
     }
-    sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
-    if (nmeaCallback == nullptr) {
-        LBSLOGE(GNSS, "cast nmea callback fail!");
-        return ERRCODE_INVALID_PARAM;
-    }
-
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
-    if (nmeaCallbackMap_.size() <= 0) {
-        LBSLOGE(COUNTRY_CODE, "nmeaCallbackMap_ size <= 0");
-        return ERRCODE_SUCCESS;
-    }
-    
-    std::map<sptr<INmeaMessageCallback>, AppIdentity>::iterator iter;
-    for (iter = nmeaCallbackMap_.begin(); iter != nmeaCallbackMap_.end(); iter++) {
-        sptr<IRemoteObject> remoteObject = iter->first->AsObject();
-        if (remoteObject == callback) {
-            break;
-        }
-    }
+    auto iter = nmeaCallbackMap_.find(callback);
     if (iter != nmeaCallbackMap_.end()) {
         nmeaCallbackMap_.erase(iter);
     }
@@ -951,9 +907,10 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
 {
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     for (const auto& pair : nmeaCallbackMap_) {
-        auto nmeaCallback = pair.first;
+        auto callback = pair.first;
+        sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
-        if (CheckPermissionforUser(nmeaIdentity)) {
+        if (CommonUtils::CheckPermissionforUser(nmeaIdentity)) {
             nmeaCallback->OnMessageChange(timestamp, nmea);
         }
     }
@@ -963,9 +920,10 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 {
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     for (const auto& pair : gnssStatusCallbackMap_) {
-        auto gnssStatusCallback = pair.first;
+        auto callback = pair.first;
+        sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
         AppIdentity gnssStatusIdentity = pair.second;
-        if (CheckPermissionforUser(gnssStatusIdentity)) {
+        if (CommonUtils::CheckPermissionforUser(gnssStatusIdentity)) {
             gnssStatusCallback->OnStatusChange(sv);
         }
     }

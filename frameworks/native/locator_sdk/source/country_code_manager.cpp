@@ -61,9 +61,10 @@ void CountryCodeManager::NotifyAllListener()
     auto country = std::make_shared<CountryCode>(*lastCountry_);
     for (const auto& pair : countryCodeCallbacksMap_) {
         auto callback = pair.first;
+        sptr<ICountryCodeCallback> countryCodeCallback = iface_cast<ICountryCodeCallback>(callback);
         AppIdentity identity = pair.second;
-        if (CheckPermissionforUser(identity)) {
-            callback->OnCountryCodeChange(country);
+        if (CommonUtils::CheckPermissionforUser(identity)) {
+            countryCodeCallback->OnCountryCodeChange(country);
         }
     }
 }
@@ -77,19 +78,7 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
         lock.unlock();
         return;
     }
-    sptr<ICountryCodeCallback> countryCodeCallback = iface_cast<ICountryCodeCallback>(callback);
-    if (countryCodeCallback == nullptr) {
-        LBSLOGE(COUNTRY_CODE, "iface_cast ICountryCodeCallback failed!");
-        lock.unlock();
-        return;
-    }
-    auto iter = countryCodeCallbacksMap_.find(countryCodeCallback);
-    if (iter != countryCodeCallbacksMap_.end()) {
-        LBSLOGE(COUNTRY_CODE, "ICountryCodeCallback has registered!");
-        lock.unlock();
-        return;
-    }
-    countryCodeCallbacksMap_[countryCodeCallback] = identity;
+    countryCodeCallbacksMap_[callback] = identity;
     LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallbacksMap_ size:%{public}s",
         identity.GetUid(), std::to_string(countryCodeCallbacksMap_.size()).c_str());
     if (countryCodeCallbacksMap_.size() != 1) {
@@ -110,24 +99,7 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
         lock.unlock();
         return;
     }
-    if (countryCodeCallbacksMap_.size() <= 0) {
-        LBSLOGE(COUNTRY_CODE, "countryCodeCallbacksMap_ size <= 0");
-        lock.unlock();
-        return;
-    }
-    sptr<ICountryCodeCallback> countryCodeCallback = iface_cast<ICountryCodeCallback>(callback);
-    if (countryCodeCallback == nullptr) {
-        LBSLOGE(COUNTRY_CODE, "iface_cast ICountryCodeCallback failed!");
-        lock.unlock();
-        return;
-    }
-    std::map<sptr<ICountryCodeCallback>, AppIdentity>::iterator iter;
-    for (iter = countryCodeCallbacksMap_.begin(); iter != countryCodeCallbacksMap_.end(); iter++) {
-        sptr<IRemoteObject> remoteObject = iter->first->AsObject();
-        if (remoteObject == callback) {
-            break;
-        }
-    }
+    auto iter = countryCodeCallbacksMap_.find(callback);
     if (iter != countryCodeCallbacksMap_.end()) {
         countryCodeCallbacksMap_.erase(iter);
     }

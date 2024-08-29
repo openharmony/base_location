@@ -173,7 +173,7 @@ int LocationDataRdbManager::GetSwitchStateFromSysparaForUser(int32_t userId)
 bool LocationDataRdbManager::SetSwitchStateToSysparaForUser(int value, int32_t userId)
 {
     char result[MAX_SIZE] = {0};
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(locationSwitchModeMutex_);
     nlohmann::json oldSwitchInfo;
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
     if (res < 0 || strlen(result) == 0) {

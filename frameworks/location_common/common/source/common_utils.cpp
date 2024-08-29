@@ -32,6 +32,7 @@
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
 #include "os_account_info.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -426,7 +427,7 @@ std::string CommonUtils::GenerateUuid()
 bool CommonUtils::CheckAppForUser(int32_t uid)
 {
     std::string bundleName = "";
-    if (CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+    if (CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
             return true;
         }
@@ -461,7 +462,7 @@ int64_t CommonUtils::GetSinceBootTime()
 
 bool CommonUtils::CheckPermissionforUser(AppIdentity &identity)
 {
-    if (PermissionManager::CheckIsSystemSA(identity.GetTokenId())) {
+    if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
         return true;
     }
     if (CommonUtils::CheckAppForUser(identity.GetUid())) {

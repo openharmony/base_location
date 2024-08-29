@@ -259,8 +259,8 @@ private:
     ffrt::mutex nmeaMutex_;
     ffrt::mutex hdiMutex_;
     ffrt::mutex statusMutex_;
-    std::map<sptr<IGnssStatusCallback>, AppIdentity> gnssStatusCallbackMap_;
-    std::map<sptr<INmeaMessageCallback>, AppIdentity> nmeaCallbackMap_;
+    std::map<sptr<IRemoteObject>, AppIdentity> gnssStatusCallbackMap_;
+    std::map<sptr<IRemoteObject>, AppIdentity> nmeaCallbackMap_;
     sptr<IGnssCallback> gnssCallback_;
     Location nlpLocation_;
 #ifdef TIME_SERVICE_ENABLE

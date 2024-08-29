@@ -389,7 +389,8 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
     if (!CommonUtils::CheckPermissionforUser(identity)) {
-        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
+        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
+            request->GetUid());
         return false;
     }
     // for once_request app, if it has timed out, do not add to workRecord

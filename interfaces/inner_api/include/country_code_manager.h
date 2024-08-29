@@ -81,7 +81,7 @@ private:
 
     std::shared_ptr<CountryCode> lastCountryByLocation_;
     std::shared_ptr<CountryCode> lastCountry_;
-    std::map<sptr<ICountryCodeCallback>, AppIdentity> countryCodeCallbacksMap_;
+    std::map<sptr<IRemoteObject>, AppIdentity> countryCodeCallbacksMap_;
     std::shared_ptr<SimSubscriber> simSubscriber_;
     std::shared_ptr<NetworkSubscriber> networkSubscriber_;
     std::mutex simSubscriberMutex_;

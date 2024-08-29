@@ -52,24 +52,14 @@ LocatorRequiredDataManager::~LocatorRequiredDataManager()
 __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::RegisterCallback(
     AppIdentity &identity, std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
 {
-    sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
-    if (dataCallback == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
 #ifdef WIFI_ENABLE
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
-        auto iter = callbacksMap_.find(dataCallback);
-        if (iter != callbacksMap_.end()) {
-            LBSLOGE(LOCATOR, "dataCallback has registered!");
-            lock.unlock();
-            return ERRCODE_SUCCESS;
-        }
-        callbacksMap_[dataCallback] = identity;
-        LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
-        if (config->GetNeedStartScan() && (callbacks_.size() == 1 || !IsWifiCallbackRegistered())) {
+        callbacksMap_[callback] = identity;
+        LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
+            std::to_string(callbacksMap_.size()).c_str());
+        if (config->GetNeedStartScan() && (callbacksMap_.size() == 1 || !IsWifiCallbackRegistered())) {
             if (wifiSdkHandler_ != nullptr) {
                 wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
             }
@@ -88,30 +78,15 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 
 LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemoteObject>& callback)
 {
-    sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
-    if (dataCallback == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
 #ifdef WIFI_ENABLE
     std::unique_lock<std::mutex> lock(mutex_);
-    if (callbacksMap_.size() <= 0) {
-        LBSLOGD(GNSS, "scan callback is not in vector");
-        return ERRCODE_SUCCESS;
-    }
-    std::map<sptr<ILocatingRequiredDataCallback>, AppIdentity>::iterator iter;
-    for (iter = callbacksMap_.begin(); iter != callbacksMap_.end(); iter++) {
-        sptr<IRemoteObject> remoteObject = iter->first->AsObject();
-        if (remoteObject == callback) {
-            break;
-        }
-    }
+    auto iter = callbacksMap_.find(callback);
     if (iter != callbacksMap_.end()) {
         callbacksMap_.erase(iter);
     }
     LBSLOGD(LOCATOR, "after UnregisterCallback,  callback size:%{public}s",
         std::to_string(callbacksMap_.size()).c_str());
-    if (callbacks_.size() > 0) {
+    if (callbacksMap_.size() > 0) {
         return ERRCODE_SUCCESS;
     }
     if (wifiSdkHandler_ != nullptr) {
@@ -299,9 +274,11 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
 {
     std::unique_lock<std::mutex> lock(mutex_);
     for (const auto& pair : callbacksMap_) {
-        auto locatingRequiredDataCallback = pair.first;
+        auto callback = pair.first;
+        sptr<ILocatingRequiredDataCallback> locatingRequiredDataCallback =
+            iface_cast<ILocatingRequiredDataCallback>(callback);
         AppIdentity identity = pair.second;
-        if (CheckPermissionforUser(identity)) {
+        if (CommonUtils::CheckPermissionforUser(identity)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
         }
     }

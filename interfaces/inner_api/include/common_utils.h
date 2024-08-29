@@ -27,6 +27,7 @@
 #include "string_ex.h"
 #include "location_log.h"
 #include "location.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {

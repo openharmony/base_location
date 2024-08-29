@@ -221,7 +221,7 @@ private:
     WifiEvent wifiScanEventCallback_ = {0};
 #endif
     std::mutex mutex_;
-    std::map<sptr<ILocatingRequiredDataCallback>, AppIdentity> callbacksMap_;
+    std::map<sptr<IRemoteObject>, AppIdentity> callbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
 };
