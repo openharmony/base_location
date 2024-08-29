@@ -35,6 +35,54 @@
         {
             "name":"location_target_statement_content",
             "value":"༼གནས་ངེས་ཞབས་ཞུ་༽ལ་དྲ་སྦྲེལ་དགོས་ཤིང་ GNSS ཡང་ན་དྲ་རྒྱའི་ཆ་འཕྲིན་(WLAN དང་སྦྲང་ཚང་དྲ་རྒྱ། སོ་སྔོན། IP)བཀོལ་དགོས་ཏེ། ཁྱེད་ལ་གནས་ཡུལ་ལ་གཞིགས་པའི་ཞབས་ཞུ་མཁོ་འདོན་བྱ། སྤྱོད་འགོ་བཙུགས་རྗེས། སྒྲིག་ཆས་ཀྱི་གནས་ཡུལ་གྱི་ཆ་འཕྲིན་དེ་གནས་ཡུལ་གྱི་དབང་ཚད་སྤྲད་པའི་ཞབས་ཞུར་མཉམ་སྤྱོད་བྱ། ཁྱེད་ཀྱི་གནས་ཡུལ་གྱི་ཆ་འཕྲིན་རྒྱུད་ཁོངས་ཞབས་ཞུར་བཀོལ་སྲིད་དེ། དཔེར་ན། དུས་ཁུལ་གསར་སྒྱུར། ཛ་དྲག་ཁ་པར་སོགས་ལྟ་བུ།"
+        },
+        {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"འདོར་བ།"
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"གཅོད་པ།"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"བརྡབས་ནས་%sཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།"
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"WLAN མཉམ་སྤྱོད་བརྒྱུད་ལམ་བཟུང་སྤྱོད་བྱས་འདུག ཁྱེད་ཀྱིས་ WLAN ཐད་སྦྲེལ་དང་ཡོལ་མང་སྐུལ་རེས་སོགས་ཀྱི་སྦྲེལ་རེས་ཉེར་སྤྱོད་བཀོལ་བཞིན་ཡོད་ཚེ། སྦྲེལ་མཐུད་བཅད་རྗེས་ད་གཟོད་མི་སྒེར་གྱི་ཚ་གནས་ཁ་འབྱེད་ཐུབ། གཅོད་ཀྱི་ཡིན་ནམ།"
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"ར་སྤྲོད་བྱ་དགོས་པའི་WLAN དྲ་རྒྱ་རྙེད།"
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"%sལ་ཟིན།"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"WLAN དྲ་རྒྱ་དེའི་ར་སྤྲོད་ཀྱི་དུས་ཚོད་ཡོལ།"
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"བརྡབས་ནས་%sཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།"
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"བེད་སྤྱོད་མི་བྱེད།"
+        },
+        {
+            "name":"wifi_cdd_notify_title",
+            "value":"མིག་སྔའི་ WLAN ཡིས་དྲར་ཞུགས་མི་ཐུབ། WLAN འདི་མུ་མཐུད་བེད་སྤྱོད་བྱེད་དམ།"
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"བརྡབས་ནས་ཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།"
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"བེད་སྤྱོད་བྱེད།"
         }
     ]
 }
