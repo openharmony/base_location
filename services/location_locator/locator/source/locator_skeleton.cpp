@@ -736,6 +736,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
     auto locatorAbility = LocatorAbility::GetInstance();
     auto request = GeofenceRequest::Unmarshalling(data);
     request->SetBundleName(identity.GetBundleName());
+    request->SetUid(identity.GetUid());
     reply.WriteInt32(locatorAbility->AddGnssGeofence(request));
     return ERRCODE_SUCCESS;
 }
