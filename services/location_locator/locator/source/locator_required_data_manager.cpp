@@ -18,6 +18,8 @@
 #include "wifi_errcode.h"
 #endif
 #include "iservice_registry.h"
+#include "common_utils.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -48,20 +50,16 @@ LocatorRequiredDataManager::~LocatorRequiredDataManager()
 }
 
 __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::RegisterCallback(
-    std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
+    AppIdentity &identity, std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
 {
-    sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
-    if (dataCallback == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
 #ifdef WIFI_ENABLE
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
-        callbacks_.push_back(dataCallback);
-        LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
-        if (config->GetNeedStartScan() && (callbacks_.size() == 1 || !IsWifiCallbackRegistered())) {
+        callbacksMap_[callback] = identity;
+        LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
+            std::to_string(callbacksMap_.size()).c_str());
+        if (config->GetNeedStartScan() && (callbacksMap_.size() == 1 || !IsWifiCallbackRegistered())) {
             if (wifiSdkHandler_ != nullptr) {
                 wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
             }
@@ -80,29 +78,15 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 
 LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemoteObject>& callback)
 {
-    sptr<ILocatingRequiredDataCallback> dataCallback = iface_cast<ILocatingRequiredDataCallback>(callback);
-    if (dataCallback == nullptr) {
-        LBSLOGE(LOCATOR, "%{public}s iface_cast ILocatingRequiredDataCallback failed!", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
 #ifdef WIFI_ENABLE
     std::unique_lock<std::mutex> lock(mutex_);
-    size_t i = 0;
-    for (; i < callbacks_.size(); i++) {
-        sptr<IRemoteObject> remoteObject = callbacks_[i]->AsObject();
-        if (remoteObject == callback) {
-            break;
-        }
+    auto iter = callbacksMap_.find(callback);
+    if (iter != callbacksMap_.end()) {
+        callbacksMap_.erase(iter);
     }
-    if (callbacks_.size() <= i) {
-        LBSLOGD(GNSS, "scan callback is not in vector");
-        return ERRCODE_SUCCESS;
-    }
-    if (callbacks_.size() > 0) {
-        callbacks_.erase(callbacks_.begin() + i);
-    }
-    LBSLOGD(LOCATOR, "after UnregisterCallback,  callback size:%{public}s", std::to_string(callbacks_.size()).c_str());
-    if (callbacks_.size() > 0) {
+    LBSLOGD(LOCATOR, "after UnregisterCallback,  callback size:%{public}s",
+        std::to_string(callbacksMap_.size()).c_str());
+    if (callbacksMap_.size() > 0) {
         return ERRCODE_SUCCESS;
     }
     if (wifiSdkHandler_ != nullptr) {
@@ -289,8 +273,14 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
 void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result)
 {
     std::unique_lock<std::mutex> lock(mutex_);
-    for (size_t i = 0; i < callbacks_.size(); i++) {
-        callbacks_[i]->OnLocatingDataChange(result);
+    for (const auto& pair : callbacksMap_) {
+        auto callback = pair.first;
+        sptr<ILocatingRequiredDataCallback> locatingRequiredDataCallback =
+            iface_cast<ILocatingRequiredDataCallback>(callback);
+        AppIdentity identity = pair.second;
+        if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
+            locatingRequiredDataCallback->OnLocatingDataChange(result);
+        }
     }
 }
 
@@ -340,7 +330,7 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
 bool LocatorRequiredDataManager::IsConnecting()
 {
     std::unique_lock<std::mutex> lock(mutex_);
-    if (callbacks_.size() > 0) {
+    if (callbacksMap_.size() > 0) {
         return true;
     }
     return false;

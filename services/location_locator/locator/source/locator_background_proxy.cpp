@@ -279,7 +279,7 @@ void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
     UpdateListOnUserSwitch(userId);
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
-        locatorAbility->ApplyRequests(1);
+        locatorAbility->ApplyRequests(0);
     }
     if (!requestsList_->empty()) {
         StartLocator();

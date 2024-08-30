@@ -34,9 +34,9 @@ public:
     LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
     LocationErrCode SetEnable(bool state) override;
     LocationErrCode RefrashRequirements() override;
-    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity) override;
     LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity) override;
     LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
     LocationErrCode RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) override;

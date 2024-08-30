@@ -45,7 +45,7 @@ public:
     static void SyncSwitchStatus();
     static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
 private:
-    static std::mutex mutex_;
+    static std::mutex locationSwitchModeMutex_;
 };
 } // namespace Location
 } // namespace OHOS

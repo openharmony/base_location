@@ -119,9 +119,9 @@ public:
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
 #ifdef FEATURE_GNSS_SUPPORT
-    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity);
     LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback);
-    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity);
     LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName);

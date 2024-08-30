@@ -196,8 +196,16 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         }
         return nullptr;
     }
-    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx) &&
-        !CommonUtils::CheckAppForUser(uid)) {
+    AppIdentity identity;
+    identity.SetUid(request->GetUid());
+    identity.SetTokenId(request->GetTokenId());
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
+        //app is not in current user, not need to report
+        LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
+        auto locationErrorCallback = request->GetLocationErrorCallBack();
+        if (locationErrorCallback != nullptr) {
+            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
+        }
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);

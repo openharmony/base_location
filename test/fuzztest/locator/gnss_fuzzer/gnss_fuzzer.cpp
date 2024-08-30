@@ -58,13 +58,15 @@ namespace OHOS {
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         auto gnssCallbackHost =
             sptr<GnssStatusCallbackNapi>(new (std::nothrow) GnssStatusCallbackNapi());
-        proxy->RegisterGnssStatusCallback(gnssCallbackHost, data[index++]);
+        AppIdentity identity;
+        identity.SetPid(data[index++]);
+        proxy->RegisterGnssStatusCallback(gnssCallbackHost, identity);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterGnssStatusCallback(gnssCallbackHost);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         auto nmeaCallbackHost =
             sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
-        proxy->RegisterNmeaMessageCallback(nmeaCallbackHost, data[index++]);
+        proxy->RegisterNmeaMessageCallback(nmeaCallbackHost, identity);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterNmeaMessageCallback(nmeaCallbackHost);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));

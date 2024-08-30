@@ -40,9 +40,11 @@ public:
     ~MockGnssAbilityStub() {}
     MOCK_METHOD(void, SendMessage, (uint32_t code, MessageParcel &data, MessageParcel &reply));
     MOCK_METHOD(LocationErrCode, RefrashRequirements, ());
-    MOCK_METHOD(LocationErrCode, RegisterGnssStatusCallback, (const sptr<IRemoteObject>& callback, pid_t uid));
+    MOCK_METHOD(LocationErrCode, RegisterGnssStatusCallback, (const sptr<IRemoteObject>& callback,
+        AppIdentity &identity));
     MOCK_METHOD(LocationErrCode, UnregisterGnssStatusCallback, (const sptr<IRemoteObject>& callback));
-    MOCK_METHOD(LocationErrCode, RegisterNmeaMessageCallback, (const sptr<IRemoteObject>& callback, pid_t uid));
+    MOCK_METHOD(LocationErrCode, RegisterNmeaMessageCallback, (const sptr<IRemoteObject>& callback,
+        AppIdentity &identity));
     MOCK_METHOD(LocationErrCode, UnregisterNmeaMessageCallback, (const sptr<IRemoteObject>& callback));
     MOCK_METHOD(LocationErrCode, RegisterCachedCallback, (const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback));

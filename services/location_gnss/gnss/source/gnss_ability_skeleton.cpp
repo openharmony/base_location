@@ -172,8 +172,10 @@ int GnssAbilityStub::RegisterGnssStatusCallbackInner(MessageParcel &data, Messag
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    AppIdentity appIdentity;
+    appIdentity.ReadFromParcel(data);
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(RegisterGnssStatusCallback(client, identity.GetUid()));
+    reply.WriteInt32(RegisterGnssStatusCallback(client, appIdentity));
     return ERRCODE_SUCCESS;
 }
 
@@ -193,8 +195,10 @@ int GnssAbilityStub::RegisterNmeaMessageCallbackInner(MessageParcel &data, Messa
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    AppIdentity appIdentity;
+    appIdentity.ReadFromParcel(data);
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(RegisterNmeaMessageCallback(client, identity.GetUid()));
+    reply.WriteInt32(RegisterNmeaMessageCallback(client, appIdentity));
     return ERRCODE_SUCCESS;
 }
 

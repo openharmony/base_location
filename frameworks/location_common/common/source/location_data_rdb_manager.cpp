@@ -23,9 +23,9 @@ namespace OHOS {
 namespace Location {
 const int DEFAULT_USERID = 100;
 const int MAX_SIZE = 100;
-std::mutex LocationDataRdbManager::mutex_;
-const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 
+const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
+std::mutex LocationDataRdbManager::locationSwitchModeMutex_;
 std::string LocationDataRdbManager::GetLocationDataUriByCurrentUserId(std::string key)
 {
     int userId = 0;
@@ -145,7 +145,7 @@ int LocationDataRdbManager::GetSwitchStateFromSysparaForUser(int32_t userId)
 {
     char result[MAX_SIZE] = {0};
     std::string value = "";
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(locationSwitchModeMutex_);
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
     if (res < 0 || strlen(result) == 0) {
         LBSLOGE(COMMON_UTILS, "%{public}s get para value failed, res: %{public}d", __func__, res);
@@ -173,7 +173,7 @@ int LocationDataRdbManager::GetSwitchStateFromSysparaForUser(int32_t userId)
 bool LocationDataRdbManager::SetSwitchStateToSysparaForUser(int value, int32_t userId)
 {
     char result[MAX_SIZE] = {0};
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(locationSwitchModeMutex_);
     nlohmann::json oldSwitchInfo;
     auto res = GetParameter(LOCATION_SWITCH_MODE, "", result, MAX_SIZE);
     if (res < 0 || strlen(result) == 0) {

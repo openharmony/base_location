@@ -34,9 +34,9 @@ class IGnssAbility : public ISubAbility {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IGnssAbility");
     virtual LocationErrCode RefrashRequirements() = 0;
-    virtual LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity) = 0;
     virtual LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) = 0;
-    virtual LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) = 0;
+    virtual LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity) = 0;
     virtual LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) = 0;
     virtual LocationErrCode RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) = 0;

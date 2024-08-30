@@ -27,6 +27,7 @@
 #include "string_ex.h"
 #include "location_log.h"
 #include "location.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -180,6 +181,7 @@ public:
     static bool CheckAppForUser(int32_t uid);
     static int64_t GetSinceBootTime();
     static bool GetAllUserId(std::vector<int>& activeIds);
+    static bool IsAppBelongCurrentAccount(AppIdentity &identity);
 };
 
 class CountDownLatch {

@@ -22,6 +22,8 @@
     "*Location*SatelliteStatus*";
     "*Location*WriteAppLocatingStateEvent*";
     "*ExecuteHookWhenAddWorkRecord*";
+    "*LOCATOR_SA_LOCATION_PERMISSION_CHECK*";
+
   local:
     *;
 };

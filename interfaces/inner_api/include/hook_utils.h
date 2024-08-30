@@ -41,6 +41,7 @@ enum class LocationProcessStage {
     LOCATOR_SA_GET_ADDRESSES_FROM_LOCATIONNAME_PROCESS,
     WRITE_DFX_INNER_EVENT_PROCESS,
     ADD_REQUEST_TO_WORK_RECORD,
+    LOCATOR_SA_LOCATION_PERMISSION_CHECK,
 };
 
 typedef struct {
@@ -89,6 +90,7 @@ public:
     static bool ExecuteHookWhenAddWorkRecord(bool stillState, bool idleState, std::string abilityName,
         std::string bundleName);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
+    static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS

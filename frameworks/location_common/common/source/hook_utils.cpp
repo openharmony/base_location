@@ -116,6 +116,16 @@ bool HookUtils::ExecuteHookWhenAddWorkRecord(bool stillState, bool idleState, st
     return locatorRequestStruct.result;
 }
 
+bool HookUtils::ExecuteHookWhenCheckAppForUser(std::string packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_LOCATION_PERMISSION_CHECK, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
+
 bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
 {
     GnssLocationValidStruct gnssLocationValidStruct;
