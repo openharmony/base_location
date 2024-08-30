@@ -460,7 +460,7 @@ int64_t CommonUtils::GetSinceBootTime()
     }
 }
 
-bool CommonUtils::CheckPermissionforUser(AppIdentity &identity)
+bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
 {
     if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
         return true;

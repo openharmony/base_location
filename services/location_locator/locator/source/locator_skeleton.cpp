@@ -1164,7 +1164,7 @@ bool LocatorAbilityStub::CheckRequestAvailable(uint32_t code, AppIdentity &ident
     if (IsStopAction(code)) {
         return true;
     }
-    if (CommonUtils::CheckPermissionforUser(identity)) {
+    if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
         return true;
     }
     LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());

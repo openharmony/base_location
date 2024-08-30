@@ -910,7 +910,7 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         auto callback = pair.first;
         sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
-        if (CommonUtils::CheckPermissionforUser(nmeaIdentity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity)) {
             nmeaCallback->OnMessageChange(timestamp, nmea);
         }
     }
@@ -923,7 +923,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         auto callback = pair.first;
         sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
         AppIdentity gnssStatusIdentity = pair.second;
-        if (CommonUtils::CheckPermissionforUser(gnssStatusIdentity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity)) {
             gnssStatusCallback->OnStatusChange(sv);
         }
     }

@@ -63,7 +63,7 @@ void CountryCodeManager::NotifyAllListener()
         auto callback = pair.first;
         sptr<ICountryCodeCallback> countryCodeCallback = iface_cast<ICountryCodeCallback>(callback);
         AppIdentity identity = pair.second;
-        if (CommonUtils::CheckPermissionforUser(identity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
             countryCodeCallback->OnCountryCodeChange(country);
         }
     }

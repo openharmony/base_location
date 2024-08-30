@@ -199,7 +199,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     AppIdentity identity;
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
-    if (!CommonUtils::CheckPermissionforUser(identity)) {
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
         //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
         auto locationErrorCallback = request->GetLocationErrorCallBack();

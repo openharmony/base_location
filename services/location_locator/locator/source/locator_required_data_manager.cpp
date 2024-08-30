@@ -278,7 +278,7 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
         sptr<ILocatingRequiredDataCallback> locatingRequiredDataCallback =
             iface_cast<ILocatingRequiredDataCallback>(callback);
         AppIdentity identity = pair.second;
-        if (CommonUtils::CheckPermissionforUser(identity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
         }
     }
