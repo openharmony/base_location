@@ -26,6 +26,7 @@ const int MAX_SIZE = 100;
 
 const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 std::mutex LocationDataRdbManager::locationSwitchModeMutex_;
+std::mutex LocationDataRdbManager::locationWorkingStateMutex_;
 std::string LocationDataRdbManager::GetLocationDataUriByCurrentUserId(std::string key)
 {
     int userId = 0;
@@ -101,6 +102,7 @@ LocationErrCode LocationDataRdbManager::GetSwitchStateFromDbForUser(int32_t& sta
 
 bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 {
+    std::unique_lock<std::mutex> lock(locationWorkingStateMutex_);
     Uri locationWorkingStateUri(GetLocationDataUriByCurrentUserId(LOCATION_WORKING_STATE));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         SetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
@@ -113,6 +115,7 @@ bool LocationDataRdbManager::SetLocationWorkingState(int32_t state)
 
 bool LocationDataRdbManager::GetLocationWorkingState(int32_t& state)
 {
+    std::unique_lock<std::mutex> lock(locationWorkingStateMutex_);
     Uri locationWorkingStateUri(GetLocationDataUriByCurrentUserId(LOCATION_WORKING_STATE));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
