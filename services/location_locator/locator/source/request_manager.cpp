@@ -48,6 +48,8 @@
 #include "res_sched_client.h"
 #endif
 
+#include "location_data_rdb_manager.h"
+
 namespace OHOS {
 namespace Location {
 ffrt::mutex RequestManager::requestMutex_;
@@ -430,27 +432,17 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (!IsRequestAvailable(request)) {
         return false;
     }
-    auto locationErrorCallback = request->GetLocationErrorCallBack();
-    int switchState = DISABLED;
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility != nullptr && locatorAbility->GetSwitchState(switchState) == ERRCODE_SUCCESS) {
-        if (switchState == DISABLED) {
-            if (locationErrorCallback != nullptr) {
-                locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
-            }
-            LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
-            return false;
-        }
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_SWITCH_OFF, request);
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
+        return false;
     }
-
     uint32_t tokenId = request->GetTokenId();
     uint32_t firstTokenId = request->GetFirstTokenId();
     // if location access permission granted, add request info to work record
     if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
         !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-        if (locationErrorCallback != nullptr) {
-            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
-        }
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
         LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
@@ -464,9 +456,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         if (reportManager->IsAppBackground(bundleName, tokenId,
             request->GetTokenIdEx(), uid)&&
             !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
-            if (locationErrorCallback != nullptr) {
-                locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
-            }
+            RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
             LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
             return false;
         }
@@ -658,26 +648,69 @@ void RequestManager::ReportDataToResSched(std::string state, const pid_t pid, co
 #endif
 }
 
-void RequestManager::UpdateLocationErrorCallbackToRequest(
-    sptr<ILocatorCallback> callback, uint32_t tokenId, bool state)
+void RequestManager::RegisterLocationErrorCallback(
+    sptr<ILocatorCallback> callback, AppIdentity identity)
 {
-    auto locatorAbility = LocatorAbility::GetInstance();
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
-        return;
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow)
+        LocatorErrCallbackDeathRecipient(identity.GetTokenId()));
+    callback->AsObject()->AddDeathRecipient(death);
+    std::shared_ptr<LocationErrRequest> locatorErrRequest = std::make_shared<LocationErrRequest>();
+    locatorErrRequest->SetUid(identity.GetUid());
+    locatorErrRequest->SetPid(identity.GetPid());
+    locatorErrRequest->SetLocatorErrCallbackRecipient(death);
+    std::unique_lock<ffrt::mutex> lock(locationErrorCallbackMutex_);
+    locationErrorCallbackMap_[callback->AsObject()] = locatorErrRequest;
+    LBSLOGD(LOCATOR, "after RegisterLocationErrorCallback, callback size:%{public}s",
+        std::to_string(locationErrorCallbackMap_.size()).c_str());
+}
+
+void RequestManager::UnRegisterLocationErrorCallback(
+    sptr<ILocatorCallback> callback)
+{
+    std::unique_lock<ffrt::mutex> lock(locationErrorCallbackMutex_);
+    auto iter = locationErrorCallbackMap_.find(callback->AsObject());
+    if (iter != locationErrorCallbackMap_.end()) {
+        auto locatorErrorCallback = iter->first;
+        auto locatorErrRequest = iter->second;
+        locatorErrorCallback->RemoveDeathRecipient(locatorErrRequest->GetLocatorErrCallbackRecipient());
+        locationErrorCallbackMap_.erase(iter);
     }
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (request == nullptr || tokenId != request->GetTokenId()) {
-                continue;
-            }
-            if (state) {
-                request->SetLocationErrorCallBack(callback);
-            } else {
-                request->SetLocationErrorCallBack(nullptr);
-            }
+    LBSLOGD(LOCATOR, "after UnRegisterLocationErrorCallback, callback size:%{public}s",
+        std::to_string(locationErrorCallbackMap_.size()).c_str());
+}
+
+void RequestManager::ReportLocationError(const int errorCode, std::shared_ptr<Request> request)
+{
+    std::unique_lock<ffrt::mutex> lock(locationErrorCallbackMutex_);
+    for (auto iter : locationErrorCallbackMap_) {
+        auto locatorErrRequest = iter.second;
+        if (locatorErrRequest == nullptr) {
+            continue;
+        }
+        if (LocatorAbility::GetInstance()->IsProxyPid(locatorErrRequest->GetPid()) ||
+            (request->GetUid() != 0 && (request->GetUid() != locatorErrRequest->GetUid()))) {
+            continue;
+        }
+        if (locatorErrRequest->GetLastReportErrcode() != LOCATING_FAILED_DEFAULT &&
+            locatorErrRequest->GetLastReportErrcode() == errorCode) {
+            continue;
+        }
+        sptr<ILocatorCallback> locatorErrorCallback = iface_cast<ILocatorCallback>(iter.first);
+        if (locatorErrorCallback == nullptr) {
+            continue;
+        }
+        locatorErrorCallback->OnErrorReport(errorCode);
+        locatorErrRequest->SetLastReportErrcode(errorCode);
+    }
+}
+
+void RequestManager::UpdateLocationError(std::shared_ptr<Request> request)
+{
+    std::unique_lock<ffrt::mutex> lock(locationErrorCallbackMutex_);
+    for (auto iter : locationErrorCallbackMap_) {
+        auto locatorErrRequest = iter.second;
+        if (request->GetUid() != 0 && (request->GetUid() == locatorErrRequest->GetUid())) {
+            locatorErrRequest->SetLastReportErrcode(LOCATING_FAILED_DEFAULT);
         }
     }
 }
@@ -708,6 +741,75 @@ void RequestManager::SyncIdleState(bool state)
     if (newDeviceState != oldDeviceState) {
         HandleRequest();
     }
+}
+
+LocatorErrCallbackDeathRecipient::LocatorErrCallbackDeathRecipient(int32_t tokenId)
+{
+    tokenId_ = tokenId;
+}
+
+LocatorErrCallbackDeathRecipient::~LocatorErrCallbackDeathRecipient()
+{
+}
+
+void LocatorErrCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    sptr<ILocatorCallback> callback = iface_cast<ILocatorCallback>(remote.promote());
+    auto requestManager = RequestManager::GetInstance();
+    if (requestManager != nullptr) {
+        requestManager->UnRegisterLocationErrorCallback(callback);
+        LBSLOGI(REQUEST_MANAGER, "locatorerr callback OnRemoteDied tokenId = %{public}d", tokenId_);
+    }
+}
+
+LocationErrRequest::LocationErrRequest()
+{
+    uid_ = 0;
+    pid_ = 0;
+    lastReportErrcode_ = LOCATING_FAILED_DEFAULT;
+    locatorErrCallbackRecipient_ = nullptr;
+}
+
+LocationErrRequest::~LocationErrRequest() {}
+
+pid_t LocationErrRequest::GetUid()
+{
+    return uid_;
+}
+
+void LocationErrRequest::SetUid(pid_t uid)
+{
+    uid_ = uid;
+}
+
+pid_t LocationErrRequest::GetPid()
+{
+    return pid_;
+}
+
+void LocationErrRequest::SetPid(pid_t pid)
+{
+    pid_ = pid;
+}
+
+int32_t LocationErrRequest::GetLastReportErrcode()
+{
+    return lastReportErrcode_;
+}
+
+void LocationErrRequest::SetLastReportErrcode(int32_t lastReportErrcode)
+{
+    lastReportErrcode_ = lastReportErrcode;
+}
+
+void LocationErrRequest::SetLocatorErrCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient)
+{
+    locatorErrCallbackRecipient_ = recipient;
+}
+
+sptr<IRemoteObject::DeathRecipient> LocationErrRequest::GetLocatorErrCallbackRecipient()
+{
+    return locatorErrCallbackRecipient_;
 }
 } // namespace Location
 } // namespace OHOS
