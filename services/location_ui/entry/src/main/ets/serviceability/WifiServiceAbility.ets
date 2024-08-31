@@ -30,6 +30,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     private WIFI_PORTAL_CONNECTED: number = 0;
     private WIFI_PORTAL_TIMEOUT: number = 1;
     private WIFI_PORTAL_FOUND: number = 2;
+    private willPublish: boolean = false;
 
     onCreate(want: Want): void {
         console.info(TAG, `WifiServiceAbility onCreate`);
@@ -44,6 +45,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         let operateType : number = want.parameters?.['operateType'] as number;
         let notificationId : number = want.parameters?.['notificationId'] as number;
         if (operateType == 1) {
+            this.willPublish = true;
             let status : number = want.parameters?.['status'] as number;
             let ssid : string = want.parameters?.['ssid'] as string;
             try {
@@ -61,9 +63,9 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 console.info(TAG, `Create pixelMap error: ${JSON.stringify(err)}`);
             }
         } else {
+            this.willPublish = false;
             this.cancelNotification(notificationId);
         }
-        
     }
 
     publishWantAgentCommonEvent = async (pixelmap: image.PixelMap, id: number, status: number, ssid: string) => {
@@ -75,7 +77,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                     parameters: {},
                 }
             ],
-            operationType: wantAgent.OperationType.SEND_COMMON_EVENT,
+            actionType: wantAgent.OperationType.SEND_COMMON_EVENT,
             requestCode: 0,
             wantAgentFlags: [wantAgent.WantAgentFlags.CONSTANT_FLAG],
         };
@@ -126,22 +128,20 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
             smallIcon: pixelmap
         };
 
-        Notification.publish(notificationRequest, (err, data) => {
-            if (err) {
-                console.error(TAG, `Publish wifi notification failed, code is ${err}`);
-            } else {
+        if (this.willPublish) {
+            NotificationManager.publish(notificationRequest).then(() => {
                 console.info(TAG, 'Publish wifi notification success');
-            }
-        });
+            }).catch((err: Base.BusinessError) => {
+                console.error(TAG, 'Publish wifi notification fail');
+            });
+        }
     }
 
     cancelNotification = async (id: number) => {
-        Notification.cancel(id, (err,data) => {
-            if (err) {
-                console.error(TAG, `Cancel wifi notification failed, code is ${err}`);
-            } else {
-                console.info(TAG, 'Cancel wifi notification success');
-            }
+        NotificationManager.cancel(id).then(() => {
+            console.info(TAG, 'Cancel wifi notification success');
+        }).catch((err: Base.BusinessError) => {
+            console.error(TAG, 'Cancel wifi notification fail');
         });
     }
 
