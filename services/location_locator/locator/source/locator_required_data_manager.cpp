@@ -59,7 +59,12 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         callbacksMap_[callback] = identity;
         LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
             std::to_string(callbacksMap_.size()).c_str());
+        bool needScan = false;
         if (config->GetNeedStartScan() && (callbacksMap_.size() == 1 || !IsWifiCallbackRegistered())) {
+            needScan = true;
+        }
+        lock.unlock();
+        if (needScan) {
             if (wifiSdkHandler_ != nullptr) {
                 wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
             }
@@ -68,7 +73,6 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
                 scanHandler_->SendEvent(EVENT_START_SCAN, 0, 0);
             }
         }
-        lock.unlock();
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return ERRCODE_NOT_SUPPORTED;
@@ -79,7 +83,8 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemoteObject>& callback)
 {
 #ifdef WIFI_ENABLE
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
+    lock.lock();
     auto iter = callbacksMap_.find(callback);
     if (iter != callbacksMap_.end()) {
         callbacksMap_.erase(iter);
@@ -89,6 +94,7 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
     if (callbacksMap_.size() > 0) {
         return ERRCODE_SUCCESS;
     }
+    lock.unlock();
     if (wifiSdkHandler_ != nullptr) {
         wifiSdkHandler_->SendEvent(EVENT_UNREGISTER_WIFI_CALLBACK, 0, 0);
     }
