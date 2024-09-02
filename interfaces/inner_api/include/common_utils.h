@@ -48,6 +48,7 @@ constexpr const char* SUPL_MODE_NAME = "const.location.supl_mode";
 constexpr const char* EDM_POLICY_NAME = "persist.edm.location_policy";
 constexpr const char* AGNSS_SERVER_ADDR = "const.location.agnss_server_addr";
 constexpr const char* AGNSS_SERVER_PORT = "const.location.agnss_server_port";
+constexpr const char* SETTINGS_BUNDLE_NAME = "const.location.settings_bundle_name";
 
 constexpr const char* BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
