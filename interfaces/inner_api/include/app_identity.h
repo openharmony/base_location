@@ -90,9 +90,9 @@ public:
     {
         uid_ = parcel.ReadInt32();
         pid_ = parcel.ReadInt32();
-        tokenId_ = parcel.ReadInt32();
+        tokenId_ = static_cast<uint32_t>(parcel.ReadInt32());
         tokenIdEx_ = parcel.ReadInt64();
-        firstTokenId_ = parcel.ReadInt32();
+        firstTokenId_ = static_cast<uint32_t>(parcel.ReadInt32());
         bundleName_ = parcel.ReadString();
     }
 
