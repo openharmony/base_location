@@ -46,6 +46,7 @@ public:
     static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
 private:
     static std::mutex locationSwitchModeMutex_;
+    static std::mutex locationWorkingStateMutex_;
 };
 } // namespace Location
 } // namespace OHOS

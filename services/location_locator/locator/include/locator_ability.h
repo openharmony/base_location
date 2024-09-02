@@ -69,7 +69,7 @@ private:
     void GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event);
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
-    void ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event);
     void SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event);
@@ -225,7 +225,6 @@ private:
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
-    bool CheckIsReportPermitted(AppIdentity &identity);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
