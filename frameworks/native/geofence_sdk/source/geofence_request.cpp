@@ -29,6 +29,7 @@ GeofenceRequest::GeofenceRequest()
     callback_ = nullptr;
     scenario_ = -1;
     fenceId_ = -1;
+    uid_ = 0;
 }
 
 GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
