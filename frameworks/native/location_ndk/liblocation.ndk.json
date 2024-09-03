@@ -1,0 +1,32 @@
+[
+    {
+        "name": "OH_Location_IsLocatingEnabled"
+    },
+    {
+        "name": "OH_Location_StartLocating"
+    },
+    {
+        "name": "OH_Location_StopLocating"
+    },
+    {
+        "name": "OH_LocationInfo_GetBasicInfo"
+    },
+    {
+        "name": "OH_LocationInfo_GetAdditionalInfo"
+    },
+    {
+        "name": "OH_Location_CreateRequestConfig"
+    },
+    {
+        "name": "OH_Location_DestroyRequestConfig"
+    },
+    {
+        "name": "OH_LocationRequestConfig_SetUseScene"
+    },
+    {
+        "name": "OH_LocationRequestConfig_SetPowerConsumptionScene"
+    },
+    {
+        "name": "OH_LocationRequestConfig_SetInterval"
+    }
+]
