@@ -1,0 +1,73 @@
+# Copyright (C) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/location/config.gni")
+import("//build/ohos.gni")
+
+ohos_ndk_headers("location_ndk_header") {
+  dest_dir = "$ndk_headers_out_dir/location"
+  sources = [
+    "$LOCATION_ROOT_DIR/interfaces/c_api/include/oh_location.h",
+    "$LOCATION_ROOT_DIR/interfaces/c_api/include/oh_location_type.h",
+  ]
+}
+
+ohos_ndk_library("liblocation_ndk") {
+  ndk_description_file =
+      "$LOCATION_NATIVE_DIR/location_ndk/liblocation.ndk.json"
+  output_name = "location_ndk"
+  output_extension = "so"
+  min_compact_version = "13"
+}
+
+config("location_ndk_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "$LOCATION_ROOT_DIR/interfaces/c_api/include",
+    "$LOCATION_ROOT_DIR/frameworks/native/location_ndk/include",
+  ]
+}
+
+ohos_shared_library("location_ndk") {
+  sources = [
+    "$LOCATION_NATIVE_DIR/location_ndk/source/location_info_callback_host.cpp",
+    "$LOCATION_NATIVE_DIR/location_ndk/source/locator_c_impl.cpp",
+  ]
+  output_extension = "so"
+  defines = [ "API_EXPORT=__attribute__((visibility (\"default\")))" ]
+
+  configs = [ ":location_ndk_config" ]
+
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  deps = [
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native/location_ndk:liblocation_ndk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
+  ]
+
+  external_deps = [
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+
+  relative_install_dir = "ndk"
+  part_name = "location"
+  subsystem_name = "location"
+}
