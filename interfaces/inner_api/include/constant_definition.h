@@ -53,6 +53,7 @@ constexpr const char* TIME_INTERVAL_PROP = "ro.config.locator_background.timeInt
 constexpr const char* PROC_NAME = "system";
 constexpr const char* LOCALE_KEY = "persist.global.locale";
 constexpr const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
+constexpr const char* LOCATION_LOCATIONHUB_STATE = "persist.location.locationhub_state";
 const int MODE_STANDALONE = 1;
 const int MODE_MS_BASED = 2;
 const int MODE_MS_ASSISTED = 3;
