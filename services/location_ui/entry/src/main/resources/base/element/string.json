@@ -34,7 +34,7 @@
     },
     {
       "name": "ni_notify_title",
-      "value": "Location Request"
+      "value": "Location request"
     },
     {
       "name": "ni_notify_message",
@@ -54,7 +54,7 @@
     },
     {
       "name": "location_target_statement_content",
-      "value": "Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When enabled, the device's location information will be shared with services that have been granted location permissions. Your location information will also be used for system services, such as updating time zone, emergency calls."
+      "value": "Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls."
     },
     {
       "name": "LocationPrivacyExtAbility_label",
