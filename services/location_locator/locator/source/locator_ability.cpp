@@ -105,6 +105,9 @@ const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
 const uint32_t SET_ENABLE = 3;
 const uint32_t EVENT_PERIODIC_INTERVAL = 3 * 60 * 1000;
 const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
+const int LOCATIONHUB_STATE_UNLOAD = 0;
+const int LOCATIONHUB_STATE_LOAD = 1;
+const int MAX_SIZE = 100;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -167,6 +170,7 @@ void LocatorAbility::OnStop()
     if (!LocationDataRdbManager::SetLocationWorkingState(0)) {
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
+    SetLocationhubStateToSyspara(LOCATIONHUB_STATE_UNLOAD);
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
 }
 
@@ -218,6 +222,7 @@ bool LocatorAbility::Init()
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
         locatorHandler_->SendHighPriorityEvent(EVENT_PERIODIC_CHECK, 0, EVENT_PERIODIC_INTERVAL);
     }
+    SetLocationhubStateToSyspara(LOCATIONHUB_STATE_LOAD);
     registerToAbility_ = true;
     return registerToAbility_;
 }
@@ -320,6 +325,18 @@ bool LocatorAbility::CheckSaValid()
         return false;
     }
 #endif
+    return true;
+}
+
+bool LocatorAbility::SetLocationhubStateToSyspara(int value)
+{
+    char valueArray[MAX_SIZE] = {0};
+    (void)sprintf_s(valueArray, sizeof(valueArray), "%d", value);
+    int res = SetParameter(LOCATION_LOCATIONHUB_STATE, valueArray);
+    if (res != 0) {
+        LBSLOGE(LOCATOR, "%{public}s failed, res: %{public}d", __func__, res);
+        return false;
+    }
     return true;
 }
 

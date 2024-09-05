@@ -225,6 +225,7 @@ private:
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
+    bool SetLocationhubStateToSyspara(int value);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
