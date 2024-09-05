@@ -54,8 +54,12 @@ Location_ResultCode OH_Location_IsLocatingEnabled(bool *enabled)
 Location_ResultCode OH_Location_StartLocating(const Location_RequestConfig* requestConfig,
     Location_InfoCallback callback)
 {
-    LBSLOGI(OHOS::Location::LOCATION_NDK, "OH_Location_StartLocating ");
+    LBSLOGI(OHOS::Location::LOCATION_CAPI, "OH_Location_StartLocating ");
     if (requestConfig == nullptr || callback == nullptr) {
+        return LOCATION_INVALID_PARAM;
+    }
+    if (GetLocationCallBack(callback) != nullptr) {
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "%{public}s callback has registered.", __func__);
         return LOCATION_INVALID_PARAM;
     }
     auto locatorCallbackHost = OHOS::sptr<OHOS::Location::LocationInfoCallbackHost>(
@@ -80,13 +84,13 @@ Location_ResultCode OH_Location_StartLocating(const Location_RequestConfig* requ
 
 Location_ResultCode OH_Location_StopLocating(Location_InfoCallback callback)
 {
-    LBSLOGI(OHOS::Location::LOCATION_NDK, "OH_Location_StopLocating");
+    LBSLOGI(OHOS::Location::LOCATION_CAPI, "OH_Location_StopLocating");
     if (callback == nullptr) {
         return LOCATION_INVALID_PARAM;
     }
     auto locatorCallbackHost = GetLocationCallBack(callback);
     if (locatorCallbackHost == nullptr) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "%{public}s locatorCallbackHost is nullptr.", __func__);
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "%{public}s locatorCallbackHost is nullptr.", __func__);
         return LOCATION_INVALID_PARAM;
     }
     auto locatorCallback = OHOS::sptr<OHOS::Location::ILocatorCallback>(locatorCallbackHost);
@@ -129,9 +133,10 @@ Location_ResultCode OH_LocationInfo_GetAdditionalInfo(Location_Info* location, c
     if (length < strlen(location->additions)) {
         return LOCATION_INVALID_PARAM;
     }
-    auto ret = strcpy_s(additionalInfo, length, location->additions);
+    memset_s(additionalInfo, length, 0, length);
+    auto ret = strcpy_s(additionalInfo, length - 1, location->additions);
     if (ret != 0) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "strcpy_s failed, ret: %{public}d", ret);
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "strcpy_s failed, ret: %{public}d", ret);
         // addition is empty, no need return
     }
     return LOCATION_SUCCESS;
@@ -145,7 +150,7 @@ Location_RequestConfig* OH_Location_CreateRequestConfig(void)
 void OH_Location_DestroyRequestConfig(Location_RequestConfig* requestConfig)
 {
     if (requestConfig == nullptr) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "Parameter error.");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "Parameter error.");
         return;
     }
     delete requestConfig;
@@ -156,12 +161,12 @@ void OH_LocationRequestConfig_SetUseScene(Location_RequestConfig* requestConfig,
     Location_UseScene useScene)
 {
     if (requestConfig == nullptr) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "requestConfig is nullptr");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "requestConfig is nullptr");
         return;
     }
     if (useScene > LOCATION_USE_SCENE_DAILY_LIFE_SERVICE ||
         useScene < LOCATION_USE_SCENE_NAVIGATION) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "userScenario is invalid");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "userScenario is invalid");
         return;
     }
     requestConfig->scenario_ = useScene;
@@ -171,12 +176,12 @@ void OH_LocationRequestConfig_SetPowerConsumptionScene(Location_RequestConfig* r
     Location_PowerConsumptionScene powerConsumptionScene)
 {
     if (requestConfig == nullptr) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "requestConfig is nullptr");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "requestConfig is nullptr");
         return;
     }
     if (powerConsumptionScene > LOCATION_NO_POWER_CONSUMPTION ||
         powerConsumptionScene < LOCATION_HIGH_POWER_CONSUMPTION) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "powerConsumptionScene is invalid");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "powerConsumptionScene is invalid");
         return;
     }
     if (requestConfig->scenario_ == OHOS::Location::SCENE_UNSET ||
@@ -191,11 +196,11 @@ void OH_LocationRequestConfig_SetInterval(Location_RequestConfig* requestConfig,
     int interval)
 {
     if (requestConfig == nullptr) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "requestConfig is nullptr");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "requestConfig is nullptr");
         return;
     }
     if (interval < 1) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "timeInterval is invalid");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "timeInterval is invalid");
         return;
     }
 
@@ -207,7 +212,7 @@ void AddLocationCallBack(OHOS::sptr<OHOS::Location::LocationInfoCallbackHost>& c
 {
     std::unique_lock<std::mutex> lock(g_locationCallbackVectorMutex);
     g_locationCallbackVector.push_back(callback);
-    LBSLOGD(OHOS::Location::LOCATION_NDK, "after AddLocationCallBack, callback size %{public}s",
+    LBSLOGD(OHOS::Location::LOCATION_CAPI, "after AddLocationCallBack, callback size %{public}s",
         std::to_string(g_locationCallbackVector.size()).c_str());
 }
 
@@ -215,7 +220,7 @@ void RemoveLocationCallBack(Location_InfoCallback callback)
 {
     std::unique_lock<std::mutex> lock(g_locationCallbackVectorMutex);
     if (g_locationCallbackVector.size() <= 0) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "locationcallbacksize <= 0");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "locationcallbacksize <= 0");
         return;
     }
     size_t i = 0;
@@ -225,11 +230,11 @@ void RemoveLocationCallBack(Location_InfoCallback callback)
         }
     }
     if (i >= g_locationCallbackVector.size()) {
-        LBSLOGD(OHOS::Location::LOCATION_NDK, "location callback is not in vector");
+        LBSLOGD(OHOS::Location::LOCATION_CAPI, "location callback is not in vector");
         return;
     }
     g_locationCallbackVector.erase(g_locationCallbackVector.begin() + i);
-    LBSLOGD(OHOS::Location::LOCATION_NDK, "after RemoveLocationCallBack, callback size %{public}s",
+    LBSLOGD(OHOS::Location::LOCATION_CAPI, "after RemoveLocationCallBack, callback size %{public}s",
         std::to_string(g_locationCallbackVector.size()).c_str());
 }
 
@@ -237,7 +242,7 @@ OHOS::sptr<OHOS::Location::LocationInfoCallbackHost> GetLocationCallBack(Locatio
 {
     std::unique_lock<std::mutex> lock(g_locationCallbackVectorMutex);
     if (g_locationCallbackVector.size() <= 0) {
-        LBSLOGE(OHOS::Location::LOCATION_NDK, "locationcallbacksize <= 0");
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "locationcallbacksize <= 0");
         return nullptr;
     }
     size_t i = 0;

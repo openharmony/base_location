@@ -52,7 +52,7 @@ int LocationInfoCallbackHost::OnRemoteRequest(uint32_t code,
 void LocationInfoCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGI(LOCATOR_CALLBACK, "LocationInfoCallbackHost::OnLocationReport");
-    if (location_ChangeCallback_ != nullptr) {
+    if (locationInfoCallback_ != nullptr) {
         Location_Info location_info;
         memset_s(&location_info, sizeof(Location_Info), 0, sizeof(Location_Info));
         location_info.latitude = location->GetLatitude();
@@ -71,7 +71,7 @@ void LocationInfoCallbackHost::OnLocationReport(const std::unique_ptr<Location>&
         std::string additionStr = additionJson.dump();
         auto ret = sprintf_s(location_info.additions, sizeof(location_info.additions), "%s", additionStr.c_str());
         if (ret <= 0) {
-            LBSLOGE(OHOS::Location::LOCATION_NDK, "sprintf_s failed, ret: %{public}d", ret);
+            LBSLOGE(OHOS::Location::LOCATION_CAPI, "sprintf_s failed, ret: %{public}d", ret);
             // addition is empty, no need return
         }
         location_info.altitudeAccuracy = location->GetAltitudeAccuracy();
@@ -79,7 +79,7 @@ void LocationInfoCallbackHost::OnLocationReport(const std::unique_ptr<Location>&
         location_info.directionAccuracy = location->GetDirectionAccuracy();
         location_info.uncertaintyOfTimeSinceBoot = location->GetUncertaintyOfTimeSinceBoot();
         location_info.locationSourceType = (Location_SourceType)location->GetLocationSourceType();
-        location_ChangeCallback_(&location_info);
+        locationInfoCallback_(&location_info);
     }
 }
 
