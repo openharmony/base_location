@@ -197,6 +197,11 @@ int LocationConfigManager::GetIntParameter(const std::string& type)
     return std::stoi(value);
 }
 
+bool LocationConfigManager::GetSettingsBundleName(std::string& name)
+{
+    return GetStringParameter(SETTINGS_BUNDLE_NAME, name);
+}
+
 bool LocationConfigManager::GetNlpServiceName(std::string& name)
 {
     return GetStringParameter(NLP_SERVICE_NAME, name);
