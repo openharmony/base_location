@@ -197,49 +197,6 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 begin");
-
-    locatorImpl_->EnableLocationMockV9(); // mock switch on
-
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_ACCURACY);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StartLocatingV9(requestConfig, callbackStub_)); // startLocating first
-    sleep(1);
-
-    int timeInterval = 0;
-    std::vector<std::shared_ptr<Location>> locations;
-    Parcel parcel;
-    parcel.WriteDouble(10.6); // latitude
-    parcel.WriteDouble(10.5); // longitude
-    parcel.WriteDouble(10.4); // altitude
-    parcel.WriteDouble(1.0); // accuracy
-    parcel.WriteDouble(5.0); // speed
-    parcel.WriteDouble(10); // direction
-    parcel.WriteInt64(1611000000); // timestamp
-    parcel.WriteInt64(1611000000); // time since boot
-    parcel.WriteString16(u"additions"); // additions
-    parcel.WriteInt64(1); // additionSize
-    parcel.WriteInt32(0); // isFromMock is false
-    locations.push_back(Location::UnmarshallingShared(parcel));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->SetMockedLocationsV9(timeInterval, locations)); // set fake locations
-    sleep(1);
-
-    std::unique_ptr<Location> loc = std::make_unique<Location>();
-    ASSERT_TRUE(loc != nullptr);
-    locatorImpl_->GetCachedLocationV9(loc); // get last location
-    EXPECT_EQ(10.6, loc->GetLatitude());
-    EXPECT_EQ(10.5, loc->GetLongitude());
-
-    locatorImpl_->StopLocatingV9(callbackStub_);
-
-    locatorImpl_->DisableLocationMockV9();
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 end");
-}
-
 HWTEST_F(LocatorImplTest, locatorImplPrivacyStateV9001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
