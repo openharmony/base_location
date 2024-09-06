@@ -271,6 +271,18 @@ Location_ResultCode OH_LocationInfo_GetAdditionalInfo(Location_Info* location,
     char* additionalInfo, uint32_t length);
 
 /**
+ * @brief Defines the callback function used to report location data.
+ *
+ * @param location - Pointer to the {@link Location_Info} instance. Carry the latest location information.\n
+ * The memory of the location instance is recycled at the end of {@link Location_InfoCallback}.\n
+ * Before that, call {@link OH_LocationInfo_GetBasicInfo} and other interfaces to obtain location information.\n
+ * @param userData - Pointer to an application data structure, this parameter is passed in\n
+ * through {@link OH_LocationRequestConfig_SetCallback}.\n
+ * @since 13
+ */
+typedef void (*Location_InfoCallback)(Location_Info* location, void* userData);
+
+/**
  * @brief Define the structure of location request parameters.
  * @since 13
  */
@@ -341,14 +353,18 @@ void OH_LocationRequestConfig_SetInterval(Location_RequestConfig* requestConfig,
     int interval);
 
 /**
- * @brief Defines the callback function used to report location data.
+ * @brief Set up a callback function for receiving location information.
  *
- * @param location - Pointer to the {@link Location_Info} instance. Carry the latest location information.\n
- * The memory of the location instance is recycled at the end of {@link Location_InfoCallback}.\n
- * Before that, call {@link OH_LocationInfo_GetBasicInfo} and other interfaces to obtain location information.\n
+ * @param requestConfig - Pointer to the {@link Location_RequestConfig} instance.\n
+ * The instance was created by {@link OH_Location_CreateRequestConfig}.\n
+ * @param callback - Pointer to the callback function for receiving the location.\n
+ * For details, see {@link Location_InfoCallback}.\n
+ * @param userData - Pointer to the application data structure, which will be\n
+ * carried in the callback function.\n
  * @since 13
  */
-typedef void (*Location_InfoCallback)(Location_Info* location);
+void OH_LocationRequestConfig_SetCallback(Location_RequestConfig* requestConfig,
+    Location_InfoCallback callback, void* userData);
 #ifdef __cplusplus
 }
 #endif
