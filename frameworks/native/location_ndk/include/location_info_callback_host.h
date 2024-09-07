@@ -32,18 +32,18 @@ public:
     void OnLocatingStatusChange(const int status) override;
     void OnErrorReport(const int errorCode) override;
 
-    inline void SetCallback(const Location_InfoCallback& locationInfoCallback)
+    inline void SetRequestConfig(const Location_RequestConfig* requestConfig)
     {
-        locationInfoCallback_ = locationInfoCallback;
+        requestConfig_ = requestConfig;
     }
 
-    inline Location_InfoCallback GetCallback()
+    inline const Location_RequestConfig* GetRequestConfig()
     {
-        return locationInfoCallback_;
+        return requestConfig_;
     }
 
 private:
-    Location_InfoCallback locationInfoCallback_;
+    const Location_RequestConfig* requestConfig_ = nullptr;
 };
 } // namespace Location
 } // namespace OHOS

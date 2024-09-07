@@ -52,34 +52,34 @@ int LocationInfoCallbackHost::OnRemoteRequest(uint32_t code,
 void LocationInfoCallbackHost::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGI(LOCATOR_CALLBACK, "LocationInfoCallbackHost::OnLocationReport");
-    if (locationInfoCallback_ != nullptr) {
-        Location_Info location_info;
-        memset_s(&location_info, sizeof(Location_Info), 0, sizeof(Location_Info));
-        location_info.latitude = location->GetLatitude();
-        location_info.longitude = location->GetLongitude();
-        location_info.altitude = location->GetAltitude();
-        location_info.accuracy = location->GetAccuracy();
-        location_info.speed = location->GetSpeed();
-        location_info.direction = location->GetDirection();
-        location_info.timeForFix = location->GetTimeStamp();
-        location_info.timeSinceBoot = location->GetTimeSinceBoot();
-        nlohmann::json additionJson;
-        auto additionMap = location->GetAdditionsMap();
-        for (auto addition : additionMap) {
-            additionJson[addition.first] = addition.second;
-        }
-        std::string additionStr = additionJson.dump();
-        auto ret = sprintf_s(location_info.additions, sizeof(location_info.additions), "%s", additionStr.c_str());
-        if (ret <= 0) {
-            LBSLOGE(OHOS::Location::LOCATION_CAPI, "sprintf_s failed, ret: %{public}d", ret);
-            // addition is empty, no need return
-        }
-        location_info.altitudeAccuracy = location->GetAltitudeAccuracy();
-        location_info.speedAccuracy = location->GetSpeedAccuracy();
-        location_info.directionAccuracy = location->GetDirectionAccuracy();
-        location_info.uncertaintyOfTimeSinceBoot = location->GetUncertaintyOfTimeSinceBoot();
-        location_info.locationSourceType = (Location_SourceType)location->GetLocationSourceType();
-        locationInfoCallback_(&location_info);
+    Location_Info location_info;
+    memset_s(&location_info, sizeof(Location_Info), 0, sizeof(Location_Info));
+    location_info.latitude = location->GetLatitude();
+    location_info.longitude = location->GetLongitude();
+    location_info.altitude = location->GetAltitude();
+    location_info.accuracy = location->GetAccuracy();
+    location_info.speed = location->GetSpeed();
+    location_info.direction = location->GetDirection();
+    location_info.timeForFix = location->GetTimeStamp();
+    location_info.timeSinceBoot = location->GetTimeSinceBoot();
+    nlohmann::json additionJson;
+    auto additionMap = location->GetAdditionsMap();
+    for (auto addition : additionMap) {
+        additionJson[addition.first] = addition.second;
+    }
+    std::string additionStr = additionJson.dump();
+    auto ret = sprintf_s(location_info.additions, sizeof(location_info.additions), "%s", additionStr.c_str());
+    if (ret <= 0) {
+        LBSLOGE(OHOS::Location::LOCATION_CAPI, "sprintf_s failed, ret: %{public}d", ret);
+        // addition is empty, no need return
+    }
+    location_info.altitudeAccuracy = location->GetAltitudeAccuracy();
+    location_info.speedAccuracy = location->GetSpeedAccuracy();
+    location_info.directionAccuracy = location->GetDirectionAccuracy();
+    location_info.uncertaintyOfTimeSinceBoot = location->GetUncertaintyOfTimeSinceBoot();
+    location_info.locationSourceType = (Location_SourceType)location->GetLocationSourceType();
+    if (requestConfig_ != nullptr && requestConfig_->callback_ != nullptr && requestConfig_->userData_ != nullptr) {
+        requestConfig_->callback_(&location_info, requestConfig_->userData_);
     }
 }
 

@@ -60,13 +60,10 @@ Location_ResultCode OH_Location_IsLocatingEnabled(bool* enabled);
  * @param requestConfig - Pointer to the locating request parameters.\n
  * For details, see {@link Location_RequestConfig}.\n
  * You can use {@link OH_Location_CreateRequestConfig} to create an instance.\n
- * @param callback - Pointer to the callback function for reporting the location.\n
- * For details, see {@link Location_InfoCallback}.\n
- * A non-null pointer is required, otherwise an error is returned.\n
  * @return Location functions result code.\n
  *     For a detailed definition, please refer to {@link Location_ResultCode}.\n
  *     {@link LOCAION_SUCCESS} Successfully start locating.\n
- *     {@link LOCATION_INVALID_PARAM} The input parameter requestConfig or callback is a null pointer.\n
+ *     {@link LOCATION_INVALID_PARAM} The input parameter requestConfig is a null pointer.\n
  *     {@link LOCATION_PERMISSION_DENIED} Permission verification failed. The application does not have the\n
  *         permission required to call the API.\n
  *     {@link LOCATION_NOT_SUPPORTED} Capability not supported.\n
@@ -76,21 +73,20 @@ Location_ResultCode OH_Location_IsLocatingEnabled(bool* enabled);
  * @permission ohos.permission.APPROXIMATELY_LOCATION
  * @since 13
  */
-Location_ResultCode OH_Location_StartLocating(const Location_RequestConfig* requestConfig,
-    Location_InfoCallback callback);
+Location_ResultCode OH_Location_StartLocating(const Location_RequestConfig* requestConfig);
 
 /**
  * @brief Stop locating and unsubscribe location changed.
  *
- * @param callback - Pointer to the callback function for reporting the location.\n
- * This parameter needs to be the same as the callback pointer passed in {@link OH_Location_StartLocating}.\n
- * For details, see {@link Location_InfoCallback}.\n
- * A non-null pointer is required, otherwise an error is returned.\n
+ * @param requestConfig - Pointer to the locating request parameters.\n
+ * For details, see {@link Location_RequestConfig}.\n
+ * This parameter needs to be the same as the requestConfig pointer passed in\n
+ * {@link OH_Location_StartLocating}.\n
  * @return Location functions result code.\n
  *     For a detailed definition, please refer to {@link Location_ResultCode}.\n
  *     {@link LOCAION_SUCCESS} Successfully stop locationg.\n
- *     {@link LOCATION_INVALID_PARAM} 1.The input parameter callback is a null pointer.
- *         2.Different from the callback passed from {@link OH_Location_StartLocating}.\n
+ *     {@link LOCATION_INVALID_PARAM} 1.The input parameter is a null pointer.\n
+ *         2.Different from the requestConfig pointer passed from {@link OH_Location_StartLocating}.\n
  *     {@link LOCATION_PERMISSION_DENIED} Permission verification failed. The application does not have the\n
  *         permission required to call the API.\n
  *     {@link LOCATION_NOT_SUPPORTED} Capability not supported.\n
@@ -100,7 +96,7 @@ Location_ResultCode OH_Location_StartLocating(const Location_RequestConfig* requ
  * @permission ohos.permission.APPROXIMATELY_LOCATION
  * @since 13
  */
-Location_ResultCode OH_Location_StopLocating(Location_InfoCallback callback);
+Location_ResultCode OH_Location_StopLocating(const Location_RequestConfig* requestConfig);
 #ifdef __cplusplus
 }
 #endif

@@ -25,6 +25,8 @@ const int ADDITIONS_MAX_LEN = 512;
 struct Location_RequestConfig {
     int32_t scenario_ = OHOS::Location::SCENE_UNSET;
     int32_t timeInterval_ = 1; // no time interval limit for reporting location
+    void* userData_ = nullptr;
+    Location_InfoCallback callback_;
 };
 
 typedef struct Location_Info {
@@ -45,8 +47,8 @@ typedef struct Location_Info {
 } Location_Info;
 
 void AddLocationCallBack(OHOS::sptr<OHOS::Location::LocationInfoCallbackHost>& callback);
-void RemoveLocationCallBack(Location_InfoCallback callback);
-OHOS::sptr<OHOS::Location::LocationInfoCallbackHost> GetLocationCallBack(Location_InfoCallback callback);
+void RemoveLocationCallBack(const Location_RequestConfig* requestConfig);
+OHOS::sptr<OHOS::Location::LocationInfoCallbackHost> GetLocationCallBack(const Location_RequestConfig* requestConfig);
 Location_ResultCode LocationErrCodeToLocationResultCode(OHOS::Location::LocationErrCode errCode);
 
 #endif // LOCATOR_C_IMPL_H
