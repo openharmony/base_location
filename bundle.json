@@ -91,7 +91,8 @@
                     "//base/location/frameworks/js/napi:geolocationmanager",
                     "//base/location/frameworks/location_common/common:lbsservice_common",
                     "//base/location/frameworks/native/locator_agent:locator_agent",
-                    "//base/location/frameworks/native/geofence_sdk:geofence_sdk"
+                    "//base/location/frameworks/native/geofence_sdk:geofence_sdk",
+                    "//base/location/frameworks/native/location_ndk:location_ndk"
                 ],
                 "service_group": [
                     "//base/location/services/location_geocode/geocode:lbsservice_geocode",
