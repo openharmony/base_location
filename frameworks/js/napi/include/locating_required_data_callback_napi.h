@@ -54,8 +54,6 @@ public:
             LBSLOGE(LOCATING_DATA_CALLBACK, "context == nullptr.");
             return false;
         }
-        uint32_t refCount = INVALID_REF_COUNT;
-        napi_reference_ref(env_, handlerCb_, &refCount);
         context->env = env_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;

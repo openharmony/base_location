@@ -25,6 +25,8 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_regCallbackMutex;
+static std::vector<napi_ref> g_regHandleCallbacks;
 GnssStatusCallbackNapi::GnssStatusCallbackNapi()
 {
     env_ = nullptr;
@@ -61,6 +63,39 @@ int GnssStatusCallbackNapi::OnRemoteRequest(
         }
     }
     return 0;
+}
+
+napi_ref GnssStatusCallbackNapi::GetHandleCb()
+{
+    return handlerCb_;
+}
+
+void GnssStatusCallbackNapi::SetHandleCb(const napi_ref& handlerCb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    handlerCb_ = handlerCb;
+    g_regHandleCallbacks.emplace_back(handlerCb);
+}
+
+bool FindGnssRegCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    auto iter = std::find(g_regHandleCallbacks.begin(), g_regHandleCallbacks.end(), cb);
+    if (iter == g_regHandleCallbacks.end()) {
+        return false;
+    }
+    return true;
+}
+
+void DeleteGnssRegCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    for (auto iter = g_regHandleCallbacks.begin(); iter != g_regHandleCallbacks.end(); iter++) {
+        if (*iter == cb) {
+            iter = g_regHandleCallbacks.erase(iter);
+            break;
+        }
+    }
 }
 
 bool GnssStatusCallbackNapi::IsRemoteDied()
@@ -121,6 +156,12 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
+            if (!FindGnssRegCallback(context->callback[0])) {
+                LBSLOGE(GNSS_STATUS_CALLBACK, "no valid callback");
+                delete context;
+                delete work;
+                return;
+            }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(GNSS_STATUS_CALLBACK, "scope is nullptr");
@@ -146,11 +187,6 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
-            uint32_t refCount = INVALID_REF_COUNT;
-            napi_reference_unref(context->env, context->callback[0], &refCount);
-            if (refCount == 0) {
-                NAPI_CALL_RETURN_VOID(context->env, napi_delete_reference(context->env, context->callback[0]));
-            }
             delete context;
             delete work;
     });
@@ -168,12 +204,9 @@ void GnssStatusCallbackNapi::DeleteHandler()
         LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    uint32_t refCount = INVALID_REF_COUNT;
-    napi_reference_unref(env_, handlerCb_, &refCount);
-    if (refCount == 0) {
-        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
-        handlerCb_ = nullptr;
-    }
+    DeleteGnssRegCallback(handlerCb_);
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    handlerCb_ = nullptr;
 }
 }  // namespace Location
 }  // namespace OHOS
