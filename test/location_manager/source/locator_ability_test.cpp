@@ -412,19 +412,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityGetCacheLocation001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityGetCacheLocation001 end");
 }
 
-HWTEST_F(LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorAbilityCheckIsReportPermitted001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    AppIdentity identity;
-    locatorAbility->requests_ = nullptr;
-    locatorAbility->CheckIsReportPermitted(identity);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityCheckIsReportPermitted001 end");
-}
-
 HWTEST_F(LocatorAbilityTest, LocatorAbilityEnableReverseGeocodingMock001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

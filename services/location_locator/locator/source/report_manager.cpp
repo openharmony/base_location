@@ -202,10 +202,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
-        auto locationErrorCallback = request->GetLocationErrorCallBack();
-        if (locationErrorCallback != nullptr) {
-            locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
-        }
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
         return nullptr;
     }
     if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx) &&
@@ -223,10 +220,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         return finalLocation;
     }
     LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
-    auto locationErrorCallback = request->GetLocationErrorCallBack();
-    if (locationErrorCallback != nullptr) {
-        locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
-    }
+    RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
     return nullptr;
 }
 
