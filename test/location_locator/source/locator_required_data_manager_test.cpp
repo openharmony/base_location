@@ -43,10 +43,8 @@ HWTEST_F(LocatorRequiredDataManagerTest, OnWifiScanStateChanged001, TestSize.Lev
         << "LocatorRequiredDataManagerTest, OnWifiScanStateChanged001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] OnWifiScanStateChanged001 begin");
 #ifdef WIFI_ENABLE
-    auto wifiScanEventCallback =
-        sptr<LocatorWifiScanEventCallback>(new (std::nothrow) LocatorWifiScanEventCallback());
-    wifiScanEventCallback->OnWifiScanStateChanged(0);
-    wifiScanEventCallback->OnWifiScanStateChanged(1);
+    LocatorWifiScanEventCallback::OnWifiScanStateChanged(0, 0);
+    LocatorWifiScanEventCallback::OnWifiScanStateChanged(1, 1);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] OnWifiScanStateChanged001 end");
 #endif
 }
@@ -306,19 +304,6 @@ HWTEST_F(LocatorRequiredDataManagerTest, ProcessEvent001, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(EVENT_GET_WIFI_LIST, 0);
     locatorDataManager->scanHandler_->ProcessEvent(event2);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] ProcessEvent001 end");
-}
-
-HWTEST_F(LocatorRequiredDataManagerTest, WifiServiceStatusChange001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorRequiredDataManagerTest, WifiServiceStatusChange001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] WifiServiceStatusChange001 begin");
-    int32_t systemAbilityId = 0;
-    const std::string& deviceId = "id";
-    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-    locatorDataManager->saStatusListener_->OnAddSystemAbility(systemAbilityId, deviceId);
-    locatorDataManager->saStatusListener_->OnRemoveSystemAbility(systemAbilityId, deviceId);
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] WifiServiceStatusChange001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
