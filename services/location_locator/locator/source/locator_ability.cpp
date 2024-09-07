@@ -1090,72 +1090,11 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     return ERRCODE_LOCATING_FAIL;
 }
 
-bool LocatorAbility::CheckIsReportPermitted(AppIdentity &identity)
-{
-    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
-    if (requests_ == nullptr || requests_->empty()) {
-        LBSLOGE(LOCATOR, "requests map is empty");
-        return false;
-    }
-
-    bool isPermitted = true;
-    int switchState = DISABLED;
-    GetSwitchState(switchState);
-    for (auto mapIter = requests_->begin(); mapIter != requests_->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (request == nullptr || request->GetTokenId() != identity.GetTokenId()) {
-                continue;
-            }
-            auto locationErrorCallback = request->GetLocationErrorCallBack();
-            if (locationErrorCallback != nullptr) {
-                if (switchState == DISABLED) {
-                    LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off", __func__, __LINE__);
-                    isPermitted = false;
-                    locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_SWITCH_OFF);
-                    continue;
-                }
-
-                std::string bundleName = "";
-                auto tokenId = request->GetTokenId();
-                auto firstTokenId = request->GetFirstTokenId();
-                auto tokenIdEx = request->GetTokenIdEx();
-                auto uid =  request->GetUid();
-                if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-                    LBSLOGE(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", uid);
-                }
-                if (reportManager_->IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
-                    !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
-                    isPermitted = false;
-                    //app background, no background permission, not ContinuousTasks
-                    locationErrorCallback->OnErrorReport(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED);
-                    continue;
-                }
-                if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
-                    !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
-                    LBSLOGE(LOCATOR, "%{public}d has no location permission failed", tokenId);
-                    isPermitted = false;
-                    locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
-                    continue;
-                }
-            }
-        }
-    }
-    return isPermitted;
-}
-
 LocationErrCode LocatorAbility::ReportLocation(
     const std::unique_ptr<Location>& location, std::string abilityName, AppIdentity &identity)
 {
     if (requests_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-    sptr<ILocatorCallback> callback;
-    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
-    if (!CheckIsReportPermitted(identity)) {
-        LBSLOGE(LOCATOR, "%{public}s line:%{public}d report is not allowed", __func__, __LINE__);
-        return ERRCODE_NOT_SUPPORTED;
     }
     std::unique_ptr<LocationMessage> locationMessage = std::make_unique<LocationMessage>();
     locationMessage->SetAbilityName(abilityName);
@@ -1811,7 +1750,7 @@ void LocatorHandler::InitLocatorHandlerEventMap()
     locatorHandlerEventMap_[EVENT_UNREG_LOCATION_ERROR] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { UnRegLocationErrorEvent(event); };
     locatorHandlerEventMap_[EVENT_REPORT_LOCATION_ERROR] =
-        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportLocationErrorEvent(event); };
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { ReportNetworkLocatingErrorEvent(event); };
     locatorHandlerEventMap_[EVENT_PERIODIC_CHECK] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { RequestCheckEvent(event); };
     locatorHandlerEventMap_[EVENT_SYNC_LOCATION_STATUS] =
@@ -2009,8 +1948,8 @@ void LocatorHandler::RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer
         return;
     }
     if (requestManager != nullptr) {
-        requestManager->UpdateLocationErrorCallbackToRequest(callbackMessage->GetCallback(),
-            callbackMessage->GetAppIdentity().GetTokenId(), true);
+        requestManager->RegisterLocationErrorCallback(callbackMessage->GetCallback(),
+            callbackMessage->GetAppIdentity());
     }
 }
 
@@ -2022,12 +1961,11 @@ void LocatorHandler::UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Point
         return;
     }
     if (requestManager != nullptr) {
-        requestManager->UpdateLocationErrorCallbackToRequest(callbackMessage->GetCallback(),
-            callbackMessage->GetAppIdentity().GetTokenId(), false);
+        requestManager->UnRegisterLocationErrorCallback(callbackMessage->GetCallback());
     }
 }
 
-void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = event->GetUniqueObject<LocatorErrorMessage>();
     if (locatorErrorMessage == nullptr) {
@@ -2035,30 +1973,21 @@ void LocatorHandler::ReportLocationErrorEvent(const AppExecFwk::InnerEvent::Poin
     }
     auto uuid = locatorErrorMessage->GetUuid();
     auto errCode = locatorErrorMessage->GetErrCode();
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
+    auto requestMap = LocatorAbility::GetInstance()->GetRequests();
+    if (requestMap == nullptr || requestMap->empty()) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
         return;
     }
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (uuid != "" && uuid != request->GetUuid()) {
-                continue;
-            } else if (uuid != "") {
-                auto locationCallbackHost = request->GetLocatorCallBack();
-                locationCallbackHost->OnErrorReport(errCode);
-            }
-            auto locationErrorCallbackHost = request->GetLocationErrorCallBack();
-            if (locationErrorCallbackHost != nullptr) {
-                LBSLOGE(LOCATOR, "errCode : %{public}d ,uuid : %{public}s", errCode, uuid.c_str());
-                locationErrorCallbackHost->OnErrorReport(errCode);
-            }
+    auto requestListIter = requestMap->find(NETWORK_ABILITY);
+    if (requestListIter == requestMap->end()) {
+        return;
+    }
+    auto requestList = requestListIter->second;
+    for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
+        auto request = *iter;
+        if (uuid.compare(request->GetUuid()) == 0) {
+            RequestManager::GetInstance()->ReportLocationError(errCode, request);
+            break;
         }
     }
 }
