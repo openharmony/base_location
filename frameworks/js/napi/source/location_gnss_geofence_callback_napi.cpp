@@ -185,12 +185,6 @@ void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
-            uint32_t refCount = INVALID_REF_COUNT;
-            napi_reference_unref(context->env, context->callback[SUCCESS_CALLBACK], &refCount);
-            if (refCount == 0) {
-                NAPI_CALL_RETURN_VOID(context->env,
-                    napi_delete_reference(context->env, context->callback[SUCCESS_CALLBACK]));
-            }
             delete context;
             delete work;
     });
@@ -203,12 +197,8 @@ void LocationGnssGeofenceCallbackNapi::DeleteHandler()
         LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    uint32_t refCount = INVALID_REF_COUNT;
-    napi_reference_unref(env_, handlerCb_, &refCount);
-    if (refCount == 0) {
-        NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
-        handlerCb_ = nullptr;
-    }
+    NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
+    handlerCb_ = nullptr;
 }
 
 void LocationGnssGeofenceCallbackNapi::CountDown()
