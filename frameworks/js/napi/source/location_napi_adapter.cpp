@@ -1031,6 +1031,7 @@ napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info)
     }
     std::unique_ptr<LocatingRequiredDataConfig> requestConfig = std::make_unique<LocatingRequiredDataConfig>();
     JsObjToLocatingRequiredDataConfig(env, argv[0], requestConfig);
+    requestConfig->SetFixNumber(1);
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
     LocationErrCode errorCode = g_locatorClient->RegisterLocatingRequiredDataCallback(requestConfig, callbackPtr);
     if (errorCode != ERRCODE_SUCCESS) {

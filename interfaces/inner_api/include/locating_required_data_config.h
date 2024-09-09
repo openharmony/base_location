@@ -29,6 +29,7 @@ public:
         needStartScan_ = false;
         scanIntervalMs_ = 0;
         scanTimeoutMs_ = DEFAULT_TIMEOUT_30S;
+        fixNumber_ = 0;
     }
 
     explicit LocatingRequiredDataConfig(LocatingRequiredDataConfig& LocatingRequiredDataConfig)
@@ -81,12 +82,23 @@ public:
         scanTimeoutMs_ = scanTimeoutMs;
     }
 
+    inline int GetFixNumber() const
+    {
+        return fixNumber_;
+    }
+
+    inline void SetFixNumber(int fixNumber)
+    {
+        fixNumber_ = fixNumber;
+    }
+
     void ReadFromParcel(Parcel& parcel)
     {
         type_ =  parcel.ReadInt32();
         needStartScan_ =  parcel.ReadBool();
         scanIntervalMs_ = parcel.ReadInt32();
         scanTimeoutMs_ = parcel.ReadInt32();
+        fixNumber_ = parcel.ReadInt32();
     }
 
     bool Marshalling(Parcel& parcel) const override
@@ -94,7 +106,8 @@ public:
         return parcel.WriteInt32(type_) &&
             parcel.WriteBool(needStartScan_) &&
             parcel.WriteInt32(scanIntervalMs_) &&
-            parcel.WriteInt32(scanTimeoutMs_);
+            parcel.WriteInt32(scanTimeoutMs_) &&
+            parcel.WriteInt32(fixNumber_);
     }
 
     static std::shared_ptr<LocatingRequiredDataConfig> Unmarshalling(Parcel& parcel)
@@ -109,7 +122,8 @@ public:
         std::string str = "type_ : " + std::to_string(type_) +
             ", needStartScan_ : " + (needStartScan_ ? "true" : "false") +
             ", scanIntervalMs_ : " + std::to_string(scanIntervalMs_) +
-            ", scanTimeoutMs_ : " + std::to_string(scanTimeoutMs_);
+            ", scanTimeoutMs_ : " + std::to_string(scanTimeoutMs_) +
+            ", fixNumber : " + std::to_string(fixNumber_);
         return str;
     }
 
@@ -118,6 +132,7 @@ private:
     bool needStartScan_;
     int scanIntervalMs_;
     int scanTimeoutMs_;
+    int fixNumber_;
 };
 } // namespace Location
 } // namespace OHOS
