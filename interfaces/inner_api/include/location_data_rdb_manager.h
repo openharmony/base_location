@@ -25,21 +25,25 @@ namespace OHOS {
 namespace Location {
 const std::string LOCATION_DATA_COLUMN_ENABLE = "location_switch_enable";
 const std::string LOCATION_WORKING_STATE = "location_working_state";
-const std::string LOCATION_DATA_URI =
-    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=location_enable";
 class LocationDataRdbManager {
 public:
-    static std::string GetLocationDataUri(std::string key);
+    static int GetSwitchStateFromSysparaForCurrentUser();
+    static bool SetSwitchStateToSysparaForCurrentUser(int value);
+    static std::string GetLocationDataUriByCurrentUserId(std::string key);
+    static std::string GetLocationDataUriForUser(std::string key, int32_t userId);
+    static LocationErrCode GetSwitchStateFromDbForUser(int32_t& state, int32_t userId);
     static int QuerySwitchState();
-    static LocationErrCode SetSwitchState(int modeValue);
+    static LocationErrCode SetSwitchStateToDb(int modeValue);
+    static LocationErrCode SetSwitchStateToDbForUser(int modeValue, int32_t userId);
     static bool SetLocationWorkingState(int32_t state);
     static bool GetLocationWorkingState(int32_t& state);
-    static int GetSwitchMode();
-    static bool SetSwitchMode(int value);
-    static bool ClearSwitchMode();
+    static int GetSwitchStateFromSysparaForUser(int32_t userId);
+    static bool SetSwitchStateToSysparaForUser(int value, int32_t userId);
     static std::string GetLocationDataSecureUri(std::string key);
     static bool SetLocationEnhanceStatus(int32_t state);
     static bool GetLocationEnhanceStatus(int32_t& state);
+    static void SyncSwitchStatus();
+    static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
 private:
     static std::mutex mutex_;
 };

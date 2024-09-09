@@ -127,5 +127,14 @@ bool PermissionManager::CheckSystemPermission(uint32_t callerTokenId, uint64_t c
     bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
     return isSysApp;
 }
+
+bool PermissionManager::CheckIsSystemSa(uint32_t tokenId)
+{
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        return true;
+    }
+    return false;
+}
 } // namespace Location
 } // namespace OHOS

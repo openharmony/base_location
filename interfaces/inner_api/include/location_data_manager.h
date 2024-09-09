@@ -22,37 +22,27 @@
 #include "constant_definition.h"
 #include "i_switch_callback.h"
 #include "common_utils.h"
-#include "system_ability_status_change_stub.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
-class DataShareSystemAbilityListener : public SystemAbilityStatusChangeStub {
-public:
-    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-};
 class LocationDataManager {
 public:
     LocationDataManager();
     ~LocationDataManager();
     LocationErrCode ReportSwitchState(bool isEnabled);
-    LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, AppIdentity& appIdentity);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
-    void SetCachedSwitchState(int32_t state);
-    bool IsSwitchStateReg();
-    void ResetIsObserverReg();
-    void RegisterDatashareObserver();
+    bool IsSwitchObserverReg();
+    void SetIsSwitchObserverReg(bool isSwitchObserverReg);
+    void RegisterLocationSwitchObserver();
     static LocationDataManager* GetInstance();
 
 private:
     std::mutex mutex_;
-    std::mutex switchStateMutex_;
-    std::vector<sptr<ISwitchCallback>> switchCallbacks_;
-    int32_t cachedSwitchState_ = DISABLED;
-    bool isStateCached_ = false;
-    bool isObserverReg_ = false;
-    sptr<ISystemAbilityStatusChange> saStatusListener_ =
-        sptr<DataShareSystemAbilityListener>(new DataShareSystemAbilityListener());
+    std::mutex isSwitchObserverRegMutex_;
+    bool isSwitchObserverReg_ = false;
+    std::map<sptr<IRemoteObject>, std::vector<int>> switchCallbackMap_;
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -49,7 +49,7 @@ int LocatorProxy::GetSwitchState()
     MessageParcel reply;
     int error = SendMsgWithReply(static_cast<int>(LocatorInterfaceCode::GET_SWITCH_STATE), reply);
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetSwitchState Transact ErrCode = %{public}d", error);
-    int state = 0;
+    int state = DEFAULT_SWITCH_STATE;
     if (error == NO_ERROR && reply.ReadInt32() == ERRCODE_SUCCESS) {
         state = reply.ReadInt32();
     }
@@ -456,6 +456,22 @@ LocationErrCode LocatorProxy::EnableAbilityV9(bool isEnabled)
     LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableAbility Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
+
+LocationErrCode LocatorProxy::EnableAbilityForUser(bool isEnabled, int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    data.WriteBool(isEnabled);
+    data.WriteInt32(userId);
+    LocationErrCode errorCode =
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::ENABLE_ABILITY_BY_USERID), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::EnableAbility Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
+
 
 LocationErrCode LocatorProxy::UpdateSaAbilityV9()
 {

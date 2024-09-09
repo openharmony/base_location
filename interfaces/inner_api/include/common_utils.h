@@ -128,7 +128,7 @@ enum class ServiceRunningState {
 enum {
     DISABLED = 0,
     ENABLED = 1,
-    DEFAULT_STATE = 2
+    DEFAULT_SWITCH_STATE = 2
 };
 
 enum {
@@ -179,6 +179,7 @@ public:
     static std::string GenerateUuid();
     static bool CheckAppForUser(int32_t uid);
     static int64_t GetSinceBootTime();
+    static bool GetAllUserId(std::vector<int>& activeIds);
 };
 
 class CountDownLatch {

@@ -79,6 +79,10 @@ void LocatorAbilityStub::ConstructLocatorHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return PreEnableAbility(data, reply, identity);
         };
+    locatorHandleMap_[LocatorInterfaceCode::ENABLE_ABILITY_BY_USERID] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreEnableAbilityForUser(data, reply, identity);
+        };
 }
 
 void LocatorAbilityStub::ConstructLocatorEnhanceHandleMap()
@@ -258,14 +262,8 @@ LocatorAbilityStub::LocatorAbilityStub()
 
 int LocatorAbilityStub::PreGetSwitchState(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(LOCATOR, "PreGetSwitchState: LocatorAbility is nullptr.");
-        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    int state = DISABLED;
-    LocationErrCode errorCode = locatorAbility->GetSwitchState(state);
+    int state = DEFAULT_SWITCH_STATE;
+    LocationErrCode errorCode =  LocatorAbility::GetInstance()->GetSwitchState(state);
     reply.WriteInt32(errorCode);
     if (errorCode == ERRCODE_SUCCESS) {
         reply.WriteInt32(state);
@@ -401,6 +399,34 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
         result && !bundleName.empty() && identity.GetBundleName() == bundleName) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
     }
+    reply.WriteInt32(errCode);
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreEnableAbilityForUser(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!CheckSettingsPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    bool isEnabled = data.ReadBool();
+    int32_t userId = data.ReadInt32();
+    bool privacyState = false;
+    int currentUserId = 0;
+    LocationErrCode code =
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard" &&
+        (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
+        LocationConfigManager::GetInstance()->OpenPrivacyDialog();
+        LBSLOGE(LOCATOR, "OpenPrivacyDialog");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = LocatorAbility::GetInstance()->EnableAbilityForUser(isEnabled, userId);
     reply.WriteInt32(errCode);
     return ERRCODE_SUCCESS;
 }

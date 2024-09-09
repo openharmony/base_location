@@ -51,6 +51,7 @@ public:
     explicit LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~LocatorHandler() override;
     void InitLocatorHandlerEventMap();
+    void ConstructDbHandleMap();
     void ConstructGeocodeHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
@@ -78,7 +79,15 @@ private:
     void InitMonitorManagerEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void IsStandByEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SetLocationWorkingStateEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void SetSwitchStateToDbForUserEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
+
+    bool IsSwitchObserverReg();
+    void SetIsSwitchObserverReg(bool isSwitchObserverReg);
+    ffrt::mutex isSwitchObserverRegMutex_;
+    bool isSwitchObserverReg_ = false;
 };
 
 class LocatorAbility : public SystemAbility, public LocatorAbilityStub {
@@ -97,7 +106,7 @@ public:
     void RemoveUnloadTask(uint32_t code) override;
     void PostUnloadTask(uint32_t code) override;
     ServiceRunningState QueryServiceState() const
-   {
+    {
         return state_;
     }
     void InitSaAbility();
@@ -106,6 +115,7 @@ public:
     LocationErrCode UpdateSaAbility();
     LocationErrCode GetSwitchState(int& state);
     LocationErrCode EnableAbility(bool isEnabled);
+    LocationErrCode EnableAbilityForUser(bool isEnabled, int32_t userId);
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
 #ifdef FEATURE_GNSS_SUPPORT
@@ -199,6 +209,7 @@ public:
 #ifdef FEATURE_GEOCODE_SUPPORT
     LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
+    void ReportDataToResSched(std::string state);
 
 private:
     bool Init();
@@ -214,7 +225,6 @@ private:
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
-    void ReportDataToResSched(std::string state);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
@@ -274,6 +284,17 @@ public:
 private:
     std::string uuid_;
     int32_t errCode_;
+};
+
+class LocatorSwitchMessage {
+public:
+    void SetUserId(int32_t userId);
+    int32_t GetUserId();
+    void SetModeValue(int32_t modeValue);
+    int32_t GetModeValue();
+private:
+    int32_t modeValue_;
+    int32_t userId_;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
