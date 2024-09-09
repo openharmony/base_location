@@ -32,10 +32,10 @@ private:
     ElapsedRealTimeCheck();
     ~ElapsedRealTimeCheck();
 
-    int64_t timeBegin_;
-    int64_t timeBeginElapsed_;
-    int64_t timeCheck_;
-    int64_t timeCheckElapsed_;
+    int64_t timeBegin_ = 0;
+    int64_t timeBeginElapsed_ = 0;
+    int64_t timeCheck_ = 0;
+    int64_t timeCheckElapsed_ = 0;
     bool canTrustElapsedRealTime_ = true; // default is true, usually we trust this time.
 };
 } // namespace Location

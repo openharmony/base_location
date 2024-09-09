@@ -266,11 +266,6 @@ int LocationConfigManager::SetLocationSwitchState(int state)
 LocationErrCode LocationConfigManager::GetPrivacyTypeState(const int type, bool& isConfirmed)
 {
     int status = 0;
-    int cacheState = GetCachePrivacyType();
-    if (cacheState == DISABLED || cacheState == ENABLED) {
-        isConfirmed = (status == 1);
-        return ERRCODE_SUCCESS;
-    }
     if (!LocationDataRdbManager::GetLocationEnhanceStatus(status)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -301,7 +296,6 @@ LocationErrCode LocationConfigManager::SetPrivacyTypeState(const int type, bool 
     if (!LocationDataRdbManager::SetLocationEnhanceStatus(status)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    SetCachePrivacyType(status);
     return ERRCODE_SUCCESS;
 }
 

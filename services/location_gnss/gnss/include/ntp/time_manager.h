@@ -35,7 +35,7 @@ public:
 
 private:
     int64_t timestamp_ = 0;
-    int64_t timeSynsBoot_ = 0;
+    int64_t timeSinceBoot_ = 0;
     int64_t expireTime_ = EXPIRT_TIME;
 };
 } // namespace Location

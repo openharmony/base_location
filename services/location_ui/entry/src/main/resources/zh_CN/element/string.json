@@ -42,7 +42,7 @@
     },
     {
       "name": "location_target_statement_content",
-      "value": "“定位服务”联网并使用GNSS或网络信息(WLAN、蜂窝网络、蓝牙、IP)为您提供基于位置的服务。启用后，设备的位置信息会被分享给已授予定位权限的服务。您的位置信息也将用于系统服务，如更新时区、紧急呼叫等。"
+      "value": "“定位服务”联网并使用 GNSS 或网络信息 (WLAN、蜂窝网络、蓝牙、IP) 为您提供基于位置的服务。启用后，设备的位置信息会被分享给已授予定位权限的服务。您的位置信息也将用于系统服务，如更新时区、紧急呼叫等。"
     },
     {
       "name": "LocationPrivacyExtAbility_desc",
@@ -102,7 +102,7 @@
     },
     {
       "name": "wifi_candidate_connect_notify_title",
-      "value": "连接到指定的候选WLAN?"
+      "value": "连接至指定的候选 WLAN？"
     },
     {
       "name": "wifi_candidate_connect_notify_no_button",

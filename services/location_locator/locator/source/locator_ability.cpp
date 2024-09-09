@@ -955,8 +955,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 
 bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
 {
-    if (requestConfig->GetFixNumber() == 1 &&
-        requestConfig->GetPriority() != LOCATION_PRIORITY_ACCURACY &&
+    if (requestConfig->GetPriority() != LOCATION_PRIORITY_ACCURACY &&
         ((requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
         (requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_FAST_FIRST_FIX)) ||
@@ -991,7 +990,7 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
     if (reportManager_ == nullptr || request == nullptr) {
         return false;
     }
-    // report cache location in single location request
+    // report cache location
     if (IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
         auto cacheLocation = reportManager_->GetCacheLocation(request);
         if (cacheLocation != nullptr && callback != nullptr) {
@@ -2008,7 +2007,6 @@ void LocatorHandler::SetIsSwitchObserverReg(bool isSwitchObserverReg)
     std::unique_lock<ffrt::mutex> lock(isSwitchObserverRegMutex_);
     isSwitchObserverReg_ = isSwitchObserverReg;
 }
-
 
 void LocatorHandler::WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event)
 {

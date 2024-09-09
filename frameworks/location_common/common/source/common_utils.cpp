@@ -44,7 +44,6 @@ static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
-
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {
     if (GNSS_ABILITY.compare(ability) == 0) {

@@ -89,7 +89,7 @@ struct dialogPlusPage {
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
       data: 'message',
-      subscriberPermissions: [''],
+      subscriberPermissions: [],
       isOrdered: true,
       isSticky: false,
       parameters: { 'dialogType': type }
@@ -115,7 +115,7 @@ struct dialogPlusPage {
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
       data: 'message',
-      subscriberPermissions: [''],
+      subscriberPermissions: [],
       isOrdered: true,
       isSticky: false,
       parameters: { 'dialogType': type }
