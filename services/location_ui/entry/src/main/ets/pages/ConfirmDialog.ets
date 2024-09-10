@@ -17,8 +17,8 @@ import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSessi
 import commonEventManager from '@ohos.commonEventManager';
 
 let TAG = '[AGNSS-NI:ConfirmDialog]==>';
-const AGNSS_NI_ACCEPT_EVENT: string = "usual.event.AGNSS_NI_ACCEPT";
-const AGNSS_NI_REJECT_EVENT: string = "usual.event.AGNSS_NI_REJECT";
+const AGNSS_NI_ACCEPT_EVENT: string = 'usual.event.AGNSS_NI_ACCEPT';
+const AGNSS_NI_REJECT_EVENT: string = 'usual.event.AGNSS_NI_REJECT';
 
 @Entry
 @Component

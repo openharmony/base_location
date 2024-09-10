@@ -159,6 +159,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         int permUsedType = request->GetPermUsedType();
         locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
             ACCESS_APPROXIMATELY_LOCATION, permUsedType, 1, 0);
+        RequestManager::GetInstance()->UpdateLocationError(request);
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();

@@ -343,6 +343,7 @@ int GnssAbilityStub::QuerySupportCoordinateSystemTypeInner(
 
 int GnssAbilityStub::SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    LBSLOGI(GNSS, "SendNetworkLocationInner");
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return ERRCODE_PERMISSION_DENIED;
     }

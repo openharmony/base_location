@@ -34,27 +34,27 @@
     },
     {
       "name": "ni_notify_title",
-      "value": "定位请求"
+      "value": "Location request"
     },
     {
       "name": "ni_notify_message",
-      "value": "请求人 "
+      "value": "Requested by"
     },
     {
       "name": "confirm_button",
-      "value": "同意"
+      "value": "Agree"
     },
     {
       "name": "cancel_button",
-      "value": "取消"
+      "value": "Cancel"
     },
     {
       "name": "location_target_statement_title",
-      "value": "定位服务"
+      "value": "Location Services"
     },
     {
       "name": "location_target_statement_content",
-      "value": "“定位服务”联网并使用GNSS或网络信息(WLAN、蜂窝网络、蓝牙、IP)为您提供基于位置的服务。启用后，设备的位置信息会被分享给已授予定位权限的服务。您的位置信息也将用于系统服务，如更新时区、紧急呼叫等。"
+      "value": "Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls."
     },
     {
       "name": "LocationPrivacyExtAbility_label",
@@ -66,23 +66,23 @@
     },
     {
       "name": "wifi_portal_connected_notify_text",
-      "value": "Touch to login/authorize"
+      "value": "Tap to log in."
     },
     {
       "name": "wifi_portal_connect_timeout_notify_title",
-      "value": "WLAN authentication expired"
+      "value": "Authentication expired"
     },
     {
       "name": "wifi_portal_connect_timeout_notify_text",
-      "value": "Touch here to log in to %s"
+      "value": "Tap to log in to %s."
     },
     {
       "name": "wifi_portal_found_notify_title",
-      "value": "Authorize Wi-Fi network"
+      "value": "Authentication required"
     },
     {
       "name": "wifi_portal_found_notify_text",
-      "value": "Touch here to log in to %s"
+      "value": "Tap to log in to %s."
     },
     {
       "name": "wifi_cdd_notify_title",
@@ -98,7 +98,7 @@
     },
     {
       "name": "wifi_three_vap_notify_title",
-      "value": "A hotspot can't be created while WLAN Direct, or screen mirroring are in use. Disconnect and try again."
+      "value": "Can't create a hotspot while the WLAN channel is in use. If you're using WLAN Direct or screen casting, disconnect and try again."
     },
     {
       "name": "wifi_three_vap_notify_no_button",
@@ -110,7 +110,7 @@
     },
     {
       "name": "wifi_candidate_connect_notify_title",
-      "value": "Connect to a specified candidate WLAN?"
+      "value": "Connect to this WLAN network?"
     },
     {
       "name": "wifi_candidate_connect_notify_no_button",

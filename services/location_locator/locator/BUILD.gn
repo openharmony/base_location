@@ -205,6 +205,7 @@ ohos_static_library("lbsservice_locator_static") {
   ]
 
   defines = []
+
   if (communication_wifi_enable) {
     external_deps += [ "wifi:wifi_sdk" ]
     defines += [ "WIFI_ENABLE" ]

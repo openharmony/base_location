@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,31 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef GPS_TIME_MANAGER_H
-#define GPS_TIME_MANAGER_H
-#ifdef FEATURE_GNSS_SUPPORT
-#ifdef TIME_SERVICE_ENABLE
+#ifndef GNSS_STATUS_CALLBACK_HOST_H
+#define GNSS_STATUS_CALLBACK_HOST_H
 
-#include "time_manager.h"
+#include "iremote_stub.h"
+#include "i_gnss_status_callback.h"
+#include "satellite_status.h"
 
 namespace OHOS {
 namespace Location {
-class GpsTimeManager {
+class GnssStatusCallbackHost : public IRemoteStub<IGnssStatusCallback> {
 public:
-    GpsTimeManager();
-    ~GpsTimeManager();
-    int64_t GetGpsTime();
-    void SetGpsTime(int64_t gpsTime, int64_t bootTimeMs);
-
-private:
-    bool CheckValid(int64_t gpsTime, int64_t lastSystemTime);
-    TimeManager timeManager_;
-    bool validFlag_ {false};
-    int64_t lastSystemTime_ = 0;
+    virtual int OnRemoteRequest(
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+    void OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo) override;
 };
 } // namespace Location
 } // namespace OHOS
-
-#endif // TIME_SERVICE_ENABLE
-#endif // FEATURE_GNSS_SUPPORT
-#endif // GPS_TIME_MANAGER_H
+#endif // GNSS_STATUS_CALLBACK_HOST_H
