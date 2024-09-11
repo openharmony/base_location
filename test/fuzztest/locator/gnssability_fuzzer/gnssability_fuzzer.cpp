@@ -92,7 +92,7 @@ bool GnssAbility001FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
@@ -109,7 +109,7 @@ bool GnssAbility002FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST),
         requestParcel, reply, option);
     
@@ -127,7 +127,7 @@ bool GnssAbility003FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE),
         requestParcel, reply, option);
     
@@ -145,7 +145,7 @@ bool GnssAbility004FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REFRESH_REQUESTS),
         requestParcel, reply, option);
     
@@ -163,7 +163,7 @@ bool GnssAbility005FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS),
         requestParcel, reply, option);
     
@@ -181,7 +181,7 @@ bool GnssAbility006FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_GNSS_STATUS),
         requestParcel, reply, option);
     
@@ -199,7 +199,7 @@ bool GnssAbility007FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
@@ -216,7 +216,7 @@ bool GnssAbility008FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_NMEA),
         requestParcel, reply, option);
     
@@ -234,7 +234,7 @@ bool GnssAbility009FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_CACHED),
         requestParcel, reply, option);
     
@@ -252,7 +252,7 @@ bool GnssAbility010FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::UNREG_CACHED),
         requestParcel, reply, option);
     
@@ -270,7 +270,7 @@ bool GnssAbility011FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_CACHED_SIZE),
         requestParcel, reply, option);
     
@@ -288,7 +288,7 @@ bool GnssAbility012FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::FLUSH_CACHED),
         requestParcel, reply, option);
     
@@ -306,7 +306,7 @@ bool GnssAbility013FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS),
         requestParcel, reply, option);
     
@@ -324,7 +324,7 @@ bool GnssAbility014FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ENABLE_LOCATION_MOCK),
         requestParcel, reply, option);
     
@@ -342,7 +342,7 @@ bool GnssAbility015FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK),
         requestParcel, reply, option);
     
@@ -360,7 +360,7 @@ bool GnssAbility016FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO),
         requestParcel, reply, option);
     
@@ -378,7 +378,7 @@ bool GnssAbility017FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO),
         requestParcel, reply, option);
     
@@ -396,7 +396,7 @@ bool GnssAbility018FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::ADD_GNSS_GEOFENCE),
         requestParcel, reply, option);
     
@@ -414,7 +414,7 @@ bool GnssAbility019FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE),
         requestParcel, reply, option);
     
@@ -432,7 +432,7 @@ bool GnssAbility020FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE),
         requestParcel, reply, option);
     
@@ -450,7 +450,7 @@ bool GnssAbility021FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
 
-    auto ability = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
+    auto ability = GnssAbility::GetInstance();
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION),
         requestParcel, reply, option);
     

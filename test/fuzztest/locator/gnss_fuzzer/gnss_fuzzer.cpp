@@ -36,6 +36,9 @@
 #include "work_record.h"
 #include "geofence_request.h"
 #include "work_record_statistic.h"
+#include "if_system_ability_manager.h"
+#include "system_ability_definition.h"
+#include "iservice_registry.h"
 
 namespace OHOS {
     using namespace OHOS::Location;
@@ -47,9 +50,17 @@ namespace OHOS {
             return true;
         }
         int index = 0;
-        sptr<OHOS::Location::GnssAbility> ability = new (std::nothrow) GnssAbility();
-        sptr<OHOS::Location::GnssAbilityProxy> proxy =
-            new (std::nothrow) GnssAbilityProxy(ability);
+        sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (sam == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
+            return true;
+        }
+        sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_GNSS_SA_ID);
+        if (obj == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
+            return true;
+        }
+        auto proxy = sptr<GnssAbilityProxy>(new (std::nothrow) GnssAbilityProxy(obj));
         proxy->SetEnable(true);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->SetEnable(false);
@@ -80,9 +91,17 @@ namespace OHOS {
             return true;
         }
         int index = 0;
-        sptr<OHOS::Location::GnssAbility> ability = new (std::nothrow) GnssAbility();
-        sptr<OHOS::Location::GnssAbilityProxy> proxy =
-            new (std::nothrow) GnssAbilityProxy(ability);
+        sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (sam == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
+            return true;
+        }
+        sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_GNSS_SA_ID);
+        if (obj == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
+            return true;
+        }
+        auto proxy = sptr<GnssAbilityProxy>(new (std::nothrow) GnssAbilityProxy(obj));
         auto cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
         auto cachedLocationsCallbackHost =
             sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
@@ -119,9 +138,17 @@ namespace OHOS {
         if (size < MIN_DATA_LEN) {
             return true;
         }
-        sptr<OHOS::Location::GnssAbility> ability = new (std::nothrow) GnssAbility();
-        sptr<OHOS::Location::GnssAbilityProxy> proxy =
-            new (std::nothrow) GnssAbilityProxy(ability);
+        sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (sam == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
+            return true;
+        }
+        sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_GNSS_SA_ID);
+        if (obj == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
+            return true;
+        }
+        auto proxy = sptr<GnssAbilityProxy>(new (std::nothrow) GnssAbilityProxy(obj));
         std::shared_ptr<GeofenceRequest> fence = std::make_shared<GeofenceRequest>();
         proxy->AddGnssGeofence(fence);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
