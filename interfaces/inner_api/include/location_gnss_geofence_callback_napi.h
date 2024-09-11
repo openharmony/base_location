@@ -58,8 +58,6 @@ public:
             return false;
         }
         context->env = env_;
-        callbackValid_ = handlerCb_ == nullptr ? false : true;
-        context->callbackValid = &callbackValid_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
     }
@@ -105,7 +103,6 @@ private:
     std::mutex operationResultMutex_;
     CountDownLatch* latch_;
     int fenceId_;
-    bool callbackValid_;
     GnssGeofenceOperateType type_;
     GnssGeofenceOperateResult result_;
 };

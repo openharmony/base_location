@@ -33,6 +33,8 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_regCallbackMutex;
+static std::vector<napi_ref> g_regHandleCallbacks;
 LocatorCallbackNapi::LocatorCallbackNapi()
 {
     env_ = nullptr;
@@ -43,7 +45,6 @@ LocatorCallbackNapi::LocatorCallbackNapi()
     fixNumber_ = 0;
     inHdArea_ = true;
     singleLocation_ = nullptr;
-    callbackValid_ = false;
     locationPriority_ = 0;
     InitLatch();
 }
@@ -109,6 +110,39 @@ int LocatorCallbackNapi::OnRemoteRequest(uint32_t code,
     return 0;
 }
 
+napi_ref LocatorCallbackNapi::GetHandleCb()
+{
+    return handlerCb_;
+}
+
+void LocatorCallbackNapi::SetHandleCb(const napi_ref& handlerCb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    handlerCb_ = handlerCb;
+    g_regHandleCallbacks.emplace_back(handlerCb);
+}
+
+bool FindRegCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    auto iter = std::find(g_regHandleCallbacks.begin(), g_regHandleCallbacks.end(), cb);
+    if (iter == g_regHandleCallbacks.end()) {
+        return false;
+    }
+    return true;
+}
+
+void DeleteRegCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    for (auto iter = g_regHandleCallbacks.begin(); iter != g_regHandleCallbacks.end(); iter++) {
+        if (*iter == cb) {
+            iter = g_regHandleCallbacks.erase(iter);
+            break;
+        }
+    }
+}
+
 void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
 {
     uv_queue_work(loop, work, [](uv_work_t* work) {}, [](uv_work_t* work, int status) {
@@ -121,7 +155,13 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
             delete work;
             return;
         }
-        if (context->env == nullptr || context->loc == nullptr || context->callbackValid == nullptr) {
+        if (context->env == nullptr || context->loc == nullptr) {
+            delete context;
+            delete work;
+            return;
+        }
+        if (!FindRegCallback(context->callback[0])) {
+            LBSLOGE(LOCATOR_CALLBACK, "no valid callback");
             delete context;
             delete work;
             return;
@@ -138,7 +178,7 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
         } else {
             LocationToJs(context->env, context->loc, jsEvent);
         }
-        if (context->callback[0] != nullptr && *(context->callbackValid)) {
+        if (context->callback[0] != nullptr) {
             napi_value undefine = nullptr;
             napi_value handler = nullptr;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -149,7 +189,9 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
                 LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
             }
         }
-        DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
+        NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
+        delete context;
+        delete work;
     });
 }
 
@@ -164,7 +206,7 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 return;
             }
             context = static_cast<AsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -176,7 +218,7 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 delete work;
                 return;
             }
-            if (context->callback[FAIL_CALLBACK] != nullptr && *(context->callbackValid)) {
+            if (context->callback[FAIL_CALLBACK] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -296,6 +338,7 @@ void LocatorCallbackNapi::DeleteHandler()
         LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
         return;
     }
+    DeleteRegCallback(handlerCb_);
     if (IsSystemGeoLocationApi()) {
         if (successHandlerCb_ != nullptr) {
             NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, successHandlerCb_));
@@ -315,7 +358,6 @@ void LocatorCallbackNapi::DeleteHandler()
             handlerCb_ = nullptr;
         }
     }
-    callbackValid_ = false;
 }
 
 bool LocatorCallbackNapi::IsSystemGeoLocationApi()

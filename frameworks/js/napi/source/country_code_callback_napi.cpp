@@ -28,7 +28,6 @@ CountryCodeCallbackNapi::CountryCodeCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 
 CountryCodeCallbackNapi::~CountryCodeCallbackNapi()
@@ -114,7 +113,7 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CountryCodeContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
                 delete work;
                 return;
@@ -134,7 +133,7 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             } else {
                 LBSLOGE(LOCATOR_STANDARD, "country is nullptr!");
             }
-            if (context->callback[0] != nullptr && *(context->callbackValid)) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
@@ -179,7 +178,6 @@ void CountryCodeCallbackNapi::DeleteHandler()
     }
     NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

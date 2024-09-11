@@ -28,7 +28,6 @@ CachedLocationsCallbackNapi::CachedLocationsCallbackNapi()
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
-    callbackValid_ = false;
 }
 
 CachedLocationsCallbackNapi::~CachedLocationsCallbackNapi()
@@ -123,7 +122,7 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             context = static_cast<CachedLocationAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -139,7 +138,7 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
                 scope, context, work);
             LocationsToJs(context->env, context->locationList, jsEvent);
-            if (context->callback[0] != nullptr && *(context->callbackValid)) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -171,7 +170,6 @@ void CachedLocationsCallbackNapi::DeleteHandler()
     }
     NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS

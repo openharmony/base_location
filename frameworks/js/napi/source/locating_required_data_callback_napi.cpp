@@ -30,7 +30,6 @@ LocatingRequiredDataCallbackNapi::LocatingRequiredDataCallbackNapi()
     remoteDied_ = false;
     fixNumber_ = 0;
     InitLatch();
-    callbackValid_ = false;
 }
 
 LocatingRequiredDataCallbackNapi::~LocatingRequiredDataCallbackNapi()
@@ -141,7 +140,7 @@ void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 return;
             }
             context = static_cast<LocatingRequiredDataAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATING_DATA_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -158,7 +157,7 @@ void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 napi_create_array_with_length(context->env, context->locatingRequiredDataList_.size(), &jsEvent),
                 scope, context, work);
             LocatingRequiredDataToJsObj(context->env, context->locatingRequiredDataList_, jsEvent);
-            if (context->callback[0] != nullptr && *(context->callbackValid)) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -192,7 +191,6 @@ void LocatingRequiredDataCallbackNapi::DeleteHandler()
     }
     NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 
 bool LocatingRequiredDataCallbackNapi::IsSingleLocationRequest()

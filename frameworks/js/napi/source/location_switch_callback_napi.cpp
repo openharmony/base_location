@@ -20,12 +20,13 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_regCallbackMutex;
+static std::vector<napi_ref> g_regHandleCallbacks;
 LocationSwitchCallbackNapi::LocationSwitchCallbackNapi()
 {
     env_ = nullptr;
     handlerCb_ = nullptr;
     remoteDied_ = false;
-    callbackValid_ = false;
 }
 
 LocationSwitchCallbackNapi::~LocationSwitchCallbackNapi()
@@ -56,6 +57,39 @@ int LocationSwitchCallbackNapi::OnRemoteRequest(
         }
     }
     return 0;
+}
+
+napi_ref LocationSwitchCallbackNapi::GetHandleCb()
+{
+    return handlerCb_;
+}
+
+void LocationSwitchCallbackNapi::SetHandleCb(const napi_ref& handlerCb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    handlerCb_ = handlerCb;
+    g_regHandleCallbacks.emplace_back(handlerCb);
+}
+
+bool FindSwitchRegCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    auto iter = std::find(g_regHandleCallbacks.begin(), g_regHandleCallbacks.end(), cb);
+    if (iter == g_regHandleCallbacks.end()) {
+        return false;
+    }
+    return true;
+}
+
+void DeleteSwitchRegCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    for (auto iter = g_regHandleCallbacks.begin(); iter != g_regHandleCallbacks.end(); iter++) {
+        if (*iter == cb) {
+            iter = g_regHandleCallbacks.erase(iter);
+            break;
+        }
+    }
 }
 
 bool LocationSwitchCallbackNapi::IsRemoteDied()
@@ -114,12 +148,18 @@ void LocationSwitchCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             SwitchAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
+                LBSLOGE(SWITCH_CALLBACK, "work is nullptr!");
                 return;
             }
             context = static_cast<SwitchAsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
+            if (context == nullptr || context->env == nullptr) {
+                LBSLOGE(SWITCH_CALLBACK, "context is nullptr!");
+                delete work;
+                return;
+            }
+            if (!FindSwitchRegCallback(context->callback[0])) {
+                LBSLOGE(SWITCH_CALLBACK, "no valid callback");
+                delete context;
                 delete work;
                 return;
             }
@@ -133,7 +173,7 @@ void LocationSwitchCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            if (context->callback[0] != nullptr && *(context->callbackValid)) {
+            if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
@@ -164,9 +204,9 @@ void LocationSwitchCallbackNapi::DeleteHandler()
         LBSLOGE(SWITCH_CALLBACK, "handler or env is nullptr.");
         return;
     }
+    DeleteSwitchRegCallback(handlerCb_);
     NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
-    callbackValid_ = false;
 }
 }  // namespace Location
 }  // namespace OHOS
