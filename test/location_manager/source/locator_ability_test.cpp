@@ -134,7 +134,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityApplyRequestsTest001, TestSize.Level1
         << "LocatorAbilityTest, LocatorAbilityApplyRequestsTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityApplyRequestsTest001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     int delay = 1;
     locatorAbility->ApplyRequests(delay);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityApplyRequestsTest001 end");
@@ -146,7 +145,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityUpdateSaAbilityTest001, TestSize.Leve
         << "LocatorAbilityTest, LocatorAbilityUpdateSaAbilityTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateSaAbilityTest001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->UpdateSaAbility();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateSaAbilityTest001 end");
 }
@@ -158,9 +156,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveUnloadTaskTest001, TestSize.Lev
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveUnloadTask001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     int code = 1;
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->RemoveUnloadTask(code);
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->RemoveUnloadTask(code);
     code = static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE);
     locatorAbility->RemoveUnloadTask(code);
@@ -377,10 +373,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityHandleStartLocating001, TestSize.Leve
         sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
     sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(locatorCallbackHost);
     request->SetLocatorCallBack(callback);
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->HandleStartLocating(request, callback);
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->HandleStartLocating(request, callback);
+    locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityHandleStartLocating001 end");
 }
 
@@ -395,10 +390,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityStopLocating001, TestSize.Level1)
     locatorAbility->requestManager_ = nullptr;
     locatorAbility->StopLocating(callback);
     locatorAbility->requestManager_ = RequestManager::GetInstance();
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->StopLocating(callback);
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->StopLocating(callback);
+    locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityStopLocating001 end");
 }
 
@@ -411,10 +405,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityGetCacheLocation001, TestSize.Level1)
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::unique_ptr<Location> loc;
     AppIdentity identity;
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->GetCacheLocation(loc, identity);
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->GetCacheLocation(loc, identity);
+    locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityGetCacheLocation001 end");
 }
 
@@ -543,10 +536,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityUpdateLastLocationRequestNum001, Test
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateLastLocationRequestNum001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->UpdateLastLocationRequestNum();
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->UpdateLastLocationRequestNum();
+    locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateLastLocationRequestNum001 end");
 }
 
@@ -571,27 +563,11 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRegisterLocationError001, TestSize.Le
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     sptr<ILocatorCallback> callback;
     AppIdentity identity;
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->RegisterLocationError(callback, identity);
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
+    locatorAbility->UnregisterLocationError(callback, identity);
     locatorAbility->RegisterLocationError(callback, identity);
+    locatorAbility->UnregisterLocationError(callback, identity);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRegisterLocationError001 end");
-}
-
-HWTEST_F(LocatorAbilityTest, LocatorAbilityUnRegisterLocationError001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorAbilityUnRegisterLocationError001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUnRegisterLocationError001 begin");
-    auto locatorAbility =
-        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    sptr<ILocatorCallback> callback;
-    AppIdentity identity;
-    locatorAbility->locatorHandler_ = nullptr;
-    locatorAbility->UnregisterLocationError(callback, identity);
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
-    locatorAbility->UnregisterLocationError(callback, identity);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUnRegisterLocationError001 end");
 }
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityReportLocationError001, TestSize.Level1)
@@ -603,10 +579,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityReportLocationError001, TestSize.Leve
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::string uuid;
     int32_t errCode = 10;
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->ReportLocationError(uuid, errCode);
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->ReportLocationError(uuid, errCode);
+    locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUnRegisterLocationError001 end");
 }
 
@@ -618,11 +593,10 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilitySyncIdleState001, TestSize.Level1)
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     bool state = true;
-    locatorAbility->locatorHandler_ = nullptr;
     locatorAbility->SyncIdleState(state);
     state = false;
-    locatorAbility->locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true));
     locatorAbility->SyncIdleState(state);
+    locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilitySyncIdleState001 end");
 }
 

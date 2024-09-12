@@ -345,21 +345,9 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
     parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_ACCURACY);
-    requestConfig->SetFixNumber(0);
-    requestConfig->SetTimeInterval(1);
-    requestConfig->SetScenario(SCENE_DAILY_LIFE_SERVICE);
-    auto locatorImpl = Locator::GetInstance();
-    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
-    locatorImpl->EnableAbility(true);
-    locatorImpl->StartLocating(requestConfig, callbackStub); // start locating
-    sleep(1);
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report location successfully
     EXPECT_EQ(true,
         reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report the same location, result check is false
-    locatorImpl->StopLocating(callbackStub);
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest003 end");
 }
 
@@ -383,25 +371,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
     std::unique_ptr<Location> location = std::make_unique<Location>();
     std::shared_ptr<Request> request = std::make_shared<Request>();
     location->ReadFromParcel(parcel);
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_ACCURACY);
-    requestConfig->SetFixNumber(1); // locating once
-    requestConfig->SetTimeOut(120000);
-    requestConfig->SetScenario(SCENE_DAILY_LIFE_SERVICE);
-    requestConfig->SetMaxAccuracy(20.0);
-    request->SetRequestConfig(*requestConfig);
-    std::list<std::shared_ptr<Request>> gnssList;
-    gnssList.push_back(request);
-    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->requests_->insert(make_pair(GNSS_ABILITY, gnssList));
-    auto locatorImpl = Locator::GetInstance();
-    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
-    locatorImpl->EnableAbility(true);
-    locatorImpl->StartLocating(requestConfig, callbackStub); // start locating
-    sleep(1);
     EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // will resolve deadRequests
-    locatorImpl->StopLocating(callbackStub);
-    (locatorAbility->requests_)->clear();
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest004 end");
 }
 
