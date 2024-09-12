@@ -14,6 +14,7 @@
  */
 #include "location_mock_ipc.h"
 #include <map>
+#define private public
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability.h"
 #include "gnss_ability_proxy.h"
@@ -34,6 +35,7 @@
 #include "geo_convert_proxy.h"
 #include "geo_convert_skeleton.h"
 #endif
+#undef private
 #include "locator_ability.h"
 #include "locator_proxy.h"
 #include "locator_skeleton.h"
@@ -54,6 +56,7 @@ std::string g_gnssIpcCode = "GNSS";
 std::string g_networkIpcCode = "NETWORK";
 std::string g_passiveIpcCode = "PASSIVE";
 std::string g_geoIpcCode = "GEO_CONVERT";
+const int32_t WAIT_RESPONSE_SEC = 2;
 
 void LocationMockIpcTest::SetUp()
 {
@@ -125,6 +128,8 @@ HWTEST_F(LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1)
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
             gnssAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
+    sleep(WAIT_RESPONSE_SEC);
+    gnssAbilityStub->gnssHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 end");
 }
 #endif
@@ -147,6 +152,8 @@ HWTEST_F(LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Leve
         MessageOption option;
         networkAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option);
     }
+    sleep(WAIT_RESPONSE_SEC);
+    networkAbilityStub->networkHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockNetworkStubCallingPermission001 end");
 }
 #endif
@@ -170,6 +177,8 @@ HWTEST_F(LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Leve
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
             passiveAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
+    sleep(WAIT_RESPONSE_SEC);
+    passiveAbilityStub->passiveHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockPassiveStubCallingPermission001 end");
 }
 #endif
@@ -193,6 +202,8 @@ HWTEST_F(LocationMockIpcTest, MockGeoCodeStubCallingPermission001, TestSize.Leve
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
             geoConvertServiceStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
+    sleep(WAIT_RESPONSE_SEC);
+    geoConvertServiceStub->geoConvertHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoCodeStubCallingPermission001 end");
 }
 #endif

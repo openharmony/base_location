@@ -1440,6 +1440,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterLocatingRequiredDataCallback, TestSize.
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     locatorAbilityStub->PreRegisterLocatingRequiredDataCallback(data, reply, identity);
+    locatorAbilityStub->PreUnregisterLocatingRequiredDataCallback(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRegisterLocatingRequiredDataCallback end");
 }
 

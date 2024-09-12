@@ -283,6 +283,9 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
     std::unique_lock<std::mutex> lock(mutex_);
     for (const auto& pair : callbacksMap_) {
         auto callback = pair.first;
+        if (callback == nullptr) {
+            continue;
+        }
         sptr<ILocatingRequiredDataCallback> locatingRequiredDataCallback =
             iface_cast<ILocatingRequiredDataCallback>(callback);
         AppIdentity identity = pair.second;

@@ -519,6 +519,7 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterLocatingRequiredDataCallback001, Te
     std::unique_ptr<LocatingRequiredDataConfig> requestConfig = std::make_unique<LocatingRequiredDataConfig>();
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
     locatorImpl_->RegisterLocatingRequiredDataCallback(requestConfig, callbackPtr);
+    locatorImpl_->UnRegisterLocatingRequiredDataCallback(callbackPtr);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterLocatingRequiredDataCallback001 end");
 }
 
@@ -550,6 +551,7 @@ HWTEST_F(LocatorImplTest, locatorImplSubscribeLocationError001, TestSize.Level1)
     }
     sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
     locatorImpl_->SubscribeLocationError(callbackPtr);
+    locatorImpl_->UnSubscribeLocationError(callbackPtr);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeLocationError001 end");
 }
 
