@@ -478,9 +478,14 @@ bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
     }
     for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
         auto continuousTask = *iter;
-        if (continuousTask->GetCreatorUid() == uid &&
-            continuousTask->GetTypeId() == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
-            return true;
+        if (continuousTask->GetCreatorUid() != uid) {
+            continue;
+        }
+        auto typeIds = continuousTask->GetTypeIds();
+        for (auto typeId : typeIds) {
+            if (typeId == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
+                return true;
+            }
         }
     }
 #endif
