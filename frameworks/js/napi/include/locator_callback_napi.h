@@ -27,6 +27,8 @@
 
 namespace OHOS {
 namespace Location {
+bool FindRegCallback(napi_ref cb);
+void DeleteRegCallback(napi_ref cb);
 class LocatorCallbackNapi : public IRemoteStub<ILocatorCallback> {
 public:
     LocatorCallbackNapi();
@@ -52,6 +54,8 @@ public:
     void Wait(int time);
     int GetCount();
     void SetCount(int count);
+    napi_ref GetHandleCb();
+    void SetHandleCb(const napi_ref& handlerCb);
 
     template <typename T>
     bool InitContext(T* context)
@@ -61,8 +65,6 @@ public:
             return false;
         }
         context->env = env_;
-        callbackValid_ = handlerCb_ == nullptr ? false : true;
-        context->callbackValid = &callbackValid_;
         if (IsSystemGeoLocationApi()) {
             context->callback[SUCCESS_CALLBACK] = successHandlerCb_;
             context->callback[FAIL_CALLBACK] = failHandlerCb_;
@@ -81,16 +83,6 @@ public:
     inline void SetEnv(const napi_env& env)
     {
         env_ = env;
-    }
-
-    inline napi_ref GetHandleCb() const
-    {
-        return handlerCb_;
-    }
-
-    inline void SetHandleCb(const napi_ref& handlerCb)
-    {
-        handlerCb_ = handlerCb;
     }
 
     inline napi_ref GetSuccHandleCb() const
@@ -164,7 +156,6 @@ private:
     std::shared_ptr<Location> singleLocation_;
     int locationPriority_;
     bool inHdArea_;
-    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS

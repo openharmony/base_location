@@ -28,6 +28,8 @@
 
 namespace OHOS {
 namespace Location {
+bool FindGnssRegCallback(napi_ref cb);
+void DeleteGnssRegCallback(napi_ref cb);
 class GnssStatusCallbackNapi : public IRemoteStub<IGnssStatusCallback> {
 public:
     GnssStatusCallbackNapi();
@@ -39,6 +41,8 @@ public:
     void OnStatusChange(const std::unique_ptr<SatelliteStatus>& statusInfo) override;
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
+    napi_ref GetHandleCb();
+    void SetHandleCb(const napi_ref& handlerCb);
 
     template <typename T>
     bool InitContext(T* context)
@@ -48,8 +52,6 @@ public:
             return false;
         }
         context->env = env_;
-        callbackValid_ = handlerCb_ == nullptr ? false : true;
-        context->callbackValid = &callbackValid_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
     }
@@ -62,16 +64,6 @@ public:
     inline void SetEnv(const napi_env& env)
     {
         env_ = env;
-    }
-
-    inline napi_ref GetHandleCb() const
-    {
-        return handlerCb_;
-    }
-
-    inline void SetHandleCb(const napi_ref& handlerCb)
-    {
-        handlerCb_ = handlerCb;
     }
 
     inline bool GetRemoteDied() const
@@ -89,7 +81,6 @@ private:
     napi_ref handlerCb_;
     bool remoteDied_;
     std::mutex mutex_;
-    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS

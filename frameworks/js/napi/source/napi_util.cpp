@@ -1037,7 +1037,7 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
                 return;
             }
             context = static_cast<AsyncContext *>(work->data);
-            if (context == nullptr || context->env == nullptr || context->callbackValid == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "context is nullptr");
                 delete work;
                 return;
@@ -1045,13 +1045,6 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(LOCATOR_CALLBACK, "scope is nullptr");
-                delete context;
-                delete work;
-                return;
-            }
-            if (*(context->callbackValid) == false) {
-                LBSLOGE(LOCATOR_CALLBACK, "callbackValid is false");
-                NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
                 delete context;
                 delete work;
                 return;
@@ -1071,7 +1064,6 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
                     napi_delete_reference(context->env, context->callback[COMPLETE_CALLBACK]),
                     scope, context, work);
             }
-            *(context->callbackValid) = false;
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
