@@ -1267,7 +1267,7 @@ bool LocatorAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
     if (errorCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "GetSwitchState failed errCode = %{public}d.", errorCode);
     }
-    if (state == DISABLED) {
+    if (state != ENABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
         reply.WriteInt32(ERRCODE_SWITCH_OFF);
         return false;

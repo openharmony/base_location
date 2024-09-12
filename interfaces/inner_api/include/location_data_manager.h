@@ -37,7 +37,6 @@ public:
     void SetIsSwitchObserverReg(bool isSwitchObserverReg);
     void RegisterLocationSwitchObserver();
     static LocationDataManager* GetInstance();
-
 private:
     std::mutex mutex_;
     std::mutex isSwitchObserverRegMutex_;

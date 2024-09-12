@@ -28,6 +28,7 @@
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "locator.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
