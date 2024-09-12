@@ -1580,19 +1580,19 @@ bool LocatorAbility::IsProcessRunning(pid_t pid, const uint32_t tokenId)
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
         LBSLOGE(LOCATOR, "Get system ability manager failed.");
-        return false;
+        return true;
     }
     sptr<AppExecFwk::IAppMgr> iAppManager =
         iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
     if (iAppManager == nullptr) {
         LBSLOGE(LOCATOR, "Failed to get ability manager service.");
-        return false;
+        return true;
     }
     std::vector<AppExecFwk::RunningProcessInfo> runningProcessList;
     int32_t res = iAppManager->GetAllRunningProcesses(runningProcessList);
     if (res != ERR_OK) {
         LBSLOGE(LOCATOR, "Failed to get all running process.");
-        return false;
+        return true;
     }
     auto it = std::find_if(runningProcessList.begin(), runningProcessList.end(), [pid] (auto runningProcessInfo) {
         return pid == runningProcessInfo.pid_;
