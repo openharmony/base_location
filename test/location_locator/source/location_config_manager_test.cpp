@@ -87,21 +87,27 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001
         << "LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 begin");
     bool isConfirmed = false;
-    LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true);
-    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, isConfirmed);
-    LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true);
-    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, isConfirmed);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, isConfirmed));
+    
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM,
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, isConfirmed));
     
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true));
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, isConfirmed));
+    EXPECT_EQ(true, isConfirmed);
     
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, false));
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, isConfirmed));
-    
+    EXPECT_EQ(false, isConfirmed);
     remove(LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(PRIVACY_TYPE_STARTUP).c_str());
     remove(LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(PRIVACY_TYPE_CORE_LOCATION).c_str());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 end");

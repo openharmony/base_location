@@ -54,7 +54,6 @@ void ReportManagerTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        ACCESS_MOCK_LOCATION.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -138,18 +137,18 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     std::unique_ptr<Location> lastLocation1 = std::make_unique<Location>(*location);
     lastLocation1->SetLatitude(-91.0);
     request->SetLastLocation(lastLocation1);
-    reportManager_->ResultCheck(location, request); // no need to check
+    EXPECT_EQ(true, reportManager_->ResultCheck(location, request)); // no need to check
 
     std::unique_ptr<Location> lastLocation2 = std::make_unique<Location>(*location);
     request->SetLastLocation(lastLocation2);
-    reportManager_->ResultCheck(location, request); // time interval check failed
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // time interval check failed
 
     std::unique_ptr<Location> lastLocation3 = std::make_unique<Location>(*location);
     lastLocation3->SetTimeSinceBoot(1000000000);
     requestConfig->SetDistanceInterval(1.0);
     request->SetRequestConfig(*requestConfig);
     request->SetLastLocation(lastLocation3);
-    reportManager_->ResultCheck(location, request); // distance interval check failed
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // distance interval check failed
 
     std::unique_ptr<Location> lastLocation4 = std::make_unique<Location>(*location);
     lastLocation4->SetTimeSinceBoot(1000000000);
@@ -186,7 +185,7 @@ HWTEST_F(ReportManagerTest, ResultCheckTest002, TestSize.Level1)
     requestConfig->SetMaxAccuracy(0.0);
     request->SetRequestConfig(*requestConfig);
     request->SetLastLocation(lastLocation5);
-    reportManager_->ResultCheck(location, request); // check pass
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // check pass
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest002 end");
 }
 
@@ -439,7 +438,7 @@ HWTEST_F(ReportManagerTest, IsRequestFuseTest002, TestSize.Level1)
     requestConfig->SetPriority(PRIORITY_UNSET);
     requestConfig->SetScenario(SCENE_UNSET);
     request->SetRequestConfig(*requestConfig);
-    reportManager_->IsRequestFuse(request);
+    EXPECT_EQ(false, reportManager_->IsRequestFuse(request));
 
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsRequestFuseTest002 end");
 }
