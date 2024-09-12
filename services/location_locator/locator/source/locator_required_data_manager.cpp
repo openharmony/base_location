@@ -72,7 +72,9 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
             }
             timeInterval_ = config->GetScanIntervalMs();
             if (scanHandler_ != nullptr) {
-                scanHandler_->SendEvent(EVENT_START_SCAN, 0, 0);
+                AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+                    EVENT_START_SCAN, config->GetFixNumber());
+                scanHandler_->SendEvent(event);
             }
         }
 #endif
@@ -300,7 +302,7 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
     }
 }
 
-__attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiScan(bool flag)
+__attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiScan(int fixNumber, bool flag)
 {
     if (!flag) {
         if (scanHandler_ != nullptr) {
@@ -337,6 +339,9 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
         }
     }
 #endif
+    if (fixNumber) {
+        return;
+    }
     LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
     if (scanHandler_ != nullptr) {
         scanHandler_->SendHighPriorityEvent(EVENT_START_SCAN, 0, timeInterval_);
@@ -360,14 +365,15 @@ void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
     uint32_t eventId = event->GetInnerEventId();
+    int fixNumber = event->GetParam();
     LBSLOGD(LOCATOR, "ScanHandler ProcessEvent event:%{public}d", eventId);
     switch (eventId) {
         case EVENT_START_SCAN: {
-            dataManager->StartWifiScan(true);
+            dataManager->StartWifiScan(fixNumber, true);
             break;
         }
         case EVENT_STOP_SCAN: {
-            dataManager->StartWifiScan(false);
+            dataManager->StartWifiScan(fixNumber, false);
             break;
         }
         default:
