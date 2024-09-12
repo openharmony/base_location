@@ -61,7 +61,7 @@ void LocationWithoutPermissionTest::TearDown()
 void LocationWithoutPermissionTest::MockNativePermission()
 {
     const char *perms[] = {
-        ACCESS_BACKGROUND_LOCATION.c_str(), ACCESS_MOCK_LOCATION.c_str(),
+        ACCESS_BACKGROUND_LOCATION.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -276,15 +276,15 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, geofenceSdk->AddFenceV9(fenceRequest));
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, geofenceSdk->RemoveFenceV9(fenceRequest));
     } else {
-        geofenceSdk->AddFenceV9(fenceRequest);
-        geofenceSdk->RemoveFenceV9(fenceRequest);
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, geofenceSdk->AddFenceV9(fenceRequest));
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, geofenceSdk->RemoveFenceV9(fenceRequest));
     }
 
     int size = -1;
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedGnssLocationsSizeV9(size));
     } else {
-        locatorImpl->GetCachedGnssLocationsSizeV9(size);
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->GetCachedGnssLocationsSizeV9(size));
     }
     EXPECT_EQ(0, size);
 
@@ -300,7 +300,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
     } else {
-        locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback);
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorImpl->RegisterCachedLocationCallbackV9(request, cachedCallback));
     }
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->UnregisterCachedLocationCallbackV9(cachedCallback));
 #endif

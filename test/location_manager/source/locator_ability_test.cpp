@@ -231,6 +231,23 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityStartLocating001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityStartLocating001 end");
 }
 
+HWTEST_F(LocatorAbilityTest, LocatorAbilityIsCacheVaildScenario001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, LocatorAbilityIsCacheVaildScenario001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityIsCacheVaildScenario001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    AppIdentity identity;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    request->requestConfig_->scenario_ = SCENE_UNSET;
+    request->requestConfig_->priority_ = PRIORITY_LOW_POWER;
+    bool res = locatorAbility->IsCacheVaildScenario(request->GetRequestConfig());
+    EXPECT_EQ(true, res);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityIsCacheVaildScenario001 end");
+}
+
 HWTEST_F(LocatorAbilityTest, LocatorAbilityIsCacheVaildScenario002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
