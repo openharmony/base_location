@@ -292,7 +292,7 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     auto reportManager = ReportManager::GetInstance();
     if (reportManager != nullptr) {
         if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
-            identity.GetTokenIdEx(), identity.GetUid()) &&
+            identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
             !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
             reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
             return ERRCODE_PERMISSION_DENIED;
