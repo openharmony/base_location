@@ -468,7 +468,7 @@ bool LocatorBackgroundProxy::UnregisterAppStateObserver()
     return true;
 }
 
-bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
+bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid, pid_t pid)
 {
 #ifdef BGTASKMGR_SUPPORT
     std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
@@ -478,7 +478,10 @@ bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid)
     }
     for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
         auto continuousTask = *iter;
-        if (continuousTask->GetCreatorUid() != uid) {
+        if (continuousTask == nullptr) {
+            continue;
+        }
+        if (continuousTask->GetCreatorUid() != uid || continuousTask->GetCreatorPid() != pid) {
             continue;
         }
         auto typeIds = continuousTask->GetTypeIds();
