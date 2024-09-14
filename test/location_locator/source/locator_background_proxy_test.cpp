@@ -887,7 +887,7 @@ HWTEST_F(LocatorBackgroundProxyTest, IsAppInLocationContinuousTasks001, TestSize
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppInLocationContinuousTasks001 begin");
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
 
-    locatorBackgroundProxy->IsAppInLocationContinuousTasks(1000);
+    locatorBackgroundProxy->IsAppInLocationContinuousTasks(0, 0);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppInLocationContinuousTasks001 end");
 }
 }  // namespace Location

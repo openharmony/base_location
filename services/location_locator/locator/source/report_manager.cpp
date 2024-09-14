@@ -197,10 +197,11 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     auto firstTokenId = request->GetFirstTokenId();
     auto tokenIdEx = request->GetTokenIdEx();
     auto uid =  request->GetUid();
+    auto pid =  request->GetPid();
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
-    if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
+    if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid, pid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
@@ -447,7 +448,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
     }
 }
 
-bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
+bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
@@ -459,7 +460,7 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
     if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
         return false;
     }
-    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid)) {
+    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid, pid)) {
         return false;
     }
     return true;
