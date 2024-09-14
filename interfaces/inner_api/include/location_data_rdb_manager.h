@@ -44,8 +44,10 @@ public:
     static bool GetLocationEnhanceStatus(int32_t& state);
     static void SyncSwitchStatus();
     static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
+    static bool SetGnssSessionState(int32_t state, std::string uri, std::string colName);
 private:
     static std::mutex mutex_;
+    static std::mutex gnssSessionStateMutex_;
 };
 } // namespace Location
 } // namespace OHOS
