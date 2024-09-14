@@ -89,8 +89,10 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
             requestManger->UpdateRequestRecord(request, false);
         }
     }
-    locatorAbility->ApplyRequests(1);
-    deadRequests->clear();
+    if (deadRequests->size() > 0) {
+        locatorAbility->ApplyRequests(1);
+        deadRequests->clear();
+    }
     return true;
 }
 
