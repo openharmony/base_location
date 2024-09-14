@@ -74,9 +74,6 @@ void NetworkCallbackHost::OnLocationReport(const std::unique_ptr<Location>& loca
     }
     std::shared_ptr<Location> locationNew = std::make_shared<Location>(*location);
     NetworkAbility::GetInstance()->ReportLocationInfo(NETWORK_ABILITY, locationNew);
-    if (locationNew->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
-        NetworkAbility::GetInstance()->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
-    }
     WriteLocationInnerEvent(NETWORK_CALLBACK_LOCATION, {"speed", std::to_string(location->GetSpeed()),
         "accuracy", std::to_string(location->GetAccuracy()),
         "locationTimestamp", std::to_string(location->GetTimeStamp() / MILLI_PER_SEC),

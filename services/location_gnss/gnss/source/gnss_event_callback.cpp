@@ -89,9 +89,6 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
         "latitude", std::to_string(location.latitude),
         "longitude", std::to_string(location.longitude)});
     gnssAbility->ReportLocationInfo(GNSS_ABILITY, locationNew);
-#ifdef FEATURE_PASSIVE_SUPPORT
-    gnssAbility->ReportLocationInfo(PASSIVE_ABILITY, locationNew);
-#endif
     SetGpsTime(locationNew->GetTimeStamp());
     IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;

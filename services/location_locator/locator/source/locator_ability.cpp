@@ -1889,6 +1889,9 @@ void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Po
             "receive location: [%{public}s time=%{public}s timeSinceBoot=%{public}s acc=%{public}f]",
             abilityName.c_str(), std::to_string(time).c_str(), std::to_string(timeSinceBoot).c_str(), acc);
         reportManager->OnReportLocation(location, abilityName);
+        if (abilityName == NETWORK_ABILITY || abilityName == GNSS_ABILITY) {
+            reportManager->OnReportLocation(location, PASSIVE_ABILITY);
+        }
     }
 }
 
