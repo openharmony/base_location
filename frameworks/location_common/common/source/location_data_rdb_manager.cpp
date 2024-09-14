@@ -27,6 +27,7 @@ const int MAX_SIZE = 100;
 const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
 std::mutex LocationDataRdbManager::locationSwitchModeMutex_;
 std::mutex LocationDataRdbManager::locationWorkingStateMutex_;
+std::mutex LocationDataRdbManager::gnssSessionStateMutex_;
 std::string LocationDataRdbManager::GetLocationDataUriByCurrentUserId(std::string key)
 {
     int userId = 0;
@@ -121,6 +122,19 @@ bool LocationDataRdbManager::GetLocationWorkingState(int32_t& state)
         GetValue(locationWorkingStateUri, LOCATION_WORKING_STATE, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS, "%{public}s: can not get value, errcode = %{public}d", __func__, errCode);
+        return false;
+    }
+    return true;
+}
+
+bool LocationDataRdbManager::SetGnssSessionState(int32_t state, std::string uri, std::string colName)
+{
+    std::unique_lock<std::mutex> lock(gnssSessionStateMutex_);
+    Uri gnssSessionStateUri(uri);
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        SetValue(gnssSessionStateUri, colName, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: can not set value to db, errcode = %{public}d", __func__, errCode);
         return false;
     }
     return true;
