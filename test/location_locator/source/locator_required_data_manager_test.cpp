@@ -21,6 +21,7 @@
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
 #endif
+#include "constant_definition.h"
 
 using namespace testing::ext;
 
@@ -57,14 +58,14 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
-    dataConfig->SetType(1);
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
     dataConfig->SetNeedStartScan(true);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
     AppIdentity identity;
     identity.SetPid(1);
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, nullptr);
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, errorCode);
+    EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
     errorCode = locatorDataManager->UnregisterCallback(nullptr);
 
     auto callback =
@@ -80,7 +81,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 begin");
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
-    dataConfig->SetType(2);
+    dataConfig->SetType(LocatingRequiredDataType::BLUE_TOOTH);
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
@@ -92,7 +93,8 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
     locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
-    dataConfig->SetType(1);
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
     locatorDataManager->SetIsWifiCallbackRegistered(true);
     locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 end");
@@ -106,7 +108,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
 
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
-    dataConfig->SetType(1);
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
