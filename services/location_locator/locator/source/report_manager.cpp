@@ -142,14 +142,17 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     request->SetLastLocation(finalLocation);
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
+        // add location permission using record
+        int ret = locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
+            ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
+        if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(request->GetTokenId())) {
+            LBSLOGE(REPORT_MANAGER, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
+            return false;
+        }
         LBSLOGI(REPORT_MANAGER, "report location to %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",
             request->GetTokenId(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str(),
             finalLocation->GetLocationSourceType());
         locatorCallback->OnLocationReport(finalLocation);
-        // add location permission using record
-        int permUsedType = request->GetPermUsedType();
-        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
-            ACCESS_APPROXIMATELY_LOCATION, permUsedType, 1, 0);
         RequestManager::GetInstance()->UpdateLocationError(request);
     }
 
