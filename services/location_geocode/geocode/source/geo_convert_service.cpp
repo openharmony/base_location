@@ -317,6 +317,10 @@ LocationErrCode GeoConvertService::SetReverseGeocodingMockInfo(
 
 bool GeoConvertService::CancelIdleState()
 {
+    SystemAbilityState state = GetAbilityState();
+    if (state != SystemAbilityState::IDLE) {
+        return true;
+    }
     bool ret = CancelIdle();
     if (!ret) {
         LBSLOGE(GEO_CONVERT, "%{public}s cancel idle failed!", __func__);

@@ -197,6 +197,10 @@ LocationErrCode GnssAbility::SetEnable(bool state)
 
 bool GnssAbility::CancelIdleState()
 {
+    SystemAbilityState state = GetAbilityState();
+    if (state != SystemAbilityState::IDLE) {
+        return true;
+    }
     bool ret = CancelIdle();
     if (!ret) {
         LBSLOGE(GNSS, "%{public}s cancel idle failed!", __func__);
