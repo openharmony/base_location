@@ -147,6 +147,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
         if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(request->GetTokenId())) {
             LBSLOGE(REPORT_MANAGER, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
+            RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
             return false;
         }
         LBSLOGI(REPORT_MANAGER, "report location to %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",

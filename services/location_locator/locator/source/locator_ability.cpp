@@ -18,6 +18,7 @@
 #include "accesstoken_kit.h"
 #include "event_runner.h"
 #include "privacy_kit.h"
+#include "privacy_error.h"
 #include "system_ability_definition.h"
 #include "uri.h"
 
@@ -96,7 +97,6 @@ const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
-const float_t PRECISION = 0.000001;
 const int COMMON_SA_ID = 4353;
 const int COMMON_SWITCH_STATE_ID = 30;
 const std::u16string COMMON_DESCRIPTION = u"location.IHifenceAbility";
@@ -1005,55 +1005,55 @@ int LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string per
 
 bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
 {
-    if (reportManager_ == nullptr || request == nullptr) {
+    if (reportManager_ == nullptr || request == nullptr || callback == nullptr ||
+        !IsCacheVaildScenario(request->GetRequestConfig())) {
         return false;
     }
     // report cache location
-    if (IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
-        auto cacheLocation = reportManager_->GetCacheLocation(request);
-        if (cacheLocation != nullptr && callback != nullptr) {
-            auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-            if (!workRecordStatistic->Update("CacheLocation", 1)) {
-                LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
-            }
-            int ret = PrivacyKit::StartUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
-            if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
-                LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
-                return false;
-            }
-            // add location permission using record
-            ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
-                request->GetPermUsedType(), 1, 0);
-            if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
-                LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
-                return false;
-            }
-            callback->OnLocationReport(cacheLocation);
-            PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
-            if (locatorHandler_ != nullptr &&
-                locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
-                LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
-            }
-            return true;
-        }
-    } else if (!IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
-        auto cacheLocation = reportManager_->GetCacheLocation(request);
-        if (cacheLocation != nullptr && callback != nullptr) {
-            auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-            if (!workRecordStatistic->Update("CacheLocation", 1)) {
-                LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
-            }
-            // add location permission using record
-            int ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
-                request->GetPermUsedType(), 1, 0);
-            if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
-                LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
-                return false;
-            }
-            callback->OnLocationReport(cacheLocation);
-        }
+    auto cacheLocation = reportManager_->GetCacheLocation(request);
+    if (cacheLocation == nullptr) {
+        return false;
     }
-    return false;
+    if (IsSingleRequest(request->GetRequestConfig())) {
+        auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+        if (!workRecordStatistic->Update("CacheLocation", 1)) {
+            LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
+        }
+        int ret = PrivacyKit::StartUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
+        if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+            IsHapCaller(request->GetTokenId())) {
+            LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
+            return false;
+        }
+        // add location permission using record
+        ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
+            request->GetPermUsedType(), 1, 0);
+        if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
+            LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
+            return false;
+        }
+        callback->OnLocationReport(cacheLocation);
+        PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
+        if (locatorHandler_ != nullptr &&
+            locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
+            LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
+        }
+        return true;
+    } else {
+        auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+        if (!workRecordStatistic->Update("CacheLocation", 1)) {
+            LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
+        }
+        // add location permission using record
+        int ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
+            request->GetPermUsedType(), 1, 0);
+        if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
+            LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
+            return false;
+        }
+        callback->OnLocationReport(cacheLocation);
+        return true;
+    }
 }
 
 void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
@@ -1106,7 +1106,8 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     loc = reportManager_->GetPermittedLocation(request, lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     int ret = PrivacyKit::StartUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
-    if (ret != ERRCODE_SUCCESS && IsHapCaller(identity.GetTokenId())) {
+    if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+        IsHapCaller(request->GetTokenId())) {
         LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
         loc = nullptr;
     }
@@ -1114,14 +1115,9 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
         locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identity.GetTokenId(), 0);
         return ERRCODE_LOCATING_FAIL;
     }
-    if (fabs(loc->GetLatitude() - 0.0) > PRECISION
-        && fabs(loc->GetLongitude() - 0.0) > PRECISION) {
-        // add location permission using record
-        locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_SUCCESS, identity.GetTokenId(), 0);
-        return ERRCODE_SUCCESS;
-    }
-    locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identity.GetTokenId(), 0);
-    return ERRCODE_LOCATING_FAIL;
+    // add location permission using record
+    locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_SUCCESS, identity.GetTokenId(), 0);
+    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorAbility::ReportLocation(
