@@ -342,7 +342,7 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-     data.WriteInterfaceToken(nlpServiceProxy_->GetInterfaceDescriptor());
+    data.WriteInterfaceToken(nlpServiceProxy_->GetInterfaceDescriptor());
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
     int error = nlpServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
