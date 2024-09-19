@@ -18,7 +18,6 @@ local_base_sources = [
   "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
   "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
   "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-  "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
   "$LOCATION_NETWORK_ROOT/source/network_ability.cpp",
   "$LOCATION_NETWORK_ROOT/source/network_ability_skeleton.cpp",
   "$LOCATION_NETWORK_ROOT/source/network_callback_host.cpp",

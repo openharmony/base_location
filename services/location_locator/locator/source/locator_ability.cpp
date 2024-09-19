@@ -1030,19 +1030,12 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
             }
             callback->OnLocationReport(cacheLocation);
             PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
-            if (locatorHandler_ != nullptr &&
-                locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
-                LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
-            }
+            UpdateLastLocationRequestNum();
             return true;
         }
     } else if (!IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
         auto cacheLocation = reportManager_->GetCacheLocation(request);
         if (cacheLocation != nullptr && callback != nullptr) {
-            auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-            if (!workRecordStatistic->Update("CacheLocation", 1)) {
-                LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
-            }
             // add location permission using record
             int ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
                 request->GetPermUsedType(), 1, 0);
@@ -1096,10 +1089,6 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto lastLocation = reportManager_->GetLastLocation();
-    if (locatorHandler_ != nullptr &&
-        locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
-    }
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
@@ -1839,12 +1828,10 @@ void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Poin
         Security::AccessToken::AccessTokenKit::GetPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     auto locatorAbility = LocatorAbility::GetInstance();
     int ret;
-    if (locatorAbility != nullptr) {
-        locatorAbility->UpdateLastLocationRequestNum();
-        ret = locatorAbility->UpdatePermissionUsedRecord(tokenId, ACCESS_APPROXIMATELY_LOCATION,
-            static_cast<int>(type), 1, 0);
-        LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
-    }
+    locatorAbility->UpdateLastLocationRequestNum();
+    ret = locatorAbility->UpdatePermissionUsedRecord(tokenId, ACCESS_APPROXIMATELY_LOCATION,
+        static_cast<int>(type), 1, 0);
+    LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
 }
@@ -1860,12 +1847,10 @@ void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Point
         Security::AccessToken::AccessTokenKit::GetPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     auto locatorAbility = LocatorAbility::GetInstance();
     int ret;
-    if (locatorAbility != nullptr) {
-        locatorAbility->UpdateLastLocationRequestNum();
-        ret = locatorAbility->UpdatePermissionUsedRecord(tokenId, ACCESS_APPROXIMATELY_LOCATION,
-            static_cast<int>(type), 0, 1);
-        LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
-    }
+    locatorAbility->UpdateLastLocationRequestNum();
+    ret = locatorAbility->UpdatePermissionUsedRecord(tokenId, ACCESS_APPROXIMATELY_LOCATION,
+        static_cast<int>(type), 0, 1);
+    LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
 }
