@@ -257,9 +257,9 @@ HWTEST_F(LocatorSkeletonTest, PreStartLocating, TestSize.Level1)
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         locatorAbilityStub->PreStartLocating(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreStartLocating(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreStartLocating(data, reply, identity);
     }
@@ -331,9 +331,9 @@ HWTEST_F(LocatorSkeletonTest, PreGetCacheLocation001, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
     }
@@ -363,9 +363,9 @@ HWTEST_F(LocatorSkeletonTest, PreGetCacheLocation002, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
         EXPECT_NE(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
     }
@@ -549,9 +549,9 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterGnssStatusCallback, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreRegisterGnssStatusCallback(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreRegisterGnssStatusCallback(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreRegisterGnssStatusCallback(data, reply, identity);
     }
@@ -626,9 +626,9 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterNmeaMessageCallback001, TestSize.Level1
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
     }
@@ -657,9 +657,9 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterNmeaMessageCallback002, TestSize.Level1
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
         EXPECT_NE(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreRegisterNmeaMessageCallback(data, reply, identity);
     }
@@ -732,9 +732,9 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterNmeaMessageCallbackV9, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreRegisterNmeaMessageCallbackV9(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreRegisterNmeaMessageCallbackV9(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreRegisterNmeaMessageCallbackV9(data, reply, identity);
     }
@@ -850,9 +850,9 @@ HWTEST_F(LocatorSkeletonTest, PreStartCacheLocating001, TestSize.Level1)
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
     }
@@ -881,9 +881,9 @@ HWTEST_F(LocatorSkeletonTest, PreStartCacheLocating002, TestSize.Level1)
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreStartCacheLocating(data, reply, identity);
     }
@@ -956,9 +956,9 @@ HWTEST_F(LocatorSkeletonTest, PreGetCachedGnssLocationsSize, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreGetCachedGnssLocationsSize(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreGetCachedGnssLocationsSize(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     }
     locatorAbilityStub->PreGetCachedGnssLocationsSize(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreGetCachedGnssLocationsSize end");
@@ -984,9 +984,9 @@ HWTEST_F(LocatorSkeletonTest, PreFlushCachedGnssLocations, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreFlushCachedGnssLocations(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreFlushCachedGnssLocations(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreFlushCachedGnssLocations(data, reply, identity);
     }
@@ -1074,9 +1074,9 @@ HWTEST_F(LocatorSkeletonTest, DoProcessFenceRequest, TestSize.Level1)
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         locatorAbilityStub->DoProcessFenceRequest(LocatorInterfaceCode::ADD_FENCE, data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->DoProcessFenceRequest(LocatorInterfaceCode::ADD_FENCE, data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->DoProcessFenceRequest(LocatorInterfaceCode::ADD_FENCE, data, reply, identity);
     }
@@ -1102,9 +1102,9 @@ HWTEST_F(LocatorSkeletonTest, PreAddGnssGeofence, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreAddGnssGeofence(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreAddGnssGeofence(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     }
     locatorAbilityStub->PreAddGnssGeofence(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreAddGnssGeofence end");
@@ -1129,9 +1129,9 @@ HWTEST_F(LocatorSkeletonTest, PreRemoveGnssGeofence, TestSize.Level1)
     if (isSwitchEnable) {
         auto result = locatorAbilityStub->PreRemoveGnssGeofence(data, reply, identity);
         EXPECT_EQ(ERRCODE_SUCCESS, result);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreRemoveGnssGeofence(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreRemoveGnssGeofence(data, reply, identity);
     }
@@ -1499,9 +1499,9 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterLocationError001, TestSize.Level1)
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         locatorAbilityStub->PreRegisterLocationError(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreRegisterLocationError(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreRegisterLocationError(data, reply, identity);
     }
@@ -1526,9 +1526,9 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterLocationError002, TestSize.Level1)
     bool isSwitchEnable = LocationDataRdbManager::QuerySwitchState() == ENABLED ? true : false;
     if (isSwitchEnable) {
         locatorAbilityStub->PreRegisterLocationError(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED);
         locatorAbilityStub->PreRegisterLocationError(data, reply, identity);
-        LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED);
+        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED);
     } else {
         locatorAbilityStub->PreRegisterLocationError(data, reply, identity);
     }

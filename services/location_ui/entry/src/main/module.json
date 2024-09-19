@@ -20,7 +20,7 @@
         "srcEntry": "./ets/confirmuiextability/ConfirmUIExtAbility.ets",
         "description": "$string:ConfirmUIExtAbility_desc",
         "label": "$string:ConfirmUIExtAbility_label",
-        "exported": true,
+        "exported": false,
         "type": "sysDialog/common"
       },
       {
@@ -28,7 +28,7 @@
         "srcEntry": "./ets/locationprivacyextability/LocationPrivacyExtAbility.ets",
         "description": "$string:LocationPrivacyExtAbility_desc",
         "label": "$string:LocationPrivacyExtAbility_label",
-        "exported": true,
+        "exported": false,
         "type": "sysDialog/common"
       },
       {

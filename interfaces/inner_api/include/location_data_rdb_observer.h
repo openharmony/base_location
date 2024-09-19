@@ -25,8 +25,6 @@ public:
     explicit LocationDataRdbObserver();
     ~LocationDataRdbObserver();
     void OnChange() override;
-private:
-    void HandleSwitchStateChanged();
 };
 } // namespace Location
 } // namespace OHOS

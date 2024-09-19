@@ -1,0 +1,88 @@
+{
+    "string":[
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"[TS_962302]_Connect"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"[TS_962293]_Connect to this WLAN network?"
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"[TS_962307]_Cancel"
+        },
+        {
+            "name":"confirm_button",
+            "value":"[TS_962297]_Agree"
+        },
+        {
+            "name":"cancel_button",
+            "value":"[TS_962308]_Cancel"
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"[TS_962312]_Location Services"
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"[TS_962298]_Location request"
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"[TS_962313]_Requested by"
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"[TS_962306]_Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls."
+        },
+        {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"[TS_962321]_Cancel"
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"[TS_962294]_Disconnect"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"[TS_962295]_Tap to log in to %s."
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"[TS_962317]_Can't create a hotspot while the WLAN channel is in use. If you're using WLAN Direct or screen casting, disconnect and try again."
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"[TS_962305]_Authentication required"
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"[TS_962322]_Connected to %s"
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"[TS_962311]_Authentication expired"
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"[TS_962319]_Tap to log in to %s."
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"[TS_962310]_Cancel"
+        },
+        {
+            "name":"wifi_cdd_notify_title",
+            "value":"[TS_962314]_This WLAN network has no Internet access. Connect anyway?"
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"[TS_962315]_Tap to log in."
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"[TS_962318]_Connect"
+        }
+    ]
+}

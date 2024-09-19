@@ -102,7 +102,7 @@
     },
     {
       "name": "wifi_candidate_connect_notify_title",
-      "value": "连接到指定的候选WLAN?"
+      "value": "连接至指定的候选 WLAN？"
     },
     {
       "name": "wifi_candidate_connect_notify_no_button",

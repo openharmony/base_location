@@ -238,6 +238,8 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
         case LOCATION_SCENE_SPORT:
         case LOCATION_SCENE_TRANSPORT:
         case LOCATION_SCENE_HIGH_POWER_CONSUMPTION:
+        case LOCATION_SCENE_WALK:
+        case LOCATION_SCENE_RIDE:
         case SCENE_NAVIGATION:
         case SCENE_TRAJECTORY_TRACKING:
         case SCENE_CAR_HAILING: {

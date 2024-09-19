@@ -31,6 +31,8 @@
 #include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
+#include "os_account_info.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -137,6 +139,24 @@ bool CommonUtils::GetCurrentUserId(int &userId)
         return false;
     }
     userId = activeIds[0];
+    return true;
+}
+
+bool CommonUtils::GetAllUserId(std::vector<int>& activeIds)
+{
+    std::vector<AccountSA::OsAccountInfo> accountInfos;
+    int ret = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accountInfos);
+    if (ret != 0) {
+        LBSLOGE(COMMON_UTILS, "GetAllUserId failed ret:%{public}d", ret);
+        return false;
+    }
+    for (auto &info : accountInfos) {
+        activeIds.push_back(info.GetLocalId());
+    }
+    if (activeIds.empty()) {
+        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
+        return false;
+    }
     return true;
 }
 
@@ -404,11 +424,13 @@ std::string CommonUtils::GenerateUuid()
     return ss.str();
 }
 
-
-bool CommonUtils::CheckAppForUser(int32_t uid, std::string bundleName)
+bool CommonUtils::CheckAppForUser(int32_t uid)
 {
-    if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
-        return true;
+    std::string bundleName = "";
+    if (CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
+            return true;
+        }
     }
     int currentUserId = 0;
     int userId = 0;
@@ -420,7 +442,7 @@ bool CommonUtils::CheckAppForUser(int32_t uid, std::string bundleName)
         LBSLOGE(COMMON_UTILS, "CheckAppForUser GetOsAccountLocalIdFromUid fail");
         return false;
     }
-    if (userId != currentUserId) {
+    if (userId != 0 && userId != currentUserId) {
         return false;
     }
     return true;
@@ -436,6 +458,17 @@ int64_t CommonUtils::GetSinceBootTime()
     } else {
         return 0;
     }
+}
+
+bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
+{
+    if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
+        return true;
+    }
+    if (CommonUtils::CheckAppForUser(identity.GetUid())) {
+        return true;
+    }
+    return false;
 }
 } // namespace Location
 } // namespace OHOS

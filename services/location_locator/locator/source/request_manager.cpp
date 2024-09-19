@@ -385,6 +385,14 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     if (LocatorAbility::GetInstance()->IsProxyPid(request->GetPid())) {
         return false;
     }
+    AppIdentity identity;
+    identity.SetUid(request->GetUid());
+    identity.SetTokenId(request->GetTokenId());
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
+        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
+            request->GetUid());
+        return false;
+    }
     // for once_request app, if it has timed out, do not add to workRecord
     int64_t curTime = CommonUtils::GetCurrentTime();
     if (request->GetRequestConfig()->GetFixNumber() == 1 &&
@@ -465,10 +473,6 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     }
     auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {
-        return false;
-    }
-    if (!PermissionManager::CheckIsSystemSA(tokenId) && !CommonUtils::CheckAppForUser(uid, bundleName)) {
-        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
         return false;
     }
 

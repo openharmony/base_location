@@ -61,13 +61,13 @@ public:
             return false;
         }
         context->env = env_;
-        callbackValid_ = handlerCb_ == nullptr ? false : true;
-        context->callbackValid = &callbackValid_;
         if (IsSystemGeoLocationApi()) {
             context->callback[SUCCESS_CALLBACK] = successHandlerCb_;
             context->callback[FAIL_CALLBACK] = failHandlerCb_;
             context->callback[COMPLETE_CALLBACK] = completeHandlerCb_;
         } else {
+            uint32_t refCount = INVALID_REF_COUNT;
+            napi_reference_ref(env_, handlerCb_, &refCount);
             context->callback[SUCCESS_CALLBACK] = handlerCb_;
         }
         return true;
@@ -164,7 +164,6 @@ private:
     std::shared_ptr<Location> singleLocation_;
     int locationPriority_;
     bool inHdArea_;
-    bool callbackValid_;
 };
 } // namespace Location
 } // namespace OHOS

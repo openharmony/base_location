@@ -83,6 +83,11 @@ private:
     void SetSwitchStateToDbForUserEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void WatchSwitchParameter(const AppExecFwk::InnerEvent::Pointer& event);
     LocatorEventHandleMap locatorHandlerEventMap_;
+
+    bool IsSwitchObserverReg();
+    void SetIsSwitchObserverReg(bool isSwitchObserverReg);
+    ffrt::mutex isSwitchObserverRegMutex_;
+    bool isSwitchObserverReg_ = false;
 };
 
 class LocatorAbility : public SystemAbility, public LocatorAbilityStub {

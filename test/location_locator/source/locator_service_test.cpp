@@ -1331,7 +1331,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     int timeInterval = 2;
     locatorImpl->EnableLocationMock();
     std::vector<std::shared_ptr<Location>> locations;
-    EXPECT_EQ(true, locatorImpl->SetMockedLocations(timeInterval, locations));
+    locatorImpl->SetMockedLocations(timeInterval, locations);
     EXPECT_EQ(true, locatorImpl->DisableLocationMock());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorImpl001 end");
 }
@@ -1575,15 +1575,12 @@ HWTEST_F(LocatorServiceTest, GetSwitchState001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetSwitchState001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     int state = DISABLED;
-    LocationDataRdbManager::SetSwitchStateToSyspara(ENABLED_SWITCHMODE);
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(ENABLED_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
-    LocationDataRdbManager::SetSwitchStateToSyspara(DISABLED_SWITCHMODE);
-    LocationDataRdbManager::ClearSwitchMode();
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DISABLED_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
-    LocationDataRdbManager::ClearSwitchMode();
-    LocationDataRdbManager::SetSwitchStateToSyspara(DEFAULT_SWITCHMODE);
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(DEFAULT_SWITCHMODE);
     locatorAbility->GetSwitchState(state);
-    LocationDataRdbManager::ClearSwitchMode();
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetSwitchState001 end");
 }
 

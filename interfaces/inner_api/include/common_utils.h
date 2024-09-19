@@ -27,6 +27,7 @@
 #include "string_ex.h"
 #include "location_log.h"
 #include "location.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -128,7 +129,7 @@ enum class ServiceRunningState {
 enum {
     DISABLED = 0,
     ENABLED = 1,
-    DEFAULT_STATE = 2
+    DEFAULT_SWITCH_STATE = 2
 };
 
 enum {
@@ -177,8 +178,10 @@ public:
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
     static std::string GenerateUuid();
-    static bool CheckAppForUser(int32_t uid, std::string packageName);
+    static bool CheckAppForUser(int32_t uid);
     static int64_t GetSinceBootTime();
+    static bool GetAllUserId(std::vector<int>& activeIds);
+    static bool IsAppBelongCurrentAccount(AppIdentity &identity);
 };
 
 class CountDownLatch {
