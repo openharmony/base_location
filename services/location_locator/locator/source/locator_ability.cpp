@@ -392,6 +392,10 @@ void LocatorAbility::UpdateSaAbilityHandler()
 
 bool LocatorAbility::CancelIdleState()
 {
+    SystemAbilityState state = GetAbilityState();
+    if (state != SystemAbilityState::IDLE) {
+        return true;
+    }
     bool ret = CancelIdle();
     if (!ret) {
         LBSLOGE(LOCATOR, "%{public}s cancel idle failed!", __func__);

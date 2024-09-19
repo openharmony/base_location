@@ -230,6 +230,10 @@ LocationErrCode NetworkAbility::SetEnable(bool state)
 
 bool NetworkAbility::CancelIdleState()
 {
+    SystemAbilityState state = GetAbilityState();
+    if (state != SystemAbilityState::IDLE) {
+        return true;
+    }
     bool ret = CancelIdle();
     if (!ret) {
         LBSLOGE(NETWORK, "%{public}s cancel idle failed!", __func__);
