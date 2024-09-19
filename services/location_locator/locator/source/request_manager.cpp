@@ -16,6 +16,7 @@
 #include "request_manager.h"
 
 #include "privacy_kit.h"
+#include "privacy_error.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
@@ -80,35 +81,47 @@ bool RequestManager::InitSystemListeners()
     return true;
 }
 
-void RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart)
+bool RequestManager::UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart)
 {
     std::unique_lock<ffrt::mutex> lock(permissionRecordMutex_, std::defer_lock);
     lock.lock();
     if (request == nullptr) {
         LBSLOGE(REQUEST_MANAGER, "request is null");
         lock.unlock();
-        return;
+        return false;
     }
-    UpdateUsingApproximatelyPermission(request, isStart);
+    bool ret = UpdateUsingApproximatelyPermission(request, isStart);
     lock.unlock();
+    return ret;
 }
 
-void RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart)
+bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request> request, const bool isStart)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        return;
-    }
     uint32_t callingTokenId = request->GetTokenId();
     if (isStart && !request->GetApproximatelyPermState()) {
-        PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-        locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
+        int ret = PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+            locatorAbility->IsHapCaller(request->GetTokenId())) {
+            LBSLOGE(REQUEST_MANAGER, "StartUsingPermission failed ret=%{public}d", ret);
+            return false;
+        }
+        ret = locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
             ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
+        if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
+            LBSLOGE(REQUEST_MANAGER, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
+            return false;
+        }
         request->SetApproximatelyPermState(true);
     } else if (!isStart && request->GetApproximatelyPermState()) {
-        PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        int ret = PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
+        if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
+            LBSLOGE(REQUEST_MANAGER, "StopUsingPermission failed ret=%{public}d", ret);
+            return false;
+        }
         request->SetApproximatelyPermState(false);
     }
+    return true;
 }
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
@@ -367,7 +380,6 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
             UpdateUsingPermission(request, false);
             continue;
         }
-        UpdateUsingPermission(request, true);
         if (!ActiveLocatingStrategies(request)) {
             continue;
         }
@@ -492,6 +504,9 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (HookUtils::ExecuteHookWhenAddWorkRecord(isDeviceStillState_.load(), isDeviceIdleMode_.load(),
         abilityName, bundleName)) {
         LBSLOGI(REQUEST_MANAGER, "Enter idle and still status, not add request");
+        return false;
+    }
+    if (!UpdateUsingPermission(request, true)) {
         return false;
     }
     // add request info to work record

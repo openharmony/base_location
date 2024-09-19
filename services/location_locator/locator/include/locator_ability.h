@@ -193,7 +193,7 @@ public:
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
-    void UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
+    int UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
         int permUsedType, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();
     bool IsInvalidRequest(std::shared_ptr<Request>& request);
@@ -210,6 +210,7 @@ public:
     LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
 #endif
     void ReportDataToResSched(std::string state);
+    bool IsHapCaller(const uint32_t tokenId);
 
 private:
     bool Init();
