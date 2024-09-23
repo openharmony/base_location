@@ -16,6 +16,7 @@
 #include "request_manager.h"
 
 #include "privacy_kit.h"
+#include "privacy_error.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
@@ -100,7 +101,8 @@ bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     uint32_t callingTokenId = request->GetTokenId();
     if (isStart && !request->GetApproximatelyPermState()) {
         int ret = PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-        if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
+        if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+            locatorAbility->IsHapCaller(request->GetTokenId())) {
             LBSLOGE(REQUEST_MANAGER, "StartUsingPermission failed ret=%{public}d", ret);
             return false;
         }
@@ -486,6 +488,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         return false;
     }
     if (!UpdateUsingPermission(request, true)) {
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
         return false;
     }
     // add request info to work record
