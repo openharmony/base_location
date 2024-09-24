@@ -42,6 +42,7 @@ enum class LocationProcessStage {
     WRITE_DFX_INNER_EVENT_PROCESS,
     ADD_REQUEST_TO_WORK_RECORD,
     LOCATOR_SA_LOCATION_PERMISSION_CHECK,
+    LOCATOR_SA_COMMAND_PROCESS,
 };
 
 typedef struct {
@@ -73,6 +74,12 @@ typedef struct {
     std::string abilityName;
     std::string bundleName;
 } LocatorRequestStruct;
+
+typedef struct {
+    std::string packageName;
+    std::string command;
+    bool result;
+} CommandStruct;
 
 class HookUtils {
 public:

@@ -686,6 +686,13 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
     locationCommand->scenario =  data.ReadInt32();
     locationCommand->command = Str16ToStr8(data.ReadString16());
     reply.WriteInt32(locatorAbility->SendCommand(locationCommand));
+
+    CommandStruct commandStruct;
+    commandStruct.packageName = identity.GetBundleName();
+    commandStruct.command = locationCommand->command;
+    commandStruct.result = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_COMMAND_PROCESS, (void *)&commandStruct, nullptr);
     return ERRCODE_SUCCESS;
 }
 #endif
