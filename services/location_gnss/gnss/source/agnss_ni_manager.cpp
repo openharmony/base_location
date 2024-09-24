@@ -176,8 +176,7 @@ void AGnssNiManager::AgnssNiSuplInit()
 static bool IsFromDefaultSubId(const OHOS::EventFwk::Want &want)
 {
     int32_t subId = want.GetIntParam("slotId", INVALID_SUBID);
-    auto msgManager = DelayedSingleton<Telephony::SmsServiceManagerClient>::GetInstance();
-    int32_t defaultId = msgManager->GetDefaultSmsSlotId();
+    int32_t defaultId = Singleton<Telephony::SmsServiceManagerClient>::GetInstance().GetDefaultSmsSlotId();
     LBSLOGD(GNSS, "current subId %{public}d, defaultSubId %{public}d", subId, defaultId);
     if (subId != INVALID_SUBID && subId != defaultId) {
         return false;
