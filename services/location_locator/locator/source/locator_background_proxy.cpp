@@ -179,12 +179,6 @@ void LocatorBackgroundProxy::UpdateListOnRequestChange(const std::shared_ptr<Req
 // when the app wakes up, stop proxy
 void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, bool active)
 {
-    if (!featureSwitch_) {
-        return;
-    }
-    if (!isUserSwitchSubscribed_) {
-        isUserSwitchSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
-    }
 }
 
 // called when SA switch on or switch off
