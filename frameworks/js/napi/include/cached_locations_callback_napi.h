@@ -30,6 +30,8 @@
 
 namespace OHOS {
 namespace Location {
+bool FindCachedLocationsCallback(napi_ref cb);
+void DeleteCachedLocationsCallback(napi_ref cb);
 class CachedLocationsCallbackNapi : public IRemoteStub<ICachedLocationsCallback> {
 public:
     CachedLocationsCallbackNapi();
@@ -41,6 +43,10 @@ public:
     void OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations) override;
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
+    napi_ref GetHandleCb();
+    void SetHandleCb(const napi_ref& handlerCb);
+    napi_env GetEnv();
+    void SetEnv(const napi_env& env);
 
     template <typename T>
     bool InitContext(T* context)
@@ -52,26 +58,6 @@ public:
         context->env = env_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
-    }
-
-    inline napi_env GetEnv() const
-    {
-        return env_;
-    }
-
-    inline void SetEnv(const napi_env& env)
-    {
-        env_ = env;
-    }
-
-    inline napi_ref GetHandleCb() const
-    {
-        return handlerCb_;
-    }
-
-    inline void SetHandleCb(const napi_ref& handlerCb)
-    {
-        handlerCb_ = handlerCb;
     }
 
     inline bool GetRemoteDied() const
