@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_fuzzer.h"
 
 #include <vector>
@@ -42,6 +41,7 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
+#ifdef FEATURE_GNSS_SUPPORT
     const int32_t MIN_DATA_LEN = 4;
     const int32_t SLEEP_TIMES = 1000;
     bool GnssProxyFuzzTest001(const uint8_t* data, size_t size)
@@ -160,15 +160,17 @@ namespace OHOS {
         WorkRecordStatistic::DestroyInstance();
         return true;
     }
+#endif // FEATURE_GNSS_SUPPORT
 }
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+#ifdef FEATURE_GNSS_SUPPORT
     /* Run your code on data */
     OHOS::GnssProxyFuzzTest001(data, size);
     OHOS::GnssProxyFuzzTest002(data, size);
     OHOS::GnssProxyFuzzTest003(data, size);
     return 0;
-}
 #endif // FEATURE_GNSS_SUPPORT
+}

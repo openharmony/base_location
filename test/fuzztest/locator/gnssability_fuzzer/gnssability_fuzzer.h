@@ -23,11 +23,7 @@
 namespace OHOS {
 namespace Location {
 #define FUZZ_PROJECT_NAME "gnssability_fuzzer"
-
-
-#ifdef FEATURE_GNSS_SUPPORT
 bool GnssAbilityFuzzTest(const char* data, size_t size);
-#endif
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_FUZZER_H
