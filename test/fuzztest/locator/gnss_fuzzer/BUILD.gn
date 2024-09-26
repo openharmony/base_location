@@ -84,9 +84,8 @@ ohos_fuzztest("GnssFuzzTest") {
   }
 
   if (hdf_drivers_interface_location_geofence_enable) {
-    external_deps += [
-      "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
-    ]
+    external_deps +=
+        [ "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0" ]
     defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
   }
 

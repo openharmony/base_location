@@ -171,6 +171,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::GnssProxyFuzzTest001(data, size);
     OHOS::GnssProxyFuzzTest002(data, size);
     OHOS::GnssProxyFuzzTest003(data, size);
-    return 0;
 #endif // FEATURE_GNSS_SUPPORT
+    return 0;
 }
