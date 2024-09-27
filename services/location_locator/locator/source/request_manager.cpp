@@ -562,36 +562,7 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         LBSLOGD(REQUEST_MANAGER, "Current uid : %{public}d is not locating.", uid);
         return;
     }
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "locatorAbility is null");
-        return;
-    }
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "requests map is empty");
-        return;
-    }
-    bool isActive = (state == static_cast<int>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND));
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            std::string uid1 = std::to_string(request->GetUid());
-            std::string uid2 = std::to_string(uid);
-            std::string pid1 = std::to_string(request->GetPid());
-            std::string pid2 = std::to_string(pid);
-            if ((uid1.compare(uid2) != 0) || (pid1.compare(pid2) != 0)) {
-                continue;
-            }
-            auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-            if (locatorBackgroundProxy != nullptr) {
-                locatorBackgroundProxy->OnSuspend(request, isActive);
-            }
-        }
-    }
-    if (LocatorAbility::GetInstance() != nullptr) {
-        LocatorAbility::GetInstance()->ApplyRequests(1);
-    }
+    LocatorAbility::GetInstance()->ApplyRequests(1);
 }
 
 void RequestManager::HandlePermissionChanged(uint32_t tokenId)
