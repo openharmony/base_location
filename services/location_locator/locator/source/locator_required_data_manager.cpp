@@ -332,7 +332,7 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
         }
     }
 #endif
-    if (fixNumber) {
+    if (fixNumber == 1) {
         return;
     }
     LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
