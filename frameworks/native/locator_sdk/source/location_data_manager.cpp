@@ -134,14 +134,27 @@ void LocationDataManager::SetIsSwitchObserverReg(bool isSwitchObserverReg)
     isSwitchObserverReg_ = isSwitchObserverReg;
 }
 
+bool LocationDataManager::IsFirstReport()
+{
+    std::unique_lock<std::mutex> lock(isFirstReportMutex_);
+    return isFirstReport_;
+}
+
+void LocationDataManager::SetIsFirstReport(bool isFirstReport)
+{
+    std::unique_lock<std::mutex> lock(isFirstReportMutex_);
+    isFirstReport_ = isFirstReport;
+}
+
 void LocationDataManager::RegisterLocationSwitchObserver()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
         int32_t state = DEFAULT_SWITCH_STATE;
         state = LocationDataRdbManager::QuerySwitchState();
         auto manager = LocationDataManager::GetInstance();
-        if (manager == nullptr) {
-            LBSLOGE(LOCATOR, "SubscribeLocaleConfigEvent LocationDataRdbManager is nullptr");
+        if (manager->IsFirstReport()) {
+            LBSLOGI(LOCATOR, "first switch callback, no need to report");
+            manager->SetIsFirstReport(false);
             return;
         }
         if (state == DEFAULT_SWITCH_STATE) {

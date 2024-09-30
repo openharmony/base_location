@@ -35,13 +35,18 @@ public:
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     bool IsSwitchObserverReg();
     void SetIsSwitchObserverReg(bool isSwitchObserverReg);
+    bool IsFirstReport();
+    void SetIsFirstReport(bool isFirstReport);
     void RegisterLocationSwitchObserver();
     static LocationDataManager* GetInstance();
+
 private:
     std::mutex mutex_;
     std::mutex isSwitchObserverRegMutex_;
     bool isSwitchObserverReg_ = false;
     std::map<sptr<IRemoteObject>, std::vector<int>> switchCallbackMap_;
+    std::mutex isFirstReportMutex_;
+    bool isFirstReport_ = true;
 };
 }  // namespace Location
 }  // namespace OHOS
