@@ -1150,7 +1150,8 @@ int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParce
     int32_t errCode = data.ReadInt32();
     std::string errMsg = data.ReadString();
     std::string uuid = data.ReadString();
-    locatorAbility->ReportLocationError(uuid, errCode);
+    int32_t netErrCode = data.ReadInt32();
+    locatorAbility->ReportLocationError(uuid, errCode, netErrCode);
     return ERRCODE_SUCCESS;
 }
 

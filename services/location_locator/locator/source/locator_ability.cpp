@@ -1534,11 +1534,12 @@ LocationErrCode LocatorAbility::UnregisterLocationError(sptr<ILocatorCallback>& 
     return ERRCODE_SUCCESS;
 }
 
-void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode)
+void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode, int32_t netErrCode)
 {
     std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = std::make_unique<LocatorErrorMessage>();
     locatorErrorMessage->SetUuid(uuid);
     locatorErrorMessage->SetErrCode(errCode);
+    locatorErrorMessage->SetNetErrCode(netErrCode);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_REPORT_LOCATION_ERROR, locatorErrorMessage);
     if (locatorHandler_ != nullptr) {
@@ -1730,6 +1731,16 @@ void LocatorErrorMessage::SetErrCode(int32_t errCode)
 int32_t LocatorErrorMessage::GetErrCode()
 {
     return errCode_;
+}
+
+void LocatorErrorMessage::SetNetErrCode(int32_t netErrCode)
+{
+    netErrCode_ = netErrCode;
+}
+
+int32_t LocatorErrorMessage::GetNetErrCode()
+{
+    return netErrCode_;
 }
 
 void LocatorSwitchMessage::SetUserId(int32_t userId)
@@ -2023,6 +2034,7 @@ void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEven
     }
     auto uuid = locatorErrorMessage->GetUuid();
     auto errCode = locatorErrorMessage->GetErrCode();
+    auto netErrCode = locatorErrorMessage->GetNetErrCode();
     auto requestMap = LocatorAbility::GetInstance()->GetRequests();
     if (requestMap == nullptr || requestMap->empty()) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
@@ -2036,6 +2048,12 @@ void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEven
     for (auto iter = requestList.begin(); iter != requestList.end(); iter++) {
         auto request = *iter;
         if (uuid.compare(request->GetUuid()) == 0) {
+            std::string requestInfo = "";
+            if (request->GetRequestConfig() != nullptr) {
+                requestInfo = request->GetRequestConfig()->ToString();
+            }
+            WriteLocationInnerEvent(LOCATION_REQUEST_DENY, {"errorCode", std::to_string(netErrCode),
+                "requestAppName", request->GetPackageName(), "requestInfo", requestInfo});
             RequestManager::GetInstance()->ReportLocationError(errCode, request);
             break;
         }
