@@ -524,7 +524,6 @@ void NetworkAbility::UnregisterNlpServiceDeathRecipient()
     }
 }
 
-
 bool NetworkAbility::IsConnect()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
@@ -550,6 +549,7 @@ void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, st
     data.WriteInt32(LOCATING_FAILED_INTERNET_ACCESS_FAILURE);
     data.WriteString(errMsg);
     data.WriteString(uuid);
+    data.WriteInt32(errCode);
     sptr<IRemoteObject> objectLocator =
         CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
     if (objectLocator == nullptr) {

@@ -579,8 +579,8 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityReportLocationError001, TestSize.Leve
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::string uuid;
     int32_t errCode = 10;
-    locatorAbility->ReportLocationError(uuid, errCode);
-    locatorAbility->ReportLocationError(uuid, errCode);
+    locatorAbility->ReportLocationError(uuid, errCode, errCode);
+    locatorAbility->ReportLocationError(uuid, errCode, errCode);
     locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUnRegisterLocationError001 end");
 }
