@@ -19,7 +19,7 @@
 #include <sstream>
 
 #include "common_utils.h"
-
+#include "bundle_mgr_client.h"
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
@@ -257,22 +257,8 @@ int CommonUtils::IntRandom(int min, int max)
 
 bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
 {
-    sptr<ISystemAbilityManager> smgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (smgr == nullptr) {
-        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get system ability manager.", __func__);
-        return false;
-    }
-    sptr<IRemoteObject> remoteObject = smgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (remoteObject == nullptr) {
-        LBSLOGE(COMMON_UTILS, "%{public}s Fail to get sa obj.", __func__);
-        return false;
-    }
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (bundleMgr == nullptr) {
-        LBSLOGE(COMMON_UTILS, "%{public}s Bundle mgr proxy is nullptr.", __func__);
-        return false;
-    }
-    int32_t error = bundleMgr->GetNameForUid(uid, bundleName);
+    AppExecFwk::BundleMgrClient bundleMgrClient;
+    int32_t error = bundleMgrClient.GetNameForUid(uid, bundleName);
     if (error != ERR_OK) {
         return false;
     }
