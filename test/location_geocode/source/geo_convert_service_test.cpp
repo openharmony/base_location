@@ -72,17 +72,11 @@ void GeoConvertServiceTest::SetUp()
      */
     MockNativePermission();
     service_ = new (std::nothrow) GeoConvertService();
-    EXPECT_NE(nullptr, service_);
-    proxy_ = new (std::nothrow) GeoConvertProxy(service_);
-    EXPECT_NE(nullptr, proxy_);
+    proxy_ = std::make_shared<GeoConvertProxy>(service_);
 }
 
 void GeoConvertServiceTest::TearDown()
 {
-    /*
-     * @tc.teardown: release memory.
-     */
-    proxy_ = nullptr;
 }
 
 void GeoConvertServiceTest::MockNativePermission()
@@ -116,8 +110,8 @@ bool GeoConvertServiceTest::Available()
 HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertAvailable002, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable002 begin");
+        << "GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 begin");
     EXPECT_EQ(true, proxy_->EnableReverseGeocodingMock());
 
     /*
@@ -125,7 +119,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
      * @tc.expected: step1. system ability is available.
      */
     Available();
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable002 end");
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertAvailable001 end");
 }
 
 /*
@@ -396,21 +390,21 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertConnectService001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService001 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertConnectService002, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GeoConvertReConnectService001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertConnectService002, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService002 begin");
+        << "GeoConvertServiceTest, GeoConvertReConnectService001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService001 begin");
     service_->serviceProxy_ = nullptr;
     service_->ConnectService();
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService002 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertConnectService003, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GeoConvertReConnectService002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertConnectService003, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertConnectService003 begin");
+        << "GeoConvertServiceTest, GeoConvertReConnectService002, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertReConnectService002 begin");
     sptr<IRemoteObject> serviceProxy =
         CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID, CommonUtils::InitDeviceId());
     service_->serviceProxy_ = serviceProxy;

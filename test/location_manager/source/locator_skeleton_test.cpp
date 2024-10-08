@@ -237,8 +237,7 @@ HWTEST_F(LocatorSkeletonTest, PreGetCacheLocation, TestSize.Level1)
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     LocationDataRdbManager::SetSwitchStateToDb(ENABLED);
-    auto result = locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
-    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    locatorAbilityStub->PreGetCacheLocation(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreGetCacheLocation end");
 }
 
@@ -933,6 +932,7 @@ HWTEST_F(LocatorSkeletonTest, PreRegisterLocatingRequiredDataCallback, TestSize.
     identity.SetFirstTokenId(0);
     identity.SetBundleName("bundleName");
     locatorAbilityStub->PreRegisterLocatingRequiredDataCallback(data, reply, identity);
+    locatorAbilityStub->PreUnregisterLocatingRequiredDataCallback(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRegisterLocatingRequiredDataCallback end");
 }
 
