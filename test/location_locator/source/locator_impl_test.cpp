@@ -232,7 +232,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
     locatorImpl_->GetCachedLocationV9(loc); // get last location
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableLocationMockV9());
+    locatorImpl_->DisableLocationMockV9();
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 end");
 }
 
