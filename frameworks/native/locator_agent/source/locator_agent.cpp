@@ -42,91 +42,97 @@ LocatorAgentManager::LocatorAgentManager()
 LocatorAgentManager::~LocatorAgentManager()
 {}
 
-void LocatorAgentManager::StartGnssLocating(const LocationCallbackIfaces& callback)
+LocationErrCode LocatorAgentManager::StartGnssLocating(const LocationCallbackIfaces& callback)
 {
     if (locationCallbackHost_ == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     auto proxy = GetLocatorAgent();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     locationCallbackHost_->SetCallback(callback);
     auto locatorCallback = sptr<ILocatorCallback>(locationCallbackHost_);
     LocationErrCode ret = proxy->StartGnssLocating(locatorCallback);
-    LBSLOGE(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    return ret;
 }
 
-void LocatorAgentManager::StopGnssLocating()
+LocationErrCode LocatorAgentManager::StopGnssLocating()
 {
     auto proxy = GetLocatorAgent();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     auto locatorCallback = sptr<ILocatorCallback>(locationCallbackHost_);
     LocationErrCode ret = proxy->StopGnssLocating(locatorCallback);
-    LBSLOGE(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    return ret;
 }
 
-void LocatorAgentManager::RegisterGnssStatusCallback(const SvStatusCallbackIfaces& callback)
+LocationErrCode LocatorAgentManager::RegisterGnssStatusCallback(const SvStatusCallbackIfaces& callback)
 {
     if (gnssCallbackHost_ == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     auto proxy = GetLocatorAgent();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     gnssCallbackHost_->SetCallback(callback);
     auto gnssCallback = sptr<IGnssStatusCallback>(gnssCallbackHost_);
     LocationErrCode ret = proxy->RegisterGnssStatusCallback(gnssCallback);
-    LBSLOGE(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    return ret;
 }
 
-void LocatorAgentManager::UnregisterGnssStatusCallback()
+LocationErrCode LocatorAgentManager::UnregisterGnssStatusCallback()
 {
     auto proxy = GetLocatorAgent();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     auto gnssCallback = sptr<IGnssStatusCallback>(gnssCallbackHost_);
     LocationErrCode ret = proxy->UnregisterGnssStatusCallback(gnssCallback);
-    LBSLOGE(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    return ret;
 }
 
-void LocatorAgentManager::RegisterNmeaMessageCallback(const GnssNmeaCallbackIfaces& callback)
+LocationErrCode LocatorAgentManager::RegisterNmeaMessageCallback(const GnssNmeaCallbackIfaces& callback)
 {
     if (nmeaCallbackHost_ == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     auto proxy = GetLocatorAgent();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     nmeaCallbackHost_->SetCallback(callback);
     auto nmeaCallback = sptr<INmeaMessageCallback>(nmeaCallbackHost_);
     LocationErrCode ret = proxy->RegisterNmeaMessageCallback(nmeaCallback);
-    LBSLOGE(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    return ret;
 }
 
-void LocatorAgentManager::UnregisterNmeaMessageCallback()
+LocationErrCode LocatorAgentManager::UnregisterNmeaMessageCallback()
 {
     auto proxy = GetLocatorAgent();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return;
+        return ERRCODE_INVALID_PARAM;
     }
     auto nmeaCallback = sptr<INmeaMessageCallback>(nmeaCallbackHost_);
     LocationErrCode ret = proxy->UnregisterNmeaMessageCallback(nmeaCallback);
-    LBSLOGE(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
+    return ret;
 }
 
 sptr<LocatorAgent> LocatorAgentManager::GetLocatorAgent()
