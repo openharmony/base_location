@@ -1055,7 +1055,7 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
             return false;
         }
         callback->OnLocationReport(cacheLocation);
-        return true;
+        return false;
     }
 }
 
