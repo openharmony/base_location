@@ -1948,7 +1948,9 @@ HWTEST_F(LocatorServiceTest, locatorServiceSendLocationMockMsgToGnssSa001, TestS
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+#ifdef FEATURE_GNSS_SUPPORT
     locatorAbility->SendLocationMockMsgToGnssSa(nullptr, 0, locations, 0);
+#endif
     locatorAbility->SendLocationMockMsgToNetworkSa(nullptr, 0, locations, 0);
     locatorAbility->SendLocationMockMsgToPassiveSa(nullptr, 0, locations, 0);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendLocationMockMsgToGnssSa001 end");

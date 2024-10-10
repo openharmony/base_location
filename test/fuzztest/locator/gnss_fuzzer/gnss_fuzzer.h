@@ -15,22 +15,16 @@
 
 #ifndef GNSS_ABILITY_FUZZER_H
 #define GNSS_ABILITY_FUZZER_H
-#ifdef FEATURE_GNSS_SUPPORT
 
 #include "message_option.h"
 #include "message_parcel.h"
 
+#ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability.h"
+#endif // FEATURE_GNSS_SUPPORT
 
 namespace OHOS {
 namespace Location {
-class GnssAbilityTestFuzzer : public GnssAbility {
-public:
-    explicit GnssAbilityTestFuzzer() : GnssAbility()
-    {}
-    ~GnssAbilityTestFuzzer() = default;
-};
 } // namespace Location
 } // namespace OHOS
-#endif // FEATURE_GNSS_SUPPORT
 #endif // GNSS_ABILITY_FUZZER_H
