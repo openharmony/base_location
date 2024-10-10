@@ -30,14 +30,11 @@ public:
     FenceExtensionContext();
 
     virtual ~FenceExtensionContext() override;
-    ErrCode StartAbility(const AAFwk::Want &want);
 
     ErrCode StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId = -1) const;
 
 protected:
     bool CheckCallerIsSystemApp() const;
-
-    bool VerifyCallingPermission(const std::string &permissionName) const;
 };
 }  // namespace Location
 }  // namespace OHOS

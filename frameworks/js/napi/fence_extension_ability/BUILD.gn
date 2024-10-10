@@ -34,7 +34,7 @@ gen_js_obj("fence_extension_ability_abc") {
   dep = ":gen_fence_extension_ability_abc"
 }
 
-ohos_shared_library("fenceextensionability") {
+ohos_shared_library("fence_extension_ability_napi") {
   sanitize = {
     cfi = true
     cfi_cross_dso = true

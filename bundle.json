@@ -89,8 +89,8 @@
                 "fwk_group": [
                     "//base/location/frameworks/native/locator_sdk:locator_sdk",
                     "//base/location/frameworks/js/napi:geolocation",
-                    "//base/location/frameworks/js/napi/fence_extension_ability:fenceextensionability",
-                    "//base/location/frameworks/js/napi/fence_extension_ability_context:fenceextensioncontext",
+                    "//base/location/frameworks/js/napi/fence_extension_ability:fence_extension_ability_napi",
+                    "//base/location/frameworks/js/napi/fence_extension_ability_context:fence_extension_context_napi",
                     "//base/location/frameworks/native/fence_extension_ability:fence_extension_ability",
                     "//base/location/frameworks/js/napi:geolocationmanager",
                     "//base/location/frameworks/location_common/common:lbsservice_common",

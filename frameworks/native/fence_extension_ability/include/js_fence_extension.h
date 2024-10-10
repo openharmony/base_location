@@ -27,25 +27,6 @@
 
 namespace OHOS {
 namespace Location {
-class FenceExtensionAsyncContext : public AsyncContext {
-public:
-    ::napi_value abilityObj_;
-    ::napi_value method_;
-    ::napi_value transitionObj_;
-    ::napi_value extraDataJsObj_;
-    ::napi_value argv_[2];
-    explicit FenceExtensionAsyncContext(::napi_value abilityObj, ::napi_value method, ::napi_value transitionObj,
-        ::napi_value extraDataJsObj, ::napi_value argv[2], napi_env env, napi_async_work work = nullptr,
-        napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred), abilityObj_(abilityObj), method_(method), transitionObj_(transitionObj),
-          extraDataJsObj_(extraDataJsObj), argv_{argv[0], argv[1]}
-    {}
-
-    FenceExtensionAsyncContext() = delete;
-
-    ~FenceExtensionAsyncContext() override
-    {}
-};
 class JsFenceExtension : public FenceExtension {
 public:
     explicit JsFenceExtension(AbilityRuntime::JsRuntime &jsRuntime);
@@ -121,7 +102,7 @@ public:
 
 private:
     AbilityRuntime::JsRuntime &jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
+    std::unique_ptr<NativeReference> jsObj_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     /**
      * @brief BindContext
@@ -139,7 +120,7 @@ private:
         AbilityRuntime::JsRuntime &jsRuntime, const std::unique_ptr<NativeReference> &jsObj, const std::string &name);
     napi_status SetValueUtf8String(const napi_env &env, const char *fieldStr, const char *str, napi_value &result);
     napi_status SetValueInt32(const napi_env &env, const char *fieldStr, const int intValue, napi_value &result);
-    FenceExtensionErrCode CallToTSThread(std::map<std::string, std::string> extraData);
+    FenceExtensionErrCode CallToUiThread(std::map<std::string, std::string> extraData);
 };
 }  // namespace Location
 }  // namespace OHOS

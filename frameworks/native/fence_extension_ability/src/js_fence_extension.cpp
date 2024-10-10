@@ -203,7 +203,7 @@ void JsFenceExtension::OnStop()
     LBSLOGI(FENCE_EXTENSION, "OnStop called");
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
     if (jsObj_ == nullptr) {
-        LBSLOGI(FENCE_EXTENSION, "js fence extension obj is null");
+        LBSLOGE(FENCE_EXTENSION, "js fence extension obj is null");
         return;
     }
     ::napi_value method = GetMethod(jsRuntime_, jsObj_, "onDestroy");
@@ -230,7 +230,7 @@ sptr<IRemoteObject> JsFenceExtension::OnConnect(const AAFwk::Want &want)
     sptr<FenceExtensionStubImpl> remoteObject =
         new (std::nothrow) FenceExtensionStubImpl(std::static_pointer_cast<JsFenceExtension>(shared_from_this()));
     if (remoteObject == nullptr) {
-        LBSLOGI(FENCE_EXTENSION, "failed to create FenceExtensionStubImpl");
+        LBSLOGE(FENCE_EXTENSION, "failed to create FenceExtensionStubImpl");
         return nullptr;
     }
     return remoteObject->AsObject();
@@ -241,6 +241,28 @@ void JsFenceExtension::OnDisconnect(const AAFwk::Want &want)
     LBSLOGI(FENCE_EXTENSION, "OnDisconnect");
     Extension::OnDisconnect(want);
 }
+
+FenceExtensionErrCode JsFenceExtension::OnFenceStatusChange(std::map<std::string, std::string> extraData)
+{
+    LBSLOGI(FENCE_EXTENSION, "js fence extension:OnFenceStatusChange");
+    if (jsObj_ == nullptr) {
+        LBSLOGE(FENCE_EXTENSION, "js fence extension obj is null");
+        return FenceExtensionErrCode::EXTENSION_JS_OBJ_IS_NULL;
+    }
+
+    auto task = [=]() {
+        LBSLOGI(FENCE_EXTENSION, "call js function start");
+        JsFenceExtension::CallToUiThread(extraData);
+    };
+    if (handler_ == nullptr) {
+        LBSLOGE(FENCE_EXTENSION, "PostTask call js function start");
+        return FenceExtensionErrCode::EXTENSION_JS_CALL_FAILED;
+    }
+    handler_->PostTask(task, "FenceExtension OnFenceStatusChange Task");
+    LBSLOGI(FENCE_EXTENSION, "PostTask call js function start");
+    return FenceExtensionErrCode::EXTENSION_SUCCESS;
+}
+
 void JsFenceExtension::GetSrcPath(std::string &srcPath)
 {
     if (!Extension::abilityInfo_->srcEntrance.empty()) {
@@ -251,24 +273,8 @@ void JsFenceExtension::GetSrcPath(std::string &srcPath)
         srcPath.append(".abc");
     }
 }
-FenceExtensionErrCode JsFenceExtension::OnFenceStatusChange(std::map<std::string, std::string> extraData)
-{
-    LBSLOGI(FENCE_EXTENSION, "js fence extension:OnFenceStatusChange");
-    if (jsObj_ == nullptr) {
-        LBSLOGI(FENCE_EXTENSION, "js fence extension obj is null");
-        return FenceExtensionErrCode::EXTENSION_JS_OBJ_IS_NULL;
-    }
 
-    auto task = [=]() {
-        LBSLOGI(FENCE_EXTENSION, "call js function start");
-        JsFenceExtension::CallToTSThread(extraData);
-    };
-    handler_->PostTask(task, "FenceExtension OnFenceStatusChange Task");
-    LBSLOGI(FENCE_EXTENSION, "PostTask call js function start");
-    return FenceExtensionErrCode::EXTENSION_SUCCESS;
-}
-
-FenceExtensionErrCode JsFenceExtension::CallToTSThread(std::map<std::string, std::string> extraData)
+FenceExtensionErrCode JsFenceExtension::CallToUiThread(std::map<std::string, std::string> extraData)
 {
     LBSLOGI(FENCE_EXTENSION, "js fence extension:OnFenceStatusChange");
     if (jsObj_ == nullptr) {
