@@ -954,7 +954,6 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
     callback->AsObject()->AddDeathRecipient(death);
     request->SetLocatorCallbackRecipient(death);
-    HookUtils::ExecuteHookWhenStartLocation(request);
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetPermissionUsedType(request->GetTokenId(),
         ACCESS_APPROXIMATELY_LOCATION);
@@ -1970,6 +1969,7 @@ void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& e
     }
     if (requestManager != nullptr) {
         requestManager->HandleStartLocating(request);
+        HookUtils::ExecuteHookWhenStartLocation(request);
     }
 }
 
