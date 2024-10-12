@@ -58,36 +58,36 @@ public:
      *
      * @param callback Indicates the callback for reporting the location result.
      */
-    void StartGnssLocating(const LocationCallbackIfaces& callback);
+    LocationErrCode StartGnssLocating(const LocationCallbackIfaces& callback);
 
     /**
      * @brief Subscribe satellite status changed.
      *
      * @param callback Indicates the callback for reporting the satellite status.
      */
-    void RegisterGnssStatusCallback(const SvStatusCallbackIfaces& callback);
+    LocationErrCode RegisterGnssStatusCallback(const SvStatusCallbackIfaces& callback);
 
     /**
      * @brief Subscribe nmea message changed.
      *
      * @param callback Indicates the callback for reporting the nmea message.
      */
-    void RegisterNmeaMessageCallback(const GnssNmeaCallbackIfaces& callback);
+    LocationErrCode RegisterNmeaMessageCallback(const GnssNmeaCallbackIfaces& callback);
     
     /**
      * @brief Unsubscribe location changed.
      */
-    void StopGnssLocating();
+    LocationErrCode StopGnssLocating();
 
     /**
      * @brief Unsubscribe nmea message changed.
      */
-    void UnregisterNmeaMessageCallback();
+    LocationErrCode UnregisterNmeaMessageCallback();
 
     /**
      * @brief Unsubscribe satellite status changed.
      */
-    void UnregisterGnssStatusCallback();
+    LocationErrCode UnregisterGnssStatusCallback();
     void ResetLocatorAgent(const wptr<IRemoteObject> &remote);
 private:
     class LocatorAgentDeathRecipient : public IRemoteObject::DeathRecipient {
