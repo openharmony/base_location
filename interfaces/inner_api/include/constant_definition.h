@@ -58,6 +58,11 @@ const int MODE_MS_BASED = 2;
 const int MODE_MS_ASSISTED = 3;
 const int DEFAULT_CALLBACK_WAIT_TIME = 10000;
 const int COORDINATE_SYSTEM_TYPE_SIZE = 2;
+// fence extension const start
+constexpr const char *EXTENSION_SURVIVE_TIME = "EXTENSION_SURVIVE_TIME";
+constexpr const char *EXTENSION_PARAM_KEY_FENCE_ID = "FENCE_ID";
+constexpr const char *EXTENSION_PARAM_KEY_FENCE_EVENT = "FENCE_EVENT";
+// fence extension const end
 
 enum {
     SCENE_UNSET = 0x0300,
@@ -126,6 +131,27 @@ enum LocationErrCode {
     ERRCODE_SCAN_FAIL = 3301800,              /* Failed to start WiFi or Bluetooth scanning. */
     ERRCODE_GEOFENCE_EXCEED_MAXIMUM = 3301601, /* The number of geofences exceeds the maximum. */
     ERRCODE_GEOFENCE_INCORRECT_ID = 3301602 /* Failed to delete a geofence due to an incorrect ID. */
+};
+
+enum FenceExtensionErrCode {
+    EXTENSION_SUCCESS = 0,
+    EXTENSION_IS_NOT_EXIST,
+    CONNECT_ABILITY_FAILED,
+    CONNECT_ABILITY_TIMEOUT,
+    CONNECT_PROXY_IS_NULL,
+    CONNECT_EXTENSION_PROXY_IS_NULL,
+    PARAM_ERROR,
+    NOT_FOUND_ABILITY_BY_TID,
+    DISCONNECT_ABILITY_FAILED,
+    DISCONNECT_ABILITY_TIMEOUT,
+    EXTENSION_REMOTE_WRITE_FAILED,
+    EXTENSION_REMOTE_SEND_FAILED,
+    EXTENSION_REMOTE_STUB_IS_NULL,
+    EXTENSION_JS_OBJ_IS_NULL,
+    EXTENSION_JS_RUNTIME_IS_NULL,
+    EXTENSION_JS_NOT_FOUND_METHOD,
+    EXTENSION_JS_CREATE_PARAM_ERROR,
+    EXTENSION_JS_CALL_FAILED
 };
 
 enum SatelliteConstellation {
