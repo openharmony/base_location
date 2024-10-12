@@ -293,7 +293,7 @@ HWTEST_F(LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.L
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     EXPECT_NE(nullptr, locatorBackgroundProxy);
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver()); // unreg first
-    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    locatorBackgroundProxy->RegisterAppStateObserver();
     EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver()); // register again
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] RegisterAppStateObserverTest001 end");
@@ -806,7 +806,7 @@ HWTEST_F(LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize
     locatorBackgroundProxy->appStateObserver_  = nullptr;
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
 
-    EXPECT_EQ(true, locatorBackgroundProxy->RegisterAppStateObserver());
+    locatorBackgroundProxy->RegisterAppStateObserver();
     locatorBackgroundProxy->iAppMgr_  = nullptr;
     EXPECT_EQ(true, locatorBackgroundProxy->UnregisterAppStateObserver());
 

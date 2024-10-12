@@ -65,7 +65,7 @@ namespace Location {
 const int32_t LOCATION_PERM_NUM = 4;
 const std::string ARGS_HELP = "-h";
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
-const int32_t WAIT_EVENT_TIME = 3;
+const int32_t WAIT_EVENT_TIME = 1;
 void NetworkAbilityTest::SetUp()
 {
     /*
@@ -83,8 +83,9 @@ void NetworkAbilityTest::TearDown()
     /*
      * @tc.teardown: release memory.
      */
-    proxy_ = nullptr;
     ability_->networkHandler_->RemoveTask(UNLOAD_NETWORK_TASK);
+    sleep(WAIT_EVENT_TIME);
+    proxy_ = nullptr;
     ability_ = nullptr;
 }
 
@@ -162,7 +163,6 @@ HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 begin");
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false));
     /*
      * @tc.steps: step1.remove SA
@@ -472,8 +472,6 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendReportMockLocationEvent001, TestS
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilitySendReportMockLocationEvent001 begin");
 
     ability_->SendReportMockLocationEvent();
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
-    ability_->SendReportMockLocationEvent();
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilitySendReportMockLocationEvent001 end");
 }
 
@@ -489,9 +487,6 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilitySendMessage001, TestSize.Level1)
 
     MessageParcel reply;
 
-    ability_->SendMessage(0, requestParcel, reply);
-
-    ability_->networkHandler_ = std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true));
     ability_->SendMessage(0, requestParcel, reply);
     LBSLOGI(NETWORK, "[NetworkAbilityStubTest] NetworkAbilitySendMessage001 end");
 }

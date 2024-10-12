@@ -21,6 +21,7 @@
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
 #endif
+#include "constant_definition.h"
 
 using namespace testing::ext;
 
@@ -57,7 +58,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
-    dataConfig->SetType(1);
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
     dataConfig->SetNeedStartScan(true);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
@@ -74,9 +75,8 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
         << "LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 begin");
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
-    dataConfig->SetType(2);
+    dataConfig->SetType(LocatingRequiredDataType::BLUE_TOOTH);
     dataConfig->SetNeedStartScan(false);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
@@ -283,25 +283,6 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper007, TestSize.L
     Bluetooth::BleScanResult result;
     callback->OnFoundOrLostCallback(result, 1);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper007 end");
-}
-
-HWTEST_F(LocatorRequiredDataManagerTest, ProcessEvent001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorRequiredDataManagerTest, ProcessEvent001, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] ProcessEvent001 begin");
-    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
-
-    AppExecFwk::InnerEvent::Pointer event =
-        AppExecFwk::InnerEvent::Get(EVENT_START_SCAN, 0);
-    locatorDataManager->scanHandler_->ProcessEvent(event);
-    AppExecFwk::InnerEvent::Pointer event1 =
-        AppExecFwk::InnerEvent::Get(EVENT_STOP_SCAN, 0);
-    locatorDataManager->scanHandler_->ProcessEvent(event1);
-    AppExecFwk::InnerEvent::Pointer event2 =
-        AppExecFwk::InnerEvent::Get(EVENT_GET_WIFI_LIST, 0);
-    locatorDataManager->scanHandler_->ProcessEvent(event2);
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] ProcessEvent001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

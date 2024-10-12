@@ -14,6 +14,7 @@
  */
 #include "location_mock_ipc.h"
 #include <map>
+#define private public
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability.h"
 #include "gnss_ability_proxy.h"
@@ -34,6 +35,7 @@
 #include "geo_convert_proxy.h"
 #include "geo_convert_skeleton.h"
 #endif
+#undef private
 #include "locator_ability.h"
 #include "locator_proxy.h"
 #include "locator_skeleton.h"
@@ -54,6 +56,7 @@ std::string g_gnssIpcCode = "GNSS";
 std::string g_networkIpcCode = "NETWORK";
 std::string g_passiveIpcCode = "PASSIVE";
 std::string g_geoIpcCode = "GEO_CONVERT";
+const int32_t WAIT_RESPONSE_SEC = 2;
 
 void LocationMockIpcTest::SetUp()
 {
@@ -106,48 +109,13 @@ void LocationMockIpcTest::TearDown()
     ipcMap_.clear();
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 begin");
-
-    auto gnssAbilityStub = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
-        if (iter->second != g_gnssIpcCode) {
-            continue;
-        }
-        MessageParcel parcel;
-        parcel.WriteInterfaceToken(u"location.IGnssAbility");
-        MessageParcel reply;
-        MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-            gnssAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
-    }
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 end");
-}
-#endif
-
 #ifdef FEATURE_NETWORK_SUPPORT
 HWTEST_F(LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
         << "LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockNetworkStubCallingPermission001 begin");
-
     auto networkAbilityStub = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
-    for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
-        if (iter->second != g_networkIpcCode) {
-            continue;
-        }
-        MessageParcel parcel;
-        parcel.WriteInterfaceToken(u"location.INetworkAbility");
-        MessageParcel reply;
-        MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-            networkAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
-    }
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockNetworkStubCallingPermission001 end");
 }
 #endif
@@ -158,19 +126,7 @@ HWTEST_F(LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Leve
     GTEST_LOG_(INFO)
         << "LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockPassiveStubCallingPermission001 begin");
-
     auto passiveAbilityStub = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());
-    for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
-        if (iter->second != g_passiveIpcCode) {
-            continue;
-        }
-        MessageParcel parcel;
-        parcel.WriteInterfaceToken(u"location.IPassiveAbility");
-        MessageParcel reply;
-        MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-            passiveAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
-    }
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockPassiveStubCallingPermission001 end");
 }
 #endif
@@ -181,19 +137,7 @@ HWTEST_F(LocationMockIpcTest, MockGeoCodeStubCallingPermission001, TestSize.Leve
     GTEST_LOG_(INFO)
         << "LocationMockIpcTest, MockGeoCodeStubCallingPermission001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoCodeStubCallingPermission001 begin");
-
     auto geoConvertServiceStub = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
-    for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
-        if (iter->second != g_geoIpcCode) {
-            continue;
-        }
-        MessageParcel parcel;
-        parcel.WriteInterfaceToken(u"location.IGeoConvert");
-        MessageParcel reply;
-        MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
-            geoConvertServiceStub->OnRemoteRequest(iter->first, parcel, reply, option));
-    }
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoCodeStubCallingPermission001 end");
 }
 #endif

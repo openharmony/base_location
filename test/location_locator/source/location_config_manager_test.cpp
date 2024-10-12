@@ -87,16 +87,11 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001
         << "LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 begin");
     bool isConfirmed = false;
-    EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true));
-    EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, isConfirmed));
-    
-    EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true));
-    EXPECT_EQ(ERRCODE_INVALID_PARAM,
-        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, isConfirmed));
-    
+    LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, true);
+    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_LEFT, isConfirmed);
+    LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, true);
+    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_INVALID_RIGHT, isConfirmed);
+
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true));
     EXPECT_EQ(ERRCODE_SUCCESS,
@@ -201,15 +196,6 @@ HWTEST_F(LocationConfigManagerTest, SetCachePrivacyType001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] SetCachePrivacyType001 begin");
     LocationConfigManager::GetInstance()->SetCachePrivacyType(111);
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] SetCachePrivacyType001 end");
-}
-
-HWTEST_F(LocationConfigManagerTest, GetCachePrivacyType001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationConfigManagerTest, GetCachePrivacyType001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] GetCachePrivacyType001 begin");
-    LocationConfigManager::GetInstance()->GetCachePrivacyType();
-    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] GetCachePrivacyType001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

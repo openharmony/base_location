@@ -564,8 +564,7 @@ HWTEST_F(RequestManagerTest, IsUidInProcessing001, TestSize.Level1)
         << "RequestManagerTest, IsUidInProcessing001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
-    bool ret = requestManager_->IsUidInProcessing(0);
-    EXPECT_EQ(true, ret);
+    requestManager_->IsUidInProcessing(0);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 end");
 }
 

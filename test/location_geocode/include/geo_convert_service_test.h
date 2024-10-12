@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "common_utils.h"
 #include "geo_convert_proxy.h"
 #include "geo_convert_service.h"
 
@@ -31,7 +32,7 @@ public:
     bool Available();
     void MockNativePermission();
     
-    sptr<GeoConvertProxy> proxy_;
+    std::shared_ptr<GeoConvertProxy> proxy_;
     sptr<GeoConvertService> service_;
     bool available_;
 };

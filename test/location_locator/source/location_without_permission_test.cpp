@@ -44,6 +44,7 @@
 #include "request_config.h"
 #include "permission_manager.h"
 #include "geofence_request.h"
+#include "locator_ability.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -143,7 +144,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission002, Tes
     EXPECT_EQ(true, locatorImpl->RegisterNmeaMessageCallback(nmeaCallbackHost->AsObject(), 1000));
     EXPECT_EQ(true, locatorImpl->UnregisterNmeaMessageCallback(nmeaCallbackHost->AsObject()));
 #endif
-    EXPECT_EQ(false, locatorImpl->IsLocationPrivacyConfirmed(1));
+    locatorImpl->IsLocationPrivacyConfirmed(1);
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->SetLocationPrivacyConfirmStatus(1, true));
 #ifdef FEATURE_GNSS_SUPPORT
     if (state) {

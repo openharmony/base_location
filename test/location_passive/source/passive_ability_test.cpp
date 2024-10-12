@@ -40,6 +40,7 @@ const int32_t LOCATION_PERM_NUM = 4;
 const std::string ARGS_HELP = "-h";
 const std::string UNLOAD_PASSIVE_TASK = "passive_sa_unload";
 const int32_t WAIT_EVENT_TIME = 3;
+
 void PassiveAbilityTest::SetUp()
 {
     /*
@@ -154,10 +155,28 @@ HWTEST_F(PassiveAbilityTest, PassiveLocationMock001, TestSize.Level1)
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveLocationMock001 begin");
     int timeInterval = 1;
     std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    for (int i = 0; i < 2; i++) {
+        parcel.WriteDouble(10.6); // latitude
+        parcel.WriteDouble(10.5); // longitude
+        parcel.WriteDouble(10.4); // altitude
+        parcel.WriteDouble(1.0); // accuracy
+        parcel.WriteDouble(5.0); // speed
+        parcel.WriteDouble(10); // direction
+        parcel.WriteInt64(1611000000); // timestamp
+        parcel.WriteInt64(1611000000); // time since boot
+        parcel.WriteString16(u"additions"); // additions
+        parcel.WriteInt64(1); // additionSize
+        parcel.WriteInt32(1); // isFromMock
+        locations.push_back(Location::UnmarshallingShared(parcel));
+    }
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->EnableMock());
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetMocked(timeInterval, locations));
+    sleep(WAIT_EVENT_TIME);
+
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
+    sleep(WAIT_EVENT_TIME);
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveLocationMock001 end");
 }
 
