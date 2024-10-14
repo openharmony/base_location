@@ -57,6 +57,7 @@ void MockNativePermission()
     auto tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    LocatorAbility::GetInstance()->EnableAbility(true);
 }
 
 #ifdef FEATURE_PASSIVE_SUPPORT

@@ -55,6 +55,7 @@ void MockNativePermission()
     auto tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    LocatorAbility::GetInstance()->EnableAbility(true);
 }
 
 char* ParseData(const uint8_t* data, size_t size)
@@ -189,6 +190,7 @@ bool GeoConvertServiceFuzzTest006(const char* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    OHOS::MockNativePermission();
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
 #ifdef FEATURE_GEOCODE_SUPPORT
