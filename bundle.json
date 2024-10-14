@@ -89,6 +89,7 @@
                     "//base/location/frameworks/native/locator_sdk:locator_sdk",
                     "//base/location/frameworks/js/napi:geolocation",
                     "//base/location/frameworks/js/napi:geolocationmanager",
+                    "//base/location/frameworks/cj:cj_geolocationmanager_ffi",
                     "//base/location/frameworks/location_common/common:lbsservice_common",
                     "//base/location/frameworks/native/locator_agent:locator_agent",
                     "//base/location/frameworks/native/geofence_sdk:geofence_sdk"
