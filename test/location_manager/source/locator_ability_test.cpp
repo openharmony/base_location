@@ -176,7 +176,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence001, TestSize.Level1)
     locatorAbility->AddGnssGeofence(request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence001 end");
 }
-#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence002, TestSize.Level1)
 {
@@ -189,7 +188,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence002 end");
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -200,7 +198,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level
     locatorAbility->RemoveGnssGeofence(request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence001 end");
 }
-#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence002, TestSize.Level1)
 {
@@ -212,6 +209,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence002, TestSize.Level
     locatorAbility->AddGnssGeofence(request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence002 end");
 }
+#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityStartLocating001, TestSize.Level1)
 {
@@ -542,6 +540,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityUpdateLastLocationRequestNum001, Test
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateLastLocationRequestNum001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorAbilityTest, LocatorAbilitySendNetworkLocation001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -553,6 +552,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilitySendNetworkLocation001, TestSize.Leve
     locatorAbility->SendNetworkLocation(location);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilitySendNetworkLocation001 end");
 }
+#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityRegisterLocationError001, TestSize.Level1)
 {

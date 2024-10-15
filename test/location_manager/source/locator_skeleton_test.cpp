@@ -44,6 +44,7 @@
 #endif
 #include "permission_manager.h"
 #include "location_data_rdb_manager.h"
+#include "locator_callback_napi.h"
 
 using namespace testing::ext;
 
@@ -828,6 +829,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetLocationPrivacyConfirmStatus002, TestSize.Le
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreSetLocationPrivacyConfirmStatus002 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorSkeletonTest, PreStartCacheLocating001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1137,6 +1139,7 @@ HWTEST_F(LocatorSkeletonTest, PreRemoveGnssGeofence, TestSize.Level1)
     }
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRemoveGnssGeofence end");
 }
+#endif
 
 HWTEST_F(LocatorSkeletonTest, PreEnableLocationMock001, TestSize.Level1)
 {
@@ -1463,6 +1466,7 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterLocatingRequiredDataCallback, TestSiz
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreUnregisterLocatingRequiredDataCallback end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorSkeletonTest, PreQuerySupportCoordinateSystemType, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1481,6 +1485,7 @@ HWTEST_F(LocatorSkeletonTest, PreQuerySupportCoordinateSystemType, TestSize.Leve
     locatorAbilityStub->PreQuerySupportCoordinateSystemType(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreQuerySupportCoordinateSystemType end");
 }
+#endif
 
 HWTEST_F(LocatorSkeletonTest, PreRegisterLocationError001, TestSize.Level1)
 {
