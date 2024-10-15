@@ -975,11 +975,12 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 
 bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
 {
-    if (requestConfig->GetPriority() != LOCATION_PRIORITY_ACCURACY &&
-        ((requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
+    if ((requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
         (requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
+        (requestConfig->GetScenario() == LOCATION_SCENE_DAILY_LIFE_SERVICE) ||
+        (requestConfig->GetScenario() == LOCATION_SCENE_LOW_POWER_CONSUMPTION) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_FAST_FIRST_FIX)) ||
-        ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_LOW_POWER)))) {
+        ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_LOW_POWER))) {
         return true;
     }
     return false;
