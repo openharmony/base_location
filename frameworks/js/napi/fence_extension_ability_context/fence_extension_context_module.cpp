@@ -22,7 +22,7 @@ extern const char _binary_fence_extension_context_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_filename = "app/ability/libfence_extension_context_napi.z.so/fence_extension_context.js",
+    .nm_filename = "app/ability/libfenceextensioncontext_napi.z.so/fence_extension_context.js",
     .nm_modname = "app.ability.FenceExtensionContext",
 };
 
