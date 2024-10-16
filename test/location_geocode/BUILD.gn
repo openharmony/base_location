@@ -39,8 +39,6 @@ if (location_feature_with_geocode) {
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
       "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
       "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-      "$SECURITY_ROOT_DIR/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
       "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
     ]
 
@@ -54,6 +52,8 @@ if (location_feature_with_geocode) {
 
     external_deps = [
       "access_token:libaccesstoken_sdk",
+      "access_token:libnativetoken",
+      "access_token:libtoken_setproc",
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",
       "ffrt:libffrt",
