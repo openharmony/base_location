@@ -145,8 +145,11 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         satelliteStatusInfos.push_back(str_info);
     }
     // save sv info
+    std::unique_lock<std::mutex> lock(svInfoMutex_, std::defer_lock);
+    lock.lock();
     g_svInfo = nullptr;
     g_svInfo = std::make_unique<SatelliteStatus>(*svStatus);
+    lock.unlock();
     WriteLocationInnerEvent(RECEIVE_SATELLITESTATUSINFO, names, satelliteStatusInfos);
     gnssAbility->ReportSv(svStatus);
     return ERR_OK;
@@ -154,6 +157,7 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
 
 void GnssEventCallback::SendDummySvInfo()
 {
+    std::unique_lock<std::mutex> lock(svInfoMutex_);
     if (g_svInfo == nullptr) {
         LBSLOGE(GNSS, "%{public}s: sv is nullptr.", __func__);
         return;
