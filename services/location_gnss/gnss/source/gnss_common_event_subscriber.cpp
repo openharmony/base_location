@@ -23,7 +23,7 @@ namespace OHOS {
 namespace Location {
 void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData &data)
 {
-    LBSLOGI(GNSS, "OnReceiveEvent");
+    LBSLOGD(GNSS, "OnReceiveEvent");
     auto want = data.GetWant();
     std::string action = want.GetAction();
 
@@ -35,7 +35,7 @@ void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEvent
         LBSLOGI(GNSS, "[AGNSS NI]:receive wap push msg");
         agnssNiManager->CheckWapSuplInit(want);
     } else if (action == CommonEventSupport::COMMON_EVENT_CALL_STATE_CHANGED) {
-        LBSLOGI(GNSS, "[AGNSS NI]:receive call state msg");
+        LBSLOGD(GNSS, "[AGNSS NI]:receive call state msg");
         agnssNiManager->OnCallStateChanged(want);
     } else if (action == AGNSS_NI_ACCEPT_EVENT) {
         LBSLOGI(GNSS, "[AGNSS NI]:receive user accept event");
