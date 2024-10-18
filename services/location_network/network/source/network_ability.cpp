@@ -42,9 +42,11 @@ const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const uint32_t DELAY_RESTART_MS = 500;
+const uint32_t DELAY_DINCONNECT_MS = 5 * 1000;
 constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
+const std::string DISCONNECT_NETWORK_TASK = "disconnect_network_ability";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
     NetworkAbility::GetInstance());
@@ -284,17 +286,37 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     }
     if (isAdded) {
         RequestNetworkLocation(workRecord);
+        if (networkHandler_ != nullptr) {
+            networkHandler_->RemoveTask(DISCONNECT_NETWORK_TASK);
+        }
     } else {
         RemoveNetworkLocation(workRecord);
-        std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
-        if (GetRequestNum() == 0 && conn_ != nullptr) {
-            LBSLOGI(NETWORK, "RequestRecord disconnect");
-            AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
-            UnregisterNlpServiceDeathRecipient();
-            conn_ = nullptr;
+        if (networkHandler_ != nullptr) {
+            networkHandler_->RemoveTask(DISCONNECT_NETWORK_TASK);
+            auto disconnectTask = [this]() {
+                auto networkAbility = NetworkAbility::GetInstance();
+                if (networkAbility == nullptr) {
+                    LBSLOGE(NETWORK, "OnRemoteDied: NetworkAbility is nullptr");
+                    return;
+                };
+                networkAbility->DisconnectAbilityConnect();
+            };
+            networkHandler_->PostTask(disconnectTask, DISCONNECT_NETWORK_TASK, DELAY_DINCONNECT_MS);
         }
     }
 }
+
+void NetworkAbility::DisconnectAbilityConnect()
+{
+    std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
+	if (GetRequestNum() == 0 && conn_ != nullptr) {
+        LBSLOGI(NETWORK, "RequestRecord disconnect");
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        UnregisterNlpServiceDeathRecipient();
+        conn_ = nullptr;
+    }
+}
+
 
 bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
 {
