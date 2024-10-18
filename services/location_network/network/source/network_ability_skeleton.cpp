@@ -119,7 +119,7 @@ int NetworkAbilityStub::OnRemoteRequest(uint32_t code,
     AppIdentity identity;
     identity.SetPid(callingPid);
     identity.SetUid(callingUid);
-	std::string currentTime = std::to_string(CommonUtils::GetCurrentTimeStamp());
+    std::string currentTime = std::to_string(CommonUtils::GetCurrentTimeStamp());
     LBSLOGI(NETWORK,
         "OnRemoteRequest cmd=%{public}u,flags=%{public}d,pid=%{public}d,uid=%{public}d,time=%{public}s",
         code, option.GetFlags(), callingPid, callingUid, currentTime.c_str());
