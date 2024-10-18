@@ -291,19 +291,21 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         }
     } else {
         RemoveNetworkLocation(workRecord);
-        if (networkHandler_ != nullptr) {
-            networkHandler_->RemoveTask(DISCONNECT_NETWORK_TASK);
-            auto disconnectTask = [this]() {
-                auto networkAbility = NetworkAbility::GetInstance();
-                if (networkAbility == nullptr) {
-                    LBSLOGE(NETWORK, "OnRemoteDied: NetworkAbility is nullptr");
-                    return;
-                };
-                networkAbility->DisconnectAbilityConnect();
-            };
-            networkHandler_->PostTask(disconnectTask, DISCONNECT_NETWORK_TASK, DELAY_DINCONNECT_MS);
+        if (networkHandler_ == nullptr) {
+            return;
         }
+        networkHandler_->RemoveTask(DISCONNECT_NETWORK_TASK);
+        auto disconnectTask = [this]() {
+            auto networkAbility = NetworkAbility::GetInstance();
+            if (networkAbility == nullptr) {
+                LBSLOGE(NETWORK, "OnRemoteDied: NetworkAbility is nullptr");
+                return;
+            };
+            networkAbility->DisconnectAbilityConnect();
+        };
+        networkHandler_->PostTask(disconnectTask, DISCONNECT_NETWORK_TASK, DELAY_DINCONNECT_MS);
     }
+
 }
 
 void NetworkAbility::DisconnectAbilityConnect()
