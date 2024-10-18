@@ -116,7 +116,6 @@ bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     } else if (!isStart && request->GetApproximatelyPermState()) {
         int ret = PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
         if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
-            LBSLOGE(REQUEST_MANAGER, "StopUsingPermission failed ret=%{public}d", ret);
             return false;
         }
         request->SetApproximatelyPermState(false);

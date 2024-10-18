@@ -34,6 +34,7 @@ CountryCodeCallbackNapi::CountryCodeCallbackNapi()
 
 CountryCodeCallbackNapi::~CountryCodeCallbackNapi()
 {
+    LBSLOGW(COUNTRY_CODE_CALLBACK, "~CountryCodeCallbackNapi()");
 }
 
 int CountryCodeCallbackNapi::OnRemoteRequest(
@@ -78,6 +79,8 @@ void DeleteCountryCodeCallback(napi_ref cb)
             break;
         }
     }
+    LBSLOGW(COUNTRY_CODE_CALLBACK, "after DeleteCountryCodeCallback, callback size %{public}s",
+        std::to_string(g_registerCallbacks.size()).c_str());
 }
 
 bool CountryCodeCallbackNapi::Send(const std::shared_ptr<CountryCode>& country)
@@ -141,12 +144,6 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            if (!FindCountryCodeCallback(context->callback[0])) {
-                LBSLOGE(COUNTRY_CODE_CALLBACK, "no valid callback");
-                delete context;
-                delete work;
-                return;
-            }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(COUNTRY_CODE_CALLBACK, "scope is nullptr");
@@ -165,12 +162,18 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
+                napi_status ret = napi_ok;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                     napi_get_undefined(context->env, &undefine), scope, context, work);
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
-                    scope, context, work);
-                if (napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
+                if (FindCountryCodeCallback(context->callback[0])) {
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                        napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
+                        scope, context, work);
+                    ret = napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine);
+                } else {
+                    LBSLOGE(COUNTRY_CODE_CALLBACK, "no valid callback");
+                }
+                if (ret != napi_ok) {
                     LBSLOGE(COUNTRY_CODE_CALLBACK, "Report event failed");
                 }
             }

@@ -58,6 +58,7 @@ void LocatorCallbackNapi::InitLatch()
 LocatorCallbackNapi::~LocatorCallbackNapi()
 {
     delete latch_;
+    LBSLOGW(LOCATOR_CALLBACK, "~LocatorCallbackNapi()");
 }
 
 int LocatorCallbackNapi::OnRemoteRequest(uint32_t code,
@@ -157,6 +158,8 @@ void DeleteLocationCallback(napi_ref cb)
             break;
         }
     }
+    LBSLOGW(LOCATOR_CALLBACK, "after DeleteLocationCallback, callback size %{public}s",
+        std::to_string(g_registerCallbacks.size()).c_str());
 }
 
 void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
@@ -176,12 +179,6 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
             delete work;
             return;
         }
-        if (!FindLocationCallback(context->callback[0])) {
-            LBSLOGE(LOCATOR_CALLBACK, "no valid callback");
-            delete context;
-            delete work;
-            return;
-        }
         napi_open_handle_scope(context->env, &scope);
         if (scope == nullptr) {
             DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
@@ -197,11 +194,17 @@ void LocatorCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
         if (context->callback[0] != nullptr) {
             napi_value undefine = nullptr;
             napi_value handler = nullptr;
+            napi_status ret = napi_ok;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                 scope, context, work);
-            CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
-            if (napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
+            if (FindLocationCallback(context->callback[0])) {
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                    napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
+                ret = napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine);
+            } else {
+                LBSLOGE(LOCATOR_CALLBACK, "no valid callback");
+            }
+            if (ret != napi_ok) {
                 LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
             }
         }
