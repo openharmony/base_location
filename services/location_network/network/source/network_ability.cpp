@@ -305,20 +305,18 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         };
         networkHandler_->PostTask(disconnectTask, DISCONNECT_NETWORK_TASK, DELAY_DINCONNECT_MS);
     }
-
 }
 
 void NetworkAbility::DisconnectAbilityConnect()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
-	if (GetRequestNum() == 0 && conn_ != nullptr) {
+    if (GetRequestNum() == 0 && conn_ != nullptr) {
         LBSLOGI(NETWORK, "RequestRecord disconnect");
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         UnregisterNlpServiceDeathRecipient();
         conn_ = nullptr;
     }
 }
-
 
 bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
 {
