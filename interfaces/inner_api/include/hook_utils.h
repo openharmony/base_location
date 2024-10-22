@@ -43,6 +43,7 @@ enum class LocationProcessStage {
     ADD_REQUEST_TO_WORK_RECORD,
     LOCATOR_SA_LOCATION_PERMISSION_CHECK,
     LOCATOR_SA_COMMAND_PROCESS,
+    LOCATOR_SA_LOCATION_CACHE_TIME_CHECK,
 };
 
 typedef struct {
@@ -98,6 +99,7 @@ public:
         std::string bundleName);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
+    static bool ExecuteHookWhenCheckAppForCacheTime(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS

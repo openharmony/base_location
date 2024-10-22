@@ -172,6 +172,7 @@ public:
     static bool CheckAppInstalled(const std::string& bundleName);
     static int64_t GetCurrentTime();
     static int64_t GetCurrentTimeStamp();
+    static int64_t GetCurrentTimeStampMs();
     static std::vector<std::string> Split(std::string str, std::string pattern);
     static errno_t GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN]);
     static unsigned char ConvertStringToDigit(std::string str);

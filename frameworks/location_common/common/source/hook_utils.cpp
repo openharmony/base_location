@@ -135,5 +135,15 @@ bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& locat
         LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
     return gnssLocationValidStruct.result;
 }
+
+bool HookUtils::ExecuteHookWhenCheckAppForCacheTime(std::string packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_LOCATION_CACHE_TIME_CHECK, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
 } // namespace Location
 } // namespace OHOS

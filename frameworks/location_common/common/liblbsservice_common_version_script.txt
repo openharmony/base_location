@@ -23,7 +23,7 @@
     "*Location*WriteAppLocatingStateEvent*";
     "*ExecuteHookWhenAddWorkRecord*";
     "*LOCATOR_SA_LOCATION_PERMISSION_CHECK*";
-
+    "*ExecuteHookWhenCheckAppForCacheTime*";
   local:
     *;
 };
