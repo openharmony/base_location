@@ -171,6 +171,7 @@ void LocatorAbility::OnStop()
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
     SetLocationhubStateToSyspara(LOCATIONHUB_STATE_UNLOAD);
+    LocatorRequiredDataManager::GetInstance()->UnregisterWifiCallBack();
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
 }
 
