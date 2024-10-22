@@ -35,8 +35,8 @@ const long NANOS_PER_MILLI = 1000000L;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
-static constexpr int GNSS_FIX_CACHED_TIME = 25;
-static constexpr int NLP_FIX_CACHED_TIME = 25;
+static constexpr int CACHED_TIME = 25;
+static constexpr int LONG_CACHE_DURATION = 60;
 
 ReportManager* ReportManager::GetInstance()
 {
@@ -343,11 +343,18 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     std::unique_ptr<Location> cacheLocation = nullptr;
+    std::string packageName = request->GetPackageName();
+    int cachedTime = 0
+    if (HookUtils::ExecuteHookWhenCheckAppForCacheTime(packageName)) {
+        cachedTime = LONG_CACHE_DURATION;
+    } else {
+        cachedTime = CACHED_TIME;
+    }
     if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= GNSS_FIX_CACHED_TIME) {
+        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= NLP_FIX_CACHED_TIME) {
+        (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
