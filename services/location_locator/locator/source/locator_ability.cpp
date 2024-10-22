@@ -61,6 +61,7 @@
 #include "iservice_registry.h"
 #include "geo_convert_request.h"
 #include "parameter.h"
+#include "self_request_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -171,7 +172,6 @@ void LocatorAbility::OnStop()
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
     SetLocationhubStateToSyspara(LOCATIONHUB_STATE_UNLOAD);
-    LocatorRequiredDataManager::GetInstance()->UnregisterWifiCallBack();
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
 }
 

@@ -344,7 +344,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     std::unique_ptr<Location> cacheLocation = nullptr;
     std::string packageName = request->GetPackageName();
-    int cachedTime = 0
+    int cachedTime = 0;
     if (HookUtils::ExecuteHookWhenCheckAppForCacheTime(packageName)) {
         cachedTime = LONG_CACHE_DURATION;
     } else {

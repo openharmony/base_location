@@ -27,8 +27,9 @@
 
 namespace OHOS {
 namespace Location {
-std::mutex SelfRequestManager::requestListMutex_;
 std::mutex SelfRequestManager::locatorMutex_;
+const uint32_t EVENT_STARTLOCATING = 0x0100;
+const uint32_t EVENT_STOPLOCATING = 0x0200;
 SelfRequestManager* SelfRequestManager::GetInstance()
 {
     static SelfRequestManager data;
@@ -37,13 +38,12 @@ SelfRequestManager* SelfRequestManager::GetInstance()
 
 SelfRequestManager::SelfRequestManager()
 {
-    InitArgsFromProp();
     selfRequestManagerHandler_ = std::make_shared<SelfRequestManagerHandler>(AppExecFwk::EventRunner::Create(true,
         AppExecFwk::ThreadMode::FFRT));
 
     auto requestConfig = std::make_unique<RequestConfig>();
     requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
-    requestConfig->SetTimeInterval(timeInterval_);
+    requestConfig->SetTimeInterval(1);
     callback_ = sptr<mLocatorCallback>(new (std::nothrow) SelfRequestManager::mLocatorCallback());
     if (callback_ == nullptr) {
         return;
@@ -73,13 +73,13 @@ void SelfRequestManager::StartLocatorThread()
     std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
     lock.lock();
     if (isLocating_ || !proxySwtich_) {
-        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "cancel locating");
+        LBSLOGD(LOCATOR, "cancel locating");
         lock.unlock();
         return;
     }
     isLocating_ = true;
     lock.unlock();
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "SelfRequestManager start locating");
+    LBSLOGI(LOCATOR, "SelfRequestManager start locating");
     requestManager->HandleStartLocating(request_);
 }
 
@@ -95,15 +95,15 @@ void SelfRequestManager::StopLocatorThread()
     isLocating_ = false;
     lock.unlock();
     locatorAbility->StopLocating(callback_);
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "SelfRequestManager stop locating");
+    LBSLOGI(LOCATOR, "SelfRequestManager stop locating");
 }
 
-void SelfRequestManager::StopLocator()
+void SelfRequestManager::StopSelfRequest()
 {
     selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, 0);
 }
 
-void SelfRequestManager::StartLocator()
+void SelfRequestManager::StartSelfRequest()
 {
     selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STARTLOCATING, 0, 0);
     selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, DEFAULT_TIMEOUT_5S);
@@ -111,8 +111,8 @@ void SelfRequestManager::StartLocator()
 
 void SelfRequestManager::mLocatorCallback::OnLocationReport(const std::unique_ptr<Location>& location)
 {
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "locator background OnLocationReport");
-    SelfRequestManager::GetInstance()->StopLocator();
+    LBSLOGD(LOCATOR, "locator background OnLocationReport");
+    SelfRequestManager::GetInstance()->StopSelfRequest();
 }
 
 void SelfRequestManager::mLocatorCallback::OnLocatingStatusChange(const int status)
@@ -123,12 +123,12 @@ void SelfRequestManager::mLocatorCallback::OnErrorReport(const int errorCode)
 {
 }
 
-LocatorBackgroundHandler::LocatorBackgroundHandler(
+SelfRequestManagerHandler::SelfRequestManagerHandler(
     const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
 
-LocatorBackgroundHandler::~LocatorBackgroundHandler() {}
+SelfRequestManagerHandler::~SelfRequestManagerHandler() {}
 
-void LocatorBackgroundHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void SelfRequestManagerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto SelfRequestManager = SelfRequestManager::GetInstance();
     uint32_t eventId = event->GetInnerEventId();

@@ -441,7 +441,7 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
             g_locatorProxy->GetCachedLocationV9(location);
 #else
             location = g_locatorProxy->GetCachedLocation();
-#endif      
+#endif
             int64_t curTime = CommonUtils::GetCurrentTimeStamp();
             if (location != nullptr &&
                 (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {

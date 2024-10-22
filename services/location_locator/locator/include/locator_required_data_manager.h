@@ -200,12 +200,6 @@ public:
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
     bool IsConnecting();
     static LocatorRequiredDataManager* GetInstance();
-    void SyncStillMovementState(bool state);
-    void SendWifiScanEvent();
-    void SendGetWifiListEvent(int timeout);
-    void SetToObtainCellinfo();
-    void UpdateWifiScanCompleteTimestamp();
-    int64_t GetWifiScanCompleteTimestamp();
 
 private:
     int timeInterval_ = 0;
@@ -217,10 +211,12 @@ public:
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByWifi(
         const std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
     __attribute__((no_sanitize("cfi"))) void GetWifiScanList(std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
+    void SendWifiScanEvent();
 private:
     void WifiInfoInit();
     bool IsWifiCallbackRegistered();
     void SetIsWifiCallbackRegistered(bool isWifiCallbackRegistered);
+    std::shared_ptr<Wifi::WifiScan> wifiScanPtr_;
     bool isWifiCallbackRegistered_ = false;
     std::mutex wifiRegisteredMutex_;
     WifiEvent wifiScanEventCallback_ = {0};
@@ -229,13 +225,6 @@ private:
     std::map<sptr<IRemoteObject>, AppIdentity> callbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
-    int64_t wifiScanTimestamp_ = 0;
-    std::mutex wifiScanCompleteTimestampMutex_;
-    int64_t wifiScanCompleteTimestamp_ = 0;
-    int64_t getWifiScanInfoTimestamp_ = 0;
-    std::mutex lastStillTimeMutex_;
-    int64_t lastStillTime_ = 0;
-    std::vector<Wifi::WifiScanInfo> wifiScanInfo_;
 };
 } // namespace Location
 } // namespace OHOS

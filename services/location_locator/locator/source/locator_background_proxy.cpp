@@ -34,7 +34,6 @@
 
 #include "accesstoken_kit.h"
 #include "tokenid_kit.h"
-#include "ipc_skeleton.h"
 
 #ifdef BGTASKMGR_SUPPORT
 #include "background_mode.h"
@@ -49,9 +48,6 @@ namespace OHOS {
 namespace Location {
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
-const uint32_t EVENT_STARTLOCATING = 0x0100;
-const uint32_t EVENT_STOPLOCATING = 0x0200;
-
 LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 {
     static LocatorBackgroundProxy data;
@@ -61,8 +57,6 @@ LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 LocatorBackgroundProxy::LocatorBackgroundProxy()
 {
     InitArgsFromProp();
-    locatorBackgroundHandler_ = std::make_shared<LocatorBackgroundHandler>(AppExecFwk::EventRunner::Create(true,
-        AppExecFwk::ThreadMode::FFRT));
     if (!featureSwitch_) {
         return;
     }
@@ -72,7 +66,7 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetPriority(PRIORITY_LOW_POWER);
     requestConfig->SetTimeInterval(timeInterval_);
     callback_ = sptr<mLocatorCallback>(new (std::nothrow) LocatorBackgroundProxy::mLocatorCallback());
     if (callback_ == nullptr) {
@@ -87,12 +81,9 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     request_->SetPackageName(PROC_NAME);
     request_->SetRequestConfig(*requestConfig);
     request_->SetLocatorCallBack(callback_);
-    request_->SetUuid(PROC_NAME);
-    request_->SetTokenId(IPCSkeleton::GetCallingTokenID());
-    request_->SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     SubscribeSaStatusChangeListerner();
     isUserSwitchSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
-    proxySwtich_ = (LocationDataRdbManager::QuerySwitchState() == ENABLED);
+    proxySwtich_ = (LocationConfigManager::GetInstance()->GetLocationSwitchState() == ENABLED);
     RegisterAppStateObserver();
 }
 
@@ -131,9 +122,12 @@ void LocatorBackgroundProxy::SubscribeSaStatusChangeListerner()
 void LocatorBackgroundProxy::StartLocatorThread()
 {
     auto requestManager = RequestManager::GetInstance();
+    auto locatorAbility = LocatorAbility::GetInstance();
+    std::this_thread::sleep_for(std::chrono::seconds(timeInterval_));
     std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
     lock.lock();
-    if (isLocating_ || !proxySwtich_) {
+    isWating_ = false;
+    if (isLocating_ || !proxySwtich_ || requestsList_->empty()) {
         LBSLOGD(LOCATOR_BACKGROUND_PROXY, "cancel locating");
         lock.unlock();
         return;
@@ -142,6 +136,7 @@ void LocatorBackgroundProxy::StartLocatorThread()
     lock.unlock();
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "real start locating");
     requestManager->HandleStartLocating(request_);
+    locatorAbility->ReportLocationStatus(callback_, SESSION_START);
 }
 
 void LocatorBackgroundProxy::StopLocatorThread()
@@ -161,13 +156,10 @@ void LocatorBackgroundProxy::StopLocatorThread()
 
 void LocatorBackgroundProxy::StopLocator()
 {
-    locatorBackgroundHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, 0);
 }
 
 void LocatorBackgroundProxy::StartLocator()
 {
-    locatorBackgroundHandler_->SendHighPriorityEvent(EVENT_STARTLOCATING, 0, 0);
-    locatorBackgroundHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, DEFAULT_TIMEOUT_5S);
 }
 
 void LocatorBackgroundProxy::UpdateListOnRequestChange(const std::shared_ptr<Request>& request)
@@ -186,11 +178,38 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
 // when switch off, stop proxy
 void LocatorBackgroundProxy::OnSaStateChange(bool enable)
 {
+    if (proxySwtich_ == enable || !featureSwitch_) {
+        return;
+    }
+    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnSaStateChange %{public}d", enable);
+    proxySwtich_ = enable;
+    if (enable && !requestsList_->empty()) {
+        StartLocator();
+    } else {
+        StopLocator();
+    }
 }
 
 // called when deleteRequest called from locator ability (e.g. app stop locating)
 void LocatorBackgroundProxy::OnDeleteRequestRecord(const std::shared_ptr<Request>& request)
 {
+    if (!featureSwitch_) {
+        return;
+    }
+    bool listEmpty = false;
+    std::unique_lock<std::mutex> lock(requestListMutex_, std::defer_lock);
+    lock.lock();
+    auto it = find(requestsList_->begin(), requestsList_->end(), request);
+    if (it != requestsList_->end()) {
+        requestsList_->remove(request);
+        if (requestsList_->empty()) {
+            listEmpty = true;
+        }
+    }
+    lock.unlock();
+    if (listEmpty) {
+        StopLocator();
+    }
 }
 
 bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& request) const
@@ -256,6 +275,12 @@ void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
     if (locatorAbility != nullptr) {
         locatorAbility->ApplyRequests(0);
     }
+    if (!requestsList_->empty()) {
+        StartLocator();
+    } else {
+        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnUserSwitch stoplocator");
+        StopLocator();
+    }
 }
 
 void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
@@ -290,7 +315,16 @@ bool LocatorBackgroundProxy::CheckMaxRequestNum(pid_t uid, const std::string& pa
 void LocatorBackgroundProxy::mLocatorCallback::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "locator background OnLocationReport");
-    LocatorBackgroundProxy::GetInstance()->StopLocator();
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
+    auto requestsList = locatorBackgroundProxy->GetRequestsInProxy();
+    if (requestsList.empty()) {
+        locatorBackgroundProxy->StopLocator();
+        return;
+    }
+    // call the callback of each proxy app
+    for (auto request : requestsList) {
+        request->GetLocatorCallBack()->OnLocationReport(location);
+    }
 }
 
 void LocatorBackgroundProxy::mLocatorCallback::OnLocatingStatusChange(const int status)
@@ -491,29 +525,6 @@ void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::Ap
     LBSLOGD(REQUEST_MANAGER,
         "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     requestManager->HandlePowerSuspendChanged(pid, uid, state);
-}
-
-LocatorBackgroundHandler::LocatorBackgroundHandler(
-    const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
-
-LocatorBackgroundHandler::~LocatorBackgroundHandler() {}
-
-void LocatorBackgroundHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
-{
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    uint32_t eventId = event->GetInnerEventId();
-    switch (eventId) {
-        case EVENT_STARTLOCATING: {
-            locatorBackgroundProxy->StartLocatorThread();
-            break;
-        }
-        case EVENT_STOPLOCATING: {
-            locatorBackgroundProxy->StopLocatorThread();
-            break;
-        }
-        default:
-            break;
-    }
 }
 } // namespace OHOS
 } // namespace Location

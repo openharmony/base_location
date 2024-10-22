@@ -24,6 +24,7 @@
 
 #include "i_locator_callback.h"
 #include "request.h"
+#include "iremote_stub.h"
 
 namespace OHOS {
 namespace Location {
@@ -39,10 +40,15 @@ public:
     static SelfRequestManager* GetInstance();
     SelfRequestManager();
     ~SelfRequestManager();
-    void StartLocator();
-    void StopLocator();
+    void StartSelfRequest();
+    void StopSelfRequest();
     void StartLocatorThread();
     void StopLocatorThread();
+    class mLocatorCallback : public IRemoteStub<ILocatorCallback> {
+    public:
+        void OnLocationReport(const std::unique_ptr<Location>& location);
+        void OnLocatingStatusChange(const int status);
+        void OnErrorReport(const int errorCode);
     };
 
     bool isLocating_ = false;
