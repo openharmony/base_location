@@ -29,14 +29,15 @@ const uint32_t EVENT_GET_WIFI_LIST = 0x0300;
 const uint32_t EVENT_REGISTER_WIFI_CALLBACK = 0x0400;
 const uint32_t EVENT_UNREGISTER_WIFI_CALLBACK = 0x0500;
 const int32_t DEFAULT_TIMEOUT_4S = 4000;
+const int32_t DEFAULT_TIMEOUT_MS = 1500;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
-#ifdef WIFI_ENABLE
-    WifiInfoInit();
-#endif
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     wifiSdkHandler_ =
         std::make_shared<WifiSdkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+    if (wifiSdkHandler_ != nullptr) {
+        wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
+    }
 }
 
 LocatorRequiredDataManager* LocatorRequiredDataManager::GetInstance()
@@ -47,6 +48,44 @@ LocatorRequiredDataManager* LocatorRequiredDataManager::GetInstance()
 
 LocatorRequiredDataManager::~LocatorRequiredDataManager()
 {
+    if (wifiSdkHandler_ != nullptr) {
+        wifiSdkHandler_->SendEvent(EVENT_UNREGISTER_WIFI_CALLBACK, 0, 0);
+    }
+}
+
+void LocatorRequiredDataManager::SyncStillMovementState(bool state)
+{
+    std::unique_lock<std::mutex> lock(lastStillTimeMutex_);
+    if (state) {
+        lastStillTime_ = CommonUtils::GetCurrentTimeStampMs();
+        SendWifiScanEvent();
+    } else {
+        lastStillTime_ = 0;
+    }
+}
+
+void LocatorRequiredDataManager::SetToObtainCellinfo()
+{
+    bool needScan = false;
+    wifiScanTimestamp_ = CommonUtils::GetCurrentTimeStampMs();
+    std::unique_lock<std::mutex> lock(wifiScanCompleteTimestampMutex_);
+    wifiScanCompleteTimestamp_ = wifiScanTimestamp_ + 1;
+}
+
+void LocatorRequiredDataManager::SendWifiScanEvent()
+{
+    if (scanHandler_ != nullptr) {
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+            EVENT_START_SCAN, 1);
+        scanHandler_->SendEvent(event);
+    }
+}
+
+void LocatorRequiredDataManager::SendGetWifiListEvent(int timeout)
+{
+    if (wifiSdkHandler_ != nullptr) {
+        wifiSdkHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, timeout);
+    }
 }
 
 __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::RegisterCallback(
@@ -59,21 +98,20 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         callbacksMap_[callback] = identity;
         LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
             std::to_string(callbacksMap_.size()).c_str());
+        if (!IsWifiCallbackRegistered() && wifiSdkHandler_ != nullptr) {
+            wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
+        }
         bool needScan = false;
-        if (config->GetNeedStartScan() && (callbacksMap_.size() == 1 || !IsWifiCallbackRegistered())) {
+        if (config->GetNeedStartScan()) {
             needScan = true;
         }
         lock.unlock();
         if (needScan) {
-            if (wifiSdkHandler_ != nullptr) {
-                wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
-            }
-            timeInterval_ = config->GetScanIntervalMs();
-            if (scanHandler_ != nullptr) {
-                AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
-                    EVENT_START_SCAN, config->GetFixNumber());
-                scanHandler_->SendEvent(event);
-            }
+            SendWifiScanEvent();
+            SendGetWifiListEvent(DEFAULT_TIMEOUT_4S >= config->GetScanTimeoutMs() ?
+                config->GetScanTimeoutMs() : DEFAULT_TIMEOUT_4S);
+        } else {
+            SendGetWifiListEvent(0);
         }
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
@@ -97,12 +135,6 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
         return ERRCODE_SUCCESS;
     }
     lock.unlock();
-    if (wifiSdkHandler_ != nullptr) {
-        wifiSdkHandler_->SendEvent(EVENT_UNREGISTER_WIFI_CALLBACK, 0, 0);
-    }
-    if (scanHandler_ != nullptr) {
-        scanHandler_->SendEvent(EVENT_STOP_SCAN, 0, 0);
-    }
 #endif
     return ERRCODE_SUCCESS;
 }
@@ -178,11 +210,6 @@ void LocatorBleCallbackWapper::OnNotifyMsgReportFromLpDevice(const Bluetooth::UU
 #endif
 
 #ifdef WIFI_ENABLE
-void LocatorRequiredDataManager::WifiInfoInit()
-{
-    wifiScanPtr_ = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
-}
-
 bool LocatorRequiredDataManager::IsWifiCallbackRegistered()
 {
     std::unique_lock<std::mutex> lock(wifiRegisteredMutex_);
@@ -237,6 +264,8 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::GetWifiScan
     if (wifiSdkHandler_ != nullptr) {
         wifiSdkHandler_->RemoveEvent(EVENT_GET_WIFI_LIST);
     }
+    wifiScanInfo_ = wifiScanInfo;
+    getWifiScanInfoTimestamp_ = CommonUtils::GetCurrentTimeStampMs();
 }
 
 std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::GetLocatingRequiredDataByWifi(
@@ -258,6 +287,18 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::G
     return res;
 }
 
+void LocatorRequiredDataManager::UpdateWifiScanCompleteTimestamp()
+{
+    std::unique_lock<std::mutex> lock(wifiScanCompleteTimestampMutex_);
+    wifiScanCompleteTimestamp_ = CommonUtils::GetCurrentTimeStampMs();
+}
+
+int64_t LocatorRequiredDataManager::GetWifiScanCompleteTimestamp()
+{
+    std::unique_lock<std::mutex> lock(wifiScanCompleteTimestampMutex_);
+    return wifiScanCompleteTimestamp_;
+}
+
 void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
 {
     LBSLOGD(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
@@ -265,6 +306,7 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
         LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
     }
     auto dataManager = LocatorRequiredDataManager::GetInstance();
+    dataManager->UpdateWifiScanCompleteTimestamp();
     if (!dataManager->IsConnecting()) {
         LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
         return;
@@ -307,38 +349,27 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
         LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
         return;
     }
-    if (!IsConnecting()) {
-        if (scanHandler_ != nullptr) {
-            scanHandler_->RemoveEvent(EVENT_START_SCAN);
-        }
-        if (wifiSdkHandler_ != nullptr) {
-            wifiSdkHandler_->RemoveEvent(EVENT_GET_WIFI_LIST);
-        }
-        return;
-    }
 #ifdef WIFI_ENABLE
-    if (wifiScanPtr_ == nullptr) {
+    bool needScan = false;
+    // �����ϴ�ɨ�賬��1.5�룬�����Ѿ�ɨ�����
+    int64_t time = CommonUtils::GetCurrentTimeStampMs();
+    if ((time - wifiScanTimestamp_ > DEFAULT_TIMEOUT_MS &&
+        GetWifiScanCompleteTimestamp() > wifiScanTimestamp_)) {
+        needScan = true;
+    }
+    if (!needScan) {
+        if (GetWifiScanCompleteTimestamp() > wifiScanTimestamp_) {
+            SendGetWifiListEvent(0);
+        }
         return;
     }
-    int ret = wifiScanPtr_->Scan();
+    wifiScanTimestamp_ = CommonUtils::GetCurrentTimeStampMs();
+    int ret = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID)->Scan();
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
-        if (wifiSdkHandler_ != nullptr) {
-            wifiSdkHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, 0);
-        }
-    } else {
-        if (wifiSdkHandler_ != nullptr) {
-            wifiSdkHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, DEFAULT_TIMEOUT_4S);
-        }
+        SendGetWifiListEvent(0);
     }
 #endif
-    if (fixNumber == 1) {
-        return;
-    }
-    LBSLOGD(LOCATOR, "StartWifiScan timeInterval_=%{public}d", timeInterval_);
-    if (scanHandler_ != nullptr) {
-        scanHandler_->SendHighPriorityEvent(EVENT_START_SCAN, 0, timeInterval_);
-    }
 }
 
 bool LocatorRequiredDataManager::IsConnecting()

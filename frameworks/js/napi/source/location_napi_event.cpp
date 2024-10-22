@@ -435,7 +435,17 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
         }
         g_locatorProxy->StopLocating(callbackPtr);
         if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() == nullptr) {
-            context->errCode = ERRCODE_LOCATING_FAIL;
+            std::unique_ptr<Location> location = nullptr;
+#ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->GetCachedLocationV9(location);
+#else
+            location = g_locatorProxy->GetCachedLocation();
+#endif
+            if (location != nullptr) {
+                callbackHost->SetSingleLocation(location);
+            } else {
+                context->errCode = ERRCODE_LOCATING_FAIL;
+            }
         }
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER

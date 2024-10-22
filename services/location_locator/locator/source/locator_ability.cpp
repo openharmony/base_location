@@ -96,7 +96,7 @@ const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
-const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
+const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * 60 * RETRY_INTERVAL_UNITE;
 const int COMMON_SA_ID = 4353;
 const int COMMON_SWITCH_STATE_ID = 30;
 const std::u16string COMMON_DESCRIPTION = u"location.IHifenceAbility";
@@ -171,6 +171,7 @@ void LocatorAbility::OnStop()
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
     SetLocationhubStateToSyspara(LOCATIONHUB_STATE_UNLOAD);
+    LocatorRequiredDataManager::GetInstance()->UnregisterWifiCallBack();
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
 }
 
@@ -958,13 +959,14 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         Security::AccessToken::AccessTokenKit::GetPermissionUsedType(request->GetTokenId(),
         ACCESS_APPROXIMATELY_LOCATION);
     request->SetPermUsedType(static_cast<int>(type));
-
+    LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
     HandleStartLocating(request, callback);
 #else
     if (NeedReportCacheLocation(request, callback)) {
         LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
+        LocatorBackgroundProxy::GetInstance()->StartLocator();
         callback->AsObject()->RemoveDeathRecipient(death);
     } else {
         HandleStartLocating(request, callback);
@@ -1096,6 +1098,7 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity)
 {
+    LocatorBackgroundProxy::GetInstance()->StartLocator();
     if (locatorHandler_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
