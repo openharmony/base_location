@@ -510,7 +510,7 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
         return;
     }
-    LBSLOGD(LOCATOR, "%{public}s: %{public}s workRecord uid_ size %{public}d",
+    LBSLOGI(LOCATOR, "%{public}s: %{public}s workRecord uid_ size %{public}d",
         __func__, abilityName.c_str(), workRecord.Size());
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
