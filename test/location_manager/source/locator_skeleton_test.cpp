@@ -51,8 +51,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_WITHOUT_PERM = 1;
-const int32_t LOCATION_WITHOUT_MOCK_PERM_NUM = 5;
-const int32_t LOCATION_NATIVE_PERM_NUM = 6;
+const int32_t LOCATION_WITHOUT_MOCK_PERM_NUM = 6;
+const int32_t LOCATION_NATIVE_PERM_NUM = 7;
 const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 void LocatorSkeletonTest::SetUp()
 {
@@ -93,6 +93,7 @@ void LocatorSkeletonTest::MockNativePermission()
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
         RUNNING_STATE_OBSERVER.c_str(), ACCESS_MOCK_LOCATION.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -114,7 +115,7 @@ void LocatorSkeletonTest::MockNativeWithoutMockPermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        RUNNING_STATE_OBSERVER.c_str(),
+        RUNNING_STATE_OBSERVER.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -136,7 +137,7 @@ void LocatorSkeletonTest::MockNativeWithoutSecurePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), RUNNING_STATE_OBSERVER.c_str(),
-        ACCESS_MOCK_LOCATION.c_str(),
+        ACCESS_MOCK_LOCATION.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,

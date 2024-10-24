@@ -63,7 +63,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 5;
+const int32_t LOCATION_PERM_NUM = 6;
 #ifdef FEATURE_GEOCODE_SUPPORT
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
@@ -138,7 +138,7 @@ void LocatorServiceTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        RUNNING_STATE_OBSERVER.c_str(),
+        RUNNING_STATE_OBSERVER.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
