@@ -131,14 +131,16 @@ CJLocation GetLastLocation(int32_t& errCode)
         errCode = ERRCODE_MEMORY_ERROR;
         return CJLocation{0};
     }
-    auto loc = g_locatorProxy->GetCachedLocation();
-    if (loc != nullptr) {
-        errCode = Location::SUCCESS;
-        return NativeLocationToCJLocation(*loc);
-    } else {
-        errCode = Location::LAST_KNOWN_LOCATION_ERROR;
+    errCode = CheckLocationSwitchState();
+    if (errCode != Location::LocationErrCode::ERRCODE_SUCCESS) {
         return CJLocation{0};
     }
+    std::unique_ptr<Location::Location> loc;
+    errCode = g_locatorProxy->GetCachedLocationV9(loc);
+    if (loc == nullptr) {
+        return CJLocation{0};
+    }
+    return NativeLocationToCJLocation(*loc);
 }
 
 bool IsLocationEnabled(int32_t& errCode)
