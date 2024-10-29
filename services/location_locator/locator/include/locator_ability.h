@@ -222,6 +222,10 @@ private:
     bool CheckIfLocatorConnecting();
     void UpdateLoadedSaMap();
     bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
+    bool ReportSingleCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+        std::unique_ptr<Location>& cacheLocation);
+    bool ReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+        std::unique_ptr<Location>& cacheLocation);
     void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
