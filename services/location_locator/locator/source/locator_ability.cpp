@@ -160,7 +160,7 @@ void LocatorAbility::OnStart()
         locatorHandler_->SendHighPriorityEvent(EVENT_SYNC_LOCATION_STATUS, 0, 0);
         locatorHandler_->SendHighPriorityEvent(EVENT_WATCH_SWITCH_PARAMETER, 0, 0);
     }
-    LBSLOGI(LOCATOR, "LocatorAbility::OnStart start ability success.");
+    LBSLOGW(LOCATOR, "LocatorAbility::OnStart start ability success.");
 }
 
 void LocatorAbility::OnStop()
@@ -172,7 +172,7 @@ void LocatorAbility::OnStop()
     }
     SetLocationhubStateToSyspara(LOCATIONHUB_STATE_UNLOAD);
     LocatorRequiredDataManager::GetInstance()->UnregisterWifiCallBack();
-    LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
+    LBSLOGW(LOCATOR, "LocatorAbility::OnStop ability stopped.");
 }
 
 void LocatorAbility::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -965,7 +965,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     HandleStartLocating(request, callback);
 #else
     if (NeedReportCacheLocation(request, callback)) {
-        LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
+        LBSLOGW(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
         LocatorBackgroundProxy::GetInstance()->StartLocator();
         callback->AsObject()->RemoveDeathRecipient(death);
     } else {
@@ -1962,7 +1962,7 @@ void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Po
         int64_t time = location->GetTimeStamp();
         int64_t timeSinceBoot = location->GetTimeSinceBoot();
         double acc = location->GetAccuracy();
-        LBSLOGI(LOCATOR,
+        LBSLOGW(LOCATOR,
             "receive location: [%{public}s time=%{public}s timeSinceBoot=%{public}s acc=%{public}f]",
             abilityName.c_str(), std::to_string(time).c_str(), std::to_string(timeSinceBoot).c_str(), acc);
         reportManager->OnReportLocation(location, abilityName);

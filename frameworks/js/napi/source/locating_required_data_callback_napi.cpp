@@ -40,6 +40,7 @@ LocatingRequiredDataCallbackNapi::~LocatingRequiredDataCallbackNapi()
         delete latch_;
         latch_ = nullptr;
     }
+    LBSLOGW(LOCATING_DATA_CALLBACK, "~LocatingRequiredDataCallbackNapi()");
 }
 
 void LocatingRequiredDataCallbackNapi::InitLatch()
@@ -133,6 +134,8 @@ void DeleteRequiredDataCallback(napi_ref cb)
             break;
         }
     }
+    LBSLOGW(LOCATING_DATA_CALLBACK, "after DeleteRequiredDataCallback, callback size %{public}s",
+        std::to_string(g_registerCallbacks.size()).c_str());
 }
 
 bool LocatingRequiredDataCallbackNapi::IsRemoteDied()
@@ -196,12 +199,6 @@ void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 delete work;
                 return;
             }
-            if (!FindRequiredDataCallback(context->callback[0])) {
-                LBSLOGE(LOCATING_DATA_CALLBACK, "no valid callback");
-                delete context;
-                delete work;
-                return;
-            }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(LOCATING_DATA_CALLBACK, "scope is nullptr");
@@ -217,12 +214,17 @@ void LocatingRequiredDataCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
+                napi_status ret = napi_ok;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                     scope, context, work);
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
-                if (napi_call_function(context->env, nullptr, handler, 1,
-                    &jsEvent, &undefine) != napi_ok) {
+                if (FindRequiredDataCallback(context->callback[0])) {
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                        napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
+                    ret = napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine);
+                } else {
+                    LBSLOGE(LOCATING_DATA_CALLBACK, "no valid callback");
+                }
+                if (ret != napi_ok) {
                     LBSLOGE(LOCATING_DATA_CALLBACK, "Report event failed");
                 }
             }

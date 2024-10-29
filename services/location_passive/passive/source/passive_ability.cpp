@@ -140,7 +140,7 @@ bool PassiveAbility::CheckIfPassiveConnecting()
 
 void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
-    LBSLOGE(PASSIVE, "enter RequestRecord");
+    LBSLOGD(PASSIVE, "enter RequestRecord");
 }
 
 LocationErrCode PassiveAbility::EnableMock()

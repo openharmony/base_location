@@ -34,6 +34,7 @@ CachedLocationsCallbackNapi::CachedLocationsCallbackNapi()
 
 CachedLocationsCallbackNapi::~CachedLocationsCallbackNapi()
 {
+    LBSLOGW(CACHED_LOCATIONS_CALLBACK, "~CachedLocationsCallbackNapi()");
 }
 
 int CachedLocationsCallbackNapi::OnRemoteRequest(
@@ -116,6 +117,8 @@ void DeleteCachedLocationsCallback(napi_ref cb)
             break;
         }
     }
+    LBSLOGW(CACHED_LOCATIONS_CALLBACK, "after DeleteCachedLocationsCallback, callback size %{public}s",
+        std::to_string(g_registerCallbacks.size()).c_str());
 }
 
 bool CachedLocationsCallbackNapi::IsRemoteDied()
@@ -178,12 +181,6 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            if (!FindCachedLocationsCallback(context->callback[0])) {
-                LBSLOGE(CACHED_LOCATIONS_CALLBACK, "no valid callback");
-                delete context;
-                delete work;
-                return;
-            }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(CACHED_LOCATIONS_CALLBACK, "scope is nullptr");
@@ -198,12 +195,17 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
+                napi_status ret = napi_ok;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                     scope, context, work);
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
-                if (napi_call_function(context->env, nullptr, handler, 1,
-                    &jsEvent, &undefine) != napi_ok) {
+                if (FindCachedLocationsCallback(context->callback[0])) {
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                        napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
+                    ret = napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine);
+                } else {
+                    LBSLOGE(CACHED_LOCATIONS_CALLBACK, "no valid callback");
+                }
+                if (ret != napi_ok) {
                     LBSLOGE(CACHED_LOCATIONS_CALLBACK, "Report event failed");
                 }
             }
