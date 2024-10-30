@@ -281,7 +281,7 @@ LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const n
     locatingCallbackHost->SetHandleCb(handlerRef);
     std::unique_ptr<LocatingRequiredDataConfig> dataConfig = std::make_unique<LocatingRequiredDataConfig>();
     JsObjToLocatingRequiredDataConfig(env, object, dataConfig);
-    return g_locatorProxy->RegisterLocatingRequiredDataCallback(dataConfig, callbackPtr);
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode SubscribeLocationError(const napi_env& env,
@@ -405,7 +405,7 @@ LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataC
 {
     LBSLOGD(LOCATION_NAPI, "%{public}s start", __func__);
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
-    return g_locatorProxy->UnRegisterLocatingRequiredDataCallback(callbackPtr);
+    return ERRCODE_NOT_SUPPORTED;
 }
 #endif
 
