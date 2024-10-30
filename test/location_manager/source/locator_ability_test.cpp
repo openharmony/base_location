@@ -78,7 +78,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const std::string ARGS_HELP = "-h";
 void LocatorAbilityTest::SetUp()
 {
@@ -112,6 +112,7 @@ void LocatorAbilityTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,

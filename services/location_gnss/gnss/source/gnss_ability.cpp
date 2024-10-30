@@ -1097,7 +1097,7 @@ bool GnssAbility::IsDeviceLoaded(const std::string &servName)
         return false;
     }
     std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
-    LBSLOGI(GNSS, "check host:%{public}s dev:%{public}s loaded",
+    LBSLOGD(GNSS, "check host:%{public}s dev:%{public}s loaded",
         itDevicesInfo->hostName.c_str(), itDevInfo->servName.c_str());
     return true;
 }

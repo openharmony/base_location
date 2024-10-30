@@ -131,14 +131,16 @@ CJLocation GetLastLocation(int32_t& errCode)
         errCode = ERRCODE_MEMORY_ERROR;
         return CJLocation{0};
     }
-    auto loc = g_locatorProxy->GetCachedLocation();
-    if (loc != nullptr) {
-        errCode = Location::SUCCESS;
-        return NativeLocationToCJLocation(*loc);
-    } else {
-        errCode = Location::LAST_KNOWN_LOCATION_ERROR;
+    errCode = CheckLocationSwitchState();
+    if (errCode != Location::LocationErrCode::ERRCODE_SUCCESS) {
         return CJLocation{0};
     }
+    std::unique_ptr<Location::Location> loc;
+    errCode = g_locatorProxy->GetCachedLocationV9(loc);
+    if (loc == nullptr) {
+        return CJLocation{0};
+    }
+    return NativeLocationToCJLocation(*loc);
 }
 
 bool IsLocationEnabled(int32_t& errCode)
@@ -185,11 +187,6 @@ CJLocation GetCurrentLocation(int32_t& errCode)
     auto requestConfig = std::make_unique<Location::RequestConfig>();
     requestConfig->SetPriority(Location::PRIORITY_FAST_FIRST_FIX);
     requestConfig->SetFixNumber(1);
-
-    if (!CjIsRequestConfigValid(requestConfig)) {
-        errCode = Location::LocationErrCode::ERRCODE_INVALID_PARAM;
-        return CJLocation{0};
-    }
     return GetCurrentLocation(requestConfig, errCode);
 }
 
@@ -197,6 +194,7 @@ CJLocation GetCurrentLocationCurrent(CJCurrentLocationRequest request, int32_t& 
 {
     auto requestConfig = std::make_unique<Location::RequestConfig>();
     CJCurrentLocationRequestToRequestConfig(request, requestConfig);
+    requestConfig->SetFixNumber(1);
     return GetCurrentLocation(requestConfig, errCode);
 }
 
@@ -204,7 +202,41 @@ CJLocation GetCurrentLocationSingle(CJSingleLocationRequest request, int32_t& er
 {
     auto requestConfig = std::make_unique<Location::RequestConfig>();
     CJSingleLocationRequestRequestToRequestConfig(request, requestConfig);
+    requestConfig->SetFixNumber(1);
     return GetCurrentLocation(requestConfig, errCode);
+}
+
+void StartLocating(std::unique_ptr<Location::RequestConfig>& requestConfig,
+    sptr<LocatorCallback> singleLocatorCallbackHost, int32_t& errCode)
+{
+    auto timeout = requestConfig->GetTimeOut();
+    auto request = std::move(requestConfig);
+    auto callbackPtr = sptr<Location::ILocatorCallback>(singleLocatorCallbackHost);
+    errCode = g_locatorProxy->StartLocatingV9(request, callbackPtr);
+    if (errCode != Location::LocationErrCode::ERRCODE_SUCCESS) {
+        singleLocatorCallbackHost->SetCount(0);
+        return;
+    }
+    if (timeout > Location::DEFAULT_TIMEOUT_30S) {
+        singleLocatorCallbackHost->Wait(Location::DEFAULT_TIMEOUT_30S);
+        if (singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
+            singleLocatorCallbackHost->Wait(timeout - Location::DEFAULT_TIMEOUT_30S);
+        }
+    } else {
+        singleLocatorCallbackHost->Wait(timeout);
+    }
+    g_locatorProxy->StopLocating(callbackPtr);
+    if (singleLocatorCallbackHost->GetCount() != 0 &&
+        singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
+        std::unique_ptr<Location::Location> location = nullptr;
+        g_locatorProxy->GetCachedLocationV9(location);
+        if (location != nullptr) {
+            singleLocatorCallbackHost->SetSingleLocation(location);
+        } else {
+            errCode = Location::LocationErrCode::ERRCODE_LOCATING_FAIL;
+        }
+    }
+    singleLocatorCallbackHost->SetCount(1);
 }
 
 CJLocation GetCurrentLocation(std::unique_ptr<Location::RequestConfig>& requestConfig, int32_t& errCode)
@@ -214,46 +246,27 @@ CJLocation GetCurrentLocation(std::unique_ptr<Location::RequestConfig>& requestC
         return CJLocation{0};
     }
     auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();
-    if (singleLocatorCallbackHost == nullptr) {
+    if (!CjIsRequestConfigValid(requestConfig) || singleLocatorCallbackHost == nullptr) {
         errCode = Location::LocationErrCode::ERRCODE_INVALID_PARAM;
         return CJLocation{0};
     }
     singleLocatorCallbackHost->SetLocationPriority(CjGetCurrentLocationType(requestConfig));
-    Location::LocationErrCode errorCode = CheckLocationSwitchEnable();
-    if (errorCode != Location::LocationErrCode::ERRCODE_SUCCESS) {
-        errCode = Location::LocationErrCode::ERRCODE_INVALID_PARAM;
+    errCode = CheckLocationSwitchEnable();
+    if (errCode != Location::LocationErrCode::ERRCODE_SUCCESS) {
         return CJLocation{0};
     }
 
-    auto timeout = requestConfig->GetTimeOut();
-    auto request = std::move(requestConfig);
-
-    if (g_locatorProxy->IsLocationEnabled()) {
-        auto callbackPtr = sptr<Location::ILocatorCallback>(singleLocatorCallbackHost);
-        errCode = g_locatorProxy->StartLocatingV9(request, callbackPtr);
-        if (errCode != Location::LocationErrCode::ERRCODE_SUCCESS) {
-            singleLocatorCallbackHost->SetCount(0);
-            return CJLocation{0};
-        }
-        if (timeout > Location::DEFAULT_TIMEOUT_30S) {
-            singleLocatorCallbackHost->Wait(Location::DEFAULT_TIMEOUT_30S);
-            if (singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
-                singleLocatorCallbackHost->Wait(timeout - Location::DEFAULT_TIMEOUT_30S);
-            }
-        } else {
-            singleLocatorCallbackHost->Wait(timeout);
-        }
-        g_locatorProxy->StopLocating(callbackPtr);
-        if (singleLocatorCallbackHost->GetCount() != 0 &&
-            singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
-            errCode = Location::ERRCODE_LOCATING_FAIL;
-            return CJLocation{0};
-        }
-        singleLocatorCallbackHost->SetCount(1);
+    StartLocating(requestConfig, singleLocatorCallbackHost, errCode);
+    if (errCode != Location::LocationErrCode::ERRCODE_SUCCESS) {
+        return CJLocation{0};
     }
 
     std::unique_ptr<Location::Location> location =
         std::make_unique<Location::Location>(*singleLocatorCallbackHost->GetSingleLocation());
+    if (location == nullptr) {
+        errCode = Location::LocationErrCode::ERRCODE_LOCATING_FAIL;
+        return CJLocation{0};
+    }
     errCode = Location::LocationErrCode::ERRCODE_SUCCESS;
     if (singleLocatorCallbackHost) {
         singleLocatorCallbackHost = nullptr;

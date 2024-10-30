@@ -324,7 +324,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
         return false;
     }
-    LBSLOGI(NETWORK, "start network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
+    LBSLOGW(NETWORK, "start network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
     sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
     if (callback == nullptr) {
         LBSLOGE(NETWORK, "can not get valid callback.");
@@ -364,7 +364,7 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return false;
     }
-    LBSLOGI(NETWORK, "stop network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
+    LBSLOGW(NETWORK, "stop network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;

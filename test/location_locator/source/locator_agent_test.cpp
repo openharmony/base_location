@@ -23,7 +23,7 @@
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 void LocatorAgentManagerTest::SetUp()
 {
     MockNativePermission();
@@ -38,6 +38,7 @@ void LocatorAgentManagerTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -173,6 +174,7 @@ void LocatorAgentTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,

@@ -54,7 +54,7 @@ using HDI::Location::Gnss::V2_0::LocationInfo;
 using HDI::Location::Gnss::V2_0::ConstellationCategory;
 using HDI::Location::Agnss::V2_0::AGnssRefInfoType;
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
-const int32_t LOCATION_PERM_NUM = 5;
+const int32_t LOCATION_PERM_NUM = 6;
 const std::string ARGS_HELP = "-h";
 const std::string MANAGER_SETTINGS = "ohos.permission.MANAGE_SETTINGS";
 constexpr const char *UNLOAD_GNSS_TASK = "gnss_sa_unload";
@@ -106,7 +106,7 @@ void GnssAbilityTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        MANAGER_SETTINGS.c_str(),
+        MANAGER_SETTINGS.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,

@@ -1202,7 +1202,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     }
     identity.SetBundleName(bundleName);
     if (code != static_cast<uint32_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
-        LBSLOGI(LOCATOR,
+        LBSLOGW(LOCATOR,
             "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
             code, option.GetFlags(), identity.ToString().c_str(),
             std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
