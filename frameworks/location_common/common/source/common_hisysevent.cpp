@@ -71,5 +71,14 @@ void WriteLocationInnerEvent(const int event, std::vector<std::string> names, st
 {
     HookUtils::ExecuteHookWhenReportInnerInfo(event, names, values);
 }
+
+void WriteLocationRequestEvent(const std::string& packageName, const std::string& abilityName)
+{
+    if (packageName.empty()) {
+        LBSLOGE(COMMON_UTILS, "packageName is empty");
+        return;
+    }
+    WriteEvent("APPLICATION_LOCATION_REASON", "TYPE", abilityName, "REASON", packageName);
+}
 }  // namespace Location
 }  // namespace OHOS

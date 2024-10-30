@@ -670,6 +670,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount += 1;
         if (uidCount == 1) {
             WriteAppLocatingStateEvent("start", pid, uid);
+            WriteLocationRequestEvent(request->GetPackageName(), abilityName);
             ReportDataToResSched("start", pid, uid);
         }
     } else {
