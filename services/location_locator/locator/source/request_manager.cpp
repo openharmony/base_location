@@ -614,28 +614,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
     LocatorAbility::GetInstance()->ApplyRequests(1);
 }
 
-void RequestManager::HandlePermissionChanged(uint32_t tokenId)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged requests map is empty");
-        return;
-    }
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (request == nullptr || tokenId != request->GetTokenId()) {
-                continue;
-            }
-            auto backgroundProxy = LocatorBackgroundProxy::GetInstance();
-            if (backgroundProxy != nullptr) {
-                backgroundProxy->UpdateListOnRequestChange(request);
-            }
-        }
-    }
-}
-
 bool RequestManager::IsUidInProcessing(int32_t uid)
 {
     std::unique_lock<ffrt::mutex> lock(runningUidsMutex_);
