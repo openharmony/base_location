@@ -30,7 +30,6 @@
 #include "locator_background_proxy.h"
 #include "locator_proxy.h"
 #include "request.h"
-#include "request_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -51,7 +50,6 @@ public:
     sptr<ILocatorCallback> callbackStub_;
     LocatorBackgroundProxy* backgroundProxy_;
     std::shared_ptr<Request> request_;
-    RequestManager* requestManager_;
     uint64_t tokenId_;
 };
 } // namespace Location
