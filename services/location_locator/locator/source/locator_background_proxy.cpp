@@ -178,38 +178,11 @@ void LocatorBackgroundProxy::OnSuspend(const std::shared_ptr<Request>& request, 
 // when switch off, stop proxy
 void LocatorBackgroundProxy::OnSaStateChange(bool enable)
 {
-    if (proxySwtich_ == enable || !featureSwitch_) {
-        return;
-    }
-    LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnSaStateChange %{public}d", enable);
-    proxySwtich_ = enable;
-    if (enable && !requestsList_->empty()) {
-        StartLocator();
-    } else {
-        StopLocator();
-    }
 }
 
 // called when deleteRequest called from locator ability (e.g. app stop locating)
 void LocatorBackgroundProxy::OnDeleteRequestRecord(const std::shared_ptr<Request>& request)
 {
-    if (!featureSwitch_) {
-        return;
-    }
-    bool listEmpty = false;
-    std::unique_lock<std::mutex> lock(requestListMutex_, std::defer_lock);
-    lock.lock();
-    auto it = find(requestsList_->begin(), requestsList_->end(), request);
-    if (it != requestsList_->end()) {
-        requestsList_->remove(request);
-        if (requestsList_->empty()) {
-            listEmpty = true;
-        }
-    }
-    lock.unlock();
-    if (listEmpty) {
-        StopLocator();
-    }
 }
 
 bool LocatorBackgroundProxy::CheckPermission(const std::shared_ptr<Request>& request) const
@@ -275,12 +248,6 @@ void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
     if (locatorAbility != nullptr) {
         locatorAbility->ApplyRequests(0);
     }
-    if (!requestsList_->empty()) {
-        StartLocator();
-    } else {
-        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "OnUserSwitch stoplocator");
-        StopLocator();
-    }
 }
 
 void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
@@ -315,16 +282,6 @@ bool LocatorBackgroundProxy::CheckMaxRequestNum(pid_t uid, const std::string& pa
 void LocatorBackgroundProxy::mLocatorCallback::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     LBSLOGD(LOCATOR_BACKGROUND_PROXY, "locator background OnLocationReport");
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    auto requestsList = locatorBackgroundProxy->GetRequestsInProxy();
-    if (requestsList.empty()) {
-        locatorBackgroundProxy->StopLocator();
-        return;
-    }
-    // call the callback of each proxy app
-    for (auto request : requestsList) {
-        request->GetLocatorCallBack()->OnLocationReport(location);
-    }
 }
 
 void LocatorBackgroundProxy::mLocatorCallback::OnLocatingStatusChange(const int status)

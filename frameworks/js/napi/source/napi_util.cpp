@@ -303,7 +303,7 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
         config->SetScanIntervalMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
     if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
-        config->SetScanTimeoutMs(valueInt < 0 ? DEFAULT_TIMEOUT_5S : valueInt);
+        config->SetScanTimeoutMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
 }
 

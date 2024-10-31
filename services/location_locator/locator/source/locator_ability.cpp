@@ -1123,7 +1123,6 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity)
 {
-    SelfRequestManager::GetInstance()->StartSelfRequest();
     if (locatorHandler_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }

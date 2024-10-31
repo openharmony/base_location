@@ -206,6 +206,7 @@ public:
     void UpdateWifiScanCompleteTimestamp();
     int64_t GetWifiScanCompleteTimestamp();
     int64_t GetlastStillTime();
+    bool IsStill();
 
 private:
     int timeInterval_ = 0;
@@ -229,7 +230,6 @@ private:
     std::map<sptr<IRemoteObject>, AppIdentity> callbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
-    int64_t wifiScanTimestamp_ = 0;
     std::mutex wifiScanCompleteTimestampMutex_;
     int64_t wifiScanCompleteTimestamp_ = 0;
     std::mutex lastStillTimeMutex_;
