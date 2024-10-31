@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace Location {
 static std::mutex g_regCallbackMutex;
-static std::vector<napi_ref> g_regHandleCallbacks;
+static std::vector<napi_ref> g_registerCallbacks;
 GnssStatusCallbackNapi::GnssStatusCallbackNapi()
 {
     env_ = nullptr;
@@ -36,6 +36,7 @@ GnssStatusCallbackNapi::GnssStatusCallbackNapi()
 
 GnssStatusCallbackNapi::~GnssStatusCallbackNapi()
 {
+    LBSLOGW(GNSS_STATUS_CALLBACK, "~GnssStatusCallbackNapi()");
 }
 
 int GnssStatusCallbackNapi::OnRemoteRequest(
@@ -65,37 +66,55 @@ int GnssStatusCallbackNapi::OnRemoteRequest(
     return 0;
 }
 
+napi_env GnssStatusCallbackNapi::GetEnv()
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    return env_;
+}
+
+void GnssStatusCallbackNapi::SetEnv(const napi_env& env)
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    env_ = env;
+}
+
 napi_ref GnssStatusCallbackNapi::GetHandleCb()
 {
+    std::unique_lock<std::mutex> guard(mutex_);
     return handlerCb_;
 }
 
 void GnssStatusCallbackNapi::SetHandleCb(const napi_ref& handlerCb)
 {
+    {
+        std::unique_lock<std::mutex> guard(mutex_);
+        handlerCb_ = handlerCb;
+    }
     std::unique_lock<std::mutex> guard(g_regCallbackMutex);
-    handlerCb_ = handlerCb;
-    g_regHandleCallbacks.emplace_back(handlerCb);
+    g_registerCallbacks.emplace_back(handlerCb);
 }
 
-bool FindGnssRegCallback(napi_ref cb)
+bool FindGnssStatusCallback(napi_ref cb)
 {
     std::unique_lock<std::mutex> guard(g_regCallbackMutex);
-    auto iter = std::find(g_regHandleCallbacks.begin(), g_regHandleCallbacks.end(), cb);
-    if (iter == g_regHandleCallbacks.end()) {
+    auto iter = std::find(g_registerCallbacks.begin(), g_registerCallbacks.end(), cb);
+    if (iter == g_registerCallbacks.end()) {
         return false;
     }
     return true;
 }
 
-void DeleteGnssRegCallback(napi_ref cb)
+void DeleteGnssStatusCallback(napi_ref cb)
 {
     std::unique_lock<std::mutex> guard(g_regCallbackMutex);
-    for (auto iter = g_regHandleCallbacks.begin(); iter != g_regHandleCallbacks.end(); iter++) {
+    for (auto iter = g_registerCallbacks.begin(); iter != g_registerCallbacks.end(); iter++) {
         if (*iter == cb) {
-            iter = g_regHandleCallbacks.erase(iter);
+            iter = g_registerCallbacks.erase(iter);
             break;
         }
     }
+    LBSLOGW(GNSS_STATUS_CALLBACK, "after DeleteGnssStatusCallback, callback size %{public}s",
+        std::to_string(g_registerCallbacks.size()).c_str());
 }
 
 bool GnssStatusCallbackNapi::IsRemoteDied()
@@ -156,12 +175,6 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
-            if (!FindGnssRegCallback(context->callback[0])) {
-                LBSLOGE(GNSS_STATUS_CALLBACK, "no valid callback");
-                delete context;
-                delete work;
-                return;
-            }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             if (scope == nullptr) {
                 LBSLOGE(GNSS_STATUS_CALLBACK, "scope is nullptr");
@@ -178,11 +191,17 @@ void GnssStatusCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
                 napi_value handler = nullptr;
+                napi_status ret = napi_ok;
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                     scope, context, work);
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                    napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
-                if (napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
+                if (FindGnssStatusCallback(context->callback[0])) {
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                        napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
+                    ret = napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine);
+                } else {
+                    LBSLOGE(GNSS_STATUS_CALLBACK, "no valid callback");
+                }
+                if (ret != napi_ok) {
                     LBSLOGE(GNSS_STATUS_CALLBACK, "Report event failed");
                 }
             }
@@ -204,7 +223,7 @@ void GnssStatusCallbackNapi::DeleteHandler()
         LBSLOGE(GNSS_STATUS_CALLBACK, "handler or env is nullptr.");
         return;
     }
-    DeleteGnssRegCallback(handlerCb_);
+    DeleteGnssStatusCallback(handlerCb_);
     NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
 }

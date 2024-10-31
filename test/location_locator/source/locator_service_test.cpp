@@ -63,7 +63,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 5;
+const int32_t LOCATION_PERM_NUM = 6;
 #ifdef FEATURE_GEOCODE_SUPPORT
 const double MOCK_LATITUDE = 99.0;
 const double MOCK_LONGITUDE = 100.0;
@@ -96,8 +96,6 @@ void LocatorServiceTest::SetUp()
     EXPECT_NE(nullptr, backgroundProxy_);
     request_ = std::make_shared<Request>();
     EXPECT_NE(nullptr, request_);
-    requestManager_ = RequestManager::GetInstance();
-    EXPECT_NE(nullptr, requestManager_);
     request_->SetLocatorCallBack(callbackStub_);
     request_->SetUid(SYSTEM_UID);
     request_->SetPid(getpid());
@@ -113,7 +111,6 @@ void LocatorServiceTest::TearDown()
     proxy_ = nullptr;
     callbackStub_ = nullptr;
     backgroundProxy_ = nullptr;
-    requestManager_ = nullptr;
 }
 
 void LocatorServiceTest::LoadSystemAbility()
@@ -138,7 +135,7 @@ void LocatorServiceTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        RUNNING_STATE_OBSERVER.c_str(),
+        RUNNING_STATE_OBSERVER.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -393,7 +390,6 @@ HWTEST_F(LocatorServiceTest, OnPermissionChanged001, TestSize.Level1)
         << "LocatorServiceTest, OnPermissionChanged001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] OnPermissionChanged001 begin");
     backgroundProxy_->OnSuspend(request_, 0);
-    requestManager_->HandlePermissionChanged(IPCSkeleton::GetCallingTokenID());
     bool result = backgroundProxy_->IsCallbackInProxy(callbackStub_);
     // no location permission
     EXPECT_EQ(false, result);
@@ -1948,7 +1944,9 @@ HWTEST_F(LocatorServiceTest, locatorServiceSendLocationMockMsgToGnssSa001, TestS
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+#ifdef FEATURE_GNSS_SUPPORT
     locatorAbility->SendLocationMockMsgToGnssSa(nullptr, 0, locations, 0);
+#endif
     locatorAbility->SendLocationMockMsgToNetworkSa(nullptr, 0, locations, 0);
     locatorAbility->SendLocationMockMsgToPassiveSa(nullptr, 0, locations, 0);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendLocationMockMsgToGnssSa001 end");
@@ -1993,7 +1991,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceStartLocating001, TestSize.Level1)
     sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
     locatorAbility->proxyMap_->insert(make_pair(GNSS_ABILITY, objectGnss));
     locatorAbility->reportManager_ = nullptr;
-    locatorAbility->requestManager_ = nullptr;
     locatorAbility->StartLocating(requestConfig, callbackStub, identity);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceStartLocating001 end");
 }

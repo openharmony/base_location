@@ -33,7 +33,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const int UNKNOWN_PRIORITY = 0x01FF;
 const int UNKNOWN_SCENE = 0x02FF;
 void RequestManagerTest::SetUp()
@@ -70,6 +70,7 @@ void RequestManagerTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -303,24 +304,6 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest003, TestSize.Level1)
     EXPECT_EQ(false, request_->GetBackgroundPermState());
     EXPECT_EQ(true, request_->GetApproximatelyPermState());
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest003 end");
-}
-
-HWTEST_F(RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1";
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePermissionChangedTest001 begin");
-    requestManager_->HandleStartLocating(request_);
-    auto locatorAbility = LocatorAbility::GetInstance();
-    EXPECT_NE(0, locatorAbility->GetActiveRequestNum());
-    requestManager_->HandlePermissionChanged(request_->GetTokenId());
-    auto callback = request_->GetLocatorCallBack();
-    sptr<IRemoteObject> deadCallback = callback->AsObject();
-    locatorAbility->receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
-    locatorAbility->receivers_->insert(std::make_pair(deadCallback, std::list<std::shared_ptr<Request>>{request_}));
-    requestManager_->HandleStopLocating(callback);
-    requestManager_->HandlePermissionChanged(request_->GetTokenId());
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePermissionChangedTest001 end");
 }
 
 HWTEST_F(RequestManagerTest, DeleteRequestRecord001, TestSize.Level1)

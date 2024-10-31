@@ -178,7 +178,7 @@ public:
     LocationErrCode UnregisterBleScanInfoCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
     LocationErrCode UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    void ReportLocationError(std::string uuid, int32_t errCode);
+    void ReportLocationError(std::string uuid, int32_t errCode, int32_t netErrCode);
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
@@ -222,6 +222,10 @@ private:
     bool CheckIfLocatorConnecting();
     void UpdateLoadedSaMap();
     bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
+    bool ReportSingleCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+        std::unique_ptr<Location>& cacheLocation);
+    bool ReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+        std::unique_ptr<Location>& cacheLocation);
     void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
@@ -283,9 +287,12 @@ public:
     std::string GetUuid();
     void SetErrCode(int32_t errCode);
     int32_t GetErrCode();
+    void SetNetErrCode(int32_t netErrCode);
+    int32_t GetNetErrCode();
 private:
     std::string uuid_;
     int32_t errCode_;
+    int32_t netErrCode_;
 };
 
 class LocatorSwitchMessage {

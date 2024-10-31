@@ -42,9 +42,11 @@ const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const uint32_t DELAY_RESTART_MS = 500;
+const uint32_t DELAY_DINCONNECT_MS = 5 * 1000;
 constexpr uint32_t WAIT_MS = 100;
 const int MAX_RETRY_COUNT = 5;
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
+const std::string DISCONNECT_NETWORK_TASK = "disconnect_network_ability";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
     NetworkAbility::GetInstance());
@@ -230,6 +232,10 @@ LocationErrCode NetworkAbility::SetEnable(bool state)
 
 bool NetworkAbility::CancelIdleState()
 {
+    SystemAbilityState state = GetAbilityState();
+    if (state != SystemAbilityState::IDLE) {
+        return true;
+    }
     bool ret = CancelIdle();
     if (!ret) {
         LBSLOGE(NETWORK, "%{public}s cancel idle failed!", __func__);
@@ -280,15 +286,35 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     }
     if (isAdded) {
         RequestNetworkLocation(workRecord);
+        if (networkHandler_ != nullptr) {
+            networkHandler_->RemoveTask(DISCONNECT_NETWORK_TASK);
+        }
     } else {
         RemoveNetworkLocation(workRecord);
-        std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
-        if (GetRequestNum() == 0 && conn_ != nullptr) {
-            LBSLOGI(NETWORK, "RequestRecord disconnect");
-            AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
-            UnregisterNlpServiceDeathRecipient();
-            conn_ = nullptr;
+        if (networkHandler_ == nullptr) {
+            return;
         }
+        networkHandler_->RemoveTask(DISCONNECT_NETWORK_TASK);
+        auto disconnectTask = [this]() {
+            auto networkAbility = NetworkAbility::GetInstance();
+            if (networkAbility == nullptr) {
+                LBSLOGE(NETWORK, "OnRemoteDied: NetworkAbility is nullptr");
+                return;
+            };
+            networkAbility->DisconnectAbilityConnect();
+        };
+        networkHandler_->PostTask(disconnectTask, DISCONNECT_NETWORK_TASK, DELAY_DINCONNECT_MS);
+    }
+}
+
+void NetworkAbility::DisconnectAbilityConnect()
+{
+    std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
+    if (GetRequestNum() == 0 && conn_ != nullptr) {
+        LBSLOGI(NETWORK, "RequestRecord disconnect");
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
+        UnregisterNlpServiceDeathRecipient();
+        conn_ = nullptr;
     }
 }
 
@@ -298,7 +324,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
         return false;
     }
-    LBSLOGI(NETWORK, "start network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
+    LBSLOGW(NETWORK, "start network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
     sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
     if (callback == nullptr) {
         LBSLOGE(NETWORK, "can not get valid callback.");
@@ -313,6 +339,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
     
     MessageParcel reply;
     MessageOption option;
+    data.WriteInterfaceToken(nlpServiceProxy_->GetInterfaceDescriptor());
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteInt64(workRecord.GetTimeInterval(0) * MILLI_PER_SEC);
     data.WriteInt32(workRecord.GetNlpRequestType(0));
@@ -337,10 +364,11 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
         return false;
     }
-    LBSLOGI(NETWORK, "stop network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
+    LBSLOGW(NETWORK, "stop network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    data.WriteInterfaceToken(nlpServiceProxy_->GetInterfaceDescriptor());
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
     int error = nlpServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
@@ -518,7 +546,6 @@ void NetworkAbility::UnregisterNlpServiceDeathRecipient()
     }
 }
 
-
 bool NetworkAbility::IsConnect()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
@@ -544,6 +571,7 @@ void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, st
     data.WriteInt32(LOCATING_FAILED_INTERNET_ACCESS_FAILURE);
     data.WriteString(errMsg);
     data.WriteString(uuid);
+    data.WriteInt32(errCode);
     sptr<IRemoteObject> objectLocator =
         CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
     if (objectLocator == nullptr) {

@@ -76,9 +76,11 @@ bool CachedLocationsCallbackHostFuzzTest(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
+#ifdef FEATURE_GNSS_SUPPORT
     auto callback = sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     callback->OnRemoteRequest(CachedLocationsCallbackNapi::RECEIVE_CACHED_LOCATIONS_EVENT,
         requestParcel, reply, option);
+#endif
     return true;
 }
 } // namespace OHOS

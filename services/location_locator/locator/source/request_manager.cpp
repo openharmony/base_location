@@ -16,6 +16,7 @@
 #include "request_manager.h"
 
 #include "privacy_kit.h"
+#include "privacy_error.h"
 
 #include "common_utils.h"
 #include "constant_definition.h"
@@ -98,28 +99,85 @@ bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
 {
     auto locatorAbility = LocatorAbility::GetInstance();
     uint32_t callingTokenId = request->GetTokenId();
+    int ret;
     if (isStart && !request->GetApproximatelyPermState()) {
-        int ret = PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-        if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
-            LBSLOGE(REQUEST_MANAGER, "StartUsingPermission failed ret=%{public}d", ret);
-            return false;
+        AddWorkingPidsCount(request->GetPid());
+        bool isNeedStart = IsNeedStartUsingPermission(request->GetPid());
+        if (isNeedStart) {
+            ret = PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
+            if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+                locatorAbility->IsHapCaller(request->GetTokenId())) {
+                SubWorkingPidsCount(request->GetPid());
+                LBSLOGE(REQUEST_MANAGER, "StartUsingPermission failed ret=%{public}d", ret);
+                return false;
+            }
         }
+        request->SetApproximatelyPermState(true);
         ret = locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
             ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
         if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
             LBSLOGE(REQUEST_MANAGER, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
             return false;
         }
-        request->SetApproximatelyPermState(true);
     } else if (!isStart && request->GetApproximatelyPermState()) {
-        int ret = PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-        if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
-            LBSLOGE(REQUEST_MANAGER, "StopUsingPermission failed ret=%{public}d", ret);
-            return false;
+        SubWorkingPidsCount(request->GetPid());
+        bool isNeedStop = IsNeedStopUsingPermission(request->GetPid());
+        if (isNeedStop) {
+            ret = PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
+            if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
+                LBSLOGE(REQUEST_MANAGER, "StopUsingPermission failed ret=%{public}d", ret);
+                return false;
+            }
         }
         request->SetApproximatelyPermState(false);
     }
     return true;
+}
+
+void RequestManager::AddWorkingPidsCount(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) > 0) {
+        workingPidsCountMap_[pid] = workingPidsCountMap_[pid] + 1;
+    } else {
+        workingPidsCountMap_.insert(std::make_pair(pid, 1));
+    }
+}
+
+void RequestManager::SubWorkingPidsCount(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) > 0) {
+        workingPidsCountMap_[pid] = workingPidsCountMap_[pid] - 1;
+        if (workingPidsCountMap_[pid] < 0) {
+            LBSLOGE(REQUEST_MANAGER, "working pid less 0, pid=%{public}d", pid);
+        }
+    }
+}
+
+bool RequestManager::IsNeedStartUsingPermission(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) <= 0) {
+        return false;
+    }
+    if (workingPidsCountMap_[pid] == 1) {
+        return true;
+    }
+    return false;
+}
+
+bool RequestManager::IsNeedStopUsingPermission(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) <= 0) {
+        return false;
+    }
+    if (workingPidsCountMap_[pid] <= 0) {
+        workingPidsCountMap_.erase(pid);
+        return true;
+    }
+    return false;
 }
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
@@ -486,6 +544,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         return false;
     }
     if (!UpdateUsingPermission(request, true)) {
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
         return false;
     }
     // add request info to work record
@@ -555,28 +614,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
     LocatorAbility::GetInstance()->ApplyRequests(1);
 }
 
-void RequestManager::HandlePermissionChanged(uint32_t tokenId)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged requests map is empty");
-        return;
-    }
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (request == nullptr || tokenId != request->GetTokenId()) {
-                continue;
-            }
-            auto backgroundProxy = LocatorBackgroundProxy::GetInstance();
-            if (backgroundProxy != nullptr) {
-                backgroundProxy->UpdateListOnRequestChange(request);
-            }
-        }
-    }
-}
-
 bool RequestManager::IsUidInProcessing(int32_t uid)
 {
     std::unique_lock<ffrt::mutex> lock(runningUidsMutex_);
@@ -611,6 +648,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount += 1;
         if (uidCount == 1) {
             WriteAppLocatingStateEvent("start", pid, uid);
+            WriteLocationRequestEvent(request->GetPackageName(), abilityName);
             ReportDataToResSched("start", pid, uid);
         }
     } else {

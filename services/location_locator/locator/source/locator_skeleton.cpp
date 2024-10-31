@@ -686,6 +686,13 @@ int LocatorAbilityStub::PreSendCommand(MessageParcel &data, MessageParcel &reply
     locationCommand->scenario =  data.ReadInt32();
     locationCommand->command = Str16ToStr8(data.ReadString16());
     reply.WriteInt32(locatorAbility->SendCommand(locationCommand));
+
+    CommandStruct commandStruct;
+    commandStruct.packageName = identity.GetBundleName();
+    commandStruct.command = locationCommand->command;
+    commandStruct.result = true;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_COMMAND_PROCESS, (void *)&commandStruct, nullptr);
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -1143,7 +1150,8 @@ int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParce
     int32_t errCode = data.ReadInt32();
     std::string errMsg = data.ReadString();
     std::string uuid = data.ReadString();
-    locatorAbility->ReportLocationError(uuid, errCode);
+    int32_t netErrCode = data.ReadInt32();
+    locatorAbility->ReportLocationError(uuid, errCode, netErrCode);
     return ERRCODE_SUCCESS;
 }
 
@@ -1194,7 +1202,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     }
     identity.SetBundleName(bundleName);
     if (code != static_cast<uint32_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
-        LBSLOGI(LOCATOR,
+        LBSLOGW(LOCATOR,
             "OnReceived cmd = %{public}u, flags= %{public}d, identity= [%{public}s], timestamp = %{public}s",
             code, option.GetFlags(), identity.ToString().c_str(),
             std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());

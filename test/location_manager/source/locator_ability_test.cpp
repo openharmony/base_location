@@ -78,7 +78,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const std::string ARGS_HELP = "-h";
 void LocatorAbilityTest::SetUp()
 {
@@ -112,6 +112,7 @@ void LocatorAbilityTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -176,7 +177,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence001, TestSize.Level1)
     locatorAbility->AddGnssGeofence(request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence001 end");
 }
-#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence002, TestSize.Level1)
 {
@@ -189,7 +189,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence002 end");
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -200,7 +199,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level
     locatorAbility->RemoveGnssGeofence(request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence001 end");
 }
-#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence002, TestSize.Level1)
 {
@@ -212,6 +210,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence002, TestSize.Level
     locatorAbility->AddGnssGeofence(request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence002 end");
 }
+#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityStartLocating001, TestSize.Level1)
 {
@@ -542,6 +541,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityUpdateLastLocationRequestNum001, Test
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateLastLocationRequestNum001 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorAbilityTest, LocatorAbilitySendNetworkLocation001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -553,6 +553,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilitySendNetworkLocation001, TestSize.Leve
     locatorAbility->SendNetworkLocation(location);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilitySendNetworkLocation001 end");
 }
+#endif
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityRegisterLocationError001, TestSize.Level1)
 {
@@ -579,8 +580,8 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityReportLocationError001, TestSize.Leve
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::string uuid;
     int32_t errCode = 10;
-    locatorAbility->ReportLocationError(uuid, errCode);
-    locatorAbility->ReportLocationError(uuid, errCode);
+    locatorAbility->ReportLocationError(uuid, errCode, errCode);
+    locatorAbility->ReportLocationError(uuid, errCode, errCode);
     locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUnRegisterLocationError001 end");
 }

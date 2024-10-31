@@ -44,14 +44,15 @@
 #endif
 #include "permission_manager.h"
 #include "location_data_rdb_manager.h"
+#include "locator_callback_napi.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_WITHOUT_PERM = 1;
-const int32_t LOCATION_WITHOUT_MOCK_PERM_NUM = 5;
-const int32_t LOCATION_NATIVE_PERM_NUM = 6;
+const int32_t LOCATION_WITHOUT_MOCK_PERM_NUM = 6;
+const int32_t LOCATION_NATIVE_PERM_NUM = 7;
 const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 void LocatorSkeletonTest::SetUp()
 {
@@ -92,6 +93,7 @@ void LocatorSkeletonTest::MockNativePermission()
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
         RUNNING_STATE_OBSERVER.c_str(), ACCESS_MOCK_LOCATION.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -113,7 +115,7 @@ void LocatorSkeletonTest::MockNativeWithoutMockPermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        RUNNING_STATE_OBSERVER.c_str(),
+        RUNNING_STATE_OBSERVER.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -135,7 +137,7 @@ void LocatorSkeletonTest::MockNativeWithoutSecurePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), RUNNING_STATE_OBSERVER.c_str(),
-        ACCESS_MOCK_LOCATION.c_str(),
+        ACCESS_MOCK_LOCATION.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -828,6 +830,7 @@ HWTEST_F(LocatorSkeletonTest, PreSetLocationPrivacyConfirmStatus002, TestSize.Le
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreSetLocationPrivacyConfirmStatus002 end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorSkeletonTest, PreStartCacheLocating001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1137,6 +1140,7 @@ HWTEST_F(LocatorSkeletonTest, PreRemoveGnssGeofence, TestSize.Level1)
     }
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreRemoveGnssGeofence end");
 }
+#endif
 
 HWTEST_F(LocatorSkeletonTest, PreEnableLocationMock001, TestSize.Level1)
 {
@@ -1463,6 +1467,7 @@ HWTEST_F(LocatorSkeletonTest, PreUnregisterLocatingRequiredDataCallback, TestSiz
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreUnregisterLocatingRequiredDataCallback end");
 }
 
+#ifdef FEATURE_GNSS_SUPPORT
 HWTEST_F(LocatorSkeletonTest, PreQuerySupportCoordinateSystemType, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1481,6 +1486,7 @@ HWTEST_F(LocatorSkeletonTest, PreQuerySupportCoordinateSystemType, TestSize.Leve
     locatorAbilityStub->PreQuerySupportCoordinateSystemType(data, reply, identity);
     LBSLOGI(LOCATOR, "[LocatorSkeletonTest] PreQuerySupportCoordinateSystemType end");
 }
+#endif
 
 HWTEST_F(LocatorSkeletonTest, PreRegisterLocationError001, TestSize.Level1)
 {

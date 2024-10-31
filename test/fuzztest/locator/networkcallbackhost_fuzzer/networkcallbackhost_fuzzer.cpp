@@ -56,6 +56,7 @@ void MockNativePermission()
     auto tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    LocatorAbility::GetInstance()->EnableAbility(true);
 }
 
 uint32_t GetU32Data(const char* ptr)

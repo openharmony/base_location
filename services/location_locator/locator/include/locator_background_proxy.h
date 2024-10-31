@@ -24,6 +24,8 @@
 #include "app_state_data.h"
 #include "application_state_observer_stub.h"
 #include "common_event_subscriber.h"
+#include "event_handler.h"
+#include "event_runner.h"
 #include "system_ability_status_change_stub.h"
 
 #include "i_locator_callback.h"
@@ -37,6 +39,13 @@ public:
     ~AppStateChangeCallback() override;
 
     void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
+};
+
+class LocatorBackgroundHandler : public AppExecFwk::EventHandler {
+public:
+    explicit LocatorBackgroundHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~LocatorBackgroundHandler() override;
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
 class LocatorBackgroundProxy {
@@ -54,11 +63,11 @@ public:
     bool UnregisterAppStateObserver();
     bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
     bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
-private:
     void StartLocator();
     void StopLocator();
     void StartLocatorThread();
     void StopLocatorThread();
+private:
     void OnUserSwitch(int32_t userId);
     void OnUserRemove(int32_t userId);
     void UpdateListOnSuspend(const std::shared_ptr<Request>& request, bool active);
@@ -116,6 +125,7 @@ private:
     static std::mutex locatorMutex_;
     sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
     sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
+    std::shared_ptr<LocatorBackgroundHandler> locatorBackgroundHandler_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -37,6 +37,7 @@ static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 static constexpr int GNSS_FIX_CACHED_TIME = 25;
 static constexpr int NLP_FIX_CACHED_TIME = 25;
+static constexpr int WHITE_FIX_CACHED_TIME = 60;
 
 ReportManager* ReportManager::GetInstance()
 {
@@ -147,9 +148,10 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
         if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(request->GetTokenId())) {
             LBSLOGE(REPORT_MANAGER, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
+            RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
             return false;
         }
-        LBSLOGI(REPORT_MANAGER, "report location to %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",
+        LBSLOGW(REPORT_MANAGER, "report location to %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",
             request->GetTokenId(), std::to_string(finalLocation->GetTimeSinceBoot()).c_str(),
             finalLocation->GetLocationSourceType());
         locatorCallback->OnLocationReport(finalLocation);
@@ -342,12 +344,23 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     std::unique_ptr<Location> cacheLocation = nullptr;
-    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= GNSS_FIX_CACHED_TIME) {
-        cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
-    } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= NLP_FIX_CACHED_TIME) {
-        cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
+    std::string packageName = request->GetPackageName();
+    if (HookUtils::ExecuteHookWhenCheckAppForCacheTime(packageName)) {
+        if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+            (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= WHITE_FIX_CACHED_TIME) {
+            cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
+        } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+            (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= WHITE_FIX_CACHED_TIME) {
+            cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
+        }
+    } else {
+        if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+            (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= GNSS_FIX_CACHED_TIME) {
+            cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
+        } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+            (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= NLP_FIX_CACHED_TIME) {
+            cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
+        }
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {

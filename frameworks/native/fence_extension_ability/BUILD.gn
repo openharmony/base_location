@@ -1,0 +1,121 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/location/config.gni")
+import("//build/ohos.gni")
+
+config("fence_extension_ability_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "$LOCATION_NATIVE_DIR/fence_extension_ability/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+  ]
+}
+
+fence_extension_ability_sources = [
+  "$LOCATION_NATIVE_DIR/fence_extension_ability/src/fence_extension.cpp",
+  "$LOCATION_NATIVE_DIR/fence_extension_ability/src/fence_extension_context.cpp",
+  "$LOCATION_NATIVE_DIR/fence_extension_ability/src/fence_extension_module_loader.cpp",
+  "$LOCATION_NATIVE_DIR/fence_extension_ability/src/fence_extension_stub.cpp",
+  "$LOCATION_NATIVE_DIR/fence_extension_ability/src/fence_extension_stub_impl.cpp",
+  "$LOCATION_NATIVE_DIR/fence_extension_ability/src/js_fence_extension.cpp",
+  "$LOCATION_NATIVE_DIR/fence_extension_ability/src/js_fence_extension_context.cpp",
+]
+
+fence_extension_ability_deps = [
+  "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation",
+  "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+]
+
+fence_extension_ability_external_deps = [
+  "ability_base:want",
+  "ability_runtime:ability_context_native",
+  "ability_runtime:ability_manager",
+  "ability_runtime:app_context",
+  "ability_runtime:extensionkit_native",
+  "ability_runtime:napi_common",
+  "ability_runtime:runtime",
+  "access_token:libaccesstoken_sdk",
+  "access_token:libprivacy_sdk",
+  "c_utils:utils",
+  "eventhandler:libeventhandler",
+  "ffrt:libffrt",
+  "hilog:libhilog",
+  "ipc:ipc_single",
+  "napi:ace_napi",
+  "os_account:os_account_innerkits",
+  "safwk:system_ability_fwk",
+  "samgr:samgr_proxy",
+]
+
+ohos_shared_library("fence_extension_ability") {
+  public_configs = [ ":fence_extension_ability_config" ]
+
+  sources = fence_extension_ability_sources
+
+  public_deps = fence_extension_ability_deps
+
+  external_deps = fence_extension_ability_external_deps
+
+  relative_install_dir = "extensionability/"
+
+  subsystem_name = "location"
+
+  part_name = "location"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  cflags_cc = [
+    "-std=c++17",
+    "-fno-rtti",
+  ]
+
+  ldflags = [
+    "-fPIC",
+    "-Wl,-E",
+  ]
+
+  branch_protector_ret = "pac_ret"
+}
+
+# Just for test.
+ohos_static_library("fence_extension_ability_static") {
+  public_configs = [ ":fence_extension_ability_config" ]
+
+  sources = fence_extension_ability_sources
+
+  public_deps = fence_extension_ability_deps
+
+  external_deps = fence_extension_ability_external_deps
+
+  subsystem_name = "location"
+
+  part_name = "location"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  cflags_cc = [
+    "-std=c++17",
+    "-fno-rtti",
+  ]
+
+  ldflags = [
+    "-fPIC",
+    "-Wl,-E",
+  ]
+}

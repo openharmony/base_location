@@ -197,6 +197,10 @@ LocationErrCode GnssAbility::SetEnable(bool state)
 
 bool GnssAbility::CancelIdleState()
 {
+    SystemAbilityState state = GetAbilityState();
+    if (state != SystemAbilityState::IDLE) {
+        return true;
+    }
     bool ret = CancelIdle();
     if (!ret) {
         LBSLOGE(GNSS, "%{public}s cancel idle failed!", __func__);
@@ -1093,7 +1097,7 @@ bool GnssAbility::IsDeviceLoaded(const std::string &servName)
         return false;
     }
     std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
-    LBSLOGI(GNSS, "check host:%{public}s dev:%{public}s loaded",
+    LBSLOGD(GNSS, "check host:%{public}s dev:%{public}s loaded",
         itDevicesInfo->hostName.c_str(), itDevInfo->servName.c_str());
     return true;
 }

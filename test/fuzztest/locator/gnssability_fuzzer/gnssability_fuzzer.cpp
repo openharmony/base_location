@@ -56,6 +56,7 @@ void MockNativePermission()
     auto tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    LocatorAbility::GetInstance()->EnableAbility(true);
 }
 
 char* ParseData(const uint8_t* data, size_t size)
@@ -468,27 +469,27 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
 #ifdef FEATURE_GNSS_SUPPORT
-    OHOS::GnssAbility001FuzzTest(ch, size);
-    OHOS::GnssAbility002FuzzTest(ch, size);
-    OHOS::GnssAbility003FuzzTest(ch, size);
-    OHOS::GnssAbility004FuzzTest(ch, size);
-    OHOS::GnssAbility005FuzzTest(ch, size);
-    OHOS::GnssAbility006FuzzTest(ch, size);
-    OHOS::GnssAbility007FuzzTest(ch, size);
-    OHOS::GnssAbility008FuzzTest(ch, size);
-    OHOS::GnssAbility009FuzzTest(ch, size);
-    OHOS::GnssAbility010FuzzTest(ch, size);
-    OHOS::GnssAbility011FuzzTest(ch, size);
-    OHOS::GnssAbility012FuzzTest(ch, size);
-    OHOS::GnssAbility013FuzzTest(ch, size);
-    OHOS::GnssAbility014FuzzTest(ch, size);
-    OHOS::GnssAbility015FuzzTest(ch, size);
-    OHOS::GnssAbility016FuzzTest(ch, size);
-    OHOS::GnssAbility017FuzzTest(ch, size);
-    OHOS::GnssAbility018FuzzTest(ch, size);
-    OHOS::GnssAbility019FuzzTest(ch, size);
-    OHOS::GnssAbility020FuzzTest(ch, size);
-    OHOS::GnssAbility021FuzzTest(ch, size);
+        OHOS::GnssAbility001FuzzTest(ch, size);
+        OHOS::GnssAbility002FuzzTest(ch, size);
+        OHOS::GnssAbility003FuzzTest(ch, size);
+        OHOS::GnssAbility004FuzzTest(ch, size);
+        OHOS::GnssAbility005FuzzTest(ch, size);
+        OHOS::GnssAbility006FuzzTest(ch, size);
+        OHOS::GnssAbility007FuzzTest(ch, size);
+        OHOS::GnssAbility008FuzzTest(ch, size);
+        OHOS::GnssAbility009FuzzTest(ch, size);
+        OHOS::GnssAbility010FuzzTest(ch, size);
+        OHOS::GnssAbility011FuzzTest(ch, size);
+        OHOS::GnssAbility012FuzzTest(ch, size);
+        OHOS::GnssAbility013FuzzTest(ch, size);
+        OHOS::GnssAbility014FuzzTest(ch, size);
+        OHOS::GnssAbility015FuzzTest(ch, size);
+        OHOS::GnssAbility016FuzzTest(ch, size);
+        OHOS::GnssAbility017FuzzTest(ch, size);
+        OHOS::GnssAbility018FuzzTest(ch, size);
+        OHOS::GnssAbility019FuzzTest(ch, size);
+        OHOS::GnssAbility020FuzzTest(ch, size);
+        OHOS::GnssAbility021FuzzTest(ch, size);
 #endif
         free(ch);
         ch = nullptr;

@@ -17,90 +17,83 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-if (location_feature_with_gnss) {
-  ohos_fuzztest("GnssAbilityFuzzTest") {
-    module_out_path = "location/location"
-    fuzz_config_file =
-        "$LOCATION_ROOT_DIR/test/fuzztest/locator/gnssability_fuzzer"
-    include_dirs = [
-      "$LOCATION_GNSS_ROOT/include",
-      "$LOCATION_LOCATOR_ROOT/include",
-      "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
-    ]
-    cflags = [
-      "-g",
-      "-O0",
-      "-Wno-unused-variable",
-      "-fno-omit-frame-pointer",
-    ]
-    sources = [ "gnssability_fuzzer.cpp" ]
-    deps = [
-      "$ARKUI_ROOT_DIR/napi:ace_napi",
-      "$LOCATION_GNSS_ROOT:lbsservice_gnss_static",
-      "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
-      "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
-      "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
-      "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
-      "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
-      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    ]
-    external_deps = [
-      "access_token:libaccesstoken_sdk",
-      "access_token:libnativetoken",
-      "access_token:libtoken_setproc",
-      "c_utils:utils",
-      "common_event_service:cesfwk_innerkits",
-      "core_service:tel_core_service_api",
-      "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
-      "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
-      "eventhandler:libeventhandler",
-      "ffrt:libffrt",
-      "hilog:libhilog",
-      "hisysevent:libhisysevent",
-      "init:libbegetutil",
-      "ipc:ipc_core",
-      "samgr:samgr_proxy",
-    ]
+ohos_fuzztest("GnssAbilityFuzzTest") {
+  module_out_path = "location/location"
+  fuzz_config_file =
+      "$LOCATION_ROOT_DIR/test/fuzztest/locator/gnssability_fuzzer"
+  include_dirs = [
+    "$LOCATION_GNSS_ROOT/include",
+    "$LOCATION_LOCATOR_ROOT/include",
+    "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
+  ]
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "gnssability_fuzzer.cpp" ]
+  deps = [
+    "$ARKUI_ROOT_DIR/napi:ace_napi",
+    "$LOCATION_GNSS_ROOT:lbsservice_gnss_static",
+    "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
+    "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
+    "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
+    "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+  ]
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "core_service:tel_core_service_api",
+    "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
+    "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
+    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
 
-    defines = []
+  defines = []
 
-    if (telephony_core_service_enable) {
-      external_deps += [ "core_service:tel_core_service_api" ]
-      defines += [ "TEL_CORE_SERVICE_ENABLE" ]
-    }
-
-    if (telephony_cellular_data_enable) {
-      external_deps += [ "cellular_data:tel_cellular_data_api" ]
-      defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
-    }
-
-    if (hdf_drivers_interface_location_agnss_enable) {
-      external_deps +=
-          [ "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0" ]
-      defines += [ "HDF_DRIVERS_INTERFACE_AGNSS_ENABLE" ]
-    }
-
-    if (location_feature_with_gnss &&
-        hdf_drivers_interface_location_gnss_enable) {
-      external_deps +=
-          [ "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0" ]
-      defines += [ "FEATURE_GNSS_SUPPORT" ]
-    }
-
-    if (hdf_drivers_interface_location_geofence_enable) {
-      external_deps += [
-        "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
-      ]
-      defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
-    }
-
-    if (location_feature_with_passive) {
-      defines += [ "FEATURE_PASSIVE_SUPPORT" ]
-    }
+  if (telephony_core_service_enable) {
+    external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TEL_CORE_SERVICE_ENABLE" ]
   }
-} else {
-  ohos_fuzztest("GnssAbilityFuzzTest") {
-    module_out_path = "location/location"
+
+  if (telephony_cellular_data_enable) {
+    external_deps += [ "cellular_data:tel_cellular_data_api" ]
+    defines += [ "TEL_CELLULAR_DATA_ENABLE" ]
+  }
+
+  if (hdf_drivers_interface_location_agnss_enable) {
+    external_deps +=
+        [ "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0" ]
+    defines += [ "HDF_DRIVERS_INTERFACE_AGNSS_ENABLE" ]
+  }
+
+  if (location_feature_with_gnss &&
+      hdf_drivers_interface_location_gnss_enable) {
+    external_deps +=
+        [ "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0" ]
+    defines += [ "FEATURE_GNSS_SUPPORT" ]
+  }
+
+  if (hdf_drivers_interface_location_geofence_enable) {
+    external_deps +=
+        [ "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0" ]
+    defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
+  }
+
+  if (location_feature_with_passive) {
+    defines += [ "FEATURE_PASSIVE_SUPPORT" ]
   }
 }
 

@@ -27,8 +27,8 @@
 
 namespace OHOS {
 namespace Location {
-bool FindRegCallback(napi_ref cb);
-void DeleteRegCallback(napi_ref cb);
+bool FindLocationCallback(napi_ref cb);
+void DeleteLocationCallback(napi_ref cb);
 class LocatorCallbackNapi : public IRemoteStub<ILocatorCallback> {
 public:
     LocatorCallbackNapi();
@@ -56,6 +56,8 @@ public:
     void SetCount(int count);
     napi_ref GetHandleCb();
     void SetHandleCb(const napi_ref& handlerCb);
+    napi_env GetEnv();
+    void SetEnv(const napi_env& env);
 
     template <typename T>
     bool InitContext(T* context)
@@ -73,16 +75,6 @@ public:
             context->callback[SUCCESS_CALLBACK] = handlerCb_;
         }
         return true;
-    }
-
-    inline napi_env GetEnv() const
-    {
-        return env_;
-    }
-
-    inline void SetEnv(const napi_env& env)
-    {
-        env_ = env;
     }
 
     inline napi_ref GetSuccHandleCb() const

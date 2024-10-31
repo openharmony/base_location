@@ -17,16 +17,13 @@
 
 #include "location_log.h"
 #include "locator_ability.h"
-#include "request_manager.h"
 
 namespace OHOS {
 namespace Location {
 void PermissionStatusChangeCb::PermStateChangeCallback(PermStateChangeInfo& result)
 {
-    auto requestManager = RequestManager::GetInstance();
     auto locatorAbility = LocatorAbility::GetInstance();
     LBSLOGD(LOCATOR, "%{public}s changed.", result.permissionName.c_str());
-    requestManager->HandlePermissionChanged(result.tokenID);
     locatorAbility->ApplyRequests(1);
 }
 } // namespace Location

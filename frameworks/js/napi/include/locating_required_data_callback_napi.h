@@ -26,6 +26,8 @@
 
 namespace OHOS {
 namespace Location {
+bool FindRequiredDataCallback(napi_ref cb);
+void DeleteRequiredDataCallback(napi_ref cb);
 class LocatingRequiredDataCallbackNapi : public IRemoteStub<ILocatingRequiredDataCallback> {
 public:
     LocatingRequiredDataCallbackNapi();
@@ -46,6 +48,10 @@ public:
     void ClearSingleResult();
     void SetSingleResult(
         std::vector<std::shared_ptr<LocatingRequiredData>> singleResult);
+    napi_ref GetHandleCb();
+    void SetHandleCb(const napi_ref& handlerCb);
+    napi_env GetEnv();
+    void SetEnv(const napi_env& env);
     
     template <typename T>
     bool InitContext(T* context)
@@ -57,26 +63,6 @@ public:
         context->env = env_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
-    }
-
-    inline napi_env GetEnv() const
-    {
-        return env_;
-    }
-
-    inline void SetEnv(const napi_env& env)
-    {
-        env_ = env;
-    }
-
-    inline napi_ref GetHandleCb() const
-    {
-        return handlerCb_;
-    }
-
-    inline void SetHandleCb(const napi_ref& handlerCb)
-    {
-        handlerCb_ = handlerCb;
     }
 
     inline bool GetRemoteDied() const

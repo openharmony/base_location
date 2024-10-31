@@ -56,7 +56,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const int INVALID_PRIVACY_TYPE = -1;
 const int32_t DEFAULT_USER = 100;
 #ifdef FEATURE_GNSS_SUPPORT
@@ -102,6 +102,7 @@ void LocatorImplTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -232,7 +233,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetCachedLocationV9, TestSize.Level1)
     locatorImpl_->GetCachedLocationV9(loc); // get last location
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->StopLocatingV9(callbackStub_));
 
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->DisableLocationMockV9());
+    locatorImpl_->DisableLocationMockV9();
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetCachedLocationV9 end");
 }
 

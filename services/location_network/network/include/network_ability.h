@@ -83,6 +83,7 @@ public:
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
     void ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid);
     void RestartNlpRequests();
+    void DisconnectAbilityConnect();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);

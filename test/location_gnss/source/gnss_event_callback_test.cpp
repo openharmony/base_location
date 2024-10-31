@@ -37,7 +37,7 @@ namespace Location {
 using HDI::Location::Gnss::V2_0::IGnssCallback;
 using HDI::Location::Gnss::V2_0::LocationInfo;
 using HDI::Location::Gnss::V2_0::ConstellationCategory;
-const int32_t LOCATION_PERM_NUM = 5;
+const int32_t LOCATION_PERM_NUM = 6;
 const std::string MANAGER_SETTINGS = "ohos.permission.MANAGE_SETTINGS";
 void GnssEventCallbackTest::SetUp()
 {
@@ -52,7 +52,7 @@ void GnssEventCallbackTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        MANAGER_SETTINGS.c_str(),
+        MANAGER_SETTINGS.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
