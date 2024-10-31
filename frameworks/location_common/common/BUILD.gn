@@ -33,7 +33,6 @@ local_base_sources = [
   "$LOCATION_COMMON_DIR/source/request.cpp",
   "$LOCATION_COMMON_DIR/source/sa_load_with_statistic.cpp",
   "$LOCATION_COMMON_DIR/source/ui_extension_ability_connection.cpp",
-  "$LOCATION_COMMON_DIR/source/work_record_statistic.cpp",
   "$LOCATION_ROOT_DIR/frameworks/base_module/source/location.cpp",
   "$LOCATION_ROOT_DIR/frameworks/base_module/source/request_config.cpp",
   "$LOCATION_ROOT_DIR/frameworks/base_module/source/satellite_status.cpp",

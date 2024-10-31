@@ -34,7 +34,6 @@
 #include "subability_common.h"
 #include "work_record.h"
 #include "geofence_request.h"
-#include "work_record_statistic.h"
 #include "if_system_ability_manager.h"
 #include "system_ability_definition.h"
 #include "iservice_registry.h"
@@ -81,7 +80,6 @@ namespace OHOS {
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->UnregisterNmeaMessageCallback(nmeaCallbackHost);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-        WorkRecordStatistic::DestroyInstance();
         return true;
     }
 
@@ -129,7 +127,6 @@ namespace OHOS {
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->SetMocked(data[index++], locations);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-        WorkRecordStatistic::DestroyInstance();
         return true;
     }
 
@@ -157,7 +154,6 @@ namespace OHOS {
         std::vector<CoordinateSystemType> coordinateSystemTypes;
         proxy->QuerySupportCoordinateSystemType(coordinateSystemTypes);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-        WorkRecordStatistic::DestroyInstance();
         return true;
     }
 #endif // FEATURE_GNSS_SUPPORT

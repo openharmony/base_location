@@ -61,7 +61,6 @@ private:
     void RetryRegisterActionEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event);
-    void UpdateLastLocationRequestNum(const AppExecFwk::InnerEvent::Pointer& event);
     void UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -203,7 +202,6 @@ public:
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
     LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location);
 #endif
-    void UpdateLastLocationRequestNum();
     void SyncStillMovementState(bool stillState);
     void SyncIdleState(bool stillState);
 #ifdef FEATURE_GEOCODE_SUPPORT

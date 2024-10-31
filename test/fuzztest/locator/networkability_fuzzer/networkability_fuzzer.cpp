@@ -30,7 +30,6 @@
 #include "network_ability.h"
 #endif
 #include "permission_manager.h"
-#include "work_record_statistic.h"
 
 
 namespace OHOS {
@@ -98,7 +97,6 @@ bool NetworkAbility001FuzzTest(const char* data, size_t size)
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
     ability->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST),
         requestParcel, reply, option);
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -114,7 +112,6 @@ bool NetworkAbility002FuzzTest(const char* data, size_t size)
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
     ability->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -131,7 +128,6 @@ bool NetworkAbility003FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SELF_REQUEST),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -148,7 +144,6 @@ bool NetworkAbility004FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::SET_ENABLE),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -165,7 +160,6 @@ bool NetworkAbility005FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::ENABLE_LOCATION_MOCK),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -182,7 +176,6 @@ bool NetworkAbility006FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(NetworkInterfaceCode::DISABLE_LOCATION_MOCK),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 #endif

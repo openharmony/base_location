@@ -24,7 +24,6 @@
     "*ExecuteHookWhenAddWorkRecord*";
     "*LOCATOR_SA_LOCATION_PERMISSION_CHECK*";
     "*ExecuteHookWhenCheckAppForCacheTime*";
-    "*WorkRecordStatistic*";
   local:
     *;
 };

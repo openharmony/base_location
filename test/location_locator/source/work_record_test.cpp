@@ -300,46 +300,5 @@ HWTEST_F(WorkRecordTest, GetTimeInterval001, TestSize.Level1)
     EXPECT_EQ("", workrecord->GetUuid(-1));
     LBSLOGI(LOCATOR, "[WorkRecordTest] GetTimeInterval001 end");
 }
-
-HWTEST_F(WorkRecordTest, WorkRecordStatistic001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "WorkRecordTest, WorkRecordStatistic001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic001 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->Update("network", 1);
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic001 end");
-}
-
-HWTEST_F(WorkRecordTest, WorkRecordStatistic002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "WorkRecordTest, WorkRecordStatistic002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic002 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->Update("network", 0);
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic002 end");
-}
-
-HWTEST_F(WorkRecordTest, WorkRecordStatistic003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "WorkRecordTest, WorkRecordStatistic003, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic003 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->DestroyInstance();
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic003 end");
-}
-
-HWTEST_F(WorkRecordTest, WorkRecordStatistic004, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "WorkRecordTest, WorkRecordStatistic004, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic004 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->location_working_state_ = WORKING_STATE;
-    workRecordStatistic->UpdateLocationWorkingState();
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic004 end");
-}
 } // namespace Location
 } // namespace OHOS
