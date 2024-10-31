@@ -659,12 +659,18 @@ HWTEST_F(LocatorAbilityTest, LocatorHandlerGetCachedLocationSuccess001, TestSize
     GTEST_LOG_(INFO)
         << "LocatorAbilityTest, LocatorHandlerGetCachedLocationSuccess001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandlerGetCachedLocationSuccess001 begin");
-    std::shared_ptr<AppExecFwk::EventRunner> runner;
-    auto locatorHandler =
-        new (std::nothrow) LocatorHandler(runner);
-    int state = 1;
+    AppIdentity identity;
+    identity.SetPid(1);
+    identity.SetUid(1);
+    identity.SetTokenId(1);
+    identity.SetTokenIdEx(1);
+    identity.SetFirstTokenId(1);
+    identity.SetBundleName("com.example.lbs.test");
+    std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
     AppExecFwk::InnerEvent::Pointer event  =
-        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
+        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, identityInfo);
+    std::shared_ptr<AppExecFwk::EventRunner> runner;
+    auto locatorHandler = new (std::nothrow) LocatorHandler(runner);
     locatorHandler->GetCachedLocationSuccess(event);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandlerGetCachedLocationSuccess001 end");
 }
@@ -674,12 +680,18 @@ HWTEST_F(LocatorAbilityTest, LocatorHandlerGetCachedLocationFailed001, TestSize.
     GTEST_LOG_(INFO)
         << "LocatorAbilityTest, LocatorHandlerGetCachedLocationFailed001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandlerGetCachedLocationFailed001 begin");
-    std::shared_ptr<AppExecFwk::EventRunner> runner;
-    auto locatorHandler =
-        new (std::nothrow) LocatorHandler(runner);
-    int state = 1;
+    AppIdentity identity;
+    identity.SetPid(1);
+    identity.SetUid(1);
+    identity.SetTokenId(1);
+    identity.SetTokenIdEx(1);
+    identity.SetFirstTokenId(1);
+    identity.SetBundleName("com.example.lbs.test");
+    std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
     AppExecFwk::InnerEvent::Pointer event  =
-        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
+        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, identityInfo);
+    std::shared_ptr<AppExecFwk::EventRunner> runner;
+    auto locatorHandler = new (std::nothrow) LocatorHandler(runner);
     locatorHandler->GetCachedLocationFailed(event);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandlerGetCachedLocationFailed001 end");
 }
