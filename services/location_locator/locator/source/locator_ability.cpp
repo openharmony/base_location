@@ -1034,13 +1034,13 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
 bool LocatorAbility::ReportSingleCacheLocation(
     const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
 {
-    requestManager_->AddWorkingPidsCount(request->GetPid());
+    requestManager_->IncreaseWorkingPidsCount(request->GetPid());
     if (requestManager_->IsNeedStartUsingPermission(request->GetPid())) {
         int ret = PrivacyKit::StartUsingPermission(
             request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
         if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
             IsHapCaller(request->GetTokenId())) {
-            requestManager_->SubWorkingPidsCount(request->GetPid());
+            requestManager_->DecreaseWorkingPidsCount(request->GetPid());
             LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
             return false;
         }
@@ -1049,12 +1049,12 @@ bool LocatorAbility::ReportSingleCacheLocation(
     int recordResult = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
         request->GetPermUsedType(), 1, 0);
     if (recordResult != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
-        requestManager_->SubWorkingPidsCount(request->GetPid());
+        requestManager_->DecreaseWorkingPidsCount(request->GetPid());
         LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", recordResult);
         return false;
     }
     callback->OnLocationReport(cacheLocation);
-    requestManager_->SubWorkingPidsCount(request->GetPid());
+    requestManager_->DecreaseWorkingPidsCount(request->GetPid());
     if (requestManager_->IsNeedStopUsingPermission(request->GetPid())) {
         PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
     }
@@ -1129,7 +1129,7 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     loc = reportManager_->GetPermittedLocation(request, lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
-    requestManager_->AddWorkingPidsCount(identity.GetPid());
+    requestManager_->IncreaseWorkingPidsCount(identity.GetPid());
     if (requestManager_->IsNeedStartUsingPermission(identity.GetPid())) {
         int ret = PrivacyKit::StartUsingPermission(
             identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, identity.GetPid());
@@ -1883,7 +1883,7 @@ void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Poin
         LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     }
     auto requestManager = RequestManager::GetInstance();
-    requestManager->SubWorkingPidsCount(identity->GetPid());
+    requestManager->DecreaseWorkingPidsCount(identity->GetPid());
     if (requestManager->IsNeedStopUsingPermission(identity->GetPid())) {
         ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION, identity->GetPid());
         LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
@@ -1909,7 +1909,7 @@ void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Point
         LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     }
     auto requestManager = RequestManager::GetInstance();
-    requestManager->SubWorkingPidsCount(identity->GetPid());
+    requestManager->DecreaseWorkingPidsCount(identity->GetPid());
     if (requestManager->IsNeedStopUsingPermission(identity->GetPid())) {
         ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION, identity->GetPid());
         LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
