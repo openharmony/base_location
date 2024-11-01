@@ -109,7 +109,6 @@ const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
 const int LOCATIONHUB_STATE_UNLOAD = 0;
 const int LOCATIONHUB_STATE_LOAD = 1;
 const int MAX_SIZE = 100;
-static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -1130,11 +1129,6 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     if (locatorHandler_ != nullptr &&
         locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
-    }
-    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
-    if (lastLocation == nullptr || (lastLocation != nullptr &&
-                (curTime - lastLocation->GetTimeStamp() / MILLI_PER_SEC) > LASTLOCATION_CACHED_TIME)) {
-        SelfRequestManager::GetInstance()->StartSelfRequest();
     }
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
