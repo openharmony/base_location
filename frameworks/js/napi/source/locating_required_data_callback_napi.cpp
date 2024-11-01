@@ -65,13 +65,13 @@ int LocatingRequiredDataCallbackNapi::OnRemoteRequest(
     switch (code) {
         case RECEIVE_INFO_EVENT: {
             int cnt = data.ReadInt32();
-            if (cnt > 0 && cnt <= MAXIMUM_LOCATING_REQUIRED_DATAS) {
+            if (cnt >= 0 && cnt <= MAXIMUM_LOCATING_REQUIRED_DATAS) {
                 std::vector<std::shared_ptr<LocatingRequiredData>> res;
-                for (int i = 0; i < cnt; i++) {
+                for (int i = 0; cnt > 0 && i < cnt; i++) {
                     res.push_back(LocatingRequiredData::Unmarshalling(data));
                 }
                 // update wifi info
-                if (res[0]->GetType() == LocatingRequiredDataType::WIFI) {
+                if (res.size() > 0 && res[0]->GetType() == LocatingRequiredDataType::WIFI) {
                     SetSingleResult(res);
                 }
                 OnLocatingDataChange(res);

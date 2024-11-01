@@ -40,6 +40,7 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/self_request_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/work_record_statistic.cpp",

@@ -211,6 +211,7 @@ public:
 #endif
     void ReportDataToResSched(std::string state);
     bool IsHapCaller(const uint32_t tokenId);
+    void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
 
 private:
     bool Init();
@@ -226,7 +227,6 @@ private:
         std::unique_ptr<Location>& cacheLocation);
     bool ReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
         std::unique_ptr<Location>& cacheLocation);
-    void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);

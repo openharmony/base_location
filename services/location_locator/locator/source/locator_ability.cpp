@@ -61,6 +61,7 @@
 #include "iservice_registry.h"
 #include "geo_convert_request.h"
 #include "parameter.h"
+#include "self_request_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -108,6 +109,7 @@ const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
 const int LOCATIONHUB_STATE_UNLOAD = 0;
 const int LOCATIONHUB_STATE_LOAD = 1;
 const int MAX_SIZE = 100;
+static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -959,14 +961,20 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         Security::AccessToken::AccessTokenKit::GetPermissionUsedType(request->GetTokenId(),
         ACCESS_APPROXIMATELY_LOCATION);
     request->SetPermUsedType(static_cast<int>(type));
-    LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
+    if (requestConfig->GetScenario() != SCENE_NO_POWER &&
+        requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+        LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
+    }
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
     HandleStartLocating(request, callback);
 #else
     if (NeedReportCacheLocation(request, callback)) {
-        LBSLOGW(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
-        LocatorBackgroundProxy::GetInstance()->StartLocator();
+        LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
+        if (requestConfig->GetScenario() != SCENE_NO_POWER &&
+            requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+            SelfRequestManager::GetInstance()->StartSelfRequest();
+        }
         callback->AsObject()->RemoveDeathRecipient(death);
     } else {
         HandleStartLocating(request, callback);
@@ -1115,7 +1123,6 @@ LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
 
 LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity)
 {
-    LocatorBackgroundProxy::GetInstance()->StartLocator();
     if (locatorHandler_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1123,6 +1130,11 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     if (locatorHandler_ != nullptr &&
         locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
+    }
+    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    if (lastLocation == nullptr || (lastLocation != nullptr &&
+                (curTime - lastLocation->GetTimeStamp() / MILLI_PER_SEC) > LASTLOCATION_CACHED_TIME)) {
+        SelfRequestManager::GetInstance()->StartSelfRequest();
     }
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
@@ -2155,11 +2167,9 @@ void LocatorHandler::RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& ev
 
 void LocatorHandler::SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = RequestManager::GetInstance();
-    if (requestManager != nullptr) {
-        bool state = event->GetParam();
-        requestManager->SyncStillMovementState(state);
-    }
+    bool state = event->GetParam();
+    RequestManager::GetInstance()->SyncStillMovementState(state);
+    LocatorRequiredDataManager::GetInstance()->SyncStillMovementState(state);
 }
 
 void LocatorHandler::SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event)

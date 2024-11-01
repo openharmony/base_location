@@ -48,6 +48,7 @@ std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const napi_value &)> g_offFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const size_t, const napi_value *)> g_onFuncMap;
 
+static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 
 const int MIN_TIMEOUTMS_FOR_LOCATIONONCE = 1000;
 
@@ -280,7 +281,7 @@ LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const n
     locatingCallbackHost->SetHandleCb(handlerRef);
     std::unique_ptr<LocatingRequiredDataConfig> dataConfig = std::make_unique<LocatingRequiredDataConfig>();
     JsObjToLocatingRequiredDataConfig(env, object, dataConfig);
-    return g_locatorProxy->RegisterLocatingRequiredDataCallback(dataConfig, callbackPtr);
+    return ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode SubscribeLocationError(const napi_env& env,
@@ -404,7 +405,7 @@ LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataC
 {
     LBSLOGD(LOCATION_NAPI, "%{public}s start", __func__);
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
-    return g_locatorProxy->UnRegisterLocatingRequiredDataCallback(callbackPtr);
+    return ERRCODE_NOT_SUPPORTED;
 }
 #endif
 
@@ -441,7 +442,9 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
 #else
             location = g_locatorProxy->GetCachedLocation();
 #endif
-            if (location != nullptr) {
+            int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+            if (location != nullptr &&
+                (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
                 callbackHost->SetSingleLocation(location);
             } else {
                 context->errCode = ERRCODE_LOCATING_FAIL;
