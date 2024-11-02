@@ -276,7 +276,7 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::G
         wifiData->SetBssid(wifiScanInfo[i].bssid);
         wifiData->SetRssi(wifiScanInfo[i].rssi);
         wifiData->SetFrequency(wifiScanInfo[i].frequency);
-        if (IsStill()) {
+        if (!IsStill()) {
             wifiData->SetTimestamp(wifiScanInfo[i].timestamp);
         } else {
             wifiData->SetTimestamp(sinceBootTime);
