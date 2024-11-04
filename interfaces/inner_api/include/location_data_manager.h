@@ -44,7 +44,7 @@ private:
     std::mutex mutex_;
     std::mutex isSwitchObserverRegMutex_;
     bool isSwitchObserverReg_ = false;
-    std::map<sptr<IRemoteObject>, std::vector<int>> switchCallbackMap_;
+    std::map<sptr<IRemoteObject>, std::vector<std::string>> switchCallbackMap_;
     std::mutex isFirstReportMutex_;
     bool isFirstReport_ = true;
 };

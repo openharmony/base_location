@@ -312,8 +312,8 @@ void NetworkAbility::DisconnectAbilityConnect()
     std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
     if (GetRequestNum() == 0 && conn_ != nullptr) {
         LBSLOGI(NETWORK, "RequestRecord disconnect");
-        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         UnregisterNlpServiceDeathRecipient();
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         conn_ = nullptr;
     }
 }

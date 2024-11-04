@@ -417,13 +417,10 @@ std::string CommonUtils::GenerateUuid()
     return ss.str();
 }
 
-bool CommonUtils::CheckAppForUser(int32_t uid)
+bool CommonUtils::CheckAppForUser(int32_t uid, std::string bundleName)
 {
-    std::string bundleName = "";
-    if (CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-        if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
-            return true;
-        }
+    if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
+        return true;
     }
     int currentUserId = 0;
     int userId = 0;
@@ -458,7 +455,7 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
     if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
         return true;
     }
-    if (CommonUtils::CheckAppForUser(identity.GetUid())) {
+    if (CommonUtils::CheckAppForUser(identity.GetUid(), identity.GetBundleName())) {
         return true;
     }
     return false;

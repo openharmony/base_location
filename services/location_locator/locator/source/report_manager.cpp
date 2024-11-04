@@ -187,14 +187,16 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     if (location == nullptr) {
         return nullptr;
     }
-    std::string bundleName = "";
+    std::string bundleName = request->GetPackageName();
     auto tokenId = request->GetTokenId();
     auto firstTokenId = request->GetFirstTokenId();
     auto tokenIdEx = request->GetTokenIdEx();
     auto uid =  request->GetUid();
     auto pid =  request->GetPid();
-    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-        LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+    if (bundleName.length() == 0) {
+        if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+            LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+        }
     }
     if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid, pid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
@@ -205,6 +207,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     AppIdentity identity;
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
+    identity.SetBundleName(bundleName);
     if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
         //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
