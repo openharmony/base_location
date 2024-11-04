@@ -76,7 +76,7 @@ napi_value HandleGetCachedLocation(napi_env env)
     napi_value res;
     NAPI_CALL(env, napi_create_object(env, &res));
     std::unique_ptr<Location> loc;
-    errorCode = g_locatorClient->GetCachedLocationV9(loc);
+    LocationErrCode errorCode = g_locatorClient->GetCachedLocationV9(loc);
     if (loc != nullptr) {
         LocationToJs(env, loc, res);
         return res;
