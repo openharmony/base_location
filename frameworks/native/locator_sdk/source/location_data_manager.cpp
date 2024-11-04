@@ -59,7 +59,6 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         int tokenId = std::stoi(appInfo[APP_INFO_TOKENID_INDEX]);
         std::string bundleName = appInfo[APP_INFO_BUNDLEID_INDEX];
         int lastState = std::stoi(appInfo[APP_INFO_LASTSTATE_INDEX]);
-        LBSLOGE(LOCATOR, "ReportSwitchState, uid=%{public}d,tokenId=%{public}d,bundle= %{public}s,lastState=%{public}d", uid,tokenId, bundleName.c_str(), lastState);
         if (!PermissionManager::CheckIsSystemSa(tokenId) &&
             !CommonUtils::CheckAppForUser(uid, bundleName)) {
             LBSLOGE(LOCATOR, "It is not a listener of Current user, no need to report. uid : %{public}d", uid);
