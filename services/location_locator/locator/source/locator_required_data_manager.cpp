@@ -129,7 +129,7 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemoteObject>& callback)
 {
 #ifdef WIFI_ENABLE
-    std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
+    std::unique_lock<std::mutex> lock(mutex_);
     auto iter = callbacksMap_.find(callback);
     if (iter != callbacksMap_.end()) {
         callbacksMap_.erase(iter);
