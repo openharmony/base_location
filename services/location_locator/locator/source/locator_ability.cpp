@@ -109,6 +109,7 @@ const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
 const int LOCATIONHUB_STATE_UNLOAD = 0;
 const int LOCATIONHUB_STATE_LOAD = 1;
 const int MAX_SIZE = 100;
+static constexpr int CACHED_TIME = 25;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -961,7 +962,9 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         ACCESS_APPROXIMATELY_LOCATION);
     request->SetPermUsedType(static_cast<int>(type));
     if (requestConfig->GetScenario() != SCENE_NO_POWER &&
-        requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+        requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION &&
+        (reportManager_->GetLastLocation() == nullptr ||
+        (CommonUtils::GetCurrentTimeStamp() - reportManager_->GetLastLocation()->GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME)) {
         LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
     }
 #ifdef EMULATOR_ENABLED

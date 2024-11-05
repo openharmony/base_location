@@ -29,7 +29,7 @@ const uint32_t EVENT_REGISTER_WIFI_CALLBACK = 0x0400;
 const uint32_t EVENT_UNREGISTER_WIFI_CALLBACK = 0x0500;
 const int32_t DEFAULT_TIMEOUT_4S = 4000;
 const int32_t DEFAULT_TIMEOUT_MS = 1500;
-const int32_t DEFAULT_TIMEOUT_6MIN = 6 * 60 * 1000;
+const int32_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * 1000;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
@@ -267,7 +267,7 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::GetWifiScan
 std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::GetLocatingRequiredDataByWifi(
     const std::vector<Wifi::WifiScanInfo>& wifiScanInfo)
 {
-    auto sinceBootTime = CommonUtils::GetSinceBootTime() / MILLI_PER_SEC;
+    auto deltaS = (CommonUtils::GetCurrentTimeStampMs() - GetlastStillTime()) / MILLI_PER_SEC;
     std::vector<std::shared_ptr<LocatingRequiredData>> res;
     for (size_t i = 0; i < wifiScanInfo.size(); i++) {
         std::shared_ptr<LocatingRequiredData> info = std::make_shared<LocatingRequiredData>();
@@ -279,7 +279,7 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::G
         if (!IsStill()) {
             wifiData->SetTimestamp(wifiScanInfo[i].timestamp);
         } else {
-            wifiData->SetTimestamp(sinceBootTime);
+            wifiData->SetTimestamp(wifiScanInfo[i].timestamp + deltaS);
         }
         info->SetType(LocatingRequiredDataType::WIFI);
         info->SetWifiScanInfo(wifiData);
@@ -335,7 +335,8 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
 {
 #ifdef WIFI_ENABLE
     int64_t currentTime = CommonUtils::GetCurrentTimeStampMs();
-    if (IsStill() && GetWifiScanCompleteTimestamp() > GetlastStillTime()) {
+    if (IsStill() && GetWifiScanCompleteTimestamp() > GetlastStillTime() &&
+        (currentTime - GetWifiScanCompleteTimestamp()) < DEFAULT_TIMEOUT_30_MIN) {
         SendGetWifiListEvent(0);
         return;
     }
