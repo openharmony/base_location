@@ -81,7 +81,7 @@ napi_value HandleGetCachedLocation(napi_env env)
         LocationToJs(env, loc, res);
         return res;
     }
-    if ( errorCode != ERRCODE_SUCCESS) {
+    if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
     }
     return UndefinedNapiValue(env);
