@@ -455,7 +455,8 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
     if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
         return true;
     }
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), identity.GetBundleName())) {
+    std::string bundleName = identity.GetBundleName();
+    if (CommonUtils::CheckAppForUser(identity.GetUid(), bundleName)) {
         return true;
     }
     return false;
