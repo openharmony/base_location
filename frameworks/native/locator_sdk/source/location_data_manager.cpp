@@ -72,7 +72,6 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         LBSLOGI(LOCATOR, "ReportSwitchState to uid : %{public}d , state = %{public}d", uid, state);
         callback->OnSwitchChange(state);
         appInfo->lastState = state;
-
     }
     return ERRCODE_SUCCESS;
 }
