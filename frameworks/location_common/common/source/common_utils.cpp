@@ -417,7 +417,7 @@ std::string CommonUtils::GenerateUuid()
     return ss.str();
 }
 
-bool CommonUtils::CheckAppForUser(int32_t uid, std::string bundleName)
+bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
 {
     if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
         return true;
