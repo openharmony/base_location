@@ -27,10 +27,6 @@
 #include "permission_manager.h"
 namespace OHOS {
 namespace Location {
-const int APP_INFO_SIZE = 3;
-const int APP_INFO_UID_INDEX = 0;
-const int APP_INFO_TOKENID_INDEX = 1;
-const int APP_INFO_LASTSTATE_INDEX = 2;
 LocationDataManager* LocationDataManager::GetInstance()
 {
     static LocationDataManager data;
@@ -49,16 +45,17 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 {
     int state = isEnabled ? ENABLED : DISABLED;
     std::unique_lock<std::mutex> lock(mutex_);
-    for (auto item : switchCallbackMap_) {
-        auto appInfo = item.second;
-        if (appInfo.size() < APP_INFO_SIZE) {
+    for (auto item = switchCallbackMap_.begin(); item != switchCallbackMap_.end(); item++) {
+        AppSwitchState *appInfo = &(item->second);
+        if (appInfo == nullptr) {
             continue;
         }
-        int uid = appInfo[APP_INFO_UID_INDEX];
-        int tokenId = appInfo[APP_INFO_TOKENID_INDEX];
-        int lastState = appInfo[APP_INFO_LASTSTATE_INDEX];
+        int uid = appInfo->appIdentity.GetUid();
+        int tokenId = appInfo->appIdentity.GetTokenId();
+        std::string bundleName = appInfo->appIdentity.GetBundleName();
+        int lastState = appInfo->lastState;
         if (!PermissionManager::CheckIsSystemSa(tokenId) &&
-            !CommonUtils::CheckAppForUser(uid)) {
+            !CommonUtils::CheckAppForUser(uid, bundleName)) {
             LBSLOGE(LOCATOR, "It is not a listener of Current user, no need to report. uid : %{public}d", uid);
             continue;
         }
@@ -66,7 +63,7 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
             // current state is same to before, no need to report
             continue;
         }
-        sptr<IRemoteObject> remoteObject = item.first;
+        sptr<IRemoteObject> remoteObject = item->first;
         if (remoteObject == nullptr) {
             LBSLOGE(LOCATOR, "remoteObject callback is nullptr");
             continue;
@@ -74,8 +71,7 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         auto callback = std::make_unique<SwitchCallbackProxy>(remoteObject);
         LBSLOGI(LOCATOR, "ReportSwitchState to uid : %{public}d , state = %{public}d", uid, state);
         callback->OnSwitchChange(state);
-        appInfo[APP_INFO_LASTSTATE_INDEX] = state;
-        switchCallbackMap_[remoteObject] = appInfo;
+        appInfo->lastState = state;
     }
     return ERRCODE_SUCCESS;
 }
@@ -93,13 +89,13 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         LBSLOGE(LOCATOR, "callback has registered");
         return ERRCODE_SUCCESS;
     }
-    std::vector<int> appInfo;
-    appInfo.push_back(identity.GetUid());
-    appInfo.push_back(identity.GetTokenId());
-    appInfo.push_back(DEFAULT_SWITCH_STATE);
-    switchCallbackMap_[callback] = appInfo;
-    LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
-        identity.GetUid(), std::to_string(switchCallbackMap_.size()).c_str());
+    std::string bundleName = "";
+    int uid = identity.GetUid();
+    if (CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        identity.SetBundleName(bundleName);
+    }
+    AppSwitchState appInfo{.appIdentity = identity, .lastState = DEFAULT_SWITCH_STATE};
+    switchCallbackMap_.emplace(callback, appInfo);
     if (!IsSwitchObserverReg()) {
         RegisterLocationSwitchObserver();
     }
