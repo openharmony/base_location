@@ -193,6 +193,8 @@ std::string CountryCodeManager::GetCountryCodeByLocation(const std::unique_ptr<L
     dataParcel.WriteDouble(location->GetLatitude()); // latitude
     dataParcel.WriteDouble(location->GetLongitude()); // longitude
     dataParcel.WriteInt32(1); // maxItems
+    dataParcel.WriteString16(u""); // transId
+    dataParcel.WriteString16(u""); // country
 
     bool isAvailable = false;
     LocationErrCode errorCode = locatorImpl->IsGeoServiceAvailableV9(isAvailable);
