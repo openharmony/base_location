@@ -34,9 +34,12 @@
 #include "geofence_request.h"
 #include "permission_manager.h"
 #include "hook_utils.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
+const int DEFAULT_USERID = 100;
+
 void LocatorAbilityStub::InitLocatorHandleMap()
 {
     if (locatorHandleMap_.size() != 0) {
@@ -367,6 +370,15 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    if (!HookUtils::ExecuteHookEnableAbility(
+        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
+        isEnabled, userId)) {
+        return ERRCODE_SUCCESS;
+    }
     LocationErrCode errCode = locatorAbility->EnableAbility(isEnabled);
     std::string bundleName;
     bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
@@ -401,6 +413,11 @@ int LocatorAbilityStub::PreEnableAbilityForUser(MessageParcel &data, MessageParc
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (!HookUtils::ExecuteHookEnableAbility(
+        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
+        isEnabled, userId)) {
+        return ERRCODE_SUCCESS;
     }
     LocationErrCode errCode = LocatorAbility::GetInstance()->EnableAbilityForUser(isEnabled, userId);
     std::string bundleName;

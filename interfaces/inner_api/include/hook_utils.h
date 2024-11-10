@@ -44,6 +44,7 @@ enum class LocationProcessStage {
     LOCATOR_SA_LOCATION_PERMISSION_CHECK,
     LOCATOR_SA_COMMAND_PROCESS,
     LOCATOR_SA_LOCATION_CACHE_TIME_CHECK,
+    ENABLE_ABILITY_PROCESS,
 };
 
 typedef struct {
@@ -82,6 +83,13 @@ typedef struct {
     bool result;
 } CommandStruct;
 
+typedef struct {
+    bool isEnabled;
+    int32_t userId;
+    std::string bundleName;
+    bool result;
+} EnableAbilityStruct;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -100,6 +108,7 @@ public:
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
     static bool ExecuteHookWhenCheckAppForCacheTime(std::string packageName);
+    static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
 };
 } // namespace Location
 } // namespace OHOS

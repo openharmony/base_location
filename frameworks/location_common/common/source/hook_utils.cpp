@@ -145,5 +145,17 @@ bool HookUtils::ExecuteHookWhenCheckAppForCacheTime(std::string packageName)
         LocationProcessStage::LOCATOR_SA_LOCATION_CACHE_TIME_CHECK, (void *)&locatorRequestStruct, nullptr);
     return locatorRequestStruct.result;
 }
+
+bool HookUtils::ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId)
+{
+    EnableAbilityStruct enableAbilityStruct;
+    enableAbilityStruct.bundleName = packageName;
+    enableAbilityStruct.isEnabled = isEnabled;
+    enableAbilityStruct.userId = userId;
+    enableAbilityStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::ENABLE_ABILITY_PROCESS, (void *)&enableAbilityStruct, nullptr);
+    return enableAbilityStruct.result;
+}
 } // namespace Location
 } // namespace OHOS
