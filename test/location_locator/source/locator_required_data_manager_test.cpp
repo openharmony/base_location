@@ -59,6 +59,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
     dataConfig->SetType(LocatingRequiredDataType::WIFI);
+    dataConfig->SetFixNumber(1);
     dataConfig->SetNeedStartScan(true);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
@@ -110,6 +111,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
     dataConfig->SetType(LocatingRequiredDataType::WIFI);
     dataConfig->SetNeedStartScan(false);
+    dataConfig->SetFixNumber(1);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
     AppIdentity identity;
