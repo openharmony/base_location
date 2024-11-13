@@ -156,6 +156,11 @@ if (location_feature_with_gnss) {
       defines += [ "NET_MANAGER_ENABLE" ]
     }
 
+    if (location_hicollie_enable) {
+      external_deps += [ "hicollie:libhicollie" ]
+      defines += [ "LOCATION_HICOLLIE_ENABLE" ]
+    }
+
     # Used to control the export of dynamic library symbols.
     version_script = "liblbsservice_gnss_version_script.txt"
 
@@ -269,6 +274,11 @@ if (location_feature_with_gnss) {
     if (net_manager_enable) {
       external_deps += [ "netmanager_base:net_conn_manager_if" ]
       defines += [ "NET_MANAGER_ENABLE" ]
+    }
+
+    if (location_hicollie_enable) {
+      external_deps += [ "hicollie:libhicollie" ]
+      defines += [ "LOCATION_HICOLLIE_ENABLE" ]
     }
 
     part_name = "location"

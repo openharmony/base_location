@@ -69,6 +69,11 @@ if (location_feature_with_geocode) {
       "safwk:system_ability_fwk",
     ]
 
+    if (location_hicollie_enable) {
+      external_deps += [ "hicollie:libhicollie" ]
+      defines += [ "LOCATION_HICOLLIE_ENABLE" ]
+    }
+
     # Used to control the export of dynamic library symbols.
     version_script = "liblbsservice_geocode_version_script.txt"
 
@@ -120,6 +125,11 @@ if (location_feature_with_geocode) {
       "ipc:ipc_single",
       "safwk:system_ability_fwk",
     ]
+
+    if (location_hicollie_enable) {
+      external_deps += [ "hicollie:libhicollie" ]
+      defines += [ "LOCATION_HICOLLIE_ENABLE" ]
+    }
 
     part_name = "location"
     subsystem_name = "location"
