@@ -77,6 +77,11 @@ if (location_feature_with_network) {
       defines += [ "FEATURE_PASSIVE_SUPPORT" ]
     }
 
+    if (location_hicollie_enable) {
+      external_deps += [ "hicollie:libhicollie" ]
+      defines += [ "LOCATION_HICOLLIE_ENABLE" ]
+    }
+
     # Used to control the export of dynamic library symbols.
     version_script = "liblbsservice_network_version_script.txt"
 
@@ -122,6 +127,11 @@ if (location_feature_with_network) {
 
     if (location_feature_with_passive) {
       defines += [ "FEATURE_PASSIVE_SUPPORT" ]
+    }
+
+    if (location_hicollie_enable) {
+      external_deps += [ "hicollie:libhicollie" ]
+      defines += [ "LOCATION_HICOLLIE_ENABLE" ]
     }
 
     part_name = "location"
