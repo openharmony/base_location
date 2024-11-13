@@ -37,6 +37,7 @@ const int MAX_SV_COUNT = 64;
 const int GPS_DUMMY_SV_COUNT = 5;
 const int AZIMUTH_DEGREES = 60;
 const int ELEVATION_DEGREES = 90;
+const int SATELLITES_ADDITIONAL = 4;
 bool g_hasLocation = false;
 bool g_svIncrease = false;
 std::unique_ptr<SatelliteStatus> g_svInfo = nullptr;
@@ -244,6 +245,7 @@ void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svi
     sv->SetAltitude(ELEVATION_DEGREES); // elevationDegrees
     sv->SetAzimuth(AZIMUTH_DEGREES); // azimuthDegrees
     sv->SetCarrierFrequencie(0); // carrierFrequencyHz
+    sv->SetSatelliteAdditionalInfo(SATELLITES_ADDITIONAL); // satellites_additional
 }
 
 int32_t GnssEventCallback::RequestGnssReferenceInfo(GnssRefInfoType type)
