@@ -31,7 +31,6 @@
 #include "network_ability_proxy.h"
 #endif
 #include "permission_manager.h"
-#include "work_record_statistic.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -76,7 +75,6 @@ bool NetworkAbilityProxy001FuzzTest(const uint8_t* data, size_t size)
     proxy->DisableMock();
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     proxy->SetMocked(data[index++], locations);
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 #endif

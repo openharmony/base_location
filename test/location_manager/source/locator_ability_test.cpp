@@ -535,8 +535,6 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityUpdateLastLocationRequestNum001, Test
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateLastLocationRequestNum001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->UpdateLastLocationRequestNum();
-    locatorAbility->UpdateLastLocationRequestNum();
     locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUpdateLastLocationRequestNum001 end");
 }
@@ -783,7 +781,6 @@ HWTEST_F(LocatorAbilityTest, LocatorHandlerUpdateLastLocationRequestNum001, Test
     int state = 1;
     AppExecFwk::InnerEvent::Pointer event  =
         AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
-    locatorHandler->UpdateLastLocationRequestNum(event);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandlerUpdateLastLocationRequestNum001 end");
 }
 

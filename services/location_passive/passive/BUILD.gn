@@ -17,7 +17,6 @@ import("//build/ohos.gni")
 local_base_sources = [
   "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
   "$LOCATION_LOCATOR_ROOT/source/work_record.cpp",
-  "$LOCATION_LOCATOR_ROOT/source/work_record_statistic.cpp",
   "$LOCATION_PASSIVE_ROOT/source/passive_ability.cpp",
   "$LOCATION_PASSIVE_ROOT/source/passive_ability_skeleton.cpp",
 ]

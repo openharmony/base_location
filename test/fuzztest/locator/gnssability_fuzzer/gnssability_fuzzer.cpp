@@ -30,7 +30,6 @@
 #include "gnss_ability.h"
 #endif
 #include "permission_manager.h"
-#include "work_record_statistic.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -97,7 +96,6 @@ bool GnssAbility001FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -115,7 +113,6 @@ bool GnssAbility002FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -133,7 +130,6 @@ bool GnssAbility003FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -151,7 +147,6 @@ bool GnssAbility004FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -169,7 +164,6 @@ bool GnssAbility005FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -187,7 +181,6 @@ bool GnssAbility006FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -204,7 +197,6 @@ bool GnssAbility007FuzzTest(const char* data, size_t size)
     ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA),
         requestParcel, reply, option);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -222,7 +214,6 @@ bool GnssAbility008FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -240,7 +231,6 @@ bool GnssAbility009FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -258,7 +248,6 @@ bool GnssAbility010FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -276,7 +265,6 @@ bool GnssAbility011FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -294,7 +282,6 @@ bool GnssAbility012FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -312,7 +299,6 @@ bool GnssAbility013FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -330,7 +316,6 @@ bool GnssAbility014FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -348,7 +333,6 @@ bool GnssAbility015FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -366,7 +350,6 @@ bool GnssAbility016FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -384,7 +367,6 @@ bool GnssAbility017FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -402,7 +384,6 @@ bool GnssAbility018FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -420,7 +401,6 @@ bool GnssAbility019FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -438,7 +418,6 @@ bool GnssAbility020FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 
@@ -456,7 +435,6 @@ bool GnssAbility021FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
-    WorkRecordStatistic::DestroyInstance();
     return true;
 }
 #endif
