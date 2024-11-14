@@ -35,6 +35,11 @@
 #include "common_hisysevent.h"
 #include "location_data_rdb_manager.h"
 
+#ifdef LOCATION_HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#endif
+
 namespace OHOS {
 namespace Location {
 const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
@@ -48,6 +53,7 @@ const int MAX_RETRY_COUNT = 5;
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
 const std::string DISCONNECT_NETWORK_TASK = "disconnect_network_ability";
 const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
+const int TIMEOUT_WATCHDOG = 60; // s
 const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
     NetworkAbility::GetInstance());
 
@@ -312,8 +318,8 @@ void NetworkAbility::DisconnectAbilityConnect()
     std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
     if (GetRequestNum() == 0 && conn_ != nullptr) {
         LBSLOGI(NETWORK, "RequestRecord disconnect");
-        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         UnregisterNlpServiceDeathRecipient();
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         conn_ = nullptr;
     }
 }
@@ -581,51 +587,97 @@ void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, st
     objectLocator->SendRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION_ERROR), data, reply, option);
 }
 
-NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
+{
+    InitNetworkEventProcessMap();
+}
 
 NetworkHandler::~NetworkHandler() {}
 
+void NetworkHandler::InitNetworkEventProcessMap()
+{
+    if (networkEventProcessMap_.size() != 0) {
+        return;
+    }
+    networkEventProcessMap_[static_cast<uint32_t>(EVENT_REPORT_MOCK_LOCATION)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleReportLocationMock(event); };
+    networkEventProcessMap_[static_cast<uint32_t>(EVENT_RESTART_ALL_LOCATION_REQUEST)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRestartAllLocationRequests(event); };
+    networkEventProcessMap_[static_cast<uint32_t>(EVENT_STOP_ALL_LOCATION_REQUEST)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleStopAllLocationRequests(event); };
+    networkEventProcessMap_[static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleLocationRequest(event); };
+    networkEventProcessMap_[static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetMocked(event); };
+}
+
 void NetworkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto networkAbility = NetworkAbility::GetInstance();
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(NETWORK, "ProcessEvent event:%{public}d", eventId);
-    switch (eventId) {
-        case EVENT_REPORT_MOCK_LOCATION: {
-            networkAbility->ProcessReportLocationMock();
-            break;
-        }
-        case EVENT_RESTART_ALL_LOCATION_REQUEST: {
-            networkAbility->RestartAllLocationRequests();
-            break;
-        }
-        case EVENT_STOP_ALL_LOCATION_REQUEST: {
-            networkAbility->StopAllLocationRequests();
-            break;
-        }
-        case static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST): {
-            std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
-            if (workrecord != nullptr) {
-                networkAbility->LocationRequest(*workrecord);
-            }
-            break;
-        }
-        case static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS): {
-            int timeInterval = event->GetParam();
-            auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
-            if (vcLoc != nullptr) {
-                std::vector<std::shared_ptr<Location>> mockLocations;
-                for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
-                    mockLocations.push_back(*it);
-                }
-                networkAbility->SetMocked(timeInterval, mockLocations);
-            }
-            break;
-        }
-        default:
-            break;
+
+    auto handleFunc = networkEventProcessMap_.find(eventId);
+    if (handleFunc != networkEventProcessMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "NetworkHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(NETWORK, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
+        memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
     }
+    auto networkAbility = NetworkAbility::GetInstance();
     networkAbility->UnloadNetworkSystemAbility();
+}
+
+void NetworkHandler::HandleReportLocationMock(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto networkAbility = NetworkAbility::GetInstance();
+    networkAbility->ProcessReportLocationMock();
+}
+
+void NetworkHandler::HandleRestartAllLocationRequests(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto networkAbility = NetworkAbility::GetInstance();
+    networkAbility->RestartAllLocationRequests();
+}
+
+void NetworkHandler::HandleStopAllLocationRequests(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto networkAbility = NetworkAbility::GetInstance();
+    networkAbility->StopAllLocationRequests();
+}
+
+void NetworkHandler::HandleLocationRequest(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
+    if (workrecord != nullptr) {
+        auto networkAbility = NetworkAbility::GetInstance();
+        networkAbility->LocationRequest(*workrecord);
+    }
+}
+
+void NetworkHandler::HandleSetMocked(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto networkAbility = NetworkAbility::GetInstance();
+    int timeInterval = event->GetParam();
+    auto vcLoc = event->GetSharedObject<std::vector<std::shared_ptr<Location>>>();
+    if (vcLoc != nullptr) {
+        std::vector<std::shared_ptr<Location>> mockLocations;
+        for (auto it = vcLoc->begin(); it != vcLoc->end(); ++it) {
+            mockLocations.push_back(*it);
+        }
+        networkAbility->SetMocked(timeInterval, mockLocations);
+    }
 }
 
 NlpServiceDeathRecipient::NlpServiceDeathRecipient()

@@ -56,6 +56,11 @@
 #include "ntp_time_check.h"
 #endif
 
+#ifdef LOCATION_HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#endif
+
 namespace OHOS {
 namespace Location {
 namespace {
@@ -74,6 +79,7 @@ const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 4 * 60 * EVENT_INTERVAL_UNITE;
 constexpr int32_t FENCE_MAX_ID = 1000000;
 constexpr int NLP_FIX_VALID_TIME = 2;
 const int64_t INVALID_TIME = 0;
+const int TIMEOUT_WATCHDOG = 60; // s
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -1630,7 +1636,21 @@ void GnssHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto handleFunc = gnssEventProcessMap_.find(eventId);
     if (handleFunc != gnssEventProcessMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "GnssHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(GNSS, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
         memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
     }
     gnssAbility->UnloadGnssSystemAbility();
 }

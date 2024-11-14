@@ -26,6 +26,12 @@
 
 namespace OHOS {
 namespace Location {
+
+typedef struct {
+    AppIdentity appIdentity;
+    int lastState;
+} AppSwitchState;
+
 class LocationDataManager {
 public:
     LocationDataManager();
@@ -44,7 +50,7 @@ private:
     std::mutex mutex_;
     std::mutex isSwitchObserverRegMutex_;
     bool isSwitchObserverReg_ = false;
-    std::map<sptr<IRemoteObject>, std::vector<int>> switchCallbackMap_;
+    std::map<sptr<IRemoteObject>, AppSwitchState > switchCallbackMap_;
     std::mutex isFirstReportMutex_;
     bool isFirstReport_ = true;
 };

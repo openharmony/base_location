@@ -37,9 +37,21 @@ static constexpr int REQUEST_NETWORK_LOCATION = 1;
 static constexpr int REMOVE_NETWORK_LOCATION = 2;
 class NetworkHandler : public AppExecFwk::EventHandler {
 public:
+    using NetworkEventHandler = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
+    using NetworkEventHandleMap = std::map<int, NetworkEventHandler>;
     explicit NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~NetworkHandler() override;
+
+private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void InitNetworkEventProcessMap();
+    void HandleReportLocationMock(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleRestartAllLocationRequests(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleStopAllLocationRequests(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleLocationRequest(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleSetMocked(const AppExecFwk::InnerEvent::Pointer& event);
+
+    NetworkEventHandleMap networkEventProcessMap_;
 };
 
 class NlpServiceDeathRecipient : public IRemoteObject::DeathRecipient {

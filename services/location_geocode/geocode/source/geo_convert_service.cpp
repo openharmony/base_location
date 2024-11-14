@@ -26,6 +26,10 @@
 #include "location_dumper.h"
 #include "location_sa_load_manager.h"
 #include "system_ability_definition.h"
+#ifdef LOCATION_HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -36,6 +40,8 @@ const char* UNLOAD_GEOCONVERT_TASK = "geoconvert_sa_unload";
 const int GEOCONVERT_CONNECT_TIME_OUT = 1;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const int UNLOAD_GEOCONVERT_DELAY_TIME = 5 * EVENT_INTERVAL_UNITE;
+const int TIMEOUT_WATCHDOG = 60; // s
+
 GeoConvertService* GeoConvertService::GetInstance()
 {
     static GeoConvertService data;
@@ -349,8 +355,8 @@ void GeoConvertService::UnloadGeoConvertSystemAbility()
 void GeoConvertService::DisconnectAbilityConnect()
 {
     if (conn_ != nullptr) {
-        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         UnRegisterGeoServiceDeathRecipient();
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         SetServiceConnectState(ServiceConnectState::STATE_DISCONNECT);
         conn_ = nullptr;
         LBSLOGI(GEO_CONVERT, "UnloadGeoConvert OnStop and disconnect");
@@ -471,37 +477,68 @@ void GeoServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
     }
 }
 
-GeoConvertHandler::GeoConvertHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+GeoConvertHandler::GeoConvertHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
+{
+    InitGeoConvertHandlerEventMap();
+}
 
 GeoConvertHandler::~GeoConvertHandler() {}
 
+void GeoConvertHandler::InitGeoConvertHandlerEventMap()
+{
+    if (geoConvertHandlerEventMap_.size() != 0) {
+        return;
+    }
+    geoConvertHandlerEventMap_[EVENT_SEND_GEOREQUEST] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { SendGeocodeRequest(event); };
+}
+
 void GeoConvertHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto geoConvertService = GeoConvertService::GetInstance();
     uint32_t eventId = event->GetInnerEventId();
     LBSLOGD(GEO_CONVERT, "ProcessEvent event:%{public}d", eventId);
-    switch (eventId) {
-        case EVENT_SEND_GEOREQUEST: {
-            std::unique_ptr<GeoConvertRequest> geoConvertRequest = event->GetUniqueObject<GeoConvertRequest>();
-            if (geoConvertRequest == nullptr) {
-                return;
-            }
-            MessageParcel dataParcel;
-            MessageParcel replyParcel;
-            MessageOption option;
-            geoConvertRequest->Marshalling(dataParcel);
-            bool ret = geoConvertService->SendGeocodeRequest(static_cast<int>(geoConvertRequest->GetRequestType()),
-                dataParcel, replyParcel, option);
-            if (!ret) {
-                LBSLOGE(GEO_CONVERT, "SendGeocodeRequest failed errcode");
-                return;
-            }
-            break;
-        }
-        default:
-            break;
+    auto handleFunc = geoConvertHandlerEventMap_.find(eventId);
+    if (handleFunc != geoConvertHandlerEventMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "GeoConvertHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(GEO_CONVERT,
+                "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
+        memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
+    } else {
+        LBSLOGE(GEO_CONVERT, "ProcessEvent event:%{public}d, unsupport service.", eventId);
     }
 }
+
+void GeoConvertHandler::SendGeocodeRequest(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<GeoConvertRequest> geoConvertRequest = event->GetUniqueObject<GeoConvertRequest>();
+    if (geoConvertRequest == nullptr) {
+        return;
+    }
+    auto geoConvertService = GeoConvertService::GetInstance();
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    MessageOption option;
+    geoConvertRequest->Marshalling(dataParcel);
+    bool ret = geoConvertService->SendGeocodeRequest(static_cast<int>(geoConvertRequest->GetRequestType()),
+        dataParcel, replyParcel, option);
+    if (!ret) {
+        LBSLOGE(GEO_CONVERT, "SendGeocodeRequest failed errcode");
+    }
+}
+
 } // namespace Location
 } // namespace OHOS
 #endif

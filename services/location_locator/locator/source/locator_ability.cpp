@@ -62,6 +62,10 @@
 #include "geo_convert_request.h"
 #include "parameter.h"
 #include "self_request_manager.h"
+#ifdef LOCATION_HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -109,6 +113,7 @@ const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
 const int LOCATIONHUB_STATE_UNLOAD = 0;
 const int LOCATIONHUB_STATE_LOAD = 1;
 const int MAX_SIZE = 100;
+const int TIMEOUT_WATCHDOG = 60; // s
 static constexpr int CACHED_TIME = 25;
 
 LocatorAbility* LocatorAbility::GetInstance()
@@ -1044,13 +1049,13 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
 bool LocatorAbility::ReportSingleCacheLocation(
     const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
 {
-    requestManager_->AddWorkingPidsCount(request->GetPid());
+    requestManager_->IncreaseWorkingPidsCount(request->GetPid());
     if (requestManager_->IsNeedStartUsingPermission(request->GetPid())) {
         int ret = PrivacyKit::StartUsingPermission(
             request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
         if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
             IsHapCaller(request->GetTokenId())) {
-            requestManager_->SubWorkingPidsCount(request->GetPid());
+            requestManager_->DecreaseWorkingPidsCount(request->GetPid());
             LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
             return false;
         }
@@ -1059,12 +1064,12 @@ bool LocatorAbility::ReportSingleCacheLocation(
     int recordResult = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
         request->GetPermUsedType(), 1, 0);
     if (recordResult != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
-        requestManager_->SubWorkingPidsCount(request->GetPid());
+        requestManager_->DecreaseWorkingPidsCount(request->GetPid());
         LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", recordResult);
         return false;
     }
     callback->OnLocationReport(cacheLocation);
-    requestManager_->SubWorkingPidsCount(request->GetPid());
+    requestManager_->DecreaseWorkingPidsCount(request->GetPid());
     if (requestManager_->IsNeedStopUsingPermission(request->GetPid())) {
         PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
     }
@@ -1138,7 +1143,7 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     loc = reportManager_->GetPermittedLocation(request, lastLocation);
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
-    requestManager_->AddWorkingPidsCount(identity.GetPid());
+    requestManager_->IncreaseWorkingPidsCount(identity.GetPid());
     if (requestManager_->IsNeedStartUsingPermission(identity.GetPid())) {
         int ret = PrivacyKit::StartUsingPermission(
             identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, identity.GetPid());
@@ -1892,7 +1897,7 @@ void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Poin
         LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     }
     auto requestManager = RequestManager::GetInstance();
-    requestManager->SubWorkingPidsCount(identity->GetPid());
+    requestManager->DecreaseWorkingPidsCount(identity->GetPid());
     if (requestManager->IsNeedStopUsingPermission(identity->GetPid())) {
         ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION, identity->GetPid());
         LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
@@ -1918,7 +1923,7 @@ void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Point
         LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     }
     auto requestManager = RequestManager::GetInstance();
-    requestManager->SubWorkingPidsCount(identity->GetPid());
+    requestManager->DecreaseWorkingPidsCount(identity->GetPid());
     if (requestManager->IsNeedStopUsingPermission(identity->GetPid())) {
         ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION, identity->GetPid());
         LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
@@ -2147,7 +2152,21 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto handleFunc = locatorHandlerEventMap_.find(eventId);
     if (handleFunc != locatorHandlerEventMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "LocatorHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(LOCATOR, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
         memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
     } else {
         LBSLOGE(LOCATOR, "ProcessEvent event:%{public}d, unsupport service.", eventId);
     }

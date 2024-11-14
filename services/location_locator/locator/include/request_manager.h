@@ -63,11 +63,10 @@ public:
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
     bool UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart);
-    void AddWorkingPidsCount(const pid_t pid);
-    void SubWorkingPidsCount(const pid_t pid);
+    void IncreaseWorkingPidsCount(const pid_t pid);
+    void DecreaseWorkingPidsCount(const pid_t pid);
     bool IsNeedStartUsingPermission(const pid_t pid);
     bool IsNeedStopUsingPermission(const pid_t pid);
-    void HandlePermissionChanged(uint32_t tokenId);
     void RegisterLocationErrorCallback(sptr<ILocatorCallback> callback, AppIdentity appIdentity);
     void UnRegisterLocationErrorCallback(sptr<ILocatorCallback> callback);
     void ReportLocationError(const int errorCode, std::shared_ptr<Request> request);

@@ -101,13 +101,13 @@ bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     uint32_t callingTokenId = request->GetTokenId();
     int ret;
     if (isStart && !request->GetApproximatelyPermState()) {
-        AddWorkingPidsCount(request->GetPid());
+        IncreaseWorkingPidsCount(request->GetPid());
         bool isNeedStart = IsNeedStartUsingPermission(request->GetPid());
         if (isNeedStart) {
             ret = PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
             if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
                 locatorAbility->IsHapCaller(request->GetTokenId())) {
-                SubWorkingPidsCount(request->GetPid());
+                DecreaseWorkingPidsCount(request->GetPid());
                 LBSLOGE(REQUEST_MANAGER, "StartUsingPermission failed ret=%{public}d", ret);
                 return false;
             }
@@ -120,7 +120,7 @@ bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
             return false;
         }
     } else if (!isStart && request->GetApproximatelyPermState()) {
-        SubWorkingPidsCount(request->GetPid());
+        DecreaseWorkingPidsCount(request->GetPid());
         bool isNeedStop = IsNeedStopUsingPermission(request->GetPid());
         if (isNeedStop) {
             ret = PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
@@ -134,7 +134,7 @@ bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
     return true;
 }
 
-void RequestManager::AddWorkingPidsCount(const pid_t pid)
+void RequestManager::IncreaseWorkingPidsCount(const pid_t pid)
 {
     std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
     if (workingPidsCountMap_.count(pid) > 0) {
@@ -144,7 +144,7 @@ void RequestManager::AddWorkingPidsCount(const pid_t pid)
     }
 }
 
-void RequestManager::SubWorkingPidsCount(const pid_t pid)
+void RequestManager::DecreaseWorkingPidsCount(const pid_t pid)
 {
     std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
     if (workingPidsCountMap_.count(pid) > 0) {
@@ -612,28 +612,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
         return;
     }
     LocatorAbility::GetInstance()->ApplyRequests(1);
-}
-
-void RequestManager::HandlePermissionChanged(uint32_t tokenId)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged requests map is empty");
-        return;
-    }
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (request == nullptr || tokenId != request->GetTokenId()) {
-                continue;
-            }
-            auto backgroundProxy = LocatorBackgroundProxy::GetInstance();
-            if (backgroundProxy != nullptr) {
-                backgroundProxy->UpdateListOnRequestChange(request);
-            }
-        }
-    }
 }
 
 bool RequestManager::IsUidInProcessing(int32_t uid)

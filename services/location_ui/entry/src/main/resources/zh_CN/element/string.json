@@ -111,6 +111,26 @@
     {
       "name": "wifi_candidate_connect_notify_yes_button",
       "value": "连接"
+    },
+    {
+      "name":"wifipro_auto_connect_dialog_context",
+      "value":"授权尝试使用当前 WLAN 网络秘钥连接 %s。"
+    },
+    {
+      "name":"wifipro_auto_connect_dialog_ok_button",
+      "value":"同意"
+    },
+    {
+      "name":"wifipro_auto_connect_dialog_no_button",
+      "value":"拒绝"
+    },
+    {
+      "name":"wifipro_better_network_pop_up_title",
+      "value":"发现更优 WLAN 网络"
+    },
+    {
+      "name":"wifipro_better_network_notify_text",
+      "value":"点击连接%s"
     }
   ]
 }

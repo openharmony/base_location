@@ -75,17 +75,13 @@ napi_value HandleGetCachedLocation(napi_env env)
 {
     napi_value res;
     NAPI_CALL(env, napi_create_object(env, &res));
-    LocationErrCode errorCode = CheckLocationSwitchState();
-    if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
-        return UndefinedNapiValue(env);
-    }
     std::unique_ptr<Location> loc;
-    errorCode = g_locatorClient->GetCachedLocationV9(loc);
-    if (loc != nullptr) {
+    LocationErrCode errorCode = g_locatorClient->GetCachedLocationV9(loc);
+    if (loc != nullptr && errorCode == ERRCODE_SUCCESS) {
         LocationToJs(env, loc, res);
         return res;
-    } else {
+    }
+    if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
     }
     return UndefinedNapiValue(env);

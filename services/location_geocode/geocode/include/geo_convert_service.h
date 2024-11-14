@@ -47,9 +47,16 @@ enum class ServiceConnectState {
 
 class GeoConvertHandler : public AppExecFwk::EventHandler {
 public:
+    using GeoConvertEventHandler = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
+    using GeoConvertEventHandleMap = std::map<int, GeoConvertEventHandler>;
     explicit GeoConvertHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~GeoConvertHandler() override;
+private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void InitGeoConvertHandlerEventMap();
+    void SendGeocodeRequest(const AppExecFwk::InnerEvent::Pointer& event);
+    
+    GeoConvertEventHandleMap geoConvertHandlerEventMap_;
 };
 
 class GeoServiceDeathRecipient : public IRemoteObject::DeathRecipient {
