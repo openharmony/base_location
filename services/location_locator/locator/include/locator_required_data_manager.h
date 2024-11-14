@@ -234,7 +234,6 @@ private:
     int64_t wifiScanCompleteTimestamp_ = 0;
     std::mutex lastStillTimeMutex_;
     int64_t lastStillTime_ = 0;
-    std::vector<Wifi::WifiScanInfo> wifiScanInfo_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -29,7 +29,7 @@ const uint32_t EVENT_REGISTER_WIFI_CALLBACK = 0x0400;
 const uint32_t EVENT_UNREGISTER_WIFI_CALLBACK = 0x0500;
 const int32_t DEFAULT_TIMEOUT_4S = 4000;
 const int32_t DEFAULT_TIMEOUT_MS = 1500;
-const int32_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * 1000;
+const int64_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * MILLI_PER_SEC * MICRO_PER_MILLI;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
@@ -57,7 +57,7 @@ void LocatorRequiredDataManager::SyncStillMovementState(bool state)
 {
     std::unique_lock<std::mutex> lock(lastStillTimeMutex_);
     if (state) {
-        lastStillTime_ = CommonUtils::GetCurrentTimeStampMs();
+        lastStillTime_ = CommonUtils::GetSinceBootTime();
     } else {
         lastStillTime_ = 0;
     }
@@ -86,6 +86,9 @@ void LocatorRequiredDataManager::SendWifiScanEvent()
 
 void LocatorRequiredDataManager::SendGetWifiListEvent(int timeout)
 {
+    if (timeout > 0 && wifiSdkHandler_->HasInnerEvent(EVENT_GET_WIFI_LIST)) {
+        return;
+    }
     if (wifiSdkHandler_ != nullptr) {
         wifiSdkHandler_->SendHighPriorityEvent(EVENT_GET_WIFI_LIST, 0, timeout);
     }
@@ -96,9 +99,6 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 {
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
 #ifdef WIFI_ENABLE
-        if (config->GetFixNumber() != 1) {
-            return ERRCODE_NOT_SUPPORTED;
-        }
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
         callbacksMap_[callback] = identity;
@@ -262,12 +262,15 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::GetWifiScan
         LBSLOGE(LOCATOR, "GetScanInfoList failed");
         return;
     }
+    if (wifiSdkHandler_ != nullptr) {
+        wifiSdkHandler_->RemoveEvent(EVENT_GET_WIFI_LIST);
+    }
 }
 
 std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::GetLocatingRequiredDataByWifi(
     const std::vector<Wifi::WifiScanInfo>& wifiScanInfo)
 {
-    auto deltaS = (CommonUtils::GetCurrentTimeStampMs() - GetlastStillTime()) / MILLI_PER_SEC;
+    auto deltaMis = (CommonUtils::GetSinceBootTime() - GetWifiScanCompleteTimestamp()) / NANOS_PER_MICRO;
     std::vector<std::shared_ptr<LocatingRequiredData>> res;
     for (size_t i = 0; i < wifiScanInfo.size(); i++) {
         std::shared_ptr<LocatingRequiredData> info = std::make_shared<LocatingRequiredData>();
@@ -279,7 +282,7 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::G
         if (!IsStill()) {
             wifiData->SetTimestamp(wifiScanInfo[i].timestamp);
         } else {
-            wifiData->SetTimestamp(wifiScanInfo[i].timestamp + deltaS);
+            wifiData->SetTimestamp(wifiScanInfo[i].timestamp + deltaMis);
         }
         info->SetType(LocatingRequiredDataType::WIFI);
         info->SetWifiScanInfo(wifiData);
@@ -291,7 +294,7 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorRequiredDataManager::G
 void LocatorRequiredDataManager::UpdateWifiScanCompleteTimestamp()
 {
     std::unique_lock<std::mutex> lock(wifiScanCompleteTimestampMutex_);
-    wifiScanCompleteTimestamp_ = CommonUtils::GetCurrentTimeStampMs();
+    wifiScanCompleteTimestamp_ = CommonUtils::GetSinceBootTime();
 }
 
 int64_t LocatorRequiredDataManager::GetWifiScanCompleteTimestamp()
@@ -334,9 +337,9 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
 __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiScan(int fixNumber, bool flag)
 {
 #ifdef WIFI_ENABLE
-    int64_t currentTime = CommonUtils::GetCurrentTimeStampMs();
+    int64_t currentTime = CommonUtils::GetSinceBootTime();
     if (IsStill() && GetWifiScanCompleteTimestamp() > GetlastStillTime() &&
-        (currentTime - GetWifiScanCompleteTimestamp()) < DEFAULT_TIMEOUT_30_MIN) {
+        (currentTime - GetWifiScanCompleteTimestamp()) / NANOS_PER_MICRO < DEFAULT_TIMEOUT_30_MIN) {
         SendGetWifiListEvent(0);
         return;
     }
