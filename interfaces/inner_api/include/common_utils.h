@@ -78,6 +78,7 @@ const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int MILLI_PER_SEC = 1000;
 const int MICRO_PER_MILLI = 1000;
+const int NANOS_PER_MICRO = 1000;
 const int CONNECT_TIME_OUT = 10;
 const int DISCONNECT_TIME_OUT = 10;
 
@@ -172,7 +173,6 @@ public:
     static bool CheckAppInstalled(const std::string& bundleName);
     static int64_t GetCurrentTime();
     static int64_t GetCurrentTimeStamp();
-    static int64_t GetCurrentTimeStampMs();
     static std::vector<std::string> Split(std::string str, std::string pattern);
     static errno_t GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN]);
     static unsigned char ConvertStringToDigit(std::string str);

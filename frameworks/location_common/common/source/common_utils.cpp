@@ -317,13 +317,6 @@ int64_t CommonUtils::GetCurrentTimeStamp()
     return static_cast<int64_t>(currentTime.tv_sec);
 }
 
-int64_t CommonUtils::GetCurrentTimeStampMs()
-{
-    struct timeval currentTime;
-    gettimeofday(&currentTime, nullptr);
-    return static_cast<int64_t>(currentTime.tv_sec * MILLI_PER_SEC + currentTime.tv_usec / MICRO_PER_MILLI);
-}
-
 std::vector<std::string> CommonUtils::Split(std::string str, std::string pattern)
 {
     std::vector<std::string> result;

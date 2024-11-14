@@ -964,7 +964,8 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
         ACCESS_APPROXIMATELY_LOCATION);
     request->SetPermUsedType(static_cast<int>(type));
     if (requestConfig->GetScenario() != SCENE_NO_POWER &&
-        requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+        requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION &&
+        !reportManager_->IsCacheGnssLocationValid()) {
         LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
     }
 #ifdef EMULATOR_ENABLED

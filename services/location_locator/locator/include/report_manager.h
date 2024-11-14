@@ -46,6 +46,7 @@ public:
         std::unique_ptr<Location>& location);
     bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid);
     static ReportManager* GetInstance();
+    bool IsCacheGnssLocationValid();
 
 private:
     struct timespec lastUpdateTime_;

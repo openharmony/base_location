@@ -469,5 +469,15 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
     }
     return true;
 }
+
+bool ReportManager::IsCacheGnssLocationValid()
+{
+    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
+        return true;
+    }
+    return false;
+}
 } // namespace OHOS
 } // namespace Location
