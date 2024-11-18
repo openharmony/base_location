@@ -1300,6 +1300,21 @@ LocationErrCode LocatorImpl::UnSubscribeLocationError(sptr<ILocatorCallback>& ca
     return errCode;
 }
 
+LocationErrCode LocatorImpl::GetCurrentWifiBssidForLocating(std::string& bssid)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCurrentWifiBssidForLocating()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->GetCurrentWifiBssidForLocating(bssid);
+    return errCode;
+}
+
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {

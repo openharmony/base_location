@@ -123,6 +123,7 @@ public:
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
     LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
+    LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
 private:
 
     static inline BrokerDelegator<LocatorProxy> delegator_;

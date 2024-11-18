@@ -207,6 +207,7 @@ public:
     int64_t GetWifiScanCompleteTimestamp();
     int64_t GetlastStillTime();
     bool IsStill();
+    LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
 
 private:
     int timeInterval_ = 0;

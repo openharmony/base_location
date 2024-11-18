@@ -979,5 +979,17 @@ LocationErrCode LocatorProxy::UnSubscribeLocationError(sptr<ILocatorCallback>& c
     LBSLOGD(LOCATOR_STANDARD, "Proxy::StopLocatingV9 Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
+
+LocationErrCode LocatorProxy::GetCurrentWifiBssidForLocating(std::string& bssid)
+{
+    MessageParcel reply;
+    LocationErrCode errorCode =
+        SendMsgWithReplyV9(static_cast<int>(LocatorInterfaceCode::GET_CURRENT_WIFI_BSSID_FOR_LOCATING), reply);
+    if (errorCode == ERRCODE_SUCCESS) {
+        bssid = Str16ToStr8(reply.ReadString16());
+    }
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::GetCurrentWifiBssidForLocating Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
 } // namespace Location
 } // namespace OHOS
