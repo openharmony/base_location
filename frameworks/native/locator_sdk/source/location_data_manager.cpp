@@ -53,7 +53,7 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         int uid = appInfo->appIdentity.GetUid();
         int tokenId = appInfo->appIdentity.GetTokenId();
         std::string bundleName = appInfo->appIdentity.GetBundleName();
-        int lastState = appInfo->lastState;  
+        int lastState = appInfo->lastState;
         int currentUserId = 0;
         CommonUtils::GetCurrentUserId(currentUserId);
         if (!PermissionManager::CheckIsSystemSa(tokenId) &&
