@@ -420,7 +420,6 @@ bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::strin
         return true;
     }
     if (bundleName.length() == 0) {
-          LBSLOGD(REPORT_MANAGER, "CheckAppForUser bundle size = 0: uid = %{public}d.", uid);
         if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
             LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
         }
