@@ -461,7 +461,6 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
     }
     int currentUserId = 0;
     if (!CommonUtils::GetCurrentUserId(currentUserId)) {
-
     }
     std::string bundleName = identity.GetBundleName();
     if (CommonUtils::CheckAppForUser(identity.GetUid(), currentUserId, bundleName)) {
