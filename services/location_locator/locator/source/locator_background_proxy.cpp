@@ -236,7 +236,8 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
-int32_t LocatorBackgroundProxy::getCurrentUserId() {
+int32_t LocatorBackgroundProxy::getCurrentUserId() 
+{
     return curUserId_;
 }
 
