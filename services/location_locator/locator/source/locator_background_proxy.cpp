@@ -46,6 +46,7 @@
 
 namespace OHOS {
 namespace Location {
+const int BACKGROUNDAPP_STATUS = 4;
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
 std::mutex LocatorBackgroundProxy::backgroundAppMutex_;
@@ -394,13 +395,13 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
 bool LocatorBackgroundProxy::IsAppBackground(int uid)
 {
         
-    std::unique_lock lock(backgroundAppMap_);
+    std::unique_lock lock(backgroundAppMutex_);
     auto iter = backgroundAppMap_.find(uid);
     if (iter == backgroundAppMap_.end()) {
         return false;
     }
     int32_t status = iter->second;
-    if (status == 4) {
+    if (status == BACKGROUNDAPP_STATUS) {
         return true;
     }
     return false;
@@ -409,7 +410,7 @@ bool LocatorBackgroundProxy::IsAppBackground(int uid)
 void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
 {
     
-    std::unique_lock lock(backgroundAppMap_);
+    std::unique_lock lock(backgroundAppMutex_);
     backgroundAppMap_[uid] = status;
     LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundAppStatues, GetLastLocation uid = %{public}d, state = %{public}d", uid, status);
 }
