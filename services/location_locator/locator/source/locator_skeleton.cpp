@@ -35,6 +35,7 @@
 #include "permission_manager.h"
 #include "hook_utils.h"
 #include "location_data_rdb_manager.h"
+#include "locator_background_proxy.h"
 
 namespace OHOS {
 namespace Location {
