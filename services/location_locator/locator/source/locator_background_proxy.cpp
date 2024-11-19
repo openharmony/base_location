@@ -410,7 +410,6 @@ bool LocatorBackgroundProxy::IsAppBackground(int uid)
 
 void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
 {
-    
     std::unique_lock lock(backgroundAppMutex_);
     backgroundAppMap_[uid] = status;
     LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
