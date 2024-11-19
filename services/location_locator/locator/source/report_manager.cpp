@@ -326,7 +326,7 @@ void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
-{   
+{
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     int currentUserId = locatorBackgroundProxy->getCurrentUserId();
     LBSLOGI(LOCATOR_STANDARD, "GetCacheLocation GetLastLocation currentUserId = %{public}d ", currentUserId);
