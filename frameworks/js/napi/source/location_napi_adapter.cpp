@@ -129,6 +129,27 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 #endif
 }
 
+#ifdef ENABLE_NAPI_MANAGER
+napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    std::string bssid;
+    LocationErrCode errorCode = g_locatorClient->GetCurrentWifiBssidForLocating(bssid);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+    NAPI_CALL(env, napi_create_string_utf8(env, bssid.c_str(), NAPI_AUTO_LENGTH, &res));
+    return res;
+}
+#endif
+
 napi_value EnableLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);

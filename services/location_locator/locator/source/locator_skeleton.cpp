@@ -1172,6 +1172,20 @@ int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParce
     return ERRCODE_SUCCESS;
 }
 
+int LocatorAbilityStub::PreGetCurrentWifiBssidForLocating(
+    MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    std::string bssid;
+    LocationErrCode errorCode = locatorDataManager->GetCurrentWifiBssidForLocating(bssid);
+    reply.WriteInt32(errorCode);
+    reply.WriteString16(Str8ToStr16(bssid));
+    return ERRCODE_SUCCESS;
+}
+
 bool LocatorAbilityStub::IsStopAction(uint32_t code)
 {
     if (code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_SWITCH_CALLBACK) ||
