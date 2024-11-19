@@ -413,7 +413,7 @@ void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t sta
     
     std::unique_lock lock(backgroundAppMutex_);
     backgroundAppMap_[uid] = status;
-    LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundAppStatues, GetLastLocation uid = %{public}d, state = %{public}d", uid, status);
+    LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
 }
 
 bool LocatorBackgroundProxy::RegisterAppStateObserver()
