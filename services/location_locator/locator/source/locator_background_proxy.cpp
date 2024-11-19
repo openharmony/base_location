@@ -48,6 +48,7 @@ namespace OHOS {
 namespace Location {
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
+std::mutex LocatorBackgroundProxy::backgroundAppMutex_;
 LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 {
     static LocatorBackgroundProxy data;
@@ -234,6 +235,10 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
+int32_t LocatorBackgroundProxy::getCurrentUserId() {
+    return curUserId_;
+}
+
 int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
 {
     int userId = 0;
@@ -386,6 +391,29 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
     return true;
 }
 
+bool LocatorBackgroundProxy::IsAppBackground(int uid)
+{
+        
+    std::unique_lock lock(backgroundAppMap_);
+    auto iter = backgroundAppMap_.find(uid);
+    if (iter == backgroundAppMap_.end()) {
+        return false;
+    }
+    int32_t status = iter->second;
+    if (status == 4) {
+        return true;
+    }
+    return false;
+}
+
+void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
+{
+    
+    std::unique_lock lock(backgroundAppMap_);
+    backgroundAppMap_[uid] = status;
+    LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundAppStatues, GetLastLocation uid = %{public}d, state = %{public}d", uid, status);
+}
+
 bool LocatorBackgroundProxy::RegisterAppStateObserver()
 {
     if (appStateObserver_ != nullptr) {
@@ -482,6 +510,8 @@ void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::Ap
     LBSLOGD(REQUEST_MANAGER,
         "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     requestManager->HandlePowerSuspendChanged(pid, uid, state);
+    auto locatorBackkProxy = LocatorBackgroundProxy::GetInstance();
+    locatorBackkProxy->UpdateBackgroundAppStatues(uid, state);
 }
 } // namespace OHOS
 } // namespace Location

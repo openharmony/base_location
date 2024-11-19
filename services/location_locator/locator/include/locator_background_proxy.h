@@ -54,6 +54,9 @@ public:
     bool UnregisterAppStateObserver();
     bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
     bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
+    int32_t getCurrentUserId();
+    bool IsAppBackground(int uid);
+    void UpdateBackgroundAppStatues(int32_t uid, int32_t status);
 private:
     void StartLocator();
     void StopLocator();
@@ -114,6 +117,8 @@ private:
     std::shared_ptr<std::list<std::shared_ptr<Request>>> requestsList_;
     static std::mutex requestListMutex_;
     static std::mutex locatorMutex_;
+    static std::mutex backgroundAppMutex_;
+    std::map<int32_t, int32_t> backgroundAppMap_;
     sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
     sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
 };

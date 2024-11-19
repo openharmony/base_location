@@ -1204,7 +1204,8 @@ bool LocatorAbilityStub::CheckRequestAvailable(uint32_t code, AppIdentity &ident
     if (IsStopAction(code)) {
         return true;
     }
-    if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
+    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
+    if (CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
         return true;
     }
     LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
@@ -1228,8 +1229,10 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     }
 
     std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
-        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
+    if (static_cast<LocatorInterfaceCode>(code) != LocatorInterfaceCode::GET_CACHE_LOCATION) {
+        if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+            LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
+        }
     }
     identity.SetBundleName(bundleName);
     if (code != static_cast<uint32_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
