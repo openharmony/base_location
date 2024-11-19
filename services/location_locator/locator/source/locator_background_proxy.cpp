@@ -236,7 +236,7 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
-int32_t LocatorBackgroundProxy::getCurrentUserId() 
+int32_t LocatorBackgroundProxy::getCurrentUserId()
 {
     return curUserId_;
 }
@@ -395,7 +395,6 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
 
 bool LocatorBackgroundProxy::IsAppBackground(int uid)
 {
-        
     std::unique_lock lock(backgroundAppMutex_);
     auto iter = backgroundAppMap_.find(uid);
     if (iter == backgroundAppMap_.end()) {
