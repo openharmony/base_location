@@ -328,7 +328,6 @@ void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location
 std::unique_ptr<Location> ReportManager::GetLastLocation()
 {   
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    // locatorBackgroundProxy->OnSaStateChange(isEnabled);
     int currentUserId = locatorBackgroundProxy->getCurrentUserId();
     LBSLOGI(LOCATOR_STANDARD, "GetCacheLocation GetLastLocation currentUserId = %{public}d ", currentUserId);
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
