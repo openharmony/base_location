@@ -227,8 +227,8 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
     }
 
     sptr<RequestConfig> newConfig = newRequest->GetRequestConfig();
-    std::list<std::shared_ptr<Request>> requestWithSameCallback = iterator->second;
-    for (auto iter = requestWithSameCallback.begin(); iter != requestWithSameCallback.end(); ++iter) {
+    auto requestWithSameCallback = &(iterator->second);
+    for (auto iter = requestWithSameCallback->begin(); iter != requestWithSameCallback->end(); ++iter) {
         auto request = *iter;
         if (request == nullptr) {
             continue;
@@ -243,7 +243,7 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
             return false;
         }
     }
-    requestWithSameCallback.push_back(newRequest);
+    requestWithSameCallback->push_back(newRequest);
     LBSLOGD(REQUEST_MANAGER, "add new receiver with old callback");
     return true;
 }
@@ -340,7 +340,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
     LBSLOGD(REQUEST_MANAGER, "stop callback");
     auto iterator = receivers->find(deadCallback);
     if (iterator == receivers->end()) {
-        LBSLOGD(REQUEST_MANAGER, "this callback has no record in receiver map");
+        LBSLOGE(REQUEST_MANAGER, "this callback has no record in receiver map");
         lock.unlock();
         return;
     }

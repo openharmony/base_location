@@ -26,7 +26,6 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 #include "permission_manager.h"
-
 #include "hook_utils.h"
 
 namespace OHOS {
@@ -37,6 +36,8 @@ static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 static constexpr int CACHED_TIME = 25;
 static constexpr int LONG_CACHE_DURATION = 60;
+static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
+static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
 
 ReportManager* ReportManager::GetInstance()
 {
@@ -48,6 +49,7 @@ ReportManager::ReportManager()
 {
     clock_gettime(CLOCK_REALTIME, &lastUpdateTime_);
     offsetRandom_ = CommonUtils::DoubleRandom(0, 1);
+    lastResetRecordTime_ = CommonUtils::GetSinceBootTime();
 }
 
 ReportManager::~ReportManager() {}
@@ -133,6 +135,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             ACCESS_APPROXIMATELY_LOCATION, permUsedType, 0, 1);
         return false;
     }
+    LocationReportDelayTimeCheck(finalLocation, request);
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
     finalLocation = ExecuteReportProcess(request, finalLocation, abilityName);
     if (finalLocation == nullptr) {
@@ -163,6 +166,26 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     return true;
+}
+
+void ReportManager::LocationReportDelayTimeCheck(const std::unique_ptr<Location>& location,
+    const std::shared_ptr<Request>& request)
+{
+    if (location == nullptr || request == nullptr) {
+        return;
+    }
+    int64_t currentTime = CommonUtils::GetSinceBootTime();
+    long deltaMs = (currentTime - location->GetTimeSinceBoot()) / NANOS_PER_MILLI;
+    if (deltaMs > MAX_LOCATION_REPORT_DELAY_TIME) {
+        long recordDeltaMs = (currentTime - lastResetRecordTime_) / NANOS_PER_MILLI;
+        if (recordDeltaMs < MIN_RESET_TIME_THRESHOLD) {
+            return;
+        }
+        LBSLOGE(REPORT_MANAGER, "%{public}s: %{public}d check fail, current deltaMs = %{public}ld", __func__,
+            request->GetTokenId(), deltaMs);
+        lastResetRecordTime_ = currentTime;
+        _exit(0);
+    }
 }
 
 std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Request>& request,
