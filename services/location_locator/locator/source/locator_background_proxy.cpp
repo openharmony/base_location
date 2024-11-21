@@ -393,12 +393,12 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
     return true;
 }
 
-bool LocatorBackgroundProxy::IsAppBackground(int uid)
+bool LocatorBackgroundProxy::IsAppBackground(int uid, std::string bundleName)
 {
     std::unique_lock lock(backgroundAppMutex_);
     auto iter = backgroundAppMap_.find(uid);
     if (iter == backgroundAppMap_.end()) {
-        return false;
+        return IsAppBackground(bundleName);
     }
     int32_t status = iter->second;
     if (status == BACKGROUNDAPP_STATUS) {
