@@ -112,6 +112,7 @@ const int LOCATIONHUB_STATE_UNLOAD = 0;
 const int LOCATIONHUB_STATE_LOAD = 1;
 const int MAX_SIZE = 100;
 const int TIMEOUT_WATCHDOG = 60; // s
+const int INVALID_REQUESTS_SIZE = 20;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -1597,6 +1598,9 @@ LocationErrCode LocatorAbility::RemoveInvalidRequests()
 #endif
     }
     LBSLOGI(LOCATOR, "request num : %{public}d, invalid request num: %{public}d", requestNum, invalidRequestNum);
+    if (invalidRequestList.size() > INVALID_REQUESTS_SIZE) {
+        return ERRCODE_SUCCESS;
+    }
     for (auto& item : invalidRequestList) {
         sptr<ILocatorCallback> callback = item->GetLocatorCallBack();
         StopLocating(callback);
