@@ -467,7 +467,6 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
 {
     int currentUserId = 0;
     if (!CommonUtils::GetCurrentUserId(currentUserId)) {
-
     }
     return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
 }
