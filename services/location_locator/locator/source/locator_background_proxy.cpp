@@ -50,7 +50,7 @@ const int BACKGROUNDAPP_STATUS = 4;
 const int FOREGROUPAPP_STATUS = 2;
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
-std::mutex LocatorBackgroundProxy::backgroundAppMutex_;
+std::mutex LocatorBackgroundProxy::foregroundAppMutex_;
 LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 {
     static LocatorBackgroundProxy data;
@@ -396,9 +396,9 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
 
 bool LocatorBackgroundProxy::IsAppBackground(int uid, std::string bundleName)
 {
-    std::unique_lock lock(backgroundAppMutex_);
-    auto iter = backgroundAppMap_.find(uid);
-    if (iter == backgroundAppMap_.end()) {
+    std::unique_lock lock(foregroundAppMutex_);
+    auto iter = foregroundAppMap_.find(uid);
+    if (iter == foregroundAppMap_.end()) {
         return IsAppBackground(bundleName);
     }
     return false;
@@ -406,13 +406,13 @@ bool LocatorBackgroundProxy::IsAppBackground(int uid, std::string bundleName)
 
 void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
 {
-    std::unique_lock lock(backgroundAppMutex_);
+    std::unique_lock lock(foregroundAppMutex_);
     if (status == FOREGROUPAPP_STATUS) {
-        backgroundAppMap_[uid] = status;
+        foregroundAppMap_[uid] = status;
     } else if (status == BACKGROUNDAPP_STATUS) {
-        auto iter = backgroundAppMap_.find(uid);
-        if (iter != backgroundAppMap_.end()) {
-            backgroundAppMap_.erase(iter);
+        auto iter = foregroundAppMap_.find(uid);
+        if (iter != foregroundAppMap_.end()) {
+            foregroundAppMap_.erase(iter);
         }
     }
     LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
