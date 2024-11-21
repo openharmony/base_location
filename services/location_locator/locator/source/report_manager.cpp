@@ -458,7 +458,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    if (!locatorBackgroundProxy->IsAppBackground(uid)) {
+    if (!locatorBackgroundProxy->IsAppBackground(uid, bundleName)) {
         return false;
     }
     if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
