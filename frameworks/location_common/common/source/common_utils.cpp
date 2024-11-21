@@ -453,11 +453,11 @@ int64_t CommonUtils::GetSinceBootTime()
 
 bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId)
 {
-    if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
-        return true;
-    }
     std::string bundleName = identity.GetBundleName();
     if (CommonUtils::CheckAppForUser(identity.GetUid(), currentUserId, bundleName)) {
+        return true;
+    }
+    if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
         return true;
     }
     return false;
@@ -465,17 +465,11 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity, int32_t curre
 
 bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
 {
-    if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
-        return true;
-    }
     int currentUserId = 0;
     if (!CommonUtils::GetCurrentUserId(currentUserId)) {
+
     }
-    std::string bundleName = identity.GetBundleName();
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), currentUserId, bundleName)) {
-        return true;
-    }
-    return false;
+    return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
 }
 } // namespace Location
 } // namespace OHOS
