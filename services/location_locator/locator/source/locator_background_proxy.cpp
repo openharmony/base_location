@@ -412,7 +412,7 @@ void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t sta
     } else if (status == BACKGROUNDAPP_STATUS) {
         auto iter = backgroundAppMap_.find(uid);
         if (iter != backgroundAppMap_.end()) {
-           backgroundAppMap_.erase(iter);
+            backgroundAppMap_.erase(iter);
         }
     }
     LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
