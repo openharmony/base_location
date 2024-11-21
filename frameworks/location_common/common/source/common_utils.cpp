@@ -412,6 +412,15 @@ std::string CommonUtils::GenerateUuid()
     return ss.str();
 }
 
+bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
+{
+    int currentUserId = 0;
+    if (!GetCurrentUserId(currentUserId)) {
+        currentUserId = DEFAULT_USERID;
+    }
+    return CheckAppForUser(uid, currentUserId, bundleName);
+}
+
 bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName)
 {
     int userId = 0;
