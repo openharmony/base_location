@@ -135,6 +135,10 @@ void LocatorAbilityStub::ConstructLocatorEnhanceHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return PreReportLocationError(data, reply, identity);
         };
+    locatorHandleMap_[LocatorInterfaceCode::GET_CURRENT_WIFI_BSSID_FOR_LOCATING] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreGetCurrentWifiBssidForLocating(data, reply, identity);
+        };
 }
 
 void LocatorAbilityStub::ConstructLocatorMockHandleMap()
@@ -1175,7 +1179,10 @@ int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParce
 int LocatorAbilityStub::PreGetCurrentWifiBssidForLocating(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckLocationPermission(reply, identity)) {
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();

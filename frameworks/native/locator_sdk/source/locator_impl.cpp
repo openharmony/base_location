@@ -1302,10 +1302,10 @@ LocationErrCode LocatorImpl::UnSubscribeLocationError(sptr<ILocatorCallback>& ca
 
 LocationErrCode LocatorImpl::GetCurrentWifiBssidForLocating(std::string& bssid)
 {
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::GetCurrentWifiBssidForLocating() enter");
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCurrentWifiBssidForLocating()");
     sptr<LocatorProxy> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);

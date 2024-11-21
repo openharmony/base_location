@@ -849,6 +849,21 @@ bool LocatorAbilityStub046FuzzTest(const char* data, size_t size)
     return true;
 }
 
+bool LocatorAbilityStub047FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_CURRENT_WIFI_BSSID_FOR_LOCATING),
+        requestParcel, reply, option);
+    return true;
+}
+
 } // namespace OHOS
 
 void GeoCodeFuzzTest(const char* ch, size_t size)
@@ -913,6 +928,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub043FuzzTest(ch, size);
         OHOS::LocatorAbilityStub044FuzzTest(ch, size);
         OHOS::LocatorAbilityStub045FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub047FuzzTest(ch, size);
         sleep(OHOS::WAIT_EVENT_TIME);
         free(ch);
         ch = nullptr;

@@ -305,6 +305,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addGnssGeofence", AddGnssGeofence),
         DECLARE_NAPI_FUNCTION("removeGnssGeofence", RemoveGnssGeofence),
         DECLARE_NAPI_FUNCTION("getGeofenceSupportedCoordTypes", GetGeofenceSupportedCoordTypes),
+        DECLARE_NAPI_FUNCTION("getCurrentWifiBssidForLocating", GetCurrentWifiBssidForLocating),
 
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
