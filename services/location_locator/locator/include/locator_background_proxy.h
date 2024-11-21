@@ -55,7 +55,7 @@ public:
     bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
     bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
     int32_t getCurrentUserId();
-    bool IsAppBackground(int uid);
+    bool IsAppBackground(int uid, std::string bundleName);
     void UpdateBackgroundAppStatues(int32_t uid, int32_t status);
 private:
     void StartLocator();
