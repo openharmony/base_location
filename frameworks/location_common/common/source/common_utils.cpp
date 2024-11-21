@@ -418,7 +418,7 @@ bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
     if (!GetCurrentUserId(currentUserId)) {
         currentUserId = DEFAULT_USERID;
     }
-    return CheckAppForUser(uid, currentUserId, bundleName);
+    return CommonUtils::CheckAppForUser(uid, currentUserId, bundleName);
 }
 
 bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName)
