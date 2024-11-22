@@ -57,7 +57,7 @@ bool GeoAddress::GetIsSystemApp()
 {
     return isSystemApp_;
 }
- 
+
 void GeoAddress::SetIsSystemApp(bool isSystemApp)
 {
     isSystemApp_ = isSystemApp;

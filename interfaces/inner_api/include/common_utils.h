@@ -180,10 +180,8 @@ public:
     static bool GetEdmPolicy(std::string& name);
     static std::string GenerateUuid();
     static bool CheckAppForUser(int32_t uid, std::string& bundleName);
-    static bool CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName);
     static int64_t GetSinceBootTime();
     static bool GetAllUserId(std::vector<int>& activeIds);
-    static bool IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);
 };
 
