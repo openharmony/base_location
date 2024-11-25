@@ -35,7 +35,6 @@
 #include "permission_manager.h"
 #include "hook_utils.h"
 #include "location_data_rdb_manager.h"
-#include "locator_background_proxy.h"
 
 namespace OHOS {
 namespace Location {
@@ -1205,8 +1204,7 @@ bool LocatorAbilityStub::CheckRequestAvailable(uint32_t code, AppIdentity &ident
     if (IsStopAction(code)) {
         return true;
     }
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
         return true;
     }
     LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
@@ -1230,10 +1228,8 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     }
 
     std::string bundleName = "";
-    if (static_cast<LocatorInterfaceCode>(code) != LocatorInterfaceCode::GET_CACHE_LOCATION) {
-        if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
-            LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
-        }
+    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
     }
     identity.SetBundleName(bundleName);
     if (code != static_cast<uint32_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {

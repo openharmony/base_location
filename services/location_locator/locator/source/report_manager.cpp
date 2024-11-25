@@ -231,8 +231,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
     identity.SetBundleName(bundleName);
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (!CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
         //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
         auto locationErrorCallback = request->GetLocationErrorCallBack();
@@ -350,19 +349,20 @@ void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
 {
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    int currentUserId = locatorBackgroundProxy->getCurrentUserId();
-    LBSLOGI(LOCATOR_STANDARD, "GetCacheLocation GetLastLocation currentUserId = %{public}d ", currentUserId);
-    std::unique_lock<std::mutex> lock(lastLocationMutex_);
-    auto iter = lastLocationsMap_.find(currentUserId);
-    if (iter == lastLocationsMap_.end()) {
-        return nullptr;
+    int currentUserId = 0;
+    if (CommonUtils::GetCurrentUserId(currentUserId)) {
+        std::unique_lock<std::mutex> lock(lastLocationMutex_);
+        auto iter = lastLocationsMap_.find(currentUserId);
+        if (iter == lastLocationsMap_.end()) {
+            return nullptr;
+        }
+        std::unique_ptr<Location> lastLocation = std::make_unique<Location>(*(iter->second));
+        if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
+            return nullptr;
+        }
+        return lastLocation;
     }
-    std::unique_ptr<Location> lastLocation = std::make_unique<Location>(*(iter->second));
-    if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
-        return nullptr;
-    }
-    return lastLocation;
+    return nullptr;
 }
 
 std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<Request>& request)
@@ -481,7 +481,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    if (!locatorBackgroundProxy->IsAppBackground(uid, bundleName)) {
+    if (!locatorBackgroundProxy->IsAppBackground(bundleName)) {
         return false;
     }
     if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
