@@ -461,8 +461,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     AppIdentity identity;
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (!CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
         LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
             request->GetUid());
         return false;
