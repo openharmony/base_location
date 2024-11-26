@@ -46,8 +46,11 @@
 
 namespace OHOS {
 namespace Location {
+const int BACKGROUNDAPP_STATUS = 4;
+const int FOREGROUPAPP_STATUS = 2;
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
+std::mutex LocatorBackgroundProxy::foregroundAppMutex_;
 LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 {
     static LocatorBackgroundProxy data;
@@ -63,6 +66,7 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     requestsMap_ = std::make_shared<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>>();
     requestsList_ = std::make_shared<std::list<std::shared_ptr<Request>>>();
     CommonUtils::GetCurrentUserId(curUserId_);
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "LocatorBackgroundProxy curUserId_ %{public}d", curUserId_);
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
@@ -210,6 +214,7 @@ void LocatorBackgroundProxy::UpdateListOnUserSwitch(int32_t userId)
     // if change to another user, proxy requestList should change
     requestsList_ = (*requestsMap_)[userId];
     curUserId_ = userId;
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "UpdateListOnUserSwitch curUserId_ %{public}d", curUserId_);
 }
 
 
@@ -232,6 +237,11 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
         }
     }
     return false;
+}
+
+int32_t LocatorBackgroundProxy::getCurrentUserId() {
+    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "getCurrentUserId curUserId_ %{public}d", curUserId_);
+    return curUserId_;
 }
 
 int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
@@ -386,6 +396,30 @@ bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
     return true;
 }
 
+bool LocatorBackgroundProxy::IsAppBackground(int uid, std::string bundleName)
+{
+    std::unique_lock lock(foregroundAppMutex_);
+    auto iter = foregroundAppMap_.find(uid);
+    if (iter == foregroundAppMap_.end()) {
+        return IsAppBackground(bundleName);
+    }
+    return false;
+}
+
+void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
+{
+    std::unique_lock lock(foregroundAppMutex_);
+    if (status == FOREGROUPAPP_STATUS) {
+        foregroundAppMap_[uid] = status;
+    } else if (status == BACKGROUNDAPP_STATUS) {
+        auto iter = foregroundAppMap_.find(uid);
+        if (iter != foregroundAppMap_.end()) {
+            foregroundAppMap_.erase(iter);
+        }
+    }
+    LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
+}
+
 bool LocatorBackgroundProxy::RegisterAppStateObserver()
 {
     if (appStateObserver_ != nullptr) {
@@ -482,6 +516,8 @@ void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::Ap
     LBSLOGD(REQUEST_MANAGER,
         "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     requestManager->HandlePowerSuspendChanged(pid, uid, state);
+    auto locatorBackkProxy = LocatorBackgroundProxy::GetInstance();
+    locatorBackkProxy->UpdateBackgroundAppStatues(uid, state);
 }
 } // namespace OHOS
 } // namespace Location
