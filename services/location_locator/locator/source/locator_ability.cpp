@@ -1859,6 +1859,10 @@ void LocatorHandler::ConstructDbHandleMap()
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
 {
     std::shared_ptr<AppIdentity> identity = event->GetSharedObject<AppIdentity>();
+    if (identity == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s get identity failed", __func__);
+        return;
+    }
     int64_t tokenId = identity->GetTokenId();
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
@@ -1880,6 +1884,10 @@ void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Poin
 void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event)
 {
     std::shared_ptr<AppIdentity> identity = event->GetSharedObject<AppIdentity>();
+    if (identity == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s get identity failed", __func__);
+        return;
+    }
     int64_t tokenId = identity->GetTokenId();
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
