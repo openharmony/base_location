@@ -107,7 +107,8 @@
                     "//base/location/services/location_network/network:lbsservice_network",
                     "//base/location/services/location_passive/passive:lbsservice_passive",
                     "//base/location/services/etc:etc",
-                    "//base/location/sa_profile:location_sa_profile"
+                    "//base/location/sa_profile:location_sa_profile",
+                    "//base/location/services/location_ui:location_dialog_hap"
                 ]
             },
             "inner_kits": [
