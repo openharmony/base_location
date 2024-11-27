@@ -711,6 +711,8 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     gnssGeofenceRequestMap_.insert(std::make_pair(request, std::make_pair(callback, death)));
+    LBSLOGI(GNSS, "After RegisterGnssGeofenceCallback size %{public}zu",
+        gnssGeofenceRequestMap_.size());
     return true;
 }
 
@@ -758,7 +760,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
             iter++;
         }
     }
-    LBSLOGD(GNSS, "After UnregisterGnssGeofenceCallback size:%{public}s",
+    LBSLOGI(GNSS, "After UnregisterGnssGeofenceCallback size:%{public}s",
         std::to_string(gnssGeofenceRequestMap_.size()).c_str());
     return true;
 }
@@ -790,9 +792,7 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
         if (callback == callbackObj) {
             callback->RemoveDeathRecipient(callbackPair.second);
             auto requestInMap = iter->first;
-            requestInMap->SetGeofenceTransitionCallback(nullptr);
-            iter->second.first = nullptr;
-            iter->second.second = nullptr;
+            requestInMap->SetAppAliveStatus(false);
             break;
         } else {
             iter++;
@@ -818,6 +818,11 @@ void GnssAbility::ReportGeofenceOperationResult(
         LBSLOGE(GNSS, "callback is nullptr");
         return;
     }
+    auto appAliveStatus = geofenceRequest->GetAppAliveStatus();
+    if (!appAliveStatus) {
+        LBSLOGE(GNSS, "app alive status is false");
+        return;
+    }
     sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
     gnssGeofenceCallback->OnReportOperationResult(
         fenceId, static_cast<int>(type), static_cast<int>(result));
@@ -837,14 +842,19 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         return;
     }
     auto callback = request->GetGeofenceTransitionCallback();
+    if (callback == nullptr) {
+        LBSLOGE(GNSS, "callback is nullptr");
+        return;
+    }
     sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
     auto transitionStatusList = request->GetGeofenceTransitionEventList();
+    auto appAliveStatus = request->GetAppAliveStatus();
     for (size_t i = 0; i < transitionStatusList.size(); i++) {
         if (transitionStatusList[i] !=
             static_cast<GeofenceTransitionEvent>(event)) {
             continue;
         }
-        if (gnssGeofenceCallback != nullptr) {
+        if (appAliveStatus) {
             GeofenceTransition geofenceTransition;
             geofenceTransition.fenceId = fenceIndex;
             geofenceTransition.event = transitionStatusList[i];
@@ -873,6 +883,8 @@ std::shared_ptr<GeofenceRequest> GnssAbility::GetGeofenceRequestByFenceId(int fe
         }
     }
     return nullptr;
+    LBSLOGE(GNSS, "can not get geofence request by fenceId, fenceId:%{public}d",
+        fenceId);
 }
 
 bool GnssAbility::ExecuteFenceProcess(
