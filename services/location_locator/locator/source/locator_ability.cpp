@@ -1994,8 +1994,8 @@ void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& e
         return;
     }
     if (requestManager != nullptr) {
-        requestManager->HandleStartLocating(request);
         HookUtils::ExecuteHookWhenStartLocation(request);
+        requestManager->HandleStartLocating(request);
     }
 }
 
