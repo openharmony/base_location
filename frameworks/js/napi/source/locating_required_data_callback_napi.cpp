@@ -172,6 +172,8 @@ bool LocatingRequiredDataCallbackNapi::Send(const std::vector<std::shared_ptr<Lo
     }
     if (!InitContext(context)) {
         LBSLOGE(LOCATING_DATA_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return false;
     }
     context->locatingRequiredDataList_ = data;

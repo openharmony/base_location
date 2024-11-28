@@ -148,6 +148,8 @@ bool GnssStatusCallbackNapi::Send(std::unique_ptr<SatelliteStatus>& statusInfo)
     }
     if (!InitContext(context)) {
         LBSLOGE(GNSS_STATUS_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return false;
     }
     context->statusInfo = std::move(statusInfo);

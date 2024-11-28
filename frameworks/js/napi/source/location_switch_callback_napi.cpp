@@ -149,6 +149,8 @@ bool LocationSwitchCallbackNapi::Send(int switchState)
     }
     if (!InitContext(context)) {
         LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return false;
     }
     context->enable = (switchState == 1 ? true : false);

@@ -169,6 +169,8 @@ void LocationGnssGeofenceCallbackNapi::OnTransitionStatusChange(
     }
     if (!InitContext(context)) {
         LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return;
     }
     context->transition_ = transition;
