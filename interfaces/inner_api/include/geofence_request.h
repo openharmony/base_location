@@ -84,6 +84,10 @@ public:
 
     void SetUid(int32_t uid);
 
+    bool GetAppAliveStatus();
+
+    void SetAppAliveStatus(bool appAliveStatus);
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
@@ -99,6 +103,7 @@ private:
     int32_t uid_;
     AbilityRuntime::WantAgent::WantAgent wantAgent_;
     std::string bundleName_;
+    bool appAliveStatus_;
     mutable std::mutex geofenceRequestMutex_;
 };
 } // namespace Location

@@ -30,6 +30,7 @@ GeofenceRequest::GeofenceRequest()
     scenario_ = -1;
     fenceId_ = -1;
     uid_ = 0;
+    appAliveStatus_ = true;
 }
 
 GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
@@ -158,6 +159,16 @@ int32_t GeofenceRequest::GetUid()
 void GeofenceRequest::SetUid(int32_t uid)
 {
     uid_ = uid;
+}
+
+bool GeofenceRequest::GetAppAliveStatus()
+{
+    return appAliveStatus_;
+}
+
+void GeofenceRequest::SetAppAliveStatus(bool appAliveStatus)
+{
+    appAliveStatus_ = appAliveStatus;
 }
 
 void GeofenceRequest::ReadFromParcel(Parcel& data)
