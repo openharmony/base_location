@@ -425,7 +425,7 @@ bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::strin
 {
     int userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
-    if (userId == currentUserId) {
+    if (userId == currentUserId || userId == 0) {
         return true;
     }
     if (bundleName.length() == 0) {
@@ -467,7 +467,6 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
 {
     int currentUserId = 0;
     if (!CommonUtils::GetCurrentUserId(currentUserId)) {
-
     }
     return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
 }
