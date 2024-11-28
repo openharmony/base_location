@@ -361,12 +361,6 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
     if (!CheckSettingsPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
-    if (!PermissionManager::CheckLocationSwitchControlPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
-        LBSLOGE(LOCATOR, "CheckLocationSwitchControlPermission return false, [%{public}s]",
-            identity.ToString().c_str());
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
-        return ERRCODE_PERMISSION_DENIED;
-    }
     auto locatorAbility = LocatorAbility::GetInstance();
     bool isEnabled = data.ReadBool();
     bool privacyState = false;
