@@ -335,8 +335,6 @@ int LocatorAbilityStub::PreStopLocating(MessageParcel &data, MessageParcel &repl
 
 int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    auto currentTime = CommonUtils::GetSinceBootTime()/10000;
-    LBSLOGI(LOCATOR_STANDARD, "PreGetCacheLocation GetLastLocation enter Time = %{public}lu ", currentTime);
     if (!CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
