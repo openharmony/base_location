@@ -239,7 +239,6 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
 
 int32_t LocatorBackgroundProxy::getCurrentUserId()
 {
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "getCurrentUserId curUserId_ %{public}d", curUserId_);
     return curUserId_;
 }
 
