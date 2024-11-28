@@ -136,6 +136,8 @@ bool LocationErrorCallbackNapi::Send(int32_t errorCode)
     }
     if (!InitContext(context)) {
         LBSLOGE(LOCATION_ERR_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return false;
     }
     context->errCode = errorCode;

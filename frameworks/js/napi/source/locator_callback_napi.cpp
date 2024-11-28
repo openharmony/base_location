@@ -292,6 +292,9 @@ bool LocatorCallbackNapi::SendErrorCode(const int& errorCode)
     }
     if (!InitContext(context)) {
         LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
+        return false;
     }
     context->errCode = errorCode;
     work->data = context;
@@ -329,6 +332,9 @@ void LocatorCallbackNapi::OnLocationReport(const std::unique_ptr<Location>& loca
     }
     if (!InitContext(context)) {
         LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
+        return;
     }
     context->loc = std::make_unique<Location>(*location);
     work->data = context;

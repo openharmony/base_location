@@ -117,6 +117,8 @@ bool CountryCodeCallbackNapi::Send(const std::shared_ptr<CountryCode>& country)
     }
     if (!InitContext(context)) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return false;
     }
     context->country = country;

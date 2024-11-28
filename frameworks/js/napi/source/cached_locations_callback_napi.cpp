@@ -152,6 +152,8 @@ bool CachedLocationsCallbackNapi::Send(std::vector<std::unique_ptr<Location>>& l
     }
     if (!InitContext(context)) {
         LBSLOGE(CACHED_LOCATIONS_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return false;
     }
     for (std::unique_ptr<Location>& location : locations) {

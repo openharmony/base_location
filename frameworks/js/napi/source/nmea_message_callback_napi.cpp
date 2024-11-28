@@ -155,6 +155,8 @@ bool NmeaMessageCallbackNapi::Send(const std::string msg)
     }
     if (!InitContext(context)) {
         LBSLOGE(NMEA_MESSAGE_CALLBACK, "InitContext fail");
+        delete work;
+        delete context;
         return false;
     }
     context->msg = msg;
