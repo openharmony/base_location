@@ -433,7 +433,7 @@ bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::strin
             LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
         }
     }
-    if (bundleName.length() >0 && HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
+    if (bundleName.length() > 0 && HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
         return true;
     }
     return false;
