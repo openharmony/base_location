@@ -66,7 +66,6 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     requestsMap_ = std::make_shared<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>>();
     requestsList_ = std::make_shared<std::list<std::shared_ptr<Request>>>();
     CommonUtils::GetCurrentUserId(curUserId_);
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "LocatorBackgroundProxy curUserId_ %{public}d", curUserId_);
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
@@ -214,7 +213,6 @@ void LocatorBackgroundProxy::UpdateListOnUserSwitch(int32_t userId)
     // if change to another user, proxy requestList should change
     requestsList_ = (*requestsMap_)[userId];
     curUserId_ = userId;
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "UpdateListOnUserSwitch curUserId_ %{public}d", curUserId_);
 }
 
 
@@ -239,7 +237,8 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
-int32_t LocatorBackgroundProxy::getCurrentUserId() {
+int32_t LocatorBackgroundProxy::getCurrentUserId()
+{
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "getCurrentUserId curUserId_ %{public}d", curUserId_);
     return curUserId_;
 }
