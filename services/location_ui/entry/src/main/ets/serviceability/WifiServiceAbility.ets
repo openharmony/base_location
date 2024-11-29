@@ -55,6 +55,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 .then((pixelmap: image.PixelMap) => {
                     console.info(TAG, `Create pixelMap success.`);
                     this.publishWantAgentCommonEvent(pixelmap, notificationId, status, ssid);
+                fs.close();
                 })
                 .catch((error: string) => {
                     console.info(TAG, `Create pixelMap failed`);
