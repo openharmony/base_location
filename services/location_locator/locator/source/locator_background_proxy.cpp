@@ -514,8 +514,8 @@ void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::Ap
     LBSLOGD(REQUEST_MANAGER,
         "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     requestManager->HandlePowerSuspendChanged(pid, uid, state);
-    auto locatorBackkProxy = LocatorBackgroundProxy::GetInstance();
-    locatorBackkProxy->UpdateBackgroundAppStatues(uid, state);
+    auto instance = LocatorBackgroundProxy::GetInstance();
+    instance->UpdateBackgroundAppStatues(uid, state);
 }
 } // namespace OHOS
 } // namespace Location
