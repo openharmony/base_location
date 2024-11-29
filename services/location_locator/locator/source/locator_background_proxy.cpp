@@ -409,7 +409,7 @@ void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t sta
     std::unique_lock lock(foregroundAppMutex_);
     if (status == FOREGROUPAPP_STATUS) {
         foregroundAppMap_[uid] = status;
-    } else if (status == BACKGROUNDAPP_STATUS) {
+    } else {
         auto iter = foregroundAppMap_.find(uid);
         if (iter != foregroundAppMap_.end()) {
             foregroundAppMap_.erase(iter);
