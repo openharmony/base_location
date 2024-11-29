@@ -430,7 +430,7 @@ bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::strin
     }
     if (bundleName.length() == 0) {
         if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-            LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+            LBSLOGE(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
         }
     }
     if (bundleName.length() > 0 && HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
@@ -467,7 +467,7 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
 {
     int currentUserId = 100;
     if (!CommonUtils::GetCurrentUserId(currentUserId)) {
-        LBSLOGD(COMMON_UTILS, "Fail to GetCurrentUserId.");
+        LBSLOGE(COMMON_UTILS, "Fail to GetCurrentUserId.");
     }
     return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
 }
