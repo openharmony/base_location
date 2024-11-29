@@ -465,8 +465,9 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity, int32_t curre
 
 bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
 {
-    int currentUserId = 0;
+    int currentUserId = 100;
     if (!CommonUtils::GetCurrentUserId(currentUserId)) {
+        LBSLOGD(COMMON_UTILS, "Fail to GetCurrentUserId.");
     }
     return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
 }
