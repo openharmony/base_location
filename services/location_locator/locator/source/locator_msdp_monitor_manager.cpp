@@ -63,6 +63,7 @@ void LocatorMsdpMonitorManager::RegisterMovementCallBack()
     if (Msdp::MovementClient::GetInstance().SubscribeCallback(
         Msdp::MovementDataUtils::MovementType::TYPE_STILL, deviceMovementCallback_) != ERR_OK) {
         LBSLOGI(LOCATOR, "Register a device movement observer failed!");
+        deviceMovementCallback_ = nullptr;
     }
 }
  
