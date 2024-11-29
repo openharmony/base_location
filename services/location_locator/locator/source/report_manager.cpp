@@ -89,6 +89,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         auto requestManger = RequestManager::GetInstance();
         if (requestManger != nullptr) {
             requestManger->UpdateRequestRecord(request, false);
+            requestManger->UpdateUsingPermission(request, false);
         }
     }
     if (deadRequests->size() > 0) {
