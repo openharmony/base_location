@@ -341,11 +341,10 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
 
 void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location)
 {
-    int currentUserId = 0;
-    if (CommonUtils::GetCurrentUserId(currentUserId)) {
-        std::unique_lock<std::mutex> lock(lastLocationMutex_);
-        lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
-    }
+    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
+    int currentUserId = locatorBackgroundProxy->getCurrentUserId();
+    std::unique_lock<std::mutex> lock(lastLocationMutex_);
+    lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
