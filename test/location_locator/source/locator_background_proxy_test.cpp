@@ -821,6 +821,10 @@ HWTEST_F(LocatorBackgroundProxyTest, OnUserSwitchTest003, TestSize.Level1)
     list->push_back(request);
     (locatorBackgroundProxy->requestsMap_)->insert(make_pair(userId, list));
     locatorBackgroundProxy->OnUserSwitch(userId);
+    
+    // recover userId
+    CommonUtils::GetCurrentUserId(userId);
+    locatorBackgroundProxy->UpdateListOnUserSwitch(userId);
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnUserSwitchTest003 end");
 }
 

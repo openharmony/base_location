@@ -131,10 +131,12 @@ bool CommonUtils::GetCurrentUserId(int &userId)
     std::vector<int> activeIds;
     int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
     if (ret != 0) {
+        userId = DEFAULT_USERID;
         LBSLOGI(COMMON_UTILS, "GetCurrentUserId failed ret:%{public}d", ret);
         return false;
     }
     if (activeIds.empty()) {
+        userId = DEFAULT_USERID;
         LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
         return false;
     }
@@ -412,23 +414,29 @@ std::string CommonUtils::GenerateUuid()
 
 bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
 {
-    if (HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
-        return true;
-    }
     int currentUserId = 0;
-    int userId = 0;
     if (!GetCurrentUserId(currentUserId)) {
         currentUserId = DEFAULT_USERID;
     }
-    auto result = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
-    if (result != ERR_OK) {
-        LBSLOGE(COMMON_UTILS, "CheckAppForUser GetOsAccountLocalIdFromUid fail");
-        return false;
+    return CommonUtils::CheckAppForUser(uid, currentUserId, bundleName);
+}
+
+bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName)
+{
+    int userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    if (userId == currentUserId || userId == 0) {
+        return true;
     }
-    if (userId != 0 && userId != currentUserId) {
-        return false;
+    if (bundleName.length() == 0) {
+        if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+            LBSLOGE(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
+        }
     }
-    return true;
+    if (bundleName.length() > 0 && HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
+        return true;
+    }
+    return false;
 }
 
 int64_t CommonUtils::GetSinceBootTime()
@@ -443,16 +451,26 @@ int64_t CommonUtils::GetSinceBootTime()
     }
 }
 
-bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
+bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId)
 {
-    if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
+    std::string bundleName = identity.GetBundleName();
+    if (CommonUtils::CheckAppForUser(identity.GetUid(), currentUserId, bundleName)) {
         return true;
     }
-    std::string bundleName = identity.GetBundleName();
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), bundleName)) {
+    if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
         return true;
     }
     return false;
 }
+
+bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
+{
+    int currentUserId = 100;
+    if (!CommonUtils::GetCurrentUserId(currentUserId)) {
+        LBSLOGE(COMMON_UTILS, "Fail to GetCurrentUserId.");
+    }
+    return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
+}
+
 } // namespace Location
 } // namespace OHOS
