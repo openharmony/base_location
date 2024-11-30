@@ -25,6 +25,7 @@
     "*LOCATOR_SA_LOCATION_PERMISSION_CHECK*";
     "*ExecuteHookWhenCheckAppForCacheTime*";
     "*ExecuteHookEnableAbility*";
+    "*ExecuteHookWhenPreStartLocating*";
   local:
     *;
 };

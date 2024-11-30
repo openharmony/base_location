@@ -157,5 +157,15 @@ bool HookUtils::ExecuteHookEnableAbility(std::string packageName, bool isEnabled
         LocationProcessStage::ENABLE_ABILITY_PROCESS, (void *)&enableAbilityStruct, nullptr);
     return enableAbilityStruct.result;
 }
+
+bool HookUtils::ExecuteHookWhenPreStartLocating(std::string packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::PRE_START_LOCATING_PROCESS, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
 } // namespace Location
 } // namespace OHOS

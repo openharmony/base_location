@@ -1027,6 +1027,26 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
         !IsCacheVaildScenario(request->GetRequestConfig())) {
         return false;
     }
+    uint32_t tokenId = request->GetTokenId();
+    uint32_t firstTokenId = request->GetFirstTokenId();
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
+        LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
+        return false;
+    }
+    std::string bundleName = request->GetPackageName();
+    pid_t uid = request->GetUid();
+    pid_t pid = request->GetPid();
+    auto reportManager = ReportManager::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(bundleName, tokenId, request->GetTokenIdEx(), uid, pid) &&
+            !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+            RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
+            LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
+            return false;
+        }
+    }
     // report cache location
     auto cacheLocation = reportManager_->GetCacheLocation(request);
     if (cacheLocation == nullptr) {
@@ -1127,6 +1147,11 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     loc = reportManager_->GetPermittedLocation(request, lastLocation);
+    std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
+    if (loc == nullptr) {
+        locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
+        return ERRCODE_LOCATING_FAIL;
+    }
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     requestManager_->IncreaseWorkingPidsCount(identity.GetPid());
     if (requestManager_->IsNeedStartUsingPermission(identity.GetPid())) {
@@ -1135,13 +1160,9 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
         if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
             IsHapCaller(request->GetTokenId())) {
             LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
-            loc = nullptr;
+            locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
+            return ERRCODE_LOCATING_FAIL;
         }
-    }
-    std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
-    if (loc == nullptr) {
-        locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
-        return ERRCODE_LOCATING_FAIL;
     }
     // add location permission using record
     locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_SUCCESS, identityInfo, 0);
