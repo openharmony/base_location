@@ -293,8 +293,9 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
     auto reportManager = ReportManager::GetInstance();
-    if (reportManager != nullptr) {
+    if (reportManager != nullptr && res) {
         if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
             identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
             !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {

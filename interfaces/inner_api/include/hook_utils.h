@@ -45,6 +45,7 @@ enum class LocationProcessStage {
     LOCATOR_SA_COMMAND_PROCESS,
     LOCATOR_SA_LOCATION_CACHE_TIME_CHECK,
     ENABLE_ABILITY_PROCESS,
+    PRE_START_LOCATING_PROCESS,
 };
 
 typedef struct {
@@ -109,6 +110,7 @@ public:
     static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
     static bool ExecuteHookWhenCheckAppForCacheTime(std::string packageName);
     static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
+    static bool ExecuteHookWhenPreStartLocating(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS
