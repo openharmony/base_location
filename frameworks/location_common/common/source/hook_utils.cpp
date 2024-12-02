@@ -167,5 +167,23 @@ bool HookUtils::ExecuteHookWhenPreStartLocating(std::string packageName)
         LocationProcessStage::PRE_START_LOCATING_PROCESS, (void *)&locatorRequestStruct, nullptr);
     return locatorRequestStruct.result;
 }
+
+bool HookUtils::ExecuteHookWhenAddNetworkRequest(std::string uuidTemp)
+{
+    NetworkRequestInfo info;
+    info.uuid = uuidTemp;
+    info.result = false;
+    HookUtils::ExecuteHook(LocationProcessStage::NETWORK_SA_ADD_REQUEST_PROCESS, ((void *)(&info)), nullptr);
+    return info.result;
+}
+
+bool HookUtils::ExecuteHookWhenRemoveNetworkRequest(std::string uuidTemp)
+{
+    NetworkRequestInfo info;
+    info.uuid = uuidTemp;
+    info.result = false;
+    HookUtils::ExecuteHook(LocationProcessStage::NETWORK_SA_REMOVE_REQUEST_PROCESS, ((void *)(&info)), nullptr);
+    return info.result;
+}
 } // namespace Location
 } // namespace OHOS
