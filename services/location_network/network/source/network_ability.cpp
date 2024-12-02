@@ -34,6 +34,7 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 #include "location_data_rdb_manager.h"
+#include "hook_utils.h"
 
 #ifdef LOCATION_HICOLLIE_ENABLE
 #include "xcollie/xcollie.h"
@@ -336,6 +337,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "can not get valid callback.");
         return false;
     }
+    HookUtils::ExecuteHookWhenAddNetworkRequest(workRecord.GetUuid(0));
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");
@@ -365,6 +367,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
 
 bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
 {
+    HookUtils::ExecuteHookWhenRemoveNetworkRequest(workRecord.GetUuid(0));
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     if (nlpServiceProxy_ == nullptr) {
         LBSLOGE(NETWORK, "nlpProxy is nullptr.");

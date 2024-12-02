@@ -27,7 +27,6 @@ enum class LocationProcessStage {
     LOCATOR_SA_START_LOCATING = 0,
     LOCATOR_SA_REQUEST_PROCESS,
     GNSS_SA_REQUEST_PROCESS,
-    NETWORK_SA_REQUEST_PROCESS,
     GNSS_SA_LOCATION_REPORT_PROCESS,
     NETWORK_SA_LOCATION_REPORT_PROCESS,
     LOCATOR_SA_LOCATION_REPORT_PROCESS,
@@ -46,6 +45,8 @@ enum class LocationProcessStage {
     LOCATOR_SA_LOCATION_CACHE_TIME_CHECK,
     ENABLE_ABILITY_PROCESS,
     PRE_START_LOCATING_PROCESS,
+    NETWORK_SA_ADD_REQUEST_PROCESS,
+    NETWORK_SA_REMOVE_REQUEST_PROCESS,
 };
 
 typedef struct {
@@ -91,6 +92,11 @@ typedef struct {
     bool result;
 } EnableAbilityStruct;
 
+typedef struct {
+    std::string uuid;
+    bool result;
+} NetworkRequestInfo;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -111,6 +117,8 @@ public:
     static bool ExecuteHookWhenCheckAppForCacheTime(std::string packageName);
     static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
     static bool ExecuteHookWhenPreStartLocating(std::string packageName);
+    static bool ExecuteHookWhenAddNetworkRequest(std::string uuid);
+    static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
 };
 } // namespace Location
 } // namespace OHOS
