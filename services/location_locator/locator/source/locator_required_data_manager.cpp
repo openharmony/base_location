@@ -21,6 +21,10 @@
 #include "iservice_registry.h"
 #include "common_utils.h"
 #include "permission_manager.h"
+#ifdef LOCATION_HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -31,6 +35,7 @@ const uint32_t EVENT_UNREGISTER_WIFI_CALLBACK = 0x0500;
 const int32_t DEFAULT_TIMEOUT_4S = 4000;
 const int32_t DEFAULT_TIMEOUT_MS = 1500;
 const int64_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * MILLI_PER_SEC * MICRO_PER_MILLI;
+const int TIMEOUT_WATCHDOG = 60; // s
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
@@ -383,58 +388,124 @@ LocationErrCode LocatorRequiredDataManager::GetCurrentWifiBssidForLocating(std::
 #endif
 }
 
-ScanHandler::ScanHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+ScanHandler::ScanHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
+{
+    InitScanHandlerEventMap();
+}
 
 ScanHandler::~ScanHandler() {}
 
-void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void ScanHandler::InitScanHandlerEventMap()
+{
+    if (scanHandlerEventMap_.size() != 0) {
+        return;
+    }
+    scanHandlerEventMap_[EVENT_START_SCAN] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartScanEvent(event); };
+}
+
+void ScanHandler::StartScanEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    uint32_t eventId = event->GetInnerEventId();
     int fixNumber = event->GetParam();
-    LBSLOGD(LOCATOR, "ScanHandler ProcessEvent event:%{public}d", eventId);
-    switch (eventId) {
-        case EVENT_START_SCAN: {
-            dataManager->StartWifiScan(fixNumber, true);
-            break;
-        }
-        default:
-            break;
+    dataManager->StartWifiScan(fixNumber, true);
+}
+
+void ScanHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    uint32_t eventId = event->GetInnerEventId();
+    LBSLOGD(LOCATOR, "ScanHandler processEvent event:%{public}d, timestamp = %{public}s",
+        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    auto handleFunc = scanHandlerEventMap_.find(eventId);
+    if (handleFunc != scanHandlerEventMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "ScanHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(LOCATOR, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
+        memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
     }
 }
 
-WifiSdkHandler::WifiSdkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+WifiSdkHandler::WifiSdkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
+{
+    InitWifiSdkHandlerEventMap();
+}
 
 WifiSdkHandler::~WifiSdkHandler() {}
 
-void WifiSdkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void WifiSdkHandler::InitWifiSdkHandlerEventMap()
+{
+    if (wifiSdkHandlerEventMap_.size() != 0) {
+        return;
+    }
+    wifiSdkHandlerEventMap_[EVENT_GET_WIFI_LIST] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { GetWifiListEvent(event); };
+    wifiSdkHandlerEventMap_[EVENT_REGISTER_WIFI_CALLBACK] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { RegisterWifiCallbackEvent(event); };
+    wifiSdkHandlerEventMap_[EVENT_UNREGISTER_WIFI_CALLBACK] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { UnregisterWifiCallbackEvent(event); };
+}
+
+void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
+    if (!dataManager->IsConnecting()) {
+        LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
+        return;
+    }
+    std::vector<Wifi::WifiScanInfo> wifiScanInfo;
+    dataManager->GetWifiScanList(wifiScanInfo);
+    std::vector<std::shared_ptr<LocatingRequiredData>> result =
+        dataManager->GetLocatingRequiredDataByWifi(wifiScanInfo);
+    dataManager->ReportData(result);
+}
+
+void WifiSdkHandler::RegisterWifiCallbackEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
+    dataManager->RegisterWifiCallBack();
+}
+
+void WifiSdkHandler::UnregisterWifiCallbackEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
+    dataManager->UnregisterWifiCallBack();
+}
+
+void WifiSdkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
     uint32_t eventId = event->GetInnerEventId();
-    LBSLOGD(LOCATOR, "WifiSdkHandler ProcessEvent event:%{public}d", eventId);
-    switch (eventId) {
-        case EVENT_GET_WIFI_LIST: {
-            if (!dataManager->IsConnecting()) {
-                LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
-                return;
-            }
-            std::vector<Wifi::WifiScanInfo> wifiScanInfo;
-            dataManager->GetWifiScanList(wifiScanInfo);
-            std::vector<std::shared_ptr<LocatingRequiredData>> result =
-                dataManager->GetLocatingRequiredDataByWifi(wifiScanInfo);
-            dataManager->ReportData(result);
-            break;
-        }
-        case EVENT_REGISTER_WIFI_CALLBACK: {
-            dataManager->RegisterWifiCallBack();
-            break;
-        }
-        case EVENT_UNREGISTER_WIFI_CALLBACK: {
-            dataManager->UnregisterWifiCallBack();
-            break;
-        }
-        default:
-            break;
+    LBSLOGD(LOCATOR, "WifiSdkHandler processEvent event:%{public}d, timestamp = %{public}s",
+        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    auto handleFunc = wifiSdkHandlerEventMap_.find(eventId);
+    if (handleFunc != wifiSdkHandlerEventMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "WifiSdkHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(LOCATOR, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
+        memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
     }
 }
 } // namespace Location

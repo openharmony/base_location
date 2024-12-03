@@ -177,16 +177,33 @@ public:
 
 class ScanHandler : public AppExecFwk::EventHandler {
 public:
+    using ScanEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
+    using ScanEventHandleMap = std::map<int, ScanEventHandle>;
     explicit ScanHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~ScanHandler() override;
+private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void InitScanHandlerEventMap();
+    void StartScanEvent(const AppExecFwk::InnerEvent::Pointer& event);
+
+    ScanEventHandleMap scanHandlerEventMap_;
 };
 
 class WifiSdkHandler : public AppExecFwk::EventHandler {
 public:
+    using WifiSdkEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
+    using WifiSdkEventHandleMap = std::map<int, WifiSdkEventHandle>;
     explicit WifiSdkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~WifiSdkHandler() override;
+
+private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void InitWifiSdkHandlerEventMap();
+    void GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void RegisterWifiCallbackEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void UnregisterWifiCallbackEvent(const AppExecFwk::InnerEvent::Pointer& event);
+
+    WifiSdkEventHandleMap wifiSdkHandlerEventMap_;
 };
 
 class LocatorRequiredDataManager {
