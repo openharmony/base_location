@@ -27,6 +27,7 @@
 #include "permission_manager.h"
 namespace OHOS {
 namespace Location {
+const int MAX_SWITCH_CALLBACK_NUM = 1000;
 LocationDataManager* LocationDataManager::GetInstance()
 {
     static LocationDataManager data;
@@ -95,7 +96,12 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         identity.SetBundleName(bundleName);
     }
     AppSwitchState appInfo{.appIdentity = identity, .lastState = DEFAULT_SWITCH_STATE};
-    switchCallbackMap_.emplace(callback, appInfo);
+    if (switchCallbackMap_.size() <= MAX_SWITCH_CALLBACK_NUM) {
+        switchCallbackMap_.emplace(callback, appInfo);
+    } else {
+        LBSLOGE(LOCATOR, "RegisterSwitchCallback num max");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     if (!IsSwitchObserverReg()) {
         RegisterLocationSwitchObserver();
     }

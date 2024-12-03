@@ -54,6 +54,7 @@
 namespace OHOS {
 namespace Location {
 ffrt::mutex RequestManager::requestMutex_;
+const int MAX_LOCATION_ERROR_CALLBACK_NUM = 1000;
 
 RequestManager* RequestManager::GetInstance()
 {
@@ -690,7 +691,12 @@ void RequestManager::RegisterLocationErrorCallback(
     locatorErrRequest->SetPid(identity.GetPid());
     locatorErrRequest->SetLocatorErrCallbackRecipient(death);
     std::unique_lock<ffrt::mutex> lock(locationErrorCallbackMutex_);
-    locationErrorCallbackMap_[callback->AsObject()] = locatorErrRequest;
+    if (locationErrorCallbackMap_.size() <= MAX_LOCATION_ERROR_CALLBACK_NUM) {
+        locationErrorCallbackMap_[callback->AsObject()] = locatorErrRequest;
+    } else {
+        LBSLOGE(LOCATOR, "RegisterLocationErrorCallback num max");
+        return;
+    }
     LBSLOGD(LOCATOR, "after RegisterLocationErrorCallback, callback size:%{public}s",
         std::to_string(locationErrorCallbackMap_.size()).c_str());
 }

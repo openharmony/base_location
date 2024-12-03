@@ -32,6 +32,7 @@
 
 namespace OHOS {
 namespace Location {
+const int MAX_COUNTRY_CODE_CALLBACKS_NUM = 1000;
 CountryCodeManager* CountryCodeManager::GetInstance()
 {
     static CountryCodeManager data;
@@ -78,7 +79,12 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
         lock.unlock();
         return;
     }
-    countryCodeCallbacksMap_[callback] = identity;
+    if (countryCodeCallbacksMap_.size() <= MAX_COUNTRY_CODE_CALLBACKS_NUM) {
+        countryCodeCallbacksMap_[callback] = identity;
+    } else {
+        LBSLOGE(COUNTRY_CODE, "RegisterCountryCodeCallback num max");
+        return;
+    }
     LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallbacksMap_ size:%{public}s",
         identity.GetUid(), std::to_string(countryCodeCallbacksMap_.size()).c_str());
     if (countryCodeCallbacksMap_.size() != 1) {

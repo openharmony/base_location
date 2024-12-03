@@ -66,6 +66,9 @@ namespace Location {
 namespace {
 constexpr uint32_t WAIT_MS = 200;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
+const int MAX_GNSS_STATUS_CALLBACK_NUM = 1000;
+const int MAX_NMEA_CALLBACK_NUM = 1000;
+const int MAX_GNSS_GEOFENCE_REQUEST_NUM = 1000;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 #endif
@@ -260,7 +263,12 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
-    gnssStatusCallbackMap_[callback] = identity;
+    if (gnssStatusCallbackMap_.size() <= MAX_GNSS_STATUS_CALLBACK_NUM) {
+        gnssStatusCallbackMap_[callback] = identity;
+    } else {
+        LBSLOGE(GNSS, "RegisterGnssStatusCallback num max");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     LBSLOGD(GNSS, "RegisterGnssStatusCallback uid:%{public}d register, gnssStatusCallback size:%{public}s",
         identity.GetUid(), std::to_string(gnssStatusCallbackMap_.size()).c_str());
     return ERRCODE_SUCCESS;
@@ -292,7 +300,12 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
-    nmeaCallbackMap_[callback] = identity;
+    if (nmeaCallbackMap_.size() <= MAX_NMEA_CALLBACK_NUM) {
+        nmeaCallbackMap_[callback] = identity;
+    } else {
+        LBSLOGE(GNSS, "RegisterNmeaMessageCallback num max");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     LBSLOGD(GNSS, "after uid:%{public}d register, nmeaCallback size:%{public}s",
         identity.GetUid(), std::to_string(nmeaCallbackMap_.size()).c_str());
     return ERRCODE_SUCCESS;
@@ -710,7 +723,12 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
-    gnssGeofenceRequestMap_.insert(std::make_pair(request, std::make_pair(callback, death)));
+    if (gnssGeofenceRequestMap_.size() <= MAX_GNSS_GEOFENCE_REQUEST_NUM) {
+        gnssGeofenceRequestMap_.insert(std::make_pair(request, std::make_pair(callback, death)));
+    } else {
+        LBSLOGE(GNSS, "RegisterGnssGeofenceCallback num max");
+        return false;
+    }
     LBSLOGI(GNSS, "After RegisterGnssGeofenceCallback size %{public}zu",
         gnssGeofenceRequestMap_.size());
     return true;
