@@ -42,6 +42,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     
     onRequest(want: Want, startId: number): void {
         console.info(TAG, `WifiServiceAbility onRequest, want: ${JSON.stringify(want)}`);
+        let file: fs.File | undefined;
         let operateType : number = want.parameters?.['operateType'] as number;
         let notificationId : number = want.parameters?.['notificationId'] as number;
         if (operateType == 1) {
@@ -55,13 +56,16 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 .then((pixelmap: image.PixelMap) => {
                     console.info(TAG, `Create pixelMap success.`);
                     this.publishWantAgentCommonEvent(pixelmap, notificationId, status, ssid);
-                fs.close();
                 })
                 .catch((error: string) => {
                     console.info(TAG, `Create pixelMap failed`);
                 });
             } catch (err) {
                 console.info(TAG, `Create pixelMap error: ${JSON.stringify(err)}`);
+            } finally {
+                if (file) {
+                    fs.closeSync(file);
+                }
             }
         } else {
             this.willPublish = false;
