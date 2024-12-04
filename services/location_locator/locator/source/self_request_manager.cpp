@@ -24,12 +24,17 @@
 #include "permission_manager.h"
 #include "location_data_rdb_manager.h"
 #include "ipc_skeleton.h"
+#ifdef LOCATION_HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#endif
 
 namespace OHOS {
 namespace Location {
 std::mutex SelfRequestManager::locatorMutex_;
 const uint32_t EVENT_STARTLOCATING = 0x0100;
 const uint32_t EVENT_STOPLOCATING = 0x0200;
+const int TIMEOUT_WATCHDOG = 60; // s
 SelfRequestManager* SelfRequestManager::GetInstance()
 {
     static SelfRequestManager data;
@@ -124,25 +129,59 @@ void SelfRequestManager::mLocatorCallback::OnErrorReport(const int errorCode)
 }
 
 SelfRequestManagerHandler::SelfRequestManagerHandler(
-    const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}
+    const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
+{
+    InitSelfRequestManagerHandlerEventMap();
+}
 
 SelfRequestManagerHandler::~SelfRequestManagerHandler() {}
 
-void SelfRequestManagerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void SelfRequestManagerHandler::InitSelfRequestManagerHandlerEventMap()
+{
+    if (selfRequestManagerHandlerEventMap_.size() != 0) {
+        return;
+    }
+    selfRequestManagerHandlerEventMap_[EVENT_STARTLOCATING] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartLocatingEvent(event); };
+    selfRequestManagerHandlerEventMap_[EVENT_STOPLOCATING] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StopLocatingEvent(event); };
+}
+
+void SelfRequestManagerHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto SelfRequestManager = SelfRequestManager::GetInstance();
+    SelfRequestManager->StartLocatorThread();
+}
+
+void SelfRequestManagerHandler::StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto SelfRequestManager = SelfRequestManager::GetInstance();
+    SelfRequestManager->StopLocatorThread();
+}
+
+void SelfRequestManagerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
     uint32_t eventId = event->GetInnerEventId();
-    switch (eventId) {
-        case EVENT_STARTLOCATING: {
-            SelfRequestManager->StartLocatorThread();
-            break;
-        }
-        case EVENT_STOPLOCATING: {
-            SelfRequestManager->StopLocatorThread();
-            break;
-        }
-        default:
-            break;
+    LBSLOGD(LOCATOR, "SelfRequestManagerHandler processEvent event:%{public}d, timestamp = %{public}s",
+        eventId, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    auto handleFunc = selfRequestManagerHandlerEventMap_.find(eventId);
+    if (handleFunc != selfRequestManagerHandlerEventMap_.end() && handleFunc->second != nullptr) {
+        auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "SelfRequestManagerHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(LOCATOR, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_LOG|HiviewDFX::XCOLLIE_FLAG_RECOVERY);
+        memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
     }
 }
 } // namespace OHOS
