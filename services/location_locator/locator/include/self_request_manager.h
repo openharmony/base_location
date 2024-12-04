@@ -30,9 +30,17 @@ namespace OHOS {
 namespace Location {
 class SelfRequestManagerHandler : public AppExecFwk::EventHandler {
 public:
+    using SelfRequestManagerEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
+    using SelfRequestManagerEventHandleMap = std::map<int, SelfRequestManagerEventHandle>;
     explicit SelfRequestManagerHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~SelfRequestManagerHandler() override;
+private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void InitSelfRequestManagerHandlerEventMap();
+    void StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
+
+    SelfRequestManagerEventHandleMap selfRequestManagerHandlerEventMap_;
 };
 
 class SelfRequestManager {
