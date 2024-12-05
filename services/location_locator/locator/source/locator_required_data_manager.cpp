@@ -36,6 +36,7 @@ const int32_t DEFAULT_TIMEOUT_4S = 4000;
 const int32_t DEFAULT_TIMEOUT_MS = 1500;
 const int64_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int TIMEOUT_WATCHDOG = 60; // s
+const int32_t MAX_CALLBACKS_MAP_NUM = 1000;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
@@ -107,7 +108,13 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 #ifdef WIFI_ENABLE
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
-        callbacksMap_[callback] = identity;
+        if (callbacksMap_.size() <= MAX_CALLBACKS_MAP_NUM) {
+            callbacksMap_[callback] = identity;
+        } else {
+            LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
+            lock.unlock();
+            return ERRCODE_SCAN_FAIL;
+        }
         LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
             std::to_string(callbacksMap_.size()).c_str());
         if (!IsWifiCallbackRegistered() && wifiSdkHandler_ != nullptr) {

@@ -113,6 +113,8 @@ const int LOCATIONHUB_STATE_LOAD = 1;
 const int MAX_SIZE = 100;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int INVALID_REQUESTS_SIZE = 20;
+const int MAX_PERMISSION_NUM = 1000;
+const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -521,7 +523,12 @@ LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>
     }
     std::unique_lock<std::mutex> lock(switchMutex_);
     switchCallbacks_->erase(uid);
-    switchCallbacks_->insert(std::make_pair(uid, switchCallback));
+    if (switchCallbacks_->size() <= MAX_SWITCH_CALLBACKS_NUM) {
+        switchCallbacks_->insert(std::make_pair(uid, switchCallback));
+    } else {
+        LBSLOGE(LOCATOR, "RegisterSwitchCallback num max");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
         uid, std::to_string(switchCallbacks_->size()).c_str());
     return ERRCODE_SUCCESS;
@@ -1463,7 +1470,12 @@ void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
     scopeInfo.tokenIDs = {callingTokenId};
     auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
     permissionMap_->erase(callingTokenId);
-    permissionMap_->insert(std::make_pair(callingTokenId, callbackPtr));
+    if (permissionMap_->size() <= MAX_PERMISSION_NUM) {
+        permissionMap_->insert(std::make_pair(callingTokenId, callbackPtr));
+    } else {
+        LBSLOGE(LOCATOR, "RegisterPermissionCallback num max");
+        return;
+    }
     LBSLOGD(LOCATOR, "after tokenId:%{public}d register, permission callback size:%{public}s",
         callingTokenId, std::to_string(permissionMap_->size()).c_str());
     int32_t res = AccessTokenKit::RegisterPermStateChangeCallback(callbackPtr);
