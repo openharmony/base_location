@@ -77,7 +77,7 @@ bool LocatorImpl::IsLocationEnabled()
         return (state == ENABLED);
     }
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return false;
     }
     sptr<LocatorProxy> proxy = GetProxy();
     if (proxy == nullptr) {
