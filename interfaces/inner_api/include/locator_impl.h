@@ -613,6 +613,15 @@ public:
      * @return Returns ERRCODE_SUCCESS if Unsubscribe error changed succeed.
      */
     LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
+
+    /**
+     * @brief Obtain last known location.
+     *
+     * @param loc Indicates the last known location information.
+     * @return Returns ERRCODE_SUCCESS if obtain last known location succeed.
+     */
+    LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
+
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<LocatorProxy> GetProxy();
     bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);

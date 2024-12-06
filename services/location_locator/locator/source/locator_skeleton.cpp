@@ -131,6 +131,10 @@ void LocatorAbilityStub::ConstructLocatorEnhanceHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return PreReportLocationError(data, reply, identity);
         };
+    locatorHandleMap_[LocatorInterfaceCode::GET_CURRENT_WIFI_BSSID_FOR_LOCATING] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreGetCurrentWifiBssidForLocating(data, reply, identity);
+        };
 }
 
 void LocatorAbilityStub::ConstructLocatorMockHandleMap()
@@ -1340,6 +1344,23 @@ int LocatorAbilityStub::PreReportLocationError(MessageParcel &data, MessageParce
     std::string errMsg = data.ReadString();
     std::string uuid = data.ReadString();
     locatorAbility->ReportLocationError(uuid, errCode);
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreGetCurrentWifiBssidForLocating(
+    MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    std::string bssid;
+    LocationErrCode errorCode = locatorDataManager->GetCurrentWifiBssidForLocating(bssid);
+    reply.WriteInt32(errorCode);
+    reply.WriteString16(Str8ToStr16(bssid));
     return ERRCODE_SUCCESS;
 }
 

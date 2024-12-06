@@ -70,7 +70,8 @@ enum class LocatorInterfaceCode {
     REG_LOCATION_ERROR = 48,
     UNREG_LOCATION_ERROR = 49,
     REPORT_LOCATION_ERROR = 50,
-    ENABLE_ABILITY_BY_USERID = 51
+    ENABLE_ABILITY_BY_USERID = 51,
+    GET_CURRENT_WIFI_BSSID_FOR_LOCATING = 52
 };
 
 enum class GeoConvertInterfaceCode {
