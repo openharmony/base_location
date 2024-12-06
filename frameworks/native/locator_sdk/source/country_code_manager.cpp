@@ -82,6 +82,7 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
     if (countryCodeCallbacksMap_.size() <= MAX_COUNTRY_CODE_CALLBACKS_NUM) {
         countryCodeCallbacksMap_[callback] = identity;
     } else {
+        lock.unlock();
         LBSLOGE(COUNTRY_CODE, "RegisterCountryCodeCallback num max");
         return;
     }
