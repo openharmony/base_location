@@ -280,8 +280,8 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
     }
 
     auto list = &(mapIter->second);
-    LBSLOGD(REQUEST_MANAGER, "%{public}s ability current request size %{public}s",
-        abilityName.c_str(), std::to_string(list->size()).c_str());
+    LBSLOGD(REQUEST_MANAGER, "%{public}s ability current request size %{public}zu",
+        abilityName.c_str(), list->size());
     if (shouldInsert) {
         list->push_back(request);
         HandleChrEvent(*list);
@@ -298,8 +298,8 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
             }
         }
     }
-    LBSLOGD(REQUEST_MANAGER, "%{public}s ability request size %{public}s",
-        abilityName.c_str(), std::to_string(list->size()).c_str());
+    LBSLOGD(REQUEST_MANAGER, "%{public}s ability request size %{public}zu",
+        abilityName.c_str(), list->size());
 }
 
 void RequestManager::HandleChrEvent(std::list<std::shared_ptr<Request>> requests)
@@ -355,7 +355,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         HookUtils::ExecuteHookWhenStopLocation(request);
         LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
     }
-    LBSLOGD(REQUEST_MANAGER, "get %{public}s dead request", std::to_string(deadRequests->size()).c_str());
+    LBSLOGD(REQUEST_MANAGER, "get %{public}zu dead request", deadRequests->size());
     // update request map
     if (deadRequests->size() == 0) {
         lock.unlock();
@@ -421,8 +421,8 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
         LBSLOGD(REQUEST_MANAGER, "add pid:%{public}d uid:%{public}d %{public}s", request->GetPid(), request->GetUid(),
             request->GetPackageName().c_str());
     }
-    LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}s) work record:%{public}s",
-        abilityName.c_str(), std::to_string(list.size()).c_str(), workRecord->ToString().c_str());
+    LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}zu) work record:%{public}s",
+        abilityName.c_str(), list.size(), workRecord->ToString().c_str());
 
     ProxySendLocationRequest(abilityName, *workRecord);
 }
@@ -697,8 +697,8 @@ void RequestManager::RegisterLocationErrorCallback(
         LBSLOGE(LOCATOR, "RegisterLocationErrorCallback num max");
         return;
     }
-    LBSLOGD(LOCATOR, "after RegisterLocationErrorCallback, callback size:%{public}s",
-        std::to_string(locationErrorCallbackMap_.size()).c_str());
+    LBSLOGD(LOCATOR, "after RegisterLocationErrorCallback, callback size:%{public}zu",
+        locationErrorCallbackMap_.size());
 }
 
 void RequestManager::UnRegisterLocationErrorCallback(
@@ -712,8 +712,8 @@ void RequestManager::UnRegisterLocationErrorCallback(
         locatorErrorCallback->RemoveDeathRecipient(locatorErrRequest->GetLocatorErrCallbackRecipient());
         locationErrorCallbackMap_.erase(iter);
     }
-    LBSLOGD(LOCATOR, "after UnRegisterLocationErrorCallback, callback size:%{public}s",
-        std::to_string(locationErrorCallbackMap_.size()).c_str());
+    LBSLOGD(LOCATOR, "after UnRegisterLocationErrorCallback, callback size:%{public}zu",
+        locationErrorCallbackMap_.size());
 }
 
 void RequestManager::ReportLocationError(const int errorCode, std::shared_ptr<Request> request)
