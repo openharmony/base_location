@@ -872,6 +872,8 @@ std::string GetErrorMsgByCode(int code)
         {LocationErrCode::ERRCODE_NO_RESPONSE, "No response to the request."},
         {LocationErrCode::ERRCODE_GEOFENCE_EXCEED_MAXIMUM, "The number of geofences exceeds the maximum."},
         {LocationErrCode::ERRCODE_GEOFENCE_INCORRECT_ID, "Failed to delete a geofence due to an incorrect ID."},
+        {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
+            "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."}
     };
 
     auto iter = errorCodeMap.find(code);
