@@ -25,8 +25,8 @@ ohos_hap("location_dialog_hap") {
   publicity_file = "publicity.xml"
   certificate_profile = "signature/locationdialog.p7b"
   hap_name = "LocationDialog"
-  subsystem_name = "application"
-  part_name = "prebuilt_hap"
+  subsystem_name = "location"
+  part_name = "location"
   module_install_dir = "app/LocationDialog"
   if (defined(sign_hap_py_path)) {
     certificate_profile = "${certificate_profile_path}"
