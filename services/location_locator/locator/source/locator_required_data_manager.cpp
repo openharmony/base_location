@@ -16,6 +16,7 @@
 #include "location_log.h"
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
+#include "wifi_device.h"
 #endif
 #include "iservice_registry.h"
 
@@ -355,6 +356,36 @@ bool LocatorRequiredDataManager::IsConnecting()
         return true;
     }
     return false;
+}
+
+LocationErrCode LocatorRequiredDataManager::GetCurrentWifiBssidForLocating(std::string& bssid)
+{
+#ifdef WIFI_ENABLE
+    auto wifiDeviceSharedPtr = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    Wifi::WifiDevice* wifiDevicePtr = wifiDeviceSharedPtr.get();
+    if (wifiDevicePtr == nullptr) {
+        LBSLOGE(LOCATOR, "Enter WifiEnhanceNewUtils:: wifiDevicePtr is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    OHOS::Wifi::WifiLinkedInfo linkedInfo;
+    ErrCode ret = wifiDevicePtr->GetLinkedInfo(linkedInfo);
+    if (ret == Wifi::WIFI_OPT_STA_NOT_OPENED) {
+        LBSLOGE(LOCATOR, "Enter WifiEnhanceNewUtils::GetLinkedInfo fail: %{public}d", ret);
+        return ERRCODE_WIFI_IS_NOT_CONNECTED;
+    }
+    if (ret != Wifi::WIFI_OPT_SUCCESS) {
+        LBSLOGE(LOCATOR, "Enter WifiEnhanceNewUtils::GetLinkedInfo fail: %{public}d", ret);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (linkedInfo.bssid.size() == 0) {
+        LBSLOGE(LOCATOR, "linkedInfo.bssid.size() is 0");
+        return ERRCODE_WIFI_IS_NOT_CONNECTED;
+    }
+    bssid = linkedInfo.bssid;
+    return ERRCODE_SUCCESS;
+#else
+    return ERRCODE_NOT_SUPPORTED;
+#endif
 }
 
 ScanHandler::ScanHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner) {}

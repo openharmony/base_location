@@ -101,6 +101,7 @@ private:
     int PreRegisterLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreReportLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreGetCurrentWifiBssidForLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
 
 private:
     LocatorMsgHandleMap locatorHandleMap_;

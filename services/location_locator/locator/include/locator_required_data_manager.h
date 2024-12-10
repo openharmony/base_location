@@ -199,6 +199,7 @@ public:
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
     bool IsConnecting();
     static LocatorRequiredDataManager* GetInstance();
+    LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
 
 private:
     int timeInterval_ = 0;

@@ -126,6 +126,8 @@ enum LocationErrCode {
     ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
     ERRCODE_SCAN_FAIL = 3301800,              /* Failed to start WiFi or Bluetooth scanning. */
+    ERRCODE_WIFI_IS_NOT_CONNECTED = 3301900,
+        /* Failed to obtain the hotpot MAC address because the Wi-Fi is not connected. */
     ERRCODE_GEOFENCE_EXCEED_MAXIMUM = 3301601, /* The number of geofences exceeds the maximum. */
     ERRCODE_GEOFENCE_INCORRECT_ID = 3301602 /* Failed to delete a geofence due to an incorrect ID. */
 };

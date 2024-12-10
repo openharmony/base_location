@@ -59,6 +59,7 @@ napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
 void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
 void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId);
 sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId);
+napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info);
 #endif
 }  // namespace Location
 }  // namespace OHOS

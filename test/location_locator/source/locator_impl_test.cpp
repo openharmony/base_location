@@ -689,5 +689,20 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityForUser, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(true, DEFAULT_USER));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser end");
 }
+
+HWTEST_F(LocatorImplTest, GetCurrentWifiBssidForLocating, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, GetCurrentWifiBssidForLocating, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] GetCurrentWifiBssidForLocating begin");
+    std::string bssid;
+    auto errCode = locatorImpl_->GetCurrentWifiBssidForLocating(bssid);
+    if (errCode == ERRCODE_SUCCESS) {
+        EXPECT_NE(0, bssid.size());
+    } else {
+        EXPECT_EQ(0, bssid.size());
+    }
+    LBSLOGI(LOCATOR, "[LocatorImplTest] GetCurrentWifiBssidForLocating end");
+}
 }  // namespace Location
 }  // namespace OHOS
