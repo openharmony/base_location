@@ -164,6 +164,10 @@ ohos_shared_library("lbsservice_locator") {
     defines += [ "LOCATION_HICOLLIE_ENABLE" ]
   }
 
+  if (!location_sa_recycle_strategy_low_memory) {
+    defines += [ "FEATURE_DYNAMIC_OFFLOAD" ]
+  }
+
   # Used to control the export of dynamic library symbols.
   version_script = "liblbsservice_locator_version_script.txt"
 
@@ -274,6 +278,10 @@ ohos_static_library("lbsservice_locator_static") {
   if (location_hicollie_enable) {
     external_deps += [ "hicollie:libhicollie" ]
     defines += [ "LOCATION_HICOLLIE_ENABLE" ]
+  }
+
+  if (!location_sa_recycle_strategy_low_memory) {
+    defines += [ "FEATURE_DYNAMIC_OFFLOAD" ]
   }
 
   part_name = "location"
