@@ -11,16 +11,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/ohos/sa_profile/sa_profile.gni")
 
 ohos_sa_profile("location_sa_profile") {
-  sources = [
-    "2801.json",
-    "2802.json",
-    "2803.json",
-    "2804.json",
-    "2805.json",
-  ]
+  if (location_sa_recycle_strategy_low_memory) {
+    sources = [
+      "2801.json",
+      "2802.json",
+      "2803.json",
+      "2804.json",
+      "2805.json",
+    ]
+  } else {
+    sources = [
+      "2801_dynamic_offload.json",
+      "2802_dynamic_offload.json",
+      "2803_dynamic_offload.json",
+      "2804_dynamic_offload.json",
+      "2805_dynamic_offload.json",
+    ]
+  }
 
   subsystem_name = "location"
 }

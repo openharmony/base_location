@@ -27,7 +27,8 @@
             "location_feature_with_gnss",
             "location_feature_with_network",
             "location_feature_with_passive",
-            "location_feature_with_jsstack"
+            "location_feature_with_jsstack",
+            "location_sa_recycle_strategy_low_memory"
         ],
         "adapted_system_type": [
             "standard"
