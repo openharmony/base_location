@@ -467,7 +467,8 @@ int LocatorAbilityStub::PreIsGeoConvertAvailable(MessageParcel &data, MessagePar
 int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    locatorAbility->GetAddressByCoordinate(data, reply, identity.GetBundleName());
+    locatorAbility->GetAddressByCoordinate(data, reply,
+        identity.GetBundleName().size() > 0 ? identity.GetBundleName() : std::to_string(identity.GetUid()));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -476,7 +477,8 @@ int LocatorAbilityStub::PreGetAddressByCoordinate(MessageParcel &data, MessagePa
 int LocatorAbilityStub::PreGetAddressByLocationName(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    locatorAbility->GetAddressByLocationName(data, reply, identity.GetBundleName());
+    locatorAbility->GetAddressByLocationName(data, reply,
+        identity.GetBundleName().size() > 0 ? identity.GetBundleName() : std::to_string(identity.GetUid()));
     return ERRCODE_SUCCESS;
 }
 #endif
