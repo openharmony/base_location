@@ -83,6 +83,26 @@
         {
             "name":"wifi_cdd_notify_yes_button",
             "value":"[TS_962318]_Connect"
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"[TS_993891]_Tap to connect to \"%s\"."
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"[TS_993890]_Found a better WLAN network"
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"[TS_993893]_Deny"
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"[TS_993892]_Allow"
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"[TS_993894]_Allow connection to %s using the password for the current WLAN network?"
         }
     ]
 }
