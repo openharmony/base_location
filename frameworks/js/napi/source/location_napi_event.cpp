@@ -655,9 +655,9 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
         return false;
     }
 #else
-    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", false);
     NAPI_ASSERT_BASE(env, CheckIfParamIsFunctionType(env, argv[PARAM1]),
-        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+        "callback should be function, mismatch for param.", false);
 #endif
     if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
         LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -696,9 +696,9 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
         return UndefinedNapiValue(env);
     }
 #else
-    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", false);
     NAPI_ASSERT_BASE(env, CheckIfParamIsFunctionType(env, argv[PARAM2]),
-        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+        "callback should be function, mismatch for param.", false);
 #endif
 #ifndef ENABLE_NAPI_MANAGER
     if (!g_locatorProxy->IsLocationEnabled()) {
@@ -742,9 +742,9 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
         return UndefinedNapiValue(env);
     }
 #else
-    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", false);
     NAPI_ASSERT_BASE(env, CheckIfParamIsFunctionType(env, argv[PARAM1]),
-        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+        "callback should be function, mismatch for param.", false);
 #endif
     if (g_gnssStatusInfoCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
         LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -786,9 +786,9 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
         return false;
     }
 #else
-    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", false);
     NAPI_ASSERT_BASE(env, CheckIfParamIsFunctionType(env, argv[PARAM2]),
-        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+        "callback should be function, mismatch for param.", false);
     if (!g_locatorProxy->IsLocationEnabled()) {
         LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
         return false;
@@ -831,9 +831,9 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
         return false;
     }
 #else
-    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", false);
     NAPI_ASSERT_BASE(env, CheckIfParamIsFunctionType(env, argv[PARAM1]),
-        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+        "callback should be function, mismatch for param.", false);
 #endif
     if (g_nmeaCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
         LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -870,9 +870,9 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
         return false;
     }
 #else
-    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_ASSERT_BASE(env, argc == PARAM2, "number of parameters is wrong", false);
     NAPI_ASSERT_BASE(env, CheckIfParamIsFunctionType(env, argv[PARAM1]),
-        "callback should be function, mismatch for param.", INPUT_PARAMS_ERROR);
+        "callback should be function, mismatch for param.", false);
 #endif
     if (g_countryCodeCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
         LBSLOGE(LOCATION_NAPI, "This request already exists");
@@ -905,7 +905,7 @@ bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const n
         return false;
     }
 #else
-    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", INPUT_PARAMS_ERROR);
+    NAPI_ASSERT_BASE(env, argc == PARAM3, "number of parameters is wrong", false);
     if (!g_locatorProxy->IsLocationEnabled()) {
         LBSLOGE(LOCATION_NAPI, "location switch is off, just return.");
         return false;

@@ -242,8 +242,8 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         SetValueInt64(env, "rssi", replyList[i]->GetBluetoothScanInfo()->GetRssi(), blueToothObj);
         SetValueInt64(env, "timestamp", replyList[i]->GetBluetoothScanInfo()->GetTimeStamp(), blueToothObj);
 
-        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), napi_generic_failure);
-        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), napi_generic_failure);
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), false);
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), false);
         napi_status status = napi_set_element(env, arrayResult, idx++, eachObj);
         if (status != napi_ok) {
             LBSLOGE(LOCATING_DATA_CALLBACK, "set element error: %{public}d, idx: %{public}d", status, idx - 1);
