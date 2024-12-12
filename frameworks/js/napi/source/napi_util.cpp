@@ -334,8 +334,8 @@ int JsObjToCommand(const napi_env& env, const napi_value& object,
     if (commandConfig == nullptr) {
         return COMMON_ERROR;
     }
-    CHK_ERROR_CODE("scenario", JsObjectToInt(env, object, "scenario", commandConfig->scenario), false);
-    CHK_ERROR_CODE("command", JsObjectToString(env, object, "command", MAX_BUF_LEN, commandConfig->command), false);
+    CHK_ERROR_CODE("scenario", JsObjectToInt(env, object, "scenario", commandConfig->scenario), true);
+    CHK_ERROR_CODE("command", JsObjectToString(env, object, "command", MAX_BUF_LEN, commandConfig->command), true);
     return SUCCESS;
 }
 
@@ -351,7 +351,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     int bufLen = MAX_BUF_LEN;
     std::string country = "";
     CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", bufLen, locale), false);
-    CHK_ERROR_CODE("description", JsObjectToString(env, object, "description", bufLen, description), false);
+    CHK_ERROR_CODE("description", JsObjectToString(env, object, "description", bufLen, description), true);
     if (description == "") {
         LBSLOGE(LOCATOR_STANDARD, "The required description field should not be empty.");
         return INPUT_PARAMS_ERROR;
@@ -398,8 +398,8 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     std::string locale = "";
     std::string country = "";
 
-    CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), false);
-    CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), false);
+    CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
+    CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
     CHK_ERROR_CODE("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
     CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale), false); // max bufLen
     CHK_ERROR_CODE("country", JsObjectToString(env, object, "country", MAX_BUF_LEN, country), false);
