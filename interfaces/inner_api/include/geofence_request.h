@@ -88,6 +88,10 @@ public:
 
     void SetAppAliveStatus(bool appAliveStatus);
 
+    int64_t GetRequestExpirationTime();
+
+    void SetRequestExpirationTime(int64_t requestExpirationTime);
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
@@ -104,6 +108,7 @@ private:
     AbilityRuntime::WantAgent::WantAgent wantAgent_;
     std::string bundleName_;
     bool appAliveStatus_;
+    int64_t requestExpirationTime_ = 0;
     mutable std::mutex geofenceRequestMutex_;
 };
 } // namespace Location

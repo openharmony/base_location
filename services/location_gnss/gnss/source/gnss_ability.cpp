@@ -83,6 +83,7 @@ constexpr int32_t FENCE_MAX_ID = 1000000;
 constexpr int NLP_FIX_VALID_TIME = 2;
 const int64_t INVALID_TIME = 0;
 const int TIMEOUT_WATCHDOG = 60; // s
+const int64_t MILL_TO_NANOS = 1000000;
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -720,6 +721,8 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         LBSLOGE(GNSS, "register an invalid callback");
         return false;
     }
+    auto geofence = request->GetGeofence();
+    request->SetRequestExpirationTime(CommonUtils::GetSinceBootTime() + geofence.expiration * MILL_TO_NANOS);
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
@@ -859,6 +862,15 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         LBSLOGE(GNSS, "request is nullptr");
         return;
     }
+    if (CommonUtils::GetSinceBootTime() > request->GetRequestExpirationTime()) {
+        LBSLOGE(GNSS, "request is expiration");
+        if (gnssHandler_ != nullptr) {
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+                static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE), request);
+            gnssHandler_->SendEvent(event);
+        }
+        return;
+    }
     auto callback = request->GetGeofenceTransitionCallback();
     if (callback == nullptr) {
         LBSLOGE(GNSS, "callback is nullptr");
@@ -900,9 +912,9 @@ std::shared_ptr<GeofenceRequest> GnssAbility::GetGeofenceRequestByFenceId(int fe
             return request;
         }
     }
-    return nullptr;
     LBSLOGE(GNSS, "can not get geofence request by fenceId, fenceId:%{public}d",
         fenceId);
+    return nullptr;
 }
 
 bool GnssAbility::ExecuteFenceProcess(

@@ -166,6 +166,16 @@ bool GeofenceRequest::GetAppAliveStatus()
     return appAliveStatus_;
 }
 
+int64_t GeofenceRequest::GetRequestExpirationTime()
+{
+    return requestExpirationTime_;
+}
+
+void GeofenceRequest::SetRequestExpirationTime(int64_t requestExpirationTime)
+{
+    requestExpirationTime_ = requestExpirationTime;
+}
+
 void GeofenceRequest::SetAppAliveStatus(bool appAliveStatus)
 {
     appAliveStatus_ = appAliveStatus;
