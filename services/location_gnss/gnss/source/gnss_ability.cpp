@@ -379,6 +379,10 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         SetAgnssServer();
 #endif
         StartGnss();
+        LocatorRequestStruct locatorRequestStruct;
+        locatorRequestStruct.bundleName = workRecord.GetName(0);
+        LocationErrCode errorCode = HookUtils::ExecuteHook(LocationProcessStage::GNSS_REQUEST_RECORD_PROCESS,
+            (void *)&locatorRequestStruct, nullptr);
     } else {
         // GNSS will stop only if all requests have stopped
         if (GetRequestNum() == 0) {
