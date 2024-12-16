@@ -129,11 +129,17 @@
     },
     {
       "name":"wifipro_auto_connect_dialog_ok_button",
-      "value":"Allow"
+      "value":"Allow",
+      "attr":{
+          "priority":"translate"
+      }
     },
     {
       "name":"wifipro_auto_connect_dialog_no_button",
-      "value":"Deny"
+      "value":"Deny",
+      "attr":{
+          "priority":"translate"
+      }
     },
     {
       "name":"wifipro_better_network_pop_up_title",
