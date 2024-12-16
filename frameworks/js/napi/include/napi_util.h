@@ -104,11 +104,11 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
     int errorCode = (theCall);                                                                    \
     if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {                           \
         LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed.");                            \
-        return false;                                                                         \
+        return errorCode;                                                                         \
     }                                                                                             \
     if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
         LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
-        return false;                                                                \
+        return INPUT_PARAMS_ERROR;                                                                \
     }                                                                                             \
 }
 
@@ -117,11 +117,11 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
     int errorCode = (theCall);                                                                    \
     if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {                           \
         LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed.");                            \
-        return errorCode;                                                                         \
+        return false;                                                                             \
     }                                                                                             \
     if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
         LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
-        return INPUT_PARAMS_ERROR;                                                                \
+        return false;                                                                             \
     }                                                                                             \
 }
 
