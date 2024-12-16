@@ -398,11 +398,11 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     std::string locale = "";
     std::string country = "";
 
-    CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
-    CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
-    CHK_ERROR_CODE("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
-    CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale), false); // max bufLen
-    CHK_ERROR_CODE("country", JsObjectToString(env, object, "country", MAX_BUF_LEN, country), false);
+    CHK_CALL_ERROR("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
+    CHK_CALL_ERROR("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
+    CHK_CALL_ERROR("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
+    CHK_CALL_ERROR("locale", JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale), false); // max bufLen
+    CHK_CALL_ERROR("country", JsObjectToString(env, object, "country", MAX_BUF_LEN, country), false);
 
     if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
         return false;
