@@ -121,11 +121,11 @@
       "value": "Connect"
     },
     {
-        "name":"wifipro_auto_connect_dialog_context",
-        "value":"Allow connection to %s using the password for the current WLAN network?",
-        "attr":{
-            "priority":"translate"
-        }
+      "name":"wifipro_auto_connect_dialog_context",
+      "value":"Allow connection to %s using the password for the current WLAN network?",
+      "attr":{
+          "priority":"translate"
+      }
     },
     {
       "name":"wifipro_auto_connect_dialog_ok_button",
