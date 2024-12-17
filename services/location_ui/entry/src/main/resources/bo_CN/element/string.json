@@ -83,6 +83,41 @@
         {
             "name":"wifi_cdd_notify_yes_button",
             "value":"བེད་སྤྱོད་བྱེད།"
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"བརྡབས་ནས་༼%s༽ལ་སྦྲེལ་རོགས།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"WLAN དྲ་རྒྱ་དེ་བས་ལེགས་པ་ཞིག་རྙེད།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"དང་ལེན་མི་བྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"མོས་མཐུན།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"མིག་སྔའི་ WLAN དྲ་རྒྱའི་གསང་བའི་ལྡེ་མིག་བཀོལ་སྤྱོད་ཚོད་ལྟ་བྱ་རྒྱུ་དབང་སྤྲོད་བྱས་ནས་ %s ལ་སྦྲེལ་མཐུད་བྱེད་པ།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

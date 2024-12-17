@@ -83,6 +83,41 @@
         {
             "name":"wifi_cdd_notify_yes_button",
             "value":"使用"
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"輕觸以連線「%s」",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"發現更佳 WLAN 網絡",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"拒絕",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"同意",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"授權嘗試使用目前 WLAN 網絡密鑰連線 %s。",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
