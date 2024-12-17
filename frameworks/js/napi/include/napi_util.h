@@ -112,19 +112,6 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
     }                                                                                             \
 }
 
-#define CHK_CALL_ERROR(type, theCall, isRequired)                                                 \
-{                                                                                                 \
-    int errorCode = (theCall);                                                                    \
-    if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {                           \
-        LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed.");                            \
-        return false;                                                                             \
-    }                                                                                             \
-    if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
-        LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
-        return false;                                                                             \
-    }                                                                                             \
-}
-
 #define DELETE_SCOPE_CONTEXT_WORK(env, scope, context, work) \
 {                                                            \
     if ((env) != nullptr && (scope) != nullptr) {            \
