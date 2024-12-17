@@ -54,7 +54,7 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
 int JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig);
 int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
-bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
+int JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 int JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef);
 int JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
@@ -109,19 +109,6 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
     if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
         LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
         return INPUT_PARAMS_ERROR;                                                                \
-    }                                                                                             \
-}
-
-#define CHK_CALL_ERROR(type, theCall, isRequired)                                                 \
-{                                                                                                 \
-    int errorCode = (theCall);                                                                    \
-    if (errorCode == COMMON_ERROR || errorCode == INPUT_PARAMS_ERROR) {                           \
-        LBSLOGE(LOCATOR_STANDARD, "Js Object to other types failed.");                            \
-        return false;                                                                             \
-    }                                                                                             \
-    if ((isRequired) && errorCode == PARAM_IS_EMPTY) {                                            \
-        LBSLOGE(LOCATOR_STANDARD, "The required #%{public}s field should not be empty.", (type)); \
-        return false;                                                                             \
     }                                                                                             \
 }
 

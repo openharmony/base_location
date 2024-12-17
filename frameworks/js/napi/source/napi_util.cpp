@@ -390,7 +390,7 @@ int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, Message
     return SUCCESS;
 }
 
-bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
+int JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel)
 {
     double latitude = 0;
     double longitude = 0;
@@ -398,20 +398,20 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     std::string locale = "";
     std::string country = "";
 
-    CHK_CALL_ERROR("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
-    CHK_CALL_ERROR("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
-    CHK_CALL_ERROR("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
-    CHK_CALL_ERROR("locale", JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale), false); // max bufLen
-    CHK_CALL_ERROR("country", JsObjectToString(env, object, "country", MAX_BUF_LEN, country), false);
+    CHK_ERROR_CODE("latitude", JsObjectToDouble(env, object, "latitude", latitude), true);
+    CHK_ERROR_CODE("longitude", JsObjectToDouble(env, object, "longitude", longitude), true);
+    CHK_ERROR_CODE("maxItems", JsObjectToInt(env, object, "maxItems", maxItems), false);
+    CHK_ERROR_CODE("locale", JsObjectToString(env, object, "locale", MAX_BUF_LEN, locale), false); // max bufLen
+    CHK_ERROR_CODE("country", JsObjectToString(env, object, "country", MAX_BUF_LEN, country), false);
 
     if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
-        return false;
+        return INPUT_PARAMS_ERROR;
     }
     if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
-        return false;
+        return INPUT_PARAMS_ERROR;
     }
     if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
-        return false;
+        return COMMON_ERROR;
     }
     dataParcel.WriteString16(Str8ToStr16(locale)); // locale
     dataParcel.WriteDouble(latitude); // latitude
@@ -419,7 +419,7 @@ bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object,
     dataParcel.WriteInt32(maxItems); // maxItems
     dataParcel.WriteString16(Str8ToStr16(CommonUtils::GenerateUuid())); // transId
     dataParcel.WriteString16(Str8ToStr16(country)); // country
-    return true;
+    return SUCCESS;
 }
 
 napi_value GetArrayProperty(const napi_env& env, const napi_value& object, const std::string propertyName)

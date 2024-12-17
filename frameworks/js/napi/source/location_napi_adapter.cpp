@@ -422,11 +422,11 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     NAPI_CALL(env, napi_create_string_latin1(env, "getAddressesFromLocation",
         NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-    bool ret = JsObjToReverseGeoCodeRequest(env, argv[0], asyncContext->reverseGeoCodeRequest);
+    int ret = JsObjToReverseGeoCodeRequest(env, argv[0], asyncContext->reverseGeoCodeRequest);
 #ifdef ENABLE_NAPI_MANAGER
-    asyncContext->errCode = ret ? ERRCODE_SUCCESS : ERRCODE_INVALID_PARAM;
+    asyncContext->errCode = (ret == SUCCESS) ? ERRCODE_SUCCESS : ERRCODE_INVALID_PARAM;
 #else
-    asyncContext->errCode = ret ? SUCCESS : INPUT_PARAMS_ERROR;
+    asyncContext->errCode = (ret == SUCCESS) ? SUCCESS : INPUT_PARAMS_ERROR;
 #endif
 #ifdef ENABLE_NAPI_MANAGER
     if (asyncContext->errCode != SUCCESS) {
