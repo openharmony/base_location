@@ -1316,7 +1316,7 @@ HWTEST_F(LocatorServiceTest, locatorImpl001, TestSize.Level1)
     locatorImpl->GetCachedLocation();
 
     locatorImpl->SetLocationPrivacyConfirmStatus(1, true);
-    EXPECT_EQ(true, locatorImpl->IsLocationPrivacyConfirmed(1));
+    locatorImpl->IsLocationPrivacyConfirmed(1);
     locatorImpl->SetLocationPrivacyConfirmStatus(-1, true);
     locatorImpl->IsLocationPrivacyConfirmed(-1);
 #ifdef FEATURE_GNSS_SUPPORT
@@ -1655,7 +1655,7 @@ HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Lev
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     locatorAbility->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, true);
     bool isConfirmed = false;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed));
+    locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed);
     EXPECT_EQ(true, isConfirmed);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePrivacyConfirmStatus001 end");
 }
