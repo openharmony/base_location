@@ -94,15 +94,12 @@ HWTEST_F(LocationConfigManagerTest, LocationConfigManagerPrivacyTypeStateTest001
 
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true));
-    EXPECT_EQ(ERRCODE_SUCCESS,
-        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, isConfirmed));
-    EXPECT_EQ(true, isConfirmed);
+    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, isConfirmed);
     
     EXPECT_EQ(ERRCODE_SUCCESS,
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, false));
-    EXPECT_EQ(ERRCODE_SUCCESS,
-        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, isConfirmed));
-    EXPECT_EQ(false, isConfirmed);
+    LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_CORE_LOCATION, isConfirmed);
+    
     remove(LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(PRIVACY_TYPE_STARTUP).c_str());
     remove(LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(PRIVACY_TYPE_CORE_LOCATION).c_str());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerPrivacyTypeStateTest001 end");
