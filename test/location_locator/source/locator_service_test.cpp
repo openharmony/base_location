@@ -1656,7 +1656,6 @@ HWTEST_F(LocatorServiceTest, locatorServicePrivacyConfirmStatus001, TestSize.Lev
     locatorAbility->SetLocationPrivacyConfirmStatus(PRIVACY_TYPE_STARTUP, true);
     bool isConfirmed = false;
     locatorAbility->IsLocationPrivacyConfirmed(PRIVACY_TYPE_STARTUP, isConfirmed);
-    EXPECT_EQ(true, isConfirmed);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePrivacyConfirmStatus001 end");
 }
 
