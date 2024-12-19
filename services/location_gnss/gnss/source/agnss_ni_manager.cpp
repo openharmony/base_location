@@ -29,7 +29,6 @@
 #include "notification_helper.h"
 #endif
 #include "securec.h"
-#include "sms_service_manager_client.h"
 #include "string_utils.h"
 #include "system_ability_definition.h"
 #include "ui_extension_ability_connection.h"
