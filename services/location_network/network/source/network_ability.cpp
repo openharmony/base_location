@@ -321,6 +321,15 @@ void NetworkAbility::DisconnectAbilityConnect()
         UnregisterNlpServiceDeathRecipient();
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         conn_ = nullptr;
+        std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
+        auto waitStatus = connectCondition_.wait_for(
+            uniqueLock, std::chrono::seconds(DISCONNECT_TIME_OUT), [this]() { return nlpServiceProxy_ == nullptr; });
+        if (!waitStatus) {
+            nlpServiceProxy_ = nullptr;
+            LBSLOGE(NETWORK, "disconnect cloudService timeout!");
+        } else {
+            LBSLOGD(NETWORK, "disconnect cloudService sucess!");
+        }
     }
 }
 
