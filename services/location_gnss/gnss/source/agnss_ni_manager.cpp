@@ -15,8 +15,10 @@
 
 #ifdef FEATURE_GNSS_SUPPORT
 #include "agnss_ni_manager.h"
-
+#ifdef SMS_MMS_ENABLE
 #include "call_manager_client.h"
+#include "sms_service_manager_client.h"
+#endif
 #include "gnss_ability.h"
 #include "idevmgr_hdi.h"
 #include "iservice_registry.h"
