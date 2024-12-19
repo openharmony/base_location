@@ -985,7 +985,6 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     HandleStartLocating(request, callback);
 #else
     if (NeedReportCacheLocation(request, callback)) {
-        LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
         if (requestConfig->GetScenario() != SCENE_NO_POWER &&
             requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
             SelfRequestManager::GetInstance()->StartSelfRequest();
@@ -1092,6 +1091,8 @@ bool LocatorAbility::ReportSingleCacheLocation(
         LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", recordResult);
         return false;
     }
+    LBSLOGI(LOCATOR, "report cache location to %{public}s, uuid: %{public}s",
+        request->GetPackageName().c_str(), request->GetUuid().c_str());
     callback->OnLocationReport(cacheLocation);
     requestManager_->DecreaseWorkingPidsCount(request->GetPid());
     if (requestManager_->IsNeedStopUsingPermission(request->GetPid())) {
@@ -1110,6 +1111,8 @@ bool LocatorAbility::ReportCacheLocation(
         LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
         return false;
     }
+    LBSLOGI(LOCATOR, "report cache location to %{public}s, uuid: %{public}s",
+        request->GetPackageName().c_str(), request->GetUuid().c_str());
     callback->OnLocationReport(cacheLocation);
     return false;
 }
@@ -1176,6 +1179,9 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
         }
     }
     // add location permission using record
+    LBSLOGW(REPORT_MANAGER, "report last location to %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",
+            identity.GetTokenId(), std::to_string(loc->GetTimeSinceBoot()).c_str(),
+            loc->GetLocationSourceType());
     locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_SUCCESS, identityInfo, 0);
     return ERRCODE_SUCCESS;
 }

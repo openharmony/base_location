@@ -86,8 +86,8 @@ void CountryCodeManager::RegisterCountryCodeCallback(const sptr<IRemoteObject>& 
         LBSLOGE(COUNTRY_CODE, "RegisterCountryCodeCallback num max");
         return;
     }
-    LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallbacksMap_ size:%{public}s",
-        identity.GetUid(), std::to_string(countryCodeCallbacksMap_.size()).c_str());
+    LBSLOGD(COUNTRY_CODE, "after uid:%{public}d register, countryCodeCallbacksMap_ size:%{public}zu",
+        identity.GetUid(), countryCodeCallbacksMap_.size());
     if (countryCodeCallbacksMap_.size() != 1) {
         lock.unlock();
         return;
@@ -110,8 +110,8 @@ void CountryCodeManager::UnregisterCountryCodeCallback(const sptr<IRemoteObject>
     if (iter != countryCodeCallbacksMap_.end()) {
         countryCodeCallbacksMap_.erase(iter);
     }
-    LBSLOGD(COUNTRY_CODE, "after unregister, countryCodeCallbacksMap_ size:%{public}s",
-        std::to_string(countryCodeCallbacksMap_.size()).c_str());
+    LBSLOGD(COUNTRY_CODE, "after unregister, countryCodeCallbacksMap_ size:%{public}zu",
+        countryCodeCallbacksMap_.size());
     if (countryCodeCallbacksMap_.size() != 0) {
         lock.unlock();
         return;
