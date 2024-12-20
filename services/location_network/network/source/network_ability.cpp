@@ -221,9 +221,6 @@ void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
 
 void NetworkAbility::NotifyDisConnected()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
-    nlpServiceProxy_ = nullptr;
-    connectCondition_.notify_all();
 }
 
 LocationErrCode NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
