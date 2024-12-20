@@ -54,7 +54,7 @@ void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
 int JsObjToCommand(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocationCommand>& commandConfig);
 int JsObjToGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
-bool JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
+int JsObjToReverseGeoCodeRequest(const napi_env& env, const napi_value& object, MessageParcel& dataParcel);
 int JsObjectToString(const napi_env& env, const napi_value& object,
     const char* fieldStr, const int bufLen, std::string& fieldRef);
 int JsObjectToDouble(const napi_env& env, const napi_value& object, const char* fieldStr, double& fieldRef);
