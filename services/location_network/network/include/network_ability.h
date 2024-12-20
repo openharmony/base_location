@@ -50,7 +50,7 @@ private:
     void HandleStopAllLocationRequests(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleLocationRequest(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSetMocked(const AppExecFwk::InnerEvent::Pointer& event);
-
+    void HandleClearServiceEvent(const AppExecFwk::InnerEvent::Pointer& event);
     NetworkEventHandleMap networkEventProcessMap_;
 };
 
@@ -96,6 +96,7 @@ public:
     void ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid);
     void RestartNlpRequests();
     void DisconnectAbilityConnect();
+    void ClearServiceProxy();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
