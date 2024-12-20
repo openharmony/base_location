@@ -57,6 +57,7 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         int lastState = appInfo->lastState;
         if (!PermissionManager::CheckIsSystemSa(tokenId) &&
             !CommonUtils::CheckAppForUser(uid, bundleName)) {
+            appInfo->lastState = DEFAULT_SWITCH_STATE;
             LBSLOGE(LOCATOR, "It is not a listener of Current user, no need to report. uid : %{public}d", uid);
             continue;
         }
