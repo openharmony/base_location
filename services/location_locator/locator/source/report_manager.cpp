@@ -224,13 +224,13 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     auto firstTokenId = request->GetFirstTokenId();
     auto tokenIdEx = request->GetTokenIdEx();
     auto uid =  request->GetUid();
-    auto pid =  request->GetPid();
     if (bundleName.length() == 0) {
         if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
             LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
         }
     }
-    if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid, pid) &&
+    if (request->GetRequestConfig()->GetFixNumber() == 0 &&
+        IsAppBackground(bundleName, tokenId, tokenIdEx, uid, request->GetPid()) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
