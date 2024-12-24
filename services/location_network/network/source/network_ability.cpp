@@ -46,6 +46,7 @@ namespace Location {
 const uint32_t EVENT_REPORT_MOCK_LOCATION = 0x0100;
 const uint32_t EVENT_RESTART_ALL_LOCATION_REQUEST = 0x0200;
 const uint32_t EVENT_STOP_ALL_LOCATION_REQUEST = 0x0300;
+const uint32_t EVENT_DISCONNECT_SERVICES = 0x0400;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const uint32_t DELAY_RESTART_MS = 500;
 const uint32_t DELAY_DINCONNECT_MS = 5 * 1000;
@@ -199,9 +200,17 @@ bool NetworkAbility::ReConnectNlpService()
 
 bool NetworkAbility::ResetServiceProxy()
 {
+    if (networkHandler_ == nullptr) {
+        return false;
+    }
+    networkHandler_->SendHighPriorityEvent(EVENT_DISCONNECT_SERVICES, 0, 0);
+    return true;
+}
+
+void NetworkAbility::ClearServiceProxy()
+{
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     nlpServiceProxy_ = nullptr;
-    return true;
 }
 
 void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
@@ -214,7 +223,6 @@ void NetworkAbility::NotifyConnected(const sptr<IRemoteObject>& remoteObject)
 void NetworkAbility::NotifyDisConnected()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
-    nlpServiceProxy_ = nullptr;
     connectCondition_.notify_all();
 }
 
@@ -322,6 +330,9 @@ void NetworkAbility::DisconnectAbilityConnect()
         UnregisterNlpServiceDeathRecipient();
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         conn_ = nullptr;
+        std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
+        nlpServiceProxy_ = nullptr;
+        LBSLOGD(NETWORK, "disconnect cloudService success!");
     }
 }
 
@@ -608,6 +619,8 @@ void NetworkHandler::InitNetworkEventProcessMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRestartAllLocationRequests(event); };
     networkEventProcessMap_[static_cast<uint32_t>(EVENT_STOP_ALL_LOCATION_REQUEST)] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleStopAllLocationRequests(event); };
+    networkEventProcessMap_[static_cast<uint32_t>(EVENT_DISCONNECT_SERVICES)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleClearServiceEvent(event); };
     networkEventProcessMap_[static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST)] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleLocationRequest(event); };
     networkEventProcessMap_[static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS)] =
@@ -667,6 +680,12 @@ void NetworkHandler::HandleLocationRequest(const AppExecFwk::InnerEvent::Pointer
         auto networkAbility = NetworkAbility::GetInstance();
         networkAbility->LocationRequest(*workrecord);
     }
+}
+
+void NetworkHandler::HandleClearServiceEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto networkAbility = NetworkAbility::GetInstance();
+    networkAbility->ClearServiceProxy();
 }
 
 void NetworkHandler::HandleSetMocked(const AppExecFwk::InnerEvent::Pointer& event)
