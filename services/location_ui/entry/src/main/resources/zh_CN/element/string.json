@@ -21,6 +21,18 @@
       "value": "label"
     },
     {
+      "name": "condition_netshare_hotspot_close",
+      "value": "热点已关闭"
+    },
+    {
+      "name": "stop_idle_tether_notification_message",
+      "value": "当前无设备连接热点，为增加续航时间，已关闭热点。"
+    },
+    {
+      "name": "wifi_tether_enable",
+      "value": "开启热点"
+    },
+    {
       "name": "ni_notify_title",
       "value": "定位请求"
     },

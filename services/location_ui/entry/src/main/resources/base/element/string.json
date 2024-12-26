@@ -17,6 +17,18 @@
       "value": "label"
     },
     {
+      "name": "condition_netshare_hotspot_close",
+      "value": "Hotspot disabled"
+    },
+    {
+      "name": "stop_idle_tether_notification_message",
+      "value": "No devices connected. Hotspot has been disabled. Battery life will be extended."
+    },
+    {
+      "name": "wifi_tether_enable",
+      "value": "Enable hotspot"
+    },
+    {
       "name": "ConfirmUIExtAbility_desc",
       "value": "agnss ni confirm dialog"
     },

@@ -47,6 +47,15 @@
         "type": "service",
         "visible": false,
         "exported": false
+      },
+      {
+        "name": "HotSpotServiceAbility",
+        "srcEntry": "./ets/serviceability/HotSpotServiceAbility.ets",
+        "description": "service",
+        "icon": "$media:app_icon",
+        "type": "service",
+        "visible": false,
+        "exported": false
       }
     ],
     "requestPermissions": [
