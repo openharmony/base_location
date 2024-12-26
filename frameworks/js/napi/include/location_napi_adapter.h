@@ -60,6 +60,9 @@ void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeof
 void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId);
 sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId);
 napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info);
+napi_value IsLocationEnabledByUserId(napi_env env, napi_callback_info info);
+napi_value EnableLocationByUserId(napi_env env, napi_callback_info info);
+napi_value DisableLocationByUserId(napi_env env, napi_callback_info info);
 #endif
 }  // namespace Location
 }  // namespace OHOS
