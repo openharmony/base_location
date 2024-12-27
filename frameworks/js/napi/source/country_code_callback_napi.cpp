@@ -24,6 +24,8 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_regCallbackMutex;
+static std::vector<napi_ref> g_registerCallbacks;
 CountryCodeCallbackNapi::CountryCodeCallbackNapi()
 {
     env_ = nullptr;
@@ -55,6 +57,27 @@ int CountryCodeCallbackNapi::OnRemoteRequest(
         }
     }
     return 0;
+}
+
+bool FindCountryCodeCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    auto iter = std::find(g_registerCallbacks.begin(), g_registerCallbacks.end(), cb);
+    if (iter == g_registerCallbacks.end()) {
+        return false;
+    }
+    return true;
+}
+
+void DeleteCountryCodeCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    for (auto iter = g_registerCallbacks.begin(); iter != g_registerCallbacks.end(); iter++) {
+        if (*iter == cb) {
+            iter = g_registerCallbacks.erase(iter);
+            break;
+        }
+    }
 }
 
 bool CountryCodeCallbackNapi::Send(const std::shared_ptr<CountryCode>& country)
@@ -109,12 +132,18 @@ void CountryCodeCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             CountryCodeContext *context = nullptr;
             napi_handle_scope scope = nullptr;
             if (work == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "work is nullptr!");
+                LBSLOGE(COUNTRY_CODE_CALLBACK, "work is nullptr!");
                 return;
             }
             context = static_cast<CountryCodeContext *>(work->data);
             if (context == nullptr || context->env == nullptr) {
-                LBSLOGE(LOCATOR_CALLBACK, "context is nullptr!");
+                LBSLOGE(COUNTRY_CODE_CALLBACK, "context is nullptr!");
+                delete work;
+                return;
+            }
+            if (!FindCountryCodeCallback(context->callback[0])) {
+                LBSLOGE(COUNTRY_CODE_CALLBACK, "no valid callback");
+                delete context;
                 delete work;
                 return;
             }
@@ -165,8 +194,12 @@ void CountryCodeCallbackNapi::SetEnv(napi_env env)
 
 void CountryCodeCallbackNapi::SetCallback(napi_ref cb)
 {
-    std::unique_lock<std::mutex> guard(mutex_);
-    handlerCb_ = cb;
+    {
+        std::unique_lock<std::mutex> guard(mutex_);
+        handlerCb_ = cb;
+    }
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    g_registerCallbacks.emplace_back(cb);
 }
 
 void CountryCodeCallbackNapi::DeleteHandler()
@@ -176,6 +209,7 @@ void CountryCodeCallbackNapi::DeleteHandler()
         LBSLOGE(COUNTRY_CODE_CALLBACK, "handler or env is nullptr.");
         return;
     }
+    DeleteCountryCodeCallback(handlerCb_);
     NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
 }

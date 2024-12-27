@@ -26,8 +26,8 @@
 
 namespace OHOS {
 namespace Location {
-bool FindSwitchRegCallback(napi_ref cb);
-void DeleteSwitchRegCallback(napi_ref cb);
+bool FindSwitchCallback(napi_ref cb);
+void DeleteSwitchCallback(napi_ref cb);
 class LocationSwitchCallbackNapi : public IRemoteStub<ISwitchCallback> {
 public:
     LocationSwitchCallbackNapi();
@@ -42,6 +42,8 @@ public:
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
     napi_ref GetHandleCb();
     void SetHandleCb(const napi_ref& handlerCb);
+    napi_env GetEnv();
+    void SetEnv(const napi_env& env);
 
     template <typename T>
     bool InitContext(T* context)
@@ -53,16 +55,6 @@ public:
         context->env = env_;
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
-    }
-
-    inline napi_env GetEnv() const
-    {
-        return env_;
-    }
-
-    inline void SetEnv(const napi_env& env)
-    {
-        env_ = env;
     }
 
     inline bool GetRemoteDied() const

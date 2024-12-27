@@ -26,6 +26,8 @@
 
 namespace OHOS {
 namespace Location {
+bool FindErrorCallback(napi_ref cb);
+void DeleteErrorCallback(napi_ref cb);
 class LocationErrorCallbackNapi : public IRemoteStub<ILocatorCallback> {
 public:
     LocationErrorCallbackNapi();
@@ -39,6 +41,10 @@ public:
     bool Send(int switchState);
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
+    napi_ref GetHandleCb();
+    void SetHandleCb(const napi_ref& handlerCb);
+    napi_env GetEnv();
+    void SetEnv(const napi_env& env);
 
     template <typename T>
     bool InitContext(T* context)
@@ -51,27 +57,6 @@ public:
         context->callback[SUCCESS_CALLBACK] = handlerCb_;
         return true;
     }
-
-    inline napi_env GetEnv() const
-    {
-        return env_;
-    }
-
-    inline void SetEnv(const napi_env& env)
-    {
-        env_ = env;
-    }
-
-    inline napi_ref GetHandleCb() const
-    {
-        return handlerCb_;
-    }
-
-    inline void SetHandleCb(const napi_ref& handlerCb)
-    {
-        handlerCb_ = handlerCb;
-    }
-
 private:
     napi_env env_;
     napi_ref handlerCb_;

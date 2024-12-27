@@ -23,6 +23,8 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_regCallbackMutex;
+static std::vector<napi_ref> g_registerCallbacks;
 LocationErrorCallbackNapi::LocationErrorCallbackNapi()
 {
     env_ = nullptr;
@@ -53,6 +55,55 @@ int LocationErrorCallbackNapi::OnRemoteRequest(
         }
     }
     return 0;
+}
+
+napi_env LocationErrorCallbackNapi::GetEnv()
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    return env_;
+}
+
+void LocationErrorCallbackNapi::SetEnv(const napi_env& env)
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    env_ = env;
+}
+
+napi_ref LocationErrorCallbackNapi::GetHandleCb()
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    return handlerCb_;
+}
+
+void LocationErrorCallbackNapi::SetHandleCb(const napi_ref& handlerCb)
+{
+    {
+        std::unique_lock<std::mutex> guard(mutex_);
+        handlerCb_ = handlerCb;
+    }
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    g_registerCallbacks.emplace_back(handlerCb);
+}
+
+bool FindErrorCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    auto iter = std::find(g_registerCallbacks.begin(), g_registerCallbacks.end(), cb);
+    if (iter == g_registerCallbacks.end()) {
+        return false;
+    }
+    return true;
+}
+
+void DeleteErrorCallback(napi_ref cb)
+{
+    std::unique_lock<std::mutex> guard(g_regCallbackMutex);
+    for (auto iter = g_registerCallbacks.begin(); iter != g_registerCallbacks.end(); iter++) {
+        if (*iter == cb) {
+            iter = g_registerCallbacks.erase(iter);
+            break;
+        }
+    }
 }
 
 bool LocationErrorCallbackNapi::Send(int32_t errorCode)
@@ -109,6 +160,12 @@ void LocationErrorCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 delete work;
                 return;
             }
+            if (!FindErrorCallback(context->callback[0])) {
+                LBSLOGE(LOCATION_ERR_CALLBACK, "no valid callback");
+                delete context;
+                delete work;
+                return;
+            }
             NAPI_CALL_RETURN_VOID(context->env, napi_open_handle_scope(context->env, &scope));
             napi_value jsEvent;
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_int32(context->env, context->errCode, &jsEvent),
@@ -158,6 +215,7 @@ void LocationErrorCallbackNapi::DeleteHandler()
         LBSLOGE(LOCATION_ERR_CALLBACK, "handler or env is nullptr.");
         return;
     }
+    DeleteErrorCallback(handlerCb_);
     NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
     handlerCb_ = nullptr;
 }
