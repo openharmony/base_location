@@ -48,6 +48,8 @@ enum class LocationProcessStage {
     NETWORK_SA_ADD_REQUEST_PROCESS,
     NETWORK_SA_REMOVE_REQUEST_PROCESS,
     GNSS_REQUEST_RECORD_PROCESS,
+	FUSION_REPORT_PROCESS,
+	GNSS_STATUS_REPORT_PROCESS,
 };
 
 typedef struct {
@@ -56,6 +58,17 @@ typedef struct {
     std::string abilityName;
     int retCode;
 } LocationSupplicantInfo;
+
+typedef struct {
+    Location location;
+    Location lastFuseLocation;
+    Location resultLocation;
+} LocationFusionInfo;
+
+typedef struct {
+    std::vector<float> cn0;
+    int64_t availableTimeStamp;
+} GnssStatusInfo;
 
 typedef struct {
     Location location;

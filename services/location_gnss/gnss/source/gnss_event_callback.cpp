@@ -24,6 +24,7 @@
 #include "location_log_event_ids.h"
 #include "common_hisysevent.h"
 #include "agnss_ni_manager.h"
+#include "hook_utils.h"
 
 #ifdef TIME_SERVICE_ENABLE
 #include "ntp_time_check.h"
@@ -153,6 +154,11 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
     lock.unlock();
     WriteLocationInnerEvent(RECEIVE_SATELLITESTATUSINFO, names, satelliteStatusInfos);
     gnssAbility->ReportSv(svStatus);
+    GnssStatusInfo statusInfo;
+    statusInfo.cn0 = info.carrierToNoiseDensitys;
+    statusInfo.availableTimeStamp = CommonUtils::GetCurrentTimeStamp() * MILLI_PER_SEC;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::GNSS_STATUS_REPORT_PROCESS, (void *)&statusInfo, nullptr);
     return ERR_OK;
 }
 

@@ -70,40 +70,19 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
     if (lastFuseLocation == nullptr) {
         return std::make_unique<Location>(*location);
     }
-    if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
-        if (CheckIfLastGnssLocationValid(location, std::make_unique<Location>(*lastFuseLocation)) &&
-            lastFuseLocation->GetSpeed() >= MAX_INDOOR_LOCATION_SPEED) {
-            return std::make_unique<Location>(*lastFuseLocation);
-        }
-        return std::make_unique<Location>(*location);
-    } else if (location->GetLocationSourceType() == LocationSourceType::GNSS_TYPE ||
-                location->GetLocationSourceType() == LocationSourceType::RTK_TYPE) {
-        if (location->GetSpeed() >= MAX_INDOOR_LOCATION_SPEED) {
-            return std::make_unique<Location>(*location);
-        }
-        if (CheckIfLastIndoorLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
-            return std::make_unique<Location>(*lastFuseLocation);
-        }
-    } else if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
-        if (CheckIfLastIndoorLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
-            return std::make_unique<Location>(*lastFuseLocation);
-        } else if (CheckIfLastGnssLocationValid(location, std::make_unique<Location>(*lastFuseLocation))) {
-            return std::make_unique<Location>(*lastFuseLocation);
+    LocationFusionInfo fusionInfo;
+    fusionInfo.location = *location;
+    fusionInfo.lastFuseLocation = *lastFuseLocation;
+    if (fusionInfo.location.GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
+        if (CheckIfLastGnssLocationValid(location, std::make_unique<Location>(fusionInfo.lastFuseLocation))) {
+            fusionInfo.resultLocation = fusionInfo.lastFuseLocation;
+        } else {
+            fusionInfo.resultLocation = fusionInfo.location;
         }
     }
-    return std::make_unique<Location>(*location);
-}
-
-bool FusionController::CheckIfLastIndoorLocationValid(const std::unique_ptr<Location>& location,
-    const std::unique_ptr<Location>& lastFuseLocation)
-{
-    if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE &&
-        ((location->GetTimeSinceBoot() / NANOS_PER_MILLI -
-        lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) < MAX_INDOOR_LOCATION_COMPARISON_MS)) {
-        return true;
-    } else {
-        return false;
-    }
+    HookUtils::ExecuteHook(
+        LocationProcessStage::FUSION_REPORT_PROCESS, (void *)&fusionInfo, nullptr);
+    return std::make_unique<Location>(fusionInfo.resultLocation);
 }
 
 bool FusionController::CheckIfLastGnssLocationValid(const std::unique_ptr<Location>& location,
