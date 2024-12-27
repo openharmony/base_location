@@ -25,6 +25,8 @@
 
 namespace OHOS {
 namespace Location {
+bool FindCountryCodeCallback(napi_ref cb);
+void DeleteCountryCodeCallback(napi_ref cb);
 class CountryCodeCallbackNapi : public IRemoteStub<ICountryCodeCallback> {
 public:
     CountryCodeCallbackNapi();

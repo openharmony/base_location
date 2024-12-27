@@ -850,7 +850,9 @@ napi_value NotificationNapi::GetConversationalMessageOtherInfo(
     std::shared_ptr<NotificationConversationalMessage> &message)
 {
     ANS_LOGD("enter");
-
+    if (message == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     bool hasProperty = false;
     char str[STR_MAX_SIZE] = {0};
