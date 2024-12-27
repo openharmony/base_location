@@ -34,11 +34,7 @@ public:
     static FusionController* GetInstance();
 
 private:
-    bool CheckIfLastIndoorLocationValid(const std::unique_ptr<Location>& location,
-        const std::unique_ptr<Location>& lastFuseLocation);
     bool CheckIfLastGnssLocationValid(const std::unique_ptr<Location>& location,
-        const std::unique_ptr<Location>& lastFuseLocation);
-    bool CheckIfLastRtkLocationValid(const std::unique_ptr<Location>& location,
         const std::unique_ptr<Location>& lastFuseLocation);
     uint32_t fusedFlag_ = 0;
     bool needReset_ = true;
