@@ -162,9 +162,9 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             return false;
         }
         LBSLOGW(REPORT_MANAGER, "report location to %{public}d, uuid : %{public}s, " \
-            "TimeSinceBoot : %{public}lld, SourceType : %{public}d",
+            "TimeSinceBoot : %{public}s, SourceType : %{public}d",
             request->GetTokenId(), request->GetUuid().c_str(),
-            finalLocation->GetTimeSinceBoot(), finalLocation->GetLocationSourceType());
+            std::to_string(finalLocation->GetTimeSinceBoot()).c_str(), finalLocation->GetLocationSourceType());
         locatorCallback->OnLocationReport(finalLocation);
         RequestManager::GetInstance()->UpdateLocationError(request);
     }
