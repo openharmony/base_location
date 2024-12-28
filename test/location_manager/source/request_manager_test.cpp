@@ -302,23 +302,6 @@ HWTEST_F(RequestManagerTest, UpdateUsingPermissionTest003, TestSize.Level1)
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingPermissionTest003 end");
 }
 
-HWTEST_F(RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "RequestManagerTest, HandlePermissionChangedTest001, TestSize.Level1";
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePermissionChangedTest001 begin");
-    requestManager_->HandleStartLocating(request_);
-    auto locatorAbility = LocatorAbility::GetInstance();
-    EXPECT_NE(0, locatorAbility->GetActiveRequestNum());
-    requestManager_->HandlePermissionChanged(request_->GetTokenId());
-    auto callback = request_->GetLocatorCallBack();
-    sptr<IRemoteObject> deadCallback = callback->AsObject();
-    locatorAbility->receivers_->insert(std::make_pair(deadCallback, std::list<std::shared_ptr<Request>>{request_}));
-    requestManager_->HandleStopLocating(callback);
-    requestManager_->HandlePermissionChanged(request_->GetTokenId());
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandlePermissionChangedTest001 end");
-}
-
 HWTEST_F(RequestManagerTest, DeleteRequestRecord001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

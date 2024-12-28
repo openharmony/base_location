@@ -49,6 +49,7 @@ private:
     bool IsSvUsed(const std::unique_ptr<SatelliteStatus> &sv, int index);
     void AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svid, int cN0Dbhz);
     void ReportDummySv(const std::unique_ptr<SatelliteStatus> &sv);
+    std::mutex svInfoMutex_;
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -28,6 +28,7 @@
 #include "i_locator_callback.h"
 #include "i_country_code_callback.h"
 #include "location.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -37,7 +38,7 @@ public:
     ~CountryCodeManager();
     std::shared_ptr<CountryCode> GetIsoCountryCode();
     void UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callback);
-    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    void RegisterCountryCodeCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity);
     void ReSubscribeEvent();
     void ReUnsubscribeEvent();
     bool IsCountryCodeRegistered();
@@ -80,7 +81,7 @@ private:
 
     std::shared_ptr<CountryCode> lastCountryByLocation_;
     std::shared_ptr<CountryCode> lastCountry_;
-    std::vector<sptr<ICountryCodeCallback>> countryCodeCallbacks_;
+    std::map<sptr<IRemoteObject>, AppIdentity> countryCodeCallbacksMap_;
     std::shared_ptr<SimSubscriber> simSubscriber_;
     std::shared_ptr<NetworkSubscriber> networkSubscriber_;
     std::mutex simSubscriberMutex_;

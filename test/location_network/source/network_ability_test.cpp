@@ -574,13 +574,13 @@ HWTEST_F(NetworkAbilityTest, ReportMockedLocation001, TestSize.Level1)
 }
 #endif
 
-HWTEST_F(NetworkAbilityTest, RegisterNLPServiceDeathRecipient001, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, RegisterNlpServiceDeathRecipient001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, RegisterNLPServiceDeathRecipient001, TestSize.Level1";
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient001 begin");
-    ability_->RegisterNLPServiceDeathRecipient();
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient001 end");
+        << "NetworkAbilityTest, RegisterNlpServiceDeathRecipient001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNlpServiceDeathRecipient001 begin");
+    ability_->RegisterNlpServiceDeathRecipient();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNlpServiceDeathRecipient001 end");
 }
 
 HWTEST_F(NetworkAbilityTest, ReportLocationError001, TestSize.Level1)
@@ -607,7 +607,7 @@ HWTEST_F(NetworkAbilityTest, OnRemoteDied001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, OnRemoteDied001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] OnRemoteDied001 begin");
-    auto deathRecipient = new (std::nothrow) NLPServiceDeathRecipient();
+    auto deathRecipient = new (std::nothrow) NlpServiceDeathRecipient();
     const wptr<IRemoteObject> object;
     deathRecipient->OnRemoteDied(object);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] OnRemoteDied001 end");
@@ -700,17 +700,17 @@ HWTEST_F(NetworkAbilityTest, RemoveNetworkLocation002, TestSize.Level1)
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RemoveNetworkLocation002 end");
 }
 
-HWTEST_F(NetworkAbilityTest, RegisterNLPServiceDeathRecipient002, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, RegisterNlpServiceDeathRecipient002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, RegisterNLPServiceDeathRecipient002, TestSize.Level1";
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient002 begin");
+        << "NetworkAbilityTest, RegisterNlpServiceDeathRecipient002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNlpServiceDeathRecipient002 begin");
     sptr<MockIRemoteObject> nlpServiceProxy =
         sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
     EXPECT_NE(nullptr, nlpServiceProxy);
     ability_->nlpServiceProxy_ = nlpServiceProxy;
-    ability_->RegisterNLPServiceDeathRecipient();
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNLPServiceDeathRecipient002 end");
+    ability_->RegisterNlpServiceDeathRecipient();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNlpServiceDeathRecipient002 end");
 }
 } // namespace Location
 } // namespace OHOS

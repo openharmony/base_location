@@ -273,11 +273,6 @@ LocationErrCode LocationConfigManager::GetPrivacyTypeState(const int type, bool&
     return ERRCODE_SUCCESS;
 }
 
-int LocationConfigManager::GetCachePrivacyType()
-{
-    return GetIntParameter(LOCATION_PRIVACY_MODE);
-}
-
 bool LocationConfigManager::SetCachePrivacyType(int value)
 {
     char valueArray[MAX_SIZE] = {0};

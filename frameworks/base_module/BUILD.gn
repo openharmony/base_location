@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Huawei Device Co., Ltd.
+# Copyright (C) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,24 +14,22 @@
 import("//base/location/config.gni")
 import("//build/ohos.gni")
 
-config("locator_agent_config") {
+config("lbs_base_module_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "$LOCATION_ROOT_DIR/interfaces/inner_api/native/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_agent/include",
-    "$LOCATION_ROOT_DIR/frameworks/base_module/include",
   ]
 }
 
-ohos_shared_library("locator_agent") {
-  public_configs = [ ":locator_agent_config" ]
+ohos_shared_library("lbsbase_module") {
+  public_configs = [ ":lbs_base_module_config" ]
 
   sources = [
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_agent/source/locator_agent.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_agent/source/native_location_callback_host.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_agent/source/native_nmea_callback_host.cpp",
-    "$LOCATION_ROOT_DIR/frameworks/native/locator_agent/source/native_sv_callback_host.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/base_module/source/location.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/base_module/source/location_sa_load_manager.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/base_module/source/request_config.cpp",
+    "$LOCATION_ROOT_DIR/frameworks/base_module/source/satellite_status.cpp",
   ]
 
   sanitize = {
@@ -42,7 +40,7 @@ ohos_shared_library("locator_agent") {
 
   branch_protector_ret = "pac_ret"
 
-  deps = [ "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module" ]
+  deps = []
 
   external_deps = [
     "c_utils:utils",
@@ -62,11 +60,7 @@ ohos_shared_library("locator_agent") {
   ]
 
   defines = []
-  if (is_emulator) {
-    defines += [ "EMULATOR_ENABLED" ]
-  }
 
-  innerapi_tags = [ "platformsdk" ]
   part_name = "location"
   subsystem_name = "location"
 }

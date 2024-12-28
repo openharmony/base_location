@@ -24,11 +24,14 @@ namespace OHOS {
         if (size == 0) {
             return true;
         }
+        AppIdentity identity;
+        int pid = 1;
+        identity.SetPid(pid);
+        identity.SetUid(pid);
         auto countryCodeManager = CountryCodeManager::GetInstance();
         countryCodeManager->GetIsoCountryCode();
         countryCodeManager->UnregisterCountryCodeCallback(nullptr);
-        int index = 0;
-        countryCodeManager->RegisterCountryCodeCallback(nullptr, data[index++]);
+        countryCodeManager->RegisterCountryCodeCallback(nullptr, identity);
         countryCodeManager->ReSubscribeEvent();
         countryCodeManager->ReUnsubscribeEvent();
         return true;

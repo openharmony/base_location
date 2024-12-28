@@ -20,17 +20,20 @@
 
 namespace OHOS {
 namespace Location {
+const int CONFIDENCE = 100;
+
 void DeviceMovementCallback::OnMovementChanged(const Msdp::MovementDataUtils::MovementData &movementData)
 {
-    LBSLOGI(LOCATOR, "OnMovementChanged type=%{public}d, value=%{public}d",
-        movementData.type, movementData.value);
+    LBSLOGI(LOCATOR, "OnMovementChanged type=%{public}d, value=%{public}d, confidence = %{public}d",
+        movementData.type, movementData.value, movementData.confidence);
     if (movementData.type == Msdp::MovementDataUtils::MovementType::TYPE_STILL) {
         auto locatorMsdpMonitorManager = LocatorMsdpMonitorManager::GetInstance();
         if (locatorMsdpMonitorManager == nullptr) {
             LBSLOGE(LOCATOR, "OnReceiveEvent: LocatorMsdpMonitorManager is nullptr.");
             return;
         }
-        if (movementData.value == Msdp::MovementDataUtils::MovementValue::VALUE_ENTER) {
+        if (movementData.value == Msdp::MovementDataUtils::MovementValue::VALUE_ENTER &&
+            movementData.confidence == CONFIDENCE) {
             locatorMsdpMonitorManager->UpdateStillMovementState(true);
         } else {
             locatorMsdpMonitorManager->UpdateStillMovementState(false);

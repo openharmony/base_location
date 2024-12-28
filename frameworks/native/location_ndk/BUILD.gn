@@ -56,6 +56,7 @@ ohos_shared_library("location_ndk") {
   }
 
   deps = [
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/native/location_ndk:liblocation_ndk",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",

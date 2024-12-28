@@ -33,6 +33,7 @@
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
 #include "system_ability_status_change_stub.h"
+#include "app_identity.h"
 #ifdef WIFI_ENABLE
 #include "wifi_scan.h"
 #include "kits/c/wifi_device.h"
@@ -192,13 +193,20 @@ class LocatorRequiredDataManager {
 public:
     LocatorRequiredDataManager();
     ~LocatorRequiredDataManager();
-    __attribute__((no_sanitize("cfi"))) LocationErrCode RegisterCallback(
+    __attribute__((no_sanitize("cfi"))) LocationErrCode RegisterCallback(AppIdentity &identity,
         std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
     bool IsConnecting();
     static LocatorRequiredDataManager* GetInstance();
+    void SyncStillMovementState(bool state);
+    void SendWifiScanEvent();
+    void SendGetWifiListEvent(int timeout);
+    void UpdateWifiScanCompleteTimestamp();
+    int64_t GetWifiScanCompleteTimestamp();
+    int64_t GetlastStillTime();
+    bool IsStill();
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
 
 private:
@@ -221,9 +229,13 @@ private:
     WifiEvent wifiScanEventCallback_ = {0};
 #endif
     std::mutex mutex_;
-    std::vector<sptr<ILocatingRequiredDataCallback>> callbacks_;
+    std::map<sptr<IRemoteObject>, AppIdentity> callbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
+    std::mutex wifiScanCompleteTimestampMutex_;
+    int64_t wifiScanCompleteTimestamp_ = 0;
+    std::mutex lastStillTimeMutex_;
+    int64_t lastStillTime_ = 0;
 };
 } // namespace Location
 } // namespace OHOS

@@ -29,6 +29,7 @@
 #include "location_sa_load_manager.h"
 #include "locator.h"
 #include "app_identity.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -76,7 +77,7 @@ bool LocatorImpl::IsLocationEnabled()
     if (state == DISABLED || state == ENABLED) {
         return (state == ENABLED);
     }
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -105,7 +106,7 @@ void LocatorImpl::RequestEnableLocation()
 
 void LocatorImpl::EnableAbility(bool enable)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
     LocationErrCode errorCode = CheckEdmPolicy(enable);
@@ -126,7 +127,7 @@ void LocatorImpl::EnableAbility(bool enable)
 void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -147,7 +148,7 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 
 void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -165,7 +166,7 @@ void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
 
 std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return nullptr;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -209,7 +210,7 @@ bool LocatorImpl::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
 
 bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -228,7 +229,7 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
 
 bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -243,7 +244,7 @@ bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callba
 
 bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -262,7 +263,7 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
 
 bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -282,7 +283,18 @@ bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callbac
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return false;
     }
-    countryCodeManager->RegisterCountryCodeCallback(callback, uid);
+    AppIdentity identity;
+    identity.SetPid(IPCSkeleton::GetCallingPid());
+    identity.SetUid(IPCSkeleton::GetCallingUid());
+    identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
+    identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
+    std::string bundleName = "";
+    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
+    }
+    identity.SetBundleName(bundleName);
+    countryCodeManager->RegisterCountryCodeCallback(callback, identity);
     return true;
 }
 
@@ -300,7 +312,7 @@ bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callb
 void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -313,7 +325,7 @@ void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocat
 
 void LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -326,7 +338,7 @@ void LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback
 
 bool LocatorImpl::IsGeoServiceAvailable()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     bool result = false;
@@ -350,7 +362,7 @@ bool LocatorImpl::IsGeoServiceAvailable()
 
 void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -373,11 +385,21 @@ void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::sha
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     }
     replyList = callback->GetResult();
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
+    }
 }
 
 void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -401,11 +423,21 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
     }
     replyList = callback->GetResult();
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
+    }
 }
 
 bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationPrivacyConfirmed()");
@@ -420,7 +452,7 @@ bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
 
 int LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationPrivacyConfirmStatus()");
@@ -435,7 +467,7 @@ int LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirme
 
 int LocatorImpl::GetCachedGnssLocationsSize()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return -1;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedGnssLocationsSize()");
@@ -450,7 +482,7 @@ int LocatorImpl::GetCachedGnssLocationsSize()
 
 int LocatorImpl::FlushCachedGnssLocations()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return -1;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocations()");
@@ -465,7 +497,7 @@ int LocatorImpl::FlushCachedGnssLocations()
 
 bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SendCommand()");
@@ -491,7 +523,7 @@ std::shared_ptr<CountryCode> LocatorImpl::GetIsoCountryCode()
 
 bool LocatorImpl::EnableLocationMock()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMock()");
@@ -506,7 +538,7 @@ bool LocatorImpl::EnableLocationMock()
 
 bool LocatorImpl::DisableLocationMock()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMock()");
@@ -522,7 +554,7 @@ bool LocatorImpl::DisableLocationMock()
 bool LocatorImpl::SetMockedLocations(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocations()");
@@ -537,7 +569,7 @@ bool LocatorImpl::SetMockedLocations(
 
 bool LocatorImpl::EnableReverseGeocodingMock()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMock()");
@@ -552,7 +584,7 @@ bool LocatorImpl::EnableReverseGeocodingMock()
 
 bool LocatorImpl::DisableReverseGeocodingMock()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMock()");
@@ -567,7 +599,7 @@ bool LocatorImpl::DisableReverseGeocodingMock()
 
 bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfo()");
@@ -589,7 +621,7 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
         isEnabled = (state == ENABLED);
         return ERRCODE_SUCCESS;
     }
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<LocatorProxy> proxy = GetProxy();
@@ -640,7 +672,7 @@ LocationErrCode LocatorImpl::CheckEdmPolicy(bool enable)
 
 LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LocationErrCode errorCode = CheckEdmPolicy(enable);
@@ -678,7 +710,7 @@ LocationErrCode LocatorImpl::EnableAbilityForUser(bool enable, int32_t userId)
 LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
     sptr<ILocatorCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StartLocatingV9()");
@@ -701,7 +733,7 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
 
 LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopLocatingV9()");
@@ -717,7 +749,7 @@ LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
 
 LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedLocationV9()");
@@ -752,7 +784,7 @@ LocationErrCode LocatorImpl::UnregisterSwitchCallbackV9(const sptr<IRemoteObject
 
 LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterGnssStatusCallbackV9()");
@@ -775,7 +807,7 @@ LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObje
 
 LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterGnssStatusCallbackV9()");
@@ -791,7 +823,7 @@ LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteOb
 
 LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterNmeaMessageCallbackV9()");
@@ -814,7 +846,7 @@ LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObj
 
 LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterNmeaMessageCallbackV9()");
@@ -836,7 +868,18 @@ LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObj
         LBSLOGE(LOCATOR, "%{public}s countryCodeManager is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    countryCodeManager->RegisterCountryCodeCallback(callback, 0);
+    AppIdentity identity;
+    identity.SetPid(IPCSkeleton::GetCallingPid());
+    identity.SetUid(IPCSkeleton::GetCallingUid());
+    identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
+    identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
+    std::string bundleName = "";
+    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
+    }
+    identity.SetBundleName(bundleName);
+    countryCodeManager->RegisterCountryCodeCallback(callback, identity);
     return ERRCODE_SUCCESS;
 }
 
@@ -855,7 +898,7 @@ LocationErrCode LocatorImpl::UnregisterCountryCodeCallbackV9(const sptr<IRemoteO
 LocationErrCode LocatorImpl::RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCachedLocationCallbackV9()");
@@ -870,7 +913,7 @@ LocationErrCode LocatorImpl::RegisterCachedLocationCallbackV9(std::unique_ptr<Ca
 
 LocationErrCode LocatorImpl::UnregisterCachedLocationCallbackV9(sptr<ICachedLocationsCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCachedLocationCallbackV9()");
@@ -885,7 +928,7 @@ LocationErrCode LocatorImpl::UnregisterCachedLocationCallbackV9(sptr<ICachedLoca
 
 LocationErrCode LocatorImpl::IsGeoServiceAvailableV9(bool &isAvailable)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsGeoServiceAvailableV9()");
@@ -901,7 +944,7 @@ LocationErrCode LocatorImpl::IsGeoServiceAvailableV9(bool &isAvailable)
 LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
     std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByCoordinateV9()");
@@ -921,13 +964,23 @@ LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
     if (replyList.size() == 0) {
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
+    }
     return errCode;
 }
 
 LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
     std::list<std::shared_ptr<GeoAddress>>& replyList)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByLocationNameV9()");
@@ -949,12 +1002,22 @@ LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
     if (replyList.size() == 0) {
         return ERRCODE_GEOCODING_FAIL;
     }
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
+    bool flag = false;
+    if (PermissionManager::CheckSystemPermission(tokenId, tokenIdEx)) {
+        flag = true;
+    }
+    for (auto iter = replyList.begin(); iter != replyList.end(); ++iter) {
+        auto geoAddress = *iter;
+        geoAddress->SetIsSystemApp(flag);
+    }
     return errCode;
 }
 
 LocationErrCode LocatorImpl::IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationPrivacyConfirmedV9()");
@@ -969,7 +1032,7 @@ LocationErrCode LocatorImpl::IsLocationPrivacyConfirmedV9(const int type, bool &
 
 LocationErrCode LocatorImpl::SetLocationPrivacyConfirmStatusV9(const int type, bool isConfirmed)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationPrivacyConfirmStatusV9()");
@@ -984,7 +1047,7 @@ LocationErrCode LocatorImpl::SetLocationPrivacyConfirmStatusV9(const int type, b
 
 LocationErrCode LocatorImpl::GetCachedGnssLocationsSizeV9(int &size)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedGnssLocationsSizeV9()");
@@ -999,7 +1062,7 @@ LocationErrCode LocatorImpl::GetCachedGnssLocationsSizeV9(int &size)
 
 LocationErrCode LocatorImpl::FlushCachedGnssLocationsV9()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocationsV9()");
@@ -1014,7 +1077,7 @@ LocationErrCode LocatorImpl::FlushCachedGnssLocationsV9()
 
 LocationErrCode LocatorImpl::SendCommandV9(std::unique_ptr<LocationCommand>& commands)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SendCommandV9()");
@@ -1041,7 +1104,7 @@ LocationErrCode LocatorImpl::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& c
 
 LocationErrCode LocatorImpl::EnableLocationMockV9()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMockV9()");
@@ -1056,7 +1119,7 @@ LocationErrCode LocatorImpl::EnableLocationMockV9()
 
 LocationErrCode LocatorImpl::DisableLocationMockV9()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMockV9()");
@@ -1072,7 +1135,7 @@ LocationErrCode LocatorImpl::DisableLocationMockV9()
 LocationErrCode LocatorImpl::SetMockedLocationsV9(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocationsV9()");
@@ -1087,7 +1150,7 @@ LocationErrCode LocatorImpl::SetMockedLocationsV9(
 
 LocationErrCode LocatorImpl::EnableReverseGeocodingMockV9()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMockV9()");
@@ -1102,7 +1165,7 @@ LocationErrCode LocatorImpl::EnableReverseGeocodingMockV9()
 
 LocationErrCode LocatorImpl::DisableReverseGeocodingMockV9()
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMockV9()");
@@ -1117,7 +1180,7 @@ LocationErrCode LocatorImpl::DisableReverseGeocodingMockV9()
 
 LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfoV9()");
@@ -1137,7 +1200,7 @@ LocationErrCode LocatorImpl::ProxyForFreeze(std::set<int> pidList, bool isProxy)
         isServerExist_ = false;
         return ERRCODE_SUCCESS;
     }
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s init locator sa failed", __func__);
         isServerExist_ = false;
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1159,7 +1222,7 @@ LocationErrCode LocatorImpl::ResetAllProxy()
         isServerExist_ = false;
         return ERRCODE_SUCCESS;
     }
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         isServerExist_ = false;
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1176,7 +1239,7 @@ LocationErrCode LocatorImpl::ResetAllProxy()
 LocationErrCode LocatorImpl::RegisterLocatingRequiredDataCallback(
     std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
@@ -1190,7 +1253,7 @@ LocationErrCode LocatorImpl::RegisterLocatingRequiredDataCallback(
 
 LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
@@ -1204,7 +1267,7 @@ LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocati
 
 LocationErrCode LocatorImpl::SubscribeLocationError(sptr<ILocatorCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StartLocatingV9()");
@@ -1222,7 +1285,7 @@ LocationErrCode LocatorImpl::SubscribeLocationError(sptr<ILocatorCallback>& call
 
 LocationErrCode LocatorImpl::UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopLocatingV9()");
@@ -1240,10 +1303,10 @@ LocationErrCode LocatorImpl::UnSubscribeLocationError(sptr<ILocatorCallback>& ca
 
 LocationErrCode LocatorImpl::GetCurrentWifiBssidForLocating(std::string& bssid)
 {
-    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::GetCurrentWifiBssidForLocating() enter");
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCurrentWifiBssidForLocating()");
     sptr<LocatorProxy> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
@@ -1272,7 +1335,7 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         UpdateCallbackResumingState(true);
         // wait for remote died finished
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
-        if (HasGnssNetworkRequest() && LocationSaLoadManager::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        if (HasGnssNetworkRequest() && SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
             g_callbackResumer->ResumeCallback();
         }
         UpdateCallbackResumingState(false);

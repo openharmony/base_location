@@ -42,6 +42,14 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 };
 
+
+class NlpServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    NlpServiceDeathRecipient();
+    ~NlpServiceDeathRecipient() override;
+};
+
 class NetworkAbility : public SystemAbility, public NetworkAbilityStub, public SubAbility {
 DECLEAR_SYSTEM_ABILITY(NetworkAbility);
 
@@ -75,6 +83,8 @@ public:
     bool IsMockEnabled();
     void SendMessage(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
     void ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid);
+    void RestartNlpRequests();
+    void DisconnectAbilityConnect();
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -82,25 +92,25 @@ private:
     bool CheckIfNetworkConnecting();
     bool RequestNetworkLocation(WorkRecord &workRecord);
     bool RemoveNetworkLocation(WorkRecord &workRecord);
-    void RegisterNLPServiceDeathRecipient();
+
+    void RegisterNlpServiceDeathRecipient();
+    void UnregisterNlpServiceDeathRecipient();
     bool IsConnect();
 
-    ffrt::mutex mutex_;
+    ffrt::mutex nlpServiceMutex_;
+    ffrt::mutex connMutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
     ffrt::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
+
+    sptr<IRemoteObject::DeathRecipient> nlpServiceRecipient_ = sptr<NlpServiceDeathRecipient>(new
+        (std::nothrow) NlpServiceDeathRecipient());
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     sptr<AAFwk::IAbilityConnection> conn_;
 };
 
-class NLPServiceDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-    NLPServiceDeathRecipient();
-    ~NLPServiceDeathRecipient() override;
-};
 } // namespace Location
 } // namespace OHOS
 #endif // FEATURE_NETWORK_SUPPORT

@@ -39,7 +39,6 @@ public:
     void SetIsFirstReport(bool isFirstReport);
     void RegisterLocationSwitchObserver();
     static LocationDataManager* GetInstance();
-
 private:
     std::mutex mutex_;
     std::mutex isSwitchObserverRegMutex_;

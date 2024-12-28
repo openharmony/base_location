@@ -58,6 +58,7 @@ public:
     void ReportLocationInfo(const std::string& systemAbility, const std::shared_ptr<Location> location);
     void StopAllLocationRequests();
     void RestartAllLocationRequests();
+    std::string GetPackageNameByUuid(std::string uuid);
 private:
     void HandleLocalRequest(WorkRecord &record);
     void HandleRemoveRecord(WorkRecord &newRecord);

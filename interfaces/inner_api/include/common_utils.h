@@ -27,6 +27,7 @@
 #include "string_ex.h"
 #include "location_log.h"
 #include "location.h"
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -77,6 +78,7 @@ const int DFT_DAILY_LOCATION_REQUEST_COUNT = 220;
 const int DFT_DAILY_DISTRIBUTE_SESSION_COUNT = 221;
 const int MILLI_PER_SEC = 1000;
 const int MICRO_PER_MILLI = 1000;
+const int NANOS_PER_MICRO = 1000;
 const int CONNECT_TIME_OUT = 10;
 const int DISCONNECT_TIME_OUT = 10;
 
@@ -180,6 +182,7 @@ public:
     static bool CheckAppForUser(int32_t uid);
     static int64_t GetSinceBootTime();
     static bool GetAllUserId(std::vector<int>& activeIds);
+    static bool IsAppBelongCurrentAccount(AppIdentity &identity);
 };
 
 class CountDownLatch {

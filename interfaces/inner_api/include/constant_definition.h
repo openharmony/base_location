@@ -52,6 +52,7 @@ constexpr const char* TIME_INTERVAL_PROP = "ro.config.locator_background.timeInt
 constexpr const char* PROC_NAME = "system";
 constexpr const char* LOCALE_KEY = "persist.global.locale";
 constexpr const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
+constexpr const char* LOCATION_LOCATIONHUB_STATE = "persist.location.locationhub_state";
 const int MODE_STANDALONE = 1;
 const int MODE_MS_BASED = 2;
 const int MODE_MS_ASSISTED = 3;
@@ -84,6 +85,8 @@ enum {
     LOCATION_SCENE_SPORT = 0x0402,
     LOCATION_SCENE_TRANSPORT = 0x0403,
     LOCATION_SCENE_DAILY_LIFE_SERVICE = 0x0404,
+    LOCATION_SCENE_WALK = 0x0405,
+    LOCATION_SCENE_RIDE = 0x0406,
 };
 
 enum {

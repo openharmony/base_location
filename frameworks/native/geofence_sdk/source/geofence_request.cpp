@@ -29,6 +29,7 @@ GeofenceRequest::GeofenceRequest()
     callback_ = nullptr;
     scenario_ = -1;
     fenceId_ = -1;
+    appAliveStatus_ = true;
 }
 
 GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
@@ -149,6 +150,36 @@ void GeofenceRequest::SetBundleName(const std::string& bundleName)
     bundleName_ = bundleName;
 }
 
+int32_t GeofenceRequest::GetUid()
+{
+    return uid_;
+}
+
+void GeofenceRequest::SetUid(int32_t uid)
+{
+    uid_ = uid;
+}
+
+bool GeofenceRequest::GetAppAliveStatus()
+{
+    return appAliveStatus_;
+}
+
+int64_t GeofenceRequest::GetRequestExpirationTimeStamp()
+{
+    return requestExpirationTimeStamp_;
+}
+
+void GeofenceRequest::SetRequestExpirationTimeStamp(int64_t requestExpirationTimeStamp)
+{
+    requestExpirationTimeStamp_ = requestExpirationTimeStamp;
+}
+
+void GeofenceRequest::SetAppAliveStatus(bool appAliveStatus)
+{
+    appAliveStatus_ = appAliveStatus;
+}
+
 void GeofenceRequest::ReadFromParcel(Parcel& data)
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
@@ -182,6 +213,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
 #endif
     callback_ = data.ReadObject<IRemoteObject>();
     bundleName_ = data.ReadString();
+    uid_ = data.ReadInt32();
     auto wantAgent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
     if (wantAgent != nullptr) {
         wantAgent_ = *(wantAgent);
@@ -218,6 +250,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
 #endif
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
+    parcel.WriteInt32(uid_);
     parcel.WriteParcelable(&wantAgent_);
     return true;
 }

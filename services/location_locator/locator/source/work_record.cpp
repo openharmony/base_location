@@ -280,6 +280,21 @@ bool WorkRecord::Find(int uid, std::string name, std::string uuid)
     return false;
 }
 
+std::string WorkRecord::GetPackageNameByUuid(std::string uuid)
+{
+    std::unique_lock<std::mutex> lock(workRecordMutex_);
+    if (uuid_.size() <= 0) {
+        return "";
+    }
+    unsigned i = 0;
+    for (auto iterUuid = uuid_.begin(); iterUuid != uuid_.end(); iterUuid++, i++) {
+        if (uuid.compare(*iterUuid) == 0 && names_.size() > i) {
+            return names_[i];
+        }
+    }
+    return "";
+}
+
 void WorkRecord::Clear()
 {
     std::unique_lock<std::mutex> lock(workRecordMutex_);

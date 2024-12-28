@@ -63,7 +63,10 @@ public:
     void UpdateRequestRecord(std::shared_ptr<Request> request, bool shouldInsert);
     void HandleRequest();
     bool UpdateUsingPermission(std::shared_ptr<Request> request, const bool isStart);
-    void HandlePermissionChanged(uint32_t tokenId);
+    void IncreaseWorkingPidsCount(const pid_t pid);
+    void DecreaseWorkingPidsCount(const pid_t pid);
+    bool IsNeedStartUsingPermission(const pid_t pid);
+    bool IsNeedStopUsingPermission(const pid_t pid);
     void RegisterLocationErrorCallback(sptr<ILocatorCallback> callback, AppIdentity appIdentity);
     void UnRegisterLocationErrorCallback(sptr<ILocatorCallback> callback);
     void ReportLocationError(const int errorCode, std::shared_ptr<Request> request);
@@ -88,7 +91,7 @@ private:
         std::shared_ptr<WorkRecord>& workRecord);
     bool IsRequestAvailable(std::shared_ptr<Request>& request);
     void UpdateRunningUids(const std::shared_ptr<Request>& request, std::string abilityName, bool isAdd);
-    void ReportDataToResSched(std::string state, const pid_t uid);
+    void ReportDataToResSched(std::string state, const pid_t pid, const pid_t uid);
     std::map<int32_t, int32_t> runningUidMap_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<LocationErrRequest>> locationErrorCallbackMap_;
     static ffrt::mutex requestMutex_;
@@ -97,6 +100,8 @@ private:
     ffrt::mutex permissionRecordMutex_;
     std::atomic_bool isDeviceIdleMode_;
     std::atomic_bool isDeviceStillState_;
+    ffrt::mutex workingPidsCountMutex_;
+    std::map<pid_t, int32_t> workingPidsCountMap_;
 };
 
 class LocatorErrCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

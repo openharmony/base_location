@@ -177,6 +177,8 @@ public:
     bool Marshalling(Parcel& parcel) const override;
     static std::unique_ptr<SatelliteStatus> Unmarshalling(Parcel& parcel);
 private:
+    bool IsValidityDatas() const;
+    
     int satellitesNumber_;
     std::vector<int> satelliteIds_;
     std::vector<double> carrierToNoiseDensitys_;

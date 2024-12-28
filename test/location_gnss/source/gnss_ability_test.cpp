@@ -220,12 +220,14 @@ HWTEST_F(GnssAbilityTest, RegisterGnssStatusCallback001, TestSize.Level1)
      */
     pid_t lastCallingUid = 1;
     sptr<IRemoteObject> client = nullptr;
-
+    AppIdentity identity;
+    identity.SetPid(lastCallingUid);
+    identity.SetUid(23);
     /*
      * @tc.steps: step2. test register gnss status callback
      * @tc.expected: log info : "SendRegisterMsgToRemote callback is nullptr".
      */
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->RegisterGnssStatusCallback(client, lastCallingUid));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->RegisterGnssStatusCallback(client, identity));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterGnssStatusCallback001 end");
 }
 
@@ -243,12 +245,14 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterGnssStatusCallback001, TestSize.L
      * @tc.steps: step1. give the last calling uid
      */
     pid_t lastCallingUid = 1;
-
+    AppIdentity identity;
+    identity.SetPid(lastCallingUid);
+    identity.SetUid(23);
     /*
      * @tc.steps: step2. test register gnss status callback
      * @tc.expected: no exception happens.
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterGnssStatusCallback(callbackStub_->AsObject(), lastCallingUid));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterGnssStatusCallback(callbackStub_->AsObject(), identity));
 
     /*
      * @tc.steps: step3. test unregister gnss status callback
@@ -296,12 +300,14 @@ HWTEST_F(GnssAbilityTest, RegisterNmeaMessageCallback001, TestSize.Level1)
      */
     pid_t uid = 1;
     sptr<IRemoteObject> client = nullptr;
-
+    AppIdentity identity;
+    identity.SetPid(uid);
+    identity.SetUid(23);
     /*
      * @tc.steps: step2. test register nmea message callback
      * @tc.expected: log info : "register an invalid nmea callback".
      */
-    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->RegisterNmeaMessageCallback(client, uid));
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, proxy_->RegisterNmeaMessageCallback(client, identity));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterNmeaMessageCallback001 end");
 }
 
@@ -319,12 +325,14 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterNmeaMessageCallback001, TestSize.
      * @tc.steps: step1.the client is not null.
      */
     pid_t uid = 1;
-
+    AppIdentity identity;
+    identity.SetPid(uid);
+    identity.SetUid(23);
     /*
      * @tc.steps: step2. test register nmea message callback
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterNmeaMessageCallback(nemaCallbackStub_->AsObject(), uid));
+    EXPECT_EQ(ERRCODE_SUCCESS, proxy_->RegisterNmeaMessageCallback(nemaCallbackStub_->AsObject(), identity));
 
     /*
      * @tc.steps: step3. test unregister nmea message callback

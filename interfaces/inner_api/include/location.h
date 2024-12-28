@@ -238,6 +238,16 @@ public:
         return additionsMap_;
     }
 
+    inline int32_t GetFieldValidity() const
+    {
+        return fieldValidity_;
+    }
+
+    inline void SetFieldValidity(int32_t fieldValidity)
+    {
+        fieldValidity_ = fieldValidity;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -269,6 +279,7 @@ private:
     int64_t uncertaintyOfTimeSinceBoot_;
     int32_t locationSourceType_;
     std::string uuid_;
+    int32_t fieldValidity_;
 };
 } // namespace Location
 } // namespace OHOS

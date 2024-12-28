@@ -211,7 +211,9 @@ bool GeoAddressesToJsObj(const napi_env& env,
             SetValueStringArray(env, "descriptions", descriptionArray, eachObj);
         }
         SetValueInt32(env, "descriptionsSize", geoAddress->descriptionsSize_, eachObj);
-        SetValueBool(env, "isFromMock", geoAddress->isFromMock_, eachObj);
+        if (geoAddress->GetIsSystemApp()) {
+            SetValueBool(env, "isFromMock", geoAddress->isFromMock_, eachObj);
+        }
         NAPI_CALL_BASE(env, napi_set_element(env, arrayResult, idx++, eachObj), false);
     }
     return true;
@@ -868,10 +870,10 @@ std::string GetErrorMsgByCode(int code)
         {LocationErrCode::ERRCODE_COUNTRYCODE_FAIL, "Failed to query the area information."},
         {LocationErrCode::ERRCODE_GEOFENCE_FAIL, "Failed to operate the geofence."},
         {LocationErrCode::ERRCODE_NO_RESPONSE, "No response to the request."},
+        {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
+            "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."},
         {LocationErrCode::ERRCODE_GEOFENCE_EXCEED_MAXIMUM, "The number of geofences exceeds the maximum."},
         {LocationErrCode::ERRCODE_GEOFENCE_INCORRECT_ID, "Failed to delete a geofence due to an incorrect ID."},
-        {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
-            "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."}
     };
 
     auto iter = errorCodeMap.find(code);

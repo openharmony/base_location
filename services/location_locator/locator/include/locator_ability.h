@@ -119,9 +119,9 @@ public:
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
 #ifdef FEATURE_GNSS_SUPPORT
-    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity);
     LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback);
-    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid);
+    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity);
     LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
         sptr<ICachedLocationsCallback>& callback, std::string bundleName);
@@ -211,6 +211,7 @@ public:
 #endif
     void ReportDataToResSched(std::string state);
     bool IsHapCaller(const uint32_t tokenId);
+    void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
 
 private:
     bool Init();
@@ -222,10 +223,14 @@ private:
     bool CheckIfLocatorConnecting();
     void UpdateLoadedSaMap();
     bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
-    void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
+    bool ReportSingleCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+        std::unique_ptr<Location>& cacheLocation);
+    bool ReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+        std::unique_ptr<Location>& cacheLocation);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
+    bool SetLocationhubStateToSyspara(int value);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

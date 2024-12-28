@@ -37,6 +37,7 @@ const int MAX_SV_COUNT = 64;
 const int GPS_DUMMY_SV_COUNT = 5;
 const int AZIMUTH_DEGREES = 60;
 const int ELEVATION_DEGREES = 90;
+const int SATELLITES_ADDITIONAL = 4;
 bool g_hasLocation = false;
 bool g_svIncrease = false;
 std::unique_ptr<SatelliteStatus> g_svInfo = nullptr;
@@ -75,6 +76,7 @@ int32_t GnssEventCallback::ReportLocation(const LocationInfo& location)
     locationNew->SetUncertaintyOfTimeSinceBoot(location.timeUncertainty);
     locationNew->SetIsFromMock(false);
     locationNew->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
+    locationNew->SetFieldValidity(location.fieldValidity);
     if (gnssAbility->IsMockEnabled()) {
         LBSLOGE(GNSS, "location mock is enabled, do not report gnss location!");
         IPCSkeleton::SetCallingIdentity(identity);
@@ -163,8 +165,11 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
         satelliteStatusInfos.push_back(str_info);
     }
     // save sv info
+    std::unique_lock<std::mutex> lock(svInfoMutex_, std::defer_lock);
+    lock.lock();
     g_svInfo = nullptr;
     g_svInfo = std::make_unique<SatelliteStatus>(*svStatus);
+    lock.unlock();
     WriteLocationInnerEvent(RECEIVE_SATELLITESTATUSINFO, names, satelliteStatusInfos);
     gnssAbility->ReportSv(svStatus);
     return ERR_OK;
@@ -172,6 +177,7 @@ int32_t GnssEventCallback::ReportSatelliteStatusInfo(const SatelliteStatusInfo& 
 
 void GnssEventCallback::SendDummySvInfo()
 {
+    std::unique_lock<std::mutex> lock(svInfoMutex_);
     if (g_svInfo == nullptr) {
         LBSLOGE(GNSS, "%{public}s: sv is nullptr.", __func__);
         return;
@@ -258,6 +264,7 @@ void GnssEventCallback::AddDummySv(std::unique_ptr<SatelliteStatus> &sv, int svi
     sv->SetAltitude(ELEVATION_DEGREES); // elevationDegrees
     sv->SetAzimuth(AZIMUTH_DEGREES); // azimuthDegrees
     sv->SetCarrierFrequencie(0); // carrierFrequencyHz
+    sv->SetSatelliteAdditionalInfo(SATELLITES_ADDITIONAL); // satellites_additional
 }
 
 int32_t GnssEventCallback::RequestGnssReferenceInfo(GnssRefInfoType type)

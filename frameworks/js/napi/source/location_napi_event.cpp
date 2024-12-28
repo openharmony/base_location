@@ -48,6 +48,7 @@ std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const napi_value &)> g_offFuncMap;
 std::map<std::string, bool(*)(const napi_env &, const size_t, const napi_value *)> g_onFuncMap;
 
+static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 
 const int MIN_TIMEOUTMS_FOR_LOCATIONONCE = 1000;
 
@@ -435,7 +436,19 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
         }
         g_locatorProxy->StopLocating(callbackPtr);
         if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() == nullptr) {
-            context->errCode = ERRCODE_LOCATING_FAIL;
+            std::unique_ptr<Location> location = nullptr;
+#ifdef ENABLE_NAPI_MANAGER
+            g_locatorProxy->GetCachedLocationV9(location);
+#else
+            location = g_locatorProxy->GetCachedLocation();
+#endif
+            int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+            if (location != nullptr &&
+                (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
+                callbackHost->SetSingleLocation(location);
+            } else {
+                context->errCode = ERRCODE_LOCATING_FAIL;
+            }
         }
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
@@ -1494,7 +1507,7 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
         return false;
     }
     if ((config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) &&
-        (config->GetScenario() > LOCATION_SCENE_DAILY_LIFE_SERVICE ||
+        (config->GetScenario() > LOCATION_SCENE_RIDE ||
         config->GetScenario() < LOCATION_SCENE_NAVIGATION) &&
         (config->GetScenario() > LOCATION_SCENE_NO_POWER_CONSUMPTION ||
         config->GetScenario() < LOCATION_SCENE_HIGH_POWER_CONSUMPTION)) {

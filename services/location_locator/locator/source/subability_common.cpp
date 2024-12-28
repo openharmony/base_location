@@ -228,5 +228,13 @@ void SubAbility::ReportLocationInfo(
     }
     objectLocator->SendRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION), data, reply, option);
 }
+
+std::string SubAbility::GetPackageNameByUuid(std::string uuid)
+{
+    if (lastRecord_ != nullptr) {
+        return lastRecord_->GetPackageNameByUuid(uuid);
+    }
+    return "";
+}
 } // namespace Location
 } // namespace OHOS
