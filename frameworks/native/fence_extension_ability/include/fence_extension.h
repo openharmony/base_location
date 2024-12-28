@@ -41,22 +41,22 @@ public:
     virtual ~FenceExtension() = default;
 
     /**
-     * @brief Create and init context.
+     * @brief Create and init fence context.
      *
-     * @param record the extension record.
+     * @param record the fence extension record.
      * @param application the application info.
-     * @param handler the extension handler.
+     * @param handler the fence extension handler.
      * @param token the remote token.
-     * @return The created context.
+     * @return The created fence context.
      */
     virtual std::shared_ptr<FenceExtensionContext> CreateAndInitContext(
         const std::shared_ptr<AbilityLocalRecord> &record, const std::shared_ptr<OHOSApplication> &application,
         std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
 
     /**
-     * @brief Init the extension.
+     * @brief Init the fence extension.
      *
-     * @param record the extension record.
+     * @param record the fence extension record.
      * @param application the application info.
      * @param handler the extension handler.
      * @param token the remote token.

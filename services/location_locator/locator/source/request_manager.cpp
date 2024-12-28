@@ -99,29 +99,85 @@ bool RequestManager::UpdateUsingApproximatelyPermission(std::shared_ptr<Request>
 {
     auto locatorAbility = LocatorAbility::GetInstance();
     uint32_t callingTokenId = request->GetTokenId();
+    int ret;
     if (isStart && !request->GetApproximatelyPermState()) {
-        int ret = PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-        if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
-            locatorAbility->IsHapCaller(request->GetTokenId())) {
-            LBSLOGE(REQUEST_MANAGER, "StartUsingPermission failed ret=%{public}d", ret);
-            return false;
+        IncreaseWorkingPidsCount(request->GetPid());
+        bool isNeedStart = IsNeedStartUsingPermission(request->GetPid());
+        if (isNeedStart) {
+            ret = PrivacyKit::StartUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
+            if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+                locatorAbility->IsHapCaller(request->GetTokenId())) {
+                DecreaseWorkingPidsCount(request->GetPid());
+                LBSLOGE(REQUEST_MANAGER, "StartUsingPermission failed ret=%{public}d", ret);
+                return false;
+            }
         }
+        request->SetApproximatelyPermState(true);
         ret = locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
             ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
         if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
             LBSLOGE(REQUEST_MANAGER, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
             return false;
         }
-        request->SetApproximatelyPermState(true);
     } else if (!isStart && request->GetApproximatelyPermState()) {
-        int ret = PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION);
-        if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
-            LBSLOGE(REQUEST_MANAGER, "StopUsingPermission failed ret=%{public}d", ret);
-            return false;
+        DecreaseWorkingPidsCount(request->GetPid());
+        bool isNeedStop = IsNeedStopUsingPermission(request->GetPid());
+        if (isNeedStop) {
+            ret = PrivacyKit::StopUsingPermission(callingTokenId, ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
+            if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(callingTokenId)) {
+                LBSLOGE(REQUEST_MANAGER, "StopUsingPermission failed ret=%{public}d", ret);
+                return false;
+            }
         }
         request->SetApproximatelyPermState(false);
     }
     return true;
+}
+
+void RequestManager::IncreaseWorkingPidsCount(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) > 0) {
+        workingPidsCountMap_[pid] = workingPidsCountMap_[pid] + 1;
+    } else {
+        workingPidsCountMap_.insert(std::make_pair(pid, 1));
+    }
+}
+
+void RequestManager::DecreaseWorkingPidsCount(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) > 0) {
+        workingPidsCountMap_[pid] = workingPidsCountMap_[pid] - 1;
+        if (workingPidsCountMap_[pid] < 0) {
+            LBSLOGE(REQUEST_MANAGER, "working pid less 0, pid=%{public}d", pid);
+        }
+    }
+}
+
+bool RequestManager::IsNeedStartUsingPermission(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) <= 0) {
+        return false;
+    }
+    if (workingPidsCountMap_[pid] == 1) {
+        return true;
+    }
+    return false;
+}
+
+bool RequestManager::IsNeedStopUsingPermission(const pid_t pid)
+{
+    std::unique_lock<ffrt::mutex> uniquelock(workingPidsCountMutex_);
+    if (workingPidsCountMap_.count(pid) <= 0) {
+        return false;
+    }
+    if (workingPidsCountMap_[pid] <= 0) {
+        workingPidsCountMap_.erase(pid);
+        return true;
+    }
+    return false;
 }
 
 void RequestManager::HandleStartLocating(std::shared_ptr<Request> request)
@@ -177,8 +233,8 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
     }
 
     sptr<RequestConfig> newConfig = newRequest->GetRequestConfig();
-    std::list<std::shared_ptr<Request>> requestWithSameCallback = iterator->second;
-    for (auto iter = requestWithSameCallback.begin(); iter != requestWithSameCallback.end(); ++iter) {
+    auto requestWithSameCallback = &(iterator->second);
+    for (auto iter = requestWithSameCallback->begin(); iter != requestWithSameCallback->end(); ++iter) {
         auto request = *iter;
         if (request == nullptr) {
             continue;
@@ -193,7 +249,7 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
             return false;
         }
     }
-    requestWithSameCallback.push_back(newRequest);
+    requestWithSameCallback->push_back(newRequest);
     LBSLOGD(REQUEST_MANAGER, "add new receiver with old callback");
     return true;
 }
@@ -298,7 +354,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
     LBSLOGD(REQUEST_MANAGER, "stop callback");
     auto iterator = receivers->find(deadCallback);
     if (iterator == receivers->end()) {
-        LBSLOGD(REQUEST_MANAGER, "this callback has no record in receiver map");
+        LBSLOGE(REQUEST_MANAGER, "this callback has no record in receiver map");
         lock.unlock();
         return;
     }
@@ -424,6 +480,14 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     if (LocatorAbility::GetInstance()->IsProxyPid(request->GetPid())) {
         return false;
     }
+    AppIdentity identity;
+    identity.SetUid(request->GetUid());
+    identity.SetTokenId(request->GetTokenId());
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
+        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
+            request->GetUid());
+        return false;
+    }
     // for once_request app, if it has timed out, do not add to workRecord
     int64_t curTime = CommonUtils::GetCurrentTime();
     if (request->GetRequestConfig()->GetFixNumber() == 1 &&
@@ -477,13 +541,14 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     }
     std::string bundleName = "";
     pid_t uid = request->GetUid();
+    pid_t pid = request->GetPid();
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
     auto reportManager = ReportManager::GetInstance();
     if (reportManager != nullptr) {
         if (reportManager->IsAppBackground(bundleName, tokenId,
-            request->GetTokenIdEx(), uid)&&
+            request->GetTokenIdEx(), uid, pid)&&
             !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
             RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
             LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
@@ -492,12 +557,6 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     }
     auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {
-        return false;
-    }
-
-    if (!PermissionManager::CheckSystemPermission(tokenId, request->GetTokenIdEx()) &&
-        !CommonUtils::CheckAppForUser(uid)) {
-        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail", uid);
         return false;
     }
 
@@ -520,7 +579,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
 void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecord& workRecord)
 {
     int systemAbilityId = CommonUtils::AbilityConvertToId(abilityName);
-    if (!LocationSaLoadManager::InitLocationSa(systemAbilityId)) {
+    if (!SaLoadWithStatistic::InitLocationSa(systemAbilityId)) {
         return ;
     }
     sptr<IRemoteObject> remoteObject = CommonUtils::GetRemoteObject(systemAbilityId, CommonUtils::InitDeviceId());
@@ -580,32 +639,6 @@ void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t
     LocatorAbility::GetInstance()->ApplyRequests(1);
 }
 
-void RequestManager::HandlePermissionChanged(uint32_t tokenId)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged locatorAbility is null");
-        return;
-    }
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr || requests->empty()) {
-        LBSLOGE(REQUEST_MANAGER, "HandlePermissionChanged requests map is empty");
-        return;
-    }
-    for (auto mapIter = requests->begin(); mapIter != requests->end(); mapIter++) {
-        auto list = mapIter->second;
-        for (auto request : list) {
-            if (request == nullptr || tokenId != request->GetTokenId()) {
-                continue;
-            }
-            auto backgroundProxy = LocatorBackgroundProxy::GetInstance();
-            if (backgroundProxy != nullptr) {
-                backgroundProxy->UpdateListOnRequestChange(request);
-            }
-        }
-    }
-}
-
 bool RequestManager::IsUidInProcessing(int32_t uid)
 {
     std::unique_lock<ffrt::mutex> lock(runningUidsMutex_);
@@ -640,7 +673,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount += 1;
         if (uidCount == 1) {
             WriteAppLocatingStateEvent("start", pid, uid);
-            ReportDataToResSched("start", uid);
+            ReportDataToResSched("start", pid, uid);
         }
     } else {
         WriteLocationInnerEvent(REMOVE_REQUEST, {"PackageName", request->GetPackageName(),
@@ -648,7 +681,7 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
         uidCount -= 1;
         if (uidCount == 0) {
             WriteAppLocatingStateEvent("stop", pid, uid);
-            ReportDataToResSched("stop", uid);
+            ReportDataToResSched("stop", pid, uid);
         }
     }
     if (uidCount > 0) {
@@ -656,10 +689,11 @@ void RequestManager::UpdateRunningUids(const std::shared_ptr<Request>& request, 
     }
 }
 
-void RequestManager::ReportDataToResSched(std::string state, const pid_t uid)
+void RequestManager::ReportDataToResSched(std::string state, const pid_t pid, const pid_t uid)
 {
 #ifdef RES_SCHED_SUPPROT
     std::unordered_map<std::string, std::string> payload;
+    payload["pid"] = std::to_string(pid);
     payload["uid"] = std::to_string(uid);
     payload["state"] = state;
     uint32_t type = ResourceSchedule::ResType::RES_TYPE_LOCATION_STATUS_CHANGE;

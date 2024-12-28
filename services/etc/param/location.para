@@ -12,3 +12,4 @@
 # limitations under the License.
 
 persist.location.switch_mode=2
+persist.location.locationhub_state=0

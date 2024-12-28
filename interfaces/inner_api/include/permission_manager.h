@@ -28,6 +28,7 @@ const std::string ACCESS_BACKGROUND_LOCATION = "ohos.permission.LOCATION_IN_BACK
 const std::string ACCESS_MOCK_LOCATION = "ohos.permission.MOCK_LOCATION";
 const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTINGS";
 const std::string RSS_PROCESS_NAME = "resource_schedule_service";
+const std::string ACCESS_CONTROL_LOCATION_SWITCH = "ohos.permission.CONTROL_LOCATION_SWITCH";
 
 static constexpr int PERMISSION_ACCURATE = 2;
 static constexpr int PERMISSION_APPROXIMATELY = 1;

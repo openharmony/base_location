@@ -54,6 +54,10 @@ void SatelliteStatus::ReadFromParcel(Parcel& parcel)
 
 bool SatelliteStatus::Marshalling(Parcel& parcel) const
 {
+    bool isValid = IsValidityDatas();
+    if (!isValid) {
+        return false;
+    }
     CHK_PARCEL_RETURN_VALUE(parcel.WriteInt64(satellitesNumber_));
     for (int i = 0; i < satellitesNumber_; i++) {
         CHK_PARCEL_RETURN_VALUE(parcel.WriteInt64(satelliteIds_[i]));
@@ -63,6 +67,39 @@ bool SatelliteStatus::Marshalling(Parcel& parcel) const
         CHK_PARCEL_RETURN_VALUE(parcel.WriteDouble(carrierFrequencies_[i]));
         CHK_PARCEL_RETURN_VALUE(parcel.WriteInt64(constellationTypes_[i]));
         CHK_PARCEL_RETURN_VALUE(parcel.WriteInt64(additionalInfoList_[i]));
+    }
+    return true;
+}
+
+bool SatelliteStatus::IsValidityDatas() const
+{
+    if (satellitesNumber_ != satelliteIds_.size()) {
+        LBSLOGE(GNSS, "%{public}s: satelliteIds data length is incorrect.", __func__);
+        return false;
+    }
+    if (satellitesNumber_ != carrierToNoiseDensitys_.size()) {
+        LBSLOGE(GNSS, "%{public}s: carrierToNoiseDensitys data length is incorrect.", __func__);
+        return false;
+    }
+    if (satellitesNumber_ != altitudes_.size()) {
+        LBSLOGE(GNSS, "%{public}s: altitudes data length is incorrect.", __func__);
+        return false;
+    }
+    if (satellitesNumber_ != azimuths_.size()) {
+        LBSLOGE(GNSS, "%{public}s: azimuths data length is incorrect.", __func__);
+        return false;
+    }
+    if (satellitesNumber_ != carrierFrequencies_.size()) {
+        LBSLOGE(GNSS, "%{public}s: carrierFrequencies data length is incorrect.", __func__);
+        return false;
+    }
+    if (satellitesNumber_ != constellationTypes_.size()) {
+        LBSLOGE(GNSS, "%{public}s: constellationTypes data length is incorrect.", __func__);
+        return false;
+    }
+    if (satellitesNumber_ != additionalInfoList_.size()) {
+        LBSLOGE(GNSS, "%{public}s: additionalInfoList data length is incorrect.", __func__);
+        return false;
     }
     return true;
 }

@@ -15,10 +15,8 @@
 
 #ifdef FEATURE_GNSS_SUPPORT
 #include "agnss_ni_manager.h"
-#ifdef SMS_MMS_ENABLE
+
 #include "call_manager_client.h"
-#include "sms_service_manager_client.h"
-#endif
 #include "gnss_ability.h"
 #include "idevmgr_hdi.h"
 #include "iservice_registry.h"
@@ -29,6 +27,7 @@
 #include "notification_helper.h"
 #endif
 #include "securec.h"
+#include "sms_service_manager_client.h"
 #include "string_utils.h"
 #include "system_ability_definition.h"
 #include "ui_extension_ability_connection.h"
@@ -365,6 +364,11 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
 #ifdef NOTIFICATION_ENABLE
     std::shared_ptr<Notification::NotificationNormalContent> notificationNormalContent =
         std::make_shared<Notification::NotificationNormalContent>();
+    if (notificationNormalContent == nullptr) {
+        LBSLOGE(GNSS, "get notification normal content nullptr");
+        return;
+    }
+
     std::string title = "Location Request";
     std::string msgBody = DecodeNiString(notif.supplicantInfo, notif.supplicantInfoEncoding) +
         DecodeNiString(notif.notificationText, notif.notificationTextEncoding);
@@ -376,6 +380,12 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
     notificationNormalContent->SetText(message);
     std::shared_ptr<OHOS::Notification::NotificationContent> notificationContent =
         std::make_shared<OHOS::Notification::NotificationContent>(notificationNormalContent);
+
+    if (notificationContent == nullptr) {
+        LBSLOGE(GNSS, "get notification content nullptr");
+        return;
+    }
+
     Notification::NotificationRequest request;
     request.SetNotificationId(GNSS_AGNSS_NI_NOTIFICATION_ID);
     request.SetContent(notificationContent);

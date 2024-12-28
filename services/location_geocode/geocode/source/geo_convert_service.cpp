@@ -335,7 +335,7 @@ void GeoConvertService::UnloadGeoConvertSystemAbility()
         return;
     }
     auto task = [this]() {
-        LocationSaLoadManager::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
+        SaLoadWithStatistic::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
         GeoConvertService::GetInstance()->DisconnectAbilityConnect();
     };
     geoConvertHandler_->PostTask(task, UNLOAD_GEOCONVERT_TASK, UNLOAD_GEOCONVERT_DELAY_TIME);
@@ -417,7 +417,10 @@ bool GeoConvertService::SendGeocodeRequest(int code, MessageParcel& dataParcel, 
         LBSLOGE(GEO_CONVERT, "serviceProxy is nullptr!");
         return false;
     }
-    int error = serviceProxy_->SendRequest(code, dataParcel, replyParcel, option);
+    MessageParcel data;
+    data.WriteInterfaceToken(serviceProxy_->GetInterfaceDescriptor());
+    data.Append(dataParcel);
+    int error = serviceProxy_->SendRequest(code, data, replyParcel, option);
     if (error != ERR_OK) {
         LBSLOGE(GEO_CONVERT, "SendRequest to cloud service failed. error = %{public}d", error);
         return false;

@@ -116,6 +116,16 @@ bool HookUtils::ExecuteHookWhenAddWorkRecord(bool stillState, bool idleState, st
     return locatorRequestStruct.result;
 }
 
+bool HookUtils::ExecuteHookWhenCheckAppForUser(std::string packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_LOCATION_PERMISSION_CHECK, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
+
 bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& location)
 {
     GnssLocationValidStruct gnssLocationValidStruct;
@@ -124,6 +134,38 @@ bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& locat
     HookUtils::ExecuteHook(
         LocationProcessStage::CHECK_GNSS_LOCATION_VALIDITY, (void *)&gnssLocationValidStruct, nullptr);
     return gnssLocationValidStruct.result;
+}
+
+bool HookUtils::ExecuteHookWhenCheckAppForCacheTime(std::string packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::REPORT_MANAGER_GET_CACHE_LOCATION_PROCESS, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
+
+bool HookUtils::ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId)
+{
+    EnableAbilityStruct enableAbilityStruct;
+    enableAbilityStruct.bundleName = packageName;
+    enableAbilityStruct.isEnabled = isEnabled;
+    enableAbilityStruct.userId = userId;
+    enableAbilityStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::ENABLE_ABILITY_PROCESS, (void *)&enableAbilityStruct, nullptr);
+    return enableAbilityStruct.result;
+}
+
+bool HookUtils::ExecuteHookWhenPreStartLocating(std::string packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::PRE_START_LOCATING_PROCESS, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
 }
 } // namespace Location
 } // namespace OHOS

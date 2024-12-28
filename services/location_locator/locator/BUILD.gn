@@ -40,6 +40,7 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/self_request_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/work_record_statistic.cpp",
@@ -67,6 +68,7 @@ ohos_shared_library("lbsservice_locator") {
 
   deps = [
     "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
   ]
 
@@ -158,6 +160,11 @@ ohos_shared_library("lbsservice_locator") {
     defines += [ "DEVICE_STANDBY_ENABLE" ]
   }
 
+  if (location_hicollie_enable) {
+    external_deps += [ "hicollie:libhicollie" ]
+    defines += [ "LOCATION_HICOLLIE_ENABLE" ]
+  }
+
   # Used to control the export of dynamic library symbols.
   version_script = "liblbsservice_locator_version_script.txt"
 
@@ -187,6 +194,7 @@ ohos_static_library("lbsservice_locator_static") {
 
   deps = [
     "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
   ]
 
@@ -263,6 +271,11 @@ ohos_static_library("lbsservice_locator_static") {
   if (location_device_standby_enable) {
     external_deps += [ "device_standby:standby_innerkits" ]
     defines += [ "DEVICE_STANDBY_ENABLE" ]
+  }
+
+  if (location_hicollie_enable) {
+    external_deps += [ "hicollie:libhicollie" ]
+    defines += [ "LOCATION_HICOLLIE_ENABLE" ]
   }
 
   part_name = "location"

@@ -33,6 +33,7 @@ public:
     bool Add(WorkRecord &workRecord, int32_t index);
     bool Remove(int uid, int pid, std::string name, std::string uuid);
     bool Find(int uid, std::string name, std::string uuid);
+    std::string GetPackageNameByUuid(std::string uuid);
     void Clear();
     void Set(WorkRecord &workRecord);
     bool Remove(std::string name);

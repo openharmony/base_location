@@ -61,6 +61,11 @@
 #include "iservice_registry.h"
 #include "geo_convert_request.h"
 #include "parameter.h"
+#include "self_request_manager.h"
+#ifdef LOCATION_HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -96,7 +101,7 @@ const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
-const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * RETRY_INTERVAL_UNITE;
+const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * 60 * RETRY_INTERVAL_UNITE;
 const float_t PRECISION = 0.000001;
 const int COMMON_SA_ID = 4353;
 const int COMMON_SWITCH_STATE_ID = 30;
@@ -106,6 +111,11 @@ const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
 const uint32_t SET_ENABLE = 3;
 const uint32_t EVENT_PERIODIC_INTERVAL = 3 * 60 * 1000;
 const uint32_t REQUEST_DEFAULT_TIMEOUT_SECOUND = 5 * 60;
+const int LOCATIONHUB_STATE_UNLOAD = 0;
+const int LOCATIONHUB_STATE_LOAD = 1;
+const int MAX_SIZE = 100;
+const int INVALID_REQUESTS_SIZE = 20;
+const int TIMEOUT_WATCHDOG = 60; // s
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -168,6 +178,8 @@ void LocatorAbility::OnStop()
     if (!LocationDataRdbManager::SetLocationWorkingState(0)) {
         LBSLOGD(LOCATOR, "LocatorAbility::reset LocationWorkingState failed.");
     }
+    SetLocationhubStateToSyspara(LOCATIONHUB_STATE_UNLOAD);
+    LocatorRequiredDataManager::GetInstance()->UnregisterWifiCallBack();
     LBSLOGI(LOCATOR, "LocatorAbility::OnStop ability stopped.");
 }
 
@@ -219,6 +231,7 @@ bool LocatorAbility::Init()
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_REQUEST_MANAGER, 0, RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER);
         locatorHandler_->SendHighPriorityEvent(EVENT_PERIODIC_CHECK, 0, EVENT_PERIODIC_INTERVAL);
     }
+    SetLocationhubStateToSyspara(LOCATIONHUB_STATE_LOAD);
     registerToAbility_ = true;
     return registerToAbility_;
 }
@@ -324,6 +337,18 @@ bool LocatorAbility::CheckSaValid()
     return true;
 }
 
+bool LocatorAbility::SetLocationhubStateToSyspara(int value)
+{
+    char valueArray[MAX_SIZE] = {0};
+    (void)sprintf_s(valueArray, sizeof(valueArray), "%d", value);
+    int res = SetParameter(LOCATION_LOCATIONHUB_STATE, valueArray);
+    if (res != 0) {
+        LBSLOGE(LOCATOR, "%{public}s failed, res: %{public}d", __func__, res);
+        return false;
+    }
+    return true;
+}
+
 LocationErrCode LocatorAbility::UpdateSaAbility()
 {
     auto event = AppExecFwk::InnerEvent::Get(EVENT_UPDATE_SA, 0);
@@ -411,7 +436,7 @@ void LocatorAbility::PostUnloadTask(uint32_t code)
         return;
     }
     auto task = [this]() {
-        LocationSaLoadManager::UnInitLocationSa(LOCATION_LOCATOR_SA_ID);
+        SaLoadWithStatistic::UnInitLocationSa(LOCATION_LOCATOR_SA_ID);
     };
     if (locatorHandler_ != nullptr) {
         locatorHandler_->PostTask(task, UNLOAD_TASK, RETRY_INTERVAL_OF_UNLOAD_SA);
@@ -535,7 +560,7 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
 #ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_GNSS_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_GNSS_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> objectGnss =
@@ -550,14 +575,16 @@ LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, M
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback,
+    AppIdentity &identity)
 {
-    LBSLOGD(LOCATOR, "uid is: %{public}d", uid);
+    LBSLOGD(LOCATOR, "uid is: %{public}d", identity.GetUid());
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    identity.Marshalling(dataToStub);
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_GNSS_STATUS), dataToStub, replyToStub);
 }
@@ -577,13 +604,15 @@ LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteO
 #endif
 
 #ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback,
+    AppIdentity &identity)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    identity.Marshalling(dataToStub);
     dataToStub.WriteRemoteObject(callback);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_NMEA), dataToStub, replyToStub);
 }
@@ -854,7 +883,7 @@ void LocatorAbility::UpdateProxyMap()
     std::unique_lock<std::mutex> lock(proxyMapMutex_);
 #ifdef FEATURE_GNSS_SUPPORT
     // init gnss ability sa
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_GNSS_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_GNSS_SA_ID)) {
         return;
     }
     sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
@@ -866,7 +895,7 @@ void LocatorAbility::UpdateProxyMap()
 #endif
 #ifdef FEATURE_NETWORK_SUPPORT
     // init network ability sa
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID)) {
         return;
     }
     sptr<IRemoteObject> objectNetwork = CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID,
@@ -879,7 +908,7 @@ void LocatorAbility::UpdateProxyMap()
 #endif
 #ifdef FEATURE_PASSIVE_SUPPORT
     // init passive ability sa
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID)) {
         return;
     }
     sptr<IRemoteObject> objectPassive = CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID,
@@ -934,18 +963,22 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
     callback->AsObject()->AddDeathRecipient(death);
     request->SetLocatorCallbackRecipient(death);
-    HookUtils::ExecuteHookWhenStartLocation(request);
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(request->GetTokenId(),
         ACCESS_APPROXIMATELY_LOCATION);
     request->SetPermUsedType(static_cast<int>(type));
-
+    if (requestConfig->GetScenario() != SCENE_NO_POWER &&
+        requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION &&
+        !reportManager_->IsCacheGnssLocationValid()) {
+        LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
+    }
 #ifdef EMULATOR_ENABLED
     // for emulator, report cache location is unnecessary
     HandleStartLocating(request, callback);
 #else
     if (NeedReportCacheLocation(request, callback)) {
         LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
+        SelfRequestManager::GetInstance()->StartSelfRequest();
         callback->AsObject()->RemoveDeathRecipient(death);
     } else {
         HandleStartLocating(request, callback);
@@ -956,11 +989,12 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
 
 bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
 {
-    if (requestConfig->GetPriority() != LOCATION_PRIORITY_ACCURACY &&
-        ((requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
+    if ((requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) ||
         (requestConfig->GetScenario() == SCENE_DAILY_LIFE_SERVICE) ||
+        (requestConfig->GetScenario() == LOCATION_SCENE_DAILY_LIFE_SERVICE) ||
+        (requestConfig->GetScenario() == LOCATION_SCENE_LOW_POWER_CONSUMPTION) ||
         ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_FAST_FIRST_FIX)) ||
-        ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_LOW_POWER)))) {
+        ((requestConfig->GetScenario() == SCENE_UNSET) && (requestConfig->GetPriority() == PRIORITY_LOW_POWER))) {
         return true;
     }
     return false;
@@ -989,55 +1023,91 @@ int LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string per
 
 bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
 {
-    if (reportManager_ == nullptr || request == nullptr) {
+    if (reportManager_ == nullptr || requestManager_ == nullptr || request == nullptr || callback == nullptr ||
+        !IsCacheVaildScenario(request->GetRequestConfig())) {
         return false;
     }
-    // report cache location
-    if (IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
-        auto cacheLocation = reportManager_->GetCacheLocation(request);
-        if (cacheLocation != nullptr && callback != nullptr) {
-            auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-            if (!workRecordStatistic->Update("CacheLocation", 1)) {
-                LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
-            }
-            int ret = PrivacyKit::StartUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
-            if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
-                IsHapCaller(request->GetTokenId())) {
-                LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
-                return false;
-            }
-            // add location permission using record
-            ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
-                request->GetPermUsedType(), 1, 0);
-            if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
-                LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
-                return false;
-            }
-            callback->OnLocationReport(cacheLocation);
-            PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
-            if (locatorHandler_ != nullptr &&
-                locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
-                LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
-            }
-            return true;
-        }
-    } else if (!IsSingleRequest(request->GetRequestConfig()) && IsCacheVaildScenario(request->GetRequestConfig())) {
-        auto cacheLocation = reportManager_->GetCacheLocation(request);
-        if (cacheLocation != nullptr && callback != nullptr) {
-            auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-            if (!workRecordStatistic->Update("CacheLocation", 1)) {
-                LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
-            }
-            // add location permission using record
-            int ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
-                request->GetPermUsedType(), 1, 0);
-            if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
-                LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
-                return false;
-            }
-            callback->OnLocationReport(cacheLocation);
+    uint32_t tokenId = request->GetTokenId();
+    uint32_t firstTokenId = request->GetFirstTokenId();
+    if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
+        LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
+        return false;
+    }
+    std::string bundleName = request->GetPackageName();
+    pid_t uid = request->GetUid();
+    pid_t pid = request->GetPid();
+    auto reportManager = ReportManager::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(bundleName, tokenId, request->GetTokenIdEx(), uid, pid) &&
+            !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+            RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
+            LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
+            return false;
         }
     }
+    // report cache location
+    auto cacheLocation = reportManager_->GetCacheLocation(request);
+    if (cacheLocation == nullptr) {
+        return false;
+    }
+    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
+    if (!workRecordStatistic->Update("CacheLocation", 1)) {
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
+    }
+    if (IsSingleRequest(request->GetRequestConfig())) {
+        return ReportSingleCacheLocation(request, callback, cacheLocation);
+    } else {
+        return ReportCacheLocation(request, callback, cacheLocation);
+    }
+}
+
+bool LocatorAbility::ReportSingleCacheLocation(
+    const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
+{
+    requestManager_->IncreaseWorkingPidsCount(request->GetPid());
+    if (requestManager_->IsNeedStartUsingPermission(request->GetPid())) {
+        int ret = PrivacyKit::StartUsingPermission(
+            request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
+        if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+            IsHapCaller(request->GetTokenId())) {
+            requestManager_->DecreaseWorkingPidsCount(request->GetPid());
+            LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
+            return false;
+        }
+    }
+    // add location permission using record
+    int recordResult = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
+        request->GetPermUsedType(), 1, 0);
+    if (recordResult != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
+        requestManager_->DecreaseWorkingPidsCount(request->GetPid());
+        LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", recordResult);
+        return false;
+    }
+    callback->OnLocationReport(cacheLocation);
+    requestManager_->DecreaseWorkingPidsCount(request->GetPid());
+    if (requestManager_->IsNeedStopUsingPermission(request->GetPid())) {
+        PrivacyKit::StopUsingPermission(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, request->GetPid());
+    }
+    if (locatorHandler_ != nullptr &&
+        locatorHandler_->SendHighPriorityEvent(EVENT_UPDATE_LASTLOCATION_REQUESTNUM, 0, 1)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_UPDATE_LASTLOCATION_REQUESTNUM Send Success", __func__);
+    }
+    return true;
+}
+
+bool LocatorAbility::ReportCacheLocation(
+    const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
+{
+    // add location permission using record
+    int ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
+        request->GetPermUsedType(), 1, 0);
+    if (ret != ERRCODE_SUCCESS && IsHapCaller(request->GetTokenId())) {
+        LBSLOGE(LOCATOR, "UpdatePermissionUsedRecord failed ret=%{public}d", ret);
+        return false;
+    }
+    callback->OnLocationReport(cacheLocation);
     return false;
 }
 
@@ -1089,24 +1159,30 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     loc = reportManager_->GetPermittedLocation(request, lastLocation);
-    reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
-    int ret = PrivacyKit::StartUsingPermission(identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION);
-    if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
-        IsHapCaller(request->GetTokenId())) {
-        LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
-        loc = nullptr;
-    }
+    std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
     if (loc == nullptr) {
-        locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identity.GetTokenId(), 0);
+        locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
         return ERRCODE_LOCATING_FAIL;
+    }
+    reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
+    requestManager_->IncreaseWorkingPidsCount(identity.GetPid());
+    if (requestManager_->IsNeedStartUsingPermission(identity.GetPid())) {
+        int ret = PrivacyKit::StartUsingPermission(
+            identity.GetTokenId(), ACCESS_APPROXIMATELY_LOCATION, identity.GetPid());
+        if (ret != ERRCODE_SUCCESS && ret != Security::AccessToken::ERR_PERMISSION_ALREADY_START_USING &&
+            IsHapCaller(request->GetTokenId())) {
+            LBSLOGE(LOCATOR, "StartUsingPermission failed ret=%{public}d", ret);
+            locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
+            return ERRCODE_LOCATING_FAIL;
+        }
     }
     if (fabs(loc->GetLatitude() - 0.0) > PRECISION
         && fabs(loc->GetLongitude() - 0.0) > PRECISION) {
         // add location permission using record
-        locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_SUCCESS, identity.GetTokenId(), 0);
+        locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_SUCCESS, identityInfo, 0);
         return ERRCODE_SUCCESS;
     }
-    locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identity.GetTokenId(), 0);
+    locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
     return ERRCODE_LOCATING_FAIL;
 }
 
@@ -1195,8 +1271,8 @@ void LocatorAbility::RegisterLocationPrivacyAction()
     matchingSkills.AddEvent(LOCATION_PRIVACY_ACCEPT_EVENT);
     matchingSkills.AddEvent(LOCATION_PRIVACY_REJECT_EVENT);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
-    locationPrivacyEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
     subscriberInfo.SetPermission("ohos.permission.PUBLISH_LOCATION_EVENT");
+    locationPrivacyEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 
     bool result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(locationPrivacyEventSubscriber_);
     if (!result) {
@@ -1283,7 +1359,7 @@ void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel
 #ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
-    if (!LocationSaLoadManager::InitLocationSa(LOCATION_GEO_CONVERT_SA_ID)) {
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_GEO_CONVERT_SA_ID)) {
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1567,6 +1643,9 @@ LocationErrCode LocatorAbility::RemoveInvalidRequests()
 #endif
     }
     LBSLOGI(LOCATOR, "request num : %{public}d, invalid request num: %{public}d", requestNum, invalidRequestNum);
+    if (invalidRequestList.size() > INVALID_REQUESTS_SIZE) {
+        return ERRCODE_SUCCESS;
+    }
     for (auto& item : invalidRequestList) {
         sptr<ILocatorCallback> callback = item->GetLocatorCallBack();
         StopLocating(callback);
@@ -1820,7 +1899,8 @@ void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Poin
     if (!workRecordStatistic->Update("CacheLocation", 1)) {
         LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
     }
-    int64_t tokenId = event->GetParam();
+    std::shared_ptr<AppIdentity> identity = event->GetSharedObject<AppIdentity>();
+    int64_t tokenId = identity->GetTokenId();
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     auto locatorAbility = LocatorAbility::GetInstance();
@@ -1831,8 +1911,12 @@ void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Poin
             static_cast<int>(type), 1, 0);
         LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     }
-    ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
-    LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
+    auto requestManager = RequestManager::GetInstance();
+    requestManager->DecreaseWorkingPidsCount(identity->GetPid());
+    if (requestManager->IsNeedStopUsingPermission(identity->GetPid())) {
+        ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION, identity->GetPid());
+        LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
+    }
 }
 
 void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event)
@@ -1841,7 +1925,8 @@ void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Point
     if (!workRecordStatistic->Update("CacheLocation", 1)) {
         LBSLOGE(LOCATOR, "%{public}s line:%{public}d workRecordStatistic::Update failed", __func__, __LINE__);
     }
-    int64_t tokenId = event->GetParam();
+    std::shared_ptr<AppIdentity> identity = event->GetSharedObject<AppIdentity>();
+    int64_t tokenId = identity->GetTokenId();
     OHOS::Security::AccessToken::PermUsedTypeEnum type =
         Security::AccessToken::AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, ACCESS_APPROXIMATELY_LOCATION);
     auto locatorAbility = LocatorAbility::GetInstance();
@@ -1852,8 +1937,12 @@ void LocatorHandler::GetCachedLocationFailed(const AppExecFwk::InnerEvent::Point
             static_cast<int>(type), 0, 1);
         LBSLOGD(LOCATOR, "UpdatePermissionUsedRecord, ret=%{public}d", ret);
     }
-    ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION);
-    LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
+    auto requestManager = RequestManager::GetInstance();
+    requestManager->DecreaseWorkingPidsCount(identity->GetPid());
+    if (requestManager->IsNeedStopUsingPermission(identity->GetPid())) {
+        ret = PrivacyKit::StopUsingPermission(tokenId, ACCESS_APPROXIMATELY_LOCATION, identity->GetPid());
+        LBSLOGD(LOCATOR, "StopUsingPermission, ret=%{public}d", ret);
+    }
 }
 
 void LocatorHandler::UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
@@ -1914,7 +2003,7 @@ void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent:
     auto locatorAbility = LocatorAbility::GetInstance();
     if (locatorAbility != nullptr) {
         int state = event->GetParam();
-        if (!LocationSaLoadManager::InitLocationSa(COMMON_SA_ID)) {
+        if (!SaLoadWithStatistic::InitLocationSa(COMMON_SA_ID)) {
             return;
         }
         MessageParcel data;
@@ -1941,6 +2030,7 @@ void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& e
         return;
     }
     if (requestManager != nullptr) {
+        HookUtils::ExecuteHookWhenStartLocation(request);
         requestManager->HandleStartLocating(request);
     }
 }
@@ -2067,7 +2157,22 @@ void LocatorHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     auto handleFunc = locatorHandlerEventMap_.find(eventId);
     if (handleFunc != locatorHandlerEventMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
+#ifdef LOCATION_HICOLLIE_ENABLE
+        int tid = gettid();
+        std::string moduleName = "LocatorHandler";
+        XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
+            LBSLOGE(LOCATOR, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                tid, moduleName.c_str(), eventId);
+            _exit(0);
+        };
+        std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);
+        int timerId = HiviewDFX::XCollie::GetInstance().SetTimer(dfxInfo, TIMEOUT_WATCHDOG, callbackFunc, nullptr,
+            HiviewDFX::XCOLLIE_FLAG_NOOP);
         memberFunc(event);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
+#else
+        memberFunc(event);
+#endif
     } else {
         LBSLOGE(LOCATOR, "ProcessEvent event:%{public}d, unsupport service.", eventId);
     }
@@ -2084,11 +2189,9 @@ void LocatorHandler::RequestCheckEvent(const AppExecFwk::InnerEvent::Pointer& ev
 
 void LocatorHandler::SyncStillMovementState(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    auto requestManager = RequestManager::GetInstance();
-    if (requestManager != nullptr) {
-        bool state = event->GetParam();
-        requestManager->SyncStillMovementState(state);
-    }
+    bool state = event->GetParam();
+    RequestManager::GetInstance()->SyncStillMovementState(state);
+    LocatorRequiredDataManager::GetInstance()->SyncStillMovementState(state);
 }
 
 void LocatorHandler::SyncIdleState(const AppExecFwk::InnerEvent::Pointer& event)

@@ -47,7 +47,6 @@ namespace OHOS {
         requestManager->UpdateRequestRecord(request, false);
         requestManager->HandleRequest();
         requestManager->UpdateUsingPermission(request, true);
-        requestManager->HandlePermissionChanged(data[index++]);
         return true;
     }
 

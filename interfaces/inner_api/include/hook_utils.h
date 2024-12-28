@@ -41,6 +41,11 @@ enum class LocationProcessStage {
     LOCATOR_SA_GET_ADDRESSES_FROM_LOCATIONNAME_PROCESS,
     WRITE_DFX_INNER_EVENT_PROCESS,
     ADD_REQUEST_TO_WORK_RECORD,
+    LOCATOR_SA_LOCATION_PERMISSION_CHECK,
+    REPORT_MANAGER_GET_CACHE_LOCATION_PROCESS,
+    ENABLE_ABILITY_PROCESS,
+    PRE_START_LOCATING_PROCESS,
+    GNSS_REQUEST_RECORD_PROCESS,
 };
 
 typedef struct {
@@ -73,6 +78,13 @@ typedef struct {
     std::string bundleName;
 } LocatorRequestStruct;
 
+typedef struct {
+    bool isEnabled;
+    int32_t userId;
+    std::string bundleName;
+    bool result;
+} EnableAbilityStruct;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -89,6 +101,10 @@ public:
     static bool ExecuteHookWhenAddWorkRecord(bool stillState, bool idleState, std::string abilityName,
         std::string bundleName);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
+    static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
+    static bool ExecuteHookWhenCheckAppForCacheTime(std::string packageName);
+    static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
+    static bool ExecuteHookWhenPreStartLocating(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS

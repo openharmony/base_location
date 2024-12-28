@@ -33,9 +33,13 @@
 #include "location_log_event_ids.h"
 #include "geofence_request.h"
 #include "permission_manager.h"
+#include "hook_utils.h"
+#include "location_data_rdb_manager.h"
 
 namespace OHOS {
 namespace Location {
+const int DEFAULT_USERID = 100;
+
 void LocatorAbilityStub::InitLocatorHandleMap()
 {
     if (locatorHandleMap_.size() != 0) {
@@ -297,10 +301,11 @@ int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &rep
     if (!CheckLocationPermission(reply, identity)) {
         return ERRCODE_PERMISSION_DENIED;
     }
+    bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
     auto reportManager = ReportManager::GetInstance();
-    if (reportManager != nullptr) {
+    if (reportManager != nullptr && res) {
         if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
-            identity.GetTokenIdEx(), identity.GetUid()) &&
+            identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
             !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
             reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
             return ERRCODE_PERMISSION_DENIED;
@@ -395,6 +400,15 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    if (!HookUtils::ExecuteHookEnableAbility(
+        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
+        isEnabled, userId)) {
+        return ERRCODE_SUCCESS;
+    }
     LocationErrCode errCode = locatorAbility->EnableAbility(isEnabled);
     std::string bundleName;
     bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
@@ -430,7 +444,20 @@ int LocatorAbilityStub::PreEnableAbilityForUser(MessageParcel &data, MessageParc
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (!HookUtils::ExecuteHookEnableAbility(
+        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
+        isEnabled, userId)) {
+        return ERRCODE_SUCCESS;
+    }
     LocationErrCode errCode = LocatorAbility::GetInstance()->EnableAbilityForUser(isEnabled, userId);
+    std::string bundleName;
+    bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
+    // settings first enable location, need to update privacy state
+    if (code == ERRCODE_SUCCESS && errCode == ERRCODE_SUCCESS && isEnabled && !privacyState &&
+        result && !bundleName.empty() && identity.GetBundleName() == bundleName &&
+        (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
+    }
     reply.WriteInt32(errCode);
     return ERRCODE_SUCCESS;
 }
@@ -527,7 +554,8 @@ int LocatorAbilityStub::PreRegisterGnssStatusCallback(MessageParcel &data, Messa
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(locatorAbility->RegisterGnssStatusCallback(client, identity.GetUid()));
+
+    reply.WriteInt32(locatorAbility->RegisterGnssStatusCallback(client, identity));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -568,7 +596,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallback(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
-    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
+    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -609,7 +637,7 @@ int LocatorAbilityStub::PreRegisterNmeaMessageCallbackV9(MessageParcel &data,
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity.GetUid()));
+    reply.WriteInt32(locatorAbility->RegisterNmeaMessageCallback(client, identity));
     return ERRCODE_SUCCESS;
 }
 #endif
@@ -857,6 +885,7 @@ int LocatorAbilityStub::PreAddGnssGeofence(MessageParcel &data, MessageParcel &r
     }
     auto request = GeofenceRequest::Unmarshalling(data);
     request->SetBundleName(identity.GetBundleName());
+    request->SetUid(identity.GetUid());
     reply.WriteInt32(locatorAbility->AddGnssGeofence(request));
     return ERRCODE_SUCCESS;
 }
@@ -1144,7 +1173,7 @@ int LocatorAbilityStub::PreRegisterLocatingRequiredDataCallback(MessageParcel &d
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     client->AddDeathRecipient(scanRecipient_);
-    LocationErrCode errorCode = locatorDataManager->RegisterCallback(dataConfig, client);
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, client);
 
     reply.WriteInt32(errorCode);
     return ERRCODE_SUCCESS;
@@ -1382,13 +1411,11 @@ bool LocatorAbilityStub::CheckRequestAvailable(uint32_t code, AppIdentity &ident
     if (IsStopAction(code)) {
         return true;
     }
-    if (PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
         return true;
     }
-    if (!CommonUtils::CheckAppForUser(identity.GetUid())) {
-        return false;
-    }
-    return true;
+    LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
+    return false;
 }
 int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1402,8 +1429,8 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
     identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
 
     // first token id is invalid
-    if (identity.GetUid() == identity.GetFirstTokenId() && identity.GetUid() == static_cast<pid_t>(getuid())
-        && identity.GetPid() == getpid()) {
+    if (identity.GetUid() == static_cast<pid_t>(identity.GetFirstTokenId()) &&
+        identity.GetUid() == static_cast<pid_t>(getuid()) && identity.GetPid() == getpid()) {
         identity.SetFirstTokenId(0);
     }
 

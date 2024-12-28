@@ -80,6 +80,18 @@ public:
 
     void SetBundleName(const std::string& bundleName);
 
+    int32_t GetUid();
+
+    void SetUid(int32_t uid);
+
+    bool GetAppAliveStatus();
+
+    void SetAppAliveStatus(bool appAliveStatus);
+
+    int64_t GetRequestExpirationTimeStamp();
+
+    void SetRequestExpirationTimeStamp(int64_t requestExpirationTimeStamp);
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
@@ -92,8 +104,11 @@ private:
     GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;
     int fenceId_;
+    int32_t uid_;
     AbilityRuntime::WantAgent::WantAgent wantAgent_;
     std::string bundleName_;
+    bool appAliveStatus_;
+    int64_t requestExpirationTimeStamp_ = 0;
     mutable std::mutex geofenceRequestMutex_;
 };
 } // namespace Location

@@ -33,6 +33,8 @@ public:
     double GetLatitude();
     double GetLongitude();
     void ReadFromParcel(Parcel& in);
+    bool GetIsSystemApp();
+    void SetIsSystemApp(bool isSystemApp);
 
     double latitude_;
     double longitude_;
@@ -54,6 +56,7 @@ public:
     std::map<int, std::string> descriptions_;
     int descriptionsSize_ = 0;
     bool isFromMock_ = false;
+    bool isSystemApp_ = false;
     static constexpr double PARCEL_INT_SIZE = 64.0;
     static constexpr int MAX_RESULT = 10;
 };

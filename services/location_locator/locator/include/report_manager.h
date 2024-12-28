@@ -44,8 +44,9 @@ public:
     bool IsRequestFuse(const std::shared_ptr<Request>& request);
     void UpdateLocationByRequest(const uint32_t tokenId, const uint64_t tokenIdEx,
         std::unique_ptr<Location>& location);
-    bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid);
+    bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid);
     static ReportManager* GetInstance();
+    bool IsCacheGnssLocationValid();
 
 private:
     struct timespec lastUpdateTime_;
@@ -54,6 +55,7 @@ private:
     Location cacheGnssLocation_;
     Location cacheNlpLocation_;
     std::mutex lastLocationMutex_;
+    std::atomic<int64_t> lastResetRecordTime_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
         std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
@@ -63,6 +65,8 @@ private:
     std::unique_ptr<Location> ExecuteReportProcess(std::shared_ptr<Request>& request,
         std::unique_ptr<Location>& location, std::string abilityName);
     void UpdateLastLocation(const std::unique_ptr<Location>& location);
+    void LocationReportDelayTimeCheck(const std::unique_ptr<Location>& location,
+        const std::shared_ptr<Request>& request);
 };
 } // namespace OHOS
 } // namespace Location

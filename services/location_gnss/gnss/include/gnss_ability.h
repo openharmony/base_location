@@ -159,9 +159,9 @@ public:
     LocationErrCode SendLocationRequest(WorkRecord &workrecord) override;
     LocationErrCode SetEnable(bool state) override;
     LocationErrCode RefrashRequirements() override;
-    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback,  AppIdentity &identity) override;
     LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback) override;
-    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid) override;
+    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity) override;
     LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback) override;
     LocationErrCode RegisterCachedCallback(const std::unique_ptr<CachedGnssLocationsRequest>& request,
         const sptr<IRemoteObject>& callback) override;
@@ -240,6 +240,7 @@ private:
     bool IsGnssfenceRequestMapExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
     bool ConnectGnssHdi();
+
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     bool ConnectAgnssHdi();
 #endif
@@ -258,8 +259,8 @@ private:
     ffrt::mutex nmeaMutex_;
     ffrt::mutex hdiMutex_;
     ffrt::mutex statusMutex_;
-    std::vector<sptr<IGnssStatusCallback>> gnssStatusCallback_;
-    std::vector<sptr<INmeaMessageCallback>> nmeaCallback_;
+    std::map<sptr<IRemoteObject>, AppIdentity> gnssStatusCallbackMap_;
+    std::map<sptr<IRemoteObject>, AppIdentity> nmeaCallbackMap_;
     sptr<IGnssCallback> gnssCallback_;
     Location nlpLocation_;
 #ifdef TIME_SERVICE_ENABLE

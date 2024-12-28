@@ -84,7 +84,7 @@ LocationErrCode GnssAbilityProxy::RefrashRequirements()
     return LocationErrCode(reply.ReadInt32());
 }
 
-LocationErrCode GnssAbilityProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode GnssAbilityProxy::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -93,6 +93,9 @@ LocationErrCode GnssAbilityProxy::RegisterGnssStatusCallback(const sptr<IRemoteO
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    LBSLOGD(GNSS, "GnssAbilityProxy RegisterGnssStatusCallback uid: %{public}d, tokenId: %{public}d",
+        identity.GetUid(), identity.GetTokenId());
+    identity.Marshalling(data);
     data.WriteRemoteObject(callback);
     int error =
         Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS), data, reply, option);
@@ -120,7 +123,8 @@ LocationErrCode GnssAbilityProxy::UnregisterGnssStatusCallback(const sptr<IRemot
     return LocationErrCode(reply.ReadInt32());
 }
 
-LocationErrCode GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, pid_t uid)
+LocationErrCode GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback,
+    AppIdentity &identity)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -129,6 +133,9 @@ LocationErrCode GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemote
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    LBSLOGD(GNSS, "RegisterNmeaMessageCallback uid: %{public}d, tokenId: %{public}d",
+        identity.GetUid(), identity.GetTokenId());
+    identity.Marshalling(data);
     data.WriteRemoteObject(callback);
     int error = Remote()->SendRequest(static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA), data, reply, option);
     LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);

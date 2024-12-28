@@ -35,8 +35,10 @@ const long NANOS_PER_MILLI = 1000000L;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
-static constexpr int GNSS_FIX_CACHED_TIME = 60;
-static constexpr int NLP_FIX_CACHED_TIME = 45;
+static constexpr int CACHED_TIME = 25;
+static constexpr int LONG_CACHE_DURATION = 90;
+static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
+static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
 
 ReportManager* ReportManager::GetInstance()
 {
@@ -48,6 +50,7 @@ ReportManager::ReportManager()
 {
     clock_gettime(CLOCK_REALTIME, &lastUpdateTime_);
     offsetRandom_ = CommonUtils::DoubleRandom(0, 1);
+    lastResetRecordTime_ = CommonUtils::GetSinceBootTime();
 }
 
 ReportManager::~ReportManager() {}
@@ -93,10 +96,13 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         auto requestManger = RequestManager::GetInstance();
         if (requestManger != nullptr) {
             requestManger->UpdateRequestRecord(request, false);
+            requestManger->UpdateUsingPermission(request, false);
         }
     }
-    locatorAbility->ApplyRequests(1);
-    deadRequests->clear();
+    if (deadRequests->size() > 0) {
+        locatorAbility->ApplyRequests(1);
+        deadRequests->clear();
+    }
     return true;
 }
 
@@ -143,6 +149,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             ACCESS_APPROXIMATELY_LOCATION, permUsedType, 0, 1);
         return false;
     }
+    LocationReportDelayTimeCheck(finalLocation, request);
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
     finalLocation = ExecuteReportProcess(request, finalLocation, abilityName);
     if (finalLocation == nullptr) {
@@ -174,6 +181,26 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     return true;
 }
 
+void ReportManager::LocationReportDelayTimeCheck(const std::unique_ptr<Location>& location,
+    const std::shared_ptr<Request>& request)
+{
+    if (location == nullptr || request == nullptr) {
+        return;
+    }
+    int64_t currentTime = CommonUtils::GetSinceBootTime();
+    long deltaMs = (currentTime - location->GetTimeSinceBoot()) / NANOS_PER_MILLI;
+    if (deltaMs > MAX_LOCATION_REPORT_DELAY_TIME) {
+        long recordDeltaMs = (currentTime - lastResetRecordTime_) / NANOS_PER_MILLI;
+        if (recordDeltaMs < MIN_RESET_TIME_THRESHOLD) {
+            return;
+        }
+        LBSLOGE(REPORT_MANAGER, "%{public}s: %{public}d check fail, current deltaMs = %{public}ld", __func__,
+            request->GetTokenId(), deltaMs);
+        lastResetRecordTime_ = currentTime;
+        _exit(0);
+    }
+}
+
 std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Request>& request,
     std::unique_ptr<Location>& location, std::string abilityName)
 {
@@ -201,17 +228,26 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     auto firstTokenId = request->GetFirstTokenId();
     auto tokenIdEx = request->GetTokenIdEx();
     auto uid =  request->GetUid();
+    auto pid =  request->GetPid();
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
-    if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid) &&
+    if (IsAppBackground(bundleName, tokenId, tokenIdEx, uid, pid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
         return nullptr;
     }
-    if (!PermissionManager::CheckSystemPermission(tokenId, tokenIdEx) &&
-        !CommonUtils::CheckAppForUser(uid)) {
+    AppIdentity identity;
+    identity.SetUid(request->GetUid());
+    identity.SetTokenId(request->GetTokenId());
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
+        //app is not in current user, not need to report
+        LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
+        auto locationErrorCallback = request->GetLocationErrorCallBack();
+        if (locationErrorCallback != nullptr) {
+            locationErrorCallback->OnErrorReport(LOCATING_FAILED_LOCATION_PERMISSION_DENIED);
+        }
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
@@ -346,11 +382,18 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     std::unique_ptr<Location> cacheLocation = nullptr;
+    std::string packageName = request->GetPackageName();
+    int cachedTime = 0;
+    if (HookUtils::ExecuteHookWhenCheckAppForCacheTime(packageName)) {
+        cachedTime = LONG_CACHE_DURATION;
+    } else {
+        cachedTime = CACHED_TIME;
+    }
     if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= GNSS_FIX_CACHED_TIME) {
+        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= NLP_FIX_CACHED_TIME) {
+        (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
@@ -451,7 +494,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
     }
 }
 
-bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, int32_t uid)
+bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     if (locatorBackgroundProxy == nullptr) {
@@ -463,10 +506,20 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
     if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
         return false;
     }
-    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid)) {
+    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid, pid)) {
         return false;
     }
     return true;
+}
+
+bool ReportManager::IsCacheGnssLocationValid()
+{
+    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
+        return true;
+    }
+    return false;
 }
 } // namespace OHOS
 } // namespace Location
