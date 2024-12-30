@@ -40,11 +40,15 @@ public:
     void SetUp();
     void TearDown();
     void MockNativePermission();
-    void MockNativeMockPermission();
+    void MockNativeWithoutMockPermission();
+    void MockNativeWithoutSecurePermission();
+    void MockNativeWithoutLocationPermission();
     void LoadSystemAbility();
 
     uint64_t tokenId_;
     uint64_t tokenId2_;
+    uint64_t tokenId3_;
+    uint64_t tokenId4_;
 };
 } // namespace Location
 } // namespace OHOS

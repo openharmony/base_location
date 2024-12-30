@@ -33,7 +33,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const int UNKNOWN_PRIORITY = 0x01FF;
 const int UNKNOWN_SCENE = 0x02FF;
 void RequestManagerTest::SetUp()
@@ -70,6 +70,7 @@ void RequestManagerTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -135,13 +136,16 @@ HWTEST_F(RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1)
         << "RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
+    auto locatorAbility = LocatorAbility::GetInstance();
+    locatorAbility->receivers_ = nullptr;
     requestManager_->HandleStartLocating(request_);
     requestManager_->HandleStopLocating(nullptr); // can't stop locating
 
     requestManager_->HandleStartLocating(request_); // can start locating
     requestManager_->HandleStopLocating(callback_); // can stop locating
 
-    requestManager_->HandleStartLocating(nullptr); // can't start locating
+    locatorAbility->receivers_ = nullptr;
+    requestManager_->HandleStartLocating(request_); // can't start locating
     requestManager_->HandleStopLocating(callback_); // can stop locating, but not locating
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating001 end");
 }

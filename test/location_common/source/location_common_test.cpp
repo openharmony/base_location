@@ -56,7 +56,6 @@
 #endif
 #include "hook_utils.h"
 #include "hookmgr.h"
-#include "work_record_statistic.h"
 #include "permission_manager.h"
 
 using namespace testing::ext;
@@ -810,16 +809,6 @@ HWTEST_F(LocationCommonTest, HookUtils002, TestSize.Level1)
     HookUtils::UnregisterHook(LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS, OhosHookTest03);
     HookUtils::UnregisterHook(LocationProcessStage::LOCATOR_SA_REQUEST_PROCESS, OhosHookTest04);
     LBSLOGI(LOCATOR, "[LocationCommonTest] HookUtils002 end");
-}
-
-HWTEST_F(LocationCommonTest, WorkRecordStatistic001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationCommonTest, WorkRecordStatistic001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic001 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->Update("network", 1);
-    LBSLOGI(LOCATOR, "[LocationCommonTest] WorkRecordStatistic001 end");
 }
 
 HWTEST_F(LocationCommonTest, Request001, TestSize.Level1)

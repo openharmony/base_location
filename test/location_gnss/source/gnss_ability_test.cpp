@@ -54,7 +54,7 @@ using HDI::Location::Gnss::V2_0::LocationInfo;
 using HDI::Location::Gnss::V2_0::ConstellationCategory;
 using HDI::Location::Agnss::V2_0::AGnssRefInfoType;
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
-const int32_t LOCATION_PERM_NUM = 5;
+const int32_t LOCATION_PERM_NUM = 6;
 const std::string ARGS_HELP = "-h";
 const std::string MANAGER_SETTINGS = "ohos.permission.MANAGE_SETTINGS";
 constexpr const char *UNLOAD_GNSS_TASK = "gnss_sa_unload";
@@ -106,7 +106,7 @@ void GnssAbilityTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        MANAGER_SETTINGS.c_str(),
+        MANAGER_SETTINGS.c_str(), ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -533,6 +533,78 @@ HWTEST_F(GnssAbilityTest, SendCommand001, TestSize.Level1)
      */
     ability_->SendCommand(locationCommand);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendCommand003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendCommand003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand003 begin");
+    std::unique_ptr<LocationCommand> locationCommand = std::make_unique<LocationCommand>();
+    locationCommand->scenario = 1;
+    locationCommand->command = true;
+    proxy_->SendCommand(locationCommand);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SendCommand003 end");
+}
+
+HWTEST_F(GnssAbilityTest, AddFence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddFence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->AddFence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveFence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveFence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->RemoveFence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, AddGnssGeofence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AddGnssGeofence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->AddGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, RemoveGnssGeofence003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, RemoveGnssGeofence003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    proxy_->RemoveGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofence003 end");
+}
+
+HWTEST_F(GnssAbilityTest, QuerySupportCoordinateSystemType002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, QuerySupportCoordinateSystemType002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] QuerySupportCoordinateSystemType002 begin");
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    proxy_->QuerySupportCoordinateSystemType(coordinateSystemTypes);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] QuerySupportCoordinateSystemType002 end");
+}
+
+HWTEST_F(GnssAbilityTest, SendNetworkLocation003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SendNetworkLocation003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation003 begin");
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    proxy_->SendNetworkLocation(location);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] SendNetworkLocation003 end");
 }
 
 HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)

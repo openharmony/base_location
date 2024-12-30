@@ -29,6 +29,7 @@ namespace OHOS {
 namespace Location {
 const int WRONG_UID = 1001;
 const int MAX_RECORD_COUNT = 100;
+const uint32_t WORKING_STATE = 1;
 
 void WorkRecordTest::SetUp()
 {
@@ -298,26 +299,6 @@ HWTEST_F(WorkRecordTest, GetTimeInterval001, TestSize.Level1)
     EXPECT_EQ(-1, workrecord->GetTimeInterval(-1));
     EXPECT_EQ("", workrecord->GetUuid(-1));
     LBSLOGI(LOCATOR, "[WorkRecordTest] GetTimeInterval001 end");
-}
-
-HWTEST_F(WorkRecordTest, WorkRecordStatistic001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "WorkRecordTest, WorkRecordStatistic001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic001 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->Update("network", 1);
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic001 end");
-}
-
-HWTEST_F(WorkRecordTest, WorkRecordStatistic002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "WorkRecordTest, WorkRecordStatistic002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic002 begin");
-    auto workRecordStatistic = WorkRecordStatistic::GetInstance();
-    workRecordStatistic->Update("network", 0);
-    LBSLOGI(LOCATOR, "[WorkRecordTest] WorkRecordStatistic002 end");
 }
 } // namespace Location
 } // namespace OHOS

@@ -31,41 +31,42 @@
 #include "constant_definition.h"
 #include "location_dumper.h"
 #include "permission_manager.h"
+#include "locationhub_ipc_interface_code.h"
 
 using namespace testing::ext;
 
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const std::string ARGS_HELP = "-h";
 const std::string UNLOAD_PASSIVE_TASK = "passive_sa_unload";
-const int32_t WAIT_EVENT_TIME = 3;
+const int32_t WAIT_EVENT_TIME = 1;
+
+sptr<PassiveAbility> PassiveAbilityTest::ability_;
+sptr<PassiveAbilityProxy> PassiveAbilityTest::proxy_;
 
 void PassiveAbilityTest::SetUp()
 {
-    /*
-     * @tc.setup: Get system ability's pointer and get sa proxy object.
-     */
-    MockNativePermission();
-    ability_ = new (std::nothrow) PassiveAbility();
-    EXPECT_NE(nullptr, ability_);
-    proxy_ = new (std::nothrow) PassiveAbilityProxy(ability_);
-    EXPECT_NE(nullptr, proxy_);
 }
 
 void PassiveAbilityTest::TearDown()
 {
-    /*
-     * @tc.teardown: release memory.
-     */
-    proxy_ = nullptr;
-    ability_->passiveHandler_->RemoveTask(UNLOAD_PASSIVE_TASK);
-    ability_ = nullptr;
+}
+
+void PassiveAbilityTest::SetUpTestCase()
+{
+    MockNativePermission();
+    ability_ = new (std::nothrow) PassiveAbility();
+    proxy_ = new (std::nothrow) PassiveAbilityProxy(ability_);
+    EXPECT_NE(nullptr, proxy_);
 }
 
 void PassiveAbilityTest::TearDownTestCase()
 {
+    ability_->passiveHandler_->RemoveAllEvents();
     sleep(WAIT_EVENT_TIME);
+    proxy_ = nullptr;
+    ability_ = nullptr;
 }
 
 void PassiveAbilityTest::MockNativePermission()
@@ -73,6 +74,7 @@ void PassiveAbilityTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -172,10 +174,12 @@ HWTEST_F(PassiveAbilityTest, PassiveLocationMock001, TestSize.Level1)
     }
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->EnableMock());
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetMocked(timeInterval, locations));
+    ability_->passiveHandler_->RemoveEvent(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS));
     sleep(WAIT_EVENT_TIME);
 
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
+    ability_->passiveHandler_->RemoveEvent(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS));
     sleep(WAIT_EVENT_TIME);
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveLocationMock001 end");
 }
@@ -316,6 +320,16 @@ HWTEST_F(PassiveAbilityTest, PassiveOnStartAndOnStop002, TestSize.Level1)
     ability_->state_ = ServiceRunningState::STATE_RUNNING;
     ability_->OnStart(); // start ability again
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveOnStartAndOnStop002 end");
+}
+
+HWTEST_F(PassiveAbilityTest, PassiveInit002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PassiveAbilityStubTest, PassiveInit002, TestSize.Level1";
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveInit002 begin");
+    ability_->registerToAbility_ = true;
+    ability_->Init(); // start ability again
+    LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveInit002 end");
 }
 } // namespace Location
 } // namespace OHOS

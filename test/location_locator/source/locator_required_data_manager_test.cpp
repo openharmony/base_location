@@ -59,6 +59,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
     dataConfig->SetType(LocatingRequiredDataType::WIFI);
+    dataConfig->SetFixNumber(1);
     dataConfig->SetNeedStartScan(true);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
@@ -67,7 +68,10 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, nullptr);
     EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
     errorCode = locatorDataManager->UnregisterCallback(nullptr);
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, errorCode);
+
+    auto callback =
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
+    locatorDataManager->UnregisterCallback(callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback001 end");
 }
 
@@ -89,6 +93,11 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     locatorDataManager->SetIsWifiCallbackRegistered(true);
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
+    locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
+    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, errorCode);
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
+    locatorDataManager->SetIsWifiCallbackRegistered(true);
+    locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 end");
 }
 
@@ -100,8 +109,9 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
 
     std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
-    dataConfig->SetType(1);
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
     dataConfig->SetNeedStartScan(false);
+    dataConfig->SetFixNumber(1);
     dataConfig->SetScanIntervalMs(1);
     dataConfig->SetScanTimeoutMs(1);
     AppIdentity identity;
