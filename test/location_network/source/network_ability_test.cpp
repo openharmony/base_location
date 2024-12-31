@@ -62,7 +62,7 @@ using namespace testing;
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 5;
 const std::string ARGS_HELP = "-h";
 const std::string UNLOAD_NETWORK_TASK = "network_sa_unload";
 const int32_t WAIT_EVENT_TIME = 1;
@@ -102,6 +102,7 @@ void NetworkAbilityTest::MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -355,7 +356,12 @@ HWTEST_F(NetworkAbilityTest, RequestRecord001, TestSize.Level1)
     auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
     WorkRecord workRecord;
     ability->RequestRecord(workRecord, true);
-
+    ability->RequestRecord(workRecord, false);
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    EXPECT_NE(nullptr, nlpServiceProxy);
+    ability->nlpServiceProxy_ = nlpServiceProxy;
+    ability->RequestRecord(workRecord, true);
     ability->RequestRecord(workRecord, false);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RequestRecord001 end");
 }
@@ -445,8 +451,29 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilityProcessReportLocationMock001, TestSiz
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, NetworkAbilityProcessReportLocationMock001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock001 begin");
-    ability_->mockLocationIndex_ = -1;
+    std::vector<std::shared_ptr<Location>> locations;
+    Parcel parcel;
+    parcel.WriteDouble(10.6); // latitude
+    parcel.WriteDouble(10.5); // longitude
+    parcel.WriteDouble(10.4); // altitude
+    parcel.WriteDouble(1.0); // accuracy
+    parcel.WriteDouble(5.0); // speed
+    parcel.WriteDouble(10); // direction
+    parcel.WriteInt64(1611000000); // timestamp
+    parcel.WriteInt64(1611000000); // time since boot
+    parcel.WriteString16(u"additions"); // additions
+    parcel.WriteInt64(1); // additionSize
+    parcel.WriteInt32(1); // isFromMock is true
+    locations.push_back(Location::UnmarshallingShared(parcel));
+    ability_->ProcessReportLocationMock();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock001 end");
+}
 
+HWTEST_F(NetworkAbilityTest, NetworkAbilityProcessReportLocationMock002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkAbilityProcessReportLocationMock002, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock002 begin");
     std::vector<std::shared_ptr<Location>> locations;
     Parcel parcel;
     parcel.WriteDouble(10.6); // latitude
@@ -462,7 +489,8 @@ HWTEST_F(NetworkAbilityTest, NetworkAbilityProcessReportLocationMock001, TestSiz
     parcel.WriteInt32(1); // isFromMock is true
     locations.push_back(Location::UnmarshallingShared(parcel));
     ability_->CacheLocationMock(locations);
-    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock001 end");
+    ability_->ProcessReportLocationMock();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkAbilityProcessReportLocationMock002 end");
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkAbilitySendReportMockLocationEvent001, TestSize.Level1)
