@@ -28,6 +28,7 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
 
         console.info(TAG, `wifiDialogType: ` + want.parameters?.['wifiDialogType']);
         AppStorage.setOrCreate('wifiDialogType', want.parameters?.['wifiDialogType']);
+        AppStorage.setOrCreate('wifi5gSsid', want.parameters?.['wifi5gSsid']);
 
         let param: Record<string, UIExtensionContentSession> = {
             'session': session

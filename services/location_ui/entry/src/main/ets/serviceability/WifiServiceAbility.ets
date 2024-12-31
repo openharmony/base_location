@@ -30,6 +30,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     private WIFI_PORTAL_CONNECTED: number = 0;
     private WIFI_PORTAL_TIMEOUT: number = 1;
     private WIFI_PORTAL_FOUND: number = 2;
+    private WIFI_5G_AUTO_IDENTIFY_CONN_FOUND: number = 3;
     private willPublish: boolean = false;
 
     onCreate(want: Want): void {
@@ -79,7 +80,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
             wants: [
                 {
                     action: 'ohos.event.notification.wifi.TAP_NOTIFICATION',
-                    parameters: {},
+                    parameters: { 'notificationId': id },
                 }
             ],
             actionType: wantAgent.OperationType.SEND_COMMON_EVENT,
@@ -113,6 +114,10 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
           case this.WIFI_PORTAL_FOUND:
             templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_found_notify_title').id);
             templateText = this.getFormatString($r('app.string.wifi_portal_found_notify_text'), ssid);
+            break;
+          case this.WIFI_5G_AUTO_IDENTIFY_CONN_FOUND:
+            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifipro_better_network_pop_up_title').id);
+            templateText = this.getFormatString($r('app.string.wifipro_better_network_notify_text'), ssid);
             break;
           default:
             break;
