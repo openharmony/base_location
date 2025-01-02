@@ -15,6 +15,7 @@
 
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import commonEventManager from '@ohos.commonEventManager';
+import resourceManager from '@ohos.resourceManager';
 
 let TAG = '[WIFI-NI:WifiDialog]==>';
 const WIFI_NI_ACCEPT_EVENT: string = 'ohos.event.wifi.DIALOG_ACCEPT';
@@ -23,12 +24,13 @@ const WIFI_NI_REJECT_EVENT: string = 'ohos.event.wifi.DIALOG_REJECT';
 @Entry
 @Component
 struct dialogPlusPage {
-  @State title: Resource = $r('app.string.wifi_cdd_notify_title');
-  @State primaryButtonValue: Resource = $r('app.string.wifi_cdd_notify_no_button');
-  @State secondaryButtonValue: Resource = $r('app.string.wifi_cdd_notify_yes_button');
+  @State title: string = '';
+  @State primaryButtonValue: string = '';
+  @State secondaryButtonValue: string = '';
   private WIFI_DIALOG_CDD: number = 0;
   private WIFI_DIALOG_THREE_VAP: number = 1;
   private WIFI_DIALOG_CANDIDATE_CONNECT: number = 2;
+  private WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN: number = 3;
 
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear')
@@ -36,19 +38,25 @@ struct dialogPlusPage {
       let type : number = AppStorage.get('wifiDialogType') as number
       switch (type) {
         case this.WIFI_DIALOG_CDD:
-            this.title = $r('app.string.wifi_cdd_notify_title');
-            this.primaryButtonValue = $r('app.string.wifi_cdd_notify_no_button');
-            this.secondaryButtonValue = $r('app.string.wifi_cdd_notify_yes_button');
+            this.title = getContext().resourceManager.getStringSync($r('app.string.wifi_cdd_notify_title').id);
+            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_cdd_notify_no_button').id);
+            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_cdd_notify_yes_button').id);
             break;
         case this.WIFI_DIALOG_THREE_VAP:
-            this.title = $r('app.string.wifi_three_vap_notify_title');
-            this.primaryButtonValue = $r('app.string.wifi_three_vap_notify_no_button');
-            this.secondaryButtonValue = $r('app.string.wifi_three_vap_notify_yes_button');
+            this.title = getContext().resourceManager.getStringSync($r('app.string.wifi_three_vap_notify_title').id);
+            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_three_vap_notify_no_button').id);
+            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_three_vap_notify_yes_button').id);
             break;
         case this.WIFI_DIALOG_CANDIDATE_CONNECT:
-            this.title = $r('app.string.wifi_candidate_connect_notify_title');
-            this.primaryButtonValue = $r('app.string.wifi_candidate_connect_notify_no_button');
-            this.secondaryButtonValue = $r('app.string.wifi_candidate_connect_notify_yes_button');
+           this.title = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_title').id);
+            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_no_button').id);
+            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_yes_button').id);
+            break;
+        case this.WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN:
+            let ssid : string = AppStorage.get('wifi5gSsid') as string;
+            this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_context'), ssid);
+            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_no_button').id);
+            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_ok_button').id);
             break;
         default:
             break;
@@ -76,6 +84,11 @@ struct dialogPlusPage {
     }
   }
 
+  getFormatString(resource: Resource, subStr: string): string {
+      let result = getContext().resourceManager.getStringSync(resource.id);
+      return result.replace(new RegExp('%s', 'gm'), subStr);
+  }
+ 
   aboutToDisappear() {
     let session = AppStorage.get<UIExtensionContentSession>('ConfirmSession');
     if (session) {
