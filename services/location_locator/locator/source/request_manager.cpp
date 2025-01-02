@@ -545,18 +545,16 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
-    auto reportManager = ReportManager::GetInstance();
-    if (reportManager != nullptr) {
-        if (reportManager->IsAppBackground(bundleName, tokenId,
-            request->GetTokenIdEx(), uid, pid)&&
-            !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
-            RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
-            LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
-            return false;
-        }
-    }
     auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {
+        return false;
+    }
+    auto reportManager = ReportManager::GetInstance();
+    if (requestConfig->GetFixNumber() == 0 && reportManager->IsAppBackground(bundleName, tokenId,
+        request->GetTokenIdEx(), uid, pid)&&
+        !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
+        RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
+        LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
 
