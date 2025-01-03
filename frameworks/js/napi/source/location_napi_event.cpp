@@ -437,14 +437,16 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
         g_locatorProxy->StopLocating(callbackPtr);
         if (callbackHost->GetCount() != 0 && callbackHost->GetSingleLocation() == nullptr) {
             std::unique_ptr<Location> location = nullptr;
+            if (context->request_->GetScenario() == SCENE_UNSET && context->request_->GetPriority() == PRIORITY_UNSET) {
+                context->errCode = ERRCODE_LOCATING_FAIL;
+                return;
+            }
 #ifdef ENABLE_NAPI_MANAGER
             g_locatorProxy->GetCachedLocationV9(location);
 #else
             location = g_locatorProxy->GetCachedLocation();
 #endif
-            int64_t curTime = CommonUtils::GetCurrentTimeStamp();
-            if (location != nullptr &&
-                (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
+            if (IsCacheLocationValid(context->request_, location)) {
                 callbackHost->SetSingleLocation(location);
             } else {
                 context->errCode = ERRCODE_LOCATING_FAIL;
@@ -1595,6 +1597,20 @@ int GetCurrentLocationType(std::unique_ptr<RequestConfig>& config)
         return LOCATION_PRIORITY_ACCURACY;
     } else {
         return LOCATION_PRIORITY_LOCATING_SPEED;
+    }
+}
+
+bool IsCacheLocationValid(const std::unique_ptr<RequestConfig>& config, const std::unique_ptr<Location>& location)
+{
+    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    float maxAcc = config->GetMaxAccuracy();
+    if (location != nullptr &&
+        (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME &&
+        (location->GetAccuracy() == DEFAULT_APPROXIMATELY_ACCURACY ||
+        !(maxAcc > 0 && location->GetAccuracy() > maxAcc))) {
+        return true;
+    } else {
+        return false;
     }
 }
 }  // namespace Location

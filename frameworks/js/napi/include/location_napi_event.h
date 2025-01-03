@@ -86,6 +86,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo);
 napi_value Off(napi_env env, napi_callback_info cbinfo);
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo);
 int GetCurrentLocationType(std::unique_ptr<RequestConfig>& config);
+bool IsCacheLocationValid(const std::unique_ptr<RequestConfig>& config, const std::unique_ptr<Location>& location);
 
 #ifdef ENABLE_NAPI_MANAGER
 LocationErrCode SubscribeLocationServiceStateV9(const napi_env& env,
