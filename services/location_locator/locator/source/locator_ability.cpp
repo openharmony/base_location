@@ -119,6 +119,7 @@ const int TIMEOUT_WATCHDOG = 60; // s
 const int INVALID_REQUESTS_SIZE = 20;
 const int MAX_PERMISSION_NUM = 1000;
 const int MAX_SWITCH_CALLBACKS_NUM = 1000;
+const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -959,7 +960,8 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return ERRCODE_NOT_SUPPORTED;
 #endif
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+        !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     // update offset before add request
@@ -1205,16 +1207,6 @@ LocationErrCode LocatorAbility::ReportLocation(
 
 LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
 {
-    int state = DISABLED;
-    LocationErrCode errorCode = GetSwitchState(state);
-    if (errorCode != ERRCODE_SUCCESS) {
-        return errorCode;
-    }
-    if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
-            __func__, __LINE__);
-        return ERRCODE_SWITCH_OFF;
-    }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
         return ERRCODE_SUCCESS;
     }
@@ -1593,6 +1585,13 @@ LocationErrCode LocatorAbility::UnregisterLocationError(sptr<ILocatorCallback>& 
     return ERRCODE_SUCCESS;
 }
 
+LocationErrCode LocatorAbility::SetLocationSwitchIgnored(bool isEnabled, AppIdentity &identity)
+{
+    LBSLOGI(LOCATOR, "SetLocationSwitchIgnored %{public}d", isEnabled);
+    SetLocationSwitchIgnoredFlag(identity.GetTokenId(), isEnabled);
+    return ERRCODE_SUCCESS;
+}
+
 void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode, int32_t netErrCode)
 {
     std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = std::make_unique<LocatorErrorMessage>();
@@ -1727,6 +1726,33 @@ void LocatorAbility::SyncIdleState(bool state)
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_SYNC_IDLE_STATE Send Success", __func__);
     }
+}
+
+void LocatorAbility::SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable)
+{
+    std::unique_lock<std::mutex> lock(LocationSwitchIgnoredFlagMutex_);
+    LBSLOGD(LOCATOR, "SetLocationSwitchIgnoredFlag enable = %{public}d", enable);
+    AppSwitchIgnoredState appSwitchIgnoredState;
+    appSwitchIgnoredState.state = enable;
+    appSwitchIgnoredState.timeSinceBoot = CommonUtils::GetSinceBootTime();
+    locationSettingsIgnoredFlagMap_[tokenId] = appSwitchIgnoredState;
+}
+
+bool LocatorAbility::GetLocationSwitchIgnoredFlag(uint32_t tokenId)
+{
+    std::unique_lock<std::mutex> lock(LocationSwitchIgnoredFlagMutex_);
+    auto iter = locationSettingsIgnoredFlagMap_.find(tokenId);
+    if (iter == locationSettingsIgnoredFlagMap_.end()) {
+        return false;
+    }
+    AppSwitchIgnoredState appSwitchIgnoredState = iter->second;
+    if ((CommonUtils::GetSinceBootTime()- appSwitchIgnoredState.timeSinceBoot) / NANOS_PER_MICRO / MICRO_PER_MILLI >
+        LOCATION_SWITCH_IGNORED_STATE_VALID_TIME) {
+        appSwitchIgnoredState.state = false;
+        locationSettingsIgnoredFlagMap_[tokenId] = appSwitchIgnoredState;
+    }
+    LBSLOGD(LOCATOR, "GetLocationSwitchIgnoredFlag enable = %{public}d", appSwitchIgnoredState.state);
+    return appSwitchIgnoredState.state;
 }
 
 void LocationMessage::SetAbilityName(std::string abilityName)

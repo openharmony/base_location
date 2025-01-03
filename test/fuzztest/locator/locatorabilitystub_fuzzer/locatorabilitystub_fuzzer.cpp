@@ -37,6 +37,7 @@ void MockNativePermission()
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -864,6 +865,20 @@ bool LocatorAbilityStub047FuzzTest(const char* data, size_t size)
     return true;
 }
 
+bool LocatorAbilityStub048FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::SET_LOCATION_SETTINGS_IGNORED),
+        requestParcel, reply, option);
+    return true;
+}
 } // namespace OHOS
 
 void GeoCodeFuzzTest(const char* ch, size_t size)
@@ -929,6 +944,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub044FuzzTest(ch, size);
         OHOS::LocatorAbilityStub045FuzzTest(ch, size);
         OHOS::LocatorAbilityStub047FuzzTest(ch, size);
+        OHOS::LocatorAbilityStub048FuzzTest(ch, size);
         sleep(OHOS::WAIT_EVENT_TIME);
         free(ch);
         ch = nullptr;

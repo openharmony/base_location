@@ -705,5 +705,27 @@ HWTEST_F(LocatorImplTest, GetCurrentWifiBssidForLocating, TestSize.Level1)
     }
     LBSLOGI(LOCATOR, "[LocatorImplTest] GetCurrentWifiBssidForLocating end");
 }
+
+HWTEST_F(LocatorImplTest, SetLocationSwitchIgnored001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, SetLocationSwitchIgnored001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] SetLocationSwitchIgnored001 begin");
+    std::string bssid;
+    auto errCode = locatorImpl_->SetLocationSwitchIgnored(true);
+    EXPECT_EQ(ERRCODE_SUCCESS, errCode);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] SetLocationSwitchIgnored001 end");
+}
+
+HWTEST_F(LocatorImplTest, SetLocationSwitchIgnored002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, SetLocationSwitchIgnored002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] SetLocationSwitchIgnored002 begin");
+    std::string bssid;
+    auto errCode = locatorImpl_->SetLocationSwitchIgnored(false);
+    EXPECT_EQ(ERRCODE_SUCCESS, errCode);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] SetLocationSwitchIgnored002 end");
+}
 }  // namespace Location
 }  // namespace OHOS

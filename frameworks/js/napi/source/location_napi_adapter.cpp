@@ -303,6 +303,26 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 #endif
 }
 
+#ifdef ENABLE_NAPI_MANAGER
+napi_value SetLocationSwitchIgnored(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    bool isIgnored;
+    NAPI_CALL(env, napi_get_value_bool(env, argv[0], &isIgnored));
+    LocationErrCode errorCode = g_locatorClient->SetLocationSwitchIgnored(isIgnored);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+    }
+    return UndefinedNapiValue(env);
+}
+#endif
+
 void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
 {
     asyncContext->executeFunc = [&](void* data) -> void {

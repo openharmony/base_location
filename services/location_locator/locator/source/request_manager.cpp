@@ -505,7 +505,8 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (!IsRequestAvailable(request)) {
         return false;
     }
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+        !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_SWITCH_OFF, request);
         LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
         return false;

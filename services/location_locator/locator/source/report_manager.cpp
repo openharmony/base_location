@@ -24,6 +24,7 @@
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
 #include "location_log_event_ids.h"
+#include "location_data_rdb_manager.h"
 #include "common_hisysevent.h"
 #include "permission_manager.h"
 #include "hook_utils.h"
@@ -133,6 +134,12 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             return false;
         }
         request->SetBestLocation(fuseLocation);
+    }
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+        !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
+        deadRequests->push_back(request);
+        LBSLOGE(REPORT_MANAGER, "QuerySwitchState is DISABLED");
+        return false;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     finalLocation = GetPermittedLocation(request, IsRequestFuse(request) ? fuseLocation : location);
