@@ -86,8 +86,8 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        auto requestManger = RequestManager::GetInstance();
-        if (requestManger != nullptr) {
+        if (request->GetRequestConfig() != nullptr && request->GetRequestConfig()->GetFixNumber() == 1) {
+            auto requestManger = RequestManager::GetInstance();
             requestManger->UpdateRequestRecord(request, false);
             requestManger->UpdateUsingPermission(request, false);
         }
@@ -170,7 +170,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     }
 
     int fixTime = request->GetRequestConfig()->GetFixNumber();
-    if (fixTime > 0) {
+    if (fixTime > 0 && !IsRequestForAccuracy(*request->GetRequestConfig())) {
         deadRequests->push_back(request);
         return false;
     }
@@ -509,6 +509,19 @@ bool ReportManager::IsCacheGnssLocationValid()
         return true;
     }
     return false;
+}
+
+bool ReportManager::IsRequestForAccuracy(RequestConfig config)
+{
+    if (config.GetPriority() == LOCATION_PRIORITY_ACCURACY ||
+        (config.GetScenario() == SCENE_UNSET && config.GetPriority() == PRIORITY_ACCURACY) ||
+        config.GetScenario() == SCENE_NAVIGATION ||
+        config.GetScenario() == SCENE_TRAJECTORY_TRACKING ||
+        config.GetScenario() == SCENE_CAR_HAILING) {
+        return true;
+    } else {
+        return false;
+    }
 }
 } // namespace OHOS
 } // namespace Location

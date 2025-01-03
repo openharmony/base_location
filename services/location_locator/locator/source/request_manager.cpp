@@ -716,6 +716,10 @@ void RequestManager::UnRegisterLocationErrorCallback(
 
 void RequestManager::ReportLocationError(const int errorCode, std::shared_ptr<Request> request)
 {
+    auto locatorCallback = request->GetLocatorCallBack();
+    if (locatorCallback != nullptr && errorCode == LOCATING_FAILED_INTERNET_ACCESS_FAILURE) {
+        locatorCallback->OnErrorReport(errorCode);
+    }
     std::unique_lock<ffrt::mutex> lock(locationErrorCallbackMutex_);
     for (auto iter : locationErrorCallbackMap_) {
         auto locatorErrRequest = iter.second;
