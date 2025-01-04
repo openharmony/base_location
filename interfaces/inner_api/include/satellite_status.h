@@ -179,7 +179,7 @@ public:
 private:
     bool IsValidityDatas() const;
     
-    int satellitesNumber_;
+    unsigned int satellitesNumber_;
     std::vector<int> satelliteIds_;
     std::vector<double> carrierToNoiseDensitys_;
     std::vector<double> altitudes_;
