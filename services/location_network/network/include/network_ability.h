@@ -109,6 +109,7 @@ private:
     bool IsConnect();
 
     ffrt::mutex nlpServiceMutex_;
+    ffrt::mutex connMutex_;
     sptr<IRemoteObject> nlpServiceProxy_;
     ffrt::condition_variable connectCondition_;
     std::shared_ptr<NetworkHandler> networkHandler_;
