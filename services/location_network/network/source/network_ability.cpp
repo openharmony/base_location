@@ -69,7 +69,7 @@ NetworkAbility::NetworkAbility() : SystemAbility(LOCATION_NETWORK_LOCATING_SA_ID
 
 NetworkAbility::~NetworkAbility()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     conn_ = nullptr;
 }
 
@@ -152,21 +152,17 @@ bool NetworkAbility::ConnectNlpService()
             return false;
         }
         connectionWant.SetElementName(serviceName, abilityName);
-        std::unique_lock<ffrt::mutex> lock(connMutex_, std::defer_lock);
-        connMutex_.lock();
+        std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
         conn_ = sptr<AAFwk::IAbilityConnection>(new (std::nothrow) AbilityConnection());
         if (conn_ == nullptr) {
             LBSLOGE(NETWORK, "get connection failed!");
-            connMutex_.unlock();
             return false;
         }
         int32_t ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(connectionWant, conn_, -1);
-        connMutex_.unlock();
         if (ret != ERR_OK) {
             LBSLOGE(NETWORK, "Connect cloud service failed, ret = %{public}d", ret);
             return false;
         }
-        std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
         auto waitStatus = connectCondition_.wait_for(
             uniqueLock, std::chrono::seconds(CONNECT_TIME_OUT), [this]() { return nlpServiceProxy_ != nullptr; });
         if (!waitStatus) {
@@ -324,13 +320,12 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 
 void NetworkAbility::DisconnectAbilityConnect()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(connMutex_);
+    std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     if (GetRequestNum() == 0 && conn_ != nullptr) {
         LBSLOGI(NETWORK, "RequestRecord disconnect");
         UnregisterNlpServiceDeathRecipient();
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn_);
         conn_ = nullptr;
-        std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
         nlpServiceProxy_ = nullptr;
         LBSLOGD(NETWORK, "disconnect cloudService success!");
     }

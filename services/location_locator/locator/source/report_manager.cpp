@@ -220,6 +220,17 @@ std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Re
     return std::make_unique<Location>(reportStruct.location);
 }
 
+std::unique_ptr<Location> ReportManager::ExecuteLocationProcess(const std::shared_ptr<Request>& request,
+    const std::unique_ptr<Location>& location)
+{
+    LocationSupplicantInfo reportStruct;
+    reportStruct.request = *request;
+    reportStruct.location = *location;
+    HookUtils::ExecuteHook(
+        LocationProcessStage::LOCATION_REPORT_PROCESS, (void *)&reportStruct, nullptr);
+    return std::make_unique<Location>(reportStruct.location);
+}
+
 std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_ptr<Request>& request,
     const std::unique_ptr<Location>& location)
 {
@@ -258,6 +269,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         return nullptr;
     }
     std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
+    finalLocation = ExecuteLocationProcess(request, location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (PermissionManager::CheckLocationPermission(tokenId, firstTokenId)) {
         return finalLocation;
