@@ -125,6 +125,12 @@ enum LocationErrCode {
     ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* Location service is unavailable. */
     ERRCODE_SWITCH_OFF = 3301100,             /* The location switch is off. */
     ERRCODE_LOCATING_FAIL = 3301200,          /* Failed to obtain the geographical location. */
+    ERRCODE_LOCATING_NETWORK_FAIL = 3301201,
+    /* The network locating is failed because the network cannot be accessed. */
+    ERRCODE_LOCATING_ACC_FAIL = 3301203,
+    /* The positioning result does not meet the precision requirement (maxAccuracy) */
+    /* in the positioning request parameters. */
+    ERRCODE_LOCATING_CACHE_FAIL = 3301204,    /* The system does not have a cache locaiton. */
     ERRCODE_REVERSE_GEOCODING_FAIL = 3301300, /* Reverse geocoding query failed */
     ERRCODE_GEOCODING_FAIL = 3301400,         /* Geocoding query failed */
     ERRCODE_COUNTRYCODE_FAIL  = 3301500,      /* Failed to query the area information */

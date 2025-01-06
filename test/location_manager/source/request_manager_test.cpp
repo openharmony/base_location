@@ -555,6 +555,28 @@ HWTEST_F(RequestManagerTest, IsUidInProcessing001, TestSize.Level1)
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsUidInProcessing001 end");
 }
 
+HWTEST_F(RequestManagerTest, ReportLocationError001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, ReportLocationError001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] ReportLocationError001 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    const int errorCode = LocationErr::LOCATING_FAILED_INTERNET_ACCESS_FAILURE;
+    request->SetUid(1000);
+    request->SetPid(0);
+    request->SetTokenId(tokenId_);
+    request->SetFirstTokenId(0);
+    request->SetPackageName("RequestManagerTest");
+    sptr<LocatorCallbackHost> locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    auto callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    request->SetLocatorCallBack(callback);
+    requestManager_->ReportLocationError(errorCode, request); // network loccation failed
+    request->SetLocatorCallBack(nullptr);
+    requestManager_->ReportLocationError(errorCode, request); // network loccation failed and null locator callback
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] ReportLocationError001 end");
+}
+
 HWTEST_F(RequestManagerTest, UpdateLocationErrorCallbackToRequest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

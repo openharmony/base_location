@@ -1164,7 +1164,7 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
     if (loc == nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
-        return ERRCODE_LOCATING_FAIL;
+        return ERRCODE_LOCATING_CACHE_FAIL;
     }
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
     requestManager_->IncreaseWorkingPidsCount(identity.GetPid());
