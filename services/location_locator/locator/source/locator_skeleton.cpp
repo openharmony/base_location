@@ -405,6 +405,12 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
 
 int LocatorAbilityStub::PreSetLocationSwitchIgnored(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
     if (!PermissionManager::CheckLocationSwitchIgnoredPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
         LBSLOGE(LOCATOR, "CheckLocationSwitchIgnoredPermission return false, [%{public}s]",
             identity.ToString().c_str());

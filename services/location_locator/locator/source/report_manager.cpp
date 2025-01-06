@@ -87,7 +87,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        if (request->GetRequestConfig() != nullptr && request->GetRequestConfig()->GetFixNumber() == 1) {
+        if (request->GetRequestConfig() != nullptr) {
             auto requestManger = RequestManager::GetInstance();
             requestManger->UpdateRequestRecord(request, false);
             requestManger->UpdateUsingPermission(request, false);
@@ -136,7 +136,6 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     }
     if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
         !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
-        deadRequests->push_back(request);
         LBSLOGE(REPORT_MANAGER, "QuerySwitchState is DISABLED");
         return false;
     }

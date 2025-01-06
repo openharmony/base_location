@@ -1207,6 +1207,16 @@ LocationErrCode LocatorAbility::ReportLocation(
 
 LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
 {
+    int state = DISABLED;
+    LocationErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return errorCode;
+    }
+    if (state == DISABLED) {
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
+            __func__, __LINE__);
+        return ERRCODE_SWITCH_OFF;
+    }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
         return ERRCODE_SUCCESS;
     }

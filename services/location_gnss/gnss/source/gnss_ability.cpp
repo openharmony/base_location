@@ -997,6 +997,10 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 
 bool GnssAbility::EnableGnss()
 {
+    if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+        LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
+        return false;
+    }
     sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
     if (gnssInterface == nullptr) {
         LBSLOGE(GNSS, "gnssInterface is nullptr");
