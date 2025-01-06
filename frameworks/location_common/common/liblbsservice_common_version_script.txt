@@ -26,6 +26,8 @@
     "*ExecuteHookWhenCheckAppForCacheTime*";
     "*ExecuteHookEnableAbility*";
     "*ExecuteHookWhenPreStartLocating*";
+    "*ExecuteHookWhenSetAgnssServer*";
+    "*ExecuteHookWhenSimStateChange*";
   local:
     *;
 };

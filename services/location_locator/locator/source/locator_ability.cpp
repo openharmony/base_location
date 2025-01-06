@@ -1248,6 +1248,7 @@ void LocatorAbility::RegisterAction()
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(MODE_CHANGED_EVENT);
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 

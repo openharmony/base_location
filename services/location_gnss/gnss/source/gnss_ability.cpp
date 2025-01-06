@@ -1306,6 +1306,7 @@ void GnssAbility::SetAgnssServer()
         return;
     }
     int port = LocationConfigManager::GetInstance()->GetAgnssServerPort();
+    HookUtils::ExecuteHookWhenSetAgnssServer(addrName, port);
     sptr<IAGnssInterface> agnssInterface = IAGnssInterface::Get();
     if (agnssInterface == nullptr) {
         LBSLOGE(GNSS, "agnssInterface is nullptr");
@@ -1315,6 +1316,7 @@ void GnssAbility::SetAgnssServer()
     info.type = AGNSS_TYPE_SUPL;
     info.server = addrName;
     info.port = port;
+    LBSLOGD(GNSS, "SetAgnssServer addrName: %{public}s port: %{public}d", addrName.c_str(), port);
     agnssInterface->SetAgnssServer(info);
 }
 
