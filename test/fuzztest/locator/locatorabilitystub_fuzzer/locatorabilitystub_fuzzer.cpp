@@ -896,6 +896,7 @@ void SwitchFuzzTest(const char* ch, size_t size)
     OHOS::LocatorAbilityStub002FuzzTest(ch, size);
     OHOS::LocatorAbilityStub006FuzzTest(ch, size);
     OHOS::LocatorAbilityStub046FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub048FuzzTest(ch, size);
 }
 
 /* Fuzzer entry point */
@@ -944,7 +945,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub044FuzzTest(ch, size);
         OHOS::LocatorAbilityStub045FuzzTest(ch, size);
         OHOS::LocatorAbilityStub047FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub048FuzzTest(ch, size);
         sleep(OHOS::WAIT_EVENT_TIME);
         free(ch);
         ch = nullptr;

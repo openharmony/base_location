@@ -88,6 +88,10 @@ void LocatorAbilityStub::ConstructLocatorHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return PreEnableAbilityForUser(data, reply, identity);
         };
+    locatorHandleMap_[LocatorInterfaceCode::SET_LOCATION_SETTINGS_IGNORED] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreSetLocationSwitchIgnored(data, reply, identity);
+        };
 }
 
 void LocatorAbilityStub::ConstructLocatorEnhanceHandleMap()
@@ -139,10 +143,6 @@ void LocatorAbilityStub::ConstructLocatorEnhanceHandleMap()
     locatorHandleMap_[LocatorInterfaceCode::GET_CURRENT_WIFI_BSSID_FOR_LOCATING] =
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return PreGetCurrentWifiBssidForLocating(data, reply, identity);
-        };
-    locatorHandleMap_[LocatorInterfaceCode::SET_LOCATION_SETTINGS_IGNORED] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return PreSetLocationSwitchIgnored(data, reply, identity);
         };
 }
 

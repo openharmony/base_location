@@ -136,9 +136,10 @@ bool PermissionManager::CheckIsSystemSa(uint32_t tokenId)
     }
     return false;
 }
+
 bool PermissionManager::CheckLocationSwitchIgnoredPermission(uint32_t tokenId, uint32_t firstTokenId)
 {
-    return CheckPermission(ACCESS_CONTROL_LOCATION_SWITCH, tokenId, firstTokenId);
+    return CheckPermission(ACCESS_LOCATION_SWITCH_IGNORED, tokenId, firstTokenId);
 }
 } // namespace Location
 } // namespace OHOS
