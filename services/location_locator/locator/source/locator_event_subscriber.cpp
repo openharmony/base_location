@@ -14,6 +14,8 @@
  */
 
 #include "locator_event_subscriber.h"
+
+#include "hook_utils.h"
 #include "location_log.h"
 #include "locator_ability.h"
 #include "location_config_manager.h"
@@ -22,6 +24,7 @@ namespace OHOS {
 namespace Location {
 constexpr const char* LOCATOR_STANDBY_NAP = "napped";
 constexpr const char* LOCATOR_STANDBY_SLEEPING = "sleeping";
+const uint32_t SIM_STATE_READY = 4; // Telephony::SimState::SIM_STATE_READY
 
 LocatorEventSubscriber::LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info)
     : CommonEventSubscriber(info) {}
@@ -48,6 +51,11 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         locatorAbility->EnableAbility(true);
     } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {
         locatorAbility->EnableAbility(false);
+    } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED.compare(action) == 0) {
+        int stateCode = event.GetCode();
+        if (stateCode == static_cast<int>(SIM_STATE_READY)) {
+            HookUtils::ExecuteHookWhenSimStateChange(action);
+        }
     }
 }
 } // namespace Location

@@ -51,6 +51,8 @@ enum class LocationProcessStage {
     GNSS_REQUEST_RECORD_PROCESS,
 	FUSION_REPORT_PROCESS,
 	GNSS_STATUS_REPORT_PROCESS,
+    SET_AGNSS_SERVER_PROCESS,
+    SIM_STATE_CHANGED_PROCESS,
 };
 
 typedef struct {
@@ -112,6 +114,12 @@ typedef struct {
     bool result;
 } NetworkRequestInfo;
 
+typedef struct {
+    std::string* addrName;
+    int* port;
+    bool result;
+} AgnssStruct;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -134,6 +142,8 @@ public:
     static bool ExecuteHookWhenPreStartLocating(std::string packageName);
     static bool ExecuteHookWhenAddNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
+    static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
+    static bool ExecuteHookWhenSimStateChange(const std::string& data);
 };
 } // namespace Location
 } // namespace OHOS

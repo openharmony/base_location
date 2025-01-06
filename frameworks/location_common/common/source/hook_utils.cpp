@@ -185,5 +185,25 @@ bool HookUtils::ExecuteHookWhenRemoveNetworkRequest(std::string uuidTemp)
     HookUtils::ExecuteHook(LocationProcessStage::NETWORK_SA_REMOVE_REQUEST_PROCESS, ((void *)(&info)), nullptr);
     return info.result;
 }
+
+bool HookUtils::ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port)
+{
+    AgnssStruct agnssStruct;
+    agnssStruct.addrName = &addrName;
+    agnssStruct.port = &port;
+    agnssStruct.result = false;
+    ExecuteHook(LocationProcessStage::SET_AGNSS_SERVER_PROCESS, (void *)&agnssStruct, nullptr);
+    return agnssStruct.result;
+}
+
+bool HookUtils::ExecuteHookWhenSimStateChange(const std::string& data)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = data;
+    locatorRequestStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::SIM_STATE_CHANGED_PROCESS, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
 } // namespace Location
 } // namespace OHOS
