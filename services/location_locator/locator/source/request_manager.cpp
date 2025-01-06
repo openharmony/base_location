@@ -499,13 +499,11 @@ void RequestManager::IsStandby()
 bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared_ptr<Request>& request,
     std::shared_ptr<WorkRecord>& workRecord)
 {
-    if (request == nullptr) {
+    if (request == nullptr || !IsRequestAvailable(request)) {
         return false;
     }
-    if (!IsRequestAvailable(request)) {
-        return false;
-    }
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+        !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_SWITCH_OFF, request);
         LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
         return false;
@@ -529,15 +527,13 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (requestConfig == nullptr) {
         return false;
     }
-    auto reportManager = ReportManager::GetInstance();
-    if (requestConfig->GetFixNumber() == 0 && reportManager->IsAppBackground(bundleName, tokenId,
-        request->GetTokenIdEx(), uid, pid)&&
+    if (requestConfig->GetFixNumber() == 0 && ReportManager::GetInstance()->IsAppBackground(bundleName, tokenId,
+        request->GetTokenIdEx(), uid, pid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
         LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
-
     if (HookUtils::ExecuteHookWhenAddWorkRecord(isDeviceStillState_.load(), isDeviceIdleMode_.load(),
         abilityName, bundleName)) {
         LBSLOGI(REQUEST_MANAGER, "Enter idle and still status, not add request");

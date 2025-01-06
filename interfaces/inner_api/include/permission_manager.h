@@ -29,6 +29,7 @@ const std::string ACCESS_MOCK_LOCATION = "ohos.permission.MOCK_LOCATION";
 const std::string MANAGE_SECURE_SETTINGS = "ohos.permission.MANAGE_SECURE_SETTINGS";
 const std::string RSS_PROCESS_NAME = "resource_schedule_service";
 const std::string ACCESS_CONTROL_LOCATION_SWITCH = "ohos.permission.CONTROL_LOCATION_SWITCH";
+const std::string ACCESS_LOCATION_SWITCH_IGNORED = "ohos.permission.LOCATION_SWITCH_IGNORED";
 
 static constexpr int PERMISSION_ACCURATE = 2;
 static constexpr int PERMISSION_APPROXIMATELY = 1;
@@ -47,6 +48,7 @@ public:
     static bool CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx);
     static int GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenId);
     static bool CheckIsSystemSa(uint32_t tokenId);
+    static bool CheckLocationSwitchIgnoredPermission(uint32_t tokenId, uint32_t firstTokenId);
 };
 } // namespace Location
 } // namespace OHOS

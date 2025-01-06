@@ -24,6 +24,7 @@
 #include "locator_ability.h"
 #include "locator_background_proxy.h"
 #include "location_log_event_ids.h"
+#include "location_data_rdb_manager.h"
 #include "common_hisysevent.h"
 #include "permission_manager.h"
 #include "hook_utils.h"
@@ -86,8 +87,8 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        auto requestManger = RequestManager::GetInstance();
-        if (requestManger != nullptr) {
+        if (request->GetRequestConfig() != nullptr) {
+            auto requestManger = RequestManager::GetInstance();
             requestManger->UpdateRequestRecord(request, false);
             requestManger->UpdateUsingPermission(request, false);
         }
@@ -123,16 +124,20 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> fuseLocation;
     std::unique_ptr<Location> finalLocation;
     if (IsRequestFuse(request)) {
-        auto fusionController = FusionController::GetInstance();
         if (request->GetBestLocation() == nullptr ||
             request->GetBestLocation()->GetLocationSourceType() == 0) {
             request->SetBestLocation(std::make_unique<Location>(cacheGnssLocation_));
         }
-        fuseLocation = fusionController->GetFuseLocation(location, request->GetBestLocation());
+        fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
             return false;
         }
         request->SetBestLocation(fuseLocation);
+    }
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+        !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
+        LBSLOGE(REPORT_MANAGER, "QuerySwitchState is DISABLED");
+        return false;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
     finalLocation = GetPermittedLocation(request, IsRequestFuse(request) ? fuseLocation : location);
@@ -151,9 +156,24 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     request->SetLastLocation(finalLocation);
+    if (!ProcessLocatorCallbackForReport(request, finalLocation)) {
+        return false;
+    }
+    int fixTime = request->GetRequestConfig()->GetFixNumber();
+    if (fixTime > 0) {
+        deadRequests->push_back(request);
+        return false;
+    }
+    return true;
+}
+
+bool ReportManager::ProcessLocatorCallbackForReport(std::shared_ptr<Request>& request,
+    const std::unique_ptr<Location>& finalLocation)
+{
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
         // add location permission using record
+        auto locatorAbility = LocatorAbility::GetInstance();
         int ret = locatorAbility->UpdatePermissionUsedRecord(request->GetTokenId(),
             ACCESS_APPROXIMATELY_LOCATION, request->GetPermUsedType(), 1, 0);
         if (ret != ERRCODE_SUCCESS && locatorAbility->IsHapCaller(request->GetTokenId())) {
@@ -167,12 +187,6 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             std::to_string(finalLocation->GetTimeSinceBoot()).c_str(), finalLocation->GetLocationSourceType());
         locatorCallback->OnLocationReport(finalLocation);
         RequestManager::GetInstance()->UpdateLocationError(request);
-    }
-
-    int fixTime = request->GetRequestConfig()->GetFixNumber();
-    if (fixTime > 0) {
-        deadRequests->push_back(request);
-        return false;
     }
     return true;
 }

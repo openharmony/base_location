@@ -338,10 +338,6 @@ void NetworkAbility::DisconnectAbilityConnect()
 
 bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
 {
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
-        LBSLOGE(NETWORK, "QuerySwitchState is DISABLED");
-        return false;
-    }
     LBSLOGW(NETWORK, "start network location, uuid: %{public}s", workRecord.GetUuid(0).c_str());
     sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
     if (callback == nullptr) {

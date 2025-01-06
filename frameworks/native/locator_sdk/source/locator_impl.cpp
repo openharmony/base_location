@@ -1510,6 +1510,21 @@ void LocatorImpl::SetIsServerExist(bool isServerExist)
     isServerExist_ = isServerExist;
 }
 
+LocationErrCode LocatorImpl::SetLocationSwitchIgnored(bool enable)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationSwitchIgnored()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->SetLocationSwitchIgnored(enable);
+    return errCode;
+}
+
 void CallbackResumeManager::InitResumeCallbackFuncMap()
 {
     std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
