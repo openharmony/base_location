@@ -46,6 +46,7 @@ LocatorCallbackNapi::LocatorCallbackNapi()
     inHdArea_ = true;
     singleLocation_ = nullptr;
     locationPriority_ = 0;
+    errorType_ = 0;
     InitLatch();
 }
 
@@ -68,9 +69,9 @@ int LocatorCallbackNapi::OnRemoteRequest(uint32_t code,
         LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
         return -1;
     }
-
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
+            SetErrorType(LocationErrCode::ERRCODE_SUCCESS);
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             OnLocationReport(location);
             if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE &&
@@ -92,6 +93,7 @@ int LocatorCallbackNapi::OnRemoteRequest(uint32_t code,
         }
         case RECEIVE_ERROR_INFO_EVENT: {
             int errorCode = data.ReadInt32();
+            SetErrorType(errorCode);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive ERROR_EVENT. errorCode:%{public}d", errorCode);
             if (errorCode == LOCATING_FAILED_INTERNET_ACCESS_FAILURE) {
                 inHdArea_ = false;

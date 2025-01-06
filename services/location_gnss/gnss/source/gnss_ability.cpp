@@ -199,8 +199,10 @@ LocationErrCode GnssAbility::SetEnable(bool state)
         EnableGnss();
         StartGnss();
     } else {
-        StopGnss();
-        DisableGnss();
+        if (GetRequestNum() == 0) {
+            StopGnss();
+            DisableGnss();
+        }
     }
     return ERRCODE_SUCCESS;
 }
@@ -387,6 +389,9 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         // GNSS will stop only if all requests have stopped
         if (GetRequestNum() == 0) {
             StopGnss();
+        }
+        if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+            DisableGnss();
         }
     }
     std::string state = isAdded ? "start" : "stop";
@@ -992,7 +997,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
 
 bool GnssAbility::EnableGnss()
 {
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+    if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
@@ -1059,10 +1064,6 @@ void GnssAbility::RestGnssWorkStatus()
 
 void GnssAbility::StartGnss()
 {
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
-        LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
-        return;
-    }
     sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
     if (gnssInterface == nullptr) {
         LBSLOGE(GNSS, "gnssInterface is nullptr");
@@ -1306,6 +1307,7 @@ void GnssAbility::SetAgnssServer()
         return;
     }
     int port = LocationConfigManager::GetInstance()->GetAgnssServerPort();
+    HookUtils::ExecuteHookWhenSetAgnssServer(addrName, port);
     sptr<IAGnssInterface> agnssInterface = IAGnssInterface::Get();
     if (agnssInterface == nullptr) {
         LBSLOGE(GNSS, "agnssInterface is nullptr");
@@ -1315,6 +1317,7 @@ void GnssAbility::SetAgnssServer()
     info.type = AGNSS_TYPE_SUPL;
     info.server = addrName;
     info.port = port;
+    LBSLOGD(GNSS, "SetAgnssServer addrName: %{public}s port: %{public}d", addrName.c_str(), port);
     agnssInterface->SetAgnssServer(info);
 }
 

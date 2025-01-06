@@ -130,6 +130,66 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 }
 
 #ifdef ENABLE_NAPI_MANAGER
+napi_value IsLocationEnabledByUserId(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+
+    napi_value res;
+    bool isEnabled = false;
+    int userId;
+    NAPI_CALL(env, napi_get_value_int32(env, argv[0], &userId));
+    LocationErrCode errorCode = g_locatorClient->IsLocationEnabledForUser(isEnabled, userId);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+    }
+    NAPI_CALL(env, napi_get_boolean(env, isEnabled, &res));
+    return res;
+}
+
+napi_value EnableLocationByUserId(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    int userId;
+    NAPI_CALL(env, napi_get_value_int32(env, argv[0], &userId));
+    LocationErrCode errorCode = g_locatorClient->EnableAbilityForUser(true, userId);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+    }
+    return UndefinedNapiValue(env);
+}
+
+napi_value DisableLocationByUserId(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    int userId;
+    NAPI_CALL(env, napi_get_value_int32(env, argv[0], &userId));
+    LocationErrCode errorCode = g_locatorClient->EnableAbilityForUser(false, userId);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+    }
+    return UndefinedNapiValue(env);
+}
+#endif
+
+#ifdef ENABLE_NAPI_MANAGER
 napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
@@ -302,6 +362,26 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 #endif
 }
+
+#ifdef ENABLE_NAPI_MANAGER
+napi_value SetLocationSwitchIgnored(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    bool isIgnored;
+    NAPI_CALL(env, napi_get_value_bool(env, argv[0], &isIgnored));
+    LocationErrCode errorCode = g_locatorClient->SetLocationSwitchIgnored(isIgnored);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+    }
+    return UndefinedNapiValue(env);
+}
+#endif
 
 void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
 {

@@ -235,10 +235,6 @@ void SubscribeLocationChange(const napi_env& env, const napi_value& object,
 LocationErrCode SubscribeLocationChangeV9(const napi_env& env, const napi_value& object,
     const napi_ref& handlerRef, sptr<LocatorCallbackNapi>& locatorCallbackHost)
 {
-    LocationErrCode errorCode = CheckLocationSwitchEnable();
-    if (errorCode != ERRCODE_SUCCESS) {
-        return errorCode;
-    }
     auto locatorCallback = sptr<ILocatorCallback>(locatorCallbackHost);
     locatorCallbackHost->SetFixNumber(0);
     locatorCallbackHost->SetEnv(env);
@@ -415,7 +411,7 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
         return;
     }
     auto callbackHost = context->callbackHost_;
-    if (g_locatorProxy->IsLocationEnabled() && callbackHost != nullptr) {
+    if (callbackHost != nullptr) {
         auto callbackPtr = sptr<ILocatorCallback>(callbackHost);
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = g_locatorProxy->StartLocatingV9(context->request_, callbackPtr);
@@ -448,11 +444,22 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
                 context->errCode = ERRCODE_LOCATING_FAIL;
             }
         }
+        SetErrorCode(context);
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
     } else {
         context->errCode = LOCATION_SWITCH_ERROR;
 #endif
+    }
+}
+
+void SetErrorCode(SingleLocationAsyncContext* context)
+{
+    auto callbackHost = context->callbackHost_;
+    int errorType = callbackHost->GetErrorType();
+    if (errorType == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL ||
+        errorType == LocationErrCode::ERRCODE_LOCATING_ACC_FAIL) {
+        context->errCode = errorType;
     }
 }
 
@@ -579,12 +586,6 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         return UndefinedNapiValue(env);
     }
     singleLocatorCallbackHost->SetLocationPriority(GetCurrentLocationType(requestConfig));
-    LocationErrCode errorCode = CheckLocationSwitchEnable();
-    if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
-        return UndefinedNapiValue(env);
-    }
-
     auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);

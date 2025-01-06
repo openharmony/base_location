@@ -24,6 +24,7 @@ void HandleSyncErrCode(const napi_env &env, int32_t errCode)
 {
     LBSLOGI(LOCATOR_STANDARD, "HandleSyncErrCode, errCode = %{public}d", errCode);
     std::string errMsg = GetErrorMsgByCode(errCode);
+    errCode = ConvertErrorCode(errCode);
     if (errMsg != "") {
         napi_throw_error(env, std::to_string(errCode).c_str(), errMsg.c_str());
     }

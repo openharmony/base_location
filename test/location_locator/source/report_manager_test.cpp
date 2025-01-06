@@ -158,6 +158,15 @@ HWTEST_F(ReportManagerTest, ResultCheckTest001, TestSize.Level1)
     request->SetRequestConfig(*requestConfig);
     request->SetLastLocation(lastLocation4);
     EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // acc check failed
+
+    std::unique_ptr<Location> lastLocation5 = std::make_unique<Location>(*location);
+    lastLocation5->SetTimeSinceBoot(1000000000);
+    requestConfig->SetDistanceInterval(0.0);
+    requestConfig->SetMaxAccuracy(10.0);
+    request->SetRequestConfig(*requestConfig);
+    request->SetLocatorCallBack(nullptr);
+    request->SetLastLocation(lastLocation5);
+    EXPECT_EQ(false, reportManager_->ResultCheck(location, request)); // acc check failed and null locator callback
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ResultCheckTest001 end");
 }
 

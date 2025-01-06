@@ -60,10 +60,14 @@ private:
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
         std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
         const std::unique_ptr<Location>& location, std::string abilityName);
+    bool ProcessLocatorCallbackForReport(std::shared_ptr<Request>& request,
+        const std::unique_ptr<Location>& finalLocation);
     void WriteNetWorkReportEvent(std::string abilityName, const std::shared_ptr<Request>& request,
         const std::unique_ptr<Location>& location);
     std::unique_ptr<Location> ExecuteReportProcess(std::shared_ptr<Request>& request,
         std::unique_ptr<Location>& location, std::string abilityName);
+    std::unique_ptr<Location> ExecuteLocationProcess(const std::shared_ptr<Request>& request,
+        const std::unique_ptr<Location>& location);
     void UpdateLastLocation(const std::unique_ptr<Location>& location);
     void LocationReportDelayTimeCheck(const std::unique_ptr<Location>& location,
         const std::shared_ptr<Request>& request);

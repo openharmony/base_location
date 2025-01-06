@@ -89,6 +89,11 @@ private:
     bool isSwitchObserverReg_ = false;
 };
 
+typedef struct {
+    bool state;
+    int64_t timeSinceBoot;
+} AppSwitchIgnoredState;
+
 class LocatorAbility : public SystemAbility, public LocatorAbilityStub {
 DECLEAR_SYSTEM_ABILITY(LocatorAbility);
 
@@ -178,6 +183,7 @@ public:
     LocationErrCode RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
     LocationErrCode UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
     void ReportLocationError(std::string uuid, int32_t errCode, int32_t netErrCode);
+    LocationErrCode SetLocationSwitchIgnored(bool isEnabled, AppIdentity &identity);
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
@@ -210,6 +216,7 @@ public:
     void ReportDataToResSched(std::string state);
     bool IsHapCaller(const uint32_t tokenId);
     void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
+    bool GetLocationSwitchIgnoredFlag(uint32_t tokenId);
 
 private:
     bool Init();
@@ -229,6 +236,7 @@ private:
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
     bool SetLocationhubStateToSyspara(int value);
+    void SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
@@ -254,6 +262,9 @@ private:
     ReportManager* reportManager_;
     std::mutex proxyPidsMutex_;
     std::set<int32_t> proxyPids_;
+    std::map<uint32_t, AppSwitchIgnoredState> locationSettingsIgnoredFlagMap_;
+    std::mutex LocationSwitchIgnoredFlagMutex_;
+    std::mutex testMutex_;
 };
 
 class LocationMessage {

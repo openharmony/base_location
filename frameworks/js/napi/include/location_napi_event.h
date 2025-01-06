@@ -86,6 +86,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo);
 napi_value Off(napi_env env, napi_callback_info cbinfo);
 napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo);
 int GetCurrentLocationType(std::unique_ptr<RequestConfig>& config);
+void SetErrorCode(SingleLocationAsyncContext* context);
 bool NeedReportLastLocation(const std::unique_ptr<RequestConfig>& config, const std::unique_ptr<Location>& location);
 
 #ifdef ENABLE_NAPI_MANAGER

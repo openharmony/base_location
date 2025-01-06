@@ -124,6 +124,7 @@ public:
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
     LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
+    LocationErrCode SetLocationSwitchIgnored(bool isEnabled);
 private:
 
     static inline BrokerDelegator<LocatorProxy> delegator_;

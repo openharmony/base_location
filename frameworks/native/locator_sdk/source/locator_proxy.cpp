@@ -991,5 +991,19 @@ LocationErrCode LocatorProxy::GetCurrentWifiBssidForLocating(std::string& bssid)
     LBSLOGD(LOCATOR_STANDARD, "Proxy::GetCurrentWifiBssidForLocating Transact ErrCodes = %{public}d", errorCode);
     return errorCode;
 }
+
+LocationErrCode LocatorProxy::SetLocationSwitchIgnored(bool isEnabled)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    data.WriteBool(isEnabled);
+    LocationErrCode errorCode =
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::SET_LOCATION_SETTINGS_IGNORED), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::SetLocationSwitchIgnored Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
 } // namespace Location
 } // namespace OHOS
