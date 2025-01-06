@@ -830,13 +830,27 @@ static bool InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext,
 
 void CreateFailCallBackParams(AsyncContext& context, const std::string& msg, int32_t errorCode)
 {
+    errorCode = ConvertErrorCode(errorCode);
     SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
     SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
 }
 
 std::string GetErrorMsgByCode(int code)
 {
-    static std::map<int, std::string> errorCodeMap = {
+    static std::map<int, std::string> errorCodeMap = GetErrorCodeMap();
+    auto iter = errorCodeMap.find(code);
+    if (iter != errorCodeMap.end()) {
+        std::string errMessage = "BussinessError ";
+        code = ConvertErrorCode(code);
+        errMessage.append(std::to_string(code)).append(": ").append(iter->second);
+        return errMessage;
+    }
+    return "undefined error.";
+}
+
+std::map<int, std::string> GetErrorCodeMap()
+{
+    std::map<int, std::string> errorCodeMap = {
         {SUCCESS, "SUCCESS"},
         {NOT_SUPPORTED, "NOT_SUPPORTED"},
         {INPUT_PARAMS_ERROR, "INPUT_PARAMS_ERROR"},
@@ -859,6 +873,12 @@ std::string GetErrorMsgByCode(int code)
             "Capability not supported." \
             "Failed to call function due to limited device capabilities."},
         {LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE, "The location service is unavailable."},
+        {LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL,
+        "The network locating is failed because the network cannot be accessed."},
+        {LocationErrCode::ERRCODE_LOCATING_ACC_FAIL,
+        "The positioning result does not meet the precision requirement (maxAccuracy)" \
+        " in the positioning request parameters. "},
+        {LocationErrCode::ERRCODE_LOCATING_CACHE_FAIL, "The system does not have a cache locaiton."},
         {LocationErrCode::ERRCODE_SWITCH_OFF, "The location switch is off."},
         {LocationErrCode::ERRCODE_LOCATING_FAIL, "Failed to obtain the geographical location."},
         {LocationErrCode::ERRCODE_REVERSE_GEOCODING_FAIL, "Reverse geocoding query failed."},
@@ -871,14 +891,19 @@ std::string GetErrorMsgByCode(int code)
         {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
             "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."}
     };
+    return errorCodeMap;
+}
 
-    auto iter = errorCodeMap.find(code);
-    if (iter != errorCodeMap.end()) {
-        std::string errMessage = "BussinessError ";
-        errMessage.append(std::to_string(code)).append(": ").append(iter->second);
-        return errMessage;
+int ConvertErrorCode(int errorCode)
+{
+    if (errorCode == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL||
+        errorCode == LocationErrCode::ERRCODE_LOCATING_CACHE_FAIL||
+        errorCode == LocationErrCode::ERRCODE_LOCATING_ACC_FAIL) {
+        LBSLOGI(LOCATOR_STANDARD, "Convert ErrorCode: %{public}d to %{public}d",
+            errorCode, LocationErrCode::ERRCODE_LOCATING_FAIL);
+        return LocationErrCode::ERRCODE_LOCATING_FAIL;
     }
-    return "undefined error.";
+    return errorCode;
 }
 
 napi_value GetErrorObject(napi_env env, const int32_t errCode, const std::string& errMsg)
@@ -902,6 +927,7 @@ void CreateResultObject(const napi_env& env, AsyncContext* context)
     }
     if (context->errCode != SUCCESS) {
         std::string errMsg = GetErrorMsgByCode(context->errCode);
+        context->errCode = ConvertErrorCode(context->errCode);
         context->result[PARAM0] = GetErrorObject(env, context->errCode, errMsg);
         NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &context->result[PARAM1]));
     } else {

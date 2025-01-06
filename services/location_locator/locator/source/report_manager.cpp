@@ -297,10 +297,7 @@ bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback
 bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     const std::shared_ptr<Request>& request)
 {
-    if (request == nullptr) {
-        return false;
-    }
-    if (location == nullptr) {
+    if (request == nullptr || location == nullptr) {
         return false;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
@@ -316,6 +313,13 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     LBSLOGD(REPORT_MANAGER, "acc ResultCheck :  %{public}f - %{public}f", maxAcc, location->GetAccuracy());
     if ((permissionLevel == PERMISSION_ACCURATE) &&
         (maxAcc > 0) && (location->GetAccuracy() > maxAcc)) {
+        auto locatorCallback = request->GetLocatorCallBack();
+        if (locatorCallback != nullptr) {
+            ReportRemoteCallback(locatorCallback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT,
+                LocationErrCode::ERRCODE_LOCATING_ACC_FAIL);
+        } else {
+            LBSLOGE(REPORT_MANAGER, "ReportManager null LocatorCallback");
+        }
         LBSLOGE(REPORT_MANAGER, "accuracy check fail, do not report location");
         return false;
     }

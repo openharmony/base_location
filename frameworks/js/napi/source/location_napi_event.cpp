@@ -450,11 +450,22 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
                 context->errCode = ERRCODE_LOCATING_FAIL;
             }
         }
+        SetErrorCode(context);
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
     } else {
         context->errCode = LOCATION_SWITCH_ERROR;
 #endif
+    }
+}
+
+void SetErrorCode(SingleLocationAsyncContext* context)
+{
+    auto callbackHost = context->callbackHost_;
+    int errorType = callbackHost->GetErrorType();
+    if (errorType == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL ||
+        errorType == LocationErrCode::ERRCODE_LOCATING_ACC_FAIL) {
+        context->errCode = errorType;
     }
 }
 
