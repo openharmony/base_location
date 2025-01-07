@@ -113,6 +113,7 @@ public:
     static std::unique_ptr<RequestConfig> Unmarshalling(Parcel& parcel);
     void Set(RequestConfig& requestConfig);
     bool IsSame(RequestConfig& requestConfig);
+    bool IsRequestForAccuracy();
 private:
     int scenario_;
     int timeInterval_; /* Units are seconds */

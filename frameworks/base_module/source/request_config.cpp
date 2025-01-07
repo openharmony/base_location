@@ -96,6 +96,19 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
            parcel.WriteInt32(timeOut_);
 }
 
+bool RequestConfig::IsRequestForAccuracy()
+{
+    if (priority_ == LOCATION_PRIORITY_ACCURACY ||
+        (scenario_ == SCENE_UNSET && config->GetPriority() == PRIORITY_ACCURACY) ||
+        scenario_ == SCENE_NAVIGATION ||
+        scenario_ == SCENE_TRAJECTORY_TRACKING ||
+        scenario_ == SCENE_CAR_HAILING) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 std::string RequestConfig::ToString() const
 {
     std::string str = "scenario : " + std::to_string(scenario_) +

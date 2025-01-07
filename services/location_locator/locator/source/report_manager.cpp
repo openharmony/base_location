@@ -28,6 +28,12 @@
 #include "common_hisysevent.h"
 #include "permission_manager.h"
 #include "hook_utils.h"
+#ifdef WIFI_ENABLE
+#include "wifi_device.h"
+#endif
+#if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
+#include "cellular_data_client.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -87,7 +93,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        if (request->GetRequestConfig() != nullptr && request->GetRequestConfig()->GetFixNumber() == 1) {
+        if (request->GetRequestConfig() != nullptr) {
             auto requestManger = RequestManager::GetInstance();
             requestManger->UpdateRequestRecord(request, false);
             requestManger->UpdateUsingPermission(request, false);
@@ -159,6 +165,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     if (!ProcessLocatorCallbackForReport(request, finalLocation)) {
         return false;
     }
+    ReportErrcodeByCallback(abilityName, request);
     int fixTime = request->GetRequestConfig()->GetFixNumber();
     if (fixTime > 0 && !IsRequestForAccuracy(*request->GetRequestConfig())) {
         deadRequests->push_back(request);
@@ -487,6 +494,9 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
 bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
 {
     if (request == nullptr || request->GetRequestConfig() == nullptr) {
+        return false;
+    }
+    if (request->GetRequestConfig()->GetFixNumber() == 1) {
         return false;
     }
     if ((request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
