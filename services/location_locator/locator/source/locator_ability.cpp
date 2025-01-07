@@ -961,7 +961,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     return ERRCODE_NOT_SUPPORTED;
 #endif
     if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
-        !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
+        !GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
         ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
     }
     // update offset before add request
@@ -1745,7 +1745,16 @@ void LocatorAbility::SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable)
     AppSwitchIgnoredState appSwitchIgnoredState;
     appSwitchIgnoredState.state = enable;
     appSwitchIgnoredState.timeSinceBoot = CommonUtils::GetSinceBootTime();
-    locationSettingsIgnoredFlagMap_[tokenId] = appSwitchIgnoredState;
+    if (enable) {
+        locationSettingsIgnoredFlagMap_[tokenId] = appSwitchIgnoredState;
+        ApplyRequests(LOCATION_SWITCH_IGNORED_STATE_VALID_TIME / MILLI_PER_SEC);
+    } else {
+        auto iter = locationSettingsIgnoredFlagMap_.find(tokenId);
+        if (iter != locationSettingsIgnoredFlagMap_.end()) {
+            ApplyRequests(0);
+            locationSettingsIgnoredFlagMap_.erase(iter);
+        }
+    }
 }
 
 bool LocatorAbility::GetLocationSwitchIgnoredFlag(uint32_t tokenId)
@@ -1758,8 +1767,8 @@ bool LocatorAbility::GetLocationSwitchIgnoredFlag(uint32_t tokenId)
     AppSwitchIgnoredState appSwitchIgnoredState = iter->second;
     if ((CommonUtils::GetSinceBootTime()- appSwitchIgnoredState.timeSinceBoot) / NANOS_PER_MICRO / MICRO_PER_MILLI >
         LOCATION_SWITCH_IGNORED_STATE_VALID_TIME) {
-        appSwitchIgnoredState.state = false;
-        locationSettingsIgnoredFlagMap_[tokenId] = appSwitchIgnoredState;
+        locationSettingsIgnoredFlagMap_.erase(iter);
+        return false;
     }
     LBSLOGD(LOCATOR, "GetLocationSwitchIgnoredFlag enable = %{public}d", appSwitchIgnoredState.state);
     return appSwitchIgnoredState.state;

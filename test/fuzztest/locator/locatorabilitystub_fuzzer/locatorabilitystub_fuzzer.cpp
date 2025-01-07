@@ -30,14 +30,14 @@
 namespace OHOS {
 using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
-const int32_t LOCATION_PERM_NUM = 4;
+const int32_t LOCATION_PERM_NUM = 6;
 const int32_t WAIT_EVENT_TIME = 3;
 void MockNativePermission()
 {
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
-        ACCESS_CONTROL_LOCATION_SWITCH.c_str(),
+        ACCESS_CONTROL_LOCATION_SWITCH.c_str(), ACCESS_LOCATION_SWITCH_IGNORED.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,

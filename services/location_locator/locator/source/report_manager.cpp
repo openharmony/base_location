@@ -87,8 +87,8 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        if (request->GetRequestConfig() != nullptr) {
-            auto requestManger = RequestManager::GetInstance();
+        auto requestManger = RequestManager::GetInstance();
+        if (requestManger != nullptr) {
             requestManger->UpdateRequestRecord(request, false);
             requestManger->UpdateUsingPermission(request, false);
         }
@@ -156,7 +156,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     request->SetLastLocation(finalLocation);
-    if (!ProcessLocatorCallbackForReport(request, finalLocation)) {
+    if (!ReportLocationByCallback(request, finalLocation)) {
         return false;
     }
     int fixTime = request->GetRequestConfig()->GetFixNumber();
@@ -167,7 +167,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     return true;
 }
 
-bool ReportManager::ProcessLocatorCallbackForReport(std::shared_ptr<Request>& request,
+bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
     const std::unique_ptr<Location>& finalLocation)
 {
     auto locatorCallback = request->GetLocatorCallBack();
