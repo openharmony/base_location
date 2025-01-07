@@ -127,6 +127,18 @@ public:
         return locationPriority_;
     }
 
+    inline void SetErrorType(const int errorType)
+    {
+        std::unique_lock<std::mutex> guard(mutex_);
+        errorType_ = errorType;
+    }
+
+    inline int GetErrorType()
+    {
+        std::unique_lock<std::mutex> guard(mutex_);
+        return errorType_;
+    }
+
     inline std::shared_ptr<Location> GetSingleLocation()
     {
         std::unique_lock<std::mutex> guard(mutex_);
@@ -148,6 +160,7 @@ private:
     std::shared_ptr<Location> singleLocation_;
     int locationPriority_;
     bool inHdArea_;
+    int errorType_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -15,16 +15,20 @@
 
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import commonEventManager from '@ohos.commonEventManager';
+import common from '@ohos.app.ability.common';
+import deviceInfo from '@ohos.deviceInfo';
 
 let TAG = '[AGNSS-NI:ConfirmDialog]==>';
 const AGNSS_NI_ACCEPT_EVENT: string = 'usual.event.AGNSS_NI_ACCEPT';
 const AGNSS_NI_REJECT_EVENT: string = 'usual.event.AGNSS_NI_REJECT';
+const DEVICE_TYPE_WEARABLE = 'wearable';
 
 @Entry
 @Component
 struct dialogPlusPage {
   @State title: string = '';
   @State message: string = '';
+  private context = getContext(this) as common.UIAbilityContext;
 
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear')
@@ -40,29 +44,30 @@ struct dialogPlusPage {
     if (this.message == '') {
       this.message = 'SUPL Service'
     }
-
-    AlertDialog.show(
-      {
-        title: $r('app.string.ni_notify_title'),
-        message: this.message,
-        autoCancel: false,
-        primaryButton: {
-          value: $r('app.string.cancel_button'),
-          action: () => {
-            this.onCancel();
-          }
-        },
-        secondaryButton: {
-          enabled: true,
-          defaultFocus: true,
-          style: DialogButtonStyle.HIGHLIGHT,
-          value: $r('app.string.confirm_button'),
-          action: () => {
-            this.onAccept();
-          }
-        },
-      }
-    )
+    if (deviceInfo.deviceType != DEVICE_TYPE_WEARABLE) {
+      AlertDialog.show(
+        {
+          title: $r('app.string.ni_notify_title'),
+          message: this.message,
+          autoCancel: false,
+          primaryButton: {
+            value: $r('app.string.cancel_button'),
+            action: () => {
+              this.onCancel();
+            }
+          },
+          secondaryButton: {
+            enabled: true,
+            defaultFocus: true,
+            style: DialogButtonStyle.HIGHLIGHT,
+            value: $r('app.string.confirm_button'),
+            action: () => {
+              this.onAccept();
+            }
+          },
+        }
+      )
+    }
   }
 
   aboutToDisappear() {
@@ -129,5 +134,51 @@ struct dialogPlusPage {
   }
 
   build() {
+    if (deviceInfo.deviceType == DEVICE_TYPE_WEARABLE) {
+      Scroll() {
+        Column() {
+          Text($r('app.string.ni_notify_title'))
+            .fontSize(18)
+            .fontColor(Color.White)
+            .width(181)
+            .margin({ top: 20, left: 26, right: 26 })
+            .textAlign(TextAlign.Center);
+
+          Text(this.message)
+            .fontSize(16)
+            .fontColor(Color.White)
+            .width(181)
+            .margin({ top: 20, left: 26, right: 26 })
+            .textAlign(TextAlign.Center);
+
+          Button($r('app.string.confirm_button'))
+            .margin({ top: 16 })
+            .width(116)
+            .height(40)
+            .borderRadius(20)
+            .onClick(() => {
+              this.onAccept();
+              this.context.terminateSelf();
+            })
+
+          Button($r('app.string.cancel_button'))
+            .margin({ top: 12, bottom: 40 })
+            .width(116)
+            .height(40)
+            .backgroundColor(Color.Grey)
+            .borderRadius(20)
+            .onClick(() => {
+              this.onCancel();
+              this.context.terminateSelf();
+            })
+        }
+        .backgroundColor(Color.Black)
+        .width('100%')
+        .alignItems(HorizontalAlign.Center);
+      }
+      .scrollable(ScrollDirection.Vertical)
+      .scrollBar(BarState.Auto)
+      .scrollBarColor(Color.White);
+    }
   }
 }

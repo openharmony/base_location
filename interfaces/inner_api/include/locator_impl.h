@@ -621,6 +621,14 @@ public:
      * @return Returns ERRCODE_SUCCESS if obtain last known location succeed.
      */
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
+    
+    /**
+     * Obtaining the location switch status of a specified user.
+     *
+     * @param userId - Indicates the ID of a specified user.
+     * @returns Returns {@code true} if the location switch on, returns {@code false} otherwise.
+     */
+    LocationErrCode SetLocationSwitchIgnored(bool enable);
 
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<LocatorProxy> GetProxy();

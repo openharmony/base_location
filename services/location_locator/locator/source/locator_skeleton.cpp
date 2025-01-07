@@ -88,6 +88,10 @@ void LocatorAbilityStub::ConstructLocatorHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return PreEnableAbilityForUser(data, reply, identity);
         };
+    locatorHandleMap_[LocatorInterfaceCode::SET_LOCATION_SETTINGS_IGNORED] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreSetLocationSwitchIgnored(data, reply, identity);
+        };
 }
 
 void LocatorAbilityStub::ConstructLocatorEnhanceHandleMap()
@@ -291,7 +295,8 @@ int LocatorAbilityStub::PreRegisterSwitchCallback(MessageParcel &data, MessagePa
 
 int LocatorAbilityStub::PreStartLocating(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckLocationSwitchState(reply)) {
+    if (!LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(identity.GetTokenId()) &&
+        !CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
     if (!CheckLocationPermission(reply, identity)) {
@@ -340,7 +345,8 @@ int LocatorAbilityStub::PreStopLocating(MessageParcel &data, MessageParcel &repl
 
 int LocatorAbilityStub::PreGetCacheLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
-    if (!CheckLocationSwitchState(reply)) {
+    if (!LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(identity.GetTokenId()) &&
+        !CheckLocationSwitchState(reply)) {
         return ERRCODE_SWITCH_OFF;
     }
     if (!CheckLocationPermission(reply, identity)) {
@@ -393,6 +399,26 @@ int LocatorAbilityStub::PreEnableAbility(MessageParcel &data, MessageParcel &rep
         result && !bundleName.empty() && identity.GetBundleName() == bundleName) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
     }
+    reply.WriteInt32(errCode);
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreSetLocationSwitchIgnored(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_SYSTEM_PERMISSION_DENIED);
+        return ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckLocationSwitchIgnoredPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckLocationSwitchIgnoredPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    bool isEnabled = data.ReadBool();
+    auto errCode = LocatorAbility::GetInstance()->SetLocationSwitchIgnored(isEnabled, identity);
     reply.WriteInt32(errCode);
     return ERRCODE_SUCCESS;
 }
