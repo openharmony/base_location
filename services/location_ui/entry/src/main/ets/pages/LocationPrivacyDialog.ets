@@ -32,6 +32,7 @@ struct dialogPlusPage {
       {
         title: $r('app.string.location_target_statement_title'),
         message: $r('app.string.location_target_statement_content'),
+        textStyle: { wordBreak: WordBreak.NORMAL },
         autoCancel: false,
         primaryButton: {
           value: $r('app.string.cancel_button'),

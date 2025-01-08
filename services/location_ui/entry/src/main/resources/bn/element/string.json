@@ -1,0 +1,25 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"সম্মত হোন",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"অবস্থানের তথ্যের অনুরোধ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"বাতিল করুন",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
