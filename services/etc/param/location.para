@@ -13,4 +13,4 @@
 
 persist.location.switch_mode=2
 persist.location.locationhub_state=0
-persist.location.pre_sim_opkey=""
+persist.location.last_sim_opkey=""
