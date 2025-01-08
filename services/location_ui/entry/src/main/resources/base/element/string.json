@@ -25,8 +25,8 @@
       "value": "No devices connected. Hotspot has been disabled. Battery life will be extended."
     },
     {
-      "name": "wifi_tether_enable",
-      "value": "Enable hotspot"
+      "name": "stop_idle_tether_notification_action_text",
+      "value": "ENABLE HOTSPOT"
     },
     {
       "name": "ConfirmUIExtAbility_desc",
