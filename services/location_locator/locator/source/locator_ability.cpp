@@ -1751,8 +1751,8 @@ void LocatorAbility::SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable)
     } else {
         auto iter = locationSettingsIgnoredFlagMap_.find(tokenId);
         if (iter != locationSettingsIgnoredFlagMap_.end()) {
-            ApplyRequests(0);
             locationSettingsIgnoredFlagMap_.erase(iter);
+            ApplyRequests(0);
         }
     }
 }
