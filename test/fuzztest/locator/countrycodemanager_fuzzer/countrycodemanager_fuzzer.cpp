@@ -25,9 +25,9 @@ namespace OHOS {
             return true;
         }
         AppIdentity identity;
-        int pid = 1;
-        identity.SetPid(pid);
-        identity.SetUid(pid);
+        int index = 0;
+        identity.SetPid(data[index++]);
+        identity.SetUid(data[index++]);
         auto countryCodeManager = CountryCodeManager::GetInstance();
         countryCodeManager->GetIsoCountryCode();
         countryCodeManager->UnregisterCountryCodeCallback(nullptr);
