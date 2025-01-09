@@ -830,7 +830,6 @@ static bool InitAsyncPromiseEnv(const napi_env& env, AsyncContext *asyncContext,
 
 void CreateFailCallBackParams(AsyncContext& context, const std::string& msg, int32_t errorCode)
 {
-    errorCode = ConvertErrorCode(errorCode);
     SetValueUtf8String(context.env, "data", msg.c_str(), context.result[PARAM0]);
     SetValueInt32(context.env, "code", errorCode, context.result[PARAM1]);
 }
@@ -896,8 +895,8 @@ std::map<int, std::string> GetErrorCodeMap()
 
 int ConvertErrorCode(int errorCode)
 {
-    if (errorCode == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL||
-        errorCode == LocationErrCode::ERRCODE_LOCATING_CACHE_FAIL||
+    if (errorCode == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL ||
+        errorCode == LocationErrCode::ERRCODE_LOCATING_CACHE_FAIL ||
         errorCode == LocationErrCode::ERRCODE_LOCATING_ACC_FAIL) {
         LBSLOGI(LOCATOR_STANDARD, "Convert ErrorCode: %{public}d to %{public}d",
             errorCode, LocationErrCode::ERRCODE_LOCATING_FAIL);
