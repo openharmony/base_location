@@ -104,7 +104,7 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
         let templateText: string = 
             this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_message').id);
         let buttonsTitle: string = 
-            this.context.resourceManager.getStringSync($r('app.string.wifi_tether_enable').id);
+            this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_action_text').id);
         let notificationRequest: notificationManager.NotificationRequest = {
             id: id,
             notificationSlotType: notificationManager.SlotType.SERVICE_INFORMATION,
