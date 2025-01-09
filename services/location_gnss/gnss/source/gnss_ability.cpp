@@ -199,6 +199,10 @@ LocationErrCode GnssAbility::SetEnable(bool state)
         EnableGnss();
         StartGnss();
     } else {
+        /*
+        * GNSS will not disable and stop, if there are location requests
+        * that are not restricted by the location switch state exist.
+        */
         if (GetRequestNum() == 0) {
             StopGnss();
             DisableGnss();
@@ -390,6 +394,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         if (GetRequestNum() == 0) {
             StopGnss();
         }
+        // GNSS will disable if all requests have stopped and location switch is off
         if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySwitchState() != ENABLED) {
             DisableGnss();
         }
