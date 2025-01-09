@@ -275,8 +275,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         }
         return nullptr;
     }
-    std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
-    finalLocation = ExecuteLocationProcess(request, location);
+    std::unique_ptr<Location> finalLocation = ExecuteLocationProcess(request, location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (PermissionManager::CheckLocationPermission(tokenId, firstTokenId)) {
         return finalLocation;
