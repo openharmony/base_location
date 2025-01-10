@@ -442,9 +442,9 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
                 callbackHost->SetSingleLocation(location);
             } else {
                 context->errCode = ERRCODE_LOCATING_FAIL;
+                UpdateErrorCodeOfContext(context);
             }
         }
-        SetErrorCode(context);
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
     } else {
@@ -453,9 +453,17 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
     }
 }
 
-void SetErrorCode(SingleLocationAsyncContext* context)
+void UpdateErrorCodeOfContext(SingleLocationAsyncContext* context)
 {
+    if (context == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "null context");
+        return;
+    }
     auto callbackHost = context->callbackHost_;
+    if (callbackHost == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "null callbackHost");
+        return;
+    }
     int errorType = callbackHost->GetErrorType();
     if (errorType == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL ||
         errorType == LocationErrCode::ERRCODE_LOCATING_ACC_FAIL) {
