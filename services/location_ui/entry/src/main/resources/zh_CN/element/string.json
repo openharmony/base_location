@@ -26,7 +26,7 @@
     },
     {
       "name": "stop_idle_tether_notification_message",
-      "value": "当前无设备连接热点，为增加续航时间，已关闭热点。"
+      "value": "当前无设备连接，热点已关闭，续航时间将增加"
     },
     {
       "name": "stop_idle_tether_notification_action_text",
