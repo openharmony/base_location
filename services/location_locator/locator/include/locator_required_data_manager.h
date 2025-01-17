@@ -237,6 +237,8 @@ public:
     bool GetLocatingRequiredDataByWifi(std::vector<std::shared_ptr<LocatingRequiredData>>& requiredData,
         const std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
     __attribute__((no_sanitize("cfi"))) void GetWifiScanList(std::vector<Wifi::WifiScanInfo>& wifiScanInfo);
+    int TriggerWifiScan();
+    int64_t wifiScanStartTimeStamp_ = 0;
 private:
     void WifiInfoInit();
     bool IsWifiCallbackRegistered();

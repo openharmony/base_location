@@ -36,6 +36,7 @@ const int32_t DEFAULT_TIMEOUT_4S = 4000;
 const int32_t DEFAULT_TIMEOUT_MS = 1500;
 const int64_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int64_t DEFAULT_INVALID_10_SECONDS = 10 * MILLI_PER_SEC * MICRO_PER_MILLI;
+const int64_t DEFAULT_NOT_RETRY_TIME_10_SECONDS = 10 * MILLI_PER_SEC * MICRO_PER_MILLI; //10s
 const int TIMEOUT_WATCHDOG = 60; // s
 const int32_t MAX_CALLBACKS_MAP_NUM = 1000;
 LocatorRequiredDataManager::LocatorRequiredDataManager()
@@ -337,10 +338,11 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
     auto dataManager = LocatorRequiredDataManager::GetInstance();
     if (state == 0) {
         LBSLOGE(LOCATOR, "OnWifiScanStateChanged false");
+        dataManager->SendGetWifiListEvent(0, false);
     } else {
         dataManager->UpdateWifiScanCompleteTimestamp();
+        dataManager->SendGetWifiListEvent(0, true);
     }
-    dataManager->SendGetWifiListEvent(0, true);
     return;
 }
 #endif
@@ -371,13 +373,21 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
         SendGetWifiListEvent(0, true);
         return;
     }
-    int ret = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID)->Scan();
+    int ret = TriggerWifiScan();
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s WifiScan failed, ret=%{public}d", __func__, ret);
         SendGetWifiListEvent(0, false);
     }
 #endif
 }
+
+#ifdef WIFI_ENABLE
+int LocatorRequiredDataManager::TriggerWifiScan()
+{
+    wifiScanStartTimeStamp_ = CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO;
+    return Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID)->Scan();
+}
+#endif
 
 bool LocatorRequiredDataManager::IsConnecting()
 {
@@ -499,9 +509,11 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
     dataManager->GetWifiScanList(wifiScanInfo);
     std::vector<std::shared_ptr<LocatingRequiredData>> requiredData;
     bool requiredDataValid = dataManager->GetLocatingRequiredDataByWifi(requiredData, wifiScanInfo);
-    if (needRetryScan && !requiredDataValid) {
+    if (needRetryScan && !requiredDataValid &&
+        CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO - dataManager->wifiScanStartTimeStamp_ >
+        DEFAULT_NOT_RETRY_TIME_10_SECONDS) {
         LBSLOGI(LOCATOR, "%{public}s retry scan", __func__);
-        int ret = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID)->Scan();
+        int ret = dataManager->TriggerWifiScan();
         if (ret != Wifi::WIFI_OPT_SUCCESS) {
             LBSLOGE(LOCATOR, "%{public}s retry WifiScan failed, ret=%{public}d", __func__, ret);
             dataManager->ReportData(requiredData);
