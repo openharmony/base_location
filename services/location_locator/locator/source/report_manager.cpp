@@ -28,12 +28,6 @@
 #include "common_hisysevent.h"
 #include "permission_manager.h"
 #include "hook_utils.h"
-#ifdef WIFI_ENABLE
-#include "wifi_device.h"
-#endif
-#if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
-#include "cellular_data_client.h"
-#endif
 
 namespace OHOS {
 namespace Location {
@@ -165,9 +159,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     if (!ReportLocationByCallback(request, finalLocation)) {
         return false;
     }
-    ReportErrcodeByCallback(abilityName, request);
     int fixTime = request->GetRequestConfig()->GetFixNumber();
-    if (fixTime > 0 && !IsRequestForAccuracy(*request->GetRequestConfig())) {
+    if (fixTime > 0 && !request->GetRequestConfig()->IsRequestForAccuracy()) {
         deadRequests->push_back(request);
         return false;
     }
@@ -495,7 +488,7 @@ bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
     if (request == nullptr || request->GetRequestConfig() == nullptr) {
         return false;
     }
-    if (request->GetRequestConfig()->GetFixNumber() == 1) {
+    if (request->GetRequestConfig()->GetFixNumber() == 1 && request->GetRequestConfig()->IsRequestForAccuracy()) {
         return false;
     }
     if ((request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
@@ -548,19 +541,6 @@ bool ReportManager::IsCacheGnssLocationValid()
         return true;
     }
     return false;
-}
-
-bool ReportManager::IsRequestForAccuracy(RequestConfig config)
-{
-    if (config.GetPriority() == LOCATION_PRIORITY_ACCURACY ||
-        (config.GetScenario() == SCENE_UNSET && config.GetPriority() == PRIORITY_ACCURACY) ||
-        config.GetScenario() == SCENE_NAVIGATION ||
-        config.GetScenario() == SCENE_TRAJECTORY_TRACKING ||
-        config.GetScenario() == SCENE_CAR_HAILING) {
-        return true;
-    } else {
-        return false;
-    }
 }
 } // namespace OHOS
 } // namespace Location

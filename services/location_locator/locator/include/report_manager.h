@@ -47,7 +47,6 @@ public:
     bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid);
     static ReportManager* GetInstance();
     bool IsCacheGnssLocationValid();
-    bool IsRequestForAccuracy(RequestConfig config);
 
 private:
     struct timespec lastUpdateTime_;

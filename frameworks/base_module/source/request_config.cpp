@@ -99,7 +99,7 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
 bool RequestConfig::IsRequestForAccuracy()
 {
     if (priority_ == LOCATION_PRIORITY_ACCURACY ||
-        (scenario_ == SCENE_UNSET && config->GetPriority() == PRIORITY_ACCURACY) ||
+        (scenario_ == SCENE_UNSET && priority_ == PRIORITY_ACCURACY) ||
         scenario_ == SCENE_NAVIGATION ||
         scenario_ == SCENE_TRAJECTORY_TRACKING ||
         scenario_ == SCENE_CAR_HAILING) {
