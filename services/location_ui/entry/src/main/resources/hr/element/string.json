@@ -1,0 +1,25 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"Slažem se",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"Zahtjev za lokaciju",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"Odustani",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

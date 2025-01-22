@@ -49,6 +49,7 @@ struct dialogPlusPage {
         {
           title: $r('app.string.ni_notify_title'),
           message: this.message,
+          textStyle: { wordBreak: WordBreak.NORMAL },
           autoCancel: false,
           primaryButton: {
             value: $r('app.string.cancel_button'),

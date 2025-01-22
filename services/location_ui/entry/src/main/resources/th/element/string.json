@@ -1,0 +1,25 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"ยอมรับ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"คำขอตำแหน่ง",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"ยกเลิก",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

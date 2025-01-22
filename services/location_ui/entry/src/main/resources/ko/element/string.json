@@ -1,0 +1,25 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"동의",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"위치 요청",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"취소",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

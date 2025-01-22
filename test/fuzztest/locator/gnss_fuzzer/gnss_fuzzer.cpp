@@ -147,6 +147,8 @@ namespace OHOS {
         }
         auto proxy = sptr<GnssAbilityProxy>(new (std::nothrow) GnssAbilityProxy(obj));
         std::shared_ptr<GeofenceRequest> fence = std::make_shared<GeofenceRequest>();
+        int index = 0;
+        fence->SetUid(data[index++]);
         proxy->AddGnssGeofence(fence);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->RemoveGnssGeofence(fence);

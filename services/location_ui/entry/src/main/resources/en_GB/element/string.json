@@ -1,0 +1,25 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"Agree",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"Location request",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"Cancel",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

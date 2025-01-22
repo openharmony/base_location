@@ -93,8 +93,8 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         if (request == nullptr) {
             continue;
         }
-        if (request->GetRequestConfig() != nullptr) {
-            auto requestManger = RequestManager::GetInstance();
+        auto requestManger = RequestManager::GetInstance();
+        if (requestManger != nullptr) {
             requestManger->UpdateRequestRecord(request, false);
             requestManger->UpdateUsingPermission(request, false);
         }
@@ -162,7 +162,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     request->SetLastLocation(finalLocation);
-    if (!ProcessLocatorCallbackForReport(request, finalLocation)) {
+    if (!ReportLocationByCallback(request, finalLocation)) {
         return false;
     }
     ReportErrcodeByCallback(abilityName, request);
@@ -174,7 +174,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     return true;
 }
 
-bool ReportManager::ProcessLocatorCallbackForReport(std::shared_ptr<Request>& request,
+bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
     const std::unique_ptr<Location>& finalLocation)
 {
     auto locatorCallback = request->GetLocatorCallBack();
@@ -282,8 +282,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
         }
         return nullptr;
     }
-    std::unique_ptr<Location> finalLocation = std::make_unique<Location>(*location);
-    finalLocation = ExecuteLocationProcess(request, location);
+    std::unique_ptr<Location> finalLocation = ExecuteLocationProcess(request, location);
     // for api8 and previous version, only ACCESS_LOCATION permission granted also report original location info.
     if (PermissionManager::CheckLocationPermission(tokenId, firstTokenId)) {
         return finalLocation;

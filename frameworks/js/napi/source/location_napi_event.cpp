@@ -438,15 +438,13 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
 #else
             location = g_locatorProxy->GetCachedLocation();
 #endif
-            int64_t curTime = CommonUtils::GetCurrentTimeStamp();
-            if (location != nullptr &&
-                (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
+            if (NeedReportLastLocation(context->request_, location)) {
                 callbackHost->SetSingleLocation(location);
             } else {
                 context->errCode = ERRCODE_LOCATING_FAIL;
+                UpdateErrorCodeOfContext(context);
             }
         }
-        SetErrorCode(context);
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
     } else {
@@ -455,9 +453,17 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
     }
 }
 
-void SetErrorCode(SingleLocationAsyncContext* context)
+void UpdateErrorCodeOfContext(SingleLocationAsyncContext* context)
 {
+    if (context == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "null context");
+        return;
+    }
     auto callbackHost = context->callbackHost_;
+    if (callbackHost == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "null callbackHost");
+        return;
+    }
     int errorType = callbackHost->GetErrorType();
     if (errorType == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL ||
         errorType == LocationErrCode::ERRCODE_LOCATING_ACC_FAIL) {
@@ -1587,5 +1593,22 @@ bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
     return false;
 }
 #endif
+
+bool NeedReportLastLocation(const std::unique_ptr<RequestConfig>& config, const std::unique_ptr<Location>& location)
+{
+    if (config->GetScenario() == SCENE_UNSET && config->GetPriority() == PRIORITY_UNSET) {
+        return false;
+    }
+    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    float maxAcc = config->GetMaxAccuracy();
+    if (location != nullptr &&
+        (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME &&
+        (location->GetAccuracy() == DEFAULT_APPROXIMATELY_ACCURACY ||
+        !(maxAcc > 0 && location->GetAccuracy() > maxAcc))) {
+        return true;
+    } else {
+        return false;
+    }
+}
 }  // namespace Location
 }  // namespace OHOS

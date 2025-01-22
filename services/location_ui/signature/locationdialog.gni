@@ -12,4 +12,4 @@
 # limitations under the License.
 
 certificate_profile_path =
-    "//vendor/tools/hap_sign_conf/applications/prebuilt_hap/locationdialog.p7b"
+    "//vendor/tools/hap_sign_conf/location/location_ui/locationdialog.p7b"

@@ -1,0 +1,25 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"Приемам",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"Заявка за местоположение",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"Отказ",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
