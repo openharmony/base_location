@@ -36,13 +36,11 @@ constexpr uint32_t WAIT_MS = 1000;
 std::shared_ptr<LocatorImpl> LocatorImpl::instance_ = nullptr;
 std::mutex LocatorImpl::locatorMutex_;
 auto g_locatorImpl = Locator::GetInstance();
-std::mutex g_resumeFuncMapMutex;
 std::mutex g_locationCallbackMapMutex;
 std::mutex g_gnssStatusInfoCallbacksMutex;
 std::mutex g_nmeaCallbacksMutex;
 std::shared_ptr<CallbackResumeManager> g_callbackResumer = std::make_shared<CallbackResumeManager>();
 using CallbackResumeHandle = std::function<void()>;
-std::map<std::string, CallbackResumeHandle> g_resumeFuncMap;
 std::map<sptr<ILocatorCallback>, RequestConfig> g_locationCallbackMap;
 std::set<sptr<IRemoteObject>> g_gnssStatusInfoCallbacks;
 std::set<sptr<IRemoteObject>> g_nmeaCallbacks;
@@ -1525,25 +1523,11 @@ LocationErrCode LocatorImpl::SetLocationSwitchIgnored(bool enable)
     return errCode;
 }
 
-void CallbackResumeManager::InitResumeCallbackFuncMap()
-{
-    std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
-    if (g_resumeFuncMap.size() != 0) {
-        return;
-    }
-    g_resumeFuncMap.insert(std::make_pair("satelliteStatusChange", [this]() { return ResumeGnssStatusCallback(); }));
-    g_resumeFuncMap.insert(std::make_pair("nmeaMessage", [this]() { return ResumeNmeaMessageCallback(); }));
-    g_resumeFuncMap.insert(std::make_pair("locationChange", [this]() { return ResumeLocating(); }));
-}
-
 void CallbackResumeManager::ResumeCallback()
 {
-    InitResumeCallbackFuncMap();
-    std::unique_lock<std::mutex> lock(g_resumeFuncMapMutex);
-    for (auto iter = g_resumeFuncMap.begin(); iter != g_resumeFuncMap.end(); iter++) {
-        auto resumeFunc = iter->second;
-        resumeFunc();
-    }
+    ResumeGnssStatusCallback();
+    ResumeNmeaMessageCallback();
+    ResumeLocating();
 }
 
 void CallbackResumeManager::ResumeGnssStatusCallback()
