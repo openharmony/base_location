@@ -74,9 +74,8 @@ int LocatorCallbackNapi::OnRemoteRequest(uint32_t code,
             SetErrorType(LocationErrCode::ERRCODE_SUCCESS);
             std::unique_ptr<Location> location = Location::Unmarshalling(data);
             OnLocationReport(location);
-            if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE &&
-                location->GetAdditionsMap()["inHdArea"] != "") {
-                inHdArea_ = (location->GetAdditionsMap()["inHdArea"] == "true");
+            if (location->GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
+                inHdArea_ = false;
             }
             if (NeedSetSingleLocation(location)) {
                 SetSingleLocation(location);
@@ -95,7 +94,7 @@ int LocatorCallbackNapi::OnRemoteRequest(uint32_t code,
             int errorCode = data.ReadInt32();
             SetErrorType(errorCode);
             LBSLOGI(LOCATOR_STANDARD, "CallbackSutb receive ERROR_EVENT. errorCode:%{public}d", errorCode);
-            if (errorCode == LOCATING_FAILED_INTERNET_ACCESS_FAILURE) {
+            if (errorCode == ERRCODE_LOCATING_NETWORK_FAIL) {
                 inHdArea_ = false;
                 if (GetSingleLocation() != nullptr) {
                     CountDown();

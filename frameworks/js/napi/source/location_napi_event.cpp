@@ -550,6 +550,7 @@ std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env,
         requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     }
     requestConfig->SetFixNumber(1);
+    requestConfig->SetTimeInterval(0);
     return requestConfig;
 }
 
@@ -593,7 +594,8 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-    singleLocatorCallbackHost->SetLocationPriority(GetCurrentLocationType(requestConfig));
+    singleLocatorCallbackHost->SetLocationPriority(
+        requestConfig->IsRequestForAccuracy() ? LOCATION_PRIORITY_ACCURACY : LOCATION_PRIORITY_LOCATING_SPEED);
     auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
@@ -1591,19 +1593,6 @@ bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
     return false;
 }
 #endif
-
-int GetCurrentLocationType(std::unique_ptr<RequestConfig>& config)
-{
-    if (config->GetPriority() == LOCATION_PRIORITY_ACCURACY ||
-        (config->GetScenario() == SCENE_UNSET && config->GetPriority() == PRIORITY_ACCURACY) ||
-        config->GetScenario() == SCENE_NAVIGATION ||
-        config->GetScenario() == SCENE_TRAJECTORY_TRACKING ||
-        config->GetScenario() == SCENE_CAR_HAILING) {
-        return LOCATION_PRIORITY_ACCURACY;
-    } else {
-        return LOCATION_PRIORITY_LOCATING_SPEED;
-    }
-}
 
 bool NeedReportLastLocation(const std::unique_ptr<RequestConfig>& config, const std::unique_ptr<Location>& location)
 {

@@ -160,7 +160,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     int fixTime = request->GetRequestConfig()->GetFixNumber();
-    if (fixTime > 0) {
+    if (fixTime > 0 && !request->GetRequestConfig()->IsRequestForAccuracy()) {
         deadRequests->push_back(request);
         return false;
     }
@@ -486,6 +486,9 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
 bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)
 {
     if (request == nullptr || request->GetRequestConfig() == nullptr) {
+        return false;
+    }
+    if (request->GetRequestConfig()->GetFixNumber() == 1 && request->GetRequestConfig()->IsRequestForAccuracy()) {
         return false;
     }
     if ((request->GetRequestConfig()->GetScenario() == SCENE_UNSET &&
