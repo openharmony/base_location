@@ -98,6 +98,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback002, TestSize.Level1)
     dataConfig->SetType(LocatingRequiredDataType::WIFI);
     locatorDataManager->SetIsWifiCallbackRegistered(true);
     locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
+    locatorDataManager->UnregisterCallback(callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback002 end");
 }
 
@@ -120,6 +121,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
         sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
     EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
+    locatorDataManager->UnregisterCallback(callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback003 end");
 }
 

@@ -115,6 +115,10 @@ void LocatorRequiredDataManager::RemoveGetWifiListEvent()
 __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::RegisterCallback(
     AppIdentity &identity, std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
 {
+    if (callback == nullptr || config == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s nullptr.", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
 #ifdef WIFI_ENABLE
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
@@ -352,11 +356,12 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
     std::unique_lock<std::mutex> lock(mutex_);
     for (const auto& pair : callbacksMap_) {
         auto callback = pair.first;
-        if (callback == nullptr) {
-            continue;
-        }
         sptr<ILocatingRequiredDataCallback> locatingRequiredDataCallback =
             iface_cast<ILocatingRequiredDataCallback>(callback);
+        if (locatingRequiredDataCallback == nullptr) {
+            LBSLOGW(LOCATOR, "ReportData nullptr callback.");
+            continue;
+        }
         AppIdentity identity = pair.second;
         if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
