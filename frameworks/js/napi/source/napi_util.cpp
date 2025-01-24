@@ -1122,5 +1122,17 @@ bool CheckIfParamIsObjectType(napi_env env, napi_value param)
     }
     return true;
 }
+
+napi_value CreateError(napi_env env, int32_t err, const std::string &msg)
+{
+    napi_value businessError = nullptr;
+    napi_value errorCode = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, err, &errorCode));
+    napi_value errorMessage = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, msg.c_str(), NAPI_AUTO_LENGTH, &errorMessage));
+    napi_create_error(env, nullptr, errorMessage, &businessError);
+    napi_set_named_property(env, businessError, "code", errorCode);
+    return businessError;
+}
 }  // namespace Location
 }  // namespace OHOS
