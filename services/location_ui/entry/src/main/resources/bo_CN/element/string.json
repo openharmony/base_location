@@ -118,6 +118,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"མིག་སྔར་སྒྲིག་ཆས་སྦྲེལ་མཐུད་བྱས་མེད། ཚ་གནས་ཁ་བརྒྱབ་ཟིན། གློག་ཡོད་པའི་དུས་ཚོད་མང་དུ་འགྲོ་སྲིད།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"དྲ་རྒྱ་མཉམ་སྤྱོད་ཁ་ཕྱེ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"ཚ་ཚིགས་ཁ་བརྒྱབ་ཟིན།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
