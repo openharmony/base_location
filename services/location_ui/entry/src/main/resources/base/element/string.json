@@ -160,21 +160,21 @@
         "value":"Hotspot disabled",
         "attr":{
             "priority":"translate"
-        }
+      }
     },
     {
         "name":"stop_idle_tether_notification_message",
         "value":"No devices connected. Hotspot has been disabled. Battery life will be extended.",
         "attr":{
             "priority":"translate"
-        }
+      }
     },
     {
         "name":"stop_idle_tether_notification_action_text",
         "value":"Enable hotspot",
         "attr":{
             "priority":"translate"
-        }
+      }
     }
   ]
 }
