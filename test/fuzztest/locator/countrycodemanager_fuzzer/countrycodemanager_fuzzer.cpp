@@ -18,10 +18,10 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
-
+    const int32_t MIN_DATA_LEN = 2;
     bool CountrycodeManagerFuzzTest(const uint8_t* data, size_t size)
     {
-        if (size == 0) {
+        if (size < MIN_DATA_LEN) {
             return true;
         }
         AppIdentity identity;
