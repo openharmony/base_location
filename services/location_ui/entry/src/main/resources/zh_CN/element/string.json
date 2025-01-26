@@ -148,16 +148,25 @@
       }
     },
     {
-      "name": "condition_netshare_hotspot_close",
-      "value": "热点已关闭"
+        "name":"condition_netshare_hotspot_close",
+        "value":"热点已关闭",
+        "attr":{
+            "priority":"translate"
+      }
     },
     {
-      "name": "stop_idle_tether_notification_message",
-      "value": "当前无设备连接，热点已关闭，续航时间将增加"
+        "name":"stop_idle_tether_notification_message",
+        "value":"当前无设备连接，热点已关闭，续航时间将增加。",
+        "attr":{
+            "priority":"translate"
+      }
     },
     {
-      "name": "stop_idle_tether_notification_action_text",
-      "value": "开启热点"
+        "name":"stop_idle_tether_notification_action_text",
+        "value":"开启热点",
+        "attr":{
+            "priority":"translate"
+      }
     }
   ]
 }
