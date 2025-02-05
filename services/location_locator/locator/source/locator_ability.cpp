@@ -403,8 +403,12 @@ void LocatorAbility::UpdateSaAbilityHandler()
     SendSwitchState(isEnabled ? 1 : 0);
 }
 
-bool LocatorAbility::CancelIdleState()
+bool LocatorAbility::CancelIdleState(uint32_t code)
 {
+    if (code == static_cast<uint16_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE) ||
+        code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
+        return true;
+    }
     SystemAbilityState state = GetAbilityState();
     if (state != SystemAbilityState::IDLE) {
         return true;

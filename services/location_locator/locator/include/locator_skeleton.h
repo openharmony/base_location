@@ -44,7 +44,7 @@ public:
 
     LocatorAbilityStub();
     virtual ~LocatorAbilityStub() = default;
-    virtual bool CancelIdleState() = 0;
+    virtual bool CancelIdleState(uint32_t code) = 0;
     virtual void RemoveUnloadTask(uint32_t code) = 0;
     virtual void PostUnloadTask(uint32_t code) = 0;
     void InitLocatorHandleMap();

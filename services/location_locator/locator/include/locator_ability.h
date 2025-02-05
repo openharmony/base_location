@@ -106,7 +106,7 @@ public:
     void OnStop() override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-    bool CancelIdleState() override;
+    bool CancelIdleState(uint32_t code) override;
     void RemoveUnloadTask(uint32_t code) override;
     void PostUnloadTask(uint32_t code) override;
     ServiceRunningState QueryServiceState() const

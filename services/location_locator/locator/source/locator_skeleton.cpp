@@ -1289,7 +1289,7 @@ int32_t LocatorAbilityStub::OnRemoteRequest(uint32_t code,
         reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
         return ERRCODE_PERMISSION_DENIED;
     }
-    CancelIdleState();
+    CancelIdleState(code);
     RemoveUnloadTask(code);
     auto handleFunc = locatorHandleMap_.find(static_cast<LocatorInterfaceCode>(code));
     if (handleFunc != locatorHandleMap_.end() && handleFunc->second != nullptr) {

@@ -33,7 +33,7 @@ public:
     ~MockLocatorAbilityStub() {}
     MOCK_METHOD(void, RemoveUnloadTask, (uint32_t code));
     MOCK_METHOD(void, PostUnloadTask, (uint32_t code));
-    MOCK_METHOD(bool, CancelIdleState, ());
+    MOCK_METHOD(bool, CancelIdleState, (uint32_t code));
 };
 } // namespace Location
 } // namespace OHOS
