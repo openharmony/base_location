@@ -118,6 +118,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"ئۇلاق ئۈسكۈنە يوق، تور نۇقتىسى ئېتىلدى، توك ئۇزاق يېتىدۇ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"قىزىق نۇقتا ئېچىش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"تور نۇقتىسى ئېتىك",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

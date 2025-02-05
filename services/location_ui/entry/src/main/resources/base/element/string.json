@@ -17,18 +17,6 @@
       "value": "label"
     },
     {
-      "name": "condition_netshare_hotspot_close",
-      "value": "Hotspot disabled"
-    },
-    {
-      "name": "stop_idle_tether_notification_message",
-      "value": "No devices connected. Hotspot has been disabled. Battery life will be extended."
-    },
-    {
-      "name": "stop_idle_tether_notification_action_text",
-      "value": "ENABLE HOTSPOT"
-    },
-    {
       "name": "ConfirmUIExtAbility_desc",
       "value": "agnss ni confirm dialog"
     },
@@ -165,6 +153,27 @@
       "value":"Tap to connect to \"%s\".",
       "attr":{
           "priority":"translate"
+      }
+    },
+    {
+        "name":"condition_netshare_hotspot_close",
+        "value":"Hotspot disabled",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"stop_idle_tether_notification_message",
+        "value":"No devices connected. Hotspot has been disabled. Battery life will be extended.",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"stop_idle_tether_notification_action_text",
+        "value":"Enable hotspot",
+        "attr":{
+            "priority":"translate"
       }
     }
   ]

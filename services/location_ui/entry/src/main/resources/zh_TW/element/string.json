@@ -130,6 +130,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"目前沒有已連線的裝置，熱點已停用，續航時間將增加。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"啟用無線基地台",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"熱點已停用",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

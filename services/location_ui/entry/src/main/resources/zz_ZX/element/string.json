@@ -103,6 +103,18 @@
         {
             "name":"wifipro_auto_connect_dialog_context",
             "value":"[TS_993894]_Allow connection to %s using the password for the current WLAN network?"
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"[TS_1018643]_No devices connected. Hotspot has been disabled. Battery life will be extended."
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"[TS_1019078]_Enable hotspot"
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"[TS_1018641]_Hotspot disabled"
         }
     ]
 }
