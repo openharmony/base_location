@@ -91,6 +91,7 @@ napi_value GetNapiValueByKey(napi_env env, const std::string& keyChar, napi_valu
 napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& additionsMap);
 napi_status SetValueStringMap(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName);
+napi_value CreateError(napi_env env, int32_t err, const std::string &msg);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

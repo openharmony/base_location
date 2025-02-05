@@ -146,7 +146,7 @@ napi_value IsLocationEnabledByUserId(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &userId));
     LocationErrCode errorCode = g_locatorClient->IsLocationEnabledForUser(isEnabled, userId);
     if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
+        ThrowBusinessError(env, errorCode);
     }
     NAPI_CALL(env, napi_get_boolean(env, isEnabled, &res));
     return res;
@@ -165,7 +165,7 @@ napi_value EnableLocationByUserId(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &userId));
     LocationErrCode errorCode = g_locatorClient->EnableAbilityForUser(true, userId);
     if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
+        ThrowBusinessError(env, errorCode);
     }
     return UndefinedNapiValue(env);
 }
@@ -183,7 +183,7 @@ napi_value DisableLocationByUserId(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &userId));
     LocationErrCode errorCode = g_locatorClient->EnableAbilityForUser(false, userId);
     if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
+        ThrowBusinessError(env, errorCode);
     }
     return UndefinedNapiValue(env);
 }
@@ -202,7 +202,7 @@ napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info)
     std::string bssid;
     LocationErrCode errorCode = g_locatorClient->GetCurrentWifiBssidForLocating(bssid);
     if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
+        ThrowBusinessError(env, errorCode);
         return UndefinedNapiValue(env);
     }
     NAPI_CALL(env, napi_create_string_utf8(env, bssid.c_str(), NAPI_AUTO_LENGTH, &res));
@@ -377,7 +377,7 @@ napi_value SetLocationSwitchIgnored(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_bool(env, argv[0], &isIgnored));
     LocationErrCode errorCode = g_locatorClient->SetLocationSwitchIgnored(isIgnored);
     if (errorCode != ERRCODE_SUCCESS) {
-        HandleSyncErrCode(env, errorCode);
+        ThrowBusinessError(env, errorCode);
     }
     return UndefinedNapiValue(env);
 }

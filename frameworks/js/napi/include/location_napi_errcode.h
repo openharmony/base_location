@@ -24,6 +24,7 @@
 namespace OHOS {
 namespace Location {
 void HandleSyncErrCode(const napi_env &env, int32_t errCode);
+void ThrowBusinessError(const napi_env &env, int32_t errCode);
 }  // namespace Location
 }  // namespace OHOS
 
