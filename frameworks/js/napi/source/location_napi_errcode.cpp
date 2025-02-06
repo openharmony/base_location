@@ -34,11 +34,12 @@ void ThrowBusinessError(const napi_env &env, int32_t errCode)
 {
     LBSLOGI(LOCATOR_STANDARD, "ThrowBusinessError, errCode = %{public}d", errCode);
     std::string errMsg = GetErrorMsgByCode(errCode);
+    if (errMsg == "") {
+        return;
+    }
     errCode = ConvertErrorCode(errCode);
     auto businessError = CreateError(env, errCode, errMsg);
-    if (errMsg != "") {
-        napi_throw(env, businessError);
-    }
+    napi_throw(env, businessError);
 }
 }  // namespace Location
 }  // namespace OHOS
