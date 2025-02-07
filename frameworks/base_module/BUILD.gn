@@ -61,6 +61,11 @@ ohos_shared_library("lbsbase_module") {
 
   defines = []
 
+  if (startup_init) {
+    external_deps += [ "init:libbegetutil" ]
+    defines += [ "INIT_SUPPORT" ]
+  }
+
   part_name = "location"
   subsystem_name = "location"
 }

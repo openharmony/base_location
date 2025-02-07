@@ -63,6 +63,7 @@ declare_args() {
   net_manager_enable = true
   location_hicollie_enable = true
   location_sa_recycle_strategy_low_memory = true
+  startup_init = true
 
   if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
     i18n_enable = false
@@ -165,5 +166,9 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.hiviewdfx_hicollie)) {
     location_hicollie_enable = false
+  }
+
+  if (defined(global_parts_info) && !defined(global_parts_info.startup_init)) {
+    startup_init = false
   }
 }
