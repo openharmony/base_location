@@ -82,10 +82,7 @@ public:
         return successHandlerCb_;
     }
 
-    inline void SetSuccHandleCb(const napi_ref& successHandlerCb)
-    {
-        successHandlerCb_ = successHandlerCb;
-    }
+    void SetSuccHandleCb(const napi_ref& successHandlerCb);
 
     inline napi_ref GetFailHandleCb() const
     {

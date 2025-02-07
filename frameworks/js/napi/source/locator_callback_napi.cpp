@@ -33,6 +33,8 @@
 
 namespace OHOS {
 namespace Location {
+static std::mutex g_regSystemCallbackMutex;
+static std::vector<napi_ref> g_registerSystemCallbacks;
 static std::mutex g_regCallbackMutex;
 static std::vector<napi_ref> g_registerCallbacks;
 LocatorCallbackNapi::LocatorCallbackNapi()
@@ -60,6 +62,13 @@ LocatorCallbackNapi::~LocatorCallbackNapi()
 {
     delete latch_;
     LBSLOGW(LOCATOR_CALLBACK, "~LocatorCallbackNapi()");
+}
+
+void LocatorCallbackNapi::SetSuccHandleCb(const napi_ref& successHandlerCb)
+{
+    successHandlerCb_ = successHandlerCb;
+    std::unique_lock<std::mutex> guard(g_regSystemCallbackMutex);
+    g_registerSystemCallbacks.emplace_back(successHandlerCb);
 }
 
 int LocatorCallbackNapi::OnRemoteRequest(uint32_t code,
@@ -142,6 +151,13 @@ void LocatorCallbackNapi::SetHandleCb(const napi_ref& handlerCb)
 
 bool FindLocationCallback(napi_ref cb)
 {
+    {
+        std::unique_lock<std::mutex> guard(g_regSystemCallbackMutex);
+        auto iter = std::find(g_registerSystemCallbacks.begin(), g_registerSystemCallbacks.end(), cb);
+        if (iter != g_registerSystemCallbacks.end()) {
+            return true;
+        }
+    }
     std::unique_lock<std::mutex> guard(g_regCallbackMutex);
     auto iter = std::find(g_registerCallbacks.begin(), g_registerCallbacks.end(), cb);
     if (iter == g_registerCallbacks.end()) {
@@ -152,6 +168,15 @@ bool FindLocationCallback(napi_ref cb)
 
 void DeleteLocationCallback(napi_ref cb)
 {
+    {
+        std::unique_lock<std::mutex> guard(g_regSystemCallbackMutex);
+        for (auto iter = g_registerSystemCallbacks.begin(); iter != g_registerSystemCallbacks.end(); iter++) {
+            if (*iter == cb) {
+                iter = g_registerSystemCallbacks.erase(iter);
+                break;
+            }
+        }
+    }
     std::unique_lock<std::mutex> guard(g_regCallbackMutex);
     for (auto iter = g_registerCallbacks.begin(); iter != g_registerCallbacks.end(); iter++) {
         if (*iter == cb) {
@@ -312,7 +337,7 @@ void LocatorCallbackNapi::OnLocationReport(const std::unique_ptr<Location>& loca
         LBSLOGD(LOCATOR_CALLBACK, "env_ is nullptr.");
         return;
     }
-    if (handlerCb_ == nullptr) {
+    if (!IsSystemGeoLocationApi() && handlerCb_ == nullptr) {
         LBSLOGE(LOCATOR_CALLBACK, "handler is nullptr.");
         return;
     }
