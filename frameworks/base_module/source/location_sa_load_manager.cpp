@@ -23,6 +23,9 @@
 #include "location_log.h"
 #include "common_hisysevent.h"
 #include "location_log_event_ids.h"
+#ifdef INIT_SUPPORT
+#include "parameters.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -89,6 +92,12 @@ LocationErrCode LocationSaLoadManager::UnloadLocationSa(int32_t systemAbilityId)
         LBSLOGE(LOCATOR, "%{public}s: get system ability manager failed!", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+#ifdef INIT_SUPPORT
+    if (system::GetBoolParameter("persist.location.process_resident", false)) {
+        LBSLOGE(LOCATOR, "sa does not need to be unloaded");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+#endif
     int32_t ret = samgr->UnloadSystemAbility(systemAbilityId);
     if (ret != ERR_OK) {
         LBSLOGE(LOCATOR, "%{public}s: Failed to unload system ability, SA Id = [%{public}d], ret = [%{public}d].",
