@@ -114,7 +114,7 @@ void SubAbility::HandleAddRecord(WorkRecord &newRecord)
 {
     for (int i = 0; i < newRecord.Size(); i++) {
         int uid = newRecord.GetUid(i);
-        bool isFind = lastRecord_->Find(uid, newRecord.GetName(i), lastRecord_->GetUuid(i));
+        bool isFind = lastRecord_->Find(uid, newRecord.GetName(i), newRecord.GetUuid(i));
         LBSLOGD(label_, "add record isFind:%{public}d, uid:%{public}d, lastRecord:%{public}s, newRecord:%{public}s",
             isFind, uid, lastRecord_->ToString().c_str(), newRecord.ToString().c_str());
         if (!isFind) {
