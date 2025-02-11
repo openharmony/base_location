@@ -631,9 +631,11 @@ HWTEST_F(GnssAbilityTest, GnssOnStartAndOnStop001, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStartAndOnStop001 begin");
     ability_->OnStart(); // start ability
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState()); // mock will return nullptr
-
+    ability_->CheckIfHdiConnected();
     ability_->OnStop(); // stop ability
     EXPECT_EQ(ServiceRunningState::STATE_NOT_START, ability_->QueryServiceState()); // mock will return nullptr
+    ability_->CheckIfHdiConnected();
+    ability_->CancelIdleState();
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssOnStartAndOnStop001 end");
 }
 
@@ -1960,7 +1962,12 @@ HWTEST_F(GnssAbilityTest, InjectTime001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, InjectTime001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] InjectTime001 begin");
-    ability_->InjectTime();
+    sptr<GnssAbility> localAbility = new (std::nothrow) GnssAbility();
+    localAbility->UpdateNtpTime(-1, 1739151489570);
+    localAbility->UpdateNtpTime(-1, -1);
+    localAbility->UpdateNtpTime(1739151489570, -1);
+    localAbility->UpdateNtpTime(1739151489570, 1739151489570);
+    localAbility->InjectTime();
     LBSLOGI(LOCATOR, "[GnssAbilityTest] InjectTime001 end");
 }
 

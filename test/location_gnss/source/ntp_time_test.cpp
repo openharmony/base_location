@@ -51,7 +51,20 @@ HWTEST_F(NtpTimeTest, NtpTimeCheckSetGpsTimeTest001, TestSize.Level1)
     int64_t gpsMsTime = -1;
     int64_t bootTimeMs = -1;
     ntpTimeCheck->SetGpsTime(gpsMsTime, bootTimeMs);
+    ntpTimeCheck->SetGpsTime(1, -1);
+    ntpTimeCheck->SetGpsTime(-1, 1);
     LBSLOGI(GNSS_TEST, "[NtpTimeTest] NtpTimeCheckSetGpsTimeTest001 end");
+}
+
+HWTEST_F(NtpTimeTest, NtpTimeCheckCheckNtpTimCompare001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NtpTimeTest, NtpTimeCheckCheckNtpTimCompare001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[NtpTimeTest] NtpTimeCheckCheckNtpTimCompare001 begin");
+    auto ntpTimeCheck = NtpTimeCheck::GetInstance();
+    ntpTimeCheck->CompareTime(0, 60 * 1000);
+    ntpTimeCheck->CompareTime(0, 0);
+    LBSLOGI(GNSS_TEST, "[NtpTimeTest] NtpTimeCheckCheckNtpTimCompare001 end");
 }
 
 HWTEST_F(NtpTimeTest, NtpTimeCheckCheckNtpTimeTest001, TestSize.Level1)
@@ -139,6 +152,8 @@ HWTEST_F(NtpTimeTest, NetConnObserverTest001, TestSize.Level1)
     sptr<NetManagerStandard::NetHandle> handle = nullptr;
     netWorkObserver->NetAvailable(handle);
     sptr<NetManagerStandard::NetAllCapabilities> netAllCap = nullptr;
+    netWorkObserver->NetCapabilitiesChange(handle, netAllCap);
+
     netWorkObserver->NetCapabilitiesChange(handle, netAllCap);
     sptr<NetManagerStandard::NetLinkInfo> info = nullptr;
     netWorkObserver->NetConnectionPropertiesChange(handle, info);
