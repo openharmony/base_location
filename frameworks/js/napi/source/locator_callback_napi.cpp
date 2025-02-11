@@ -390,8 +390,8 @@ void LocatorCallbackNapi::DeleteHandler()
         LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
         return;
     }
-    DeleteLocationCallback(handlerCb_);
     if (IsSystemGeoLocationApi()) {
+        DeleteLocationCallback(successHandlerCb_);
         if (successHandlerCb_ != nullptr) {
             NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, successHandlerCb_));
             successHandlerCb_ = nullptr;
@@ -405,6 +405,7 @@ void LocatorCallbackNapi::DeleteHandler()
             completeHandlerCb_ = nullptr;
         }
     } else {
+        DeleteLocationCallback(handlerCb_);
         if (handlerCb_ != nullptr) {
             NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
             handlerCb_ = nullptr;
