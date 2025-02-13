@@ -57,6 +57,7 @@
 #include "hook_utils.h"
 #include "hookmgr.h"
 #include "permission_manager.h"
+#include "lbs_res_loader.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -1157,6 +1158,18 @@ HWTEST_F(LocationCommonTest, Location006, TestSize.Level1)
     location2->additions_ = additions2;
     location1->AdditionEqual(location2);
     LBSLOGI(LOCATOR, "[LocationCommonTest] Location006 end");
+}
+
+HWTEST_F(LocationCommonTest, LbsResLoader001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LbsResLoader001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LbsResLoader001 begin");
+    LbsResLoader resLoader;
+    std::string countryCodeStr8 = resLoader.GetSystemRegion();
+    countryCodeStr8 = resLoader.GetSystemRegion();
+    EXPECT_NE(countryCodeStr8, "");
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LbsResLoader001 end");
 }
 } // namespace Location
 } // namespace OHOS

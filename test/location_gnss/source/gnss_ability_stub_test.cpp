@@ -455,6 +455,18 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest023, TestSize.Level1)
     EXPECT_EQ(ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendNetworkLocationInner(data, reply, identity));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest023 end");
 }
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTestInit001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTestInit001, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTestInit001 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    gnssAbilityStub->InitGnssMsgHandleMap();
+    gnssAbilityStub->InitGnssMsgHandleMap();
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTestInit001 end");
+}
+
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT

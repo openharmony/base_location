@@ -66,7 +66,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback001, TestSize.Level1)
     AppIdentity identity;
     identity.SetPid(1);
     LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, nullptr);
-    EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
+    EXPECT_EQ(ERRCODE_INVALID_PARAM, errorCode);
     errorCode = locatorDataManager->UnregisterCallback(nullptr);
 
     auto callback =
