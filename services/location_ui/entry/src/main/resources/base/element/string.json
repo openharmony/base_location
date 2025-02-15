@@ -175,6 +175,76 @@
         "attr":{
             "priority":"translate"
       }
+    },
+    {
+        "name":"bluetooth_receive_notification_title",
+        "value":"Bluetooth Share",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_receive_notification_button_reject",
+        "value":"Reject",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_receive_notification_button_accept",
+        "value":"Accept",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_receive_finish_title",
+        "value":"Bluetooth receive finished",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_receive_finish_text",
+        "value":"%1$s file success, %2$s file failed",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_transfer_notification_title",
+        "value":"Bluetooth share",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_transfer_receive_text",
+        "value":"Bluetooth receiving",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_send_finish_title",
+        "value":"Bluetooth send finished",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"bluetooth_transfer_send_text",
+        "value":"Bluetooth sending",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
+        "name":"share_name",
+        "value":"Bluetooth",
+        "attr":{
+            "priority":"LT"
+      }
     }
   ]
 }
