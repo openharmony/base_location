@@ -1,5 +1,7 @@
 {
   "src": [
+    "pages/BluetoothReceive",
+    "pages/BluetoothShare",
     "pages/ConfirmDialog",
     "pages/LocationPrivacyDialog",
     "pages/WifiDialog"

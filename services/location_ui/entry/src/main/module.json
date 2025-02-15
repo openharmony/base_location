@@ -57,6 +57,66 @@
         "type": "service",
         "visible": false,
         "exported": false
+      },
+      {
+        "name": "BluetoothServiceAbility",
+        "icon": "$media:app_icon",
+        "label": "$string:share_name",
+        "description": "UIExtAbility",
+        "srcEntry": "./ets/bluetoothability/BluetoothServiceAbility.ets",
+        "type": "share",
+        "extensionProcessMode": "instance",
+        "exported": true,
+        "skills": [
+          {
+            "actions": [
+              "ohos.want.action.sendData"
+            ],
+            "uris": [
+              {
+                "scheme": "file",
+                "utd": "general.file",
+                "maxFileSupported": 65535
+              },
+              {
+                "scheme": "file",
+                "utd": "general.object",
+                "maxFileSupported": 65535
+              },
+              {
+                "scheme": "file",
+                "utd": "openharmony.package",
+                "maxFileSupported": 65535
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "BluetoothSendServiceAbility",
+        "srcEntry": "./ets/bluetoothability/BluetoothSendServiceAbility.ets",
+        "description": "service",
+        "icon": "$media:app_icon",
+        "type": "service",
+        "visible": false,
+        "exported": false
+      },
+      {
+        "name": "BluetoothReceiveServiceAbility",
+        "srcEntry": "./ets/bluetoothability/BluetoothReceiveServiceAbility.ets",
+        "description": "service",
+        "icon": "$media:app_icon",
+        "type": "service",
+        "visible": false,
+        "exported": false
+      },
+      {
+        "name": "BluetoothReceiveServiceUIAbility",
+        "srcEntry": "./ets/bluetoothability/BluetoothReceiveServiceUIAbility.ets",
+        "description": "BluetoothReceiveServiceUIAbility",
+        "label": "BluetoothReceiveServiceUIAbility",
+        "exported": false,
+        "type": "sysDialog/common"
       }
     ],
     "requestPermissions": [
@@ -68,6 +128,18 @@
       },
       {
         "name": "ohos.permission.PUBLISH_LOCATION_EVENT"
+      },
+      {
+        "name": "ohos.permission.ACCESS_BLUETOOTH"
+      },
+      {
+        "name": "ohos.permission.USE_BLUETOOTH"
+      },
+      {
+        "name": "ohos.permission.MANAGE_BLUETOOTH"
+      },
+      {
+        "name": "ohos.permission.NOTIFICATION_AGENT_CONTROLLER"
       }
     ]
   }
