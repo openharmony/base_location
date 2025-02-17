@@ -17,6 +17,7 @@
 #define AGNSS_NI_MANAGER_H
 #ifdef FEATURE_GNSS_SUPPORT
 
+#include <atomic>
 #include <mutex>
 #include <singleton.h>
 #include <v2_0/ignss_interface.h>
@@ -77,13 +78,11 @@ private:
     std::string DecodeNiString(std::string original, int coding);
 
     bool isInEmergencyCall_ = false;
-    short niNotificationId_ = 0;
+    std::atomic<short> niNotificationId_;
     int64_t emergencyCallEndTime_ = 0;
-    sptr<IGnssInterface> gnssInterface_ = nullptr;
     std::shared_ptr<GnssCommonEventSubscriber> subscriber_ = nullptr;
     std::shared_ptr<GnssCommonEventSubscriber> niResponseSubscriber_ = nullptr;
     sptr<SystemAbilityStatusChangeListener> statusChangeListener_ = nullptr;
-    std::mutex mutex_;
     std::mutex callStateMutex_;
 };
 } // namespace Location
