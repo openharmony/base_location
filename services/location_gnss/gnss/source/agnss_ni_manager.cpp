@@ -132,12 +132,12 @@ void AGnssNiManager::Run()
     LBSLOGI(GNSS, "AGNSS-NI: Run");
     RegisterAgnssNiEvent();
     RegisterNiResponseEvent();
-    gnssInterface_ = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
-    if (gnssInterface_ == nullptr) {
+    sptr<IGnssInterface> gnssInterface = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
         auto gnssAbility = GnssAbility::GetInstance();
         if (!gnssAbility->CheckIfHdiConnected()) {
             gnssAbility->ConnectHdi();
-            gnssInterface_ = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
+            gnssInterface = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
         }
     }
 }
@@ -207,11 +207,12 @@ void AGnssNiManager::CheckWapSuplInit(const EventFwk::Want &want)
     }
 
     std::string rawData = want.GetStringParam("rawData");
-    if (gnssInterface_ == nullptr) {
+    sptr<IGnssInterface> gnssInterface = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
         LBSLOGE(GNSS, "gnssInterfacev1_0 is nullptr");
         return;
     }
-    gnssInterface_->SendNetworkInitiatedMsg(rawData, rawData.length());
+    gnssInterface->SendNetworkInitiatedMsg(rawData, rawData.length());
 #endif
 }
 
@@ -237,13 +238,14 @@ void AGnssNiManager::CheckSmsSuplInit(const EventFwk::Want &want)
 
     if (message != nullptr) {
         std::string rawUserData = StringUtils::StringToHex(message->GetRawUserData());
-        if (gnssInterface_ == nullptr) {
+        sptr<IGnssInterface> gnssInterface = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
+        if (gnssInterface == nullptr) {
             LBSLOGE(GNSS, "gnssInterfacev1_0 is nullptr");
             delete message;
             message = nullptr;
             return;
         }
-        gnssInterface_->SendNetworkInitiatedMsg(rawUserData, rawUserData.length());
+        gnssInterface->SendNetworkInitiatedMsg(rawUserData, rawUserData.length());
         delete message;
         message = nullptr;
     }
@@ -387,18 +389,17 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
 
 void AGnssNiManager::SendUserResponse(GnssNiResponseCmd responseCmd)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
-    if (gnssInterface_ == nullptr) {
+    sptr<IGnssInterface> gnssInterface = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
+    if (gnssInterface == nullptr) {
         LBSLOGE(GNSS, "gnssInterfacev1_0 is nullptr");
         return;
     }
-    gnssInterface_->SendNiUserResponse(niNotificationId_, responseCmd);
+    gnssInterface->SendNiUserResponse(niNotificationId_.load(), responseCmd);
 }
 
 void AGnssNiManager::HandleNiNotification(const GnssNiNotificationRequest &notif)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
-    niNotificationId_ = notif.gnssNiNotificationId;
+    niNotificationId_.store(notif.gnssNiNotificationId);
     bool needNotify = (notif.notificationCategory & GNSS_NI_NOTIFICATION_REQUIRE_NOTIFY) != 0;
     bool needVerify = (notif.notificationCategory & GNSS_NI_NOTIFICATION_REQUIRE_VERIFY) != 0;
     bool privacyOverride = (notif.notificationCategory & GNSS_NI_NOTIFICATION_REQUIRE_PRIVACY_OVERRIDE) != 0;
