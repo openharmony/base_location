@@ -134,12 +134,6 @@
       },
       {
         "name": "ohos.permission.USE_BLUETOOTH"
-      },
-      {
-        "name": "ohos.permission.MANAGE_BLUETOOTH"
-      },
-      {
-        "name": "ohos.permission.NOTIFICATION_AGENT_CONTROLLER"
       }
     ]
   }
