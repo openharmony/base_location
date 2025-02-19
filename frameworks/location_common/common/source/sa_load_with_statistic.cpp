@@ -32,6 +32,10 @@ SaLoadWithStatistic::~SaLoadWithStatistic()
 
 bool SaLoadWithStatistic::InitLocationSa(int32_t systemAbilityId)
 {
+    if (LocationSaLoadManager::CheckIfSystemAbilityAvailable(systemAbilityId)) {
+        LBSLOGD(COMMON_UTILS, "sa has been loaded");
+        return true;
+    }
     auto startTime = CommonUtils::GetCurrentTimeStamp();
     bool ret = LocationSaLoadManager::InitLocationSa(systemAbilityId);
     auto endTime = CommonUtils::GetCurrentTimeStamp();
@@ -42,6 +46,10 @@ bool SaLoadWithStatistic::InitLocationSa(int32_t systemAbilityId)
 
 bool SaLoadWithStatistic::UnInitLocationSa(int32_t systemAbilityId)
 {
+    if (!LocationSaLoadManager::CheckIfSystemAbilityAvailable(systemAbilityId)) {
+        LBSLOGD(LOCATOR, "sa has been unloaded");
+        return true;
+    }
     auto startTime = CommonUtils::GetCurrentTimeStamp();
     bool ret = LocationSaLoadManager::UnInitLocationSa(systemAbilityId);
     auto endTime = CommonUtils::GetCurrentTimeStamp();
