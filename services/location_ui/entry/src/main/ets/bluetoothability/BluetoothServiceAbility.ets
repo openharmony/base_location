@@ -16,17 +16,32 @@
 import ShareExtensionAbility from '@ohos.app.ability.ShareExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import Want from '@ohos.app.ability.Want';
+import opp from '@ohos.bluetooth.opp';
+import common from '@ohos.app.ability.common';
+import fs from '@ohos.file.fs';
 
 interface UIExtensionStorage {
     session: UIExtensionContentSession,
 }
 
-const TAG: string = 'BluetoothServiceAbility:';
+const TAG: string = 'BluetoothServiceAbility: ';
 
 export default class BluetoothServiceAbility extends ShareExtensionAbility {
     private uris: Array<string> = [];
     onCreate(): void {
-        console.log('${TAG} onCreate is called');
+        console.log(`${TAG} onCreate is called`);
+        let fileUris = AppStorage.Get('sendFileUris');
+        let length = AppStorage.Get('sendFileUrisLength');
+        try {
+            for (let i = 0; i < length; i++) {
+                let filePath = fileUris[i];
+                console.log(`${TAG} deal uri:` + filePath);
+                let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
+                console.log(`${TAG} deal file:` + file.fd);
+            }
+        } catch (err) {
+            console.error(`${TAG} openSync err`);
+        }
     }
 
     onDestroy(): void {
@@ -53,6 +68,7 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
         } as UIExtensionStorage);
         try {
             session.loadContent('pages/BluetoothShare', localStorage);
+            session.setWindowBackgroundColor('#00000000');
         } catch (err) {
             console.log('${TAG} loadContent fail');
         }
