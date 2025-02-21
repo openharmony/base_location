@@ -135,10 +135,13 @@ export struct BtServicesComponent {
       for (let i = 0; i < length; i++) {
         let filePath = fileUris[i];
         console.log(`${TAG} deal uri:` + filePath);
+        let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
+        console.log(`${TAG} deal file:` + file.fd);
+        let stat: fs.Stat = fs.statSync(file.fd);
         let fileHolder: opp.FileHolder = {
           filePath: filePath,
-          fileSize: 0,
-          fileFd: 0
+          fileSize: stat.size,
+          fileFd: file.fd
         };
         this.fileHolders.push(fileHolder);
         console.log(`${TAG} fileHolder info: ` + JSON.stringify(fileHolder));

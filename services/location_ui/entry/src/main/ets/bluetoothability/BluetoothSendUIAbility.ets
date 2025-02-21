@@ -17,7 +17,6 @@ import UIAbility from '@ohos.app.ability.UIAbility';
 import Want from '@ohos.app.ability.Want';
 import notificationManager from '@ohos.notificationManager';
 import image from '@ohos.multimedia.image';
-import fs from '@ohos.file.fs';
 import wantAgent from '@ohos.app.ability.wantAgent';
 import { WantAgent } from '@ohos.wantAgent';
 import { BusinessError } from '@ohos.base';
@@ -30,22 +29,13 @@ const TAG: string = '[BT_SEND_SERVICE]==>'
 
 export default class BluetoothSendUIAbility extends UIAbility {
     private oppProfile = opp.createOppServerProfile();
-    private filePathToFdMap = new Map();
     private timeInterval: number = 0;
     private capsuleNotificationID: number = 200;
     private cancelTransEvent: string = 'ohos.event.notification.BT.TAP_CANCEL';
-    private filePaths: Array<string> = [];
-    private fileHolders: Array<opp.FileHolder> = [];
-    private subscriber: commonEventManager.CommonEventSubscriber | null = null;
-    private subscribeinfo: commonEventManager.CommonEventSubscribeInfo = {
-        events: [
-            'usual.event.bluetooth.OPP.SEND'
-        ]
-    }
 
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
-        this.readyReceiveEvent();
+        this.subscribeTransferState();
         this.startContinuousTask();
     }
 
@@ -57,77 +47,22 @@ export default class BluetoothSendUIAbility extends UIAbility {
         console.info(TAG, 'BluetoothSendUIAbility onForeground');
     }
 
-    readyReceiveEvent() {
+    subscribeTransferState() {
         try {
-            console.info(TAG, 'readyReceiveEvent');
-            this.subscriber = commonEventManager.createSubscriberSync(this.subscribeinfo);
-            try {
-                commonEventManager.subscribe(this.subscriber,
-                (err: BusinessError, data: commonEventManager.CommonEventData) => {
-                    if (err) {
-                        console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
-                    } else {
-                        this.handleReceivedEvent(data);
-                    }
-                });
-            } catch (error) {
-                let err: BusinessError = error as BusinessError;
-                console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
-            }
-        } catch (error) {
-            let err: BusinessError = error as BusinessError;
-            console.error(TAG, 'createSubscriber failed, code is ${err.code}, message is ${err.message}');
-        }
-    }
-
-    handleReceivedEvent(data: commonEventManager.CommonEventData) {
-        console.info(TAG, 'handleReceivedEvent' + data.event);
-        switch (data.event) {
-          case 'usual.event.bluetooth.OPP.SEND': {
-              this.handleSend(data);
-              break;
-          }
-          default: {
-              break;
-          }
-        }
-    }
-
-    handleSend(data: commonEventManager.CommonEventData) {
-        if (data.parameters == undefined) {
-            console.error(TAG, 'data.parameters undefined');
-            return;
-        }
-        this.filePaths = data.parameters?.['filePaths'] as Array<string>;
-        let serverMac: string = data.parameters?.['serverMac'] as string;
-        try {
-            for (let i = 0; i < this.filePaths.length; i++) {
-                let filePath = this.filePaths[i];
-                console.log(TAG, 'deal uri: ' + filePath);
-                let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
-                let stat: fs.Stat = fs.statSync(file.fd);
-                let fileHolder: opp.FileHolder = {
-                    filePath: filePath,
-                    fileSize: stat.size,
-                    fileFd: file.fd
-                };
-                this.filePathToFdMap.set(filePath, file.fd);
-                this.fileHolders.push(fileHolder);
-                console.info(TAG, 'fileHolder info: ' + JSON.stringify(fileHolder));
-            }
             this.subscriberLiveViewNotification();
             this.oppProfile.on('transferStateChange', (data: opp.OppTransferInformation) => {
                 if (data.status == 1) {
                     this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100,
                     this.getFileName(data.filePath));
                 } else if (data.status == 2) {
+                    if (data.result != 0) {
+                        this.cancelSendProgressNotification(0);
+                    }
                     console.info(TAG, 'transfer success');
                     this.oppProfile.off('transferStateChange');
-                    fs.close(this.filePathToFdMap.get(data.filePath));
                 }
             });
-            console.log(TAG, 'oppProfile.sendFile');
-            this.oppProfile.sendFile(serverMac, this.fileHolders);
+            console.log(TAG, 'oppProfile.transferStateChange');
         } catch (err) {
             console.error(TAG, 'onCreate err');
         }
