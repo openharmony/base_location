@@ -1,0 +1,22 @@
+{
+    "plural":[
+        {
+            "name":"bluetooth_receive_finish_success_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":" %d 个文件传输成功"
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_receive_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":" %d 个文件传输失败"
+                }
+            ]
+        }
+    ]
+}

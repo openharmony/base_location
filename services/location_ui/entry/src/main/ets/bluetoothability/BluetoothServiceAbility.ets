@@ -16,8 +16,6 @@
 import ShareExtensionAbility from '@ohos.app.ability.ShareExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import Want from '@ohos.app.ability.Want';
-import opp from '@ohos.bluetooth.opp';
-import common from '@ohos.app.ability.common';
 import fs from '@ohos.file.fs';
 
 interface UIExtensionStorage {
@@ -30,8 +28,8 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
     private uris: Array<string> = [];
     onCreate(): void {
         console.log(`${TAG} onCreate is called`);
-        let fileUris = AppStorage.Get('sendFileUris');
-        let length = AppStorage.Get('sendFileUrisLength');
+        let fileUris = this.uris;
+        let length = this.uris.length;
         try {
             for (let i = 0; i < length; i++) {
                 let filePath = fileUris[i];
