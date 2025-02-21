@@ -1,0 +1,30 @@
+{
+    "plural":[
+        {
+            "name":"bluetooth_receive_finish_success_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":" %d file succeeds"
+                },
+                {
+                    "quantity":"other",
+                    "value":" %d files success"
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_receive_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":" %d file fails"
+                },
+                {
+                    "quantity":"other",
+                    "value":" %d files fail"
+                }
+            ]
+        }
+    ]
+}
