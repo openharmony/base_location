@@ -52,6 +52,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private sandBoxUri: string = '';
     private fileFd: number = -1;
     private oppProfile = opp.createOppServerProfile();
+    private jumpUriIsAllowed = false;
 
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothReceiveUIAbility onCreate');
@@ -100,17 +101,23 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
           }
           case 'ohos.event.notification.BT.TAP_REJECT': {
               this.oppProfile.setIncomingFileConfirmation(false, -1);
+              this.stopContinuousTask();
+              this.context.terminateSelf();
               break;
           }
           case 'ohos.event.notification.BT.FINISH_NOTIFICATION': {
               fs.close(this.fileFd);
-              this.oppProfile.setLastReceivedFileUri(this.uriPath);
+              console.info(TAG, 'jumpUriIsAllowed is ' + this.jumpUriIsAllowed);
+              if (this.jumpUriIsAllowed) {
+                  this.oppProfile.setLastReceivedFileUri(this.uriPath);
+              }
               this.stopContinuousTask();
               this.context.terminateSelf();
               break;
           }
           case 'ohos.event.notification.BT.GET_URI': {
               this.handleBtUri(data);
+              this.jumpUriIsAllowed = true;
               break;
           }
           case 'usual.event.bluetooth.OPP.RECEIVE': {
@@ -134,6 +141,9 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             if (data.status == 1) {
                 this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100, this.fileName);
             } else if (data.status == 2) {
+                if (data.result != 0) {
+                    this.cancelSendProgressNotification(0);
+                }
                 console.info(TAG, 'transferStateChange ' + data.result);
                 this.oppProfile.off('transferStateChange');
             }
@@ -319,9 +329,12 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     cancelSendProgressNotification(successOrNot: number) {
         console.info(TAG, 'cancelSendProgressNotification ready to cancel.');
         notificationManager.cancel(this.capsuleNotificationID).then(() => {
-            console.info(TAG, 'Succeeded in canceling notification.');
+            console.info(TAG, 'Succeeded in canceling notification flag is ' + successOrNot);
             if (successOrNot === 1) {
                 this.pullUpReceiveResultNotification(1, 0);
+            } else if (successOrNot === 0) {
+                this.stopContinuousTask();
+                this.context.terminateSelf();
             }
         }).catch((err: BusinessError) => {
             console.error(TAG, 'failed to cancel notification. Code is ${err.code}, message is ${err.message}')
