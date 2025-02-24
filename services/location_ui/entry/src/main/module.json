@@ -115,18 +115,8 @@
             "uris": [
               {
                 "scheme": "file",
-                "utd": "general.file",
-                "maxFileSupported": 65535
-              },
-              {
-                "scheme": "file",
-                "utd": "general.object",
-                "maxFileSupported": 65535
-              },
-              {
-                "scheme": "file",
-                "utd": "openharmony.package",
-                "maxFileSupported": 65535
+                "utd": "general.media",
+                "maxFileSupported": 1
               }
             ]
           }
@@ -156,6 +146,15 @@
       },
       {
         "name": "ohos.permission.USE_BLUETOOTH"
+      },
+      {
+        "name": "ohos.permission.MANAGE_BLUETOOTH"
+      },
+      {
+        "name": "ohos.permission.ACCESS_SYSTEM_SETTINGS"
+      },
+      {
+        "name": "ohos.permission.WRITE_IMAGEVIDEO"
       },
       {
         "name": "ohos.permission.KEEP_BACKGROUND_RUNNING"

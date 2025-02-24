@@ -169,7 +169,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
         try {
             let drawableDescriptor1: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.public_cancel_filled').id);
             imagePixelMapButton = drawableDescriptor1.getPixelMap();
-            let drawableDescriptor2: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.app_icon').id);
+            let drawableDescriptor2: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.foreground').id);
             imagePixelMapCapsule = drawableDescriptor2.getPixelMap();
         } catch (error) {
             let code = (error as BusinessError).code;
