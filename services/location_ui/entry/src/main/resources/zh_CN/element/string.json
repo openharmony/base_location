@@ -197,8 +197,15 @@
       }
     },
     {
+        "name":"bluetooth_send_finish_text",
+        "value":"%1$s, %2$s",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
         "name":"bluetooth_receive_finish_text",
-        "value":"%1$s个文件传输成功, %2$s个文件传输失败",
+        "value":"%1$s, %2$s",
         "attr":{
             "priority":"translate"
       }

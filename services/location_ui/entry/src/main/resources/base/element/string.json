@@ -205,8 +205,15 @@
       }
     },
     {
+        "name":"bluetooth_send_finish_text",
+        "value":"%1$s, %2$s",
+        "attr":{
+            "priority":"translate"
+      }
+    },
+    {
         "name":"bluetooth_receive_finish_text",
-        "value":"%1$s file success, %2$s file failed",
+        "value":"%1$s, %2$s",
         "attr":{
             "priority":"translate"
       }
