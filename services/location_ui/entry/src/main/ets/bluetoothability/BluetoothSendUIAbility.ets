@@ -92,7 +92,9 @@ export default class BluetoothSendUIAbility extends UIAbility {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
                 normal: {
                     title: this.context.resourceManager.getStringSync($r('app.string.bluetooth_send_finish_title').id),
-                    text: this.getFormatString($r('app.string.bluetooth_receive_finish_text'), successNum, failNum)
+                    text: this.getFormatString($r('app.string.bluetooth_send_finish_text'),
+                        this.getFormatPlural($r('app.plural.bluetooth_send_finish_success_text', successNum, successNum), successNum),
+                        this.getFormatPlural($r('app.plural.bluetooth_send_finish_fail_text', failNum, failNum), failNum))
                 }
             },
             id: 2,
@@ -222,10 +224,16 @@ export default class BluetoothSendUIAbility extends UIAbility {
         return extension;
     }
 
-    getFormatString(resource: Resource, value1: number, value2: number): string {
+    getFormatString(resource: Resource, value1: string, value2: string): string {
         let result = this.context.resourceManager.getStringSync(resource.id);
-        result = result.replace('%1$s', value1.toString());
-        result = result.replace('%2$s', value2.toString());
+        result = result.replace('%1$s', value1);
+        result = result.replace('%2$s', value2);
+        return result;
+    }
+
+    getFormatPlural(resource: Resource, value: number): string {
+        let result = this.context.resourceManager.getPluralStringValueSync(resource.id, value);
+        result = result.replace('%d', value.toString());
         return result;
     }
 
