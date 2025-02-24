@@ -16,7 +16,6 @@
 import ShareExtensionAbility from '@ohos.app.ability.ShareExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import Want from '@ohos.app.ability.Want';
-import fs from '@ohos.file.fs';
 
 interface UIExtensionStorage {
     session: UIExtensionContentSession,
@@ -28,18 +27,6 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
     private uris: Array<string> = [];
     onCreate(): void {
         console.log(`${TAG} onCreate is called`);
-        let fileUris = this.uris;
-        let length = this.uris.length;
-        try {
-            for (let i = 0; i < length; i++) {
-                let filePath = fileUris[i];
-                console.log(`${TAG} deal uri:` + filePath);
-                let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
-                console.log(`${TAG} deal file:` + file.fd);
-            }
-        } catch (err) {
-            console.error(`${TAG} openSync err`);
-        }
     }
 
     onDestroy(): void {
