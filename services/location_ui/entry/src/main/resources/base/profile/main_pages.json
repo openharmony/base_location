@@ -4,6 +4,7 @@
     "pages/BluetoothShare",
     "pages/ConfirmDialog",
     "pages/LocationPrivacyDialog",
-    "pages/WifiDialog"
+    "pages/WifiDialog",
+    "pages/PrivacyLoadPage"
   ]
 }
