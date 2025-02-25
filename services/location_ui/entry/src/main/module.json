@@ -11,10 +11,50 @@
       "2in1",
       "wearable"
     ],
+    "apiType": "stageMode",
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
-    "abilities": [],
+    "abilities": [
+      {
+        "name": "BluetoothReceiveUIAbility",
+        "srcEntry": "./ets/bluetoothability/BluetoothReceiveUIAbility.ets",
+        "launchType": "singleton",
+        "icon": "$media:app_icon",
+        "label": "BluetoothReceiveUIAbility",
+        "description": "service",
+        "permissions": [],
+        "metadata": [],
+        "exported": true,
+        "continuable": false,
+        "skills": [],
+        "backgroundModes": [
+          "bluetoothInteraction"
+        ],
+        "startWindowIcon": "$media:app_icon",
+        "startWindowBackground": "$color:start_window_background",
+        "removeMissionAfterTerminate": true
+      },
+      {
+        "name": "BluetoothSendUIAbility",
+        "srcEntry": "./ets/bluetoothability/BluetoothSendUIAbility.ets",
+        "launchType": "singleton",
+        "icon": "$media:app_icon",
+        "label": "BluetoothSendUIAbility",
+        "description": "service",
+        "permissions": [],
+        "metadata": [],
+        "exported": true,
+        "continuable": false,
+        "skills": [],
+        "backgroundModes": [
+          "bluetoothInteraction"
+        ],
+        "startWindowIcon": "$media:app_icon",
+        "startWindowBackground": "$color:start_window_background",
+        "removeMissionAfterTerminate": true
+      }
+    ],
     "extensionAbilities": [
       {
         "name": "ConfirmUIExtAbility",
@@ -75,40 +115,12 @@
             "uris": [
               {
                 "scheme": "file",
-                "utd": "general.file",
-                "maxFileSupported": 65535
-              },
-              {
-                "scheme": "file",
-                "utd": "general.object",
-                "maxFileSupported": 65535
-              },
-              {
-                "scheme": "file",
-                "utd": "openharmony.package",
-                "maxFileSupported": 65535
+                "utd": "general.media",
+                "maxFileSupported": 1
               }
             ]
           }
         ]
-      },
-      {
-        "name": "BluetoothSendServiceAbility",
-        "srcEntry": "./ets/bluetoothability/BluetoothSendServiceAbility.ets",
-        "description": "service",
-        "icon": "$media:app_icon",
-        "type": "service",
-        "visible": false,
-        "exported": false
-      },
-      {
-        "name": "BluetoothReceiveServiceAbility",
-        "srcEntry": "./ets/bluetoothability/BluetoothReceiveServiceAbility.ets",
-        "description": "service",
-        "icon": "$media:app_icon",
-        "type": "service",
-        "visible": false,
-        "exported": false
       },
       {
         "name": "BluetoothReceiveServiceUIAbility",
@@ -139,7 +151,13 @@
         "name": "ohos.permission.MANAGE_BLUETOOTH"
       },
       {
-        "name": "ohos.permission.NOTIFICATION_AGENT_CONTROLLER"
+        "name": "ohos.permission.ACCESS_SYSTEM_SETTINGS"
+      },
+      {
+        "name": "ohos.permission.WRITE_IMAGEVIDEO"
+      },
+      {
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING"
       }
     ]
   }

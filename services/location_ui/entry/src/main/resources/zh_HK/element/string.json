@@ -151,6 +151,83 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"蓝牙共享文件",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"拒绝",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"接收",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"蓝牙共享: 已接收的文件",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"蓝牙共享",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"正在接收",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"蓝牙共享: 已发送的文件",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"正在发送",
+            "attr":{
+                "priority":"translate"
+          }
+        },
+        {
+            "name":"share_name",
+            "value":"蓝牙",
+            "attr":{
+                "priority":"translate"
+          }
         }
     ]
 }

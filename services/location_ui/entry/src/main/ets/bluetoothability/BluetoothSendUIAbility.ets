@@ -13,71 +13,59 @@
  * limitations under the License.
  */
 
-import ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
+import UIAbility from '@ohos.app.ability.UIAbility';
 import Want from '@ohos.app.ability.Want';
 import notificationManager from '@ohos.notificationManager';
 import image from '@ohos.multimedia.image';
-import fs from '@ohos.file.fs';
 import wantAgent from '@ohos.app.ability.wantAgent';
 import { WantAgent } from '@ohos.wantAgent';
 import { BusinessError } from '@ohos.base';
 import { DrawableDescriptor } from '@ohos.arkui.drawableDescriptor';
 import opp from '@ohos.bluetooth.opp';
+import commonEventManager from '@ohos.commonEventManager';
+import backgroundTaskManager from '@ohos.backgroundTaskManager';
 
 const TAG: string = '[BT_SEND_SERVICE]==>'
 
-export default class BluetoothSendServiceAbility extends ServiceExtensionAbility {
+export default class BluetoothSendUIAbility extends UIAbility {
     private oppProfile = opp.createOppServerProfile();
-    private filePathToFdMap = new Map();
     private timeInterval: number = 0;
     private capsuleNotificationID: number = 200;
     private cancelTransEvent: string = 'ohos.event.notification.BT.TAP_CANCEL';
-    private filePaths: Array<string> = [];
-    private fileHolders: Array<opp.FileHolder> = [];
 
     onCreate(want: Want): void {
-        console.info(TAG, 'BluetoothSendServiceAbility onCreate');
-        this.filePaths = want.parameters?.['filePaths'] as Array<string>;
-        let serverMac: string = want.parameters?.['serverMac'] as string;
+        console.info(TAG, 'BluetoothSendUIAbility onCreate');
+        this.subscribeTransferState();
+        this.startContinuousTask();
+    }
+
+    onDestroy(): void {
+        console.info(TAG, 'BluetoothSendUIAbility onDestroy');
+    }
+
+    onForeground(): void {
+        console.info(TAG, 'BluetoothSendUIAbility onForeground');
+    }
+
+    subscribeTransferState() {
         try {
-            for (let i = 0; i < this.filePaths.length; i++) {
-                let filePath = this.filePaths[i];
-                console.log(TAG, 'deal uri: ' + filePath);
-                let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
-                let stat: fs.Stat = fs.statSync(file.fd);
-                let fileHolder: opp.FileHolder = {
-                    filePath: filePath,
-                    fileSize: stat.size,
-                    fileFd: file.fd
-                };
-                this.filePathToFdMap.set(filePath, file.fd);
-                this.fileHolders.push(fileHolder);
-                console.info(TAG, 'fileHolder info: ' + JSON.stringify(fileHolder));
-            }
             this.subscriberLiveViewNotification();
             this.oppProfile.on('transferStateChange', (data: opp.OppTransferInformation) => {
                 if (data.status == 1) {
                     this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100,
                     this.getFileName(data.filePath));
                 } else if (data.status == 2) {
+                    if (data.result != 0) {
+                        this.cancelSendProgressNotification(0);
+                    }
                     console.info(TAG, 'transfer success');
                     this.oppProfile.off('transferStateChange');
-                    fs.close(this.filePathToFdMap.get(data.filePath));
                 }
             });
-            console.log(TAG, 'oppProfile.sendFile');
-            this.oppProfile.sendFile(serverMac, this.fileHolders);
+            console.log(TAG, 'oppProfile.transferStateChange');
         } catch (err) {
             console.error(TAG, 'onCreate err');
         }
-    }
-
-    onDestroy(): void {
-        console.info(TAG, 'BluetoothSendServiceAbility onDestroy');
-    }
-
-    onRequest(want: Want): void {
-        console.info(TAG, 'BluetoothSendServiceAbility onRequest');
     }
 
     async getNotificationWantAgent(info: string): Promise<WantAgent> {
@@ -104,7 +92,9 @@ export default class BluetoothSendServiceAbility extends ServiceExtensionAbility
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
                 normal: {
                     title: this.context.resourceManager.getStringSync($r('app.string.bluetooth_send_finish_title').id),
-                    text: this.getFormatString($r('app.string.bluetooth_receive_finish_text'), successNum, failNum)
+                    text: this.getFormatString($r('app.string.bluetooth_send_finish_text'),
+                        this.getFormatPlural($r('app.plural.bluetooth_send_finish_success_text', successNum, successNum), successNum),
+                        this.getFormatPlural($r('app.plural.bluetooth_send_finish_fail_text', failNum, failNum), failNum))
                 }
             },
             id: 2,
@@ -181,7 +171,7 @@ export default class BluetoothSendServiceAbility extends ServiceExtensionAbility
         try {
             let drawableDescriptor1: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.public_cancel_filled').id);
             imagePixelMapButton = drawableDescriptor1.getPixelMap();
-            let drawableDescriptor2: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.app_icon').id);
+            let drawableDescriptor2: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.foreground').id);
             imagePixelMapCapsule = drawableDescriptor2.getPixelMap();
         } catch (error) {
             let code = (error as BusinessError).code;
@@ -199,6 +189,8 @@ export default class BluetoothSendServiceAbility extends ServiceExtensionAbility
             if (successOrNot === 1) {
                 this.pullUpReceiveResultNotification(1, 0);
             }
+            this.stopContinuousTask();
+            this.context.terminateSelf();
         }).catch((err: BusinessError) => {
             console.error(TAG, 'failed to cancel notification. Code is ${err.code}, message is ${err.message}')
         });
@@ -232,10 +224,35 @@ export default class BluetoothSendServiceAbility extends ServiceExtensionAbility
         return extension;
     }
 
-    getFormatString(resource: Resource, value1: number, value2: number): string {
+    getFormatString(resource: Resource, value1: string, value2: string): string {
         let result = this.context.resourceManager.getStringSync(resource.id);
-        result = result.replace('%1$s', value1.toString());
-        result = result.replace('%2$s', value2.toString());
+        result = result.replace('%1$s', value1);
+        result = result.replace('%2$s', value2);
         return result;
+    }
+
+    getFormatPlural(resource: Resource, value: number): string {
+        let result = this.context.resourceManager.getPluralStringValueSync(resource.id, value);
+        result = result.replace('%d', value.toString());
+        return result;
+    }
+
+    async startContinuousTask() {
+        let wantAgentObj: WantAgent;
+        wantAgentObj = await this.getNotificationWantAgent('ohos.event.notification.BT.BACK_RUNNING');
+        backgroundTaskManager.startBackgroundRunning(this.context,
+        backgroundTaskManager.BackgroundMode.BLUETOOTH_INTERACTION, wantAgentObj).then(() => {
+            console.info(TAG, 'Succeeded in operationing startBackgroundRunning.');
+        }).catch((err: BusinessError) => {
+            console.error(TAG, 'Failed to operation startBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+        });
+    }
+
+    stopContinuousTask() {
+        backgroundTaskManager.stopBackgroundRunning(this.context).then(() => {
+            console.info(TAG, 'Succeeded in operationing stopBackgroundRunning.');
+        }).catch((err: BusinessError) => {
+            console.error(TAG, 'Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+        });
     }
 }

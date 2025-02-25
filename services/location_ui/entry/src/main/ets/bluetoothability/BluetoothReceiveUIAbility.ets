@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
+import UIAbility from '@ohos.app.ability.UIAbility';
 import Want from '@ohos.app.ability.Want';
 import notificationManager from '@ohos.notificationManager';
 import Notification from '@ohos.notification';
@@ -29,18 +29,19 @@ import type { BusinessError } from '@ohos.base';
 import fileUri from '@ohos.file.fileuri';
 import rpc from '@ohos.rpc';
 import { DrawableDescriptor } from '@ohos.arkui.drawableDescriptor';
-
+import backgroundTaskManager from '@ohos.backgroundTaskManager';
 
 const TAG: string = '[BT_RECEIVE_SERVICE]==>'
 
-export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbility {
+export default class BluetoothReceiveUIAbility extends UIAbility {
     private subscriber: commonEventManager.CommonEventSubscriber | null = null;
     private subscribeinfo: commonEventManager.CommonEventSubscribeInfo = {
         events: [
             'ohos.event.notification.BT.TAP_ACCEPT',
             'ohos.event.notification.BT.TAP_REJECT',
             'ohos.event.notification.BT.FINISH_NOTIFICATION',
-            'ohos.event.notification.BT.GET_URI'
+            'ohos.event.notification.BT.GET_URI',
+            'usual.event.bluetooth.OPP.RECEIVE'
         ]
     }
     private cancelTransEvent: string = 'ohos.event.notification.BT.TAP_CANCEL';
@@ -51,20 +52,20 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
     private sandBoxUri: string = '';
     private fileFd: number = -1;
     private oppProfile = opp.createOppServerProfile();
+    private jumpUriIsAllowed = false;
 
     onCreate(want: Want): void {
-        console.info(TAG, 'BluetoothReceiveServiceAbility onCreate');
+        console.info(TAG, 'BluetoothReceiveUIAbility onCreate');
         this.readyReceiveEvent();
-        this.fileName = want.parameters?.['fileName'] as string;
-        this.pullUpNotification(this.fileName);
+        this.startContinuousTask();
     }
 
     onDestroy(): void {
-        console.info(TAG, 'BluetoothReceiveServiceAbility onDestroy');
+        console.info(TAG, 'BluetoothReceiveUIAbility onDestroy');
     }
 
-    onRequest(want:Want, startId: number): void {
-        console.info(TAG, 'BluetoothReceiveServiceAbility onRequest');
+    onForeground(): void {
+        console.info(TAG, 'BluetoothReceiveUIAbility onForeground');
     }
 
     readyReceiveEvent() {
@@ -100,15 +101,27 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
           }
           case 'ohos.event.notification.BT.TAP_REJECT': {
               this.oppProfile.setIncomingFileConfirmation(false, -1);
+              this.stopContinuousTask();
+              this.context.terminateSelf();
               break;
           }
           case 'ohos.event.notification.BT.FINISH_NOTIFICATION': {
               fs.close(this.fileFd);
-              this.oppProfile.setLastReceivedFileUri(this.uriPath);
+              console.info(TAG, 'jumpUriIsAllowed is ' + this.jumpUriIsAllowed);
+              if (this.jumpUriIsAllowed) {
+                  this.oppProfile.setLastReceivedFileUri(this.uriPath);
+              }
+              this.stopContinuousTask();
+              this.context.terminateSelf();
               break;
           }
           case 'ohos.event.notification.BT.GET_URI': {
               this.handleBtUri(data);
+              this.jumpUriIsAllowed = true;
+              break;
+          }
+          case 'usual.event.bluetooth.OPP.RECEIVE': {
+              this.handleReceive(data);
               break;
           }
           default: {
@@ -128,6 +141,9 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
             if (data.status == 1) {
                 this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100, this.fileName);
             } else if (data.status == 2) {
+                if (data.result != 0) {
+                    this.cancelSendProgressNotification(0);
+                }
                 console.info(TAG, 'transferStateChange ' + data.result);
                 this.oppProfile.off('transferStateChange');
             }
@@ -140,6 +156,16 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
         this.fileFd = file.fd;
         console.info(TAG, 'handleBtUri sandBoxUri: ' + this.sandBoxUri + file.fd);
         this.oppProfile.setIncomingFileConfirmation(true, file.fd);
+    }
+
+    handleReceive(data: commonEventManager.CommonEventData) {
+        if (data.parameters == undefined) {
+            console.error(TAG, 'data.parameters undefined');
+            return;
+        }
+        console.info(TAG, 'handleReceive fileName: ' + data.parameters.fileName);
+        this.fileName = data.parameters.fileName;
+        this.pullUpNotification(this.fileName);
     }
 
     async pullUpNotification(fileName: string) {
@@ -206,7 +232,9 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
                 normal: {
                     title: this.context.resourceManager.getStringSync($r('app.string.bluetooth_receive_finish_title').id),
-                    text: this.getFormatString($r('app.string.bluetooth_receive_finish_text'), successNum, failNum)
+                    text: this.getFormatString($r('app.string.bluetooth_receive_finish_text'),
+                        this.getFormatPlural($r('app.plural.bluetooth_receive_finish_success_text', successNum, successNum), successNum),
+                        this.getFormatPlural($r('app.plural.bluetooth_receive_finish_fail_text', failNum, failNum), failNum))
                 }
             },
             id: 2,
@@ -289,7 +317,7 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
         try {
             let drawableDescriptor1: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.public_cancel_filled').id);
             imagePixelMapButton = drawableDescriptor1.getPixelMap();
-            let drawableDescriptor2: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.app_icon').id);
+            let drawableDescriptor2: DrawableDescriptor = this.context.resourceManager.getDrawableDescriptor($r('app.media.foreground').id);
             imagePixelMapCapsule = drawableDescriptor2.getPixelMap();
         } catch (error) {
             let code = (error as BusinessError).code;
@@ -303,9 +331,12 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
     cancelSendProgressNotification(successOrNot: number) {
         console.info(TAG, 'cancelSendProgressNotification ready to cancel.');
         notificationManager.cancel(this.capsuleNotificationID).then(() => {
-            console.info(TAG, 'Succeeded in canceling notification.');
+            console.info(TAG, 'Succeeded in canceling notification flag is ' + successOrNot);
             if (successOrNot === 1) {
                 this.pullUpReceiveResultNotification(1, 0);
+            } else if (successOrNot === 0) {
+                this.stopContinuousTask();
+                this.context.terminateSelf();
             }
         }).catch((err: BusinessError) => {
             console.error(TAG, 'failed to cancel notification. Code is ${err.code}, message is ${err.message}')
@@ -335,10 +366,35 @@ export default class BluetoothReceiveServiceAbility extends ServiceExtensionAbil
         }
     }
 
-    getFormatString(resource: Resource, value1: number, value2: number): string {
+    getFormatString(resource: Resource, value1: string, value2: string): string {
         let result = this.context.resourceManager.getStringSync(resource.id);
-        result = result.replace('%1$s', value1.toString());
-        result = result.replace('%2$s', value2.toString());
+        result = result.replace('%1$s', value1);
+        result = result.replace('%2$s', value2);
         return result;
+    }
+
+    getFormatPlural(resource: Resource, value: number): string {
+        let result = this.context.resourceManager.getPluralStringValueSync(resource.id, value);
+        result = result.replace('%d', value.toString());
+        return result;
+    }
+
+    async startContinuousTask() {
+        let wantAgentObj: WantAgent;
+        wantAgentObj = await this.getNotificationWantAgent('ohos.event.notification.BT.BACK_RUNNING');
+        backgroundTaskManager.startBackgroundRunning(this.context,
+        backgroundTaskManager.BackgroundMode.BLUETOOTH_INTERACTION, wantAgentObj).then(() => {
+            console.info(TAG, 'Succeeded in operationing startBackgroundRunning.');
+        }).catch((err: BusinessError) => {
+            console.error(TAG, 'Failed to operation startBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+        });
+    }
+
+    stopContinuousTask() {
+        backgroundTaskManager.stopBackgroundRunning(this.context).then(() => {
+            console.info(TAG, 'Succeeded in operationing stopBackgroundRunning.');
+        }).catch((err: BusinessError) => {
+            console.error(TAG, 'Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+        });
     }
 }

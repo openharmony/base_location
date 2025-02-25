@@ -22,7 +22,7 @@ export const CLOSE = 1;
 
 export const BACK = 0;
 
-const TAG: string = 'BtServicesComponent: ';
+const TAG: string = 'BluetoothShare: ';
 const BUNDLE_NAME: string = 'com.huawei.hmos.settings';
 const ABILITY_NAME: string = 'BluetoothOppServiceUIExtensionAbility';
 
@@ -137,10 +137,11 @@ export struct BtServicesComponent {
         console.log(`${TAG} deal uri:` + filePath);
         let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
         console.log(`${TAG} deal file:` + file.fd);
+        let stat: fs.Stat = fs.statSync(file.fd);
         let fileHolder: opp.FileHolder = {
           filePath: filePath,
-          fileSize: 0,
-          fileFd: 0
+          fileSize: stat.size,
+          fileFd: file.fd
         };
         this.fileHolders.push(fileHolder);
         console.log(`${TAG} fileHolder info: ` + JSON.stringify(fileHolder));

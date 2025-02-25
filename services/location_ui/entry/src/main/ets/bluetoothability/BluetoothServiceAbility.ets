@@ -21,12 +21,12 @@ interface UIExtensionStorage {
     session: UIExtensionContentSession,
 }
 
-const TAG: string = 'BluetoothServiceAbility:';
+const TAG: string = 'BluetoothServiceAbility: ';
 
 export default class BluetoothServiceAbility extends ShareExtensionAbility {
     private uris: Array<string> = [];
     onCreate(): void {
-        console.log('${TAG} onCreate is called');
+        console.log(`${TAG} onCreate is called`);
     }
 
     onDestroy(): void {
@@ -53,6 +53,7 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
         } as UIExtensionStorage);
         try {
             session.loadContent('pages/BluetoothShare', localStorage);
+            session.setWindowBackgroundColor('#00000000');
         } catch (err) {
             console.log('${TAG} loadContent fail');
         }
