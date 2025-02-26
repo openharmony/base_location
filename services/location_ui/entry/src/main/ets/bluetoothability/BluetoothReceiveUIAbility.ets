@@ -39,7 +39,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         events: [
             'ohos.event.notification.BT.TAP_ACCEPT',
             'ohos.event.notification.BT.TAP_REJECT',
+            'ohos.event.notification.BT.TAP_REMOVE',
+            'ohos.event.notification.BT.LIVEVIEW_REMOVE',
             'ohos.event.notification.BT.FINISH_NOTIFICATION',
+            'ohos.event.notification.BT.FINISH_REMOVE',
             'ohos.event.notification.BT.GET_URI',
             'usual.event.bluetooth.OPP.RECEIVE'
         ]
@@ -122,11 +125,34 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               this.handleTerminate();
               break;
           }
+          case 'ohos.event.notification.BT.TAP_REMOVE': {
+              clearTimeout(this.timerIdReceive);
+              this.transfering = false;
+              this.oppProfile.setIncomingFileConfirmation(false, -1);
+              this.handleTerminate();
+              break;
+          }
+          case 'ohos.event.notification.BT.LIVEVIEW_REMOVE': {
+              this.oppProfile.cancelTransfer();
+              this.handleTerminate();
+              break;
+          }
           case 'ohos.event.notification.BT.FINISH_NOTIFICATION': {
               console.info(TAG, 'jumpUriIsAllowed is ' + this.jumpUriIsAllowed);
               if (this.jumpUriIsAllowed) {
                   this.oppProfile.setLastReceivedFileUri(this.uriPath);
               }
+              setTimeout(() => {
+                  if (this.transfering) {
+                      console.info(TAG, 'still transfering, do not terminate');
+                      return;
+                  }
+                  console.info(TAG, 'transfer finished, terminateSelf');
+                  this.handleTerminate();
+              }, 100);
+              break;
+          }
+          case 'ohos.event.notification.BT.FINISH_REMOVE': {
               setTimeout(() => {
                   if (this.transfering) {
                       console.info(TAG, 'still transfering, do not terminate');
@@ -198,9 +224,11 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         console.info(TAG, 'pullUpNotification');
         let wantAgentObjAccept: WantAgent;
         let wantAgentObjReject: WantAgent;
+        let wantAgentObjRemove: WantAgent;
         wantAgentObjAccept = await this.getNotificationWantAgent('ohos.event.notification.BT.TAP_ACCEPT');
         wantAgentObjReject = await this.getNotificationWantAgent('ohos.event.notification.BT.TAP_REJECT');
-        await this.publishReceiveNotification(wantAgentObjReject, wantAgentObjAccept, fileName);
+        wantAgentObjRemove = await this.getNotificationWantAgent('ohos.event.notification.BT.TAP_REMOVE');
+        await this.publishReceiveNotification(wantAgentObjReject, wantAgentObjAccept, wantAgentObjRemove, fileName);
     }
 
     async getNotificationWantAgent(info: string): Promise<WantAgent> {
@@ -220,7 +248,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         return wantAgentObjUse;
     }
 
-    async publishReceiveNotification(wantAgentObjReject: WantAgent, wantAgentObjAccept: WantAgent, fileName: string) {
+    async publishReceiveNotification(wantAgentObjReject: WantAgent, wantAgentObjAccept: WantAgent,
+        wantAgentObjRemove: WantAgent, fileName: string) {
         console.info(TAG, 'publishReceiveNotification for ' + fileName);
         let waitTime: number = 50 * 1000;
         let timeout: number = new Date().getTime() + waitTime;
@@ -245,6 +274,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 }
             ],
             autoDeletedTime: timeout,
+            removalWantAgent: wantAgentObjRemove
         };
         notificationManager.publish(notificationRequest).then(() => {
             console.info(TAG, 'publishReceiveNotification success');
@@ -260,7 +290,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         });
     }
 
-    async publishFinishNotification(wantAgentObj: WantAgent, successNum: number, failNum: number) {
+    async publishFinishNotification(wantAgentObj: WantAgent, wantAgentObjRemove: WantAgent,
+        successNum: number, failNum: number) {
         console.info(TAG, 'publishFinishNotification');
         let notificationRequest: notificationManager.NotificationRequest = {
             content: {
@@ -276,6 +307,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             notificationSlotType: notificationManager.SlotType.SERVICE_INFORMATION,
             wantAgent: wantAgentObj,
             tapDismissed: true,
+            removalWantAgent: wantAgentObjRemove
         };
         notificationManager.publish(notificationRequest).then(() => {
             console.info(TAG, 'publishFinishNotification success');
@@ -294,12 +326,14 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     async pullUpReceiveResultNotification(successNum: number, failNum: number) {
         console.info(TAG, 'pullUpReceiveResultNotification');
         let wantAgentObj: WantAgent;
+        let wantAgentObjRemove: WantAgent;
         wantAgentObj = await this.getNotificationWantAgent('ohos.event.notification.BT.FINISH_NOTIFICATION');
-        await this.publishFinishNotification(wantAgentObj, successNum, failNum);
+        wantAgentObjRemove = await this.getNotificationWantAgent('ohos.event.notification.BT.FINISH_REMOVE');
+        await this.publishFinishNotification(wantAgentObj, wantAgentObjRemove, successNum, failNum);
     }
 
-    async publishTransProgessNotification(
-        imagePixelMapButton: image.PixelMap, imagePixelMapCapsule: image.PixelMap, percent: number, name: string) {
+    async publishTransProgessNotification(imagePixelMapButton: image.PixelMap, imagePixelMapCapsule: image.PixelMap,
+        wantAgentObjRemove: WantAgent, percent: number, name: string) {
         console.info(TAG, 'publishTransProgessNotification');
         let notificationRequest: notificationManager.NotificationRequest = {
             notificationSlotType: notificationManager.SlotType.LIVE_VIEW,
@@ -327,6 +361,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 }
             },
             tapDismissed: false,
+            removalWantAgent: wantAgentObjRemove
         };
 
         notificationManager.publish(notificationRequest).then(() => {
@@ -361,7 +396,11 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             console.error(TAG, 'getDrawableDescriptor failed, error code is ${code}, message is ${message}');
             return;
         }
-        await this.publishTransProgessNotification(imagePixelMapButton, imagePixelMapCapsule, percent, name);
+
+        let wantAgentObjRemove: WantAgent;
+        wantAgentObjRemove = await this.getNotificationWantAgent('ohos.event.notification.BT.LIVEVIEW_REMOVE');
+        await this.publishTransProgessNotification(imagePixelMapButton, imagePixelMapCapsule,
+            wantAgentObjRemove, percent, name);
     }
 
     cancelSendProgressNotification(successOrNot: number) {

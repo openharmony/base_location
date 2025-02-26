@@ -32,10 +32,17 @@ export default class BluetoothSendUIAbility extends UIAbility {
     private timeInterval: number = 0;
     private capsuleNotificationID: number = 200;
     private cancelTransEvent: string = 'ohos.event.notification.BT.TAP_CANCEL';
+    private subscriber: commonEventManager.CommonEventSubscriber | null = null;
+    private subscribeinfo: commonEventManager.CommonEventSubscribeInfo = {
+        events: [
+            'ohos.event.notification.BT.LIVEVIEW_REMOVE'
+        ]
+    };
 
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
         this.subscribeTransferState();
+        this.readyReceiveEvent();
         this.startContinuousTask();
     }
 
@@ -45,6 +52,51 @@ export default class BluetoothSendUIAbility extends UIAbility {
 
     onForeground(): void {
         console.info(TAG, 'BluetoothSendUIAbility onForeground');
+    }
+
+    handleTerminate() {
+        this.stopContinuousTask();
+        this.context.terminateSelf();
+    }
+
+    readyReceiveEvent() {
+        try {
+            console.info(TAG, 'readyReceiveEvent');
+            this.subscriber = commonEventManager.createSubscriberSync(this.subscribeinfo);
+            try {
+                commonEventManager.subscribe(this.subscriber,
+                (err: BusinessError, data: commonEventManager.CommonEventData) => {
+                    if (err) {
+                        console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                        this.handleTerminate();
+                    } else {
+                        this.handleReceivedEvent(data);
+                    }
+                });
+            } catch (error) {
+                let err: BusinessError = error as BusinessError;
+                console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                this.handleTerminate();
+            }
+        } catch (error) {
+            let err: BusinessError = error as BusinessError;
+            console.error(TAG, 'createSubscriber failed, code is ${err.code}, message is ${err.message}');
+            this.handleTerminate();
+        }
+    }
+
+    handleReceivedEvent(data: commonEventManager.CommonEventData) {
+        console.info(TAG, 'handleReceivedEvent： ' + data.event);
+        switch (data.event) {
+          case 'ohos.event.notification.BT.LIVEVIEW_REMOVE': {
+              this.oppProfile.cancelTransfer();
+              this.handleTerminate();
+              break;
+          }
+          default: {
+              break;
+          }
+        }
     }
 
     subscribeTransferState() {
@@ -65,7 +117,8 @@ export default class BluetoothSendUIAbility extends UIAbility {
             });
             console.log(TAG, 'oppProfile.transferStateChange');
         } catch (err) {
-            console.error(TAG, 'onCreate err');
+            console.error(TAG, 'subscribeTransferState err');
+            this.handleTerminate();
         }
     }
 
@@ -107,6 +160,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
             console.info(TAG, 'publishFinishNotification success');
         }).catch((err: BusinessError) => {
             console.error(TAG, 'publishFinishNotification fail');
+            this.handleTerminate();
         });
     }
 
@@ -117,8 +171,8 @@ export default class BluetoothSendUIAbility extends UIAbility {
         await this.publishFinishNotification(wantAgentObj, successNum, failNum);
     }
 
-    async publishTransProgessNotification(
-        imagePixelMapButton: image.PixelMap, imagePixelMapCapsule: image.PixelMap, percent: number, name: string) {
+    async publishTransProgessNotification(imagePixelMapButton: image.PixelMap, imagePixelMapCapsule: image.PixelMap,
+        wantAgentObjRemove: WantAgent, percent: number, name: string) {
         console.info(TAG, 'publishTransProgessNotification');
         let notificationRequest: notificationManager.NotificationRequest = {
             notificationSlotType: notificationManager.SlotType.LIVE_VIEW,
@@ -146,6 +200,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
                 }
             },
             tapDismissed: false,
+            removalWantAgent: wantAgentObjRemove
         };
 
         notificationManager.publish(notificationRequest).then(() => {
@@ -180,7 +235,11 @@ export default class BluetoothSendUIAbility extends UIAbility {
             console.error(TAG, 'getDrawableDescriptor failed, error code is ${code}, message is ${message}');
             return;
         }
-        await this.publishTransProgessNotification(imagePixelMapButton, imagePixelMapCapsule, percent, name);
+
+        let wantAgentObjRemove: WantAgent;
+        wantAgentObjRemove = await this.getNotificationWantAgent('ohos.event.notification.BT.LIVEVIEW_REMOVE');
+        await this.publishTransProgessNotification(imagePixelMapButton, imagePixelMapCapsule, wantAgentObjRemove,
+            percent, name);
     }
 
     cancelSendProgressNotification(successOrNot: number) {
@@ -190,12 +249,10 @@ export default class BluetoothSendUIAbility extends UIAbility {
             if (successOrNot === 1) {
                 this.pullUpReceiveResultNotification(1, 0);
             }
-            this.stopContinuousTask();
-            this.context.terminateSelf();
+            this.handleTerminate();
         }).catch((err: BusinessError) => {
             console.error(TAG, 'failed to cancel notification. Code is ${err.code}, message is ${err.message}')
-            this.stopContinuousTask();
-            this.context.terminateSelf();
+            this.handleTerminate();
         });
     }
 
