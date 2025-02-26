@@ -56,6 +56,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
                     this.getFileName(data.filePath));
                 } else if (data.status == 2) {
                     if (data.result != 0) {
+                        console.info(TAG, 'send fail');
                         this.cancelSendProgressNotification(0);
                     }
                     console.info(TAG, 'transfer success');
@@ -193,6 +194,8 @@ export default class BluetoothSendUIAbility extends UIAbility {
             this.context.terminateSelf();
         }).catch((err: BusinessError) => {
             console.error(TAG, 'failed to cancel notification. Code is ${err.code}, message is ${err.message}')
+            this.stopContinuousTask();
+            this.context.terminateSelf();
         });
     }
 
