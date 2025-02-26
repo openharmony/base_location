@@ -34,7 +34,7 @@
         },
         {
             "name":"location_target_statement_content",
-            "value":"[TS_962306]_Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls."
+            "value":"[TS_962306]_Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls.For more information about the location service, please refer to the <a>Statement on Location Service and Privacy</a>."
         },
         {
             "name":"wifi_three_vap_notify_no_button",
