@@ -53,11 +53,18 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private fileFd: number = -1;
     private oppProfile = opp.createOppServerProfile();
     private jumpUriIsAllowed = false;
+    private transfering: boolean = false;
+    private timerIdCreate: number;
+    private timerIdReceive: number;
 
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothReceiveUIAbility onCreate');
         this.readyReceiveEvent();
         this.startContinuousTask();
+        this.timerIdCreate = setTimeout(() => {
+            console.info(TAG, 'onCreate 1 second but nothing received');
+            this.handleTerminate();
+        }, 1000);
     }
 
     onDestroy(): void {
@@ -66,6 +73,11 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
 
     onForeground(): void {
         console.info(TAG, 'BluetoothReceiveUIAbility onForeground');
+    }
+
+    handleTerminate() {
+        this.stopContinuousTask();
+        this.context.terminateSelf();
     }
 
     readyReceiveEvent() {
@@ -77,6 +89,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 (err: BusinessError, data: commonEventManager.CommonEventData) => {
                     if (err) {
                         console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                        this.handleTerminate();
                     } else {
                         this.handleReceivedEvent(data);
                     }
@@ -84,35 +97,44 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             } catch (error) {
                 let err: BusinessError = error as BusinessError;
                 console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                this.handleTerminate();
             }
         } catch (error) {
             let err: BusinessError = error as BusinessError;
             console.error(TAG, 'createSubscriber failed, code is ${err.code}, message is ${err.message}');
+            this.handleTerminate();
         }
     }
 
     handleReceivedEvent(data: commonEventManager.CommonEventData) {
-        console.info(TAG, 'handleReceivedEvent' + data.event);
+        console.info(TAG, 'handleReceivedEvent： ' + data.event);
         switch (data.event) {
           case 'ohos.event.notification.BT.TAP_ACCEPT': {
+              clearTimeout(this.timerIdReceive);
               this.subscriberLiveViewNotification();
               this.startOPPReceiveServiceUIAbility();
               break;
           }
           case 'ohos.event.notification.BT.TAP_REJECT': {
+              clearTimeout(this.timerIdReceive);
+              this.transfering = false;
               this.oppProfile.setIncomingFileConfirmation(false, -1);
-              this.stopContinuousTask();
-              this.context.terminateSelf();
+              this.handleTerminate();
               break;
           }
           case 'ohos.event.notification.BT.FINISH_NOTIFICATION': {
-              fs.close(this.fileFd);
               console.info(TAG, 'jumpUriIsAllowed is ' + this.jumpUriIsAllowed);
               if (this.jumpUriIsAllowed) {
                   this.oppProfile.setLastReceivedFileUri(this.uriPath);
               }
-              this.stopContinuousTask();
-              this.context.terminateSelf();
+              setTimeout(() => {
+                  if (this.transfering) {
+                      console.info(TAG, 'still transfering, do not terminate');
+                      return;
+                  }
+                  console.info(TAG, 'transfer finished, terminateSelf');
+                  this.handleTerminate();
+              }, 100);
               break;
           }
           case 'ohos.event.notification.BT.GET_URI': {
@@ -121,6 +143,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               break;
           }
           case 'usual.event.bluetooth.OPP.RECEIVE': {
+              clearTimeout(this.timerIdCreate);
+              this.transfering = true;
               this.handleReceive(data);
               break;
           }
@@ -142,6 +166,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100, this.fileName);
             } else if (data.status == 2) {
                 if (data.result != 0) {
+                    console.info(TAG, 'receive fail');
                     this.cancelSendProgressNotification(0);
                 }
                 console.info(TAG, 'transferStateChange ' + data.result);
@@ -163,8 +188,9 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             console.error(TAG, 'data.parameters undefined');
             return;
         }
-        console.info(TAG, 'handleReceive fileName: ' + data.parameters.fileName);
-        this.fileName = data.parameters.fileName;
+
+        this.fileName = data.parameters?.['fileName'];
+        console.info(TAG, 'handleReceive fileName: ' + this.fileName);
         this.pullUpNotification(this.fileName);
     }
 
@@ -196,6 +222,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
 
     async publishReceiveNotification(wantAgentObjReject: WantAgent, wantAgentObjAccept: WantAgent, fileName: string) {
         console.info(TAG, 'publishReceiveNotification for ' + fileName);
+        let waitTime: number = 50 * 1000;
+        let timeout: number = new Date().getTime() + waitTime;
         let notificationRequest: notificationManager.NotificationRequest = {
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
@@ -216,12 +244,19 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                     wantAgent: wantAgentObjAccept
                 }
             ],
-            tapDismissed: true,
+            autoDeletedTime: timeout,
         };
         notificationManager.publish(notificationRequest).then(() => {
             console.info(TAG, 'publishReceiveNotification success');
+            this.timerIdReceive = setTimeout(() => {
+                console.info(TAG, 'receive notification 50 seconds but no tap');
+                this.transfering = false;
+                this.oppProfile.setIncomingFileConfirmation(false, -1);
+                this.handleTerminate();
+            }, waitTime);
         }).catch((err: Base.BusinessError) => {
             console.error(TAG, 'publishReceiveNotification fail');
+            this.handleTerminate();
         });
     }
 
@@ -246,6 +281,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             console.info(TAG, 'publishFinishNotification success');
         }).catch((err: Base.BusinessError) => {
             console.error(TAG, 'publishFinishNotification fail');
+            this.handleTerminate();
         });
     }
 
@@ -335,12 +371,14 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             if (successOrNot === 1) {
                 this.pullUpReceiveResultNotification(1, 0);
             } else if (successOrNot === 0) {
-                this.stopContinuousTask();
-                this.context.terminateSelf();
+                this.handleTerminate();
             }
         }).catch((err: BusinessError) => {
-            console.error(TAG, 'failed to cancel notification. Code is ${err.code}, message is ${err.message}')
+            console.error(TAG, `failed to cancel notification. Code is ${err.code}, message is ${err.message}`)
+            this.handleTerminate();
         });
+        this.transfering = false;
+        fs.close(this.fileFd);
     }
 
     subscriberLiveViewNotification(): void {
