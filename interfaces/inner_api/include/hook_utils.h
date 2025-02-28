@@ -43,7 +43,7 @@ enum class LocationProcessStage {
     ADD_REQUEST_TO_WORK_RECORD,
     LOCATOR_SA_LOCATION_PERMISSION_CHECK,
     LOCATOR_SA_COMMAND_PROCESS,
-    LOCATOR_SA_LOCATION_CACHE_TIME_CHECK,
+    REPORT_MANAGER_GET_CACHE_LOCATION_PROCESS,
     ENABLE_ABILITY_PROCESS,
     PRE_START_LOCATING_PROCESS,
     NETWORK_SA_ADD_REQUEST_PROCESS,
@@ -53,6 +53,7 @@ enum class LocationProcessStage {
 	GNSS_STATUS_REPORT_PROCESS,
     SET_AGNSS_SERVER_PROCESS,
     SIM_STATE_CHANGED_PROCESS,
+    LOCATOR_SA_GET_CACHE_LOCATION_BEFORE_REPORT
 };
 
 typedef struct {
@@ -92,6 +93,7 @@ typedef struct {
     bool deviceStillState;
     bool deviceIdleState;
     bool result;
+    bool indoorFlag;
     std::string abilityName;
     std::string bundleName;
 } LocatorRequestStruct;
@@ -137,7 +139,8 @@ public:
         std::string bundleName);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
-    static bool ExecuteHookWhenCheckAppForCacheTime(std::string packageName);
+    static bool ExecuteHookReportManagerGetCacheLocation(std::string packageName, bool &indoorFlag);
+    static bool ExecuteHookGetCacheLocationBeforeReport(std::unique_ptr<Location>& location);
     static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
     static bool ExecuteHookWhenPreStartLocating(std::string packageName);
     static bool ExecuteHookWhenAddNetworkRequest(std::string uuid);

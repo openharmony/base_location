@@ -136,14 +136,26 @@ bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& locat
     return gnssLocationValidStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenCheckAppForCacheTime(std::string packageName)
+bool HookUtils::ExecuteHookReportManagerGetCacheLocation(std::string packageName, bool &indoorFlag)
 {
     LocatorRequestStruct locatorRequestStruct;
     locatorRequestStruct.bundleName = packageName;
     locatorRequestStruct.result = false;
+    locatorRequestStruct.indoorFlag = false;
     ExecuteHook(
-        LocationProcessStage::LOCATOR_SA_LOCATION_CACHE_TIME_CHECK, (void *)&locatorRequestStruct, nullptr);
+        LocationProcessStage::REPORT_MANAGER_GET_CACHE_LOCATION_PROCESS, (void *)&locatorRequestStruct, nullptr);
+    indoorFlag = locatorRequestStruct.indoorFlag;
     return locatorRequestStruct.result;
+}
+
+bool HookUtils::ExecuteHookGetCacheLocationBeforeReport(std::unique_ptr<Location>& location)
+{
+    GnssLocationValidStruct gnssLocationValidStruct;
+    gnssLocationValidStruct.location = *location;
+    gnssLocationValidStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_GET_CACHE_LOCATION_BEFORE_REPORT, (void *)&gnssLocationValidStruct, nullptr);
+    return gnssLocationValidStruct.result;
 }
 
 bool HookUtils::ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId)

@@ -23,11 +23,12 @@
     "*Location*WriteAppLocatingStateEvent*";
     "*ExecuteHookWhenAddWorkRecord*";
     "*LOCATOR_SA_LOCATION_PERMISSION_CHECK*";
-    "*ExecuteHookWhenCheckAppForCacheTime*";
+    "*ExecuteHookReportManagerGetCacheLocation*";
     "*ExecuteHookEnableAbility*";
     "*ExecuteHookWhenPreStartLocating*";
     "*ExecuteHookWhenSetAgnssServer*";
     "*ExecuteHookWhenSimStateChange*";
+    "*ExecuteHookGetCacheLocationBeforeReport*";
   local:
     *;
 };

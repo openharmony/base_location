@@ -368,10 +368,11 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
             cacheGnssLocation_ = *location;
             UpdateLastLocation(location);
         }
-    } else if (abilityName == NETWORK_ABILITY &&
-        location->GetLocationSourceType() != LocationSourceType::INDOOR_TYPE) {
+    } else if (abilityName == NETWORK_ABILITY) {
         cacheNlpLocation_ = *location;
-        UpdateLastLocation(location);
+        if (location->GetLocationSourceType() != LocationSourceType::INDOOR_TYPE) {
+            UpdateLastLocation(location);
+        }
     } else {
         UpdateLastLocation(location);
     }
@@ -408,18 +409,20 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::unique_ptr<Location> cacheLocation = nullptr;
     std::string packageName = request->GetPackageName();
     int cachedTime = 0;
-    if (HookUtils::ExecuteHookWhenCheckAppForCacheTime(packageName)) {
+    bool indoorFlag = false;
+    if (HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, indoorFlag)) {
         cachedTime = LONG_CACHE_DURATION;
     } else {
         cachedTime = CACHED_TIME;
     }
-    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+    if (!indoorFlag && !CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
     }
+    HookUtils::ExecuteHookGetCacheLocationBeforeReport(cacheLocation);
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
         return nullptr;
