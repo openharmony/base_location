@@ -1,0 +1,120 @@
+{
+    "plural":[
+        {
+            "name":"bluetooth_receive_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"[TS_1042206]_%d failed"
+                },
+                {
+                    "quantity":"one",
+                    "value":"[TS_1042210]_%d failed"
+                },
+                {
+                    "quantity":"zero",
+                    "value":"[TS_1042211]_%d failed"
+                },
+                {
+                    "quantity":"few",
+                    "value":"[TS_1042201]_%d failed"
+                },
+                {
+                    "quantity":"many",
+                    "value":"[TS_1042212]_%d failed"
+                },
+                {
+                    "quantity":"two",
+                    "value":"[TS_1042205]_%d failed"
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"[TS_1043023]_%d failed"
+                },
+                {
+                    "quantity":"other",
+                    "value":"[TS_1043020]_%d failed"
+                },
+                {
+                    "quantity":"zero",
+                    "value":"[TS_1043022]_%d failed"
+                },
+                {
+                    "quantity":"few",
+                    "value":"[TS_1043019]_%d failed"
+                },
+                {
+                    "quantity":"many",
+                    "value":"[TS_1043021]_%d failed"
+                },
+                {
+                    "quantity":"two",
+                    "value":"[TS_1043013]_%d failed"
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_receive_finish_success_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"[TS_1042207]_%d file received"
+                },
+                {
+                    "quantity":"other",
+                    "value":"[TS_1042202]_%d files received"
+                },
+                {
+                    "quantity":"zero",
+                    "value":"[TS_1042204]_%d files received"
+                },
+                {
+                    "quantity":"few",
+                    "value":"[TS_1042209]_%d files received"
+                },
+                {
+                    "quantity":"many",
+                    "value":"[TS_1042208]_%d files received"
+                },
+                {
+                    "quantity":"two",
+                    "value":"[TS_1042203]_%d files received"
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_success_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"[TS_1043014]_%d file sent"
+                },
+                {
+                    "quantity":"other",
+                    "value":"[TS_1043024]_%d files sent"
+                },
+                {
+                    "quantity":"zero",
+                    "value":"[TS_1043015]_%d files sent"
+                },
+                {
+                    "quantity":"few",
+                    "value":"[TS_1043018]_%d files sent"
+                },
+                {
+                    "quantity":"many",
+                    "value":"[TS_1043016]_%d files sent"
+                },
+                {
+                    "quantity":"two",
+                    "value":"[TS_1043025]_%d files sent"
+                }
+            ]
+        }
+    ]
+}
