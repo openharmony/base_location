@@ -191,21 +191,21 @@
     },
     {
         "name":"bluetooth_receive_finish_title",
-        "value":"蓝牙共享: 已接收的文件",
+        "value":"蓝牙共享：已接收的文件",
         "attr":{
             "priority":"translate"
       }
     },
     {
         "name":"bluetooth_send_finish_text",
-        "value":"%1$s, %2$s",
+        "value":"%1$s，%2$s",
         "attr":{
             "priority":"translate"
       }
     },
     {
         "name":"bluetooth_receive_finish_text",
-        "value":"%1$s, %2$s",
+        "value":"%1$s，%2$s",
         "attr":{
             "priority":"translate"
       }
@@ -226,7 +226,7 @@
     },
     {
         "name":"bluetooth_send_finish_title",
-        "value":"蓝牙共享: 已发送的文件",
+        "value":"蓝牙共享：已发送的文件",
         "attr":{
             "priority":"translate"
       }

@@ -5,11 +5,17 @@
             "value":[
                 {
                     "quantity":"one",
-                    "value":" %d file succeeds"
+                    "value":"%d file sent",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 },
                 {
                     "quantity":"other",
-                    "value":" %d files success"
+                    "value":"%d files sent",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -18,11 +24,17 @@
             "value":[
                 {
                     "quantity":"one",
-                    "value":" %d file fails"
+                    "value":"%d failed",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 },
                 {
                     "quantity":"other",
-                    "value":" %d files fail"
+                    "value":"%d failed",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -31,11 +43,17 @@
             "value":[
                 {
                     "quantity":"one",
-                    "value":" %d file succeeds"
+                    "value":"%d file received",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 },
                 {
                     "quantity":"other",
-                    "value":" %d files success"
+                    "value":"%d files received",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -44,11 +62,17 @@
             "value":[
                 {
                     "quantity":"one",
-                    "value":" %d file fails"
+                    "value":"%d failed",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 },
                 {
                     "quantity":"other",
-                    "value":" %d files fail"
+                    "value":"%d failed",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         }

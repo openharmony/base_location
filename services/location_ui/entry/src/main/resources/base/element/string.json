@@ -178,7 +178,7 @@
     },
     {
         "name":"bluetooth_receive_notification_title",
-        "value":"Bluetooth Share",
+        "value":"Bluetooth file transfer",
         "attr":{
             "priority":"translate"
       }
@@ -199,7 +199,7 @@
     },
     {
         "name":"bluetooth_receive_finish_title",
-        "value":"Bluetooth receive finished",
+        "value":"Bluetooth transfer finished",
         "attr":{
             "priority":"translate"
       }
@@ -220,28 +220,28 @@
     },
     {
         "name":"bluetooth_transfer_notification_title",
-        "value":"Bluetooth share",
+        "value":"Bluetooth file transfer",
         "attr":{
             "priority":"translate"
       }
     },
     {
         "name":"bluetooth_transfer_receive_text",
-        "value":"Bluetooth receiving",
+        "value":"Receiving…",
         "attr":{
             "priority":"translate"
       }
     },
     {
         "name":"bluetooth_send_finish_title",
-        "value":"Bluetooth send finished",
+        "value":"Bluetooth transfer finished",
         "attr":{
             "priority":"translate"
       }
     },
     {
         "name":"bluetooth_transfer_send_text",
-        "value":"Bluetooth sending",
+        "value":"Sending…",
         "attr":{
             "priority":"translate"
       }
@@ -250,7 +250,7 @@
         "name":"share_name",
         "value":"Bluetooth",
         "attr":{
-            "priority":"LT"
+            "priority":"translate"
       }
     }
   ]

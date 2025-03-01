@@ -5,7 +5,10 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输成功"
+                    "value":"%d 个文件传输成功",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -14,7 +17,10 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输失败"
+                    "value":"%d 个文件传输失败",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -23,7 +29,10 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输成功"
+                    "value":"%d 个文件传输成功",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -32,7 +41,10 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输失败"
+                    "value":"%d 个文件传输失败",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         }

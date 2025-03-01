@@ -5,7 +5,17 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输成功"
+                    "value":"%d ھۆججەت يوللانغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"one",
+                    "value":"%d ھۆججەت يوللانغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -14,7 +24,17 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输失败"
+                    "value":"%d ھۆججەت يوللانمىغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"one",
+                    "value":"%d ھۆججەت يوللانمىغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -23,7 +43,17 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输成功"
+                    "value":"%d ھۆججەت يوللانغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"one",
+                    "value":"%d ھۆججەت يوللانغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         },
@@ -32,7 +62,17 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":" %d 个文件传输失败"
+                    "value":"%d ھۆججەت يوللانمىغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"one",
+                    "value":"%d ھۆججەت يوللانمىغان",
+                    "attr":{
+                        "priority":"translate"
+                    }
                 }
             ]
         }

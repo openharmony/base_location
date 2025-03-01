@@ -154,80 +154,80 @@
         },
         {
             "name":"bluetooth_receive_notification_title",
-            "value":"蓝牙共享文件",
+            "value":"藍牙分享檔案",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_receive_notification_button_reject",
-            "value":"拒绝",
+            "value":"拒絕",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_receive_notification_button_accept",
             "value":"接收",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_receive_finish_title",
-            "value":"蓝牙共享: 已接收的文件",
+            "value":"藍牙分享：已接收的檔案",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
+            "value":"%1$s，%2$s",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
+            "value":"%1$s，%2$s",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_transfer_notification_title",
-            "value":"蓝牙共享",
+            "value":"藍牙分享",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_transfer_receive_text",
-            "value":"正在接收",
+            "value":"接收中",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_send_finish_title",
-            "value":"蓝牙共享: 已发送的文件",
+            "value":"藍牙分享：已傳送的檔案",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"bluetooth_transfer_send_text",
-            "value":"正在发送",
+            "value":"傳送中",
             "attr":{
                 "priority":"translate"
-          }
+            }
         },
         {
             "name":"share_name",
-            "value":"蓝牙",
+            "value":"藍牙",
             "attr":{
                 "priority":"translate"
-          }
+            }
         }
     ]
 }

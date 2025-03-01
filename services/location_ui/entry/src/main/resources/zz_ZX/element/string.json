@@ -115,6 +115,50 @@
         {
             "name":"condition_netshare_hotspot_close",
             "value":"[TS_1018641]_Hotspot disabled"
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"[TS_1039899]_Bluetooth transfer finished"
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"[TS_1039894]_Receiving…"
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"[TS_1039891]_Sending…"
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"[TS_1039895]_Bluetooth transfer finished"
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"[TS_1039893]_Accept"
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"[TS_1039896]_Bluetooth file transfer"
+        },
+        {
+            "name":"share_name",
+            "value":"[TS_1039900]_Bluetooth"
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"[TS_1039897]_Reject"
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"[TS_1039892]_%1$s, %2$s"
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"[TS_1043017]_%1$s, %2$s"
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"[TS_1039898]_Bluetooth file transfer"
         }
     ]
 }
