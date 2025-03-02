@@ -38,9 +38,16 @@ export default class BluetoothSendUIAbility extends UIAbility {
             'ohos.event.notification.BT.LIVEVIEW_REMOVE'
         ]
     };
+    private timerIdCreate: number;
+    private timerIdCreated: boolean = false;
 
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
+        this.timerIdCreate = setTimeout(() => {
+            console.info(TAG, 'onCreate 10 seconds but nothing received');
+            this.handleTerminate();
+        }, 10000);
+        this.timerIdCreated = true;
         this.subscribeTransferState();
         this.readyReceiveEvent();
         this.startContinuousTask();
@@ -67,7 +74,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
                 commonEventManager.subscribe(this.subscriber,
                 (err: BusinessError, data: commonEventManager.CommonEventData) => {
                     if (err) {
-                        console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                        console.error(TAG, `subscribe failed, code is ${err.code}, message is ${err.message}`);
                         this.handleTerminate();
                     } else {
                         this.handleReceivedEvent(data);
@@ -75,12 +82,12 @@ export default class BluetoothSendUIAbility extends UIAbility {
                 });
             } catch (error) {
                 let err: BusinessError = error as BusinessError;
-                console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                console.error(TAG, `subscribe failed, code is ${err.code}, message is ${err.message}`);
                 this.handleTerminate();
             }
         } catch (error) {
             let err: BusinessError = error as BusinessError;
-            console.error(TAG, 'createSubscriber failed, code is ${err.code}, message is ${err.message}');
+            console.error(TAG, `createSubscriber failed, code is ${err.code}, message is ${err.message}`);
             this.handleTerminate();
         }
     }
@@ -103,6 +110,10 @@ export default class BluetoothSendUIAbility extends UIAbility {
         try {
             this.subscriberLiveViewNotification();
             this.oppProfile.on('transferStateChange', (data: opp.OppTransferInformation) => {
+                if (this.timerIdCreated) {
+                    this.timerIdCreated = false;
+                    clearTimeout(this.timerIdCreate);
+                }
                 if (data.status == 1) {
                     this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100,
                     this.getFileName(data.filePath));
@@ -232,7 +243,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
         } catch (error) {
             let code = (error as BusinessError).code;
             let message = (error as BusinessError).message;
-            console.error(TAG, 'getDrawableDescriptor failed, error code is ${code}, message is ${message}');
+            console.error(TAG, `getDrawableDescriptor failed, error code is ${code}, message is ${message}`);
             return;
         }
 
@@ -251,7 +262,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
             }
             this.handleTerminate();
         }).catch((err: BusinessError) => {
-            console.error(TAG, 'failed to cancel notification. Code is ${err.code}, message is ${err.message}')
+            console.error(TAG, `failed to cancel notification. Code is ${err.code}, message is ${err.message}`)
             this.handleTerminate();
         });
     }
@@ -302,17 +313,17 @@ export default class BluetoothSendUIAbility extends UIAbility {
         wantAgentObj = await this.getNotificationWantAgent('ohos.event.notification.BT.BACK_RUNNING');
         backgroundTaskManager.startBackgroundRunning(this.context,
         backgroundTaskManager.BackgroundMode.BLUETOOTH_INTERACTION, wantAgentObj).then(() => {
-            console.info(TAG, 'Succeeded in operationing startBackgroundRunning.');
+            console.info(TAG, `Succeeded in operationing startBackgroundRunning.`);
         }).catch((err: BusinessError) => {
-            console.error(TAG, 'Failed to operation startBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+            console.error(TAG, `Failed to operation startBackgroundRunning. Code is ${err.code}, message is ${err.message}`);
         });
     }
 
     stopContinuousTask() {
         backgroundTaskManager.stopBackgroundRunning(this.context).then(() => {
-            console.info(TAG, 'Succeeded in operationing stopBackgroundRunning.');
+            console.info(TAG, `Succeeded in operationing stopBackgroundRunning.`);
         }).catch((err: BusinessError) => {
-            console.error(TAG, 'Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+            console.error(TAG, `Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}`);
         });
     }
 }
