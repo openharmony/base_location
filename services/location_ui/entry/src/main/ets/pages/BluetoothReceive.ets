@@ -33,7 +33,7 @@ struct btCreateFilePickerPage {
     documentSaveOptions.pickerMode = picker.DocumentPickerMode.DOWNLOAD;
     const documentPicker = new picker.DocumentViewPicker();
     documentPicker.save(documentSaveOptions).then((documentSaveResult: Array<string>) => {
-      console.info('opp documentViewPicker.save to file succeed and uris are:' + documentSaveResult.length + documentSaveResult[0]);
+      console.info('opp documentViewPicker.save to file succeed' + documentSaveResult.length);
       const options: commonEventManager.CommonEventPublishData = {
         code: 0,
         data: 'message',
@@ -52,7 +52,7 @@ struct btCreateFilePickerPage {
       this.context.terminateSelf();
     }).catch((err: BusinessError) => {
       this.context.terminateSelf();
-      console.error(`opp Invoke documentViewPicker.save failed, code is ${err.code}, message is ${err.message}`);
+      console.error(`${TAG} opp Invoke documentViewPicker.save failed, code is ${err.code}, message is ${err.message}`);
     })
   }
 

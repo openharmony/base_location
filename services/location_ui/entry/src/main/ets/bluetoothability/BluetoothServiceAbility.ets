@@ -30,23 +30,22 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
     }
 
     onDestroy(): void {
-        console.log('${TAG} onDestroy is called');
+        console.log(`${TAG} onDestroy is called`);
     }
 
     public async onSessionCreate(want: Want, session: UIExtensionContentSession): Promise<void> {
-        console.log('${TAG} onSessionCreate is called');
+        console.log(`${TAG} onSessionCreate is called`);
         let systemShareModule = loadNativeModule('@hms:collaboration.systemShare') as ESObject;
         try {
             let data = await systemShareModule.getSharedData(want);
             let records = data.getRecords();
             for (let i = 0; i < records.length; i++) {
                 this.uris.push(records[i].uri);
-                console.log('${TAG} uri is: ' + this.uris[i]);
             }
             AppStorage.setOrCreate('sendFileUris', this.uris);
             AppStorage.setOrCreate('sendFileUrisLength', this.uris.length);
         } catch (err) {
-            console.log('${TAG} records fail');
+            console.log(`${TAG} records fail`);
         }
         let localStorage: LocalStorage = new LocalStorage({
             session: session
@@ -55,19 +54,19 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
             session.loadContent('pages/BluetoothShare', localStorage);
             session.setWindowBackgroundColor('#00000000');
         } catch (err) {
-            console.log('${TAG} loadContent fail');
+            console.log(`${TAG} loadContent fail`);
         }
     }
 
     onSessionDestroy(): void {
-        console.log('${TAG} onSessionDestroy is called');
+        console.log(`${TAG} onSessionDestroy is called`);
     }
 
     onForeground(): void {
-        console.log('${TAG} onForeground is called');
+        console.log(`${TAG} onForeground is called`);
     }
 
     onBackground(): void {
-        console.log('${TAG} onBackground is called');
+        console.log(`${TAG} onBackground is called`);
     }
 }

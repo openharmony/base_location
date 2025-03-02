@@ -127,14 +127,13 @@ export struct BtServicesComponent {
 
   private async sendData(): Promise<void> {
     console.log(`${TAG} sendData is called.`);
-    let timeOut: number = 20;
+    let timeOut: number = 100;
     let fileUris = AppStorage.Get('sendFileUris');
     let length = AppStorage.Get('sendFileUrisLength');
     try {
       let oppProfile = opp.createOppServerProfile();
       for (let i = 0; i < length; i++) {
         let filePath = fileUris[i];
-        console.log(`${TAG} deal uri:` + filePath);
         let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
         console.log(`${TAG} deal file:` + file.fd);
         let stat: fs.Stat = fs.statSync(file.fd);

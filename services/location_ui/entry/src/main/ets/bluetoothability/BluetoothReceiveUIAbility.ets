@@ -91,7 +91,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 commonEventManager.subscribe(this.subscriber,
                 (err: BusinessError, data: commonEventManager.CommonEventData) => {
                     if (err) {
-                        console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                        console.error(TAG, `subscribe failed, code is ${err.code}, message is ${err.message}`);
                         this.handleTerminate();
                     } else {
                         this.handleReceivedEvent(data);
@@ -99,18 +99,18 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 });
             } catch (error) {
                 let err: BusinessError = error as BusinessError;
-                console.error(TAG, 'subscribe failed, code is ${err.code}, message is ${err.message}');
+                console.error(TAG, `subscribe failed, code is ${err.code}, message is ${err.message}`);
                 this.handleTerminate();
             }
         } catch (error) {
             let err: BusinessError = error as BusinessError;
-            console.error(TAG, 'createSubscriber failed, code is ${err.code}, message is ${err.message}');
+            console.error(TAG, `createSubscriber failed, code is ${err.code}, message is ${err.message}`);
             this.handleTerminate();
         }
     }
 
     handleReceivedEvent(data: commonEventManager.CommonEventData) {
-        console.info(TAG, 'handleReceivedEvent： ' + data.event);
+        console.info(TAG, 'handleReceivedEvent: ' + data.event);
         switch (data.event) {
           case 'ohos.event.notification.BT.TAP_ACCEPT': {
               clearTimeout(this.timerIdReceive);
@@ -186,7 +186,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             return;
         }
 
-        console.info(TAG, 'handleBtUri ' + data.parameters.uri);
         this.oppProfile.on('transferStateChange', (data: opp.OppTransferInformation) => {
             if (data.status == 1) {
                 this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100, this.fileName);
@@ -205,7 +204,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         this.sandBoxUri = uri.path + '/' + this.fileName;
         let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
         this.fileFd = file.fd;
-        console.info(TAG, 'handleBtUri sandBoxUri: ' + this.sandBoxUri + file.fd);
         this.oppProfile.setIncomingFileConfirmation(true, file.fd);
     }
 
@@ -393,7 +391,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         } catch (error) {
             let code = (error as BusinessError).code;
             let message = (error as BusinessError).message;
-            console.error(TAG, 'getDrawableDescriptor failed, error code is ${code}, message is ${message}');
+            console.error(TAG, `getDrawableDescriptor failed, error code is ${code}, message is ${message}`);
             return;
         }
 
@@ -461,17 +459,17 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         wantAgentObj = await this.getNotificationWantAgent('ohos.event.notification.BT.BACK_RUNNING');
         backgroundTaskManager.startBackgroundRunning(this.context,
         backgroundTaskManager.BackgroundMode.BLUETOOTH_INTERACTION, wantAgentObj).then(() => {
-            console.info(TAG, 'Succeeded in operationing startBackgroundRunning.');
+            console.info(TAG, `Succeeded in operationing startBackgroundRunning.`);
         }).catch((err: BusinessError) => {
-            console.error(TAG, 'Failed to operation startBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+            console.error(TAG, `Failed to operation startBackgroundRunning. Code is ${err.code}, message is ${err.message}`);
         });
     }
 
     stopContinuousTask() {
         backgroundTaskManager.stopBackgroundRunning(this.context).then(() => {
-            console.info(TAG, 'Succeeded in operationing stopBackgroundRunning.');
+            console.info(TAG, `Succeeded in operationing stopBackgroundRunning.`);
         }).catch((err: BusinessError) => {
-            console.error(TAG, 'Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}');
+            console.error(TAG, `Failed to operation stopBackgroundRunning. Code is ${err.code}, message is ${err.message}`);
         });
     }
 }
