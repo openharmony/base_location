@@ -214,7 +214,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         }
 
         this.fileName = data.parameters?.['fileName'];
-        console.info(TAG, 'handleReceive fileName: ' + this.fileName);
         this.pullUpNotification(this.fileName);
     }
 
