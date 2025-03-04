@@ -128,6 +128,13 @@ std::unique_ptr<Location> Location::Unmarshalling(Parcel& parcel)
     return location;
 }
 
+std::unique_ptr<Location> Location::UnmarshallingMakeUnique(Parcel& parcel)
+{
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->ReadFromParcel(parcel);
+    return location;
+}
+
 bool Location::Marshalling(Parcel& parcel) const
 {
     auto additions = VectorString8ToVectorString16();

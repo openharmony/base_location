@@ -252,6 +252,7 @@ public:
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
     static std::unique_ptr<Location> Unmarshalling(Parcel& parcel);
+    static std::unique_ptr<Location> UnmarshallingMakeUnique(Parcel& parcel);
     static std::shared_ptr<Location> UnmarshallingShared(Parcel& parcel);
     bool LocationEqual(const std::unique_ptr<Location>& location);
     bool AdditionEqual(const std::unique_ptr<Location>& location);
