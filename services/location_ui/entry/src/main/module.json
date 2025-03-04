@@ -23,9 +23,9 @@
         "icon": "$media:app_icon",
         "label": "BluetoothReceiveUIAbility",
         "description": "service",
-        "permissions": [],
         "metadata": [],
-        "exported": true,
+        "visible": true,
+        "permissions": [],
         "continuable": false,
         "skills": [],
         "backgroundModes": [
@@ -42,9 +42,9 @@
         "icon": "$media:app_icon",
         "label": "BluetoothSendUIAbility",
         "description": "service",
-        "permissions": [],
         "metadata": [],
-        "exported": true,
+        "visible": true,
+        "permissions": [],
         "continuable": false,
         "skills": [],
         "backgroundModes": [
@@ -106,7 +106,8 @@
         "srcEntry": "./ets/bluetoothability/BluetoothServiceAbility.ets",
         "type": "share",
         "extensionProcessMode": "instance",
-        "exported": true,
+        "visible": true,
+        "permissions": [],
         "skills": [
           {
             "actions": [
@@ -142,22 +143,28 @@
         "name": "ohos.permission.PUBLISH_LOCATION_EVENT"
       },
       {
-        "name": "ohos.permission.ACCESS_BLUETOOTH"
+        "name": "ohos.permission.ACCESS_BLUETOOTH",
+        "reason": "use at bluetooth app"
       },
       {
-        "name": "ohos.permission.USE_BLUETOOTH"
+        "name": "ohos.permission.USE_BLUETOOTH",
+        "reason": "use at bluetooth app"
       },
       {
-        "name": "ohos.permission.MANAGE_BLUETOOTH"
+        "name": "ohos.permission.MANAGE_BLUETOOTH",
+        "reason": "use at bluetooth app"
       },
       {
-        "name": "ohos.permission.ACCESS_SYSTEM_SETTINGS"
+        "name": "ohos.permission.ACCESS_SYSTEM_SETTINGS",
+        "reason": "use at bluetooth app"
       },
       {
-        "name": "ohos.permission.WRITE_IMAGEVIDEO"
+        "name": "ohos.permission.WRITE_IMAGEVIDEO",
+        "reason": "use at bluetooth app"
       },
       {
-        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING"
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
+        "reason": "use at bluetooth app"
       }
     ]
   }

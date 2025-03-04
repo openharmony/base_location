@@ -37,12 +37,12 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private subscriber: commonEventManager.CommonEventSubscriber | null = null;
     private subscribeinfo: commonEventManager.CommonEventSubscribeInfo = {
         events: [
-            'ohos.event.notification.BT.TAP_ACCEPT',
-            'ohos.event.notification.BT.TAP_REJECT',
-            'ohos.event.notification.BT.TAP_REMOVE',
+            'usual.event.bluetooth.OPP.TAP.ACCEPT',
+            'usual.event.bluetooth.OPP.TAP.REJECT',
+            'usual.event.bluetooth.OPP.TAP.REMOVE',
             'ohos.event.notification.BT.LIVEVIEW_REMOVE',
-            'ohos.event.notification.BT.FINISH_NOTIFICATION',
-            'ohos.event.notification.BT.FINISH_REMOVE',
+            'usual.event.bluetooth.OPP.FINISH.NOTIFICATION',
+            'usual.event.bluetooth.OPP.FINISH.REMOVE',
             'ohos.event.notification.BT.GET_URI',
             'usual.event.bluetooth.OPP.RECEIVE'
         ]
@@ -56,9 +56,11 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private fileFd: number = -1;
     private oppProfile = opp.createOppServerProfile();
     private jumpUriIsAllowed = false;
+    private tapEventIsAllowed = true;
     private transfering: boolean = false;
     private timerIdCreate: number;
     private timerIdReceive: number;
+    private fileNameToReceiveMap = new Map();
 
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothReceiveUIAbility onCreate');
@@ -83,12 +85,12 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         this.context.terminateSelf();
     }
 
-    readyReceiveEvent() {
+    async readyReceiveEvent() {
         try {
             console.info(TAG, 'readyReceiveEvent');
             this.subscriber = commonEventManager.createSubscriberSync(this.subscribeinfo);
             try {
-                commonEventManager.subscribe(this.subscriber,
+                await commonEventManager.subscribe(this.subscriber,
                 (err: BusinessError, data: commonEventManager.CommonEventData) => {
                     if (err) {
                         console.error(TAG, `subscribe failed, code is ${err.code}, message is ${err.message}`);
@@ -112,32 +114,45 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     handleReceivedEvent(data: commonEventManager.CommonEventData) {
         console.info(TAG, 'handleReceivedEvent: ' + data.event);
         switch (data.event) {
-          case 'ohos.event.notification.BT.TAP_ACCEPT': {
+          case 'usual.event.bluetooth.OPP.TAP.ACCEPT': {
+              console.info(TAG, 'tapEventIsAllowed is ' + this.tapEventIsAllowed);
+              if (!this.tapEventIsAllowed) {
+                  break;
+              }
               clearTimeout(this.timerIdReceive);
               this.subscriberLiveViewNotification();
               this.startOPPReceiveServiceUIAbility();
+              this.tapEventIsAllowed = false;
               break;
           }
-          case 'ohos.event.notification.BT.TAP_REJECT': {
+          case 'usual.event.bluetooth.OPP.TAP.REJECT': {
+              console.info(TAG, 'tapEventIsAllowed is ' + this.tapEventIsAllowed);
+              if (!this.tapEventIsAllowed) {
+                  break;
+              }
               clearTimeout(this.timerIdReceive);
               this.transfering = false;
               this.oppProfile.setIncomingFileConfirmation(false, -1);
               this.handleTerminate();
+              this.tapEventIsAllowed = false;
               break;
           }
-          case 'ohos.event.notification.BT.TAP_REMOVE': {
+          case 'usual.event.bluetooth.OPP.TAP.REMOVE': {
+              console.info(TAG, 'tapEventIsAllowed is ' + this.tapEventIsAllowed);
               clearTimeout(this.timerIdReceive);
               this.transfering = false;
               this.oppProfile.setIncomingFileConfirmation(false, -1);
               this.handleTerminate();
+              this.tapEventIsAllowed = true;
               break;
           }
           case 'ohos.event.notification.BT.LIVEVIEW_REMOVE': {
+              this.tapEventIsAllowed = true;
               this.oppProfile.cancelTransfer();
               this.handleTerminate();
               break;
           }
-          case 'ohos.event.notification.BT.FINISH_NOTIFICATION': {
+          case 'usual.event.bluetooth.OPP.FINISH.NOTIFICATION': {
               console.info(TAG, 'jumpUriIsAllowed is ' + this.jumpUriIsAllowed);
               if (this.jumpUriIsAllowed) {
                   this.oppProfile.setLastReceivedFileUri(this.uriPath);
@@ -152,7 +167,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               }, 100);
               break;
           }
-          case 'ohos.event.notification.BT.FINISH_REMOVE': {
+          case 'usual.event.bluetooth.OPP.FINISH.REMOVE': {
               setTimeout(() => {
                   if (this.transfering) {
                       console.info(TAG, 'still transfering, do not terminate');
@@ -170,6 +185,16 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
           }
           case 'usual.event.bluetooth.OPP.RECEIVE': {
               clearTimeout(this.timerIdCreate);
+              if (data.parameters == undefined) {
+                  console.error(TAG, 'data.parameters undefined');
+                  break;
+              }
+              this.fileName = data.parameters?.['fileName'];
+              if (this.fileNameToReceiveMap.has(this.fileName)) {
+                  console.error(TAG, 'fileName is repeat, discard this OPP.RECEIVE');
+                  break;
+              }
+              this.fileNameToReceiveMap.set(this.fileName, true);
               this.transfering = true;
               this.handleReceive(data);
               break;
@@ -190,6 +215,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             if (data.status == 1) {
                 this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100, this.fileName);
             } else if (data.status == 2) {
+                this.tapEventIsAllowed = true;
                 if (data.result != 0) {
                     console.info(TAG, 'receive fail');
                     this.cancelSendProgressNotification(0);
@@ -208,12 +234,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     }
 
     handleReceive(data: commonEventManager.CommonEventData) {
-        if (data.parameters == undefined) {
-            console.error(TAG, 'data.parameters undefined');
-            return;
-        }
-
-        this.fileName = data.parameters?.['fileName'];
         this.pullUpNotification(this.fileName);
     }
 
@@ -414,7 +434,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             this.handleTerminate();
         });
         this.transfering = false;
-        fs.close(this.fileFd);
+        if (this.fileFd != -1) {
+            fs.close(this.fileFd);
+            this.fileFd = -1;
+        }
     }
 
     subscriberLiveViewNotification(): void {
@@ -423,6 +446,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 switch (option.buttonName) {
                     case this.cancelTransEvent: {
                         console.info(TAG, 'cancel transfer.');
+                        this.tapEventIsAllowed = true;
                         this.oppProfile.cancelTransfer();
                         this.cancelSendProgressNotification(0);
                         break;
