@@ -150,6 +150,7 @@ public:
     static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
+    static bool ExecuteHookWhenCheckPermission(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS
