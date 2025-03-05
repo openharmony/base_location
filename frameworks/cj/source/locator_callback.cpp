@@ -46,6 +46,10 @@ LocatorCallback::LocatorCallback(int64_t callbackId)
 void LocatorCallback::InitLatch()
 {
     latch_ = new Location::CountDownLatch();
+    if (latch_ == nullptr) {
+        LBSLOGE(Location::LOCATOR_CALLBACK, "latch_ is nullptr.");
+        return;
+    }
     latch_->SetCount(1);
 }
 
