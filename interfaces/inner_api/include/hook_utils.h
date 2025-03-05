@@ -122,7 +122,7 @@ typedef struct {
 } AgnssStruct;
 
 typedef struct {
-    std::string* bundleName;
+    std::string bundleName;
     bool isPermitted;
 } PermissionCheckStruct;
 
