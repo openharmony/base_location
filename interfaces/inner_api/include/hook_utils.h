@@ -53,6 +53,7 @@ enum class LocationProcessStage {
 	GNSS_STATUS_REPORT_PROCESS,
     SET_AGNSS_SERVER_PROCESS,
     SIM_STATE_CHANGED_PROCESS,
+    PERMISSION_CHECK_PROCESS,
 };
 
 typedef struct {
@@ -119,6 +120,11 @@ typedef struct {
     int* port;
     bool result;
 } AgnssStruct;
+
+typedef struct {
+    std::string* bundleName;
+    bool isPermitted;
+} PermissionCheckStruct;
 
 class HookUtils {
 public:

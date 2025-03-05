@@ -205,5 +205,15 @@ bool HookUtils::ExecuteHookWhenSimStateChange(const std::string& data)
         LocationProcessStage::SIM_STATE_CHANGED_PROCESS, (void *)&locatorRequestStruct, nullptr);
     return locatorRequestStruct.result;
 }
+
+bool HookUtils::ExecuteHookWhenCheckPermission(std::string packageName)
+{
+    PermissionCheckStruct permissionCheckStruct;
+    permissionCheckStruct.bundleName = packageName;
+    permissionCheckStruct.isPermitted = false;
+    ExecuteHook(
+        LocationProcessStage::PERMISSION_CHECK_PROCESS, (void *)&permissionCheckStruct, nullptr);
+    return permissionCheckStruct.isPermitted;
+}
 } // namespace Location
 } // namespace OHOS
