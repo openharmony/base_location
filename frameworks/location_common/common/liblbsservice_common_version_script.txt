@@ -28,7 +28,7 @@
     "*ExecuteHookWhenPreStartLocating*";
     "*ExecuteHookWhenSetAgnssServer*";
     "*ExecuteHookWhenSimStateChange*";
-    "*ExecuteHookWhenCheckPermission*";
+    "*ExecuteHookWhenApproximatelyLocation*";
   local:
     *;
 };
