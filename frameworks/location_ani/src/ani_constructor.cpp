@@ -82,6 +82,9 @@ bool IsRequestConfigValid(std::unique_ptr<OHOS::Location::RequestConfig>& config
 
 int JsObjectToInt(ani_env* env, ani_object request, std::string property, int32_t& value)
 {
+    if (env == nullptr) {
+        return -1;
+    }
     ani_int int_value;
     if (ANI_OK != env->Object_GetPropertyByName_Int(request, property.c_str(), &int_value)) {
         std::cerr << "Object_GetFieldByName_Ref optionField Failed" << std::endl;
@@ -94,6 +97,9 @@ int JsObjectToInt(ani_env* env, ani_object request, std::string property, int32_
 
 int JsObjectToDouble(ani_env* env, ani_object request, std::string property, double& value)
 {
+    if (env == nullptr) {
+        return -1;
+    }
     ani_double double_value;
     if (ANI_OK != env->Object_GetPropertyByName_Double(request, property.c_str(), &double_value)) {
         std::cerr << "Object_GetFieldByName_Ref optionField Failed" << std::endl;
@@ -107,6 +113,9 @@ int JsObjectToDouble(ani_env* env, ani_object request, std::string property, dou
 void JsObjToRequestConfig(ani_env* env, ani_object request,
     std::unique_ptr<OHOS::Location::RequestConfig>& requestConfig)
 {
+    if (env == nullptr || requestConfig == nullptr) {
+        return;
+    }
     ani_class currentLocationRequest;
     env->FindClass("Llocation_ani/CurrentLocationRequest;", &currentLocationRequest);
     ani_boolean isCurrentLocationRequest;
@@ -149,6 +158,9 @@ void JsObjToRequestConfig(ani_env* env, ani_object request,
 
 void SetValueInt32(ani_env* env, ani_class* cls, std::string property, int32_t value, ani_object& location_obj)
 {
+    if (env == nullptr) {
+        return;
+    }
     ani_method method;
     if (ANI_OK != env->Class_FindMethod(*cls, property.c_str(), nullptr, &method)) {
         std::cerr << "Class_FindMethod Fail'" << std::endl;
@@ -271,7 +283,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         return ANI_ERROR;
     }
 
-    static const char *className = "Llocation_ani/ETSGLOBAL";
+    static const char *className = "Llocation_ani/ETSGLOBAL;";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         std::cerr << "Not found '" << className << "'" << std::endl;
@@ -287,6 +299,10 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         std::cerr << "Cannot bind native methods to '" << className << "'" << std::endl;
         return ANI_ERROR;
     };
+
+    if (result == nullptr) {
+        return ANI_ERROR;
+    }
 
     *result = ANI_VERSION_1;
     return ANI_OK;
