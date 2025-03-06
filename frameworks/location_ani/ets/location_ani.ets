@@ -15,16 +15,16 @@
 loadLibrary("location_ani")
 
 export class BusinessError<T = void> {
-    code : number;
-    data : T;
+    code: number;
+    data: T;
 }
 
-type AsyncCallback<T, E = void> = (err:BusinessError<E>, data: T) => void;
+type AsyncCallback<T, E = void> = (data: T, err:BusinessError<E>) => void;
 
 class Result<T, E>{
-    result:T;
-    error:E;
-    constructor(result:T, error:E) {
+    result: T;
+    error: E;
+    constructor(result: T, error: E) {
         this.result = result;
         this.error = error;
     }
@@ -90,10 +90,10 @@ class LocationInner implements Location {
     timeSinceBoot: long = 0;
 }
 
-type DataType = CurrentLocationRequest | SingleLocationRequest
-native function getCurrentLocation(request?: DataType):Location;
+type LocationRequestConfig = CurrentLocationRequest | SingleLocationRequest
+native function getCurrentLocation(request?: LocationRequestConfig):Location;
 export class geolocationManager {
-    getCurrentLocation(request?: DataType):Promise<Location> {
+    getCurrentLocation(request?: LocationRequestConfig):Promise<Location> {
         let p = new Promise<Location>((resolve: (v: Location) => void, reject :(error: Object) => void) =>{
             let p1 = taskpool.execute(getCurrentLocation);
             p1.then(e: NullishType)=>{
@@ -103,7 +103,7 @@ export class geolocationManager {
         });
         return p;
     }
-    getCurrentLocation(request: DataType, callback:AsyncCallback<Location>):void {
+    getCurrentLocation(request: LocationRequestConfig, callback:AsyncCallback<Location>):void {
         let p1 = taskpool.execute(getCurrentLocation);
         p1.then((e: NullishType)=>{
             let location : Location = e as Location;
