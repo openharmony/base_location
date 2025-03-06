@@ -266,7 +266,7 @@ static ani_object GetCurrentLocation([[maybe_unused]]ani_env *env,
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
     ani_env *env;
-    if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
+    if (vm == nullptr || ANI_OK != vm->GetEnv(ANI_VERSION_1, &env) || env == nullptr) {
         std::cerr << "Unsupported ANI_VERSION_1" << std::endl;
         return ANI_ERROR;
     }
