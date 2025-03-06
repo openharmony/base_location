@@ -53,7 +53,7 @@ enum class LocationProcessStage {
 	GNSS_STATUS_REPORT_PROCESS,
     SET_AGNSS_SERVER_PROCESS,
     SIM_STATE_CHANGED_PROCESS,
-    PERMISSION_CHECK_PROCESS,
+    APPROXIMATELY_LOCATION_PROCESS,
 };
 
 typedef struct {
@@ -123,8 +123,8 @@ typedef struct {
 
 typedef struct {
     std::string bundleName;
-    bool isPermitted;
-} PermissionCheckStruct;
+    bool needApproximate;
+} ApproximatelyLocationStruct;
 
 class HookUtils {
 public:
@@ -150,7 +150,7 @@ public:
     static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
-    static bool ExecuteHookWhenCheckPermission(std::string packageName);
+    static bool ExecuteHookWhenApproximatelyLocation(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS
