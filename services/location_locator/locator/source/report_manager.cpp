@@ -475,8 +475,8 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(
     } else {
         lon = std::round(lon * std::pow(10, 8)) / std::pow(10, 8); // 8 decimal
     }
-    bool isPermitted = HookUtils::ExecuteHookWhenCheckPermission(bundleName);
-    if (!isPermitted) {
+    bool needApproximate = HookUtils::ExecuteHookWhenApproximatelyLocation(bundleName);
+    if (needApproximate) {
         coarseLocation->SetLatitude(lat);
         coarseLocation->SetLongitude(lon);
         coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
