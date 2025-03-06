@@ -205,5 +205,15 @@ bool HookUtils::ExecuteHookWhenSimStateChange(const std::string& data)
         LocationProcessStage::SIM_STATE_CHANGED_PROCESS, (void *)&locatorRequestStruct, nullptr);
     return locatorRequestStruct.result;
 }
+
+bool HookUtils::ExecuteHookWhenApproximatelyLocation(std::string packageName)
+{
+    ApproximatelyLocationStruct approximatelyLocationStruct;
+    approximatelyLocationStruct.bundleName = packageName;
+    approximatelyLocationStruct.needApproximate = true;
+    ExecuteHook(
+        LocationProcessStage::APPROXIMATELY_LOCATION_PROCESS, (void *)&approximatelyLocationStruct, nullptr);
+    return approximatelyLocationStruct.needApproximate;
+}
 } // namespace Location
 } // namespace OHOS
