@@ -206,14 +206,14 @@ bool HookUtils::ExecuteHookWhenSimStateChange(const std::string& data)
     return locatorRequestStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenCheckPermission(std::string packageName)
+bool HookUtils::ExecuteHookWhenApproximatelyLocation(std::string packageName)
 {
-    PermissionCheckStruct permissionCheckStruct;
-    permissionCheckStruct.bundleName = packageName;
-    permissionCheckStruct.isPermitted = false;
+    ApproximatelyLocationStruct approximatelyLocationStruct;
+    approximatelyLocationStruct.bundleName = packageName;
+    approximatelyLocationStruct.needApproximate = true;
     ExecuteHook(
-        LocationProcessStage::PERMISSION_CHECK_PROCESS, (void *)&permissionCheckStruct, nullptr);
-    return permissionCheckStruct.isPermitted;
+        LocationProcessStage::APPROXIMATELY_LOCATION_PROCESS, (void *)&approximatelyLocationStruct, nullptr);
+    return approximatelyLocationStruct.needApproximate;
 }
 } // namespace Location
 } // namespace OHOS
