@@ -238,14 +238,6 @@ public:
         return additionsMap_;
     }
 
-    inline void SetAdditionsMap(std::map<std::string, std::string> additionsMap) const
-    {
-        additionsMap_.clear();
-        for (const auto &pair : additionsMap) {
-            additionsMap_[pair.first] = pair.second;
-        }
-    }
-
     inline int32_t GetFieldValidity() const
     {
         return fieldValidity_;

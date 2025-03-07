@@ -370,9 +370,7 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
         }
     } else if (abilityName == NETWORK_ABILITY) {
         cacheNlpLocation_ = *location;
-        if (location->GetLocationSourceType() != LocationSourceType::INDOOR_TYPE) {
-            UpdateLastLocation(location);
-        }
+        UpdateLastLocation(location);
     } else {
         UpdateLastLocation(location);
     }
@@ -421,27 +419,6 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
-    }
-    if (indoorFlag && cacheLocation != nullptr && cacheLocation->GetLocationSourceType() == NETWORK_TYPE) {
-        return nullptr;
-    }
-    if (!indoorFlag && cacheLocation->GetLocationSourceType() == INDOOR_TYPE) {
-        auto additionMap = cacheLocation->GetAdditionMap();
-        std::vector<std::string> emptyAdds;
-        std::map<std::string, std::string> emptyMap;
-        auto iter = additionMap.find("requestId");
-        if (iter != additionMap.end()) {
-            emptyMap["requestId"] = additionMap["requestId"];
-            emptyAdds.push_back("requestId:" + additionMap["requestId"]);
-        }
-        auto iter = additionMap.find("inHdArea");
-        if (iter != additionMap.end()) {
-            emptyMap["inHdArea"] = additionMap["inHdArea"];
-            emptyAdds.push_back("inHdArea:" + additionMap["inHdArea"]);
-        }
-        coarseLocation->SetAdditions(emptyAdds, false);
-        coarseLocation->SetAdditionSize(emptyAdds.size());
-        cacheLocation->SetAdditionsMap(emptyMap);
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
