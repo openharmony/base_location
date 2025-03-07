@@ -203,17 +203,23 @@ int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
 
 bool GeoConvertService::CheckGeoConvertAvailable()
 {
-    std::string serviceName;
-    bool result = LocationConfigManager::GetInstance()->GetGeocodeServiceName(serviceName);
-    if (!result || serviceName.empty()) {
-        LBSLOGE(GEO_CONVERT, "get service name failed!");
-        return false;
-    }
-    std::string abilityName;
-    bool res = LocationConfigManager::GetInstance()->GetGeocodeAbilityName(abilityName);
-    if (!res || abilityName.empty()) {
-        LBSLOGE(GEO_CONVERT, "get service name failed!");
-        return false;
+    if (!IsConnect() && !IsConnecting()) {
+        std::string serviceName;
+        bool result = LocationConfigManager::GetInstance()->GetGeocodeServiceName(serviceName);
+        if (!result || serviceName.empty()) {
+            LBSLOGE(GEO_CONVERT, "get service name failed!");
+            return false;
+        }
+        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+            LBSLOGE(GEO_CONVERT, "service is not available.");
+            return false;
+        }
+        std::string abilityName;
+        bool res = LocationConfigManager::GetInstance()->GetGeocodeAbilityName(abilityName);
+        if (!res || abilityName.empty()) {
+            LBSLOGE(GEO_CONVERT, "get ability name failed!");
+            return false;
+        }
     }
     return true;
 }
