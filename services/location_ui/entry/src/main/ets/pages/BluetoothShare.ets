@@ -149,6 +149,13 @@ export struct BtServicesComponent {
       setTimeout(() => {
         const session: UIExtensionContentSession | undefined =
           LocalStorage.getShared()?.get<UIExtensionContentSession>('session');
+        for (let i = 0; i < this.fileHolders.length; i++) {
+          console.log(TAG, 'close fileHolders fd.');
+          if (this.fileHolders[i].fileFd != -1) {
+            fs.close(this.fileHolders[i].fileFd);
+            this.fileHolders[i].fileFd = -1;
+          }
+        }
         if (session === undefined) {
           console.log(TAG, 'cannot get session.');
           return;
