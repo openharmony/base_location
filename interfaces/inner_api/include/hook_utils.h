@@ -53,7 +53,6 @@ enum class LocationProcessStage {
 	GNSS_STATUS_REPORT_PROCESS,
     SET_AGNSS_SERVER_PROCESS,
     SIM_STATE_CHANGED_PROCESS,
-    LOCATOR_SA_GET_CACHE_LOCATION_BEFORE_REPORT
 };
 
 typedef struct {
@@ -140,7 +139,6 @@ public:
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
     static bool ExecuteHookReportManagerGetCacheLocation(std::string packageName, bool &indoorFlag);
-    static bool ExecuteHookGetCacheLocationBeforeReport(std::unique_ptr<Location>& location);
     static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
     static bool ExecuteHookWhenPreStartLocating(std::string packageName);
     static bool ExecuteHookWhenAddNetworkRequest(std::string uuid);

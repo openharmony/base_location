@@ -148,16 +148,6 @@ bool HookUtils::ExecuteHookReportManagerGetCacheLocation(std::string packageName
     return locatorRequestStruct.result;
 }
 
-bool HookUtils::ExecuteHookGetCacheLocationBeforeReport(std::unique_ptr<Location>& location)
-{
-    GnssLocationValidStruct gnssLocationValidStruct;
-    gnssLocationValidStruct.location = *location;
-    gnssLocationValidStruct.result = true;
-    ExecuteHook(
-        LocationProcessStage::LOCATOR_SA_GET_CACHE_LOCATION_BEFORE_REPORT, (void *)&gnssLocationValidStruct, nullptr);
-    return gnssLocationValidStruct.result;
-}
-
 bool HookUtils::ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId)
 {
     EnableAbilityStruct enableAbilityStruct;
