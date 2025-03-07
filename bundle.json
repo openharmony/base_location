@@ -142,6 +142,13 @@
                         "header_files": []
                     },
                     "name": "//base/location/frameworks/native/geofence_sdk:geofence_sdk"
+                },
+                {
+                    "header": {
+                        "header_base": "//base/location/frameworks/cj/include",
+                        "header_files": []
+                    },
+                    "name": "//base/location/frameworks/cj:cj_geolocationmanager_ffi"
                 }
             ],
             "test": [
