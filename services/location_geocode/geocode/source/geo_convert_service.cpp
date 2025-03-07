@@ -207,10 +207,6 @@ int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel
         ReportAddressMock(data, reply);
         return ERRCODE_SUCCESS;
     }
-    if (!GetService()) {
-        reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
-        return ERRCODE_REVERSE_GEOCODING_FAIL;
-    }
     GeoCodeType requestType = GeoCodeType::REQUEST_REVERSE_GEOCODE;
     auto geoConvertRequest = GeoConvertRequest::Unmarshalling(data, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
@@ -256,10 +252,6 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
 
 int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
-    if (!GetService()) {
-        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
-        return ERRCODE_GEOCODING_FAIL;
-    }
     GeoCodeType requestType = GeoCodeType::REQUEST_GEOCODE;
     auto geoConvertRequest = GeoConvertRequest::Unmarshalling(data, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
@@ -425,6 +417,10 @@ void GeoConvertService::UnRegisterGeoServiceDeathRecipient()
 bool GeoConvertService::SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel,
     MessageOption& option)
 {
+    if (!GetService()) {
+        LBSLOGE(GEO_CONVERT, "GetService error!");
+        return false;
+    }
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     if (serviceProxy_ == nullptr) {
         LBSLOGE(GEO_CONVERT, "serviceProxy is nullptr!");
