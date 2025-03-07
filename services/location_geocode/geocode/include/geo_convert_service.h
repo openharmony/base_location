@@ -106,6 +106,7 @@ private:
     void ReportAddressMock(MessageParcel &data, MessageParcel &reply);
     bool CheckIfGeoConvertConnecting();
     bool GetService();
+    bool CheckGeoConvertAvailable();
     bool IsConnect();
     bool IsConnecting();
     void RegisterGeoServiceDeathRecipient();

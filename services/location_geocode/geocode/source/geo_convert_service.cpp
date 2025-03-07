@@ -201,13 +201,36 @@ int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
     return ERRCODE_SUCCESS;
 }
 
+bool GeoConvertService::CheckGeoConvertAvailable()
+{
+    if (!IsConnect() && !IsConnecting()) {
+        std::string serviceName;
+        bool result = LocationConfigManager::GetInstance()->GetGeocodeServiceName(serviceName);
+        if (!result || serviceName.empty()) {
+            LBSLOGE(GEO_CONVERT, "get service name failed!");
+            return false;
+        }
+        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+            LBSLOGE(GEO_CONVERT, "service is not available.");
+            return false;
+        }
+        std::string abilityName;
+        bool res = LocationConfigManager::GetInstance()->GetGeocodeAbilityName(abilityName);
+        if (!res || abilityName.empty()) {
+            LBSLOGE(GEO_CONVERT, "get ability name failed!");
+            return false;
+        }
+    }
+    return true;
+}
+
 int GeoConvertService::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply)
 {
     if (mockEnabled_) {
         ReportAddressMock(data, reply);
         return ERRCODE_SUCCESS;
     }
-    if (!GetService()) {
+    if (!CheckGeoConvertAvailable()) {
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
@@ -256,7 +279,7 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
 
 int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
-    if (!GetService()) {
+    if (!CheckGeoConvertAvailable()) {
         reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return ERRCODE_GEOCODING_FAIL;
     }
@@ -425,6 +448,10 @@ void GeoConvertService::UnRegisterGeoServiceDeathRecipient()
 bool GeoConvertService::SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel,
     MessageOption& option)
 {
+    if (!GetService()) {
+        LBSLOGE(GEO_CONVERT, "GetService error!");
+        return false;
+    }
     std::unique_lock<std::mutex> uniqueLock(mutex_);
     if (serviceProxy_ == nullptr) {
         LBSLOGE(GEO_CONVERT, "serviceProxy is nullptr!");
