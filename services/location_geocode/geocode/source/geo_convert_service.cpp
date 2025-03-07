@@ -274,8 +274,8 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
 int GeoConvertService::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply)
 {
     if (!CheckGeoConvertAvailable()) {
-        reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
-        return ERRCODE_REVERSE_GEOCODING_FAIL;
+        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
+        return ERRCODE_GEOCODING_FAIL;
     }
     GeoCodeType requestType = GeoCodeType::REQUEST_GEOCODE;
     auto geoConvertRequest = GeoConvertRequest::Unmarshalling(data, requestType);
