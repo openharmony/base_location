@@ -54,6 +54,7 @@ private:
     std::map<int, std::shared_ptr<Location>> lastLocationsMap_;
     Location cacheGnssLocation_;
     Location cacheNlpLocation_;
+    Location cacheIndoorLocation_;
     std::mutex lastLocationMutex_;
     std::atomic<int64_t> lastResetRecordTime_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
