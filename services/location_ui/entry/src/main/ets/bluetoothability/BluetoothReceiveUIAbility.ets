@@ -219,6 +219,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 if (data.result != 0) {
                     console.info(TAG, 'receive fail');
                     this.cancelSendProgressNotification(0);
+                    this.pullUpReceiveResultNotification(0, 1);
                 }
                 console.info(TAG, 'transferStateChange ' + data.result);
                 this.oppProfile.off('transferStateChange');
