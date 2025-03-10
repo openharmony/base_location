@@ -993,7 +993,7 @@ LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& re
     if (NeedReportCacheLocation(request, callback)) {
         if (requestConfig->GetScenario() != SCENE_NO_POWER &&
             requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
-            SelfRequestManager::GetInstance()->StartSelfRequest();
+            SelfRequestManager::GetInstance()->StartSelfRequest(request);
         }
         callback->AsObject()->RemoveDeathRecipient(death);
     } else {
