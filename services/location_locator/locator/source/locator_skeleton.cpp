@@ -16,6 +16,7 @@
 #include "locator_skeleton.h"
 
 #include <file_ex.h>
+#include <nlohmann/json.hpp>
 #include "ipc_skeleton.h"
 #include "common_utils.h"
 #include "i_locator_callback.h"
@@ -36,10 +37,13 @@
 #include "hook_utils.h"
 #include "location_data_rdb_manager.h"
 #include "locator_background_proxy.h"
+#include "i_bluetooth_scan_result_callback.h"
+#include "locator_required_data_manager.h"
 
 namespace OHOS {
 namespace Location {
 const int DEFAULT_USERID = 100;
+const std::string TYPE_WHITE_LIST_BLE = "ble";
 
 void LocatorAbilityStub::InitLocatorHandleMap()
 {
@@ -52,6 +56,7 @@ void LocatorAbilityStub::InitLocatorHandleMap()
     ConstructGeocodeHandleMap();
     ConstructGnssHandleMap();
     ConstructGnssEnhanceHandleMap();
+    ConstructBluetoohScanHandleMap();
 }
 
 void LocatorAbilityStub::ConstructLocatorHandleMap()
@@ -264,6 +269,20 @@ void LocatorAbilityStub::ConstructGnssEnhanceHandleMap()
     locatorHandleMap_[LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE] =
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return PreQuerySupportCoordinateSystemType(data, reply, identity);
+        };
+#endif
+}
+
+void LocatorAbilityStub::ConstructBluetoohScanHandleMap()
+{
+#ifdef BLUETOOTH_ENABLE
+    locatorHandleMap_[LocatorInterfaceCode::START_SCAN_BLUETOOTH_DEVICE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreStartScanBluetoohDevice(data, reply, identity);
+        };
+    locatorHandleMap_[LocatorInterfaceCode::STOP_SCAN_BLUETOOTH_DEVICE] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return PreStopScanBluetoohDevice(data, reply, identity);
         };
 #endif
 }
@@ -1149,6 +1168,52 @@ bool LocatorAbilityStub::CheckLocationSwitchState(MessageParcel &reply)
         return false;
     }
     return true;
+}
+
+int LocatorAbilityStub::PreStartScanBluetoohDevice(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationSwitchState(reply)) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    if (!LocatorRequiredDataManager::GetInstance()->CheckScanWhiteList(identity.GetBundleName(),
+        TYPE_WHITE_LIST_BLE)) {
+        LBSLOGI(LOCATOR, "packageName not in white list, not support");
+        reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
+        return ERRCODE_NOT_SUPPORTED;
+    }
+    auto locatorAbility = LocatorAbility::GetInstance();
+    sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
+    if (remoteObject == nullptr) {
+        LBSLOGE(LOCATOR, "PreStartScanBluetoohDevice remote object nullptr");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<IBluetoohScanResultCallback> callback = iface_cast<IBluetoohScanResultCallback>(remoteObject);
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
+    }
+    reply.WriteInt32(locatorAbility->StartScanBluetoohDevice(callback, identity));
+    return ERRCODE_SUCCESS;
+}
+
+int LocatorAbilityStub::PreStopScanBluetoohDevice(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!CheckLocationPermission(reply, identity)) {
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorAbility = LocatorAbility::GetInstance();
+    sptr<IRemoteObject> remoteObject = data.ReadRemoteObject();
+    if (remoteObject == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility::PreStopScanBluetoohDevice remote object nullptr");
+        reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<IBluetoohScanResultCallback> callback = iface_cast<IBluetoohScanResultCallback>(remoteObject);
+    reply.WriteInt32(locatorAbility->StopScanBluetoohDevice(callback, identity));
+    return ERRCODE_SUCCESS;
 }
 
 int LocatorAbilityStub::PreRegisterLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)

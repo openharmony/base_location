@@ -102,6 +102,15 @@ LocationErrCode LocationDataRdbHelper::UnregisterDataObserver(
 
 LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &column, int32_t &value)
 {
+    std::string valueStr;
+    LocationErrCode errCode = GetStringValue(uri, column, valueStr);
+    value = atoi(valueStr.c_str());
+    LBSLOGD(LOCATOR_STANDARD, "LocationDataRdbHelper:%{public}s success, value = %{public}d", __func__, value);
+    return errCode;
+}
+
+LocationErrCode LocationDataRdbHelper::GetStringValue(Uri &uri, const std::string &column, std::string &value)
+{
     auto dataShareHelper = CreateDataShareHelper();
     if (dataShareHelper == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -128,8 +137,7 @@ LocationErrCode LocationDataRdbHelper::GetValue(Uri &uri, const std::string &col
     }
     rows->Close();
     ReleaseDataShareHelper(dataShareHelper);
-    value = atoi(valueStr.c_str());
-    LBSLOGD(LOCATOR_STANDARD, "LocationDataRdbHelper:%{public}s success, value = %{public}d", __func__, value);
+    value = valueStr;
     return ERRCODE_SUCCESS;
 }
 

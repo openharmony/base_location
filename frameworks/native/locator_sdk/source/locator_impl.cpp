@@ -1262,6 +1262,42 @@ LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocati
     return proxy->UnRegisterLocatingRequiredDataCallback(callback);
 }
 
+LocationErrCode LocatorImpl::SubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SubscribeBluetoothScanResultChange()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->SubscribeBluetoothScanResultChange(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "SubscribeBluetoothScanResultChange failed.");
+    }
+    return errCode;
+}
+
+LocationErrCode LocatorImpl::UnSubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnSubscribeBluetoothScanResultChange()");
+    sptr<LocatorProxy> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = proxy->UnSubscribeBluetoothScanResultChange(callback);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "UnSubscribeBluetoothScanResultChange failed.");
+    }
+    return errCode;
+}
+
 LocationErrCode LocatorImpl::SubscribeLocationError(sptr<ILocatorCallback>& callback)
 {
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {

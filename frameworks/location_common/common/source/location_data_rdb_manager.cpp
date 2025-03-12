@@ -25,6 +25,7 @@ const int DEFAULT_USERID = 100;
 const int MAX_SIZE = 100;
 
 const std::string LOCATION_ENHANCE_STATUS = "location_enhance_status";
+const std::string KEY_LOCATION_KIT_API_CONTROL_WHITE_LIST = "location_kit_api_control_white_list";
 std::mutex LocationDataRdbManager::locationSwitchModeMutex_;
 std::mutex LocationDataRdbManager::locationWorkingStateMutex_;
 std::mutex LocationDataRdbManager::gnssSessionStateMutex_;
@@ -78,6 +79,20 @@ int LocationDataRdbManager::QuerySwitchState()
         LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(state);
     }
     return state;
+}
+
+std::string LocationDataRdbManager::QueryScanWhiteList()
+{
+    std::string res = "";
+    Uri locationDataEnableUri(GetLocationDataSecureUri(KEY_LOCATION_KIT_API_CONTROL_WHITE_LIST));
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        GetStringValue(locationDataEnableUri, KEY_LOCATION_KIT_API_CONTROL_WHITE_LIST, res);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS, "%{public}s: query scan white list failed, errcode = %{public}d",
+            __func__, errCode);
+        return res;
+    }
+    return res;
 }
 
 LocationErrCode LocationDataRdbManager::SetSwitchStateToDb(int modeValue)
