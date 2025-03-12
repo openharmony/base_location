@@ -9,11 +9,11 @@
       "value": "#E6FFFFFF"
     },
     {
-      "name": "tv_dialog_button_backgroud_color",
+      "name": "tv_dialog_button_background_color",
       "value": "#33F1F3F5"
     },
     {
-      "name": "tv_dialog_backgroud_color",
+      "name": "tv_dialog_background_color",
       "value": "#3C3C3C"
     }
   ]

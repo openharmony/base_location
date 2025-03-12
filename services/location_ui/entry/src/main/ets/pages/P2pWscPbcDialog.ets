@@ -18,8 +18,10 @@ import commonEventManager from '@ohos.commonEventManager';
 import resourceManager from '@ohos.resourceManager';
 import promptAction from '@ohos.promptAction'
 import { BusinessError } from '@ohos.base';
+import deviceInfo from '@ohos.deviceInfo';
 
-let TAG = '[WIFI-NI:WifiDialog]==>';
+const TAG = '[WIFI-NI:WifiDialog]==>';
+const DEVICE_TYPE_TV = 'tv';
 
 const WIFI_NI_ACCEPT_EVENT: string = 'ohos.event.wifi.DIALOG_ACCEPT';
 const WIFI_NI_REJECT_EVENT: string = 'ohos.event.wifi.DIALOG_REJECT';
@@ -37,7 +39,7 @@ struct dialogPlusPage {
   @Builder
   buildDialog() {
     Column() {
-      Text($r('app.string.p2p_receive_invitation_title'))
+      Text($r('app.string.p2p_wsc_pbc_dialog_title'))
         .fontColor($r('app.color.tv_dialog_font_color'))
         .fontSize($r('app.float.value_vp_20'))
         .lineHeight($r('app.float.value_vp_23'))
@@ -51,7 +53,7 @@ struct dialogPlusPage {
         .lineHeight($r('app.float.value_vp_19'))
         .textAlign(TextAlign.Center)
       Row() {
-        Button($r('app.string.p2p_receive_invitation_dialog_no_button'))
+        Button($r('app.string.p2p_wsc_pbc_dialog_no_button'))
           .backgroundColor($r('app.color.tv_dialog_button_background_color'))
           .layoutWeight(1)
           .fontColor($r('app.color.tv_dialog_font_color'))
@@ -62,7 +64,7 @@ struct dialogPlusPage {
             console.info(TAG, 'user click cancel');
             this.setAcceptResult(this.dialogType, false);
           })
-        Button($r('app.string.p2p_receive_invitation_dialog_ok_button'))
+        Button($r('app.string.p2p_wsc_pbc_dialog_ok_button'))
           .layoutWeight(1)
           .backgroundColor($r('app.color.tv_dialog_button_background_color'))
           .fontColor($r('app.color.tv_dialog_font_color'))
@@ -87,9 +89,6 @@ struct dialogPlusPage {
 
   private openDialog(): void {
     console.info(TAG, 'openDialog');
-    let deviceName : string = AppStorage.get('p2pDeviceName') as string;
-    this.dialogType = AppStorage.get('wifiDialogType') as number;
-    this.text = this.getFormatString($r('app.string.p2p_receive_invitation_text'), deviceName);
     promptAction.openCustomDialog({
       builder: () => this.buildDialog(),
       autoCancel: false,
@@ -111,7 +110,32 @@ struct dialogPlusPage {
 
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear');
-    this.openDialog();
+    let deviceName : string = AppStorage.get('p2pDeviceName') as string;
+    this.dialogType = AppStorage.get('wifiDialogType') as number;
+    this.text = this.getFormatString($r('app.string.p2p_wsc_pbc_dialog_text'), deviceName);
+    if (deviceInfo.deviceType == DEVICE_TYPE_TV) {
+      this.openDialog();
+    } else {
+      AlertDialog.show(
+        {
+          title: $r('app.string.p2p_wsc_pbc_dialog_title'),
+          message: this.text,
+          autoCancel: false,
+          primaryButton: {
+            value: $r('app.string.p2p_wsc_pbc_dialog_no_button'),
+            action: () => {
+              this.setAcceptResult(this.dialogType, false);
+            }
+          },
+          secondaryButton: {
+            value: $r('app.string.p2p_wsc_pbc_dialog_ok_button'),
+            action: () => {
+              this.setAcceptResult(this.dialogType, true);
+            }
+          }
+        }
+      )
+    }
   }
 
   aboutToDisappear() {
