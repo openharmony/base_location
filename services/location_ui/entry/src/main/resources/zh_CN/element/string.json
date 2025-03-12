@@ -244,6 +244,22 @@
         "attr":{
             "priority":"translate"
       }
+    },
+    {
+      "name":"p2p_receive_invitation_title",
+      "value":"连接确认"
+    },
+    {
+      "name":"p2p_receive_invitation_text",
+      "value":"是否连接\"%s\"？"
+    },
+    {
+      "name":"p2p_receive_invitation_dialog_no_button",
+      "value":"拒绝"
+    },
+    {
+      "name":"p2p_receive_invitation_dialog_ok_button",
+      "value":"连接"
     }
   ]
 }

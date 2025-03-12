@@ -3,6 +3,18 @@
     {
       "name": "start_window_background",
       "value": "#FFFFFF"
+    },
+    {
+      "name": "tv_dialog_font_color",
+      "value": "#E6FFFFFF"
+    },
+    {
+      "name": "tv_dialog_button_backgroud_color",
+      "value": "#33F1F3F5"
+    },
+    {
+      "name": "tv_dialog_backgroud_color",
+      "value": "#3C3C3C"
     }
   ]
 }

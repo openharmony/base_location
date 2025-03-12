@@ -5,6 +5,7 @@
     "pages/ConfirmDialog",
     "pages/LocationPrivacyDialog",
     "pages/WifiDialog",
-    "pages/PrivacyLoadPage"
+    "pages/PrivacyLoadPage",
+    "pages/P2pWscPbcDialog"
   ]
 }

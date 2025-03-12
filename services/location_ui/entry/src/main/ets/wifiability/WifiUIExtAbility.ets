@@ -29,13 +29,20 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         console.info(TAG, `wifiDialogType: ` + want.parameters?.['wifiDialogType']);
         AppStorage.setOrCreate('wifiDialogType', want.parameters?.['wifiDialogType']);
         AppStorage.setOrCreate('wifi5gSsid', want.parameters?.['wifi5gSsid']);
+        AppStorage.setOrCreate('p2pDeviceName', want.parameters?.['p2pDeviceName']);
 
         let param: Record<string, UIExtensionContentSession> = {
             'session': session
         }
         let storage: LocalStorage = new LocalStorage(param);
-        session.loadContent('pages/WifiDialog', storage);
-        session.setWindowBackgroundColor('#00000000');
+        let type : number = AppStorage.get('wifiDialogType') as number
+        if (type == 4) {
+            session.loadContent('pages/P2pWscPbcDialog', storage);
+            session.setWindowBackgroundColor('#cc000000');
+        } else {
+            session.loadContent('pages/WifiDialog', storage);
+            session.setWindowBackgroundColor('#00000000');
+        }
         AppStorage.setOrCreate('ConfirmSession', session);
     }
 
