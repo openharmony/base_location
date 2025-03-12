@@ -1,21 +1,20 @@
 {
     "compilerOptions":{
-        "baseUrl": ".",
+        "baseUrl": "./ets",
         "paths": {
             "std": [
-                "../../../../arkcompiler/static_core/plugins/ets/stdlib/std"
+                "../../../../../arkcompiler/runtime_core/static_core/plugins/ets/stdlib/std"
             ],
             "escompat": [
-                "../../../../arkcompiler/static_core/plugins/ets/stdlib/escompat"
+                "../../../../../arkcompiler/runtime_core/static_core/plugins/ets/stdlib/escompat"
             ],
             "@ohos.geolocationManager": [
-                "./ets/location_ani.ets"
+                "./ets/@ohos.geoLocationManager.ets"
             ]
         },
-        "outDir": "../cache",
         "package": ""
     },
     "include": [
-        "./ets/.*sts"
+        "./ets/*.ets"
     ]
 }
