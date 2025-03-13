@@ -952,6 +952,34 @@ LocationErrCode LocatorProxy::UnRegisterLocatingRequiredDataCallback(sptr<ILocat
     return errorCode;
 }
 
+LocationErrCode LocatorProxy::SubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (callback != nullptr) {
+        data.WriteObject<IRemoteObject>(callback->AsObject());
+    }
+    MessageParcel reply;
+    LocationErrCode errorCode =
+        SendMsgWithDataReplyV9(static_cast<int>(LocatorInterfaceCode::START_SCAN_BLUETOOTH_DEVICE), data, reply);
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::SubscribeBluetoothScanResultChange Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
+
+LocationErrCode LocatorProxy::UnSubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+{
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "UnSubscribeBluetoothScanResultChange callback is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errorCode = SendRegisterMsgToRemoteV9(
+        static_cast<int>(LocatorInterfaceCode::STOP_SCAN_BLUETOOTH_DEVICE), callback->AsObject());
+    LBSLOGD(LOCATOR_STANDARD, "Proxy::UnSubscribeBluetoothScanResultChange Transact ErrCodes = %{public}d", errorCode);
+    return errorCode;
+}
+
 LocationErrCode LocatorProxy::SubscribeLocationError(sptr<ILocatorCallback>& callback)
 {
     MessageParcel data;

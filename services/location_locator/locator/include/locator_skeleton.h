@@ -98,6 +98,8 @@ private:
     int PreReportLocation(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterLocatingRequiredDataCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterLocatingRequiredDataCallback(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreStartScanBluetoohDevice(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int PreStopScanBluetoohDevice(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreRegisterLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreUnregisterLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
     int PreReportLocationError(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
@@ -123,6 +125,7 @@ private:
     bool CheckRequestAvailable(uint32_t code, AppIdentity &identity);
     void ConstructGnssHandleMap();
     void ConstructGnssEnhanceHandleMap();
+    void ConstructBluetoohScanHandleMap();
     sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();
 };
 

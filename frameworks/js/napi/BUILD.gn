@@ -15,6 +15,7 @@ import("//base/location/config.gni")
 import("//build/ohos.gni")
 
 local_base_sources = [
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/bluetooh_scan_result_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/cached_locations_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/country_code_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/geofence_napi.cpp",

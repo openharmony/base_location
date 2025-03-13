@@ -31,6 +31,7 @@
 #include "location_data_manager.h"
 #include "system_ability_status_change_stub.h"
 #include "locationhub_ipc_interface_code.h"
+#include "i_bluetooth_scan_result_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -605,6 +606,22 @@ public:
      * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
      */
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
+
+    /**
+     * @brief Subscribe bluetooth scan result change.
+     *
+     * @param callback Indicates the callback for reporting the location error result.
+     * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
+     */
+    LocationErrCode SubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback);
+
+    /**
+     * @brief Unsubscribe bluetooth scan result change.
+     *
+     * @param callback Indicates the callback for reporting the bluetooth scan result.
+     * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
+     */
+    LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback);
 
     /**
      * @brief Unsubscribe location errorcode changed.

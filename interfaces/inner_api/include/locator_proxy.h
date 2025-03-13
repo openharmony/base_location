@@ -35,6 +35,7 @@
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
 #include "locationhub_ipc_interface_code.h"
+#include "i_bluetooth_scan_result_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -121,6 +122,8 @@ public:
     LocationErrCode RegisterLocatingRequiredDataCallback(
         std::unique_ptr<LocatingRequiredDataConfig>& dataConfig, sptr<ILocatingRequiredDataCallback>& callback);
     LocationErrCode UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback);
+    LocationErrCode SubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback);
+    LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback);
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
     LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);

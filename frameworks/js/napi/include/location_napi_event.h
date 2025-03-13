@@ -25,6 +25,7 @@
 #include "nmea_message_callback_napi.h"
 #include "request_config.h"
 #include "location_error_callback_napi.h"
+#include "bluetooh_scan_result_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
@@ -39,6 +40,7 @@ bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const n
 #ifdef ENABLE_NAPI_MANAGER
 bool OnLocatingRequiredDataChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
 bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_value* argv);
+bool OnBluetoothScanResultChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv);
 #endif
 
 void InitOffFuncMap();
@@ -58,6 +60,8 @@ bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler
 bool OffAllLocatingRequiredDataChangeCallback(const napi_env& env);
 bool OffLocatingRequiredDataChangeCallback(const napi_env& env, const napi_value& handler);
 bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler);
+bool OffBluetoothScanResultChangeCallback(const napi_env& env, const napi_value& handler);
+bool OffAllBluetoothScanResultChangeCallback(const napi_env& env);
 #endif
 
 void SubscribeLocationServiceState(const napi_env& env,
@@ -104,6 +108,9 @@ LocationErrCode SubscribeLocatingRequiredDataChange(const napi_env& env, const n
     const napi_ref& handlerRef, sptr<LocatingRequiredDataCallbackNapi>& locatingCallbackHost);
 LocationErrCode SubscribeLocationError(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationErrorCallbackNapi>& locationErrorCallbackHost);
+LocationErrCode SubscribeBluetoothScanResultChange(const napi_env& env,
+    const napi_ref& handlerRef, sptr<BluetoothScanResultCallbackNapi>& bluetoothScanResultCallbackHost);
+LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<BluetoothScanResultCallbackNapi>& callback);
 LocationErrCode UnSubscribeLocationChangeV9(sptr<ILocatorCallback>& callback);
 LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env,
     const napi_value& object, const napi_value& handler);

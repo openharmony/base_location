@@ -29,6 +29,7 @@
     "*ExecuteHookWhenSetAgnssServer*";
     "*ExecuteHookWhenSimStateChange*";
     "*ExecuteHookWhenApproximatelyLocation*";
+    "*BluetoothScanResult*";
   local:
     *;
 };

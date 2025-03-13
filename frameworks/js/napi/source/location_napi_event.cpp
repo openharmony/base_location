@@ -38,6 +38,7 @@ CallbackManager<CachedLocationsCallbackNapi> g_cachedLocationCallbacks;
 CallbackManager<CountryCodeCallbackNapi> g_countryCodeCallbacks;
 CallbackManager<LocatingRequiredDataCallbackNapi> g_locatingRequiredDataCallbacks;
 CallbackManager<LocationErrorCallbackNapi> g_locationErrorCallbackHosts;
+CallbackManager<BluetoothScanResultCallbackNapi> g_bluetoothScanResultCallbackHosts;
 
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
 auto g_locatorProxy = Locator::GetInstance();
@@ -66,6 +67,7 @@ void InitOnFuncMap()
     g_onFuncMap.insert(std::make_pair("nmeaMessage", &OnNmeaMessageChangeCallback));
     g_onFuncMap.insert(std::make_pair("locatingRequiredDataChange", &OnLocatingRequiredDataChangeCallback));
     g_onFuncMap.insert(std::make_pair("locationError", &OnLocationErrorCallback));
+    g_onFuncMap.insert(std::make_pair("bluetoothScanResultChange", &OnBluetoothScanResultChangeCallback));
 #else
     g_onFuncMap.insert(std::make_pair("locationServiceState", &OnLocationServiceStateCallback));
     g_onFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OnCachedGnssLocationsReportingCallback));
@@ -89,6 +91,7 @@ void InitOffFuncMap()
     g_offAllFuncMap.insert(std::make_pair("satelliteStatusChange", &OffAllGnssStatusChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("nmeaMessage", &OffAllNmeaMessageChangeCallback));
     g_offAllFuncMap.insert(std::make_pair("locatingRequiredDataChange", &OffAllLocatingRequiredDataChangeCallback));
+    g_offAllFuncMap.insert(std::make_pair("bluetoothScanResultChange", &OffAllBluetoothScanResultChangeCallback));
 #else
     g_offAllFuncMap.insert(std::make_pair("locationServiceState", &OffAllLocationServiceStateCallback));
     g_offAllFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffAllCachedGnssLocationsReportingCallback));
@@ -105,6 +108,7 @@ void InitOffFuncMap()
     g_offFuncMap.insert(std::make_pair("nmeaMessage", &OffNmeaMessageChangeCallback));
     g_offFuncMap.insert(std::make_pair("locatingRequiredDataChange", &OffLocatingRequiredDataChangeCallback));
     g_offFuncMap.insert(std::make_pair("locationError", &OffLocationErrorCallback));
+    g_offFuncMap.insert(std::make_pair("bluetoothScanResultChange", &OffBluetoothScanResultChangeCallback));
 #else
     g_offFuncMap.insert(std::make_pair("locationServiceState", &OffLocationServiceStateCallback));
     g_offFuncMap.insert(std::make_pair("cachedGnssLocationsReporting", &OffCachedGnssLocationsReportingCallback));
@@ -287,6 +291,15 @@ LocationErrCode SubscribeLocationError(const napi_env& env,
     locationErrorCallbackHost->SetHandleCb(handlerRef);
     auto locationErrorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
     return g_locatorProxy->SubscribeLocationError(locationErrorCallback);
+}
+
+LocationErrCode SubscribeBluetoothScanResultChange(const napi_env& env,
+    const napi_ref& handlerRef, sptr<BluetoothScanResultCallbackNapi>& bluetoothScanResultCallbackHost)
+{
+    bluetoothScanResultCallbackHost->SetEnv(env);
+    bluetoothScanResultCallbackHost->SetHandleCb(handlerRef);
+    auto bluetoothScanResultCallback = sptr<IBluetoohScanResultCallback>(bluetoothScanResultCallbackHost);
+    return g_locatorProxy->SubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
 }
 #endif
 
@@ -637,6 +650,11 @@ LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
 {
     LBSLOGD(LOCATION_NAPI, "UnSubscribeLocationError");
     return g_locatorProxy->UnSubscribeLocationError(callback);
+}
+
+LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+{
+    return g_locatorProxy->UnSubscribeBluetoothScanResultChange(callback);
 }
 #endif
 
@@ -1543,6 +1561,82 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
 }
 
 #ifdef ENABLE_NAPI_MANAGER
+bool OnBluetoothScanResultChangeCallback(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    if (argc != PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        LBSLOGE(LOCATION_NAPI, "ERRCODE_INVALID_PARAM");
+        return false;
+    }
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        LBSLOGE(LOCATION_NAPI, "ERRCODE_INVALID_PARAM");
+        return false;
+    }
+    if (g_bluetoothScanResultCallbackHosts.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATION_NAPI, "This request already exists");
+        return false;
+    }
+    auto bluetoothScanResultCallbackHost =
+        sptr<BluetoothScanResultCallbackNapi>(new (std::nothrow) BluetoothScanResultCallbackNapi());
+    if (bluetoothScanResultCallbackHost != nullptr) {
+        napi_ref handlerRef = nullptr;
+        NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
+        // argv[1]:request params, argv[2]:handler
+        LocationErrCode errorCode = SubscribeBluetoothScanResultChange(env, handlerRef,
+            bluetoothScanResultCallbackHost);
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
+            return false;
+        }
+        g_bluetoothScanResultCallbackHosts.AddCallback(env, handlerRef, bluetoothScanResultCallbackHost);
+    }
+    return true;
+}
+
+bool OffBluetoothScanResultChangeCallback(const napi_env& env, const napi_value& handler)
+{
+    auto bluetoothScanResultCallbackHost = g_bluetoothScanResultCallbackHosts.GetCallbackPtr(env, handler);
+    if (bluetoothScanResultCallbackHost) {
+        auto locatorCallback = sptr<IBluetoohScanResultCallback>(bluetoothScanResultCallbackHost);
+        LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(locatorCallback);
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
+            return false;
+        }
+        g_bluetoothScanResultCallbackHosts.DeleteCallback(env, handler);
+        bluetoothScanResultCallbackHost = nullptr;
+        return true;
+    }
+    return false;
+}
+
+bool OffAllBluetoothScanResultChangeCallback(const napi_env& env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<BluetoothScanResultCallbackNapi>>> callbackMap =
+        g_bluetoothScanResultCallbackHosts.GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter == callbackMap.end()) {
+        return false;
+    }
+    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+        auto callbackHost = innerIter->second;
+        if (callbackHost == nullptr) {
+            continue;
+        }
+        auto bluetoohScanResultCallback = sptr<IBluetoohScanResultCallback>(callbackHost);
+        LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(bluetoohScanResultCallback);
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
+            return false;
+        }
+        callbackHost->DeleteHandler();
+        callbackHost = nullptr;
+    }
+    g_bluetoothScanResultCallbackHosts.DeleteCallbackByEnv(env);
+    return true;
+}
+
 bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_value* argv)
 {
     if (argc != PARAM2) {

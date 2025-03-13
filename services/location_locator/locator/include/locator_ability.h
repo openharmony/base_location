@@ -29,6 +29,7 @@
 #include "geo_coding_mock_info.h"
 #include "i_switch_callback.h"
 #include "i_cached_locations_callback.h"
+#include "i_bluetooth_scan_result_callback.h"
 #include "locator_event_subscriber.h"
 #include "locator_skeleton.h"
 #include "permission_status_change_cb.h"
@@ -53,6 +54,7 @@ public:
     void InitLocatorHandlerEventMap();
     void ConstructDbHandleMap();
     void ConstructGeocodeHandleMap();
+    void ConstructBluetoohScanHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -66,6 +68,8 @@ private:
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event);
+    void StartScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -180,6 +184,8 @@ public:
     LocationErrCode UnregisterBluetoothScanInfoCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterBleScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterBleScanInfoCallback(const sptr<IRemoteObject>& callback);
+    LocationErrCode StartScanBluetoohDevice(sptr<IBluetoohScanResultCallback>& callback, AppIdentity &identity);
+    LocationErrCode StopScanBluetoohDevice(sptr<IBluetoohScanResultCallback>& callback, AppIdentity &identity);
     LocationErrCode RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
     LocationErrCode UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
     void ReportLocationError(std::string uuid, int32_t errCode, int32_t netErrCode);
@@ -288,6 +294,17 @@ private:
     std::string abilityName_;
     AppIdentity appIdentity_;
     sptr<ILocatorCallback> callback_;
+};
+
+class BluetoothScanResultCallbackMessage {
+public:
+    void SetCallback(const sptr<IBluetoohScanResultCallback>& callback);
+    sptr<IBluetoohScanResultCallback> GetCallback();
+    void SetAppIdentity(AppIdentity& appIdentity);
+    AppIdentity GetAppIdentity();
+private:
+    sptr<IBluetoohScanResultCallback> callback_;
+    AppIdentity appIdentity_;
 };
 
 class LocatorErrorMessage {
