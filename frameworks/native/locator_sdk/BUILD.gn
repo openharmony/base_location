@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//base/location/config.gni")
+import("//build/config/components/idl_tool/idl.gni")
 import("//build/ohos.gni")
 
 ################################################################################
@@ -27,6 +28,40 @@ config("locator_sdk_config") {
   ]
 }
 
+config("locator_interface_config") {
+  visibility = [ "*:*" ]
+  include_dirs = [
+    "${target_gen_dir}",
+    "${target_gen_dir}/type",
+  ]
+}
+
+idl_gen_interface("locator_interface") {
+  sources = [ "ILocatorService.idl" ]
+  sources_common = [ "type/IDataTypes.idl" ]
+  configs = [ ":locator_sdk_config" ]
+  sources_cpp = [
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/base_module/source/request_config.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/base_module/source/location.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/native/geofence_sdk/source/geofence_request.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/geocode_convert_address_request.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/geocode_convert_location_request.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/geocoding_mock_info.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/geo_address.cpp"),
+  ]
+  log_domainid = "0xD002300"
+  log_tag = "Locator"
+  part_name = "location"
+  subsystem_name = "location"
+}
+
 local_base_sources = [
   "$LOCATION_NATIVE_DIR/locator_sdk/source/country_code_callback_host.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/country_code_manager.cpp",
@@ -38,7 +73,6 @@ local_base_sources = [
   "$LOCATION_NATIVE_DIR/locator_sdk/source/locator.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_callback_host.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_impl.cpp",
-  "$LOCATION_NATIVE_DIR/locator_sdk/source/locator_proxy.cpp",
   "$LOCATION_NATIVE_DIR/locator_sdk/source/switch_callback_proxy.cpp",
   "$LOCATION_ROOT_DIR/services/utils/lbsutils/source/lbs_res_loader.cpp",
 ]
@@ -46,7 +80,10 @@ local_base_sources = [
 ohos_shared_library("locator_sdk") {
   install_enable = true
 
-  public_configs = [ ":locator_sdk_config" ]
+  public_configs = [
+    ":locator_sdk_config",
+    ":locator_interface_config",
+  ]
 
   sanitize = {
     cfi = true
@@ -59,6 +96,7 @@ ohos_shared_library("locator_sdk") {
   sources = local_base_sources
 
   deps = [
+    ":liblocator_interface_proxy",
     "$LOCATION_COMMON_DIR:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
   ]
@@ -115,7 +153,10 @@ ohos_shared_library("locator_sdk") {
 }
 
 ohos_static_library("locator_sdk_static") {
-  public_configs = [ ":locator_sdk_config" ]
+  public_configs = [
+    ":locator_sdk_config",
+    ":locator_interface_config",
+  ]
 
   sanitize = {
     cfi = true
@@ -128,6 +169,7 @@ ohos_static_library("locator_sdk_static") {
   sources = local_base_sources
 
   deps = [
+    ":liblocator_interface_proxy",
     "$LOCATION_COMMON_DIR:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
   ]

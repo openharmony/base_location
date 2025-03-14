@@ -14,6 +14,7 @@
  */
 
 #include "geofence_sdk.h"
+#include "common_utils.h"
 #include "location_sa_load_manager.h"
 #include "system_ability_definition.h"
 #include "if_system_ability_manager.h"
@@ -52,7 +53,7 @@ void GeofenceManager::ResetGeofenceSdkProxy(const wptr<IRemoteObject> &remote)
     LBSLOGI(GEOFENCE_SDK, "%{public}s: finish.", __func__);
 }
 
-sptr<GeofenceSdk> GeofenceManager::GetProxy()
+sptr<ILocatorService> GeofenceManager::GetProxy()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     if (client_ != nullptr && isServerExist_) {
@@ -69,13 +70,17 @@ sptr<GeofenceSdk> GeofenceManager::GetProxy()
         LBSLOGE(GEOFENCE_SDK, "%{public}s: get remote service failed.", __func__);
         return nullptr;
     }
+    client_ = iface_cast<ILocatorService>(obj);
+    if (!client_ || !client_->AsObject()) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s: get locator service failed.", __func__);
+        return nullptr;
+    }
     recipient_ = sptr<GeofenceManagerDeathRecipient>(new (std::nothrow) GeofenceManagerDeathRecipient(*this));
     if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(recipient_))) {
         LBSLOGE(GEOFENCE_SDK, "%{public}s: deathRecipient add failed.", __func__);
         return nullptr;
     }
     isServerExist_ = true;
-    client_ = sptr<GeofenceSdk>(new (std::nothrow) GeofenceSdk(obj));
     return client_;
 }
 
@@ -85,13 +90,17 @@ LocationErrCode GeofenceManager::AddFenceV9(std::shared_ptr<GeofenceRequest> &re
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::AddFenceV9()");
-    sptr<GeofenceSdk> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->AddFenceV9(request);
-    return errCode;
+    if (request == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->AddFence(*request);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode GeofenceManager::RemoveFenceV9(std::shared_ptr<GeofenceRequest> &request)
@@ -100,13 +109,17 @@ LocationErrCode GeofenceManager::RemoveFenceV9(std::shared_ptr<GeofenceRequest> 
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::RemoveFenceV9()");
-    sptr<GeofenceSdk> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->RemoveFenceV9(request);
-    return errCode;
+    if (request == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->RemoveFence(*request);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode GeofenceManager::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
@@ -114,13 +127,17 @@ LocationErrCode GeofenceManager::AddGnssGeofence(std::shared_ptr<GeofenceRequest
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    sptr<GeofenceSdk> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->AddGnssGeofence(request);
-    return errCode;
+    if (request == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->AddGnssGeofence(*request);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode GeofenceManager::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
@@ -129,13 +146,17 @@ LocationErrCode GeofenceManager::RemoveGnssGeofence(std::shared_ptr<GeofenceRequ
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::RemoveGnssGeofence()");
-    sptr<GeofenceSdk> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->RemoveGnssGeofence(request);
-    return errCode;
+    if (request == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->RemoveGnssGeofence(request->GetFenceId());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode GeofenceManager::GetGeofenceSupportedCoordTypes(
@@ -145,104 +166,20 @@ LocationErrCode GeofenceManager::GetGeofenceSupportedCoordTypes(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(GEOFENCE_SDK, "GeofenceManager::%{public}s", __func__);
-    sptr<GeofenceSdk> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return proxy->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
-}
-
-GeofenceSdk::GeofenceSdk(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<ILocator>(impl)
-{
-}
-
-LocationErrCode GeofenceSdk::AddFenceV9(std::shared_ptr<GeofenceRequest>& request)
-{
-    return HandleGnssfenceRequest(LocatorInterfaceCode::ADD_FENCE, request);
-}
-
-LocationErrCode GeofenceSdk::RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request)
-{
-    return HandleGnssfenceRequest(LocatorInterfaceCode::REMOVE_FENCE, request);
-}
-
-LocationErrCode GeofenceSdk::HandleGnssfenceRequest(
-    LocatorInterfaceCode code, std::shared_ptr<GeofenceRequest>& request)
-{
-    if (request == nullptr) {
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LBSLOGE(GEOFENCE_SDK, "%{public}s WriteInterfaceToken failed", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    request->Marshalling(data);
-    LocationErrCode errorCode = SendMsgWithDataReplyV9(static_cast<int>(code), data, reply);
-    LBSLOGI(GEOFENCE_SDK, "Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
-LocationErrCode GeofenceSdk::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
-{
-    return HandleGnssfenceRequest(LocatorInterfaceCode::ADD_GNSS_GEOFENCE, request);
-}
-
-LocationErrCode GeofenceSdk::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
-{
-    if (request == nullptr) {
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    data.WriteInt32(request->GetFenceId());
-    LocationErrCode errorCode = SendMsgWithDataReplyV9(
-        static_cast<int>(LocatorInterfaceCode::REMOVE_GNSS_GEOFENCE), data, reply);
-    LBSLOGI(GEOFENCE_SDK, "Transact ErrCodes = %{public}d", errorCode);
-    return errorCode;
-}
-
-LocationErrCode GeofenceSdk::GetGeofenceSupportedCoordTypes(
-    std::vector<CoordinateSystemType>& coordinateSystemTypes)
-{
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    MessageParcel reply;
-    LocationErrCode errorCode = SendMsgWithDataReplyV9(
-        static_cast<int>(LocatorInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE), data, reply);
-    LBSLOGD(GEOFENCE_SDK, "Proxy::%{public}s Transact ErrCodes = %{public}d", __func__, errorCode);
-    int size = reply.ReadInt32();
+    std::vector<CoordinateType> coordinateTypes;
+    ErrCode errorCodeValue = proxy->QuerySupportCoordinateSystemType(coordinateTypes);
+    size_t size = coordinateTypes.size();
     size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
-    for (int i = 0; i < size; i++) {
-        int coordinateSystemType = reply.ReadInt32();
-        coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
+    for (size_t i = 0; i < size; i++) {
+        coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateTypes[i]));
     }
-    return errorCode;
-}
-
-LocationErrCode GeofenceSdk::SendMsgWithDataReplyV9(const int msgId, MessageParcel& data, MessageParcel& reply)
-{
-    MessageOption option;
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(GEOFENCE_SDK, "SendMsgWithDataReply remote is null");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGI(GEOFENCE_SDK, "%{public}s: %{public}d", __func__, msgId);
-    int error = remote->SendRequest(msgId, data, reply, option);
-    if (error != NO_ERROR) {
-        LBSLOGE(GEOFENCE_SDK, "msgid = %{public}d, send request error: %{public}d", msgId, error);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    return LocationErrCode(reply.ReadInt32());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 }
 }

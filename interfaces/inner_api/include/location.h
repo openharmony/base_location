@@ -25,7 +25,7 @@ namespace Location {
 class Location : public Parcelable {
 public:
     Location();
-    explicit Location(Location &location);
+    explicit Location(const Location &location);
     ~Location() override = default;
 
     inline double GetLatitude() const
@@ -251,7 +251,7 @@ public:
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
-    static std::unique_ptr<Location> Unmarshalling(Parcel& parcel);
+    static Location* Unmarshalling(Parcel& parcel);
     static std::unique_ptr<Location> UnmarshallingMakeUnique(Parcel& parcel);
     static std::shared_ptr<Location> UnmarshallingShared(Parcel& parcel);
     bool LocationEqual(const std::unique_ptr<Location>& location);

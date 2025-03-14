@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 
 #include <parcel.h>
 
@@ -59,9 +59,9 @@ void GeocodingMockInfo::ReadFromParcel(Parcel& parcel)
     geoAddress_ = GeoAddress::Unmarshalling(parcel);
 }
 
-std::unique_ptr<GeocodingMockInfo> GeocodingMockInfo::Unmarshalling(Parcel& parcel)
+GeocodingMockInfo* GeocodingMockInfo::Unmarshalling(Parcel& parcel)
 {
-    std::unique_ptr<GeocodingMockInfo> mockInfo = std::make_unique<GeocodingMockInfo>();
+    auto mockInfo = new (std::nothrow) GeocodingMockInfo();
     mockInfo->ReadFromParcel(parcel);
     return mockInfo;
 }

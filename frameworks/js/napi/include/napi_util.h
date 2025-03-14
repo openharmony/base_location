@@ -27,7 +27,7 @@
 #include "location_async_context.h"
 #include "async_context.h"
 #include "constant_definition.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "geo_address.h"
 #include "locating_required_data.h"
 #include "locating_required_data_config.h"

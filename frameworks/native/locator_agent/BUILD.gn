@@ -25,7 +25,10 @@ config("locator_agent_config") {
 }
 
 ohos_shared_library("locator_agent") {
-  public_configs = [ ":locator_agent_config" ]
+  public_configs = [
+    ":locator_agent_config",
+    "$LOCATION_NATIVE_DIR/locator_sdk:locator_interface_config",
+  ]
 
   sources = [
     "$LOCATION_ROOT_DIR/frameworks/native/locator_agent/source/locator_agent.cpp",
@@ -42,7 +45,11 @@ ohos_shared_library("locator_agent") {
 
   branch_protector_ret = "pac_ret"
 
-  deps = [ "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module" ]
+  deps = [
+    "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_NATIVE_DIR/locator_sdk:liblocator_interface_proxy",
+    "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
+  ]
 
   external_deps = [
     "c_utils:utils",

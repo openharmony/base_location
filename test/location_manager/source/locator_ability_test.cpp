@@ -43,7 +43,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_napi.h"
 #endif
-#include "i_locator.h"
+#include "ilocator_service.h"
 #include "location.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
@@ -51,7 +51,6 @@
 #include "locator.h"
 #include "locator_callback_host.h"
 #include "locator_callback_proxy.h"
-#include "locator_skeleton.h"
 #ifdef FEATURE_GNSS_SUPPORT
 #include "nmea_message_callback_napi.h"
 #endif
@@ -73,6 +72,7 @@
 #include "locator_ability.h"
 #undef private
 
+#include "mock_i_remote_object.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -80,6 +80,9 @@ namespace Location {
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
 const int32_t LOCATION_PERM_NUM = 5;
 const std::string ARGS_HELP = "-h";
+const int REQUEST_MAX_NUM = 3;
+const int UNKNOWN_SERVICE_ID = -1;
+const int GET_SWITCH_STATE = 1;
 void LocatorAbilityTest::SetUp()
 {
     LoadSystemAbility();
@@ -129,6 +132,133 @@ void LocatorAbilityTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
+HWTEST_F(LocatorAbilityTest, locatorServiceSwitchCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, locatorServiceSwitchCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceSwitchCallback001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    locatorAbility->OnStart();
+    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(nullptr, SYSTEM_UID));
+    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(callback, SYSTEM_UID));
+    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(nullptr));
+    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(callback));
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceSwitchCallback001 end");
+}
+
+#ifdef FEATURE_GNSS_SUPPORT
+HWTEST_F(LocatorAbilityTest, locatorServiceGnssStatusCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, locatorServiceGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceGnssStatusCallback001 begin");
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    // uid pid not match locationhub process
+    if (!locatorAbility->CheckLocationSwitchState()) {
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        locatorAbility->SetSwitchState(true);
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterGnssStatusCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        locatorAbility->SetSwitchState(false);
+    } else {
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterGnssStatusCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        locatorAbility->SetSwitchState(false);
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        locatorAbility->SetSwitchState(true);
+    }
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceGnssStatusCallback001 end");
+}
+#endif
+
+#ifdef FEATURE_GNSS_SUPPORT
+HWTEST_F(LocatorAbilityTest, locatorServiceNmeaMessageCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, locatorServiceNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceNmeaMessageCallback001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    if (!locatorAbility->CheckLocationSwitchState()) {
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        locatorAbility->SetSwitchState(true);
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterNmeaMessageCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        locatorAbility->SetSwitchState(false);
+    } else {
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterNmeaMessageCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        locatorAbility->SetSwitchState(false);
+        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
+        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        locatorAbility->SetSwitchState(true);
+    }
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceNmeaMessageCallback001 end");
+}
+#endif
+
+HWTEST_F(LocatorAbilityTest, locatorServiceStartAndStop001, TestSize.Level1)
+{
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->OnStart();
+    locatorAbility->OnStop();
+}
+
+HWTEST_F(LocatorAbilityTest, locatorServiceStartAndStopSA001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, locatorServiceStartAndStopSA001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceStartAndStopSA001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->OnAddSystemAbility(UNKNOWN_SERVICE_ID, "device-id");
+    locatorAbility->OnRemoveSystemAbility(UNKNOWN_SERVICE_ID, "device-id");
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceStartAndStopSA001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, locatorServiceInitSaAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, locatorServiceInitSaAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceInitSaAbility001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    locatorAbility->InitSaAbility();
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceInitSaAbility001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, locatorServiceInitRequestManager001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, locatorServiceInitRequestManager001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceInitRequestManager001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    locatorAbility->InitRequestManagerMap();
+    EXPECT_EQ(REQUEST_MAX_NUM, locatorAbility->GetRequests()->size());
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceInitRequestManager001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, locatorServiceUpdateSaAbility001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, locatorServiceUpdateSaAbility001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceUpdateSaAbility001 begin");
+    auto locatorAbility =
+        sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->UpdateSaAbility());
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceUpdateSaAbility001 end");
+}
+
 HWTEST_F(LocatorAbilityTest, LocatorAbilityApplyRequestsTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -167,6 +297,28 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveUnloadTaskTest001, TestSize.Lev
 }
 
 #ifdef FEATURE_GNSS_SUPPORT
+HWTEST_F(LocatorAbilityTest, LocatorAbilityAddFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, LocatorAbilityAddFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddFence001 begin");
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    locatorAbility->AddFence(*request);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddFence001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorAbilityTest, LocatorAbilityRemoveFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveFence001 begin");
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    locatorAbility->RemoveFence(*request);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveFence001 end");
+}
+
 HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -174,19 +326,8 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    locatorAbility->AddGnssGeofence(request);
+    locatorAbility->AddGnssGeofence(*request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence001 end");
-}
-
-HWTEST_F(LocatorAbilityTest, LocatorAbilityAddGnssGeofence002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorAbilityAddGnssGeofence002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence002 begin");
-    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    locatorAbility->AddGnssGeofence(request);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityAddGnssGeofence002 end");
 }
 
 HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level1)
@@ -195,20 +336,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level
         << "LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence001 begin");
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    locatorAbility->RemoveGnssGeofence(request);
+    int32_t fenceId = 1;
+    locatorAbility->RemoveGnssGeofence(fenceId);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence001 end");
-}
-
-HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence002 begin");
-    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    locatorAbility->AddGnssGeofence(request);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence002 end");
 }
 #endif
 
@@ -222,13 +352,12 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityStartLocating001, TestSize.Level1)
     locatorAbility->proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
-    AppIdentity identity;
-    locatorAbility->StartLocating(requestConfig, callbackStub, identity);
+    locatorAbility->StartLocating(*requestConfig, callbackStub);
     sptr<IRemoteObject> objectGnss = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
     locatorAbility->proxyMap_->insert(make_pair(GNSS_ABILITY, objectGnss));
     locatorAbility->reportManager_ = ReportManager::GetInstance();
     locatorAbility->requestManager_ = RequestManager::GetInstance();
-    locatorAbility->StartLocating(requestConfig, callbackStub, identity);
+    locatorAbility->StartLocating(*requestConfig, callbackStub);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityStartLocating001 end");
 }
 
@@ -402,10 +531,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityGetCacheLocation001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityGetCacheLocation001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::unique_ptr<Location> loc;
-    AppIdentity identity;
-    locatorAbility->GetCacheLocation(loc, identity);
-    locatorAbility->GetCacheLocation(loc, identity);
+    std::unique_ptr<Location> loc = std::make_unique<Location>();;
+    locatorAbility->GetCacheLocation(*loc);
+    locatorAbility->GetCacheLocation(*loc);
     locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityGetCacheLocation001 end");
 }
@@ -465,7 +593,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilitySetReverseGeocodingMockInfo001, TestS
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilitySetReverseGeocodingMockInfo001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    std::vector<GeocodingMockInfo> mockInfo;
     locatorAbility->SetReverseGeocodingMockInfo(mockInfo);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilitySetReverseGeocodingMockInfo001 end");
 }
@@ -478,7 +606,7 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilitySetReverseGeocodingMockInfo002, TestS
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilitySetReverseGeocodingMockInfo002 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    std::vector<GeocodingMockInfo> mockInfo;
     locatorAbility->SetReverseGeocodingMockInfo(mockInfo);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilitySetReverseGeocodingMockInfo002 end");
 }
@@ -577,9 +705,10 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityReportLocationError001, TestSize.Leve
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     std::string uuid;
+    std::string errMsg;
     int32_t errCode = 10;
-    locatorAbility->ReportLocationError(uuid, errCode, errCode);
-    locatorAbility->ReportLocationError(uuid, errCode, errCode);
+    locatorAbility->ReportLocationError(errCode, errMsg, uuid);
+    locatorAbility->ReportLocationError(errCode, errMsg, uuid);
     locatorAbility->locatorHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityUnRegisterLocationError001 end");
 }

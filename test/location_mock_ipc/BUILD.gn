@@ -52,6 +52,8 @@ ohos_unittest("LocationMockIpcTest") {
     "$LOCATION_PASSIVE_ROOT:lbsservice_passive_static",
     "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_proxy",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_stub",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
   ]
 

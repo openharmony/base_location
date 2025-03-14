@@ -146,7 +146,7 @@ void PassiveAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 LocationErrCode PassiveAbility::EnableMock()
 {
     if (!EnableLocationMock()) {
-        return ERRCODE_NOT_SUPPORTED;
+        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -154,7 +154,7 @@ LocationErrCode PassiveAbility::EnableMock()
 LocationErrCode PassiveAbility::DisableMock()
 {
     if (!DisableLocationMock()) {
-        return ERRCODE_NOT_SUPPORTED;
+        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -168,7 +168,7 @@ LocationErrCode PassiveAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
     if (!SetMockedLocations(timeInterval, location)) {
-        return ERRCODE_NOT_SUPPORTED;
+        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -210,7 +210,7 @@ void PassiveAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
     switch (code) {
         case static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
-                reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
+                reply.WriteInt32(IPC_ERRCODE_NOT_SUPPORTED);
                 break;
             }
             int timeInterval = data.ReadInt32();

@@ -17,6 +17,7 @@
 
 #include "accesstoken_kit.h"
 #include "event_runner.h"
+#include "ipc_skeleton.h"
 #include "privacy_kit.h"
 #include "privacy_error.h"
 #include "system_ability_definition.h"
@@ -122,6 +123,8 @@ const int INVALID_REQUESTS_SIZE = 20;
 const int MAX_PERMISSION_NUM = 1000;
 const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
+const int DEFAULT_USERID = 100;
+const std::string TYPE_WHITE_LIST_BLE = "ble";
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -376,6 +379,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     locatorBackgroundProxy->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
+    IPCSkeleton::ResetCallingIdentity();
     std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
     for (auto iter = loadedSaMap_->begin(); iter != loadedSaMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
@@ -403,6 +407,51 @@ void LocatorAbility::UpdateSaAbilityHandler()
         }
     }
     SendSwitchState(isEnabled ? 1 : 0);
+}
+
+int32_t LocatorAbility::CallbackEnter(uint32_t code)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (code == static_cast<uint32_t>(LocatorInterfaceCode::GET_CACHE_LOCATION)) {
+        identity.SetBundleName("");
+    }
+    LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, identity= [%{public}s], timestamp = %{public}s",
+        code, identity.ToString().c_str(), std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    if (!CheckRequestAvailable(code, identity)) {
+        std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
+        IPCSkeleton::SetCallingIdentity(callingIdentity);
+        return ERRCODE_PERMISSION_DENIED;
+    }
+    CancelIdleState(code);
+    RemoveUnloadTask(code);
+    return ERRCODE_SUCCESS;
+}
+
+int32_t LocatorAbility::CallbackExit(uint32_t code, int32_t result)
+{
+    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
+    IPCSkeleton::SetCallingIdentity(callingIdentity);
+    PostUnloadTask(code);
+    return ERRCODE_SUCCESS;
+}
+
+bool LocatorAbility::CheckRequestAvailable(uint32_t code, AppIdentity &identity)
+{
+    if (code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_SWITCH_CALLBACK) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::STOP_LOCATING) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::STOP_LOCATING) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_LOCATION_ERROR) ||
+        code == static_cast<uint32_t>(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK)) {
+        return true;
+    }
+    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
+    if (CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+        return true;
+    }
+    LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
+    return false;
 }
 
 bool LocatorAbility::CancelIdleState(uint32_t code)
@@ -467,55 +516,118 @@ bool LocatorAbility::CheckIfLocatorConnecting()
     return LocatorRequiredDataManager::GetInstance()->IsConnecting() || GetActiveRequestNum() > 0;
 }
 
-LocationErrCode LocatorAbility::EnableAbility(bool isEnabled)
+ErrCode LocatorAbility::EnableAbility(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "EnableAbility %{public}d", isEnabled);
-    int modeValue = isEnabled ? ENABLED : DISABLED;
-    int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
-    if (modeValue == currentSwitchState) {
-        LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckSecureSettings(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        LBSLOGE(LOCATOR, "CheckSecureSettings return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    bool privacyState = false;
+    LocationErrCode code =
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
+        LocationConfigManager::GetInstance()->OpenPrivacyDialog();
+        LBSLOGE(LOCATOR, "OpenPrivacyDialog");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    int userId = 0;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    if (!HookUtils::ExecuteHookEnableAbility(
+        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
+        isEnabled, userId)) {
         return ERRCODE_SUCCESS;
     }
-    // update param
-    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(isEnabled ? ENABLED : DISABLED);
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
+    LocationErrCode errCode = SetSwitchState(isEnabled);
+    std::string bundleName;
+    bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
+    // settings first enable location, need to update privacy state
+    if (code == ERRCODE_SUCCESS && errCode == ERRCODE_SUCCESS && isEnabled && !privacyState &&
+        result && !bundleName.empty() && identity.GetBundleName() == bundleName) {
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
     }
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
+ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
 {
     LBSLOGI(LOCATOR, "EnableAbilityForUser %{public}d, UserId %{public}d", isEnabled, userId);
-    // update param
-    int modeValue = isEnabled ? ENABLED : DISABLED;
-    std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
-    locatorSwitchMessage->SetModeValue(modeValue);
-    locatorSwitchMessage->SetUserId(userId);
-    LocationDataRdbManager::SetSwitchStateToSysparaForUser(isEnabled ? ENABLED : DISABLED, userId);
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID Send Success", __func__);
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckSecureSettings(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        LBSLOGE(LOCATOR, "CheckSecureSettings return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    bool privacyState = false;
+    int currentUserId = 0;
+    LocationErrCode code =
+        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard" &&
+        (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
+        LocationConfigManager::GetInstance()->OpenPrivacyDialog();
+        LBSLOGE(LOCATOR, "OpenPrivacyDialog");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (!HookUtils::ExecuteHookEnableAbility(
+        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
+        isEnabled, userId)) {
+        return ERRCODE_SUCCESS;
+    }
+    SetSwitchStateForUser(isEnabled, userId);
+    std::string bundleName;
+    bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
+    // settings first enable location, need to update privacy state
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState &&
+        result && !bundleName.empty() && identity.GetBundleName() == bundleName &&
+        (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
+        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
     }
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::GetSwitchState(int& state)
+ErrCode LocatorAbility::GetSwitchState(int32_t& state)
 {
+    state = DEFAULT_SWITCH_STATE;
     state = LocationDataRdbManager::QuerySwitchState();
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::IsLocationPrivacyConfirmed(const int type, bool& isConfirmed)
+ErrCode LocatorAbility::IsLocationPrivacyConfirmed(int32_t type, bool& state)
 {
-    return LocationConfigManager::GetInstance()->GetPrivacyTypeState(type, isConfirmed);
+    state = false;
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    return LocationConfigManager::GetInstance()->GetPrivacyTypeState(type, state);
 }
 
-LocationErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed)
+ErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(int32_t type, bool isConfirmed)
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckSecureSettings(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        LBSLOGE(LOCATOR, "CheckSecureSettings return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     return LocationConfigManager::GetInstance()->SetPrivacyTypeState(type, isConfirmed);
 }
 
@@ -523,14 +635,14 @@ LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR, "register an invalid switch callback");
-        return ERRCODE_INVALID_PARAM;
+        return IPC_ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) SwitchCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
     if (switchCallback == nullptr) {
         LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return ERRCODE_INVALID_PARAM;
+        return IPC_ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(switchMutex_);
     switchCallbacks_->erase(uid);
@@ -549,12 +661,12 @@ LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObjec
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR, "unregister an invalid switch callback");
-        return ERRCODE_INVALID_PARAM;
+        return IPC_ERRCODE_INVALID_PARAM;
     }
     sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
     if (switchCallback == nullptr) {
         LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return ERRCODE_INVALID_PARAM;
+        return IPC_ERRCODE_INVALID_PARAM;
     }
 
     std::unique_lock<std::mutex> lock(switchMutex_);
@@ -583,102 +695,172 @@ LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, M
     if (objectGnss == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    IPCSkeleton::ResetCallingIdentity();
     MessageOption option;
     objectGnss->SendRequest(type, data, reply, option);
     return LocationErrCode(reply.ReadInt32());
 }
 #endif
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback,
-    AppIdentity &identity)
+ErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& cb)
 {
-    LBSLOGD(LOCATOR, "uid is: %{public}d", identity.GetUid());
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     identity.Marshalling(dataToStub);
-    dataToStub.WriteRemoteObject(callback);
+    dataToStub.WriteRemoteObject(cb);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_GNSS_STATUS), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
+ErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& cb)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteRemoteObject(callback);
+    dataToStub.WriteRemoteObject(cb);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::UNREG_GNSS_STATUS), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback,
-    AppIdentity &identity)
+ErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& cb)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     identity.Marshalling(dataToStub);
-    dataToStub.WriteRemoteObject(callback);
+    dataToStub.WriteRemoteObject(cb);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_NMEA), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
+ErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& cb)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteRemoteObject(callback);
+    dataToStub.WriteRemoteObject(cb);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::UNREG_NMEA), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
-    sptr<ICachedLocationsCallback>& callback, std::string bundleName)
+ErrCode LocatorAbility::RegisterCachedLocationCallback(int32_t reportingPeriodSec, bool wakeUpCacheQueueFull,
+    const sptr<ICachedLocationsCallback>& cb, const std::string& bundleName)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "ParseDataAndStartCacheLocating remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (bundleName.empty()) {
+        LBSLOGE(LOCATOR, "ParseDataAndStartCacheLocating get empty bundle name");
+        return IPC_ERRCODE_INVALID_PARAM;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(request->reportingPeriodSec);
-    dataToStub.WriteBool(request->wakeUpCacheQueueFull);
-    dataToStub.WriteRemoteObject(callback->AsObject());
+    dataToStub.WriteInt32(reportingPeriodSec);
+    dataToStub.WriteBool(wakeUpCacheQueueFull);
+    dataToStub.WriteRemoteObject(cb->AsObject());
     dataToStub.WriteString16(Str8ToStr16(bundleName));
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_CACHED), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
+ErrCode LocatorAbility::UnregisterCachedLocationCallback(const sptr<ICachedLocationsCallback>& cb)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility::ParseDataAndStopCacheLocating remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteRemoteObject(callback->AsObject());
+    dataToStub.WriteRemoteObject(cb->AsObject());
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::UNREG_CACHED), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
+ErrCode LocatorAbility::GetCachedGnssLocationsSize(int32_t& size)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    size = -1;
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
@@ -690,102 +872,172 @@ LocationErrCode LocatorAbility::GetCachedGnssLocationsSize(int& size)
         size = replyToStub.ReadInt32();
     }
     return errorCode;
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::FlushCachedGnssLocations()
+ErrCode LocatorAbility::FlushCachedGnssLocations()
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::FLUSH_CACHED), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::SendCommand(std::unique_ptr<LocationCommand>& commands)
+ErrCode LocatorAbility::SendCommand(int32_t scenario, const std::string& command)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(commands->scenario);
-    dataToStub.WriteString16(Str8ToStr16(commands->command));
-    return SendGnssRequest(static_cast<int>(GnssInterfaceCode::SEND_COMMANDS), dataToStub, replyToStub);
-}
+    dataToStub.WriteInt32(scenario);
+    dataToStub.WriteString16(Str8ToStr16(command));
+    LocationErrCode errorCode =
+        SendGnssRequest(static_cast<int>(GnssInterfaceCode::SEND_COMMANDS), dataToStub, replyToStub);
+    CommandStruct commandStruct;
+    commandStruct.packageName = identity.GetBundleName();
+    commandStruct.command = command;
+    commandStruct.result = true;
+    HookUtils::ExecuteHook(LocationProcessStage::LOCATOR_SA_COMMAND_PROCESS, (void *)&commandStruct, nullptr);
+    return errorCode;
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
+ErrCode LocatorAbility::AddFence(const GeofenceRequest& request)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    request->Marshalling(dataToStub);
+    request.Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::ADD_FENCE_INFO), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& request)
+ErrCode LocatorAbility::RemoveFence(const GeofenceRequest& request)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    request->Marshalling(dataToStub);
+    request.Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
+ErrCode LocatorAbility::AddGnssGeofence(const GeofenceRequest& request)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    std::shared_ptr<GeofenceRequest> geofenceRequest =
+        std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
+    geofenceRequest->SetBundleName(identity.GetBundleName());
+    geofenceRequest->SetUid(identity.GetUid());
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    request->Marshalling(dataToStub);
+    geofenceRequest->Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::ADD_GNSS_GEOFENCE), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
+ErrCode LocatorAbility::RemoveGnssGeofence(int32_t fenceId)
 {
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(request->GetFenceId());
-    dataToStub.WriteString(request->GetBundleName());
+    dataToStub.WriteInt32(fenceId);
+    dataToStub.WriteString(identity.GetBundleName());
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GNSS_SUPPORT
 LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
+#ifdef FEATURE_GNSS_SUPPORT
     if (obj == nullptr) {
         LBSLOGE(LOCATOR, "SendLocationMockMsgToGnssSa obj is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<GnssAbilityProxy> gnssProxy = std::make_unique<GnssAbilityProxy>(obj);
-    LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
+    LocationErrCode errorCode = IPC_ERRCODE_NOT_SUPPORTED;
     if (msgId == static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)) {
         errorCode = gnssProxy->EnableMock();
     } else if (msgId == static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)) {
@@ -794,20 +1046,22 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToGnssSa(const sptr<IRemoteOb
         errorCode = gnssProxy->SetMocked(timeInterval, location);
     }
     return errorCode;
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_NETWORK_SUPPORT
 LocationErrCode LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
+#ifdef FEATURE_NETWORK_SUPPORT
     if (obj == nullptr) {
         LBSLOGE(LOCATOR, "SendLocationMockMsgToNetworkSa obj is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<NetworkAbilityProxy> networkProxy =
         std::make_unique<NetworkAbilityProxy>(obj);
-    LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
+    LocationErrCode errorCode = IPC_ERRCODE_NOT_SUPPORTED;
     if (msgId == static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)) {
         errorCode = networkProxy->EnableMock();
     } else if (msgId == static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)) {
@@ -816,20 +1070,22 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToNetworkSa(const sptr<IRemot
         errorCode = networkProxy->SetMocked(timeInterval, location);
     }
     return errorCode;
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_PASSIVE_SUPPORT
 LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
+#ifdef FEATURE_PASSIVE_SUPPORT
     if (obj == nullptr) {
         LBSLOGE(LOCATOR, "SendLocationMockMsgToNetworkSa obj is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<PassiveAbilityProxy> passiveProxy =
         std::make_unique<PassiveAbilityProxy>(obj);
-    LocationErrCode errorCode = ERRCODE_NOT_SUPPORTED;
+    LocationErrCode errorCode = IPC_ERRCODE_NOT_SUPPORTED;
     if (msgId == static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK)) {
         errorCode = passiveProxy->EnableMock();
     } else if (msgId == static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK)) {
@@ -838,15 +1094,17 @@ LocationErrCode LocatorAbility::SendLocationMockMsgToPassiveSa(const sptr<IRemot
         errorCode = passiveProxy->SetMocked(timeInterval, location);
     }
     return errorCode;
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
 LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId)
 {
 #if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
     LBSLOGE(LOCATOR, "%{public}s: mock service unavailable", __func__);
-    return ERRCODE_NOT_SUPPORTED;
+    return IPC_ERRCODE_NOT_SUPPORTED;
 #endif
     if (!CheckSaValid()) {
         UpdateProxyMap();
@@ -936,73 +1194,88 @@ void LocatorAbility::UpdateProxyMap()
 #endif
 }
 
-LocationErrCode LocatorAbility::EnableLocationMock()
+ErrCode LocatorAbility::EnableLocationMock()
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    IPCSkeleton::ResetCallingIdentity();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
         static_cast<int>(LocatorInterfaceCode::ENABLE_LOCATION_MOCK));
 }
 
-LocationErrCode LocatorAbility::DisableLocationMock()
+ErrCode LocatorAbility::DisableLocationMock()
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    IPCSkeleton::ResetCallingIdentity();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
         static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK));
 }
 
-LocationErrCode LocatorAbility::SetMockedLocations(
-    const int timeInterval, const std::vector<std::shared_ptr<Location>> &location)
+ErrCode LocatorAbility::SetMockedLocations(int32_t timeInterval, const std::vector<Location>& locations)
 {
-    return ProcessLocationMockMsg(timeInterval, location,
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    IPCSkeleton::ResetCallingIdentity();
+    timeInterval = timeInterval < 0 ? 1 : timeInterval;
+    auto locationSize = locations.size();
+    locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX : locationSize;
+    std::vector<std::shared_ptr<Location>> sharedLocations;
+    for (size_t i = 0; i < locationSize; i++) {
+        sharedLocations.push_back(std::make_shared<Location>(locations[i]));
+    }
+    return ProcessLocationMockMsg(timeInterval, sharedLocations,
         static_cast<int>(LocatorInterfaceCode::SET_MOCKED_LOCATIONS));
 }
 
-LocationErrCode LocatorAbility::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-    sptr<ILocatorCallback>& callback, AppIdentity &identity)
+ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const sptr<ILocatorCallback>& cb)
 {
-#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
-    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
-    return ERRCODE_NOT_SUPPORTED;
-#endif
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
-        !GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
-        ReportErrorStatus(callback, ERROR_SWITCH_UNOPEN);
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!GetLocationSwitchIgnoredFlag(identity.GetTokenId()) && !CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
     }
-    // update offset before add request
-    if (reportManager_ == nullptr || requestManager_ == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
     }
-    reportManager_->UpdateRandom();
-    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
-    callback->AsObject()->AddDeathRecipient(death);
-    request->SetLocatorCallbackRecipient(death);
-    OHOS::Security::AccessToken::PermUsedTypeEnum type =
-        Security::AccessToken::AccessTokenKit::GetPermissionUsedType(request->GetTokenId(),
-        ACCESS_APPROXIMATELY_LOCATION);
-    request->SetPermUsedType(static_cast<int>(type));
-    if (requestConfig->GetScenario() != SCENE_NO_POWER &&
-        requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION &&
-        !reportManager_->IsCacheGnssLocationValid()) {
-        LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
-    }
-#ifdef EMULATOR_ENABLED
-    // for emulator, report cache location is unnecessary
-    HandleStartLocating(request, callback);
-#else
-    if (NeedReportCacheLocation(request, callback)) {
-        if (requestConfig->GetScenario() != SCENE_NO_POWER &&
-            requestConfig->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
-            SelfRequestManager::GetInstance()->StartSelfRequest();
+    bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
+    auto reportManager = ReportManager::GetInstance();
+    if (reportManager != nullptr && res) {
+        if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
+            identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
+            !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            return IPC_ERRCODE_PERMISSION_DENIED;
         }
-        callback->AsObject()->RemoveDeathRecipient(death);
-    } else {
-        HandleStartLocating(request, callback);
     }
-#endif
-    return ERRCODE_SUCCESS;
+    return StartLocatingProcess(requestConfig, cb, identity);
 }
 
 bool LocatorAbility::IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig)
@@ -1039,7 +1312,8 @@ int LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string per
     return ret;
 }
 
-bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
+bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& request,
+    const sptr<ILocatorCallback>& callback)
 {
     if (reportManager_ == nullptr || requestManager_ == nullptr || request == nullptr || callback == nullptr ||
         !IsCacheVaildScenario(request->GetRequestConfig())) {
@@ -1077,8 +1351,8 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
     }
 }
 
-bool LocatorAbility::ReportSingleCacheLocation(
-    const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
+bool LocatorAbility::ReportSingleCacheLocation(const std::shared_ptr<Request>& request,
+    const sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
 {
     requestManager_->IncreaseWorkingPidsCount(request->GetPid());
     if (requestManager_->IsNeedStartUsingPermission(request->GetPid())) {
@@ -1109,8 +1383,8 @@ bool LocatorAbility::ReportSingleCacheLocation(
     return true;
 }
 
-bool LocatorAbility::ReportCacheLocation(
-    const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
+bool LocatorAbility::ReportCacheLocation(const std::shared_ptr<Request>& request,
+    const sptr<ILocatorCallback>& callback, std::unique_ptr<Location>& cacheLocation)
 {
     // add location permission using record
     int ret = UpdatePermissionUsedRecord(request->GetTokenId(), ACCESS_APPROXIMATELY_LOCATION,
@@ -1125,10 +1399,10 @@ bool LocatorAbility::ReportCacheLocation(
     return false;
 }
 
-void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback)
+void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request,
+    const sptr<ILocatorCallback>& callback)
 {
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_START_LOCATING, request);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(EVENT_START_LOCATING, request);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
@@ -1137,30 +1411,44 @@ void LocatorAbility::HandleStartLocating(const std::shared_ptr<Request>& request
     }
 }
 
-LocationErrCode LocatorAbility::StopLocating(sptr<ILocatorCallback>& callback)
+ErrCode LocatorAbility::StopLocating(const sptr<ILocatorCallback>& cb)
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility::StopLocating remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
 #if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
-    return ERRCODE_NOT_SUPPORTED;
+    return IPC_ERRCODE_NOT_SUPPORTED;
 #endif
     if (requestManager_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
-    callbackMessage->SetCallback(callback);
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_STOP_LOCATING, callbackMessage);
+    callbackMessage->SetCallback(cb);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(EVENT_STOP_LOCATING, callbackMessage);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    if (callback != nullptr) {
-        ReportLocationStatus(callback, SESSION_STOP);
-    }
+    ReportLocationStatus(cb, SESSION_STOP);
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity)
+ErrCode LocatorAbility::GetCacheLocation(Location& location)
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!GetLocationSwitchIgnoredFlag(identity.GetTokenId()) && !CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     if (locatorHandler_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1168,13 +1456,14 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
-    loc = reportManager_->GetPermittedLocation(request, lastLocation);
+    std::unique_ptr<Location> loc = reportManager_->GetPermittedLocation(request, lastLocation);
     std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
     if (loc == nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
         return ERRCODE_LOCATING_CACHE_FAIL;
     }
     reportManager_->UpdateLocationByRequest(identity.GetTokenId(), identity.GetTokenIdEx(), loc);
+    location = *loc;
     requestManager_->IncreaseWorkingPidsCount(identity.GetPid());
     if (requestManager_->IsNeedStartUsingPermission(identity.GetPid())) {
         int ret = PrivacyKit::StartUsingPermission(
@@ -1194,33 +1483,43 @@ LocationErrCode LocatorAbility::GetCacheLocation(std::unique_ptr<Location>& loc,
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::ReportLocation(
-    const std::unique_ptr<Location>& location, std::string abilityName, AppIdentity &identity)
+ErrCode LocatorAbility::ReportLocation(const std::string& abilityName, const Location& location)
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (identity.GetUid() != static_cast<pid_t>(getuid()) || identity.GetPid() != getpid()) {
+        LBSLOGE(LOCATOR, "check system permission failed, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     if (requests_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<LocationMessage> locationMessage = std::make_unique<LocationMessage>();
     locationMessage->SetAbilityName(abilityName);
-    locationMessage->SetLocation(location);
+    auto loc = std::make_unique<OHOS::Location::Location>(location);
+    locationMessage->SetLocation(loc);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_REPORT_LOCATION_MESSAGE, locationMessage);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
-        return ERRCODE_SUCCESS;
+    if (locatorHandler_ == nullptr || !locatorHandler_->SendEvent(event)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return ERRCODE_SERVICE_UNAVAILABLE;
+#ifdef FEATURE_GNSS_SUPPORT
+    if (abilityName == NETWORK_ABILITY) {
+        SendNetworkLocation(loc);
+    }
+#endif
+    return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& callback, int result)
+ErrCode LocatorAbility::ReportLocationStatus(const sptr<ILocatorCallback>& callback, int result)
 {
     int state = DISABLED;
-    LocationErrCode errorCode = GetSwitchState(state);
+    ErrCode errorCode = GetSwitchState(state);
     if (errorCode != ERRCODE_SUCCESS) {
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
-            __func__, __LINE__);
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off", __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT, result)) {
@@ -1229,16 +1528,15 @@ LocationErrCode LocatorAbility::ReportLocationStatus(sptr<ILocatorCallback>& cal
     return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-LocationErrCode LocatorAbility::ReportErrorStatus(sptr<ILocatorCallback>& callback, int result)
+ErrCode LocatorAbility::ReportErrorStatus(const sptr<ILocatorCallback>& callback, int result)
 {
     int state = DISABLED;
-    LocationErrCode errorCode = GetSwitchState(state);
+    ErrCode errorCode = GetSwitchState(state);
     if (errorCode != ERRCODE_SUCCESS) {
         return errorCode;
     }
     if (state == DISABLED) {
-        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off",
-            __func__, __LINE__);
+        LBSLOGE(LOCATOR, "%{public}s line:%{public}d location switch is off", __func__, __LINE__);
         return ERRCODE_SWITCH_OFF;
     }
     if (reportManager_->ReportRemoteCallback(callback, ILocatorCallback::RECEIVE_ERROR_INFO_EVENT, result)) {
@@ -1293,9 +1591,9 @@ void LocatorAbility::RegisterLocationPrivacyAction()
     }
 }
 
-#ifdef FEATURE_GEOCODE_SUPPORT
-LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
+ErrCode LocatorAbility::IsGeoConvertAvailable(bool& isAvailable)
 {
+#ifdef FEATURE_GEOCODE_SUPPORT
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
@@ -1310,64 +1608,70 @@ LocationErrCode LocatorAbility::IsGeoConvertAvailable(bool &isAvailable)
         isAvailable = false;
     }
     return errorCode;
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GEOCODE_SUPPORT
-void LocatorAbility::GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, std::string bundleName)
+ErrCode LocatorAbility::GetAddressByCoordinate(const sptr<IRemoteObject>& cb,
+    const GeocodeConvertLocationRequest& request)
 {
+#ifdef FEATURE_GEOCODE_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    std::string bundleName =
+        identity.GetBundleName().size() > 0 ? identity.GetBundleName() : std::to_string(identity.GetUid());
+    MessageParcel data;
+    request.Marshalling(data);
+    data.WriteRemoteObject(cb);
     MessageParcel dataParcel;
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
     GeoCodeType requestType = GeoCodeType::REQUEST_REVERSE_GEOCODE;
-    GeoConvertRequest::OrderParcel(data, dataParcel, requestType, bundleName);
+    GeoConvertRequest::OrderParcel(data, dataParcel, cb, requestType, bundleName);
     auto geoConvertRequest = GeoConvertRequest::Unmarshalling(dataParcel, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    int errorCode = reply.ReadInt32();
-    WriteLocationInnerEvent(GEOCODE_REQUEST, {
-        "type", "ReverseGeocode",
-        "appName", bundleName,
-        "subCode", std::to_string(errorCode),
-        "requestTime", std::to_string(requestTime),
-        "receiveTime", std::to_string(CommonUtils::GetCurrentTimeStamp()),
-    });
     HookUtils::ExecuteHookWhenGetAddressFromLocation(bundleName);
-    reply.RewindRead(0);
-}
+    return ERRCODE_SUCCESS;
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GEOCODE_SUPPORT
-void LocatorAbility::GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName)
+ErrCode LocatorAbility::GetAddressByLocationName(const sptr<IRemoteObject>& cb,
+    const GeocodeConvertAddressRequest& request)
 {
+#ifdef FEATURE_GEOCODE_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    std::string bundleName =
+        identity.GetBundleName().size() > 0 ? identity.GetBundleName() : std::to_string(identity.GetUid());
+    MessageParcel data;
+    request.Marshalling(data);
+    data.WriteRemoteObject(cb);
     MessageParcel dataParcel;
     auto requestTime = CommonUtils::GetCurrentTimeStamp();
     GeoCodeType requestType = GeoCodeType::REQUEST_GEOCODE;
-    GeoConvertRequest::OrderParcel(data, dataParcel, requestType, bundleName);
+    GeoConvertRequest::OrderParcel(data, dataParcel, cb, requestType, bundleName);
     auto geoConvertRequest = GeoConvertRequest::Unmarshalling(dataParcel, requestType);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SEND_GEOREQUEST, geoConvertRequest);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    int errorCode = reply.ReadInt32();
-    WriteLocationInnerEvent(GEOCODE_REQUEST, {
-        "type", "Geocode",
-        "appName", bundleName,
-        "subCode", std::to_string(errorCode),
-        "requestTime", std::to_string(requestTime),
-        "receiveTime", std::to_string(CommonUtils::GetCurrentTimeStamp()),
-    });
     HookUtils::ExecuteHookWhenGetAddressFromLocationName(bundleName);
-    reply.RewindRead(0);
-}
+    return ERRCODE_SUCCESS;
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GEOCODE_SUPPORT
 LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply)
 {
+#ifdef FEATURE_GEOCODE_SUPPORT
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_GEO_CONVERT_SA_ID)) {
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1378,41 +1682,85 @@ LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, Me
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    IPCSkeleton::ResetCallingIdentity();
     MessageOption option;
     remoteObject->SendRequest(type, data, reply, option);
     return ERRCODE_SUCCESS;
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GEOCODE_SUPPORT
-LocationErrCode LocatorAbility::EnableReverseGeocodingMock()
+ErrCode LocatorAbility::EnableReverseGeocodingMock()
 {
+#ifdef FEATURE_GEOCODE_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::ENABLE_REVERSE_GEOCODE_MOCK), dataParcel, replyParcel);
-    return LocationErrCode(replyParcel.ReadInt32());
-}
+    return replyParcel.ReadInt32();
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GEOCODE_SUPPORT
-LocationErrCode LocatorAbility::DisableReverseGeocodingMock()
+ErrCode LocatorAbility::DisableReverseGeocodingMock()
 {
+#ifdef FEATURE_GEOCODE_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::DISABLE_REVERSE_GEOCODE_MOCK), dataParcel, replyParcel);
-    return LocationErrCode(replyParcel.ReadInt32());
-}
+    return replyParcel.ReadInt32();
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-#ifdef FEATURE_GEOCODE_SUPPORT
-LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+ErrCode LocatorAbility::SetReverseGeocodingMockInfo(const std::vector<GeocodingMockInfo>& geocodingMockInfo)
 {
+#ifdef FEATURE_GEOCODE_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckMockLocationPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    size_t arraySize = geocodingMockInfo.size();
+    arraySize = arraySize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX : arraySize;
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    for (size_t i = 0; i < arraySize; i++) {
+        std::shared_ptr<GeocodingMockInfo> info = std::make_shared<GeocodingMockInfo>(geocodingMockInfo[i]);
+        mockInfo.push_back(info);
+    }
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     if (!dataParcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor())) {
@@ -1424,21 +1772,34 @@ LocationErrCode LocatorAbility::SetReverseGeocodingMockInfo(std::vector<std::sha
     }
     SendGeoRequest(static_cast<int>(LocatorInterfaceCode::SET_REVERSE_GEOCODE_MOCKINFO), dataParcel, replyParcel);
     return LocationErrCode(replyParcel.ReadInt32());
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isProxy)
+ErrCode LocatorAbility::ProxyForFreeze(const std::vector<int32_t>& pidList, bool isProxy)
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckRssProcessName(identity.GetTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    size_t size = pidList.size();
+    size = size > MAX_BUFF_SIZE ? MAX_BUFF_SIZE : size;
+    std::set<int> pids;
+    for (size_t i = 0; i < size; i++) {
+        pids.insert(pidList[i]);
+    }
     std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
     lock.lock();
     if (isProxy) {
-        for (auto it = pidList.begin(); it != pidList.end(); it++) {
+        for (auto it = pids.begin(); it != pids.end(); it++) {
             proxyPids_.insert(*it);
             LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
                 *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
         }
     } else {
-        for (auto it = pidList.begin(); it != pidList.end(); it++) {
+        for (auto it = pids.begin(); it != pids.end(); it++) {
             proxyPids_.erase(*it);
             LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
                 *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
@@ -1454,9 +1815,14 @@ LocationErrCode LocatorAbility::ProxyForFreeze(std::set<int> pidList, bool isPro
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::ResetAllProxy()
+ErrCode LocatorAbility::ResetAllProxy()
 {
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckRssProcessName(identity.GetTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
     lock.lock();
     proxyPids_.clear();
@@ -1534,10 +1900,9 @@ void LocatorAbility::ReportDataToResSched(std::string state)
 #endif
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
-LocationErrCode LocatorAbility::QuerySupportCoordinateSystemType(
-    std::vector<CoordinateSystemType>& coordinateSystemTypes)
+ErrCode LocatorAbility::QuerySupportCoordinateSystemType(std::vector<CoordinateType>& coordinateTypes)
 {
+#ifdef FEATURE_GNSS_SUPPORT
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
@@ -1551,14 +1916,18 @@ LocationErrCode LocatorAbility::QuerySupportCoordinateSystemType(
         size = size > COORDINATE_SYSTEM_TYPE_SIZE ? COORDINATE_SYSTEM_TYPE_SIZE : size;
         for (int i = 0; i < size; i++) {
             int coordinateSystemType = replyToStub.ReadInt32();
-            coordinateSystemTypes.push_back(static_cast<CoordinateSystemType>(coordinateSystemType));
+            coordinateTypes.push_back(static_cast<CoordinateType>(coordinateSystemType));
         }
     }
     return errCode;
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
 }
 
 LocationErrCode LocatorAbility::SendNetworkLocation(const std::unique_ptr<Location>& location)
 {
+#ifdef FEATURE_GNSS_SUPPORT
     LBSLOGI(LOCATOR, "%{public}s: send network location", __func__);
     int64_t time = location->GetTimeStamp();
     int64_t timeSinceBoot = location->GetTimeSinceBoot();
@@ -1573,18 +1942,34 @@ LocationErrCode LocatorAbility::SendNetworkLocation(const std::unique_ptr<Locati
     }
     location->Marshalling(dataToStub);
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::SEND_NETWORK_LOCATION), dataToStub, replyToStub);
-}
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
+}
 
-LocationErrCode LocatorAbility::StartScanBluetoohDevice(
-    sptr<IBluetoohScanResultCallback>& callback, AppIdentity &identity)
+ErrCode LocatorAbility::SubscribeBluetoothScanResultChange(
+    const sptr<IBluetoothScanResultCallback>& cb)
 {
-    if (callback == nullptr) {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!LocatorRequiredDataManager::GetInstance()->CheckScanWhiteList(identity.GetBundleName(),
+        TYPE_WHITE_LIST_BLE)) {
+        LBSLOGI(LOCATOR, "packageName not in white list, not support");
+        return IPC_ERRCODE_NOT_SUPPORTED;
+    }
+    if (cb == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<BluetoothScanResultCallbackMessage> callbackMessage =
         std::make_unique<BluetoothScanResultCallbackMessage>();
-    callbackMessage->SetCallback(callback);
+    callbackMessage->SetCallback(cb);
     callbackMessage->SetAppIdentity(identity);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_START_SCAN_BLUETOOH_DEVICE, callbackMessage);
@@ -1594,12 +1979,21 @@ LocationErrCode LocatorAbility::StartScanBluetoohDevice(
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::StopScanBluetoohDevice(
-    sptr<IBluetoohScanResultCallback>& callback, AppIdentity &identity)
+ErrCode LocatorAbility::UnSubscribeBluetoothScanResultChange(
+    const sptr<IBluetoothScanResultCallback>& cb)
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
     std::unique_ptr<BluetoothScanResultCallbackMessage> callbackMessage =
         std::make_unique<BluetoothScanResultCallbackMessage>();
-    callbackMessage->SetCallback(callback);
+    callbackMessage->SetCallback(cb);
     callbackMessage->SetAppIdentity(identity);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_STOP_SCAN_BLUETOOH_DEVICE, callbackMessage);
@@ -1609,7 +2003,7 @@ LocationErrCode LocatorAbility::StopScanBluetoohDevice(
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
+LocationErrCode LocatorAbility::RegisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
     callbackMessage->SetCallback(callback);
@@ -1622,7 +2016,7 @@ LocationErrCode LocatorAbility::RegisterLocationError(sptr<ILocatorCallback>& ca
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity)
+LocationErrCode LocatorAbility::UnregisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
     callbackMessage->SetCallback(callback);
@@ -1635,24 +2029,41 @@ LocationErrCode LocatorAbility::UnregisterLocationError(sptr<ILocatorCallback>& 
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::SetLocationSwitchIgnored(bool isEnabled, AppIdentity &identity)
+ErrCode LocatorAbility::SetLocationSwitchIgnored(bool isEnabled)
 {
     LBSLOGI(LOCATOR, "SetLocationSwitchIgnored %{public}d", isEnabled);
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckLocationSwitchIgnoredPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckLocationSwitchIgnoredPermission return false, [%{public}s]",
+            identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     SetLocationSwitchIgnoredFlag(identity.GetTokenId(), isEnabled);
     return ERRCODE_SUCCESS;
 }
 
-void LocatorAbility::ReportLocationError(std::string uuid, int32_t errCode, int32_t netErrCode)
+ErrCode LocatorAbility::ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid)
 {
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (identity.GetUid() != static_cast<pid_t>(getuid()) || identity.GetPid() != getpid()) {
+        LBSLOGE(LOCATOR, "check system permission failed, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
     std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = std::make_unique<LocatorErrorMessage>();
     locatorErrorMessage->SetUuid(uuid);
-    locatorErrorMessage->SetErrCode(errCode);
-    locatorErrorMessage->SetNetErrCode(netErrCode);
+    locatorErrorMessage->SetErrCode(errCodeNum);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_REPORT_LOCATION_ERROR, locatorErrorMessage);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
+    return ERRCODE_SUCCESS;
 }
 
 LocationErrCode LocatorAbility::RemoveInvalidRequests()
@@ -1814,6 +2225,230 @@ bool LocatorAbility::GetLocationSwitchIgnoredFlag(uint32_t tokenId)
     return appSwitchIgnoredState.state;
 }
 
+ErrCode LocatorAbility::RegisterLocatingRequiredDataCallback(const LocatingRequiredDataConfig& dataConfig,
+    const sptr<ILocatingRequiredDataCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: callback is nullptr.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto dataConfigShared =
+        std::make_shared<LocatingRequiredDataConfig>(const_cast<LocatingRequiredDataConfig&>(dataConfig));
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    cb->AsObject()->AddDeathRecipient(scanRecipient_);
+    return locatorDataManager->RegisterCallback(identity, dataConfigShared, cb->AsObject());
+}
+
+ErrCode LocatorAbility::UnRegisterLocatingRequiredDataCallback(const sptr<ILocatingRequiredDataCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return IPC_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s: callback is nullptr.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    cb->AsObject()->RemoveDeathRecipient(scanRecipient_);
+    return locatorDataManager->UnregisterCallback(cb->AsObject());
+}
+
+ErrCode LocatorAbility::SubscribeLocationError(const sptr<ILocatorCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "StartLocating remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    return RegisterLocationError(cb, identity);
+}
+
+ErrCode LocatorAbility::UnSubscribeLocationError(const sptr<ILocatorCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "LocatorAbility::StopLocating remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    return UnregisterLocationError(cb, identity);
+}
+
+ErrCode LocatorAbility::GetCurrentWifiBssidForLocating(std::string& bssid)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return IPC_ERRCODE_PERMISSION_DENIED;
+    }
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    return locatorDataManager->GetCurrentWifiBssidForLocating(bssid);
+}
+
+LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
+{
+    int modeValue = isEnabled ? ENABLED : DISABLED;
+    int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
+    if (modeValue == currentSwitchState) {
+        LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
+        return ERRCODE_SUCCESS;
+    }
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(modeValue);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
+    }
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocatorAbility::SetSwitchStateForUser(bool isEnabled, int32_t userId)
+{
+    int modeValue = isEnabled ? ENABLED : DISABLED;
+    std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
+    locatorSwitchMessage->SetModeValue(modeValue);
+    locatorSwitchMessage->SetUserId(userId);
+    LocationDataRdbManager::SetSwitchStateToSysparaForUser(modeValue, userId);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
+    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
+        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID Send Success", __func__);
+    }
+    return ERRCODE_SUCCESS;
+}
+
+bool LocatorAbility::CheckLocationSwitchState()
+{
+    int state = DISABLED;
+    ErrCode errorCode = GetSwitchState(state);
+    if (errorCode != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR, "GetSwitchState failed errCode = %{public}d.", errorCode);
+    }
+    if (state != ENABLED) {
+        LBSLOGE(LOCATOR, "switch state is off.");
+        return false;
+    }
+    return true;
+}
+
+bool LocatorAbility::CheckLocationPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid)
+{
+    if (!PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid) &&
+        !PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        LBSLOGE(LOCATOR, "%{public}d %{public}s failed", callingTokenId, __func__);
+        return false;
+    } else {
+        return true;
+    }
+}
+
+bool LocatorAbility::CheckPreciseLocationPermissions(uint32_t callingTokenId, uint32_t callingFirstTokenid)
+{
+    if (!PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid) ||
+        !PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
+        LBSLOGE(LOCATOR, "%{public}d %{public}s failed", callingTokenId, __func__);
+        return false;
+    } else {
+        return true;
+    }
+}
+
+ErrCode LocatorAbility::StartLocatingProcess(const RequestConfig& requestConfig,
+    const sptr<ILocatorCallback>& cb, AppIdentity& identity)
+{
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "StartLocating remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+#if !defined(FEATURE_GNSS_SUPPORT) && !defined(FEATURE_NETWORK_SUPPORT) && !defined(FEATURE_PASSIVE_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
+    return IPC_ERRCODE_NOT_SUPPORTED;
+#endif
+    if (LocationDataRdbManager::QuerySwitchState() != ENABLED && !GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
+        ReportErrorStatus(cb, ERROR_SWITCH_UNOPEN);
+    }
+    // update offset before add request
+    if (reportManager_ == nullptr || requestManager_ == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    reportManager_->UpdateRandom();
+    std::unique_ptr<RequestConfig> requestConfigUnique = std::make_unique<RequestConfig>(requestConfig);
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfigUnique, cb, identity);
+    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) LocatorCallbackDeathRecipient(identity.GetTokenId()));
+    cb->AsObject()->AddDeathRecipient(death);
+    request->SetLocatorCallbackRecipient(death);
+    OHOS::Security::AccessToken::PermUsedTypeEnum type =
+        Security::AccessToken::AccessTokenKit::GetPermissionUsedType(request->GetTokenId(),
+        ACCESS_APPROXIMATELY_LOCATION);
+    request->SetPermUsedType(static_cast<int>(type));
+    if (requestConfigUnique->GetScenario() != SCENE_NO_POWER &&
+        requestConfigUnique->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION &&
+        !reportManager_->IsCacheGnssLocationValid()) {
+        LocatorRequiredDataManager::GetInstance()->SendWifiScanEvent();
+    }
+#ifdef EMULATOR_ENABLED
+    // for emulator, report cache location is unnecessary
+    HandleStartLocating(request, cb);
+#else
+    if (NeedReportCacheLocation(request, cb)) {
+        LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
+        if (requestConfigUnique->GetScenario() != SCENE_NO_POWER &&
+            requestConfigUnique->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+            SelfRequestManager::GetInstance()->StartSelfRequest();
+        }
+        cb->AsObject()->RemoveDeathRecipient(death);
+    } else {
+        HandleStartLocating(request, cb);
+    }
+#endif
+    return ERRCODE_SUCCESS;
+}
+
+void LocatorAbility::GetAppIdentityInfo(AppIdentity& identity)
+{
+    identity.SetPid(IPCSkeleton::GetCallingPid());
+    identity.SetUid(IPCSkeleton::GetCallingUid());
+    identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
+    identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
+    identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
+    if (identity.GetUid() == static_cast<pid_t>(identity.GetFirstTokenId()) &&
+        identity.GetUid() == static_cast<pid_t>(getuid()) && identity.GetPid() == getpid()) {
+        identity.SetFirstTokenId(0);
+    }
+    std::string bundleName = "";
+    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+        LBSLOGE(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
+    }
+    identity.SetBundleName(bundleName);
+}
+
 void LocationMessage::SetAbilityName(std::string abilityName)
 {
     abilityName_ = abilityName;
@@ -1860,12 +2495,12 @@ AppIdentity LocatorCallbackMessage::GetAppIdentity()
     return appIdentity_;
 }
 
-void BluetoothScanResultCallbackMessage::SetCallback(const sptr<IBluetoohScanResultCallback>& callback)
+void BluetoothScanResultCallbackMessage::SetCallback(const sptr<IBluetoothScanResultCallback>& callback)
 {
     callback_ = callback;
 }
 
-sptr<IBluetoohScanResultCallback> BluetoothScanResultCallbackMessage::GetCallback()
+sptr<IBluetoothScanResultCallback> BluetoothScanResultCallbackMessage::GetCallback()
 {
     return callback_;
 }
@@ -2122,6 +2757,7 @@ void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Po
 void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
+    IPCSkeleton::ResetCallingIdentity();
     if (locatorAbility != nullptr) {
         int state = event->GetParam();
         if (!SaLoadWithStatistic::InitLocationSa(COMMON_SA_ID)) {
@@ -2230,7 +2866,6 @@ void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEven
     }
     auto uuid = locatorErrorMessage->GetUuid();
     auto errCode = locatorErrorMessage->GetErrCode();
-    auto netErrCode = locatorErrorMessage->GetNetErrCode();
     auto requestMap = LocatorAbility::GetInstance()->GetRequests();
     if (requestMap == nullptr || requestMap->empty()) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
@@ -2448,6 +3083,42 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
         locatorAbility->StopLocating(callback);
         locatorAbility->PostUnloadTask(DEFAULT_CODE);
         LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
+    }
+}
+
+SwitchCallbackDeathRecipient::SwitchCallbackDeathRecipient()
+{
+}
+
+SwitchCallbackDeathRecipient::~SwitchCallbackDeathRecipient()
+{
+}
+
+void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto locatorAbility = LocatorAbility::GetInstance();
+    if (locatorAbility != nullptr) {
+        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
+        locatorAbility->UnregisterSwitchCallback(remote.promote());
+        locatorAbility->PostUnloadTask(DEFAULT_CODE);
+        LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
+    }
+}
+
+ScanCallbackDeathRecipient::ScanCallbackDeathRecipient()
+{
+}
+
+ScanCallbackDeathRecipient::~ScanCallbackDeathRecipient()
+{
+}
+
+void ScanCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    if (locatorDataManager != nullptr) {
+        locatorDataManager->UnregisterCallback(remote.promote());
+        LBSLOGI(LOCATOR, "scan callback OnRemoteDied");
     }
 }
 } // namespace Location

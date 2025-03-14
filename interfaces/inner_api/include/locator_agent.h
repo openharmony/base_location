@@ -23,7 +23,7 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_broker.h"
-#include "i_locator.h"
+#include "ilocator_service.h"
 
 #include "native_location_callback_host.h"
 #include "native_sv_callback_host.h"
@@ -31,22 +31,6 @@
 
 namespace OHOS {
 namespace Location {
-class LocatorAgent : public IRemoteProxy<ILocator> {
-public:
-    explicit LocatorAgent(const sptr<IRemoteObject> &impl);
-    ~LocatorAgent() = default;
-    LocationErrCode StartGnssLocating(sptr<ILocatorCallback>& callback);
-    LocationErrCode StopGnssLocating(sptr<ILocatorCallback>& callback);
-    LocationErrCode RegisterNmeaMessageCallback(const sptr<INmeaMessageCallback>& callback);
-    LocationErrCode UnregisterNmeaMessageCallback(const sptr<INmeaMessageCallback>& callback);
-    LocationErrCode RegisterGnssStatusCallback(const sptr<IGnssStatusCallback>& callback);
-    LocationErrCode UnregisterGnssStatusCallback(const sptr<IGnssStatusCallback>& callback);
-private:
-    LocationErrCode SendRequestToStub(const int msgId, MessageParcel& data, MessageParcel& reply);
-
-    static inline BrokerDelegator<LocatorAgent> delegator_;
-};
-
 class LocatorAgentManager {
 public:
     static LocatorAgentManager* GetInstance();
@@ -102,12 +86,12 @@ private:
         LocatorAgentManager &impl_;
     };
 
-    sptr<LocatorAgent> GetLocatorAgent();
+    sptr<ILocatorService> GetLocatorAgent();
     sptr<IRemoteObject> CheckLocatorSystemAbilityLoaded();
     bool TryLoadLocatorSystemAbility();
-    sptr<LocatorAgent> InitLocatorAgent(sptr<IRemoteObject>& saObject);
+    sptr<ILocatorService> InitLocatorAgent(sptr<IRemoteObject>& saObject);
 
-    sptr<LocatorAgent> client_ { nullptr };
+    sptr<ILocatorService> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
     std::mutex mutex_;
     sptr<NativeLocationCallbackHost> locationCallbackHost_;

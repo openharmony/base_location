@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_GEO_CODEING_MOCK_INFO_H
-#define LOCATION_GEO_CODEING_MOCK_INFO_H
+#ifndef LOCATION_GEOCODEING_MOCK_INFO_H
+#define LOCATION_GEOCODEING_MOCK_INFO_H
 
 #include <parcel.h>
 
@@ -30,7 +30,7 @@ public:
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
-    static std::unique_ptr<GeocodingMockInfo> Unmarshalling(Parcel& parcel);
+    static GeocodingMockInfo* Unmarshalling(Parcel& parcel);
 
     std::shared_ptr<ReverseGeocodeRequest> GetLocation();
     std::shared_ptr<GeoAddress> GetGeoAddressInfo();
@@ -43,4 +43,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_GEO_CODEING_MOCK_INFO_H
+#endif // LOCATION_GEOCODEING_MOCK_INFO_H

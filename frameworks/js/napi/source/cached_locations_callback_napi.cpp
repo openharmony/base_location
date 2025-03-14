@@ -56,7 +56,7 @@ int CachedLocationsCallbackNapi::OnRemoteRequest(
             if (size > 0 && size < MAXIMUM_CACHE_LOCATIONS) {
                 std::vector<std::unique_ptr<Location>> locations(size);
                 for (int i = 0; i < size; i++) {
-                    locations.push_back(Location::Unmarshalling(data));
+                    locations.push_back(Location::UnmarshallingMakeUnique(data));
                 }
                 Send(locations);
             }

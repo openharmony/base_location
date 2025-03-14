@@ -32,7 +32,7 @@
 #include "event_runner.h"
 #include "iremote_stub.h"
 #include "i_locating_required_data_callback.h"
-#include "i_bluetooth_scan_result_callback.h"
+#include "ibluetooth_scan_result_callback.h"
 #include "bluetooth_scan_result.h"
 #include "locating_required_data_config.h"
 #include "system_ability_status_change_stub.h"
@@ -224,7 +224,7 @@ public:
     bool CheckLocationPermission(AppIdentity &identity);
     bool CheckScanWhiteList(const std::string& bundleName, const std::string& type);
     std::string GetScanWhiteListStr();
-    void StartScanBluetoohDevice(sptr<IBluetoohScanResultCallback> callback, AppIdentity identity);
+    void StartScanBluetoohDevice(sptr<IBluetoothScanResultCallback> callback, AppIdentity identity);
     void StopScanBluetoohDevice(sptr<IRemoteObject> callbackObj);
     void StartBluetoothScan();
     void StoptBluetoothScan();

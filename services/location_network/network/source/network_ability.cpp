@@ -398,7 +398,7 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
 LocationErrCode NetworkAbility::EnableMock()
 {
     if (!EnableLocationMock()) {
-        return ERRCODE_NOT_SUPPORTED;
+        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -406,7 +406,7 @@ LocationErrCode NetworkAbility::EnableMock()
 LocationErrCode NetworkAbility::DisableMock()
 {
     if (!DisableLocationMock()) {
-        return ERRCODE_NOT_SUPPORTED;
+        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -420,7 +420,7 @@ LocationErrCode NetworkAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
     if (!SetMockedLocations(timeInterval, location)) {
-        return ERRCODE_NOT_SUPPORTED;
+        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -507,7 +507,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
         }
         case static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
-                reply.WriteInt32(ERRCODE_NOT_SUPPORTED);
+                reply.WriteInt32(IPC_ERRCODE_NOT_SUPPORTED);
                 break;
             }
             int timeInterval = data.ReadInt32();
@@ -576,25 +576,6 @@ void NetworkAbility::RestartNlpRequests()
             LBSLOGI(NETWORK, "CheckNetworkRequests needRecoverRequests");
         }
     }
-}
-
-void NetworkAbility::ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    data.WriteInterfaceToken(u"location.ILocator");
-    data.WriteInt32(LOCATING_FAILED_INTERNET_ACCESS_FAILURE);
-    data.WriteString(errMsg);
-    data.WriteString(uuid);
-    data.WriteInt32(errCode);
-    sptr<IRemoteObject> objectLocator =
-        CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
-    if (objectLocator == nullptr) {
-        LBSLOGE(NETWORK, "%{public}s get locator sa failed", __func__);
-        return;
-    }
-    objectLocator->SendRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION_ERROR), data, reply, option);
 }
 
 NetworkHandler::NetworkHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)

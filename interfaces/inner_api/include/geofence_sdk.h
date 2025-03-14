@@ -18,31 +18,14 @@
 #include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "iremote_broker.h"
-#include "i_locator.h"
 #include "geofence_request.h"
 #include "constant_definition.h"
 #include "locationhub_ipc_interface_code.h"
-#include "constant_definition.h"
+#include "ilocator_service.h"
+#include "want_agent.h"
 
 namespace OHOS {
 namespace Location {
-class GeofenceSdk : public IRemoteProxy<ILocator> {
-public:
-    explicit GeofenceSdk(const sptr<IRemoteObject> &impl);
-    ~GeofenceSdk() = default;
-    LocationErrCode AddFenceV9(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveFenceV9(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode GetGeofenceSupportedCoordTypes(
-        std::vector<CoordinateSystemType>& coordinateSystemTypes);
-    LocationErrCode HandleGnssfenceRequest(LocatorInterfaceCode code,
-        std::shared_ptr<GeofenceRequest>& request);
-private:
-	LocationErrCode SendMsgWithDataReplyV9(const int msgId, MessageParcel& data, MessageParcel& reply);
-    static inline BrokerDelegator<GeofenceSdk> delegator_;
-};
-
 class GeofenceManager {
 public:
     static GeofenceManager* GetInstance();
@@ -69,9 +52,9 @@ public:
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
     void ResetGeofenceSdkProxy(const wptr<IRemoteObject> &remote);
 private:
-    sptr<GeofenceSdk> GetProxy();
+    sptr<ILocatorService> GetProxy();
 
-    sptr<GeofenceSdk> client_ { nullptr };
+    sptr<ILocatorService> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
     std::mutex mutex_;
     bool isServerExist_ = false;

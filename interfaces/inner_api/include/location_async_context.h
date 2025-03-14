@@ -26,7 +26,7 @@
 #include "constant_definition.h"
 #include "country_code.h"
 #include "geo_address.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "locating_required_data.h"
 #include "locating_required_data_callback_napi.h"
 #include "locating_required_data_config.h"

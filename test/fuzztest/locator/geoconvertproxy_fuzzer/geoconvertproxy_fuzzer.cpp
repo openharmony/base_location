@@ -18,7 +18,7 @@
 
 #include "geo_convert_proxy.h"
 #include "geo_convert_service.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "message_parcel.h"
 
 namespace OHOS {

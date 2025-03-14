@@ -27,6 +27,7 @@
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 #endif
+#include <nlohmann/json.hpp>
 
 namespace OHOS {
 namespace Location {
@@ -178,7 +179,7 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         }
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
-        return ERRCODE_NOT_SUPPORTED;
+        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -197,7 +198,7 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
     return ERRCODE_SUCCESS;
 }
 
-void LocatorRequiredDataManager::StartScanBluetoohDevice(sptr<IBluetoohScanResultCallback> callback,
+void LocatorRequiredDataManager::StartScanBluetoohDevice(sptr<IBluetoothScanResultCallback> callback,
     AppIdentity identity)
 {
     if (callback == nullptr) {
@@ -504,8 +505,8 @@ void LocatorRequiredDataManager::ReportBluetoohScanResult(
     std::unique_lock<std::mutex> lock(bluetoohcallbacksMapMutex_);
     for (const auto& pair : bluetoohcallbacksMap_) {
         auto callback = pair.first;
-        sptr<IBluetoohScanResultCallback> bluetoohScanResultCallback =
-            iface_cast<IBluetoohScanResultCallback>(callback);
+        sptr<IBluetoothScanResultCallback> bluetoohScanResultCallback =
+            iface_cast<IBluetoothScanResultCallback>(callback);
         if (bluetoohScanResultCallback == nullptr) {
             LBSLOGW(LOCATOR, "ReportBluetoohScanResult nullptr callback.");
             continue;
@@ -660,7 +661,7 @@ LocationErrCode LocatorRequiredDataManager::GetCurrentWifiBssidForLocating(std::
     bssid = linkedInfo.bssid;
     return ERRCODE_SUCCESS;
 #else
-    return ERRCODE_NOT_SUPPORTED;
+    return IPC_ERRCODE_NOT_SUPPORTED;
 #endif
 }
 

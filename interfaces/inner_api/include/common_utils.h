@@ -185,6 +185,7 @@ public:
     static bool GetAllUserId(std::vector<int>& activeIds);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);
+    static LocationErrCode ErrCodeToLocationErrCode(ErrCode errorCode);
 };
 
 class CountDownLatch {

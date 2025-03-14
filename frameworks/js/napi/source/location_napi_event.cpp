@@ -298,7 +298,7 @@ LocationErrCode SubscribeBluetoothScanResultChange(const napi_env& env,
 {
     bluetoothScanResultCallbackHost->SetEnv(env);
     bluetoothScanResultCallbackHost->SetHandleCb(handlerRef);
-    auto bluetoothScanResultCallback = sptr<IBluetoohScanResultCallback>(bluetoothScanResultCallbackHost);
+    auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
     return g_locatorProxy->SubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
 }
 #endif
@@ -353,7 +353,9 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    Parcel data;
+    wantAgent->Marshalling(data);
+    fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     g_geofenceProxy->AddFenceV9(fenceRequest);
 }
@@ -372,7 +374,9 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    Parcel data;
+    wantAgent->Marshalling(data);
+    fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     LocationErrCode errCode = g_geofenceProxy->AddFenceV9(fenceRequest);
     return errCode;
@@ -388,7 +392,9 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    Parcel data;
+    wantAgent->Marshalling(data);
+    fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     g_geofenceProxy->RemoveFenceV9(fenceRequest);
 }
@@ -403,7 +409,9 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    Parcel data;
+    wantAgent->Marshalling(data);
+    fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     return g_geofenceProxy->RemoveFenceV9(fenceRequest);
 }
@@ -652,7 +660,7 @@ LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
     return g_locatorProxy->UnSubscribeLocationError(callback);
 }
 
-LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoothScanResultCallback>& callback)
 {
     return g_locatorProxy->UnSubscribeBluetoothScanResultChange(callback);
 }
@@ -1598,7 +1606,7 @@ bool OffBluetoothScanResultChangeCallback(const napi_env& env, const napi_value&
 {
     auto bluetoothScanResultCallbackHost = g_bluetoothScanResultCallbackHosts.GetCallbackPtr(env, handler);
     if (bluetoothScanResultCallbackHost) {
-        auto locatorCallback = sptr<IBluetoohScanResultCallback>(bluetoothScanResultCallbackHost);
+        auto locatorCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
         LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(locatorCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
@@ -1624,7 +1632,7 @@ bool OffAllBluetoothScanResultChangeCallback(const napi_env& env)
         if (callbackHost == nullptr) {
             continue;
         }
-        auto bluetoohScanResultCallback = sptr<IBluetoohScanResultCallback>(callbackHost);
+        auto bluetoohScanResultCallback = sptr<IBluetoothScanResultCallback>(callbackHost);
         LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(bluetoohScanResultCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);

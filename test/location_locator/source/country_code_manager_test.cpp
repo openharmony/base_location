@@ -19,6 +19,7 @@
 #include "location_log.h"
 
 #include "nmea_message_callback_napi.h"
+#include "mock_i_remote_object.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -147,14 +148,14 @@ HWTEST_F(CountryCodeManagerTest, RegisterCountryCodeCallback003, TestSize.Level1
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback003 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
-    auto wrongCallback = sptr<NmeaMessageCallbackNapi>(new (std::nothrow) NmeaMessageCallbackNapi());
+    sptr<MockIRemoteObject> wrongCallback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
     AppIdentity identity;
     int pid = 4;
     identity.SetPid(pid);
     identity.SetUid(pid);
-    countryCodeManager->RegisterCountryCodeCallback(wrongCallback->AsObject(), identity);
+    countryCodeManager->RegisterCountryCodeCallback(wrongCallback, identity);
     EXPECT_EQ(1, countryCodeManager->countryCodeCallbacksMap_.size());
-    countryCodeManager->UnregisterCountryCodeCallback(wrongCallback->AsObject());
+    countryCodeManager->UnregisterCountryCodeCallback(wrongCallback);
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] RegisterCountryCodeCallback003 end");
 }
 

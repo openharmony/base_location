@@ -41,7 +41,6 @@ const double NUM_ACC_E6 = 1.000001;
 const double NUM_ACC_E7 = 1.0000001;
 void CommonUtilsTest::SetUp()
 {
-    LoadSystemAbility();
     MockNativeAccurateLocation();
 }
 
