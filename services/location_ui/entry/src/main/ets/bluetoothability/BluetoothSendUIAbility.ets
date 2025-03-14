@@ -123,7 +123,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
                         this.cancelSendProgressNotification(0);
                         this.pullUpReceiveResultNotification(0, 1);
                     }
-                    console.info(TAG, 'transfer success');
+                    console.info(TAG, 'transfer finished');
                     this.oppProfile.off('transferStateChange');
                 }
             });
