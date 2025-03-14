@@ -117,7 +117,7 @@ void JsObjToRequestConfig(ani_env* env, ani_object request,
         return;
     }
     ani_class currentLocationRequest;
-    env->FindClass("L@ohos/geoLocationManager/geoLocationManager/CurrentLocationRequest;", &currentLocationRequest);
+    env->FindClass("Llocation_ani/CurrentLocationRequest;", &currentLocationRequest);
     ani_boolean isCurrentLocationRequest;
     env->Object_InstanceOf(request, currentLocationRequest, &isCurrentLocationRequest);
     if (isCurrentLocationRequest) {
@@ -140,7 +140,7 @@ void JsObjToRequestConfig(ani_env* env, ani_object request,
     }
 
     ani_class singleLocationRequest;
-    env->FindClass("L@ohos/geoLocationManager/geoLocationManager/SingleLocationRequest;", &singleLocationRequest);
+    env->FindClass("Llocation_ani/SingleLocationRequest;", &singleLocationRequest);
     ani_boolean isSingleLocationRequest;
     env->Object_InstanceOf(request, singleLocationRequest, &isSingleLocationRequest);
     if (isSingleLocationRequest) {
@@ -195,7 +195,7 @@ void SetValueDouble(ani_env* env, ani_class* cls, std::string property, double v
 static ani_object LocationToJs(ani_env* env, const std::unique_ptr<OHOS::Location::Location>& locationInfo)
 {
     ani_object location_obj = {};
-    static const char *className = "L@ohos/geoLocationManager/geoLocationManager/LocationInner;";
+    static const char *className = "Llocation_ani/LocationInner;";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         std::cerr << "Not found '" << className << "'" << std::endl;
@@ -283,7 +283,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         return ANI_ERROR;
     }
 
-    static const char *className = "L@ohos/geoLocationManager/ETSGLOBAL;";
+    static const char *className = "Llocation_ani/ETSGLOBAL;";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         std::cerr << "Not found '" << className << "'" << std::endl;
@@ -291,8 +291,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     }
 
     std::array methods = {
-        ani_native_function {"getCurrentLocationSync",
-            "Lstd/core/Object;:L@ohos/geoLocationManager/geoLocationManager/Location;",
+        ani_native_function {"getCurrentLocation", "Lstd/core/Object;:Llocation_ani/Location;",
             reinterpret_cast<void *>(GetCurrentLocation)},
     };
 
