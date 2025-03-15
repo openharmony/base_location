@@ -43,6 +43,7 @@ static std::random_device g_randomDevice;
 static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
+const int32_t MAX_INT_LENGTH = 9;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 const int DEFAULT_USERID = 100;
 int CommonUtils::AbilityConvertToId(const std::string ability)
@@ -355,6 +356,30 @@ uint8_t CommonUtils::ConvertStringToDigit(std::string str)
         }
     }
     return res;
+}
+
+bool CommonUtils::isValidInteger(const std::string& str)
+{
+    if (str.empty()) {
+        return false;
+    }
+    if (str.length() > MAX_INT_LENGTH) {
+        return false;
+    }
+    size_t digitStartIndex = 0;
+    if (str[0] == '-') {
+        if (str.length() == 1) {
+            return false;
+        }
+        digitStartIndex = 1;
+    }
+
+    for (size_t i = digitStartIndex; i < str.length(); i++) {
+        if (!std::isdigit(str[i])) {
+            return false;
+        }
+    }
+    return true;
 }
 
 errno_t CommonUtils::GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN])
