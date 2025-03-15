@@ -2883,8 +2883,6 @@ void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEven
             if (request->GetRequestConfig() != nullptr) {
                 requestInfo = request->GetRequestConfig()->ToString();
             }
-            WriteLocationInnerEvent(LOCATION_REQUEST_DENY, {"errorCode", std::to_string(netErrCode),
-                "requestAppName", request->GetPackageName(), "requestInfo", requestInfo});
             RequestManager::GetInstance()->ReportLocationError(errCode, request);
             break;
         }
