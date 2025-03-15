@@ -19,7 +19,7 @@
 #include <gtest/gtest.h>
 
 #ifdef FEATURE_GEOCODE_SUPPORT
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #endif
 #include "i_locator_callback.h"
 #define private public
@@ -37,7 +37,6 @@ class LocatorServiceTest : public testing::Test {
 public:
     void SetUp();
     void TearDown();
-    bool StartAndStopForLocating(MessageParcel& data);
     void SetStartUpConfirmed(bool isAuthorized);
     void ChangedLocationMode(bool isEnable);
     void MockNativePermission();
@@ -46,7 +45,6 @@ public:
     std::vector<std::shared_ptr<GeocodingMockInfo>> SetGeocodingMockInfo();
 #endif
 
-    sptr<LocatorProxy> proxy_;
     sptr<ILocatorCallback> callbackStub_;
     LocatorBackgroundProxy* backgroundProxy_;
     std::shared_ptr<Request> request_;

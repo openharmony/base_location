@@ -27,8 +27,8 @@ ohos_unittest("LocatorManagerAbilityTest") {
   module_out_path = module_output_path
   sources = [
     "$LOCATION_ROOT_DIR/test/location_manager/source/locator_ability_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_manager/source/locator_skeleton_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_manager/source/request_manager_test.cpp",
+    "$LOCATION_ROOT_DIR/test/mock/src/mock_service_registry.cpp",
   ]
 
   include_dirs = [
@@ -46,6 +46,8 @@ ohos_unittest("LocatorManagerAbilityTest") {
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk_static",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_agent:locator_agent",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_proxy",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_stub",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator_static",
     "//third_party/googletest:gmock_main",

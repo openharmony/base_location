@@ -29,8 +29,6 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_napi.h"
 #endif
-#include "i_locator.h"
-#include "locator_proxy.h"
 #include "location_switch_callback_napi.h"
 #include "locator_callback_napi.h"
 #ifdef FEATURE_GNSS_SUPPORT

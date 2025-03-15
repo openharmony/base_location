@@ -82,7 +82,7 @@ char* ParseData(const uint8_t* data, size_t size)
 bool LocatorAbilityStub001FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -99,7 +99,7 @@ bool LocatorAbilityStub001FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub002FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -116,7 +116,7 @@ bool LocatorAbilityStub002FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub003FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -133,7 +133,7 @@ bool LocatorAbilityStub003FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub004FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -150,7 +150,7 @@ bool LocatorAbilityStub004FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub005FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -167,7 +167,7 @@ bool LocatorAbilityStub005FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub006FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -184,7 +184,7 @@ bool LocatorAbilityStub006FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub007FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -201,7 +201,7 @@ bool LocatorAbilityStub007FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub008FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -218,7 +218,7 @@ bool LocatorAbilityStub008FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub009FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -235,7 +235,7 @@ bool LocatorAbilityStub009FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub010FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -252,7 +252,7 @@ bool LocatorAbilityStub010FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub011FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -269,7 +269,7 @@ bool LocatorAbilityStub011FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub012FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -286,7 +286,7 @@ bool LocatorAbilityStub012FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub013FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -303,7 +303,7 @@ bool LocatorAbilityStub013FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub014FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -319,7 +319,7 @@ bool LocatorAbilityStub014FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub015FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -336,7 +336,7 @@ bool LocatorAbilityStub015FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub016FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -353,7 +353,7 @@ bool LocatorAbilityStub016FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub017FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -369,7 +369,7 @@ bool LocatorAbilityStub017FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub018FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -386,7 +386,7 @@ bool LocatorAbilityStub018FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub019FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -403,7 +403,7 @@ bool LocatorAbilityStub019FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub020FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -420,7 +420,7 @@ bool LocatorAbilityStub020FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub021FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -437,7 +437,7 @@ bool LocatorAbilityStub021FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub022FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -454,7 +454,7 @@ bool LocatorAbilityStub022FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub023FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -471,7 +471,7 @@ bool LocatorAbilityStub023FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub024FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -488,7 +488,7 @@ bool LocatorAbilityStub024FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub025FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -505,7 +505,7 @@ bool LocatorAbilityStub025FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub026FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -522,7 +522,7 @@ bool LocatorAbilityStub026FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub027FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -539,7 +539,7 @@ bool LocatorAbilityStub027FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub028FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -556,7 +556,7 @@ bool LocatorAbilityStub028FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub029FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -573,7 +573,7 @@ bool LocatorAbilityStub029FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub030FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -590,7 +590,7 @@ bool LocatorAbilityStub030FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub031FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -607,7 +607,7 @@ bool LocatorAbilityStub031FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub032FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -624,7 +624,7 @@ bool LocatorAbilityStub032FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub033FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -641,7 +641,7 @@ bool LocatorAbilityStub033FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub034FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -658,7 +658,7 @@ bool LocatorAbilityStub034FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub035FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -675,7 +675,7 @@ bool LocatorAbilityStub035FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub036FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -691,7 +691,7 @@ bool LocatorAbilityStub036FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub037FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -707,7 +707,7 @@ bool LocatorAbilityStub037FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub038FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -723,7 +723,7 @@ bool LocatorAbilityStub038FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub039FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -739,7 +739,7 @@ bool LocatorAbilityStub039FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub040FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -755,7 +755,7 @@ bool LocatorAbilityStub040FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub041FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -771,7 +771,7 @@ bool LocatorAbilityStub041FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub042FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -787,7 +787,7 @@ bool LocatorAbilityStub042FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub043FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -803,7 +803,7 @@ bool LocatorAbilityStub043FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub044FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -819,7 +819,7 @@ bool LocatorAbilityStub044FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub045FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -838,7 +838,7 @@ bool LocatorAbilityStub045FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub046FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -853,7 +853,7 @@ bool LocatorAbilityStub046FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub047FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -868,7 +868,7 @@ bool LocatorAbilityStub047FuzzTest(const char* data, size_t size)
 bool LocatorAbilityStub048FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
-    requestParcel.WriteInterfaceToken(u"location.ILocator");
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 

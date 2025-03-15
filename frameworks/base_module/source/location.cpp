@@ -48,7 +48,7 @@ Location::Location()
     fieldValidity_ = 0;
 }
 
-Location::Location(Location& location)
+Location::Location(const Location& location)
 {
     latitude_ = location.GetLatitude();
     longitude_ = location.GetLongitude();
@@ -121,9 +121,9 @@ std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
     return location;
 }
 
-std::unique_ptr<Location> Location::Unmarshalling(Parcel& parcel)
+Location* Location::Unmarshalling(Parcel& parcel)
 {
-    std::unique_ptr<Location> location = std::make_unique<Location>();
+    auto location = new (std::nothrow) Location();
     location->ReadFromParcel(parcel);
     return location;
 }

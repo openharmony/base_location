@@ -22,7 +22,7 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "geo_convert_skeleton.h"
 
 namespace OHOS {

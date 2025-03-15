@@ -178,7 +178,7 @@ HWTEST_F(PassiveAbilityTest, PassiveLocationMock001, TestSize.Level1)
     sleep(WAIT_EVENT_TIME);
 
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
-    EXPECT_EQ(ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
     ability_->passiveHandler_->RemoveEvent(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS));
     sleep(WAIT_EVENT_TIME);
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] PassiveLocationMock001 end");
@@ -308,7 +308,7 @@ HWTEST_F(PassiveAbilityTest, PassiveSendReportSendMessage001, TestSize.Level1)
     parcel.WriteInt64(1); // additionSize
     parcel.WriteInt32(1); // isFromMock is true
     MessageParcel reply;
-    ability_->SendMessage(ERRCODE_NOT_SUPPORTED, parcel, reply);
+    ability_->SendMessage(IPC_ERRCODE_NOT_SUPPORTED, parcel, reply);
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityTest] PassiveSendReportSendMessage001 end");
 }
 

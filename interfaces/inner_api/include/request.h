@@ -29,7 +29,7 @@ class Request {
 public:
     Request();
     Request(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, AppIdentity &identity);
+        const sptr<ILocatorCallback>& callback, AppIdentity &identity);
     ~Request();
     pid_t GetUid();
     pid_t GetPid();

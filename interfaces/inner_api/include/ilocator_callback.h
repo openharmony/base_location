@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,23 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef LOCATOR_PROXY_H
-#define LOCATOR_PROXY_H
+#ifndef ILOCATOR_CALLBACK_H
+#define ILOCATOR_CALLBACK_H
 
-#include <string>
+#include "i_locator_callback.h"
 
-namespace OHOS {
-namespace Location {
-class LocatorProxy {
-public:
-    explicit LocatorProxy();
-    ~LocatorProxy() = default;
-    static const std::u16string GetDescriptor()
-    {
-        std::u16string descriptor = u"OHOS.Location.ILocatorService";
-        return descriptor;
-    }
-};
-} // namespace Location
-} // namespace OHOS
-#endif // LOCATOR_PROXY_H
+#endif // ILOCATOR_CALLBACK_H

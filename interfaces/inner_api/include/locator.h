@@ -23,7 +23,7 @@
 #include "constant_definition.h"
 #include "country_code.h"
 #include "geo_address.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "i_locator_callback.h"
 #include "location.h"

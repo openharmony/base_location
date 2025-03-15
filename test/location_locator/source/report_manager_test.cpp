@@ -332,7 +332,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest002, TestSize.Level1)
     parcel.WriteInt32(0); // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // is not requesting
+    EXPECT_EQ(true, reportManager_->OnReportLocation(location, NETWORK_ABILITY)); // is not requesting
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest002 end");
 }
 
@@ -355,9 +355,9 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest003, TestSize.Level1)
     parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report location successfully
+    EXPECT_EQ(true, reportManager_->OnReportLocation(location, NETWORK_ABILITY)); // report location successfully
     EXPECT_EQ(true,
-        reportManager_->OnReportLocation(location, GNSS_ABILITY)); // report the same location, result check is false
+        reportManager_->OnReportLocation(location, NETWORK_ABILITY)); // report the same location, result check is false
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest003 end");
 }
 
@@ -381,7 +381,7 @@ HWTEST_F(ReportManagerTest, OnReportLocationTest004, TestSize.Level1)
     std::unique_ptr<Location> location = std::make_unique<Location>();
     std::shared_ptr<Request> request = std::make_shared<Request>();
     location->ReadFromParcel(parcel);
-    EXPECT_EQ(true, reportManager_->OnReportLocation(location, GNSS_ABILITY)); // will resolve deadRequests
+    EXPECT_EQ(true, reportManager_->OnReportLocation(location, NETWORK_ABILITY)); // will resolve deadRequests
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] OnReportLocationTest004 end");
 }
 
@@ -391,7 +391,7 @@ HWTEST_F(ReportManagerTest, UpdateRandomTest004, TestSize.Level1)
         << "ReportManagerTest, UpdateRandomTest004, TestSize.Level1";
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] UpdateRandomTest004 begin");
     std::list<std::shared_ptr<Request>> gnssList;
-    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    auto locatorAbility = LocatorAbility::GetInstance();
     locatorAbility->requests_->insert(make_pair(GNSS_ABILITY, gnssList));
     reportManager_->UpdateRandom();
 

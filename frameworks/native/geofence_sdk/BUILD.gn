@@ -18,8 +18,8 @@ config("geofence_sdk_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
-    "$LOCATION_ROOT_DIR/frameworks/native/notification/include",
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
+    "$LOCATION_ROOT_DIR/frameworks/native/notification/include",
   ]
 }
 
@@ -44,6 +44,7 @@ ohos_shared_library("geofence_sdk") {
 
   deps = [
     "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_NATIVE_DIR/locator_sdk:liblocator_interface_proxy",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
   ]
 
@@ -102,6 +103,7 @@ ohos_static_library("geofence_sdk_static") {
 
   deps = [
     "$LOCATION_COMMON_DIR:lbsservice_common",
+    "$LOCATION_NATIVE_DIR/locator_sdk:liblocator_interface_proxy",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
   ]
 

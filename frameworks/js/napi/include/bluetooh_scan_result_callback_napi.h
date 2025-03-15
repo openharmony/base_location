@@ -22,14 +22,14 @@
 
 #include "constant_definition.h"
 #include "location_log.h"
-#include "i_bluetooth_scan_result_callback.h"
+#include "ibluetooth_scan_result_callback.h"
 #include "bluetooth_scan_result.h"
 
 namespace OHOS {
 namespace Location {
 bool FindBlueToohCallback(napi_ref cb);
 void DeleteBlueToohCallback(napi_ref cb);
-class BluetoothScanResultCallbackNapi : public IRemoteStub<IBluetoohScanResultCallback> {
+class BluetoothScanResultCallbackNapi : public IRemoteStub<IBluetoothScanResultCallback> {
 public:
     BluetoothScanResultCallbackNapi();
     virtual ~BluetoothScanResultCallbackNapi();

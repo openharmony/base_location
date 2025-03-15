@@ -231,8 +231,8 @@ void GeoConvertRequest::ReadFromParcel(MessageParcel& parcel)
     country_ = Str16ToStr8(parcel.ReadString16()); // country
 }
 
-void GeoConvertRequest::OrderParcel(
-    MessageParcel& in, MessageParcel& out, GeoCodeType requestType, std::string bundleName)
+void GeoConvertRequest::OrderParcel(MessageParcel& in, MessageParcel& out,
+    const sptr<IRemoteObject>& cb, GeoCodeType requestType, std::string bundleName)
 {
     if (requestType == GeoCodeType::REQUEST_REVERSE_GEOCODE) {
         out.WriteString16(in.ReadString16()); // locale
@@ -250,9 +250,8 @@ void GeoConvertRequest::OrderParcel(
     }
     auto transId = in.ReadString16();
     auto country = in.ReadString16();
-    auto callback = in.ReadRemoteObject();
     out.WriteString16(Str8ToStr16(bundleName)); // bundleName
-    out.WriteRemoteObject(callback); // callback
+    out.WriteRemoteObject(cb); // callback
     out.WriteString16(transId); // transId
     out.WriteString16(country); // country
 }

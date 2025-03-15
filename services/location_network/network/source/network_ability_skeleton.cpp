@@ -67,7 +67,7 @@ NetworkAbilityStub::NetworkAbilityStub()
 int NetworkAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return ERRCODE_PERMISSION_DENIED;
+        return IPC_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SEND_LOCATION_REQUEST), data, reply);
     isMessageRequest_ = true;
@@ -77,7 +77,7 @@ int NetworkAbilityStub::SendLocationRequestInner(MessageParcel &data, MessagePar
 int NetworkAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return ERRCODE_PERMISSION_DENIED;
+        return IPC_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
     isMessageRequest_ = true;
@@ -87,7 +87,7 @@ int NetworkAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel
 int NetworkAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return ERRCODE_PERMISSION_DENIED;
+        return IPC_ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(SetEnable(data.ReadBool()));
     return ERRCODE_SUCCESS;
@@ -96,7 +96,7 @@ int NetworkAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply
 int NetworkAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return ERRCODE_PERMISSION_DENIED;
+        return IPC_ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(EnableMock());
     return ERRCODE_SUCCESS;
@@ -105,7 +105,7 @@ int NetworkAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &repl
 int NetworkAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return ERRCODE_PERMISSION_DENIED;
+        return IPC_ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(DisableMock());
     return ERRCODE_SUCCESS;

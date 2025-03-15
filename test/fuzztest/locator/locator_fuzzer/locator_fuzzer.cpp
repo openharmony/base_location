@@ -32,7 +32,7 @@
 #include "country_code_callback_napi.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_napi.h"

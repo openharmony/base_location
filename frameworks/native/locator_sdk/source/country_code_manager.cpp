@@ -29,6 +29,7 @@
 #include "locator_impl.h"
 #include "lbs_res_loader.h"
 #include "permission_manager.h"
+#include "locator_proxy.h"
 
 namespace OHOS {
 namespace Location {

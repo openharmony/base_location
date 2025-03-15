@@ -21,12 +21,12 @@
 #include "iremote_proxy.h"
 #include "iremote_object.h"
 
-#include "i_bluetooth_scan_result_callback.h"
+#include "ibluetooth_scan_result_callback.h"
 #include "bluetooth_scan_result.h"
 
 namespace OHOS {
 namespace Location {
-class BluetoohScanResultCallbackProxy : public IRemoteProxy<IBluetoohScanResultCallback> {
+class BluetoohScanResultCallbackProxy : public IRemoteProxy<IBluetoothScanResultCallback> {
 public:
     explicit BluetoohScanResultCallbackProxy(const sptr<IRemoteObject> &impl);
     ~BluetoohScanResultCallbackProxy() = default;

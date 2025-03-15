@@ -290,7 +290,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     return nullptr;
 }
 
-bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result)
+bool ReportManager::ReportRemoteCallback(const sptr<ILocatorCallback>& locatorCallback, int type, int result)
 {
     switch (type) {
         case ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT: {

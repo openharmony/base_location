@@ -29,6 +29,8 @@
 #include "location_sa_load_manager.h"
 #include "locator.h"
 #include "permission_manager.h"
+#include "geocode_convert_address_request.h"
+#include "geocode_convert_location_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -77,12 +79,12 @@ bool LocatorImpl::IsLocationEnabled()
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    state = proxy->GetSwitchState();
+    proxy->GetSwitchState(state);
     return (state == ENABLED);
 }
 
@@ -110,14 +112,14 @@ void LocatorImpl::EnableAbility(bool enable)
     if (errorCode != ERRCODE_SUCCESS) {
         return;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    LocationErrCode errCode = proxy->EnableAbilityV9(enable);
+    ErrCode errCode = proxy->EnableAbility(enable);
     if (errCode != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s EnableAbilityV9 failed. %{public}d", __func__, errCode);
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s failed. %{public}d", __func__, errCode);
     }
 }
 
@@ -127,7 +129,7 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
@@ -137,7 +139,7 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         return;
     }
     AddLocationCallBack(requestConfig, callback);
-    int errCode = proxy->StartLocating(requestConfig, callback, "location.ILocator", 0, 0);
+    int errCode = proxy->StartLocating(*requestConfig, callback);
     if (errCode != ERRCODE_SUCCESS) {
         RemoveLocationCallBack(callback);
     }
@@ -148,17 +150,17 @@ void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    proxy->StopLocating(callback);
-    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
-    auto iter = g_locationCallbackMap.find(callback);
-    if (iter != g_locationCallbackMap.end()) {
-        g_locationCallbackMap.erase(iter);
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return;
     }
+    proxy->StopLocating(callback);
+    RemoveLocationCallBack(callback);
 }
 
 std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
@@ -166,23 +168,17 @@ std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return nullptr;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return nullptr;
     }
-    std::unique_ptr<Location> location = nullptr;
-    MessageParcel reply;
-    proxy->GetCacheLocation(reply);
-    int exception = reply.ReadInt32();
-    if (exception == ERRCODE_PERMISSION_DENIED) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != ERRCODE_SUCCESS) {
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    ErrCode errorCodeValue = proxy->GetCacheLocation(*location);
+    if (errorCodeValue != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        location = Location::Unmarshalling(reply);
+        location = nullptr;
     }
-
     return location;
 }
 
@@ -210,7 +206,7 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
@@ -220,7 +216,7 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
         return false;
     }
     AddSatelliteStatusChangeCallBack(callback);
-    proxy->RegisterGnssStatusCallback(callback, DEFAULT_UID);
+    proxy->RegisterGnssStatusCallback(callback);
     return true;
 }
 
@@ -229,9 +225,13 @@ bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callba
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return false;
+    }
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
         return false;
     }
     proxy->UnregisterGnssStatusCallback(callback);
@@ -244,7 +244,7 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
@@ -254,7 +254,7 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
         return false;
     }
     AddNmeaCallBack(callback);
-    proxy->RegisterNmeaMessageCallback(callback, DEFAULT_UID);
+    proxy->RegisterNmeaMessageCallback(callback);
     return true;
 }
 
@@ -263,9 +263,13 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return false;
+    }
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
         return false;
     }
     proxy->UnregisterNmeaMessageCallback(callback);
@@ -312,12 +316,13 @@ void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocat
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    proxy->RegisterCachedLocationCallback(request, callback, "location.ILocator");
+    proxy->RegisterCachedLocationCallback(request->reportingPeriodSec,
+        request->wakeUpCacheQueueFull, callback, "location.ILocatorService");
 }
 
 void LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback)
@@ -325,9 +330,12 @@ void LocatorImpl::UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return;
+    }
+    if (callback == nullptr) {
         return;
     }
     proxy->UnregisterCachedLocationCallback(callback);
@@ -338,23 +346,14 @@ bool LocatorImpl::IsGeoServiceAvailable()
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
-    bool result = false;
-    MessageParcel reply;
-    sptr<LocatorProxy> proxy = GetProxy();
+    bool res = false;
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    proxy->IsGeoConvertAvailable(reply);
-    int exception = reply.ReadInt32();
-    if (exception == ERRCODE_PERMISSION_DENIED) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    } else {
-        result = reply.ReadBool();
-    }
-    return result;
+    proxy->IsGeoConvertAvailable(res);
+    return res;
 }
 
 void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::shared_ptr<GeoAddress>>& replyList)
@@ -362,25 +361,20 @@ void LocatorImpl::GetAddressByCoordinate(MessageParcel &data, std::list<std::sha
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    MessageParcel reply;
     sptr<GeoConvertCallbackHost> callback = new (std::nothrow) GeoConvertCallbackHost();
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
         return;
     }
-    data.WriteRemoteObject(callback->AsObject());
-    proxy->GetAddressByCoordinate(data, reply);
-    int exception = reply.ReadInt32();
-    if (exception == ERRCODE_PERMISSION_DENIED) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    }
+    data.ReadInterfaceToken();
+    std::unique_ptr<GeocodeConvertLocationRequest> request =
+        GeocodeConvertLocationRequest::UnmarshallingMessageParcel(data);
+    proxy->GetAddressByCoordinate(callback->AsObject(), *request);
     replyList = callback->GetResult();
     uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
     uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
@@ -399,26 +393,20 @@ void LocatorImpl::GetAddressByLocationName(MessageParcel &data, std::list<std::s
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    MessageParcel reply;
     sptr<GeoConvertCallbackHost> callback = new (std::nothrow) GeoConvertCallbackHost();
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
-        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return;
     }
-    data.WriteRemoteObject(callback->AsObject());
-    proxy->GetAddressByLocationName(data, reply);
-    int exception = reply.ReadInt32();
-    if (exception == ERRCODE_PERMISSION_DENIED) {
-        LBSLOGE(LOCATOR_STANDARD, "can not get cached location without location permission.");
-    } else if (exception != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "cause some exception happened in lower service.");
-    }
+    data.ReadInterfaceToken();
+    std::unique_ptr<GeocodeConvertAddressRequest> request =
+        GeocodeConvertAddressRequest::UnmarshallingMessageParcel(data);
+    proxy->GetAddressByLocationName(callback->AsObject(), *request);
     replyList = callback->GetResult();
     uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
     uint64_t tokenIdEx = IPCSkeleton::GetCallingFullTokenID();
@@ -438,12 +426,13 @@ bool LocatorImpl::IsLocationPrivacyConfirmed(const int type)
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationPrivacyConfirmed()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->IsLocationPrivacyConfirmed(type);
+    bool flag = false;
+    proxy->IsLocationPrivacyConfirmed(type, flag);
     return flag;
 }
 
@@ -453,13 +442,14 @@ int LocatorImpl::SetLocationPrivacyConfirmStatus(const int type, bool isConfirme
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationPrivacyConfirmStatus()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    int flag = proxy->SetLocationPrivacyConfirmStatus(type, isConfirmed);
-    return flag;
+    ErrCode errorCodeValue = proxy->SetLocationPrivacyConfirmStatus(type, isConfirmed);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 int LocatorImpl::GetCachedGnssLocationsSize()
@@ -468,12 +458,13 @@ int LocatorImpl::GetCachedGnssLocationsSize()
         return -1;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedGnssLocationsSize()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    int size = proxy->GetCachedGnssLocationsSize();
+    int size = 0;
+    proxy->GetCachedGnssLocationsSize(size);
     return size;
 }
 
@@ -483,13 +474,14 @@ int LocatorImpl::FlushCachedGnssLocations()
         return -1;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocations()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    int res = proxy->FlushCachedGnssLocations();
-    return res;
+    ErrCode errorCodeValue = proxy->FlushCachedGnssLocations();
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
@@ -498,12 +490,12 @@ bool LocatorImpl::SendCommand(std::unique_ptr<LocationCommand>& commands)
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SendCommand()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    proxy->SendCommand(commands);
+    proxy->SendCommand(commands->scenario, commands->command);
     return true;
 }
 
@@ -524,13 +516,16 @@ bool LocatorImpl::EnableLocationMock()
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMock()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->EnableLocationMock();
-    return flag;
+    ErrCode res = proxy->EnableLocationMock();
+    if (res != ERR_OK) {
+        return false;
+    }
+    return true;
 }
 
 bool LocatorImpl::DisableLocationMock()
@@ -539,13 +534,16 @@ bool LocatorImpl::DisableLocationMock()
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMock()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->DisableLocationMock();
-    return flag;
+    ErrCode res = proxy->DisableLocationMock();
+    if (res != ERR_OK) {
+        return false;
+    }
+    return true;
 }
 
 bool LocatorImpl::SetMockedLocations(
@@ -555,13 +553,21 @@ bool LocatorImpl::SetMockedLocations(
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocations()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->SetMockedLocations(timeInterval, location);
-    return flag;
+    std::vector<Location> locationVector;
+    for (const auto& it : location) {
+        locationVector.push_back(*it);
+    }
+    ErrCode errorCodeValue = proxy->SetMockedLocations(timeInterval, locationVector);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
+        return false;
+    }
+    return true;
 }
 
 bool LocatorImpl::EnableReverseGeocodingMock()
@@ -570,13 +576,16 @@ bool LocatorImpl::EnableReverseGeocodingMock()
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMock()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->EnableReverseGeocodingMock();
-    return flag;
+    ErrCode res = proxy->EnableReverseGeocodingMock();
+    if (res != ERR_OK) {
+        return false;
+    }
+    return true;
 }
 
 bool LocatorImpl::DisableReverseGeocodingMock()
@@ -585,13 +594,16 @@ bool LocatorImpl::DisableReverseGeocodingMock()
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMock()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->DisableReverseGeocodingMock();
-    return flag;
+    ErrCode res = proxy->DisableReverseGeocodingMock();
+    if (res != ERR_OK) {
+        return false;
+    }
+    return true;
 }
 
 bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
@@ -600,13 +612,21 @@ bool LocatorImpl::SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<Geocod
         return false;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfo()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    bool flag = proxy->SetReverseGeocodingMockInfo(mockInfo);
-    return flag;
+    std::vector<GeocodingMockInfo> mockInfoVector;
+    for (const auto& it : mockInfo) {
+        mockInfoVector.push_back(*it);
+    }
+    ErrCode errorCodeValue = proxy->SetReverseGeocodingMockInfo(mockInfoVector);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
+        return false;
+    }
+    return true;
 }
 
 LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
@@ -621,12 +641,12 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    state = proxy->GetSwitchState();
+    proxy->GetSwitchState(state);
     isEnabled = (state == ENABLED);
     return ERRCODE_SUCCESS;
 }
@@ -677,13 +697,14 @@ LocationErrCode LocatorImpl::EnableAbilityV9(bool enable)
         return errorCode;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableAbilityV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->EnableAbilityV9(enable);
-    return errCode;
+    ErrCode errorCodeValue = proxy->EnableAbility(enable);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::EnableAbilityForUser(bool enable, int32_t userId)
@@ -695,13 +716,14 @@ LocationErrCode LocatorImpl::EnableAbilityForUser(bool enable, int32_t userId)
     if (errorCode != ERRCODE_SUCCESS) {
         return errorCode;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->EnableAbilityForUser(enable, userId);
-    return errCode;
+    ErrCode errorCodeValue = proxy->EnableAbilityForUser(enable, userId);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& requestConfig,
@@ -711,7 +733,7 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StartLocatingV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -721,11 +743,12 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     AddLocationCallBack(requestConfig, callback);
-    LocationErrCode errCode = proxy->StartLocatingV9(requestConfig, callback);
-    if (errCode != ERRCODE_SUCCESS) {
+    ErrCode errorCodeValue = proxy->StartLocating(*requestConfig, callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
         RemoveLocationCallBack(callback);
     }
-    return errCode;
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
@@ -734,14 +757,19 @@ LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopLocatingV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->StopLocatingV9(callback);
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->StopLocating(callback);
     RemoveLocationCallBack(callback);
-    return errCode;
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
@@ -750,13 +778,20 @@ LocationErrCode LocatorImpl::GetCachedLocationV9(std::unique_ptr<Location> &loc)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedLocationV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->GetCacheLocationV9(loc);
-    return errCode;
+    if (loc == nullptr) {
+        loc = std::make_unique<Location>();
+    }
+    ErrCode errorCodeValue = proxy->GetCacheLocation(*loc);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
+        loc = nullptr;
+    }
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::RegisterSwitchCallbackV9(const sptr<IRemoteObject>& callback)
@@ -785,7 +820,7 @@ LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObje
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterGnssStatusCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -795,11 +830,12 @@ LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObje
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     AddSatelliteStatusChangeCallBack(callback);
-    LocationErrCode errCode = proxy->RegisterGnssStatusCallbackV9(callback);
-    if (errCode != ERRCODE_SUCCESS) {
+    ErrCode errorCodeValue = proxy->RegisterGnssStatusCallback(callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
         RemoveSatelliteStatusChangeCallBack(callback);
     }
-    return errCode;
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
@@ -808,14 +844,19 @@ LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteOb
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterGnssStatusCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->UnregisterGnssStatusCallbackV9(callback);
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->UnregisterGnssStatusCallback(callback);
     RemoveSatelliteStatusChangeCallBack(callback);
-    return errCode;
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
@@ -824,7 +865,7 @@ LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObj
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterNmeaMessageCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -834,11 +875,12 @@ LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObj
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     AddNmeaCallBack(callback);
-    LocationErrCode errCode = proxy->RegisterNmeaMessageCallbackV9(callback);
-    if (errCode != ERRCODE_SUCCESS) {
+    ErrCode errorCodeValue = proxy->RegisterNmeaMessageCallback(callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
         RemoveNmeaCallBack(callback);
     }
-    return errCode;
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
@@ -847,14 +889,19 @@ LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteO
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterNmeaMessageCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->UnregisterNmeaMessageCallbackV9(callback);
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->UnregisterNmeaMessageCallback(callback);
     RemoveNmeaCallBack(callback);
-    return errCode;
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObject>& callback)
@@ -899,13 +946,15 @@ LocationErrCode LocatorImpl::RegisterCachedLocationCallbackV9(std::unique_ptr<Ca
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::RegisterCachedLocationCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->RegisterCachedLocationCallbackV9(request, callback, "location.ILocator");
-    return errCode;
+    ErrCode errorCodeValue = proxy->RegisterCachedLocationCallback(request->reportingPeriodSec,
+        request->wakeUpCacheQueueFull, callback, "location.ILocatorService");
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::UnregisterCachedLocationCallbackV9(sptr<ICachedLocationsCallback>& callback)
@@ -914,13 +963,18 @@ LocationErrCode LocatorImpl::UnregisterCachedLocationCallbackV9(sptr<ICachedLoca
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnregisterCachedLocationCallbackV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->UnregisterCachedLocationCallbackV9(callback);
-    return errCode;
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->UnregisterCachedLocationCallback(callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::IsGeoServiceAvailableV9(bool &isAvailable)
@@ -929,13 +983,14 @@ LocationErrCode LocatorImpl::IsGeoServiceAvailableV9(bool &isAvailable)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsGeoServiceAvailableV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->IsGeoConvertAvailableV9(isAvailable);
-    return errCode;
+    ErrCode errorCodeValue = proxy->IsGeoConvertAvailable(isAvailable);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
@@ -945,7 +1000,7 @@ LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByCoordinateV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -955,8 +1010,10 @@ LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
         LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
         return ERRCODE_REVERSE_GEOCODING_FAIL;
     }
-    data.WriteRemoteObject(callback->AsObject());
-    LocationErrCode errCode = proxy->GetAddressByCoordinateV9(data, replyList);
+    data.ReadInterfaceToken();
+    std::unique_ptr<GeocodeConvertLocationRequest> request =
+        GeocodeConvertLocationRequest::UnmarshallingMessageParcel(data);
+    ErrCode errorCodeValue = proxy->GetAddressByCoordinate(callback->AsObject(), *request);
     replyList = callback->GetResult();
     if (replyList.size() == 0) {
         return ERRCODE_REVERSE_GEOCODING_FAIL;
@@ -971,7 +1028,8 @@ LocationErrCode LocatorImpl::GetAddressByCoordinateV9(MessageParcel &data,
         auto geoAddress = *iter;
         geoAddress->SetIsSystemApp(flag);
     }
-    return errCode;
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
@@ -981,20 +1039,20 @@ LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetAddressByLocationNameV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    MessageParcel reply;
     sptr<GeoConvertCallbackHost> callback = new (std::nothrow) GeoConvertCallbackHost();
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "can not get valid callback.");
-        reply.WriteInt32(ERRCODE_GEOCODING_FAIL);
         return ERRCODE_GEOCODING_FAIL;
     }
-    data.WriteRemoteObject(callback->AsObject());
-    LocationErrCode errCode = proxy->GetAddressByLocationNameV9(data, replyList);
+    data.ReadInterfaceToken();
+    std::unique_ptr<GeocodeConvertAddressRequest> request =
+        GeocodeConvertAddressRequest::UnmarshallingMessageParcel(data);
+    ErrCode errorCodeValue = proxy->GetAddressByLocationName(callback->AsObject(), *request);
     replyList = callback->GetResult();
     if (replyList.size() == 0) {
         return ERRCODE_GEOCODING_FAIL;
@@ -1009,7 +1067,8 @@ LocationErrCode LocatorImpl::GetAddressByLocationNameV9(MessageParcel &data,
         auto geoAddress = *iter;
         geoAddress->SetIsSystemApp(flag);
     }
-    return errCode;
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::IsLocationPrivacyConfirmedV9(const int type, bool &isConfirmed)
@@ -1018,13 +1077,14 @@ LocationErrCode LocatorImpl::IsLocationPrivacyConfirmedV9(const int type, bool &
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationPrivacyConfirmedV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->IsLocationPrivacyConfirmedV9(type, isConfirmed);
-    return errCode;
+    ErrCode errorCodeValue = proxy->IsLocationPrivacyConfirmed(type, isConfirmed);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::SetLocationPrivacyConfirmStatusV9(const int type, bool isConfirmed)
@@ -1033,13 +1093,14 @@ LocationErrCode LocatorImpl::SetLocationPrivacyConfirmStatusV9(const int type, b
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationPrivacyConfirmStatusV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->SetLocationPrivacyConfirmStatusV9(type, isConfirmed);
-    return errCode;
+    ErrCode errorCodeValue = proxy->SetLocationPrivacyConfirmStatus(type, isConfirmed);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::GetCachedGnssLocationsSizeV9(int &size)
@@ -1048,13 +1109,17 @@ LocationErrCode LocatorImpl::GetCachedGnssLocationsSizeV9(int &size)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::GetCachedGnssLocationsSizeV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->GetCachedGnssLocationsSizeV9(size);
-    return errCode;
+    ErrCode errorCodeValue = proxy->GetCachedGnssLocationsSize(size);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
+        size = 0;
+    }
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::FlushCachedGnssLocationsV9()
@@ -1063,13 +1128,14 @@ LocationErrCode LocatorImpl::FlushCachedGnssLocationsV9()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::FlushCachedGnssLocationsV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->FlushCachedGnssLocationsV9();
-    return errCode;
+    ErrCode errorCodeValue = proxy->FlushCachedGnssLocations();
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::SendCommandV9(std::unique_ptr<LocationCommand>& commands)
@@ -1078,13 +1144,17 @@ LocationErrCode LocatorImpl::SendCommandV9(std::unique_ptr<LocationCommand>& com
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SendCommandV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->SendCommandV9(commands);
-    return errCode;
+    if (commands == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->SendCommand(commands->scenario, commands->command);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::GetIsoCountryCodeV9(std::shared_ptr<CountryCode>& countryCode)
@@ -1105,13 +1175,14 @@ LocationErrCode LocatorImpl::EnableLocationMockV9()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableLocationMockV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->EnableLocationMockV9();
-    return errCode;
+    ErrCode errorCodeValue = proxy->EnableLocationMock();
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::DisableLocationMockV9()
@@ -1120,13 +1191,14 @@ LocationErrCode LocatorImpl::DisableLocationMockV9()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableLocationMockV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->DisableLocationMockV9();
-    return errCode;
+    ErrCode errorCodeValue = proxy->DisableLocationMock();
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::SetMockedLocationsV9(
@@ -1136,13 +1208,18 @@ LocationErrCode LocatorImpl::SetMockedLocationsV9(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetMockedLocationsV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->SetMockedLocationsV9(timeInterval, location);
-    return errCode;
+    std::vector<Location> locationVector;
+    for (const auto& it : location) {
+        locationVector.push_back(*it);
+    }
+    ErrCode errorCodeValue = proxy->SetMockedLocations(timeInterval, locationVector);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::EnableReverseGeocodingMockV9()
@@ -1151,13 +1228,14 @@ LocationErrCode LocatorImpl::EnableReverseGeocodingMockV9()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::EnableReverseGeocodingMockV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->EnableReverseGeocodingMockV9();
-    return errCode;
+    ErrCode errorCodeValue = proxy->EnableReverseGeocodingMock();
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::DisableReverseGeocodingMockV9()
@@ -1166,13 +1244,14 @@ LocationErrCode LocatorImpl::DisableReverseGeocodingMockV9()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::DisableReverseGeocodingMockV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->DisableReverseGeocodingMockV9();
-    return errCode;
+    ErrCode errorCodeValue = proxy->DisableReverseGeocodingMock();
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
@@ -1181,13 +1260,18 @@ LocationErrCode LocatorImpl::SetReverseGeocodingMockInfoV9(std::vector<std::shar
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetReverseGeocodingMockInfoV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->SetReverseGeocodingMockInfoV9(mockInfo);
-    return errCode;
+    std::vector<GeocodingMockInfo> geocodingMockInfoVector;
+    for (const auto& it : mockInfo) {
+        geocodingMockInfoVector.push_back(*it);
+    }
+    ErrCode errorCodeValue = proxy->SetReverseGeocodingMockInfo(geocodingMockInfoVector);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::ProxyForFreeze(std::set<int> pidList, bool isProxy)
@@ -1203,13 +1287,15 @@ LocationErrCode LocatorImpl::ProxyForFreeze(std::set<int> pidList, bool isProxy)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ProxyForFreeze()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->ProxyForFreeze(pidList, isProxy);
-    return errCode;
+    std::vector<int> dataVector(pidList.begin(), pidList.end());
+    ErrCode errorCodeValue = proxy->ProxyForFreeze(dataVector, isProxy);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::ResetAllProxy()
@@ -1224,13 +1310,14 @@ LocationErrCode LocatorImpl::ResetAllProxy()
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::ResetAllProxy()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->ResetAllProxy();
-    return errCode;
+    ErrCode errorCodeValue = proxy->ResetAllProxy();
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::RegisterLocatingRequiredDataCallback(
@@ -1240,12 +1327,14 @@ LocationErrCode LocatorImpl::RegisterLocatingRequiredDataCallback(
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return proxy->RegisterLocatingRequiredDataCallback(dataConfig, callback);
+    ErrCode errorCodeValue = proxy->RegisterLocatingRequiredDataCallback(*dataConfig, callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocatingRequiredDataCallback>& callback)
@@ -1254,48 +1343,64 @@ LocationErrCode LocatorImpl::UnRegisterLocatingRequiredDataCallback(sptr<ILocati
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::%{public}s", __func__);
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    return proxy->UnRegisterLocatingRequiredDataCallback(callback);
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->UnRegisterLocatingRequiredDataCallback(callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
-LocationErrCode LocatorImpl::SubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+LocationErrCode LocatorImpl::SubscribeBluetoothScanResultChange(sptr<IBluetoothScanResultCallback>& callback)
 {
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SubscribeBluetoothScanResultChange()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->SubscribeBluetoothScanResultChange(callback);
-    if (errCode != ERRCODE_SUCCESS) {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->SubscribeBluetoothScanResultChange(callback);
+    if (errorCodeValue != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "SubscribeBluetoothScanResultChange failed.");
     }
-    return errCode;
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
-LocationErrCode LocatorImpl::UnSubscribeBluetoothScanResultChange(sptr<IBluetoohScanResultCallback>& callback)
+LocationErrCode LocatorImpl::UnSubscribeBluetoothScanResultChange(sptr<IBluetoothScanResultCallback>& callback)
 {
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::UnSubscribeBluetoothScanResultChange()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->UnSubscribeBluetoothScanResultChange(callback);
-    if (errCode != ERRCODE_SUCCESS) {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "SendRegisterMsgToRemote callback is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->UnSubscribeBluetoothScanResultChange(callback);
+    if (errorCodeValue != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "UnSubscribeBluetoothScanResultChange failed.");
     }
-    return errCode;
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::SubscribeLocationError(sptr<ILocatorCallback>& callback)
@@ -1304,16 +1409,17 @@ LocationErrCode LocatorImpl::SubscribeLocationError(sptr<ILocatorCallback>& call
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StartLocatingV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->SubscribeLocationError(callback);
-    if (errCode != ERRCODE_SUCCESS) {
+    ErrCode errorCodeValue = proxy->SubscribeLocationError(callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "SubscribeLocationError failed.");
     }
-    return errCode;
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
@@ -1322,16 +1428,21 @@ LocationErrCode LocatorImpl::UnSubscribeLocationError(sptr<ILocatorCallback>& ca
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopLocatingV9()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->UnSubscribeLocationError(callback);
-    if (errCode != ERRCODE_SUCCESS) {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "StopLocating callback is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->UnSubscribeLocationError(callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    if (locationErrCode != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "UnSubscribeLocationError failed.");
     }
-    return errCode;
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::GetCurrentWifiBssidForLocating(std::string& bssid)
@@ -1340,13 +1451,14 @@ LocationErrCode LocatorImpl::GetCurrentWifiBssidForLocating(std::string& bssid)
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->GetCurrentWifiBssidForLocating(bssid);
-    return errCode;
+    ErrCode errorCodeValue = proxy->GetCurrentWifiBssidForLocating(bssid);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
@@ -1375,7 +1487,7 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
     }
 }
 
-sptr<LocatorProxy> LocatorImpl::GetProxy()
+sptr<ILocatorService> LocatorImpl::GetProxy()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     if (client_ != nullptr && isServerExist_) {
@@ -1392,14 +1504,18 @@ sptr<LocatorProxy> LocatorImpl::GetProxy()
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
         return nullptr;
     }
+    client_ = iface_cast<ILocatorService>(obj);
+    if (!client_ || !client_->AsObject()) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get locator service failed.", __func__);
+        return nullptr;
+    }
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s: create locator proxy", __func__);
     recipient_ = sptr<LocatorDeathRecipient>(new (std::nothrow) LocatorDeathRecipient(*this));
     if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(recipient_))) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: deathRecipient add failed.", __func__);
         return nullptr;
     }
     isServerExist_ = true;
-    client_ = sptr<LocatorProxy>(new (std::nothrow) LocatorProxy(obj));
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s: create locator proxy", __func__);
     if (saStatusListener_ == nullptr) {
         saStatusListener_ = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
     }
@@ -1550,13 +1666,14 @@ LocationErrCode LocatorImpl::SetLocationSwitchIgnored(bool enable)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::SetLocationSwitchIgnored()");
-    sptr<LocatorProxy> proxy = GetProxy();
+    sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LocationErrCode errCode = proxy->SetLocationSwitchIgnored(enable);
-    return errCode;
+    ErrCode errorCodeValue = proxy->SetLocationSwitchIgnored(enable);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 void CallbackResumeManager::ResumeCallback()
@@ -1568,7 +1685,7 @@ void CallbackResumeManager::ResumeCallback()
 
 void CallbackResumeManager::ResumeGnssStatusCallback()
 {
-    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    sptr<ILocatorService> proxy = g_locatorImpl->GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ;
@@ -1578,13 +1695,13 @@ void CallbackResumeManager::ResumeGnssStatusCallback()
         if (gnssStatusCallback == nullptr) {
             continue;
         }
-        proxy->RegisterGnssStatusCallbackV9(gnssStatusCallback);
+        proxy->RegisterGnssStatusCallback(gnssStatusCallback);
     }
 }
 
 void CallbackResumeManager::ResumeNmeaMessageCallback()
 {
-    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    sptr<ILocatorService> proxy = g_locatorImpl->GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
@@ -1594,13 +1711,13 @@ void CallbackResumeManager::ResumeNmeaMessageCallback()
         if (nmeaCallback == nullptr) {
             continue;
         }
-        proxy->RegisterNmeaMessageCallbackV9(nmeaCallback);
+        proxy->RegisterNmeaMessageCallback(nmeaCallback);
     }
 }
 
 void CallbackResumeManager::ResumeLocating()
 {
-    sptr<LocatorProxy> proxy = g_locatorImpl->GetProxy();
+    sptr<ILocatorService> proxy = g_locatorImpl->GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
@@ -1614,7 +1731,7 @@ void CallbackResumeManager::ResumeLocating()
         auto requestConfig = std::make_unique<RequestConfig>();
         requestConfig->Set(iter->second);
         LBSLOGW(LOCATOR_STANDARD, "ResumeLocating requestConfig = %{public}s", requestConfig->ToString().c_str());
-        proxy->StartLocatingV9(requestConfig, locatorCallback);
+        proxy->StartLocating(*requestConfig, locatorCallback);
     }
 }
 

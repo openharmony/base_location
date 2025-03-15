@@ -25,7 +25,7 @@
 #include "string_ex.h"
 
 #include "app_identity.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 
 namespace OHOS {
 namespace Location {

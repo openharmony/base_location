@@ -22,8 +22,8 @@
 #ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
 #endif
-#include "want_agent_helper.h"
 #include <parcel.h>
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace Location {
@@ -50,9 +50,9 @@ public:
 
     void SetScenario(int scenario);
 
-    void SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent);
+    void SetWantAgentParcelData(const Parcel& data);
 
-    AbilityRuntime::WantAgent::WantAgent GetWantAgent();
+    bool GetWantAgentParcelData(Parcel& data);
 
     std::vector<GeofenceTransitionEvent> GetGeofenceTransitionEventList();
 
@@ -94,7 +94,8 @@ public:
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
-    static std::shared_ptr<GeofenceRequest> Unmarshalling(Parcel& parcel);
+    static std::shared_ptr<GeofenceRequest> UnmarshallingShared(Parcel& parcel);
+    static GeofenceRequest* Unmarshalling(Parcel& parcel);
 private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
 #ifdef NOTIFICATION_ENABLE
@@ -105,7 +106,7 @@ private:
     int scenario_;
     int fenceId_;
     int32_t uid_;
-    AbilityRuntime::WantAgent::WantAgent wantAgent_;
+    std::vector<char> buffer_;
     std::string bundleName_;
     bool appAliveStatus_;
     int64_t requestExpirationTime_ = 0;

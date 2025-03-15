@@ -29,7 +29,6 @@
     "*Unmarshalling*";
     "*GetErrorMsgByCode*";
     "*GeofenceManager*GetGeofenceSupportedCoordTypes*";
-    "*GeofenceSdk*";
     "*LocatorProxy*";
   local:
     *;

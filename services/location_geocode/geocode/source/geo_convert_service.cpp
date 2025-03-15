@@ -249,11 +249,10 @@ void GeoConvertService::ReportAddressMock(MessageParcel &data, MessageParcel &re
     int arraySize = 0;
     std::vector<std::shared_ptr<GeoAddress>> array;
     ReverseGeocodeRequest request;
+    request.locale = Str16ToStr8(data.ReadString16());
     request.latitude = data.ReadDouble();
     request.longitude = data.ReadDouble();
     request.maxItems = data.ReadInt32();
-    data.ReadInt32(); // locale size
-    request.locale = Str16ToStr8(data.ReadString16());
     std::unique_lock<std::mutex> lock(mockInfoMutex_, std::defer_lock);
     lock.lock();
     for (size_t i = 0; i < mockInfo_.size(); i++) {

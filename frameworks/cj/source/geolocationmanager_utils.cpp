@@ -15,6 +15,8 @@
 
 #include "geolocationmanager_utils.h"
 
+#include "locator_proxy.h"
+
 namespace OHOS {
 namespace GeoLocationManager {
 char* MallocCString(const std::string& origin)

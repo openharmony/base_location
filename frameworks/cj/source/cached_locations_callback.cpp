@@ -57,7 +57,7 @@ int CachedLocationsCallback::OnRemoteRequest(
             if (size > 0 && size < Location::MAXIMUM_CACHE_LOCATIONS) {
                 std::vector<std::unique_ptr<Location::Location>> locations(size);
                 for (int i = 0; i < size; i++) {
-                    locations.push_back(Location::Location::Unmarshalling(data));
+                    locations.push_back(Location::Location::UnmarshallingMakeUnique(data));
                 }
                 OnCacheLocationsReport(locations);
             }

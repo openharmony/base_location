@@ -13,23 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef I_BLUETOOH_SCAN_RESULT_CALLBACK_H
-#define I_BLUETOOH_SCAN_RESULT_CALLBACK_H
+#ifndef LOCATION_ILOCATING_REQUIRED_DATA_CALLBACK_H
+#define LOCATION_ILOCATING_REQUIRED_DATA_CALLBACK_H
 
-#include "iremote_broker.h"
+#include "i_locating_required_data_callback.h"
 
-#include "bluetooth_scan_result.h"
-
-namespace OHOS {
-namespace Location {
-class IBluetoohScanResultCallback : public IRemoteBroker {
-public:
-enum {
-        RECEIVE_INFO_EVENT = 1,
-    };
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.IBluetoohScanResultCallback");
-    virtual void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
-};
-} // namespace Location
-} // namespace OHOS
-#endif // I_BLUETOOH_SCAN_RESULT_CALLBACK_H
+#endif // LOCATION_ILOCATING_REQUIRED_DATA_CALLBACK_H

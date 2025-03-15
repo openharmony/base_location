@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace Location {
 BluetoohScanResultCallbackProxy::BluetoohScanResultCallbackProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<IBluetoohScanResultCallback>(impl)
+    : IRemoteProxy<IBluetoothScanResultCallback>(impl)
 {
 }
 
