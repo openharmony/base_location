@@ -43,7 +43,7 @@ const int64_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * MILLI_PER_SEC * MICRO_PER_MILLI
 const int64_t DEFAULT_INVALID_10_SECONDS = 10 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int64_t DEFAULT_NOT_RETRY_TIME_10_SECONDS = 10 * MILLI_PER_SEC * MICRO_PER_MILLI; //10s
 const int64_t DEFAULT_INVALID_12_HOURS = 12 * 60 * 60 * MILLI_PER_SEC;
-const int64_t DEFAULT_INVALID_2_SECONDS = 2 * MILLI_PER_SEC * MICRO_PER_MILLI;
+const int64_t WLAN_SCAN_RESULTS_VALIDITY_PERIOD = 2 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int32_t MAX_CALLBACKS_MAP_NUM = 1000;
 
@@ -570,7 +570,7 @@ __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiSc
 {
 #ifdef WIFI_ENABLE
     int64_t currentTime = CommonUtils::GetSinceBootTime();
-    if ((currentTime - GetWifiScanCompleteTimestamp()) / NANOS_PER_MICRO < DEFAULT_INVALID_2_SECONDS) {
+    if ((currentTime - GetWifiScanCompleteTimestamp()) / NANOS_PER_MICRO < WLAN_SCAN_RESULTS_VALIDITY_PERIOD) {
         SendGetWifiListEvent(0, true);
         return;
     }
