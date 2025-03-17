@@ -67,7 +67,7 @@ void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Requ
         return;
     }
     request_->SetUid(request->GetUid());
-    request_->SetPid(request->Getpid());
+    request_->SetPid(request->GetPid());
     request_->SetPackageName(request->GetPackageName());
     request_->SetRequestConfig(*request->GetRequestConfig());
     request_->SetUuid(request->GetUuid());
@@ -81,7 +81,6 @@ void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Requ
 void SelfRequestManager::ProcessStopSelfRequestEvent()
 {
     if (!isLocating_) {
-        lock.unlock();
         return;
     }
     isLocating_ = false;
