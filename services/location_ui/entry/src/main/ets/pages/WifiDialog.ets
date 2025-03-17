@@ -31,6 +31,7 @@ struct dialogPlusPage {
   private WIFI_DIALOG_THREE_VAP: number = 1;
   private WIFI_DIALOG_CANDIDATE_CONNECT: number = 2;
   private WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN: number = 3;
+  private WIFI_DIALOG_P2P_WSC_PBC: number = 4;
 
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear')

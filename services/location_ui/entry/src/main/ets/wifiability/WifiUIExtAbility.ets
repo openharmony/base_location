@@ -16,8 +16,11 @@
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility'
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession'
 import Want from '@ohos.app.ability.Want';
+import deviceInfo from '@ohos.deviceInfo';
 
-const TAG: string = '[WIFI-NI]==>'
+const TAG: string = '[WIFI-NI]==>';
+const DEVICE_TYPE_TV = 'tv';
+const WIFI_DIALOG_P2P_WSC_PBC: number = 4;
 
 export default class WifiUIExtAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
@@ -29,13 +32,23 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         console.info(TAG, `wifiDialogType: ` + want.parameters?.['wifiDialogType']);
         AppStorage.setOrCreate('wifiDialogType', want.parameters?.['wifiDialogType']);
         AppStorage.setOrCreate('wifi5gSsid', want.parameters?.['wifi5gSsid']);
+        AppStorage.setOrCreate('p2pDeviceName', want.parameters?.['p2pDeviceName']);
 
         let param: Record<string, UIExtensionContentSession> = {
             'session': session
         }
         let storage: LocalStorage = new LocalStorage(param);
-        session.loadContent('pages/WifiDialog', storage);
-        session.setWindowBackgroundColor('#00000000');
+        let type : number = AppStorage.get('wifiDialogType') as number
+        if (type == WIFI_DIALOG_P2P_WSC_PBC) {
+            session.loadContent('pages/P2pWscPbcDialog', storage);
+        } else {
+            session.loadContent('pages/WifiDialog', storage);
+        }
+        if (deviceInfo.deviceType == DEVICE_TYPE_TV) {
+            session.setWindowBackgroundColor('#cc000000');
+        } else {
+            session.setWindowBackgroundColor('#00000000');
+        }
         AppStorage.setOrCreate('ConfirmSession', session);
     }
 
