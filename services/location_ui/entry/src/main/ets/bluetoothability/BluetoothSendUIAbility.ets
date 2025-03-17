@@ -24,6 +24,7 @@ import { DrawableDescriptor } from '@ohos.arkui.drawableDescriptor';
 import opp from '@ohos.bluetooth.opp';
 import commonEventManager from '@ohos.commonEventManager';
 import backgroundTaskManager from '@ohos.backgroundTaskManager';
+import fs from '@ohos.file.fs';
 
 const TAG: string = '[BT_SEND_SERVICE]==>'
 
@@ -125,6 +126,9 @@ export default class BluetoothSendUIAbility extends UIAbility {
                     }
                     console.info(TAG, 'transfer finished');
                     this.oppProfile.off('transferStateChange');
+                    let dirPath = this.context.filesDir;
+                    console.log(TAG, 'delete dirPath is ' + dirPath);
+                    fs.rmdirSync(dirPath);
                 }
             });
             console.log(TAG, 'oppProfile.transferStateChange');
