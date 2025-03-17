@@ -24,6 +24,7 @@
 #ifdef BLUETOOTH_ENABLE
 #include "bluetooth_ble_central_manager.h"
 #include "bluetooth_host.h"
+#include "ohos_bt_gatt.h"
 #endif
 #include "common_event_subscriber.h"
 #include "constant_definition.h"
@@ -31,6 +32,8 @@
 #include "event_runner.h"
 #include "iremote_stub.h"
 #include "i_locating_required_data_callback.h"
+#include "ibluetooth_scan_result_callback.h"
+#include "bluetooth_scan_result.h"
 #include "locating_required_data_config.h"
 #include "system_ability_status_change_stub.h"
 #include "app_identity.h"
@@ -96,6 +99,7 @@ public:
 
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByBle(
         const Bluetooth::BleScanResult &result);
+    std::unique_ptr<BluetoothScanResult> GetBluetoohScanResultByBle(const Bluetooth::BleScanResult &result);
 };
 
 class LocatorBluetoothHost : public Bluetooth::BluetoothHostObserver {
@@ -184,6 +188,8 @@ public:
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void InitScanHandlerEventMap();
+    void StartBluetoothScanEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopBluetoothScanEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StartScanEvent(const AppExecFwk::InnerEvent::Pointer& event);
 
     ScanEventHandleMap scanHandlerEventMap_;
@@ -214,10 +220,24 @@ public:
         std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
+    void ReportBluetoohScanResult(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
+    bool CheckLocationPermission(AppIdentity &identity);
+    bool CheckScanWhiteList(const std::string& bundleName, const std::string& type);
+    std::string GetScanWhiteListStr();
+    void StartScanBluetoohDevice(sptr<IBluetoothScanResultCallback> callback, AppIdentity identity);
+    void StopScanBluetoohDevice(sptr<IRemoteObject> callbackObj);
+    void StartBluetoothScan();
+    void StoptBluetoothScan();
+    void RemoveBluetoohScanCallback(sptr<IRemoteObject> callbackObj);
+    void RemoveBluetoohScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj);
+    void UpdateQueryScanWhitListTimestamp();
+    int64_t GetQueryScanWhitListTimestamp();
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
     bool IsConnecting();
     static LocatorRequiredDataManager* GetInstance();
     void SyncStillMovementState(bool state);
+    void SendStartBluetoothScanEvent();
+    void SendStopBluetoothScanEvent();
     void SendWifiScanEvent();
     void SendGetWifiListEvent(int timeout, bool needRetryScan);
     void RemoveGetWifiListEvent();
@@ -243,18 +263,32 @@ private:
     void WifiInfoInit();
     bool IsWifiCallbackRegistered();
     void SetIsWifiCallbackRegistered(bool isWifiCallbackRegistered);
+    std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     bool isWifiCallbackRegistered_ = false;
     std::mutex wifiRegisteredMutex_;
     WifiEvent wifiScanEventCallback_ = {0};
 #endif
     std::mutex mutex_;
+    std::mutex bluetoohcallbacksMapMutex_;
     std::map<sptr<IRemoteObject>, AppIdentity> callbacksMap_;
+    std::map<sptr<IRemoteObject>,
+        std::pair<AppIdentity, sptr<IRemoteObject::DeathRecipient>>> bluetoohcallbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
     std::mutex wifiScanCompleteTimestampMutex_;
     int64_t wifiScanCompleteTimestamp_ = 0;
     std::mutex lastStillTimeMutex_;
     int64_t lastStillTime_ = 0;
+    int64_t queryScanWhitListTimestamp_ = 0;
+    std::string scanWhiteListStr_;
+};
+
+class BluetoohScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    BluetoohScanCallbackDeathRecipient();
+    ~BluetoohScanCallbackDeathRecipient() override;
+ 
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 };
 } // namespace Location
 } // namespace OHOS

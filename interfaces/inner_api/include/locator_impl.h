@@ -23,14 +23,17 @@
 #include "country_code.h"
 #include "country_code_manager.h"
 #include "geo_address.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "i_cached_locations_callback.h"
 #include "locator_proxy.h"
 #include "i_locating_required_data_callback.h"
 #include "locating_required_data_config.h"
 #include "location_data_manager.h"
+#include "request_config.h"
 #include "system_ability_status_change_stub.h"
 #include "locationhub_ipc_interface_code.h"
+#include "ibluetooth_scan_result_callback.h"
+#include "ilocator_service.h"
 
 namespace OHOS {
 namespace Location {
@@ -607,6 +610,22 @@ public:
     LocationErrCode SubscribeLocationError(sptr<ILocatorCallback>& callback);
 
     /**
+     * @brief Subscribe bluetooth scan result change.
+     *
+     * @param callback Indicates the callback for reporting the location error result.
+     * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
+     */
+    LocationErrCode SubscribeBluetoothScanResultChange(sptr<IBluetoothScanResultCallback>& callback);
+
+    /**
+     * @brief Unsubscribe bluetooth scan result change.
+     *
+     * @param callback Indicates the callback for reporting the bluetooth scan result.
+     * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
+     */
+    LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoothScanResultCallback>& callback);
+
+    /**
      * @brief Unsubscribe location errorcode changed.
      *
      * @param callback Indicates the callback for reporting the location error result.
@@ -631,7 +650,7 @@ public:
     LocationErrCode SetLocationSwitchIgnored(bool enable);
 
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
-    sptr<LocatorProxy> GetProxy();
+    sptr<ILocatorService> GetProxy();
     bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);
     bool IsSatelliteStatusChangeCallbackRegistered(const sptr<IRemoteObject>& callback);
     bool IsNmeaCallbackRegistered(const sptr<IRemoteObject>& callback);
@@ -664,7 +683,7 @@ private:
     bool IsCallbackResuming();
     void UpdateCallbackResumingState(bool state);
 
-    sptr<LocatorProxy> client_ { nullptr };
+    sptr<ILocatorService> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
     LocationDataManager* locationDataManager_ { nullptr };
     bool isServerExist_ = false;

@@ -110,9 +110,9 @@ public:
             parcel.WriteInt32(fixNumber_);
     }
 
-    static std::shared_ptr<LocatingRequiredDataConfig> Unmarshalling(Parcel& parcel)
+    static LocatingRequiredDataConfig* Unmarshalling(Parcel& parcel)
     {
-        auto locatingRequiredDataConfig = std::make_shared<LocatingRequiredDataConfig>();
+        auto locatingRequiredDataConfig = new (std::nothrow) LocatingRequiredDataConfig();
         locatingRequiredDataConfig->ReadFromParcel(parcel);
         return locatingRequiredDataConfig;
     }

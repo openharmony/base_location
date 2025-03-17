@@ -38,7 +38,6 @@
 #undef private
 #include "locator_ability.h"
 #include "locator_proxy.h"
-#include "locator_skeleton.h"
 #include "locationhub_ipc_interface_code.h"
 #include "location_log.h"
 #include "constant_definition.h"
@@ -125,7 +124,7 @@ HWTEST_F(LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1)
         parcel.WriteInterfaceToken(u"location.IGnssAbility");
         MessageParcel reply;
         MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
+        EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED,
             gnssAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
     sleep(WAIT_RESPONSE_SEC);
@@ -174,7 +173,7 @@ HWTEST_F(LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Leve
         parcel.WriteInterfaceToken(u"location.IPassiveAbility");
         MessageParcel reply;
         MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
+        EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED,
             passiveAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
     sleep(WAIT_RESPONSE_SEC);
@@ -199,7 +198,7 @@ HWTEST_F(LocationMockIpcTest, MockGeoCodeStubCallingPermission001, TestSize.Leve
         parcel.WriteInterfaceToken(u"location.IGeoConvert");
         MessageParcel reply;
         MessageOption option;
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED,
+        EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED,
             geoConvertServiceStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
     sleep(WAIT_RESPONSE_SEC);

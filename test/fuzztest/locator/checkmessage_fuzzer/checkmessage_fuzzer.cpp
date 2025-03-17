@@ -88,10 +88,9 @@ bool CheckMessageFuzzTest(const char* data, size_t size)
     identity.SetBundleName(data + (offset += U32DATA_SIZE));
 
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    locatorAbility->CheckLocationPermission(reply, identity);
-    locatorAbility->CheckSettingsPermission(reply, identity);
-    locatorAbility->CheckPreciseLocationPermissions(reply, identity);
-    locatorAbility->CheckLocationSwitchState(reply);
+    locatorAbility->CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId());
+    locatorAbility->CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId());
+    locatorAbility->CheckLocationSwitchState();
     return true;
 }
 } // namespace OHOS

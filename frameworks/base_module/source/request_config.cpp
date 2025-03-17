@@ -78,9 +78,9 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
     timeOut_ = parcel.ReadInt32();
 }
 
-std::unique_ptr<RequestConfig> RequestConfig::Unmarshalling(Parcel& parcel)
+RequestConfig* RequestConfig::Unmarshalling(Parcel& parcel)
 {
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    auto requestConfig = new (std::nothrow) RequestConfig();
     requestConfig->ReadFromParcel(parcel);
     return requestConfig;
 }

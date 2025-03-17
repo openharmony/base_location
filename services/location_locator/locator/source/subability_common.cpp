@@ -20,9 +20,11 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 
+#include "common_hisysevent.h"
 #include "common_utils.h"
+#include "ilocator_service.h"
 #include "locationhub_ipc_interface_code.h"
-
+#include "location_log_event_ids.h"
 #include "app_identity.h"
 
 namespace OHOS {
@@ -206,22 +208,36 @@ void SubAbility::ClearLocationMock()
     mockLoc_.clear();
 }
 
-void SubAbility::ReportLocationInfo(
-    const std::string& systemAbility, const std::shared_ptr<Location> location)
+void SubAbility::ReportLocationInfo(const std::string& systemAbility, const std::shared_ptr<Location> location)
 {
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    data.WriteInterfaceToken(u"location.ILocator");
-    data.WriteString(systemAbility);
-    location->Marshalling(data);
     sptr<IRemoteObject> objectLocator =
         CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
     if (objectLocator == nullptr) {
         LBSLOGE(label_, "%{public}s get locator sa failed", __func__);
         return;
     }
-    objectLocator->SendRequest(static_cast<int>(LocatorInterfaceCode::REPORT_LOCATION), data, reply, option);
+    sptr<ILocatorService> client = iface_cast<ILocatorService>(objectLocator);
+    if (!client || !client->AsObject()) {
+        LBSLOGE(label_, "%{public}s: get locator service failed.", __func__);
+        return;
+    }
+    client->ReportLocation(systemAbility, *location);
+}
+
+void SubAbility::ReportLocationError(int32_t errCode, std::string errMsg, std::string uuid)
+{
+    sptr<IRemoteObject> objectLocator =
+        CommonUtils::GetRemoteObject(LOCATION_LOCATOR_SA_ID, CommonUtils::InitDeviceId());
+    if (objectLocator == nullptr) {
+        LBSLOGE(label_, "%{public}s get locator sa failed", __func__);
+        return;
+    }
+    sptr<ILocatorService> client = iface_cast<ILocatorService>(objectLocator);
+    if (!client || !client->AsObject()) {
+        LBSLOGE(label_, "%{public}s: get locator service failed.", __func__);
+        return;
+    }
+    client->ReportLocationError(LOCATING_FAILED_INTERNET_ACCESS_FAILURE, errMsg, uuid);
 }
 } // namespace Location
 } // namespace OHOS

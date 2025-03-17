@@ -90,7 +90,7 @@ bool PermissionManager::CheckCallingPermission(pid_t callingUid, pid_t callingPi
 {
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
         LBSLOGE(LOCATOR, "uid pid not match locationhub process.");
-        reply.WriteInt32(ERRCODE_PERMISSION_DENIED);
+        reply.WriteInt32(IPC_ERRCODE_PERMISSION_DENIED);
         return false;
     }
     return true;

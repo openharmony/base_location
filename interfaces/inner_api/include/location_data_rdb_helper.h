@@ -32,6 +32,7 @@ public:
     LocationErrCode RegisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
     LocationErrCode UnregisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
     LocationErrCode GetValue(Uri &uri, const std::string &column, int32_t &value);
+    LocationErrCode GetStringValue(Uri &uri, const std::string &column, std::string &value);
     LocationErrCode SetValue(Uri &uri, const std::string &column, int &value);
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
     void ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper);

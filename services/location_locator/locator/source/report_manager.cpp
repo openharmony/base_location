@@ -290,7 +290,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     return nullptr;
 }
 
-bool ReportManager::ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result)
+bool ReportManager::ReportRemoteCallback(const sptr<ILocatorCallback>& locatorCallback, int type, int result)
 {
     switch (type) {
         case ILocatorCallback::RECEIVE_LOCATION_STATUS_EVENT: {
@@ -368,10 +368,12 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
             cacheGnssLocation_ = *location;
             UpdateLastLocation(location);
         }
-    } else if (abilityName == NETWORK_ABILITY &&
-        location->GetLocationSourceType() != LocationSourceType::INDOOR_TYPE) {
+    } else if (abilityName == NETWORK_ABILITY) {
         cacheNlpLocation_ = *location;
         UpdateLastLocation(location);
+        if (location->GetLocationSourceType() == INDOOR_TYPE) {
+            cacheIndoorLocation_ = *location;
+        }
     } else {
         UpdateLastLocation(location);
     }
@@ -408,12 +410,15 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::unique_ptr<Location> cacheLocation = nullptr;
     std::string packageName = request->GetPackageName();
     int cachedTime = 0;
-    if (HookUtils::ExecuteHookWhenCheckAppForCacheTime(packageName)) {
+    if (HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName)) {
         cachedTime = LONG_CACHE_DURATION;
     } else {
         cachedTime = CACHED_TIME;
     }
-    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+    if (!CommonUtils::DoubleEqual(cacheIndoorLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheIndoorLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
+        cacheLocation = std::make_unique<Location>(cacheIndoorLocation_);
+    } else if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&

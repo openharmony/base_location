@@ -68,7 +68,7 @@ int LocatorCallback::OnRemoteRequest(uint32_t code,
 
     switch (code) {
         case Location::ILocatorCallback::RECEIVE_LOCATION_INFO_EVENT: {
-            std::unique_ptr<Location::Location> location = Location::Location::Unmarshalling(data);
+            std::unique_ptr<Location::Location> location = Location::Location::UnmarshallingMakeUnique(data);
             LocatorCallback::OnLocationReport(location);
             if (location->GetLocationSourceType() == Location::LocationSourceType::NETWORK_TYPE &&
                 location->GetAdditionsMap()["inHdArea"] != "") {

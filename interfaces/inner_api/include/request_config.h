@@ -110,7 +110,7 @@ public:
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
-    static std::unique_ptr<RequestConfig> Unmarshalling(Parcel& parcel);
+    static RequestConfig* Unmarshalling(Parcel& parcel);
     void Set(RequestConfig& requestConfig);
     bool IsSame(RequestConfig& requestConfig);
     bool IsRequestForAccuracy();

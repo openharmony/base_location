@@ -127,7 +127,6 @@ export struct BtServicesComponent {
 
   private async sendData(): Promise<void> {
     console.log(`${TAG} sendData is called.`);
-    let timeOut: number = 100;
     let fileUris = AppStorage.Get('sendFileUris');
     let length = AppStorage.Get('sendFileUrisLength');
     try {
@@ -145,23 +144,21 @@ export struct BtServicesComponent {
         this.fileHolders.push(fileHolder);
         console.log(`${TAG} fileHolder info: ` + JSON.stringify(fileHolder));
       }
-      oppProfile.sendFile(this.serverMac, this.fileHolders);
-      setTimeout(() => {
-        const session: UIExtensionContentSession | undefined =
-          LocalStorage.getShared()?.get<UIExtensionContentSession>('session');
-        for (let i = 0; i < this.fileHolders.length; i++) {
-          console.log(TAG, 'close fileHolders fd.');
-          if (this.fileHolders[i].fileFd != -1) {
-            fs.close(this.fileHolders[i].fileFd);
-            this.fileHolders[i].fileFd = -1;
-          }
+      await oppProfile.sendFile(this.serverMac, this.fileHolders);
+      const session: UIExtensionContentSession | undefined =
+        LocalStorage.getShared()?.get<UIExtensionContentSession>('session');
+      for (let i = 0; i < this.fileHolders.length; i++) {
+        console.log(TAG, 'close fileHolders fd.');
+        if (this.fileHolders[i].fileFd != -1) {
+          fs.close(this.fileHolders[i].fileFd);
+          this.fileHolders[i].fileFd = -1;
         }
-        if (session === undefined) {
-          console.log(TAG, 'cannot get session.');
-          return;
-        }
-        this.closeSheetPage(session, CLOSE);
-      }, timeOut);
+      }
+      if (session === undefined) {
+        console.log(TAG, 'cannot get session.');
+        return;
+      }
+      this.closeSheetPage(session, CLOSE);
     } catch (err) {
       console.error(`${TAG} sendData err`);
     }

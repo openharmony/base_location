@@ -1,0 +1,78 @@
+/*
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import type/IDataTypes;
+
+sequenceable OHOS.IRemoteObject;
+sequenceable OHOS.Location.LocatingRequiredDataConfig;
+sequenceable OHOS.Location.Location;
+sequenceable OHOS.Location.RequestConfig;
+sequenceable OHOS.Location.GeocodeConvertAddressRequest;
+sequenceable OHOS.Location.GeocodeConvertLocationRequest;
+sequenceable OHOS.Location.GeocodingMockInfo;
+sequenceable OHOS.Location.GeofenceRequest;
+
+interface OHOS.Location.ILocatorCallback;
+interface OHOS.Location.ICachedLocationsCallback;
+interface OHOS.Location.ILocatingRequiredDataCallback;
+interface OHOS.Location.IBluetoothScanResultCallback;
+
+option_stub_hooks on;
+
+interface OHOS.Location.ILocatorService {
+    [ipccode 1] void GetSwitchState([out] int state);
+    [ipccode 3] void StartLocating([in] RequestConfig requestConfig, [in] ILocatorCallback cb);
+    [ipccode 4] void StopLocating([in] ILocatorCallback cb);
+    [ipccode 5] void GetCacheLocation([out] Location location);
+    [ipccode 9] void EnableAbility([in] boolean isEnabled);
+    [ipccode 11] void IsGeoConvertAvailable([out] boolean isAvailable);
+    [ipccode 12] void GetAddressByCoordinate([in] IRemoteObject cb, [in] GeocodeConvertLocationRequest request);
+    [ipccode 13] void GetAddressByLocationName([in] IRemoteObject cb, [in] GeocodeConvertAddressRequest request);
+    [ipccode 16] void RegisterGnssStatusCallback([in] IRemoteObject cb);
+    [ipccode 17] void UnregisterGnssStatusCallback([in] IRemoteObject cb);
+    [ipccode 18] void RegisterNmeaMessageCallback([in] IRemoteObject cb);
+    [ipccode 19] void UnregisterNmeaMessageCallback([in] IRemoteObject cb);
+    [ipccode 20] void IsLocationPrivacyConfirmed([in] int type, [out] boolean state);
+    [ipccode 21] void SetLocationPrivacyConfirmStatus([in] int type, [in] boolean isConfirmed);
+    [ipccode 22] void RegisterCachedLocationCallback([in] int reportingPeriodSec, [in] boolean wakeUpCacheQueueFull, [in] ICachedLocationsCallback cb, [in] String bundleName);
+    [ipccode 23] void UnregisterCachedLocationCallback([in] ICachedLocationsCallback cb);
+    [ipccode 24] void GetCachedGnssLocationsSize([out] int size);
+    [ipccode 25] void FlushCachedGnssLocations();
+    [ipccode 26] void SendCommand([in] int scenario, [in] String command);
+    [ipccode 27] void AddFence([in] GeofenceRequest request);
+    [ipccode 28] void RemoveFence([in] GeofenceRequest request);
+    [ipccode 30] void EnableLocationMock();
+    [ipccode 31] void DisableLocationMock();
+    [ipccode 32] void SetMockedLocations([in] int timeInterval, [in] List<Location> locations);
+    [ipccode 33] void EnableReverseGeocodingMock();
+    [ipccode 34] void DisableReverseGeocodingMock();
+    [ipccode 35] void SetReverseGeocodingMockInfo([in] List<GeocodingMockInfo> geocodingMockInfo);
+    [ipccode 38] void ProxyForFreeze([in] List<int> pidList, [in] boolean isProxy);
+    [ipccode 39] void ResetAllProxy();
+    [ipccode 42] void ReportLocation([in] String abilityName, [in] Location location);
+    [ipccode 43] void RegisterLocatingRequiredDataCallback([in] LocatingRequiredDataConfig dataConfig, [in] ILocatingRequiredDataCallback cb);
+    [ipccode 44] void UnRegisterLocatingRequiredDataCallback([in] ILocatingRequiredDataCallback cb);
+    [ipccode 45] void AddGnssGeofence([in] GeofenceRequest request);
+    [ipccode 46] void RemoveGnssGeofence([in] int fenceId);
+    [ipccode 47] void QuerySupportCoordinateSystemType([out] List<CoordinateType> coordinateTypes);
+    [ipccode 48] void SubscribeLocationError([in] ILocatorCallback cb);
+    [ipccode 49] void UnSubscribeLocationError([in] ILocatorCallback cb);
+    [ipccode 50] void ReportLocationError([in] int errCodeNum, [in] String errMsg, [in] String uuid);
+    [ipccode 51] void EnableAbilityForUser([in] boolean isEnabled, [in] int userId);
+    [ipccode 52] void GetCurrentWifiBssidForLocating([out] String bssid);
+    [ipccode 53] void SetLocationSwitchIgnored([in] boolean isEnabled);
+    [ipccode 54] void SubscribeBluetoothScanResultChange([in] IBluetoothScanResultCallback cb);
+    [ipccode 55] void UnSubscribeBluetoothScanResultChange([in] IBluetoothScanResultCallback cb);
+}

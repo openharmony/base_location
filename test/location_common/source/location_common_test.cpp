@@ -40,7 +40,7 @@
 #include "permission_status_change_cb.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_address.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #endif
 #include "location_data_rdb_helper.h"
 #include "location_data_rdb_manager.h"

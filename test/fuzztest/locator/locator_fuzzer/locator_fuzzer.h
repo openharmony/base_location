@@ -29,8 +29,8 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_status_callback_napi.h"
 #endif
-#include "i_locator.h"
-#include "locator_proxy.h"
+#include "ilocator_service.h"
+#include "locator_service_proxy.h"
 #include "location_switch_callback_napi.h"
 #include "locator_callback_napi.h"
 #ifdef FEATURE_GNSS_SUPPORT
@@ -41,10 +41,10 @@
 namespace OHOS {
 namespace Location {
 #define FUZZ_PROJECT_NAME "locator_fuzzer"
-class LocatorProxyTestFuzzer : public LocatorProxy {
+class LocatorProxyTestFuzzer : public LocatorServiceProxy {
 public:
     explicit LocatorProxyTestFuzzer(const sptr<IRemoteObject> &impl)
-        : LocatorProxy(impl)
+        : LocatorServiceProxy(impl)
     {}
     virtual ~LocatorProxyTestFuzzer() = default;
     sptr<IRemoteObject> GetRemote()

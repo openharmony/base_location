@@ -9,7 +9,8 @@
       "phone",
       "tablet",
       "2in1",
-      "wearable"
+      "wearable",
+      "tv"
     ],
     "apiType": "stageMode",
     "deliveryWithInstall": true,

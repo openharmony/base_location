@@ -133,8 +133,12 @@ void JsFenceExtension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord
         srcPath.c_str());
     AbilityRuntime::HandleScope handleScope(jsRuntime_);
 
-    jsObj_ = jsRuntime_.LoadModule(
-        moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
+    jsObj_ = jsRuntime_.LoadModule(moduleName,
+        srcPath,
+        abilityInfo_->hapPath,
+        abilityInfo_->compileMode == CompileMode::ES_MODULE,
+        false,
+        abilityInfo_->srcEntrance);
     if (jsObj_ == nullptr) {
         LBSLOGE(FENCE_EXTENSION, "Failed to load ability module");
         return;

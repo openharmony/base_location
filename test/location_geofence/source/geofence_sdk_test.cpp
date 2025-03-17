@@ -14,6 +14,7 @@
  */
 
 #include "geofence_sdk_test.h"
+#include "common_utils.h"
 #include "location_log.h"
 
 using namespace testing::ext;

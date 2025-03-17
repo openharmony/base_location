@@ -14,7 +14,7 @@
  */
 
 #include "locator_agent.h"
-#include "locationhub_ipc_interface_code.h"
+
 #include "location_sa_load_manager.h"
 #include "system_ability_definition.h"
 #include "if_system_ability_manager.h"
@@ -53,11 +53,20 @@ LocationErrCode LocatorAgentManager::StartGnssLocating(const LocationCallbackIfa
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_INVALID_PARAM;
     }
+    auto requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    requestConfig->SetScenario(SCENE_UNSET);
+    requestConfig->SetFixNumber(0);
     locationCallbackHost_->SetCallback(callback);
     auto locatorCallback = sptr<ILocatorCallback>(locationCallbackHost_);
-    LocationErrCode ret = proxy->StartGnssLocating(locatorCallback);
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
-    return ret;
+    if (locatorCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->StartLocating(*requestConfig, locatorCallback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, locationErrCode);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorAgentManager::StopGnssLocating()
@@ -68,9 +77,14 @@ LocationErrCode LocatorAgentManager::StopGnssLocating()
         return ERRCODE_INVALID_PARAM;
     }
     auto locatorCallback = sptr<ILocatorCallback>(locationCallbackHost_);
-    LocationErrCode ret = proxy->StopGnssLocating(locatorCallback);
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
-    return ret;
+    if (locatorCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->StopLocating(locatorCallback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, locationErrCode);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorAgentManager::RegisterGnssStatusCallback(const SvStatusCallbackIfaces& callback)
@@ -86,9 +100,14 @@ LocationErrCode LocatorAgentManager::RegisterGnssStatusCallback(const SvStatusCa
     }
     gnssCallbackHost_->SetCallback(callback);
     auto gnssCallback = sptr<IGnssStatusCallback>(gnssCallbackHost_);
-    LocationErrCode ret = proxy->RegisterGnssStatusCallback(gnssCallback);
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
-    return ret;
+    if (gnssCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->RegisterGnssStatusCallback(gnssCallback->AsObject());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, locationErrCode);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorAgentManager::UnregisterGnssStatusCallback()
@@ -99,9 +118,14 @@ LocationErrCode LocatorAgentManager::UnregisterGnssStatusCallback()
         return ERRCODE_INVALID_PARAM;
     }
     auto gnssCallback = sptr<IGnssStatusCallback>(gnssCallbackHost_);
-    LocationErrCode ret = proxy->UnregisterGnssStatusCallback(gnssCallback);
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
-    return ret;
+    if (gnssCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->UnregisterGnssStatusCallback(gnssCallback->AsObject());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, locationErrCode);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorAgentManager::RegisterNmeaMessageCallback(const GnssNmeaCallbackIfaces& callback)
@@ -117,9 +141,14 @@ LocationErrCode LocatorAgentManager::RegisterNmeaMessageCallback(const GnssNmeaC
     }
     nmeaCallbackHost_->SetCallback(callback);
     auto nmeaCallback = sptr<INmeaMessageCallback>(nmeaCallbackHost_);
-    LocationErrCode ret = proxy->RegisterNmeaMessageCallback(nmeaCallback);
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
-    return ret;
+    if (nmeaCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->RegisterNmeaMessageCallback(nmeaCallback->AsObject());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, locationErrCode);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorAgentManager::UnregisterNmeaMessageCallback()
@@ -130,12 +159,17 @@ LocationErrCode LocatorAgentManager::UnregisterNmeaMessageCallback()
         return ERRCODE_INVALID_PARAM;
     }
     auto nmeaCallback = sptr<INmeaMessageCallback>(nmeaCallbackHost_);
-    LocationErrCode ret = proxy->UnregisterNmeaMessageCallback(nmeaCallback);
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, ret);
-    return ret;
+    if (nmeaCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->UnregisterNmeaMessageCallback(nmeaCallback->AsObject());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s ret = %{public}d", __func__, locationErrCode);
+    return locationErrCode;
 }
 
-sptr<LocatorAgent> LocatorAgentManager::GetLocatorAgent()
+sptr<ILocatorService> LocatorAgentManager::GetLocatorAgent()
 {
     std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
     lock.lock();
@@ -163,19 +197,23 @@ bool LocatorAgentManager::TryLoadLocatorSystemAbility()
     return true;
 }
 
-sptr<LocatorAgent> LocatorAgentManager::InitLocatorAgent(sptr<IRemoteObject>& saObject)
+sptr<ILocatorService> LocatorAgentManager::InitLocatorAgent(sptr<IRemoteObject>& saObject)
 {
     if (saObject == nullptr) {
         return nullptr;
     }
     std::unique_lock<std::mutex> lock(mutex_);
+    client_ = iface_cast<ILocatorService>(saObject);
+    if (!client_ || !client_->AsObject()) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get locator service failed.", __func__);
+        return nullptr;
+    }
     recipient_ = sptr<LocatorAgentDeathRecipient>(new (std::nothrow) LocatorAgentDeathRecipient(*this));
     if ((saObject->IsProxyObject()) && (!saObject->AddDeathRecipient(recipient_))) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: deathRecipient add failed.", __func__);
         return nullptr;
     }
     LBSLOGI(LOCATOR_STANDARD, "%{public}s: client reset success.", __func__);
-    client_ = sptr<LocatorAgent>(new (std::nothrow) LocatorAgent(saObject));
     return client_;
 }
 
@@ -216,118 +254,6 @@ void LocatorAgentManager::ResetLocatorAgent(const wptr<IRemoteObject> &remote)
         remote.promote()->RemoveDeathRecipient(recipient_);
     }
     client_ = nullptr;
-}
-
-LocatorAgent::LocatorAgent(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<ILocator>(impl)
-{
-}
-
-LocationErrCode LocatorAgent::StartGnssLocating(sptr<ILocatorCallback>& callback)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
-    auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
-    requestConfig->SetScenario(SCENE_UNSET);
-    requestConfig->SetFixNumber(0);
-
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(GetDescriptor());
-    requestConfig->Marshalling(data);
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    return SendRequestToStub(static_cast<int>(LocatorInterfaceCode::START_LOCATING),
-        data, reply);
-}
-
-LocationErrCode LocatorAgent::StopGnssLocating(sptr<ILocatorCallback>& callback)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(GetDescriptor());
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    return SendRequestToStub(static_cast<int>(LocatorInterfaceCode::STOP_LOCATING),
-        data, reply);
-}
-
-LocationErrCode LocatorAgent::RegisterNmeaMessageCallback(const sptr<INmeaMessageCallback>& callback)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(GetDescriptor());
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    return SendRequestToStub(static_cast<int>(LocatorInterfaceCode::REG_NMEA_CALLBACK_V9),
-        data, reply);
-}
-
-LocationErrCode LocatorAgent::UnregisterNmeaMessageCallback(const sptr<INmeaMessageCallback>& callback)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(GetDescriptor());
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    return SendRequestToStub(static_cast<int>(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9),
-        data, reply);
-}
-
-LocationErrCode LocatorAgent::RegisterGnssStatusCallback(const sptr<IGnssStatusCallback>& callback)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(GetDescriptor());
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    return SendRequestToStub(static_cast<int>(LocatorInterfaceCode::REG_GNSS_STATUS_CALLBACK),
-        data, reply);
-}
-
-LocationErrCode LocatorAgent::UnregisterGnssStatusCallback(const sptr<IGnssStatusCallback>& callback)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(GetDescriptor());
-    data.WriteObject<IRemoteObject>(callback->AsObject());
-    return SendRequestToStub(static_cast<int>(LocatorInterfaceCode::UNREG_GNSS_STATUS_CALLBACK),
-        data, reply);
-}
-
-LocationErrCode LocatorAgent::SendRequestToStub(const int msgId, MessageParcel& data, MessageParcel& reply)
-{
-    MessageOption option;
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s remote is null", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    int error = remote->SendRequest(msgId, data, reply, option);
-    if (error != NO_ERROR) {
-        LBSLOGE(LOCATOR_STANDARD,
-            "msgid = %{public}d, SendRequestToStub error: %{public}d", msgId, error);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    return LocationErrCode(reply.ReadInt32());
 }
 }
 }

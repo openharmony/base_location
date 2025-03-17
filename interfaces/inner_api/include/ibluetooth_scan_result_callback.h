@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,17 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef I_LOCATOR_H
-#define I_LOCATOR_H
+#ifndef IBLUETOOTH_SCAN_RESULT_CALLBACK_H
+#define IBLUETOOTH_SCAN_RESULT_CALLBACK_H
 
 #include "iremote_broker.h"
 
+#include "bluetooth_scan_result.h"
+
 namespace OHOS {
 namespace Location {
-class ILocator : public IRemoteBroker {
+class IBluetoothScanResultCallback : public IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocator");
+enum {
+        RECEIVE_INFO_EVENT = 1,
+    };
+    DECLARE_INTERFACE_DESCRIPTOR(u"location.IBluetoothScanResultCallback");
+    virtual void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // I_LOCATOR_H
+#endif // IBLUETOOTH_SCAN_RESULT_CALLBACK_H

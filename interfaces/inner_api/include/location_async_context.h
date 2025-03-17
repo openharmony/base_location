@@ -26,7 +26,7 @@
 #include "constant_definition.h"
 #include "country_code.h"
 #include "geo_address.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "locating_required_data.h"
 #include "locating_required_data_callback_napi.h"
 #include "locating_required_data_config.h"
@@ -36,6 +36,7 @@
 #include "request_config.h"
 #include "satellite_status.h"
 #include "location_gnss_geofence_callback_napi.h"
+#include "bluetooth_scan_result.h"
 
 namespace OHOS {
 namespace Location {
@@ -280,6 +281,18 @@ public:
     LocationErrorAsyncContext() = delete;
 
     ~LocationErrorAsyncContext() override {}
+};
+
+class BluetoothScanResultAsyncContext : public AsyncContext {
+public:
+    std::unique_ptr<BluetoothScanResult> bluetoothScanResult;
+
+    explicit BluetoothScanResultAsyncContext(napi_env env, napi_async_work work = nullptr,
+        napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), bluetoothScanResult(nullptr) {}
+
+    BluetoothScanResultAsyncContext() = delete;
+
+    ~BluetoothScanResultAsyncContext() override {}
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -32,7 +32,7 @@ class ReportManager {
 public:
     ReportManager();
     ~ReportManager();
-    bool ReportRemoteCallback(sptr<ILocatorCallback>& locatorCallback, int type, int result);
+    bool ReportRemoteCallback(const sptr<ILocatorCallback>& locatorCallback, int type, int result);
     bool OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     bool ResultCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     void UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName);
@@ -54,6 +54,7 @@ private:
     std::map<int, std::shared_ptr<Location>> lastLocationsMap_;
     Location cacheGnssLocation_;
     Location cacheNlpLocation_;
+    Location cacheIndoorLocation_;
     std::mutex lastLocationMutex_;
     std::atomic<int64_t> lastResetRecordTime_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location,

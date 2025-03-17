@@ -43,8 +43,33 @@ static std::random_device g_randomDevice;
 static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
+const int32_t MAX_INT_LENGTH = 9;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 const int DEFAULT_USERID = 100;
+const std::map<ErrCode, LocationErrCode> locationErrCodeMap = {
+    {ERR_OK, OHOS::Location::ERRCODE_SUCCESS},
+    {IPC_ERRCODE_PERMISSION_DENIED, OHOS::Location::ERRCODE_PERMISSION_DENIED},
+    {IPC_ERRCODE_SYSTEM_PERMISSION_DENIED, OHOS::Location::ERRCODE_SYSTEM_PERMISSION_DENIED},
+    {IPC_ERRCODE_EDM_POLICY_ABANDON, OHOS::Location::ERRCODE_EDM_POLICY_ABANDON},
+    {IPC_ERRCODE_INVALID_PARAM, OHOS::Location::ERRCODE_INVALID_PARAM},
+    {IPC_ERRCODE_NOT_SUPPORTED, OHOS::Location::ERRCODE_NOT_SUPPORTED},
+    {ERRCODE_SERVICE_UNAVAILABLE, OHOS::Location::ERRCODE_SERVICE_UNAVAILABLE},
+    {ERRCODE_SWITCH_OFF, OHOS::Location::ERRCODE_SWITCH_OFF},
+    {ERRCODE_LOCATING_FAIL, OHOS::Location::ERRCODE_LOCATING_FAIL},
+    {ERRCODE_LOCATING_NETWORK_FAIL, OHOS::Location::ERRCODE_LOCATING_NETWORK_FAIL},
+    {ERRCODE_LOCATING_ACC_FAIL, OHOS::Location::ERRCODE_LOCATING_ACC_FAIL},
+    {ERRCODE_LOCATING_CACHE_FAIL, OHOS::Location::ERRCODE_LOCATING_CACHE_FAIL},
+    {ERRCODE_REVERSE_GEOCODING_FAIL, OHOS::Location::ERRCODE_REVERSE_GEOCODING_FAIL},
+    {ERRCODE_GEOCODING_FAIL, OHOS::Location::ERRCODE_GEOCODING_FAIL},
+    {ERRCODE_COUNTRYCODE_FAIL, OHOS::Location::ERRCODE_COUNTRYCODE_FAIL},
+    {ERRCODE_GEOFENCE_FAIL, OHOS::Location::ERRCODE_GEOFENCE_FAIL},
+    {ERRCODE_NO_RESPONSE, OHOS::Location::ERRCODE_NO_RESPONSE},
+    {ERRCODE_SCAN_FAIL, OHOS::Location::ERRCODE_SCAN_FAIL},
+    {ERRCODE_WIFI_IS_NOT_CONNECTED, OHOS::Location::ERRCODE_WIFI_IS_NOT_CONNECTED},
+    {ERRCODE_GEOFENCE_EXCEED_MAXIMUM, OHOS::Location::ERRCODE_GEOFENCE_EXCEED_MAXIMUM},
+    {ERRCODE_GEOFENCE_INCORRECT_ID, OHOS::Location::ERRCODE_GEOFENCE_INCORRECT_ID}
+};
+
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {
     if (GNSS_ABILITY.compare(ability) == 0) {
@@ -357,6 +382,30 @@ uint8_t CommonUtils::ConvertStringToDigit(std::string str)
     return res;
 }
 
+bool CommonUtils::isValidInteger(const std::string& str)
+{
+    if (str.empty()) {
+        return false;
+    }
+    if (str.length() > MAX_INT_LENGTH) {
+        return false;
+    }
+    size_t digitStartIndex = 0;
+    if (str[0] == '-') {
+        if (str.length() == 1) {
+            return false;
+        }
+        digitStartIndex = 1;
+    }
+
+    for (size_t i = digitStartIndex; i < str.length(); i++) {
+        if (!std::isdigit(str[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 errno_t CommonUtils::GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN])
 {
     std::vector<std::string> strVec = Split(strMac, ":");
@@ -472,5 +521,14 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
     return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
 }
 
+LocationErrCode CommonUtils::ErrCodeToLocationErrCode(ErrCode errorCode)
+{
+    auto it = locationErrCodeMap.find(errorCode);
+    if (it != locationErrCodeMap.end()) {
+        return it->second;
+    }
+    LBSLOGE(COMMON_UTILS, "Invalid error code.");
+    return ERRCODE_SERVICE_UNAVAILABLE;
+}
 } // namespace Location
 } // namespace OHOS

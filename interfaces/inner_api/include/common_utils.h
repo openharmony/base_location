@@ -174,6 +174,7 @@ public:
     static int64_t GetCurrentTime();
     static int64_t GetCurrentTimeStamp();
     static std::vector<std::string> Split(std::string str, std::string pattern);
+    static bool isValidInteger(const std::string& str);
     static errno_t GetMacArray(const std::string& strMac, uint8_t mac[MAC_LEN]);
     static unsigned char ConvertStringToDigit(std::string str);
     static bool GetStringParameter(const std::string& type, std::string& value);
@@ -185,6 +186,7 @@ public:
     static bool GetAllUserId(std::vector<int>& activeIds);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);
+    static LocationErrCode ErrCodeToLocationErrCode(ErrCode errorCode);
 };
 
 class CountDownLatch {

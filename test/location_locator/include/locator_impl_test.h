@@ -27,7 +27,7 @@
 #undef private
 
 #ifdef FEATURE_GEOCODE_SUPPORT
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #endif
 namespace OHOS {
 namespace Location {

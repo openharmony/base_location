@@ -27,7 +27,7 @@
 #include "location_async_context.h"
 #include "async_context.h"
 #include "constant_definition.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "geo_address.h"
 #include "locating_required_data.h"
 #include "locating_required_data_config.h"
@@ -35,11 +35,14 @@
 #include "location_log.h"
 #include "request_config.h"
 #include "satellite_status.h"
+#include "bluetooth_scan_result.h"
 
 namespace OHOS {
 namespace Location {
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
+void BluetoohScanResultToJs(const napi_env& env, const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult,
+    napi_value& result);
 void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Location>>& locations, napi_value& result);
 void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result);
 void SystemLocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
@@ -67,6 +70,8 @@ napi_status SetValueInt32(const napi_env& env, const char* fieldStr, const int i
 napi_status SetValueInt64(const napi_env& env, const char* fieldStr, const int64_t intValue, napi_value& result);
 napi_status SetValueDouble(const napi_env& env, const char* fieldStr, const double doubleValue, napi_value& result);
 napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool boolvalue, napi_value& result);
+napi_status SetValueArrayBuffer(
+    const napi_env& env, const char* fieldStr, const std::vector<uint8_t> vectorValue, napi_value& result);
 napi_value DoAsyncWork(const napi_env& env, AsyncContext* asyncContext,
     const size_t argc, const napi_value* argv, const size_t objectArgsNum);
 bool JsObjToRevGeocodeMock(const napi_env& env, const napi_value& object,

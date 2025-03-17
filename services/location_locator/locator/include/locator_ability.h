@@ -26,11 +26,12 @@
 
 #include "app_identity.h"
 #include "common_utils.h"
-#include "geo_coding_mock_info.h"
+#include "geocoding_mock_info.h"
 #include "i_switch_callback.h"
 #include "i_cached_locations_callback.h"
+#include "ibluetooth_scan_result_callback.h"
 #include "locator_event_subscriber.h"
-#include "locator_skeleton.h"
+#include "locator_service_stub.h"
 #include "permission_status_change_cb.h"
 #include "request.h"
 #include "request_manager.h"
@@ -41,9 +42,17 @@
 #ifdef MOVEMENT_CLIENT_ENABLE
 #include "locator_msdp_monitor_manager.h"
 #endif
+#include "idata_types.h"
 
 namespace OHOS {
 namespace Location {
+class ScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    ScanCallbackDeathRecipient();
+    ~ScanCallbackDeathRecipient() override;
+};
+
 class LocatorHandler : public AppExecFwk::EventHandler {
 public:
     using LocatorEventHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
@@ -53,6 +62,7 @@ public:
     void InitLocatorHandlerEventMap();
     void ConstructDbHandleMap();
     void ConstructGeocodeHandleMap();
+    void ConstructBluetoohScanHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -66,6 +76,8 @@ private:
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event);
+    void StartScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -94,7 +106,7 @@ typedef struct {
     int64_t timeSinceBoot;
 } AppSwitchIgnoredState;
 
-class LocatorAbility : public SystemAbility, public LocatorAbilityStub {
+class LocatorAbility : public SystemAbility, public LocatorServiceStub {
 DECLEAR_SYSTEM_ABILITY(LocatorAbility);
 
 public:
@@ -106,84 +118,73 @@ public:
     void OnStop() override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-    bool CancelIdleState(uint32_t code) override;
-    void RemoveUnloadTask(uint32_t code) override;
-    void PostUnloadTask(uint32_t code) override;
     ServiceRunningState QueryServiceState() const
     {
         return state_;
     }
     void InitSaAbility();
     void InitRequestManagerMap();
-
+    int32_t CallbackEnter(uint32_t code) override;
+    int32_t CallbackExit(uint32_t code, int32_t result) override;
     LocationErrCode UpdateSaAbility();
-    LocationErrCode GetSwitchState(int& state);
-    LocationErrCode EnableAbility(bool isEnabled);
-    LocationErrCode EnableAbilityForUser(bool isEnabled, int32_t userId);
+    ErrCode GetSwitchState(int32_t& state) override;
+    ErrCode EnableAbility(bool isEnabled) override;
+    ErrCode EnableAbilityForUser(bool isEnabled, int32_t userId) override;
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
-#ifdef FEATURE_GNSS_SUPPORT
-    LocationErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity);
-    LocationErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback);
-    LocationErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callback, AppIdentity &identity);
-    LocationErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback);
-    LocationErrCode RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
-        sptr<ICachedLocationsCallback>& callback, std::string bundleName);
-    LocationErrCode UnregisterCachedLocationCallback(sptr<ICachedLocationsCallback>& callback);
-    LocationErrCode GetCachedGnssLocationsSize(int& size);
-    LocationErrCode FlushCachedGnssLocations();
-    LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands);
-    LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-    LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
-#endif
-    LocationErrCode StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
-        sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    LocationErrCode StopLocating(sptr<ILocatorCallback>& callback);
-    LocationErrCode GetCacheLocation(std::unique_ptr<Location>& loc, AppIdentity &identity);
-#ifdef FEATURE_GEOCODE_SUPPORT
-    LocationErrCode IsGeoConvertAvailable(bool &isAvailable);
-    void GetAddressByCoordinate(MessageParcel &data, MessageParcel &reply, std::string bundleName);
-    void GetAddressByLocationName(MessageParcel &data, MessageParcel &reply, std::string bundleName);
-    LocationErrCode EnableReverseGeocodingMock();
-    LocationErrCode DisableReverseGeocodingMock();
-    LocationErrCode SetReverseGeocodingMockInfo(std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
-#endif
-    LocationErrCode IsLocationPrivacyConfirmed(const int type, bool& isConfirmed);
-    LocationErrCode SetLocationPrivacyConfirmStatus(const int type, bool isConfirmed);
-    LocationErrCode EnableLocationMock();
-    LocationErrCode DisableLocationMock();
-    LocationErrCode SetMockedLocations(
-        const int timeInterval, const std::vector<std::shared_ptr<Location>> &location);
-    LocationErrCode ReportLocation(
-        const std::unique_ptr<Location>& location, std::string abilityName, AppIdentity &identity);
-    LocationErrCode ReportLocationStatus(sptr<ILocatorCallback>& callback, int result);
-    LocationErrCode ReportErrorStatus(sptr<ILocatorCallback>& callback, int result);
+    ErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& cb) override;
+    ErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& cb) override;
+    ErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& cb) override;
+    ErrCode UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& cb) override;
+    ErrCode RegisterCachedLocationCallback(int32_t reportingPeriodSec, bool wakeUpCacheQueueFull,
+        const sptr<ICachedLocationsCallback>& cb, const std::string& bundleName) override;
+    ErrCode UnregisterCachedLocationCallback(const sptr<ICachedLocationsCallback>& cb) override;
+    ErrCode GetCachedGnssLocationsSize(int32_t& size) override;
+    ErrCode FlushCachedGnssLocations() override;
+    ErrCode SendCommand(int32_t scenario, const std::string& command) override;
+    ErrCode AddFence(const GeofenceRequest& request) override;
+    ErrCode RemoveFence(const GeofenceRequest& request) override;
+    ErrCode AddGnssGeofence(const GeofenceRequest& request) override;
+    ErrCode RemoveGnssGeofence(int32_t fenceId) override;
+    ErrCode StartLocating(const RequestConfig& requestConfig, const sptr<ILocatorCallback>& cb) override;
+    ErrCode StopLocating(const sptr<ILocatorCallback>& cb) override;
+    ErrCode GetCacheLocation(Location& location) override;
+    ErrCode IsGeoConvertAvailable(bool& isAvailable) override;
+    ErrCode GetAddressByCoordinate(const sptr<IRemoteObject>& cb,
+        const GeocodeConvertLocationRequest& request) override;
+    ErrCode GetAddressByLocationName(const sptr<IRemoteObject>& cb,
+        const GeocodeConvertAddressRequest& request) override;
+    ErrCode EnableReverseGeocodingMock() override;
+    ErrCode DisableReverseGeocodingMock() override;
+    ErrCode SetReverseGeocodingMockInfo(const std::vector<GeocodingMockInfo>& geocodingMockInfo) override;
+    ErrCode IsLocationPrivacyConfirmed(int32_t type, bool& state) override;
+    ErrCode SetLocationPrivacyConfirmStatus(int32_t type, bool isConfirmed) override;
+    ErrCode EnableLocationMock() override;
+    ErrCode DisableLocationMock() override;
+    ErrCode SetMockedLocations(int32_t timeInterval, const std::vector<Location>& locations) override;
+    ErrCode ReportLocation(const std::string& abilityName, const Location& location) override;
+    ErrCode ReportLocationStatus(const sptr<ILocatorCallback>& callback, int result);
+    ErrCode ReportErrorStatus(const sptr<ILocatorCallback>& callback, int result);
     LocationErrCode ProcessLocationMockMsg(
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-#ifdef FEATURE_GNSS_SUPPORT
     LocationErrCode SendLocationMockMsgToGnssSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-#endif
-#ifdef FEATURE_NETWORK_SUPPORT
     LocationErrCode SendLocationMockMsgToNetworkSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-#endif
-#ifdef FEATURE_PASSIVE_SUPPORT
     LocationErrCode SendLocationMockMsgToPassiveSa(const sptr<IRemoteObject> obj,
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location, int msgId);
-#endif
     LocationErrCode RegisterWifiScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterWifiScanInfoCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterBluetoothScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterBluetoothScanInfoCallback(const sptr<IRemoteObject>& callback);
     LocationErrCode RegisterBleScanInfoCallback(const sptr<IRemoteObject>& callback, pid_t uid);
     LocationErrCode UnregisterBleScanInfoCallback(const sptr<IRemoteObject>& callback);
-    LocationErrCode RegisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    LocationErrCode UnregisterLocationError(sptr<ILocatorCallback>& callback, AppIdentity &identity);
-    void ReportLocationError(std::string uuid, int32_t errCode, int32_t netErrCode);
-    LocationErrCode SetLocationSwitchIgnored(bool isEnabled, AppIdentity &identity);
+    ErrCode SubscribeBluetoothScanResultChange(const sptr<IBluetoothScanResultCallback>& cb) override;
+    ErrCode UnSubscribeBluetoothScanResultChange(const sptr<IBluetoothScanResultCallback>& cb) override;
+    LocationErrCode RegisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity);
+    LocationErrCode UnregisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity);
+    ErrCode ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid) override;
+    ErrCode SetLocationSwitchIgnored(bool isEnabled) override;
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
@@ -192,8 +193,8 @@ public:
     void ApplyRequests(int delay);
     void RegisterAction();
     void RegisterLocationPrivacyAction();
-    LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
-    LocationErrCode ResetAllProxy();
+    ErrCode ProxyForFreeze(const std::vector<int32_t>& pidList, bool isProxy) override;
+    ErrCode ResetAllProxy() override;
     bool IsProxyPid(int32_t pid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
@@ -203,20 +204,24 @@ public:
     LocationErrCode RemoveInvalidRequests();
     bool IsInvalidRequest(std::shared_ptr<Request>& request);
     bool IsProcessRunning(pid_t pid, const uint32_t tokenId);
-#ifdef FEATURE_GNSS_SUPPORT
-    LocationErrCode QuerySupportCoordinateSystemType(
-        std::vector<CoordinateSystemType>& coordinateSystemTypes);
+    ErrCode QuerySupportCoordinateSystemType(std::vector<CoordinateType>& coordinateTypes) override;
     LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location);
-#endif
     void SyncStillMovementState(bool stillState);
     void SyncIdleState(bool stillState);
-#ifdef FEATURE_GEOCODE_SUPPORT
     LocationErrCode SendGeoRequest(int type, MessageParcel &data, MessageParcel &reply);
-#endif
     void ReportDataToResSched(std::string state);
     bool IsHapCaller(const uint32_t tokenId);
-    void HandleStartLocating(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
+    void HandleStartLocating(const std::shared_ptr<Request>& request, const sptr<ILocatorCallback>& callback);
     bool GetLocationSwitchIgnoredFlag(uint32_t tokenId);
+    bool CancelIdleState(uint32_t code);
+    void RemoveUnloadTask(uint32_t code);
+    void PostUnloadTask(uint32_t code);
+    ErrCode RegisterLocatingRequiredDataCallback(const LocatingRequiredDataConfig& dataConfig,
+        const sptr<ILocatingRequiredDataCallback>& cb) override;
+    ErrCode UnRegisterLocatingRequiredDataCallback(const sptr<ILocatingRequiredDataCallback>& cb) override;
+    ErrCode SubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
+    ErrCode UnSubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
+    ErrCode GetCurrentWifiBssidForLocating(std::string& bssid) override;
 
 private:
     bool Init();
@@ -227,16 +232,25 @@ private:
     void UpdateProxyMap();
     bool CheckIfLocatorConnecting();
     void UpdateLoadedSaMap();
-    bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback);
-    bool ReportSingleCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+    bool NeedReportCacheLocation(const std::shared_ptr<Request>& request, const sptr<ILocatorCallback>& callback);
+    bool ReportSingleCacheLocation(const std::shared_ptr<Request>& request, const sptr<ILocatorCallback>& callback,
         std::unique_ptr<Location>& cacheLocation);
-    bool ReportCacheLocation(const std::shared_ptr<Request>& request, sptr<ILocatorCallback>& callback,
+    bool ReportCacheLocation(const std::shared_ptr<Request>& request, const sptr<ILocatorCallback>& callback,
         std::unique_ptr<Location>& cacheLocation);
     bool IsCacheVaildScenario(const sptr<RequestConfig>& requestConfig);
     bool IsSingleRequest(const sptr<RequestConfig>& requestConfig);
     void SendSwitchState(const int state);
     bool SetLocationhubStateToSyspara(int value);
     void SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable);
+    void GetAppIdentityInfo(AppIdentity& identity);
+    LocationErrCode SetSwitchState(bool isEnabled);
+    LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId);
+    bool CheckLocationSwitchState();
+    bool CheckLocationPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid);
+    bool CheckPreciseLocationPermissions(uint32_t callingTokenId, uint32_t callingFirstTokenid);
+    ErrCode StartLocatingProcess(const RequestConfig& requestConfig, const sptr<ILocatorCallback>& cb,
+        AppIdentity& identity);
+    bool CheckRequestAvailable(uint32_t code, AppIdentity &identity);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
@@ -265,6 +279,7 @@ private:
     std::map<uint32_t, AppSwitchIgnoredState> locationSettingsIgnoredFlagMap_;
     std::mutex LocationSwitchIgnoredFlagMutex_;
     std::mutex testMutex_;
+    sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();
 };
 
 class LocationMessage {
@@ -288,6 +303,17 @@ private:
     std::string abilityName_;
     AppIdentity appIdentity_;
     sptr<ILocatorCallback> callback_;
+};
+
+class BluetoothScanResultCallbackMessage {
+public:
+    void SetCallback(const sptr<IBluetoothScanResultCallback>& callback);
+    sptr<IBluetoothScanResultCallback> GetCallback();
+    void SetAppIdentity(AppIdentity& appIdentity);
+    AppIdentity GetAppIdentity();
+private:
+    sptr<IBluetoothScanResultCallback> callback_;
+    AppIdentity appIdentity_;
 };
 
 class LocatorErrorMessage {
@@ -322,6 +348,13 @@ public:
     ~LocatorCallbackDeathRecipient() override;
 private:
     int32_t tokenId_;
+};
+
+class SwitchCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    SwitchCallbackDeathRecipient();
+    ~SwitchCallbackDeathRecipient() override;
 };
 } // namespace Location
 } // namespace OHOS

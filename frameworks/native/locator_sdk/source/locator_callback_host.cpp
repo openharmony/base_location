@@ -29,7 +29,7 @@ int LocatorCallbackHost::OnRemoteRequest(uint32_t code,
 
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
-            std::unique_ptr<Location> location = Location::Unmarshalling(data);
+            std::unique_ptr<Location> location = Location::UnmarshallingMakeUnique(data);
             OnLocationReport(location);
             break;
         }

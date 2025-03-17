@@ -137,6 +137,16 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt32(env, "sourceType", locationInfo->GetLocationSourceType(), result);
 }
 
+void BluetoohScanResultToJs(const napi_env& env, const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult,
+    napi_value& result)
+{
+    SetValueUtf8String(env, "deviceId", bluetoothScanResult->GetDeviceId().c_str(), result);
+    SetValueUtf8String(env, "deviceName", bluetoothScanResult->GetDeviceName().c_str(), result);
+    SetValueInt64(env, "rssi", bluetoothScanResult->GetRssi(), result);
+    SetValueBool(env, "connectable", bluetoothScanResult->GetConnectable(), result);
+    SetValueArrayBuffer(env, "data", bluetoothScanResult->GetData(), result);
+}
+
 napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& additionsMap)
 {
     napi_value global = nullptr;
@@ -792,6 +802,18 @@ napi_status SetValueBool(const napi_env& env, const char* fieldStr, const bool b
     napi_value value = nullptr;
     NAPI_CALL_BASE(env, napi_get_boolean(env, boolvalue, &value), napi_generic_failure);
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
+}
+
+napi_status SetValueArrayBuffer(const napi_env& env, const char* fieldStr, const std::vector<uint8_t> vectorValue,
+    napi_value& result)
+{
+    size_t bufferSize = vectorValue.size();
+    uint8_t *nativeArraybuffer = nullptr;
+    napi_value nativeValue = nullptr;
+    napi_create_arraybuffer(env, bufferSize, reinterpret_cast<void **>(&nativeArraybuffer), &nativeValue);
+    memcpy_s(nativeArraybuffer, bufferSize, vectorValue.data(), bufferSize);
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, nativeValue), napi_generic_failure);
     return napi_ok;
 }
 

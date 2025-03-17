@@ -39,7 +39,7 @@ Request::Request()
 }
 
 Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
-    sptr<ILocatorCallback>& callback, AppIdentity &identity)
+    const sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     pid_ = -1;
     uid_ = -1;

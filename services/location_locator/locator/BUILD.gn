@@ -16,6 +16,7 @@ import("//build/ohos.gni")
 
 local_base_sources = [
   "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_request.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/bluetooh_scan_result_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/country_code_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
@@ -34,7 +35,6 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/locator/source/locator_event_subscriber.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/locator_msdp_monitor_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/locator_required_data_manager.cpp",
-  "$SUBSYSTEM_DIR/location_locator/locator/source/locator_skeleton.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
@@ -69,6 +69,8 @@ ohos_shared_library("lbsservice_locator") {
     "$LOCATION_COMMON_DIR:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_proxy",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_stub",
   ]
 
   external_deps = [
@@ -199,6 +201,8 @@ ohos_static_library("lbsservice_locator_static") {
     "$LOCATION_COMMON_DIR:lbsservice_common",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_proxy",
+    "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_stub",
   ]
 
   external_deps = [

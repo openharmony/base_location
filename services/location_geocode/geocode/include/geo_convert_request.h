@@ -68,7 +68,8 @@ public:
     void SetRequestType(GeoCodeType requestType);
     bool Marshalling(MessageParcel& parcel) const;
     static std::unique_ptr<GeoConvertRequest> Unmarshalling(MessageParcel& parcel, GeoCodeType requestType);
-    static void OrderParcel(MessageParcel& in, MessageParcel& out, GeoCodeType requestType, std::string bundleName);
+    static void OrderParcel(MessageParcel& in, MessageParcel& out,
+        const sptr<IRemoteObject>& cb, GeoCodeType requestType, std::string bundleName);
     void ReadFromParcel(MessageParcel& parcel);
 private:
     std::string locale_;
