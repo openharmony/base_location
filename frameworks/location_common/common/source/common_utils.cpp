@@ -17,6 +17,7 @@
 #include <random>
 #include <sys/time.h>
 #include <sstream>
+#include <chrono>
 
 #include "common_utils.h"
 #include "bundle_mgr_client.h"
@@ -44,6 +45,7 @@ static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
 const int32_t MAX_INT_LENGTH = 9;
+const size_t MAX_ULL_SIZE = 19;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 const int DEFAULT_USERID = 100;
 const std::map<ErrCode, LocationErrCode> locationErrCodeMap = {
@@ -337,6 +339,14 @@ int64_t CommonUtils::GetCurrentTime()
     return second;
 }
 
+int64_t CommonUtils::GetCurrentTimeMilSec()
+{
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    return milliSeconds;
+}
+
 int64_t CommonUtils::GetCurrentTimeStamp()
 {
     struct timeval currentTime;
@@ -519,6 +529,25 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
         LBSLOGE(COMMON_UTILS, "Fail to GetCurrentUserId.");
     }
     return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
+}
+
+bool CommonUtils::IsValidForStoull(const std::string input, size_t size)
+{
+    if (size > MAX_ULL_SIZE) {
+        return false; // 设定的最大位数大于uint64最大位数
+    }
+    if (input.size() > size) {
+        return false; // 大于设定的最大位数
+    }
+    if (input.empty()) {
+        return false; // 字符串为空
+    }
+    for (char c : input) {
+        if (!std::isdigit(c)) {
+            return false; // 检查是否全为数字
+        }
+    }
+    return true;
 }
 
 LocationErrCode CommonUtils::ErrCodeToLocationErrCode(ErrCode errorCode)

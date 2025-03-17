@@ -39,6 +39,9 @@ static constexpr int CACHED_TIME = 25;
 static constexpr int LONG_CACHE_DURATION = 60;
 static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
 static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
+static constexpr int STILL_POI_EXPIRED_TIME = 30 * 60 * 1000; // Unit ms
+static constexpr int POI_EXPIRED_TIME = 25 * 1000; // Unit ms
+static constexpr int MAX_UTC_TIME_SIZE = 16;
 
 ReportManager* ReportManager::GetInstance()
 {
@@ -58,6 +61,7 @@ ReportManager::~ReportManager() {}
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     auto fusionController = FusionController::GetInstance();
+    UpdatePoiInfo(location);
     UpdateCacheLocation(location, abilityName);
     auto locatorAbility = LocatorAbility::GetInstance();
     auto requestMap = locatorAbility->GetRequests();
@@ -129,6 +133,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             request->SetBestLocation(std::make_unique<Location>(cacheGnssLocation_));
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
+        PoiInfoReportCheck(request, fuseLocation);
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
             return false;
         }
@@ -165,6 +170,113 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     return true;
+}
+
+
+void ReportManager::CachedPoiInfoReportCheck(const std::unique_ptr<Location>& finalLocation)
+{
+    LBSLOGI(REPORT_MANAGER, "Cached PoiInfos Report Check");
+    std::map<std::string, std::string> additionMap = finalLocation->GetAdditionsMap();
+    if (additionMap["poiInfos"] != "") {
+        IsPoiInfoValid(finalLocation);
+        return;
+    }
+    if (!IsLatestPoiInfoValid()) {
+        LBSLOGI(REPORT_MANAGER, "LatestPoiInfo Expired");
+        return;
+    }
+    std::string poiInfos = latestPoiInfoStruct_.latestPoiInfos;
+    std::vector<std::string> addition = finalLocation->GetAdditions();
+    addition.push_back(poiInfos);
+    finalLocation->SetAdditions(addition, false);
+    finalLocation->SetAdditionSize(finalLocation->GetAdditions().size());
+    finalLocation->AdditionsMapInsert("poiInfos", poiInfos);
+}
+
+void ReportManager::PoiInfoReportCheck(const std::shared_ptr<Request>& request,
+    const std::unique_ptr<Location>& finalLocation)
+{
+    LBSLOGI(REPORT_MANAGER, "PoiInfos Report Check");
+    auto config = request->GetRequestConfig();
+    auto scen = config->GetScenario();
+    request->SetNlpRequestType();
+    int curNlpRequestType = request->GetNlpRequestType();
+    if (curNlpRequestType != PRIORITY_TYPE_INDOOR_POI) {
+        return;
+    }
+    std::map<std::string, std::string> additionMap = finalLocation->GetAdditionsMap();
+    if (additionMap["poiInfos"] != "") {
+        IsPoiInfoValid(finalLocation);
+        return;
+    }
+    if (!IsLatestPoiInfoValid()) {
+        LBSLOGI(REPORT_MANAGER, "LatestPoiInfo Expired");
+        return;
+    }
+    std::string poiInfos = latestPoiInfoStruct_.latestPoiInfos;
+    std::vector<std::string> addition = finalLocation->GetAdditions();
+    addition.push_back(poiInfos);
+    finalLocation->SetAdditions(addition, false);
+    finalLocation->SetAdditionSize(finalLocation->GetAdditions().size());
+    finalLocation->AdditionsMapInsert("poiInfos", poiInfos);
+}
+
+bool ReportManager::IsPoiInfoValid(const std::unique_ptr<Location>& finalLocation)
+{
+    uint64_t curTimeStamp = CommonUtils::GetCurrentTimeMilSec();
+    std::string poiInfos = finalLocation->GetAdditionsMap()["poiInfos"];
+    uint64_t poiInfoTime = GetPoiInfoTime(poiInfos);
+    bool isInStillState = false;
+#ifdef MOVEMENT_CLIENT_ENABLE
+    isInStillState = LocatorMsdpMonitorManager::GetInstance()->GetStillMovementState();
+#endif
+    if (isInStillState && curTimeStamp - poiInfoTime >= STILL_POI_EXPIRED_TIME) {
+        LBSLOGI(REPORT_MANAGER, "Clear PoiInfos When Still");
+        ClearPoiInfos(finalLocation);
+        return false;
+    }
+    if (!isInStillState && curTimeStamp - poiInfoTime >= POI_EXPIRED_TIME) {
+        LBSLOGI(REPORT_MANAGER, "Clear PoiInfos When Move");
+        ClearPoiInfos(finalLocation);
+        return false;
+    }
+    return true;
+}
+
+bool ReportManager::IsLatestPoiInfoValid()
+{
+    uint64_t curTimeStamp = CommonUtils::GetCurrentTimeMilSec();
+    bool isInStillState = false;
+#ifdef MOVEMENT_CLIENT_ENABLE
+    isInStillState = LocatorMsdpMonitorManager::GetInstance()->GetStillMovementState();
+#endif
+    if (isInStillState && curTimeStamp - latestPoiInfoStruct_.poiInfosTime >= STILL_POI_EXPIRED_TIME) {
+        latestPoiInfoStruct_ = {0};
+        LBSLOGI(REPORT_MANAGER, "Clear LatestPoiInfoStruct When Still");
+        return false;
+    }
+    if (!isInStillState && curTimeStamp - latestPoiInfoStruct_.poiInfosTime >= POI_EXPIRED_TIME) {
+        latestPoiInfoStruct_ = {0};
+        LBSLOGI(REPORT_MANAGER, "Clear LatestPoiInfoStruct When Move");
+        return false;
+    }
+    return true;
+}
+
+void ReportManager::ClearPoiInfos(const std::unique_ptr<Location>& finalLocation)
+{
+    std::vector<std::string> additions;
+    finalLocation->AdditionsMapInsert("poiInfos", "");
+    for (auto& str : finalLocation->GetAdditions()) {
+        if (str.find("poiInfos") != std::string::npos) {
+            str = "";
+            continue;
+        }
+        additions.push_back(str);
+    }
+    finalLocation->SetAdditions(additions, false);
+    finalLocation->SetAdditionSize(finalLocation->GetAdditions().size());
+    return;
 }
 
 bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
@@ -361,6 +473,33 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     return true;
 }
 
+void ReportManager::UpdatePoiInfo(const std::unique_ptr<Location>& location)
+{
+    std::map<std::string, std::string> additionMap = location->GetAdditionsMap();
+    if (additionMap["poiInfos"] != "") {
+        LBSLOGI(REPORT_MANAGER, "Update PoiInfos");
+        latestPoiInfoStruct_.latestPoiInfos =std::string("\"poiInfos:\"") + additionMap["poiInfos"];
+        latestPoiInfoStruct_.poiInfosTime = GetPoiInfoTime(latestPoiInfoStruct_.latestPoiInfos);
+    }
+}
+
+uint64_t ReportManager::GetPoiInfoTime(const std::string& poiInfos)
+{
+    std::string key = "\"time\":";
+    size_t pos = poiInfos.find(key);
+    if (pos != std::string::npos) {
+        pos += key.length();
+        std::string number;
+        for (; pos < poiInfos.length() && isdigit(poiInfos[pos]); ++pos) {
+            number += poiInfos[pos];
+        }
+        if (CommonUtils::IsValidForStoull(number, MAX_UTC_TIME_SIZE)) {
+            return std::stoull(number);
+        }
+    }
+    return 0;
+}
+
 void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     if (abilityName == GNSS_ABILITY) {
@@ -401,6 +540,7 @@ std::unique_ptr<Location> ReportManager::GetLastLocation()
     if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
         return nullptr;
     }
+    CachedPoiInfoReportCheck(lastLocation);
     return lastLocation;
 }
 
@@ -430,6 +570,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
         return nullptr;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
+    CachedPoiInfoReportCheck(finalLocation);
     return finalLocation;
 }
 

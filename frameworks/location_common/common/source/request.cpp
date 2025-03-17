@@ -240,6 +240,7 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
         case LOCATION_SCENE_HIGH_POWER_CONSUMPTION:
         case LOCATION_SCENE_WALK:
         case LOCATION_SCENE_RIDE:
+        case LOCATION_SCENE_INDOOR_POI:
         case SCENE_NAVIGATION:
         case SCENE_TRAJECTORY_TRACKING:
         case SCENE_CAR_HAILING: {
@@ -348,6 +349,9 @@ void Request::SetNlpRequestType()
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR;
     } else {
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;
+    }
+    if (requestConfig_->GetScenario() == LOCATION_SCENE_INDOOR_POI) {
+        nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR_POI;
     }
 }
 
