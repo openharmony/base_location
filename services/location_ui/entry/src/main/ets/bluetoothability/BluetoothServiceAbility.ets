@@ -16,6 +16,7 @@
 import ShareExtensionAbility from '@ohos.app.ability.ShareExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import Want from '@ohos.app.ability.Want';
+import fs from '@ohos.file.fs';
 
 interface UIExtensionStorage {
     session: UIExtensionContentSession,
@@ -40,7 +41,20 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
             let data = await systemShareModule.getSharedData(want);
             let records = data.getRecords();
             for (let i = 0; i < records.length; i++) {
-                this.uris.push(records[i].uri);
+                let filePath = '';
+                if (records[i].uri === undefined && records[i].content != undefined) {
+                    console.log(`${TAG} share txt content`);
+                    filePath = this.context.filesDir + "/" + i+1 + ".txt";
+                    let file = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+                    let writeLen = fs.writeSync(file.fd, records[i].content);
+                    console.log(`${TAG} write data to file success and size is:` + writeLen);
+                    fs.closeSync(file);
+                } else if (records[i].uri === undefined) {
+                    console.log(`${TAG} records[i].uri is undefined`);
+                } else {
+                    filePath = records[i].uri;
+                }
+                this.uris.push(filePath);
             }
             AppStorage.setOrCreate('sendFileUris', this.uris);
             AppStorage.setOrCreate('sendFileUrisLength', this.uris.length);
