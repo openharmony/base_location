@@ -238,6 +238,11 @@ public:
         return additionsMap_;
     }
 
+    inline void AdditionsMapInsert(std::string key, std::string value)
+    {
+        additionsMap_[key] = value;
+    }
+
     inline int32_t GetFieldValidity() const
     {
         return fieldValidity_;

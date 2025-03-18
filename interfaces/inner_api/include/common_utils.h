@@ -172,6 +172,7 @@ public:
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool CheckAppInstalled(const std::string& bundleName);
     static int64_t GetCurrentTime();
+    static int64_t GetCurrentTimeMilSec();
     static int64_t GetCurrentTimeStamp();
     static std::vector<std::string> Split(std::string str, std::string pattern);
     static bool isValidInteger(const std::string& str);
@@ -187,6 +188,7 @@ public:
     static bool IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);
     static LocationErrCode ErrCodeToLocationErrCode(ErrCode errorCode);
+    static bool IsValidForStoull(const std::string input, size_t size);
 };
 
 class CountDownLatch {
