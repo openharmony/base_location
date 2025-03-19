@@ -58,14 +58,12 @@ SelfRequestManager::~SelfRequestManager()
 
 void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Request>& request)
 {
-    if (isLocating_ || !(LocationDataRdbManager::QuerySwitchState() == ENABLED)) {
+    if (isLocating_ || !(LocationDataRdbManager::QuerySwitchState() == ENABLED)
+        || request_ == nullptr || request == nullptr || request->GetRequestConfig() == nullptr) {
         LBSLOGD(LOCATOR, "cancel locating");
         return;
     }
     isLocating_ = true;
-    if (request_ == nullptr) {
-        return;
-    }
     request_->SetUid(request->GetUid());
     request_->SetPid(request->GetPid());
     request_->SetPackageName(request->GetPackageName());
