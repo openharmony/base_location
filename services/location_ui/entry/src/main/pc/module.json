@@ -1,0 +1,74 @@
+{
+    "module": {
+      "name": "entry",
+      "type": "entry",
+      "srcEntrance": "",
+      "description": "$string:module_desc",
+      "mainElement": "EntryAbility",
+      "deviceTypes": [
+        "phone",
+        "tablet",
+        "2in1",
+        "wearable"
+      ],
+      "deliveryWithInstall": true,
+      "installationFree": false,
+      "pages": "$profile:main_pages",
+      "abilities": [],
+      "extensionAbilities": [
+        {
+          "name": "ConfirmUIExtAbility",
+          "srcEntry": "./ets/confirmuiextability/ConfirmUIExtAbility.ets",
+          "description": "$string:ConfirmUIExtAbility_desc",
+          "label": "$string:ConfirmUIExtAbility_label",
+          "exported": false,
+          "type": "sysDialog/common"
+        },
+        {
+          "name": "LocationPrivacyExtAbility",
+          "srcEntry": "./ets/locationprivacyextability/LocationPrivacyExtAbility.ets",
+          "description": "$string:LocationPrivacyExtAbility_desc",
+          "label": "$string:LocationPrivacyExtAbility_label",
+          "exported": false,
+          "type": "sysDialog/common"
+        },
+        {
+          "name": "WifiUIExtAbility",
+          "srcEntry": "./ets/wifiability/WifiUIExtAbility.ets",
+          "description": "WifiUIExtAbility",
+          "label": "WifiUIExtAbility",
+          "exported": false,
+          "type": "sysDialog/common"
+        },
+        {
+          "name": "WifiServiceAbility",
+          "srcEntry": "./ets/serviceability/WifiServiceAbility.ets",
+          "description": "service",
+          "icon": "$media:app_icon",
+          "type": "service",
+          "visible": false,
+          "exported": false
+        },
+        {
+          "name": "HotSpotServiceAbility",
+          "srcEntry": "./ets/serviceability/HotSpotServiceAbility.ets",
+          "description": "service",
+          "icon": "$media:app_icon",
+          "type": "service",
+          "visible": false,
+          "exported": false
+        }
+      ],
+      "requestPermissions": [
+        {
+          "name": "ohos.permission.GET_BUNDLE_INFO"
+        },
+        {
+          "name": "ohos.permission.SET_WIFI_CONFIG"
+        },
+        {
+          "name": "ohos.permission.PUBLISH_LOCATION_EVENT"
+        }
+      ]
+    }
+  }
