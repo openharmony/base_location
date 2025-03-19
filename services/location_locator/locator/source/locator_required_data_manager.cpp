@@ -426,10 +426,10 @@ bool LocatorRequiredDataManager::GetLocatingRequiredDataByWifi(
         wifiData->SetBssid(wifiScanInfo[i].bssid);
         wifiData->SetRssi(wifiScanInfo[i].rssi);
         wifiData->SetFrequency(wifiScanInfo[i].frequency);
-        if (!IsStill()) {
-            wifiData->SetTimestamp(wifiScanInfo[i].timestamp);
-        } else {
+        if (IsStill() && GetWifiScanCompleteTimestamp() > GetlastStillTime()) {
             wifiData->SetTimestamp(wifiScanInfo[i].timestamp + deltaMis);
+        } else {
+            wifiData->SetTimestamp(wifiScanInfo[i].timestamp);
         }
         if (((CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO) - wifiData->GetTimestamp()) <=
             DEFAULT_INVALID_10_SECONDS) {
