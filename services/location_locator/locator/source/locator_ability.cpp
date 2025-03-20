@@ -124,7 +124,6 @@ const int MAX_PERMISSION_NUM = 1000;
 const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
 const int DEFAULT_USERID = 100;
-const std::string TYPE_WHITE_LIST_BLE = "ble";
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -1955,13 +1954,8 @@ ErrCode LocatorAbility::SubscribeBluetoothScanResultChange(
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return IPC_ERRCODE_PERMISSION_DENIED;
-    }
-    if (!LocatorRequiredDataManager::GetInstance()->CheckScanWhiteList(identity.GetBundleName(),
-        TYPE_WHITE_LIST_BLE)) {
-        LBSLOGI(LOCATOR, "packageName not in white list, not support");
-        return IPC_ERRCODE_NOT_SUPPORTED;
     }
     if (cb == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
@@ -1984,7 +1978,7 @@ ErrCode LocatorAbility::UnSubscribeBluetoothScanResultChange(
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return IPC_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {
