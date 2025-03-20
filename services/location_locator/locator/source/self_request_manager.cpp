@@ -45,61 +45,44 @@ SelfRequestManager::SelfRequestManager()
 {
     selfRequestManagerHandler_ = std::make_shared<SelfRequestManagerHandler>(AppExecFwk::EventRunner::Create(true,
         AppExecFwk::ThreadMode::FFRT));
-
-    auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
-    requestConfig->SetTimeInterval(1);
     callback_ = sptr<mLocatorCallback>(new (std::nothrow) SelfRequestManager::mLocatorCallback());
     if (callback_ == nullptr) {
         return;
     }
     request_ = std::make_shared<Request>();
-    if (request_ == nullptr) {
-        return;
-    }
-    request_->SetUid(SYSTEM_UID);
-    request_->SetPid(getpid());
-    request_->SetPackageName(PROC_NAME);
-    request_->SetRequestConfig(*requestConfig);
-    request_->SetLocatorCallBack(callback_);
-    request_->SetUuid(PROC_NAME);
-    request_->SetTokenId(IPCSkeleton::GetCallingTokenID());
-    request_->SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
-    proxySwtich_ = (LocationDataRdbManager::QuerySwitchState() == ENABLED);
 }
 
 SelfRequestManager::~SelfRequestManager()
 {
 }
 
-void SelfRequestManager::StartLocatorThread()
+void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Request>& request)
 {
-    auto requestManager = RequestManager::GetInstance();
-    std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
-    lock.lock();
-    if (isLocating_ || !proxySwtich_) {
+    if (isLocating_ || !(LocationDataRdbManager::QuerySwitchState() == ENABLED)
+        || request_ == nullptr || request == nullptr || request->GetRequestConfig() == nullptr) {
         LBSLOGD(LOCATOR, "cancel locating");
-        lock.unlock();
         return;
     }
     isLocating_ = true;
-    lock.unlock();
+    request_->SetUid(request->GetUid());
+    request_->SetPid(request->GetPid());
+    request_->SetPackageName(request->GetPackageName());
+    request_->SetRequestConfig(*request->GetRequestConfig());
+    request_->SetUuid(request->GetUuid());
+    request_->SetTokenId(IPCSkeleton::GetCallingTokenID());
+    request_->SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
+    request_->SetLocatorCallBack(callback_);
     LBSLOGI(LOCATOR, "SelfRequestManager start locating");
-    requestManager->HandleStartLocating(request_);
+    LocatorAbility::GetInstance()->HandleStartLocating(request_, callback_);
 }
 
-void SelfRequestManager::StopLocatorThread()
+void SelfRequestManager::ProcessStopSelfRequestEvent()
 {
-    auto locatorAbility = LocatorAbility::GetInstance();
-    std::unique_lock<std::mutex> lock(locatorMutex_, std::defer_lock);
-    lock.lock();
     if (!isLocating_) {
-        lock.unlock();
         return;
     }
     isLocating_ = false;
-    lock.unlock();
-    locatorAbility->StopLocating(callback_);
+    LocatorAbility::GetInstance()->StopLocating(callback_);
     LBSLOGI(LOCATOR, "SelfRequestManager stop locating");
 }
 
@@ -108,9 +91,9 @@ void SelfRequestManager::StopSelfRequest()
     selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, 0);
 }
 
-void SelfRequestManager::StartSelfRequest()
+void SelfRequestManager::StartSelfRequest(const std::shared_ptr<Request>& request)
 {
-    selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STARTLOCATING, 0, 0);
+    selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STARTLOCATING, request, 0);
     selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, DEFAULT_TIMEOUT_5S);
 }
 
@@ -150,13 +133,14 @@ void SelfRequestManagerHandler::InitSelfRequestManagerHandlerEventMap()
 void SelfRequestManagerHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto SelfRequestManager = SelfRequestManager::GetInstance();
-    SelfRequestManager->StartLocatorThread();
+    std::shared_ptr<Request> request = event->GetSharedObject<Request>();
+    SelfRequestManager->ProcessStartSelfRequestEvent(request);
 }
 
 void SelfRequestManagerHandler::StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto SelfRequestManager = SelfRequestManager::GetInstance();
-    SelfRequestManager->StopLocatorThread();
+    SelfRequestManager->ProcessStopSelfRequestEvent();
 }
 
 void SelfRequestManagerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)

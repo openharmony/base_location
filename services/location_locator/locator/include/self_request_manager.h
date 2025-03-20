@@ -48,10 +48,10 @@ public:
     static SelfRequestManager* GetInstance();
     SelfRequestManager();
     ~SelfRequestManager();
-    void StartSelfRequest();
+    void StartSelfRequest(const std::shared_ptr<Request>& request);
     void StopSelfRequest();
-    void StartLocatorThread();
-    void StopLocatorThread();
+    void ProcessStartSelfRequestEvent(const std::shared_ptr<Request>& request);
+    void ProcessStopSelfRequestEvent();
     class mLocatorCallback : public IRemoteStub<ILocatorCallback> {
     public:
         void OnLocationReport(const std::unique_ptr<Location>& location);
@@ -60,7 +60,6 @@ public:
     };
 
     bool isLocating_ = false;
-    bool proxySwtich_ = false;
     sptr<ILocatorCallback> callback_;
     std::shared_ptr<Request> request_;
     static std::mutex locatorMutex_;

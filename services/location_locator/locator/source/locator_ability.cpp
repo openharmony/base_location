@@ -2415,7 +2415,7 @@ ErrCode LocatorAbility::StartLocatingProcess(const RequestConfig& requestConfig,
         LBSLOGI(LOCATOR, "report cache location to %{public}s", identity.GetBundleName().c_str());
         if (requestConfigUnique->GetScenario() != SCENE_NO_POWER &&
             requestConfigUnique->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
-            SelfRequestManager::GetInstance()->StartSelfRequest();
+            SelfRequestManager::GetInstance()->StartSelfRequest(request);
         }
         cb->AsObject()->RemoveDeathRecipient(death);
     } else {
