@@ -10,6 +10,9 @@
             ],
             "@ohos.geolocationManager": [
                 "./ets/@ohos.geoLocationManager.ets"
+            ],
+            "@ohos.base": [
+                "../../../../../interface/sdk-js/api/@ohos.base.d.ets"
             ]
         },
         "package": ""

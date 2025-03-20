@@ -12,40 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AsyncCallback, BusinessError, Callback } from '@ohos.base';
 
-export class BusinessError<T = void> {
-    code: number;
-    data: T;
-}
-
-type AsyncCallback<T, E = void> = (err: BusinessError<E>, data: T) => void;
 native function getCurrentLocationSync(request?: geoLocationManager.LocationRequestConfig):geoLocationManager.Location;
 
 export namespace geoLocationManager {
     loadLibrary("location_ani");
-    class Result<T, E>{
-        result: T;
-        error: E;
-        constructor(result: T, error: E) {
-            this.result = result;
-            this.error = error;
-        }
-    }
 
-    enum LocationSourceType {
+    export enum LocationSourceType {
         GNSS = 1,
         NETWORK = 2,
         INDOOR = 3,
         RTK = 4
     }
 
-    enum LocationRequestPriority {
+    export enum LocationRequestPriority {
         UNSET = 0x200,
         ACCURACY,
         LOW_POWER,
         FIRST_FIX
     }
-    enum LocationRequestScenario {
+
+    export enum LocationRequestScenario {
         UNSET = 0x300,
         NAVIGATION,
         TRAJECTORY_TRACKING,
@@ -53,7 +41,8 @@ export namespace geoLocationManager {
         DAILY_LIFE_SERVICE,
         NO_POWER
     }
-    enum LocatingPriority {
+
+    export enum LocatingPriority {
         PRIORITY_ACCURACY = 0x501,
         PRIORITY_LOCATING_SPEED = 0x502
     }
@@ -69,14 +58,14 @@ export namespace geoLocationManager {
         timeSinceBoot: long;
     }
 
-    interface CurrentLocationRequest {
+    export interface CurrentLocationRequest {
         priority?: LocationRequestPriority;
         scenario?: LocationRequestScenario;
         maxAccuracy?: number;
         timeoutMs?: number;
     }
 
-    interface SingleLocationRequest {
+    export interface SingleLocationRequest {
         locatingPriority: LocatingPriority;
         locatingTimeoutMs: number;
     }
