@@ -11,11 +11,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/location/config.gni")
 import("//build/ohos.gni")
 import("./signature/locationdialog.gni")
 
 ohos_hap("location_dialog_hap") {
-  hap_profile = "entry/src/main/module.json"
+  if (location_feature_with_opp_switch == true) {
+    hap_profile = "entry/src/main/module.json"
+  } else {
+    hap_profile = "entry/src/main/pc/module.json"
+  }
 
   deps = [
     ":location_dialog_js_assets",
@@ -37,7 +42,11 @@ ohos_hap("location_dialog_hap") {
 }
 
 ohos_js_assets("location_dialog_js_assets") {
-  hap_profile = "entry/src/main/module.json"
+  if (location_feature_with_opp_switch == true) {
+    hap_profile = "entry/src/main/module.json"
+  } else {
+    hap_profile = "entry/src/main/pc/module.json"
+  }
   ets2abc = true
   source_dir = "entry/src/main/ets"
 }
@@ -50,7 +59,11 @@ ohos_app_scope("location_dialog_app_profile") {
 ohos_resources("location_dialog_resources") {
   sources = [ "entry/src/main/resources" ]
   deps = [ ":location_dialog_app_profile" ]
-  hap_profile = "entry/src/main/module.json"
+  if (location_feature_with_opp_switch == true) {
+    hap_profile = "entry/src/main/module.json"
+  } else {
+    hap_profile = "entry/src/main/pc/module.json"
+  }
 }
 
 group("dialog_hap") {

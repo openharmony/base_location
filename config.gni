@@ -64,6 +64,7 @@ declare_args() {
   location_hicollie_enable = true
   location_sa_recycle_strategy_low_memory = true
   startup_init = true
+  location_feature_with_opp_switch = true
 
   if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
     i18n_enable = false
