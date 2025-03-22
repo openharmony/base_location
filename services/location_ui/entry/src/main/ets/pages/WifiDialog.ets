@@ -66,6 +66,7 @@ struct dialogPlusPage {
         {
           title: '',
           message: this.title,
+          textStyle: { wordBreak: WordBreak.BREAK_WORD },
           autoCancel: false,
           primaryButton: {
             value: this.primaryButtonValue,
