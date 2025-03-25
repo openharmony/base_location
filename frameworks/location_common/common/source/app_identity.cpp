@@ -36,9 +36,9 @@ std::string AppIdentity::ToString() const
 {
     std::string str = "uid : " + std::to_string(uid_) +
         ", pid : " + std::to_string(pid_) +
-        ", tokenId : " + std::to_string(tokenId_) +
-        ", tokenIdEx : " + std::to_string(tokenIdEx_) +
-        ", firstTokenId : " + std::to_string(firstTokenId_) +
+        ", Id : " + std::to_string(tokenId_) +
+        ", IdEx : " + std::to_string(tokenIdEx_) +
+        ", firstId : " + std::to_string(firstTokenId_) +
         ", bundleName : " + bundleName_;
     return str;
 }
