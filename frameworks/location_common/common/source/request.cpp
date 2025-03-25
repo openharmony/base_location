@@ -363,9 +363,9 @@ std::string Request::ToString() const
     std::string str = "[request config: " + requestConfig_->ToString() +
         "] from pid:" + std::to_string(pid_) +
         ", uid:" + std::to_string(uid_) +
-        ", tokenId:" + std::to_string(tokenId_) +
-        ", tokenIdEx:" + std::to_string(tokenIdEx_) +
-        ", firstTokenId:" + std::to_string(firstTokenId_) +
+        ", Id:" + std::to_string(tokenId_) +
+        ", IdEx:" + std::to_string(tokenIdEx_) +
+        ", firstId:" + std::to_string(firstTokenId_) +
         ", uuid:" + uuid_ + ", packageName:" + packageName_;
     return str;
 }
