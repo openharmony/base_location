@@ -133,7 +133,7 @@ LocationErrCode GnssAbilityProxy::RegisterNmeaMessageCallback(const sptr<IRemote
         LBSLOGE(GNSS, "write interfaceToken fail!");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(GNSS, "RegisterNmeaMessageCallback uid: %{public}d, Id: %{public}d",
+    LBSLOGD(GNSS, "RegisterNmeaMessageCallback uid: %{public}d, tokenId: %{public}d",
         identity.GetUid(), identity.GetTokenId());
     identity.Marshalling(data);
     data.WriteRemoteObject(callback);

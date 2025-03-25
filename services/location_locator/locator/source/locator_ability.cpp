@@ -1334,7 +1334,7 @@ bool LocatorAbility::NeedReportCacheLocation(const std::shared_ptr<Request>& req
         if (reportManager->IsAppBackground(bundleName, tokenId, request->GetTokenIdEx(), uid, pid) &&
             !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
             RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
-            LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, Id=%{public}d", tokenId);
+            LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
             return false;
         }
     }
@@ -1860,7 +1860,7 @@ void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
         LBSLOGE(LOCATOR, "RegisterPermissionCallback num max");
         return;
     }
-    LBSLOGD(LOCATOR, "after Id:%{public}d register, permission callback size:%{public}s",
+    LBSLOGD(LOCATOR, "after tokenId:%{public}d register, permission callback size:%{public}s",
         callingTokenId, std::to_string(permissionMap_->size()).c_str());
     int32_t res = AccessTokenKit::RegisterPermStateChangeCallback(callbackPtr);
     if (res != SUCCESS) {
@@ -1884,7 +1884,7 @@ void LocatorAbility::UnregisterPermissionCallback(const uint32_t callingTokenId)
         }
     }
     permissionMap_->erase(callingTokenId);
-    LBSLOGD(LOCATOR, "after Id:%{public}d unregister, permission callback size:%{public}s",
+    LBSLOGD(LOCATOR, "after tokenId:%{public}d unregister, permission callback size:%{public}s",
         callingTokenId, std::to_string(permissionMap_->size()).c_str());
 }
 
@@ -3074,7 +3074,7 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
         locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
         locatorAbility->StopLocating(callback);
         locatorAbility->PostUnloadTask(DEFAULT_CODE);
-        LBSLOGI(LOCATOR, "locator callback OnRemoteDied Id = %{public}d", tokenId_);
+        LBSLOGI(LOCATOR, "locator callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
 }
 

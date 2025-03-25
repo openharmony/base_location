@@ -514,7 +514,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
         !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
-        LBSLOGI(LOCATOR, "CheckLocationPermission return false, Id=%{public}d", tokenId);
+        LBSLOGI(LOCATOR, "CheckLocationPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
     std::string bundleName = "";
@@ -531,7 +531,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         request->GetTokenIdEx(), uid, pid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
-        LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, Id=%{public}d", tokenId);
+        LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, tokenId=%{public}d", tokenId);
         return false;
     }
     if (HookUtils::ExecuteHookWhenAddWorkRecord(isDeviceStillState_.load(), isDeviceIdleMode_.load(),
@@ -797,7 +797,7 @@ void LocatorErrCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &r
     auto requestManager = RequestManager::GetInstance();
     if (requestManager != nullptr) {
         requestManager->UnRegisterLocationErrorCallback(callback);
-        LBSLOGI(REQUEST_MANAGER, "locatorerr callback OnRemoteDied Id = %{public}d", tokenId_);
+        LBSLOGI(REQUEST_MANAGER, "locatorerr callback OnRemoteDied tokenId = %{public}d", tokenId_);
     }
 }
 
