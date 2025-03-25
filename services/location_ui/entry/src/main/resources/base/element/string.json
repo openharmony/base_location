@@ -122,7 +122,7 @@
     },
     {
       "name":"wifipro_auto_connect_dialog_context",
-      "value":"Allow connection to %s using the password for the current WLAN network?",
+      "value":"Allow connection to a better network \"%s\" using the password for the current WLAN network?",
       "attr":{
           "priority":"translate"
       }
