@@ -18,6 +18,7 @@
 #include <sys/time.h>
 #include "common_utils.h"
 #include "location_log.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace Location {
@@ -84,8 +85,9 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertCallbackHost::GetResult()
     LBSLOGD(GEO_CONVERT, "GeoConvertCallbackHost::GetResult");
     std::list<std::shared_ptr<GeoAddress>> result;
     std::unique_lock<std::mutex> uniqueLock(mutex_);
+    int time = system::GetIntParameter("const.location.geocode_timeout", GEOCODE_TIME_OUT);
     auto waitStatus = condition_.wait_for(
-        uniqueLock, std::chrono::seconds(GEOCODE_TIME_OUT), [this]() { return ready_; });
+        uniqueLock, std::chrono::seconds(time), [this]() { return ready_; });
     ready_ = false;
     if (!waitStatus) {
         LBSLOGE(GEO_CONVERT, "GetResult() timeout!");
