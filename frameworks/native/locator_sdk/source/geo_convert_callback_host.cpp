@@ -85,7 +85,7 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertCallbackHost::GetResult()
     LBSLOGD(GEO_CONVERT, "GeoConvertCallbackHost::GetResult");
     std::list<std::shared_ptr<GeoAddress>> result;
     std::unique_lock<std::mutex> uniqueLock(mutex_);
-    int time = system::GetParameter("const.location.geocode_timeout", GEOCODE_TIME_OUT);
+    int time = system::GetIntParameter("const.location.geocode_timeout", GEOCODE_TIME_OUT);
     auto waitStatus = condition_.wait_for(
         uniqueLock, std::chrono::seconds(time), [this]() { return ready_; });
     ready_ = false;
