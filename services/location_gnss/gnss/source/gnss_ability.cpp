@@ -265,7 +265,7 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid gnssStatus callback");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
@@ -285,7 +285,7 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "unregister an invalid gnssStatus callback");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     auto iter = gnssStatusCallbackMap_.find(callback);
@@ -302,7 +302,7 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid nmea callback");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
@@ -322,7 +322,7 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "unregister an invalid nmea callback");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto iter = nmeaCallbackMap_.find(callback);
@@ -340,33 +340,33 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid cached location callback");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CachedLocationCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
     if (cachedCallback == nullptr) {
         LBSLOGE(GNSS, "cast cached location callback fail!");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     LBSLOGD(GNSS, "request:%{public}d %{public}d",
         request->reportingPeriodSec, request->wakeUpCacheQueueFull ? 1 : 0);
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(GNSS, "register an invalid cached location callback");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
 
     sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
     if (cachedCallback == nullptr) {
         LBSLOGE(GNSS, "cast cached location callback fail!");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
@@ -429,13 +429,13 @@ void GnssAbility::ReConnectHdiImpl()
 LocationErrCode GnssAbility::GetCachedGnssLocationsSize(int& size)
 {
     size = -1;
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode GnssAbility::FlushCachedGnssLocations()
 {
     LBSLOGE(GNSS, "%{public}s not support", __func__);
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 bool GnssAbility::GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryDataType& flags)
@@ -602,7 +602,7 @@ LocationErrCode GnssAbility::InjectLocation()
     }
     if (nlpLocation_.GetAccuracy() < 1e-9 || nlpLocation_.GetTimeStamp() == 0) {
         LBSLOGW(GNSS, "nlp locaton acc or timesatmp is invalid");
-        return IPC_ERRCODE_INVALID_PARAM;
+        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     int64_t diff = CommonUtils::GetCurrentTimeStamp() - nlpLocation_.GetTimeStamp() / MILLI_PER_SEC;
     if (diff > NLP_FIX_VALID_TIME) {
@@ -655,7 +655,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     if (ExecuteFenceProcess(GnssInterfaceCode::ADD_FENCE_INFO, request)) {
         return ERRCODE_SUCCESS;
     }
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& request)
@@ -676,7 +676,7 @@ LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& reque
     if (ExecuteFenceProcess(GnssInterfaceCode::REMOVE_FENCE_INFO, request)) {
         return ERRCODE_SUCCESS;
     }
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 int32_t GnssAbility::GenerateFenceId()
@@ -721,7 +721,7 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     if (ExecuteFenceProcess(GnssInterfaceCode::ADD_GNSS_GEOFENCE, request)) {
         return ERRCODE_SUCCESS;
     }
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request,
@@ -775,7 +775,7 @@ LocationErrCode GnssAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
     if (ExecuteFenceProcess(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE, request)) {
         return ERRCODE_SUCCESS;
     }
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
@@ -1430,7 +1430,7 @@ int32_t GnssAbility::Dump(int32_t fd, const std::vector<std::u16string>& args)
 LocationErrCode GnssAbility::EnableMock()
 {
     if (!EnableLocationMock()) {
-        return IPC_ERRCODE_NOT_SUPPORTED;
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     MockLocationStruct mockLocationStruct;
     mockLocationStruct.enableMock = true;
@@ -1441,7 +1441,7 @@ LocationErrCode GnssAbility::EnableMock()
 LocationErrCode GnssAbility::DisableMock()
 {
     if (!DisableLocationMock()) {
-        return IPC_ERRCODE_NOT_SUPPORTED;
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     MockLocationStruct mockLocationStruct;
     mockLocationStruct.enableMock = false;
@@ -1453,7 +1453,7 @@ LocationErrCode GnssAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
     if (!SetMockedLocations(timeInterval, location)) {
-        return IPC_ERRCODE_NOT_SUPPORTED;
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -1542,7 +1542,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
         }
         case static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
-                reply.WriteInt32(IPC_ERRCODE_NOT_SUPPORTED);
+                reply.WriteInt32(LOCATION_ERRCODE_NOT_SUPPORTED);
                 break;
             }
             int timeInterval = data.ReadInt32();

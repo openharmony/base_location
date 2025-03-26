@@ -180,7 +180,7 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         }
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
-        return IPC_ERRCODE_NOT_SUPPORTED;
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -666,7 +666,7 @@ LocationErrCode LocatorRequiredDataManager::GetCurrentWifiBssidForLocating(std::
     bssid = linkedInfo.bssid;
     return ERRCODE_SUCCESS;
 #else
-    return IPC_ERRCODE_NOT_SUPPORTED;
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 #endif
 }
 

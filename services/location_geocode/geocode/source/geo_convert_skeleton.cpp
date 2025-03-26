@@ -79,7 +79,7 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> GeoConvertServiceStub::ParseGeoc
 int GeoConvertServiceStub::IsGeoConvertAvailableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     IsGeoConvertAvailable(reply);
     return ERRCODE_SUCCESS;
@@ -88,7 +88,7 @@ int GeoConvertServiceStub::IsGeoConvertAvailableInner(MessageParcel &data, Messa
 int GeoConvertServiceStub::GetAddressByCoordinateInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     GetAddressByCoordinate(data, reply);
     return ERRCODE_SUCCESS;
@@ -98,7 +98,7 @@ int GeoConvertServiceStub::GetAddressByLocationNameInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     GetAddressByLocationName(data, reply);
     return ERRCODE_SUCCESS;
@@ -108,7 +108,7 @@ int GeoConvertServiceStub::EnableReverseGeocodingMockInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     EnableReverseGeocodingMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
@@ -119,7 +119,7 @@ int GeoConvertServiceStub::DisableReverseGeocodingMockInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     DisableReverseGeocodingMock() ? reply.WriteInt32(ERRCODE_SUCCESS) :
         reply.WriteInt32(ERRCODE_REVERSE_GEOCODING_FAIL);
@@ -130,7 +130,7 @@ int GeoConvertServiceStub::SetGeocodingMockInfoInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo = ParseGeocodingMockInfos(data);
     reply.WriteInt32(SetReverseGeocodingMockInfo(mockInfo));
