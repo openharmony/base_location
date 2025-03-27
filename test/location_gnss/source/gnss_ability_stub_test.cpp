@@ -436,15 +436,21 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest023, TestSize.Level1)
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SetMockLocationsInner(data, reply, identity));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SetEnableInner(data, reply, identity));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RefreshRequirementsInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RegisterGnssStatusCallbackInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->UnregisterGnssStatusCallbackInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RegisterNmeaMessageCallbackInner(data, reply, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->RegisterGnssStatusCallbackInner(data, reply, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->UnregisterGnssStatusCallbackInner(data, reply, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->RegisterNmeaMessageCallbackInner(data, reply, identity));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
         gnssAbilityStub->UnregisterNmeaMessageCallbackInner(data, reply, identity));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RegisterCachedCallbackInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->UnregisterCachedCallbackInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->GetCachedGnssLocationsSizeInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->FlushCachedGnssLocationsInner(data, reply, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->UnregisterCachedCallbackInner(data, reply, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->GetCachedGnssLocationsSizeInner(data, reply, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->FlushCachedGnssLocationsInner(data, reply, identity));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendCommandInner(data, reply, identity));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->EnableMockInner(data, reply, identity));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->DisableMockInner(data, reply, identity));

@@ -446,7 +446,8 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level
      * @tc.steps: step3. test unregister cached call back if call back is not null.
      * @tc.expected: no exception happens.
      */
-    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, proxy_->UnregisterCachedCallback(cachedLocationCallbackStub_->AsObject()));
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED,
+        proxy_->UnregisterCachedCallback(cachedLocationCallbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterCachedCallback002 end");
 }
 
