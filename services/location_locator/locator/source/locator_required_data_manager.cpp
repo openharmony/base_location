@@ -22,12 +22,11 @@
 #include "common_utils.h"
 #include "permission_manager.h"
 #include "locator_ability.h"
-#include "location_data_rdb_manager.h"
+#include "hook_utils.h"
 #ifdef LOCATION_HICOLLIE_ENABLE
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 #endif
-#include <nlohmann/json.hpp>
 
 namespace OHOS {
 namespace Location {
@@ -42,7 +41,6 @@ const int32_t DEFAULT_TIMEOUT_MS = 1500;
 const int64_t DEFAULT_TIMEOUT_30_MIN = 30 * 60 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int64_t DEFAULT_INVALID_10_SECONDS = 10 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int64_t DEFAULT_NOT_RETRY_TIME_10_SECONDS = 10 * MILLI_PER_SEC * MICRO_PER_MILLI; //10s
-const int64_t DEFAULT_INVALID_12_HOURS = 12 * 60 * 60 * MILLI_PER_SEC;
 const int64_t WLAN_SCAN_RESULTS_VALIDITY_PERIOD = 2 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int32_t MAX_CALLBACKS_MAP_NUM = 1000;
@@ -206,7 +204,7 @@ void LocatorRequiredDataManager::StartScanBluetoohDevice(sptr<IBluetoothScanResu
         LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
         return;
     }
-    if (!CheckScanWhiteList(identity.GetBundleName(), TYPE_WHITE_LIST_BLE)) {
+    if (!HookUtils::ExecuteHookWhenStartScanBluetoohDevice(identity.GetBundleName(), TYPE_WHITE_LIST_BLE)) {
         return;
     }
 #ifdef BLUETOOTH_ENABLE
@@ -233,7 +231,6 @@ void LocatorRequiredDataManager::StartScanBluetoohDevice(sptr<IBluetoothScanResu
 void LocatorRequiredDataManager::StopScanBluetoohDevice(sptr<IRemoteObject> callbackObj)
 {
 #ifdef BLUETOOTH_ENABLE
-    LBSLOGE(LOCATOR, "%{public}s.", __func__);
     RemoveBluetoohScanCallbackDeathRecipientByCallback(callbackObj);
     RemoveBluetoohScanCallback(callbackObj);
     SendStopBluetoothScanEvent();
@@ -314,7 +311,7 @@ std::unique_ptr<BluetoothScanResult> LocatorBleCallbackWapper::GetBluetoohScanRe
     std::unique_ptr<BluetoothScanResult> res = std::make_unique<BluetoothScanResult>();
     Bluetooth::BluetoothRemoteDevice peripheralDevice = result.GetPeripheralDevice();
     res->SetDeviceId(result.GetPeripheralDevice().GetDeviceAddr());
-    res->SetDeviceName(result.GetPeripheralDevice().GetDeviceName());
+    res->SetDeviceName(const_cast<Bluetooth::BleScanResult&>(result).GetName());
     res->SetRssi(result.GetRssi());
     res->SetConnectable(result.IsConnectable());
     res->SetData(result.GetPayload());
@@ -457,16 +454,6 @@ int64_t LocatorRequiredDataManager::GetWifiScanCompleteTimestamp()
     return wifiScanCompleteTimestamp_;
 }
 
-void LocatorRequiredDataManager::UpdateQueryScanWhitListTimestamp()
-{
-    queryScanWhitListTimestamp_ = CommonUtils::GetSinceBootTime();
-}
-
-int64_t LocatorRequiredDataManager::GetQueryScanWhitListTimestamp()
-{
-    return queryScanWhitListTimestamp_;
-}
-
 void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
 {
     LBSLOGD(LOCATOR, "OnWifiScanStateChanged state=%{public}d", state);
@@ -514,56 +501,13 @@ void LocatorRequiredDataManager::ReportBluetoohScanResult(
         }
         auto deathRecipientPair = pair.second;
         AppIdentity identity = deathRecipientPair.first;
-        if (CommonUtils::IsAppBelongCurrentAccount(identity) && CheckLocationPermission(identity) &&
-            CheckScanWhiteList(identity.GetBundleName(), TYPE_WHITE_LIST_BLE) &&
+        if (CommonUtils::IsAppBelongCurrentAccount(identity) &&
+            PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId()) &&
+            HookUtils::ExecuteHookWhenReportBluetoohScanResult(identity.GetBundleName(), TYPE_WHITE_LIST_BLE) &&
             !LocatorAbility::GetInstance()->IsProxyPid(identity.GetPid())) {
             bluetoohScanResultCallback->OnBluetoohScanResultChange(bluetoothScanResult);
         }
     }
-}
-
-bool LocatorRequiredDataManager::CheckLocationPermission(AppIdentity &identity)
-{
-    uint32_t callingTokenId = identity.GetTokenId();
-    uint32_t callingFirstTokenid = identity.GetFirstTokenId();
-    if (!PermissionManager::CheckLocationPermission(callingTokenId, callingFirstTokenid) &&
-        !PermissionManager::CheckApproximatelyPermission(callingTokenId, callingFirstTokenid)) {
-        LBSLOGE(LOCATOR, "%{public}d %{public}s failed", callingTokenId, __func__);
-        return false;
-    } else {
-        return true;
-    }
-}
-
-bool LocatorRequiredDataManager::CheckScanWhiteList(const std::string& bundleName, const std::string& type)
-{
-    std::string scanWhiteList = GetScanWhiteListStr();
-    if (scanWhiteList.empty()) {
-        LBSLOGE(LOCATOR, "%{public}s, can not Query Scan White List", __func__);
-        return false;
-    }
-    nlohmann::json whiteList = nlohmann::json::parse(scanWhiteList);
-    if (whiteList.contains(type) && whiteList[type].is_array()) {
-        for (const auto& item : whiteList[type]) {
-            if (bundleName.compare(item.get<std::string>()) == 0) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-std::string LocatorRequiredDataManager::GetScanWhiteListStr()
-{
-    int64_t currentTime = CommonUtils::GetSinceBootTime();
-    if (GetQueryScanWhitListTimestamp() == 0 ||
-        (currentTime - GetQueryScanWhitListTimestamp()) / NANOS_PER_MICRO / MICRO_PER_MILLI >=
-        DEFAULT_INVALID_12_HOURS) {
-        std::string queryScanWhiteList = LocationDataRdbManager::QueryScanWhiteList();
-        UpdateQueryScanWhitListTimestamp();
-        scanWhiteListStr_ = queryScanWhiteList;
-    }
-    return scanWhiteListStr_;
 }
 
 __attribute__((no_sanitize("cfi"))) void LocatorRequiredDataManager::StartWifiScan(int fixNumber, bool flag)
@@ -600,7 +544,7 @@ void LocatorRequiredDataManager::StartBluetoothScan()
         }
     }
     Bluetooth::BleScanSettings settings;
-    settings.SetScanMode(Bluetooth::SCAN_MODE::SCAN_MODE_LOW_LATENCY);
+    settings.SetScanMode(Bluetooth::SCAN_MODE::SCAN_MODE_LOW_POWER);
     std::vector<Bluetooth::BleScanFilter> filters;
     Bluetooth::BleScanFilter scanFilter;
     filters.push_back(scanFilter);

@@ -122,6 +122,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_CAPI = {LOG_CORE, LOCATION
 static constexpr OHOS::HiviewDFX::HiLogLabel FENCE_EXTENSION = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "FenceExtension"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel BLUETOOTH_CALLBACK = {LOG_CORE, LOCATION_LOG_DOMAIN, "BluetoothCallback"};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H

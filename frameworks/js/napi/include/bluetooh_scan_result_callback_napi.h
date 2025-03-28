@@ -38,7 +38,6 @@ public:
 
     void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
     void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) override;
-    void DeleteAllCallbacks();
     void DeleteHandler();
     bool FindCallback();
     napi_ref GetHandleCb();

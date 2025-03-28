@@ -33,7 +33,6 @@ public:
     static std::string GetLocationDataUriForUser(std::string key, int32_t userId);
     static LocationErrCode GetSwitchStateFromDbForUser(int32_t& state, int32_t userId);
     static int QuerySwitchState();
-    static std::string QueryScanWhiteList();
     static LocationErrCode SetSwitchStateToDb(int modeValue);
     static LocationErrCode SetSwitchStateToDbForUser(int modeValue, int32_t userId);
     static bool SetLocationWorkingState(int32_t state);

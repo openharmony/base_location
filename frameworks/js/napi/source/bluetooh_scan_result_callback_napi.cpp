@@ -43,9 +43,9 @@ BluetoothScanResultCallbackNapi::~BluetoothScanResultCallbackNapi()
 int BluetoothScanResultCallbackNapi::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(LOCATOR_CALLBACK, "BluetoothScanResultCallbackNapi::OnRemoteRequest!");
+    LBSLOGD(BLUETOOTH_CALLBACK, "BluetoothScanResultCallbackNapi::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(LOCATOR_CALLBACK, "invalid token.");
+        LBSLOGE(BLUETOOTH_CALLBACK, "invalid token.");
         return -1;
     }
     switch (code) {
@@ -120,25 +120,25 @@ void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& w
         napi_handle_scope scope = nullptr;
         auto context = static_cast<BluetoothScanResultAsyncContext*>(work->data);
         if (context == nullptr) {
-            LBSLOGE(LOCATOR_CALLBACK, "context == nullptr");
+            LBSLOGE(BLUETOOTH_CALLBACK, "context == nullptr");
             delete work;
             return;
         }
         if (context->env == nullptr || context->bluetoothScanResult == nullptr) {
-            LBSLOGE(LOCATOR_CALLBACK, "bluetoothScanResult == nullptr");
+            LBSLOGE(BLUETOOTH_CALLBACK, "bluetoothScanResult == nullptr");
             delete context;
             delete work;
             return;
         }
         if (!FindBlueToohCallback(context->callback[0])) {
-            LBSLOGE(LOCATOR_CALLBACK, "no valid callback");
+            LBSLOGE(BLUETOOTH_CALLBACK, "no valid callback");
             delete context;
             delete work;
             return;
         }
         napi_open_handle_scope(context->env, &scope);
         if (scope == nullptr) {
-            LBSLOGE(LOCATOR_CALLBACK, "scope == nullptr");
+            LBSLOGE(BLUETOOTH_CALLBACK, "scope == nullptr");
             DELETE_SCOPE_CONTEXT_WORK(context->env, scope, context, work);
             return;
         }
@@ -153,7 +153,7 @@ void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& w
             CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                 napi_get_reference_value(context->env, context->callback[0], &handler), scope, context, work);
             if (napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
-                LBSLOGE(LOCATOR_CALLBACK, "Report location failed");
+                LBSLOGE(BLUETOOTH_CALLBACK, "Report location failed");
             }
         }
         NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
@@ -168,31 +168,31 @@ void BluetoothScanResultCallbackNapi::OnBluetoohScanResultChange(
     std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     if (env_ == nullptr) {
-        LBSLOGD(LOCATOR_CALLBACK, "env_ is nullptr.");
+        LBSLOGD(BLUETOOTH_CALLBACK, "env_ is nullptr.");
         return;
     }
     if (handlerCb_ == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "handler is nullptr.");
+        LBSLOGE(BLUETOOTH_CALLBACK, "handler is nullptr.");
         return;
     }
     NAPI_CALL_RETURN_VOID(env_, napi_get_uv_event_loop(env_, &loop));
     if (loop == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "loop == nullptr.");
+        LBSLOGE(BLUETOOTH_CALLBACK, "loop == nullptr.");
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "work == nullptr.");
+        LBSLOGE(BLUETOOTH_CALLBACK, "work == nullptr.");
         return;
     }
     auto context = new (std::nothrow) BluetoothScanResultAsyncContext(env_);
     if (context == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
+        LBSLOGE(BLUETOOTH_CALLBACK, "context == nullptr.");
         delete work;
         return;
     }
     if (!InitContext(context)) {
-        LBSLOGE(LOCATOR_CALLBACK, "InitContext fail");
+        LBSLOGE(BLUETOOTH_CALLBACK, "InitContext fail");
         delete work;
         delete context;
         return;
@@ -202,17 +202,12 @@ void BluetoothScanResultCallbackNapi::OnBluetoohScanResultChange(
     DoSendWork(loop, work);
 }
 
-void BluetoothScanResultCallbackNapi::DeleteAllCallbacks()
-{
-    DeleteHandler();
-}
-
 void BluetoothScanResultCallbackNapi::DeleteHandler()
 {
-    LBSLOGD(LOCATOR_CALLBACK, "before DeleteHandler");
+    LBSLOGD(BLUETOOTH_CALLBACK, "before DeleteHandler");
     std::unique_lock<std::mutex> guard(mutex_);
     if (env_ == nullptr) {
-        LBSLOGE(LOCATOR_CALLBACK, "env is nullptr.");
+        LBSLOGE(BLUETOOTH_CALLBACK, "env is nullptr.");
         return;
     }
     DeleteBlueToohCallback(handlerCb_);
