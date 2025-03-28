@@ -218,6 +218,16 @@ napi_value LocationErrorConstructor(napi_env env)
     return locationError;
 }
 
+napi_value SportsTypeConstructor(napi_env env)
+{
+    napi_value sportsType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &sportsType));
+    SetEnumPropertyByInteger(env, sportsType, SportsType::RUNNING, "RUNNING");
+    SetEnumPropertyByInteger(env, sportsType, SportsType::WALKING, "WALKING");
+    SetEnumPropertyByInteger(env, sportsType, SportsType::CYCLING, "CYCLING");
+    return sportsType;
+}
+
 #ifndef ENABLE_NAPI_MANAGER
 /*
  * Module initialization function
@@ -325,6 +335,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PowerConsumptionScenario", PowerConsumptionScenarioTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationSourceType", LocationSourceTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationError", LocationErrorConstructor(env)),
+        DECLARE_NAPI_PROPERTY("SportsType", SportsTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

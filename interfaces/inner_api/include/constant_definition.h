@@ -210,6 +210,12 @@ enum LocationSourceType {
     RTK_TYPE = 4,
 };
 
+enum SportsType {
+    RUNNING = 1,
+    WALKING,
+    CYCLING,
+};
+
 typedef struct {
     int reportingPeriodSec;
     bool wakeUpCacheQueueFull;
