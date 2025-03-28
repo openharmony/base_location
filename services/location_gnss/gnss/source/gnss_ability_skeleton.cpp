@@ -131,7 +131,7 @@ GnssAbilityStub::GnssAbilityStub()
 int GnssAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST), data, reply);
     isMessageRequest_ = true;
@@ -141,7 +141,7 @@ int GnssAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel
 int GnssAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
     isMessageRequest_ = true;
@@ -151,7 +151,7 @@ int GnssAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel &r
 int GnssAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE), data, reply);
     isMessageRequest_ = true;
@@ -161,7 +161,7 @@ int GnssAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, A
 int GnssAbilityStub::RefreshRequirementsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(RefrashRequirements());
     return ERRCODE_SUCCESS;
@@ -170,7 +170,7 @@ int GnssAbilityStub::RefreshRequirementsInner(MessageParcel &data, MessageParcel
 int GnssAbilityStub::RegisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     AppIdentity appIdentity;
     appIdentity.ReadFromParcel(data);
@@ -183,7 +183,7 @@ int GnssAbilityStub::UnregisterGnssStatusCallbackInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(UnregisterGnssStatusCallback(client));
@@ -193,7 +193,7 @@ int GnssAbilityStub::UnregisterGnssStatusCallbackInner(
 int GnssAbilityStub::RegisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     AppIdentity appIdentity;
     appIdentity.ReadFromParcel(data);
@@ -206,7 +206,7 @@ int GnssAbilityStub::UnregisterNmeaMessageCallbackInner(MessageParcel &data, Mes
     AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     sptr<IRemoteObject> client = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(UnregisterNmeaMessageCallback(client));
@@ -216,7 +216,7 @@ int GnssAbilityStub::UnregisterNmeaMessageCallbackInner(MessageParcel &data, Mes
 int GnssAbilityStub::RegisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     std::unique_ptr<CachedGnssLocationsRequest> requestConfig = std::make_unique<CachedGnssLocationsRequest>();
     requestConfig->reportingPeriodSec = data.ReadInt32();
@@ -229,7 +229,7 @@ int GnssAbilityStub::RegisterCachedCallbackInner(MessageParcel &data, MessagePar
 int GnssAbilityStub::UnregisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
     reply.WriteInt32(UnregisterCachedCallback(callback));
@@ -239,7 +239,7 @@ int GnssAbilityStub::UnregisterCachedCallbackInner(MessageParcel &data, MessageP
 int GnssAbilityStub::GetCachedGnssLocationsSizeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     int size = -1;
     reply.WriteInt32(GetCachedGnssLocationsSize(size));
@@ -250,7 +250,7 @@ int GnssAbilityStub::GetCachedGnssLocationsSizeInner(MessageParcel &data, Messag
 int GnssAbilityStub::FlushCachedGnssLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(FlushCachedGnssLocations());
     return ERRCODE_SUCCESS;
@@ -259,7 +259,7 @@ int GnssAbilityStub::FlushCachedGnssLocationsInner(MessageParcel &data, MessageP
 int GnssAbilityStub::SendCommandInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS), data, reply);
     isMessageRequest_ = true;
@@ -269,7 +269,7 @@ int GnssAbilityStub::SendCommandInner(MessageParcel &data, MessageParcel &reply,
 int GnssAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(EnableMock());
     return ERRCODE_SUCCESS;
@@ -278,7 +278,7 @@ int GnssAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, 
 int GnssAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     reply.WriteInt32(DisableMock());
     return ERRCODE_SUCCESS;
@@ -287,7 +287,7 @@ int GnssAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply,
 int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE), data, reply);
     isMessageRequest_ = true;
@@ -297,7 +297,7 @@ int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, Ap
 int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE), data, reply);
     isMessageRequest_ = true;
@@ -307,7 +307,7 @@ int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply,
 int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE), data, reply);
     isMessageRequest_ = true;
@@ -317,7 +317,7 @@ int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &re
 int GnssAbilityStub::RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE), data, reply);
     isMessageRequest_ = true;
@@ -328,7 +328,7 @@ int GnssAbilityStub::QuerySupportCoordinateSystemTypeInner(
     MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     std::vector<CoordinateSystemType> coordinateSystemTypes;
     auto errCode = QuerySupportCoordinateSystemType(coordinateSystemTypes);
@@ -349,7 +349,7 @@ int GnssAbilityStub::SendNetworkLocationInner(MessageParcel &data, MessageParcel
 {
     LBSLOGI(GNSS, "SendNetworkLocationInner");
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
-        return IPC_ERRCODE_PERMISSION_DENIED;
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION), data, reply);
     isMessageRequest_ = true;

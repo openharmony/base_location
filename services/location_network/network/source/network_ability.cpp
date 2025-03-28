@@ -398,7 +398,7 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
 LocationErrCode NetworkAbility::EnableMock()
 {
     if (!EnableLocationMock()) {
-        return IPC_ERRCODE_NOT_SUPPORTED;
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -406,7 +406,7 @@ LocationErrCode NetworkAbility::EnableMock()
 LocationErrCode NetworkAbility::DisableMock()
 {
     if (!DisableLocationMock()) {
-        return IPC_ERRCODE_NOT_SUPPORTED;
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -420,7 +420,7 @@ LocationErrCode NetworkAbility::SetMocked(const int timeInterval,
     const std::vector<std::shared_ptr<Location>> &location)
 {
     if (!SetMockedLocations(timeInterval, location)) {
-        return IPC_ERRCODE_NOT_SUPPORTED;
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     return ERRCODE_SUCCESS;
 }
@@ -507,7 +507,7 @@ void NetworkAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParc
         }
         case static_cast<uint32_t>(NetworkInterfaceCode::SET_MOCKED_LOCATIONS): {
             if (!IsMockEnabled()) {
-                reply.WriteInt32(IPC_ERRCODE_NOT_SUPPORTED);
+                reply.WriteInt32(LOCATION_ERRCODE_NOT_SUPPORTED);
                 break;
             }
             int timeInterval = data.ReadInt32();

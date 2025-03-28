@@ -531,7 +531,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterCachedLocationCallback(
         reportingPeriodSec, wakeUpCacheQueueFull, cachedCallback, "unit.test"));
     sleep(1);
-    EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED,
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
         locatorAbility->UnregisterCachedLocationCallback(cachedCallback)); // uid pid not match locationhub process
     sleep(1);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 end");
@@ -559,7 +559,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceSendCommand001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendCommand001 begin");
     auto locatorAbility = LocatorAbility::GetInstance();
     // uid pid not match locationhub process
-    EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED, locatorAbility->SendCommand(SCENE_NAVIGATION, "cmd"));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->SendCommand(SCENE_NAVIGATION, "cmd"));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceSendCommand001 end");
 }
 #endif
@@ -696,8 +696,8 @@ HWTEST_F(LocatorServiceTest, locatorServicePreProxyForFreeze001, TestSize.Level1
     std::vector<int32_t> pidList;
     pidList.push_back(1);
     bool isProxy = false;
-    EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED, locatorAbility->ProxyForFreeze(pidList, isProxy));
-    EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED, locatorAbility->ResetAllProxy());
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->ProxyForFreeze(pidList, isProxy));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->ResetAllProxy());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServicePreProxyForFreeze001 end");
 }
 

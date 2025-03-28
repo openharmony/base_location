@@ -141,10 +141,10 @@ HWTEST_F(LocatorAbilityTest, locatorServiceSwitchCallback001, TestSize.Level1)
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
     sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
     locatorAbility->OnStart();
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(nullptr, SYSTEM_UID));
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(callback, SYSTEM_UID));
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(nullptr));
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(callback));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(nullptr, SYSTEM_UID));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, locatorAbility->RegisterSwitchCallback(callback, SYSTEM_UID));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(nullptr));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, locatorAbility->UnregisterSwitchCallback(callback));
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceSwitchCallback001 end");
 }
 
