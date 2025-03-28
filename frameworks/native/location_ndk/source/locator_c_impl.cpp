@@ -235,6 +235,9 @@ void RemoveLocationCallBack(const Location_RequestConfig* requestConfig)
     }
     size_t i = 0;
     for (; i < g_locationCallbackVector.size(); i++) {
+        if (g_locationCallbackVector[i] == nullptr) {
+            continue;
+        }
         if (requestConfig == g_locationCallbackVector[i]->GetRequestConfig()) {
             g_locationCallbackVector[i]->SetRequestConfig(nullptr);
             break;

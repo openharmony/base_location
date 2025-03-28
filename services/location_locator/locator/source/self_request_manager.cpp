@@ -88,13 +88,17 @@ void SelfRequestManager::ProcessStopSelfRequestEvent()
 
 void SelfRequestManager::StopSelfRequest()
 {
-    selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, 0);
+    if (selfRequestManagerHandler_ != nullptr) {
+        selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, 0);
+    }
 }
 
 void SelfRequestManager::StartSelfRequest(const std::shared_ptr<Request>& request)
 {
-    selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STARTLOCATING, request, 0);
-    selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, DEFAULT_TIMEOUT_5S);
+    if (selfRequestManagerHandler_ != nullptr) {
+        selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STARTLOCATING, request, 0);
+        selfRequestManagerHandler_->SendHighPriorityEvent(EVENT_STOPLOCATING, 0, DEFAULT_TIMEOUT_5S);
+    }
 }
 
 void SelfRequestManager::mLocatorCallback::OnLocationReport(const std::unique_ptr<Location>& location)
