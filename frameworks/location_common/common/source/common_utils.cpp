@@ -559,5 +559,18 @@ LocationErrCode CommonUtils::ErrCodeToLocationErrCode(ErrCode errorCode)
     LBSLOGE(COMMON_UTILS, "Invalid error code.");
     return ERRCODE_SERVICE_UNAVAILABLE;
 }
+
+bool CommonUtils::GetDouble(const std::string& str, double& value)
+{
+    char* endptr;
+    value = std::strtod(str.c_str(), &endptr);
+    if (endptr == nullptr || endptr == str || *endptr != '\0') {
+        return false;
+    }
+    if (errno == ERANGE) {
+        return false;
+    }
+    return true;
+}
 } // namespace Location
 } // namespace OHOS

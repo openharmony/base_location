@@ -215,5 +215,15 @@ bool HookUtils::ExecuteHookWhenApproximatelyLocation(std::string packageName)
         LocationProcessStage::APPROXIMATELY_LOCATION_PROCESS, (void *)&approximatelyLocationStruct, nullptr);
     return approximatelyLocationStruct.needApproximate;
 }
+
+bool HookUtils::ExecuteHookWhenGetCacheLocation(std::string packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::GET_CACHE_LOCATION_PROCESS, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
 } // namespace Location
 } // namespace OHOS
