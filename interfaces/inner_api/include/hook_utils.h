@@ -54,6 +54,7 @@ enum class LocationProcessStage {
     SET_AGNSS_SERVER_PROCESS,
     SIM_STATE_CHANGED_PROCESS,
     APPROXIMATELY_LOCATION_PROCESS,
+    GET_CACHE_LOCATION_PROCESS,
 };
 
 typedef struct {
@@ -151,6 +152,7 @@ public:
     static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
     static bool ExecuteHookWhenApproximatelyLocation(std::string packageName);
+    static bool ExecuteHookWhenGetCacheLocation(std::string packageName);
 };
 } // namespace Location
 } // namespace OHOS
