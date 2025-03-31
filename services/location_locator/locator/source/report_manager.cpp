@@ -28,6 +28,7 @@
 #include "common_hisysevent.h"
 #include "permission_manager.h"
 #include "hook_utils.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace Location {
@@ -524,6 +525,9 @@ void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location
     int currentUserId = locatorBackgroundProxy->getCurrentUserId();
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
     lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
+    std::string lastLocation = std::to_string(location->GetLatitude()) + ","
+        + std::to_string(location->GetLongitude()) + "," + std::to_string(location->GetTimeStamp());
+    SetParameter(LOCATION_LAST_LOCATION, lastLocation.c_str());
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
