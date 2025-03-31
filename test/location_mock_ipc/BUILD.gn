@@ -104,7 +104,6 @@ ohos_unittest("LocationMockIpcTest") {
       hdf_drivers_interface_location_gnss_enable) {
     external_deps +=
         [ "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0" ]
-    defines += [ "FEATURE_GNSS_SUPPORT" ]
   }
 
   if (hdf_drivers_interface_location_geofence_enable) {
