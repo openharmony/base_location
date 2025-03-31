@@ -30,6 +30,8 @@
     "*ExecuteHookWhenSimStateChange*";
     "*ExecuteHookWhenApproximatelyLocation*";
     "*BluetoothScanResult*";
+    "*ExecuteHookWhenStartScanBluetoohDevice*";
+    "*ExecuteHookWhenReportBluetoohScanResult*";
   local:
     *;
 };

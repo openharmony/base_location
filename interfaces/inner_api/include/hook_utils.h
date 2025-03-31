@@ -55,6 +55,8 @@ enum class LocationProcessStage {
     SIM_STATE_CHANGED_PROCESS,
     APPROXIMATELY_LOCATION_PROCESS,
     GET_CACHE_LOCATION_PROCESS,
+    START_SCAN_BLUETOOTH_DEVICE_PROCESS,
+    REPORT_BLUETOOTH_SCAN_RESULT_PROCESS,
 };
 
 typedef struct {
@@ -127,6 +129,13 @@ typedef struct {
     bool needApproximate;
 } ApproximatelyLocationStruct;
 
+typedef struct {
+    std::string packageName;
+    std::string type;
+    bool result;
+} ScanStruct;
+
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -153,6 +162,8 @@ public:
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
     static bool ExecuteHookWhenApproximatelyLocation(std::string packageName);
     static bool ExecuteHookWhenGetCacheLocation(std::string packageName);
+    static bool ExecuteHookWhenReportBluetoohScanResult(const std::string& packageName, const std::string& type);
+    static bool ExecuteHookWhenStartScanBluetoohDevice(const std::string& packageName, const std::string& type);
 };
 } // namespace Location
 } // namespace OHOS
