@@ -251,7 +251,6 @@ private:
     ErrCode StartLocatingProcess(const RequestConfig& requestConfig, const sptr<ILocatorCallback>& cb,
         AppIdentity& identity);
     bool CheckRequestAvailable(uint32_t code, AppIdentity &identity);
-    bool GetLastLocFromParam(std::unique_ptr<Location>& location);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;

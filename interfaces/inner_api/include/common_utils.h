@@ -189,7 +189,6 @@ public:
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);
     static LocationErrCode ErrCodeToLocationErrCode(ErrCode errorCode);
     static bool IsValidForStoull(const std::string input, size_t size);
-    static bool GetDouble(const std::string& str, double& value);
 };
 
 class CountDownLatch {

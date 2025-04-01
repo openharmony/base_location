@@ -53,7 +53,6 @@ constexpr const char* PROC_NAME = "system";
 constexpr const char* LOCALE_KEY = "persist.global.locale";
 constexpr const char* LOCATION_SWITCH_MODE = "persist.location.switch_mode";
 constexpr const char* LOCATION_LOCATIONHUB_STATE = "persist.location.locationhub_state";
-constexpr const char* LOCATION_LAST_LOCATION = "persist.location.last_location";
 constexpr const char* LOCATION_LAST_SIM_OPKEY = "persist.location.last_sim_opkey";
 constexpr const char* LOCATION_SIM_CONFIGURE_SWITCH = "const.location.gnss_adapt_card";
 const int MODE_STANDALONE = 1;
