@@ -124,10 +124,6 @@ const int MAX_PERMISSION_NUM = 1000;
 const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
 const int DEFAULT_USERID = 100;
-const int32_t LAST_LOCATION_LAT_INDEX = 0;
-const int32_t LAST_LOCATION_LON_INDEX = 1;
-const int32_t LAST_LOCATION_TIME_INDEX = 2;
-static constexpr int MAX_UTC_TIME_SIZE = 16;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -1442,31 +1438,6 @@ ErrCode LocatorAbility::StopLocating(const sptr<ILocatorCallback>& cb)
     return ERRCODE_SUCCESS;
 }
 
-bool LocatorAbility::GetLastLocFromParam(std::unique_ptr<Location>& location)
-{
-    std::string lastLocInfo = "";
-    CommonUtils::GetStringParameter(LOCATION_LAST_LOCATION, lastLocInfo);
-    if (lastLocInfo.length() == 0) {
-        return false;
-    }
-    std::vector<std::string> dataArray = CommonUtils::Split(lastLocInfo, ",");
-    size_t lastLocationInfoMinSize = 3;
-    if (dataArray.size() != lastLocationInfoMinSize) {
-        return false;
-    }
-    double latitude = 0.0;
-    double longitude = 0.0;
-    if (!CommonUtils::GetDouble(dataArray[LAST_LOCATION_LAT_INDEX], latitude) ||
-        !CommonUtils::GetDouble(dataArray[LAST_LOCATION_LON_INDEX], longitude) ||
-        !CommonUtils::IsValidForStoull(dataArray[LAST_LOCATION_TIME_INDEX], MAX_UTC_TIME_SIZE)) {
-        return false;
-    }
-    location->SetLatitude(latitude);
-    location->SetLongitude(longitude);
-    location->SetTimeStamp(std::stoull(dataArray[LAST_LOCATION_TIME_INDEX]));
-    return true;
-}
-
 ErrCode LocatorAbility::GetCacheLocation(Location& location)
 {
     AppIdentity identity;
@@ -1481,19 +1452,11 @@ ErrCode LocatorAbility::GetCacheLocation(Location& location)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto lastLocation = reportManager_->GetLastLocation();
-    std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
-    bool res = HookUtils::ExecuteHookWhenGetCacheLocation(identity.GetBundleName());
-    if (lastLocation == nullptr && res) {
-        lastLocation = std::make_unique<Location>();
-        if (!GetLastLocFromParam(lastLocation)) {
-            locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
-            return ERRCODE_LOCATING_CACHE_FAIL;
-        }
-    }
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
     std::unique_ptr<Location> loc = reportManager_->GetPermittedLocation(request, lastLocation);
+    std::shared_ptr<AppIdentity> identityInfo = std::make_shared<AppIdentity>(identity);
     if (loc == nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_GET_CACHED_LOCATION_FAILED, identityInfo, 0);
         return ERRCODE_LOCATING_CACHE_FAIL;
