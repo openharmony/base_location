@@ -378,7 +378,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     locatorBackgroundProxy->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
-    IPCSkeleton::ResetCallingIdentity();
+    std::string callindIdentity = IPCSkeleton::ResetCallingIdentity();
     std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
     for (auto iter = loadedSaMap_->begin(); iter != loadedSaMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
@@ -406,6 +406,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
         }
     }
     SendSwitchState(isEnabled ? 1 : 0);
+    IPCSkeleton::SetCallingIdentity(callindIdentity);
 }
 
 int32_t LocatorAbility::CallbackEnter(uint32_t code)
@@ -415,11 +416,11 @@ int32_t LocatorAbility::CallbackEnter(uint32_t code)
     if (code == static_cast<uint32_t>(LocatorInterfaceCode::GET_CACHE_LOCATION)) {
         identity.SetBundleName("");
     }
-    LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, identity= [%{public}s], timestamp = %{public}s",
-        code, identity.ToString().c_str(), std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    if (code != static_cast<uint32_t>(LocatorInterfaceCode::PROXY_PID_FOR_FREEZE)) {
+        LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, identity= [%{public}s], timestamp = %{public}s",
+            code, identity.ToString().c_str(), std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+    }
     if (!CheckRequestAvailable(code, identity)) {
-        std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
-        IPCSkeleton::SetCallingIdentity(callingIdentity);
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     CancelIdleState(code);
@@ -429,8 +430,6 @@ int32_t LocatorAbility::CallbackEnter(uint32_t code)
 
 int32_t LocatorAbility::CallbackExit(uint32_t code, int32_t result)
 {
-    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
-    IPCSkeleton::SetCallingIdentity(callingIdentity);
     PostUnloadTask(code);
     return ERRCODE_SUCCESS;
 }
@@ -694,9 +693,10 @@ LocationErrCode LocatorAbility::SendGnssRequest(int type, MessageParcel &data, M
     if (objectGnss == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    IPCSkeleton::ResetCallingIdentity();
+    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
     MessageOption option;
     objectGnss->SendRequest(type, data, reply, option);
+    IPCSkeleton::SetCallingIdentity(callingIdentity);
     return LocationErrCode(reply.ReadInt32());
 }
 #endif
@@ -1110,6 +1110,7 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     }
 
     std::unique_lock<std::mutex> lock(proxyMapMutex_);
+    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
     for (auto iter = proxyMap_->begin(); iter != proxyMap_->end(); iter++) {
         auto obj = iter->second;
         if (iter->first == GNSS_ABILITY) {
@@ -1126,6 +1127,7 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
 #endif
         }
     }
+    IPCSkeleton::SetCallingIdentity(callingIdentity);
     return ERRCODE_SUCCESS;
 }
 
@@ -1205,7 +1207,6 @@ ErrCode LocatorAbility::EnableLocationMock()
         LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    IPCSkeleton::ResetCallingIdentity();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
@@ -1224,7 +1225,6 @@ ErrCode LocatorAbility::DisableLocationMock()
         LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    IPCSkeleton::ResetCallingIdentity();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
@@ -1243,7 +1243,6 @@ ErrCode LocatorAbility::SetMockedLocations(int32_t timeInterval, const std::vect
         LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{public}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    IPCSkeleton::ResetCallingIdentity();
     timeInterval = timeInterval < 0 ? 1 : timeInterval;
     auto locationSize = locations.size();
     locationSize = locationSize > INPUT_ARRAY_LEN_MAX ? INPUT_ARRAY_LEN_MAX : locationSize;
@@ -1681,9 +1680,10 @@ LocationErrCode LocatorAbility::SendGeoRequest(int type, MessageParcel &data, Me
         reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    IPCSkeleton::ResetCallingIdentity();
+    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
     MessageOption option;
     remoteObject->SendRequest(type, data, reply, option);
+    IPCSkeleton::SetCallingIdentity(callingIdentity);
     return ERRCODE_SUCCESS;
 #else
     return ERRCODE_SERVICE_UNAVAILABLE;
@@ -2751,7 +2751,6 @@ void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Po
 void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto locatorAbility = LocatorAbility::GetInstance();
-    IPCSkeleton::ResetCallingIdentity();
     if (locatorAbility != nullptr) {
         int state = event->GetParam();
         if (!SaLoadWithStatistic::InitLocationSa(COMMON_SA_ID)) {
@@ -2769,7 +2768,9 @@ void LocatorHandler::SendSwitchStateToHifenceEvent(const AppExecFwk::InnerEvent:
         if (object == nullptr) {
             return;
         }
+        std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
         object->SendRequest(COMMON_SWITCH_STATE_ID, data, reply, option);
+        IPCSkeleton::SetCallingIdentity(callingIdentity);
     }
 }
 
