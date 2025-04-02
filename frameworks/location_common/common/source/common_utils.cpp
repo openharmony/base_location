@@ -530,12 +530,15 @@ bool CommonUtils::IsValidForStoull(const std::string input, size_t size)
 
 LocationErrCode CommonUtils::ErrCodeToLocationErrCode(ErrCode errorCode)
 {
-    auto it = locationErrCodeMap.find(errorCode);
-    if (it != locationErrCodeMap.end()) {
-        return it->second;
+    LocationErrCode locationErrCode = ERRCODE_SERVICE_UNAVAILABLE;
+    if (errorCode == ERRCODE_SUCCESS || errorCode == ERRCODE_SERVICE_UNAVAILABLE) {
+        locationErrCode = static_cast<LocationErrCode>(errorCode);
+    } else if (errorCode > MIN_LOCATION_ERRCODE) {
+        locationErrCode = static_cast<LocationErrCode>(errorCode - MIN_LOCATION_ERRCODE);
+    } else {
+        locationErrCode = ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGE(COMMON_UTILS, "Invalid error code.");
-    return ERRCODE_SERVICE_UNAVAILABLE;
+    return locationErrCode;
 }
 } // namespace Location
 } // namespace OHOS
