@@ -124,6 +124,7 @@ enum LocationErrCode {
     ERRCODE_EDM_POLICY_ABANDON = 203,         /* This feature is prohibited by enterprise management policies. */
     ERRCODE_INVALID_PARAM = 401,              /* Parameter error. */
     ERRCODE_NOT_SUPPORTED = 801,              /* Capability not supported. */
+    LOCATION_ERRCODE_MIN = 3300000,
     LOCATION_ERRCODE_PERMISSION_DENIED = 3300201,        /* Permission denied. */
     LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED = 3300202, /* System API is not allowed called by third HAP. */
     /* This feature is prohibited by enterprise management policies. */

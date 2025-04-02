@@ -378,7 +378,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
     locatorBackgroundProxy->OnSaStateChange(isEnabled);
     UpdateLoadedSaMap();
-    std::string callindIdentity = IPCSkeleton::ResetCallingIdentity();
+    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
     std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
     for (auto iter = loadedSaMap_->begin(); iter != loadedSaMap_->end(); iter++) {
         sptr<IRemoteObject> remoteObject = iter->second;
@@ -406,7 +406,7 @@ void LocatorAbility::UpdateSaAbilityHandler()
         }
     }
     SendSwitchState(isEnabled ? 1 : 0);
-    IPCSkeleton::SetCallingIdentity(callindIdentity);
+    IPCSkeleton::SetCallingIdentity(callingIdentity);
 }
 
 int32_t LocatorAbility::CallbackEnter(uint32_t code)

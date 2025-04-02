@@ -48,7 +48,6 @@ const int32_t MAX_INT_LENGTH = 9;
 const size_t MAX_ULL_SIZE = 19;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 const int DEFAULT_USERID = 100;
-const int MIN_LOCATION_ERRCODE = 3300000;
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {
@@ -531,10 +530,10 @@ bool CommonUtils::IsValidForStoull(const std::string input, size_t size)
 LocationErrCode CommonUtils::ErrCodeToLocationErrCode(ErrCode errorCode)
 {
     LocationErrCode locationErrCode = ERRCODE_SERVICE_UNAVAILABLE;
-    if (errorCode == ERRCODE_SUCCESS || errorCode == ERRCODE_SERVICE_UNAVAILABLE) {
+    if (errorCode == ERRCODE_SUCCESS || errorCode >= ERRCODE_SERVICE_UNAVAILABLE) {
         locationErrCode = static_cast<LocationErrCode>(errorCode);
-    } else if (errorCode > MIN_LOCATION_ERRCODE) {
-        locationErrCode = static_cast<LocationErrCode>(errorCode - MIN_LOCATION_ERRCODE);
+    } else if (errorCode > LOCATION_ERRCODE_MIN) {
+        locationErrCode = static_cast<LocationErrCode>(errorCode - LOCATION_ERRCODE_MIN);
     } else {
         locationErrCode = ERRCODE_SERVICE_UNAVAILABLE;
     }
