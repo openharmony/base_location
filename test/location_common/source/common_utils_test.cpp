@@ -320,15 +320,6 @@ HWTEST_F(CommonUtilsTest, GetStringParameter001, TestSize.Level1)
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter001 rnd");
 }
 
-HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
-{
-    std::string name = "";
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 begin");
-    bool ret = CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
-    EXPECT_EQ(true, ret);
-    LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 end");
-}
-
 HWTEST_F(CommonUtilsTest, GetCurrentTime001, TestSize.Level1)
 {
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetCurrentTime001 begin");

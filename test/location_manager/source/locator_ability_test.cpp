@@ -848,9 +848,8 @@ HWTEST_F(LocatorAbilityTest, LocatorHandler003, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "LocatorAbilityTest, LocatorHandler003, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler003 begin");
-    std::shared_ptr<AppExecFwk::EventRunner> runner;
-    auto locatorHandler =
-        new (std::nothrow) LocatorHandler(runner);
+    std::shared_ptr<LocatorHandler> locatorHandler =
+        std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     int state = 1;
     AppExecFwk::InnerEvent::Pointer event  =
         AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
