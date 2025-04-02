@@ -171,7 +171,7 @@
     },
     {
         "name":"stop_idle_tether_notification_action_text",
-        "value":"Enable hotspot",
+        "value":"Turn on hotspot",
         "attr":{
             "priority":"translate"
       }

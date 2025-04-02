@@ -110,7 +110,7 @@
         },
         {
             "name":"stop_idle_tether_notification_action_text",
-            "value":"[TS_1019078]_Enable hotspot"
+            "value":"[TS_1019078]_Turn on hotspot"
         },
         {
             "name":"condition_netshare_hotspot_close",

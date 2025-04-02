@@ -52,7 +52,7 @@ struct dialogPlusPage {
         .fontWeight(FontWeight.Regular)
         .lineHeight($r('app.float.value_vp_19'))
         .textAlign(TextAlign.Center)
-      Row() {
+      Row({ space: $r('app.float.value_vp_24') }) {
         Button($r('app.string.p2p_wsc_pbc_dialog_no_button'))
           .backgroundColor($r('app.color.tv_dialog_button_background_color'))
           .layoutWeight(1)
