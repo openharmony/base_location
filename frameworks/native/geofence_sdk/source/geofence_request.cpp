@@ -71,18 +71,18 @@ void GeofenceRequest::SetScenario(int scenario)
 
 void GeofenceRequest::SetWantAgentParcelData(const Parcel& data)
 {
-    buffer_.clear();
+    std::vector<char>().swap(wantAgentBuffer_);
     char *first = reinterpret_cast<char*>(data.GetData());
     char *last = first + data.GetDataSize();
-    buffer_.assign(first, last);
+    wantAgentBuffer_.assign(first, last);
 }
 
 bool GeofenceRequest::GetWantAgentParcelData(Parcel& data)
 {
-    if (buffer_.empty()) {
+    if (wantAgentBuffer_.empty()) {
         return false;
     }
-    return data.ParseFrom(reinterpret_cast<uintptr_t>(buffer_.data()), buffer_.size());
+    return data.ParseFrom(reinterpret_cast<uintptr_t>(wantAgentBuffer_.data()), wantAgentBuffer_.size());
 }
 
 std::vector<GeofenceTransitionEvent> GeofenceRequest::GetGeofenceTransitionEventList()
@@ -223,8 +223,11 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     uid_ = data.ReadInt32();
     uint32_t size = data.ReadUint32();
     const uint8_t *bufferPtr = data.ReadBuffer(size);
-    buffer_.clear();
-    buffer_.assign(bufferPtr, bufferPtr + size);
+    std::vector<char>().swap(wantAgentBuffer_);
+    if (bufferPtr != nullptr) {
+        wantAgentBuffer_.assign(bufferPtr, bufferPtr + size);
+        bufferPtr = nullptr;
+    }
 }
 
 bool GeofenceRequest::Marshalling(Parcel& parcel) const
@@ -257,8 +260,8 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
     parcel.WriteInt32(uid_);
-    parcel.WriteUint32(buffer_.size());
-    parcel.WriteBuffer(buffer_.data(), buffer_.size());
+    parcel.WriteUint32(wantAgentBuffer_.size());
+    parcel.WriteBuffer(wantAgentBuffer_.data(), wantAgentBuffer_.size());
     return true;
 }
 
