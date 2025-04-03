@@ -56,7 +56,6 @@ generate_static_abc("geoLocationManager_abc") {
   arktsconfig = "./location_ani_config.json"
   dst_file = "$target_out_dir/@ohos.geoLocationManager.abc"
   out_puts = [ "$target_out_dir/@ohos.geoLocationManager.abc" ]
-
   is_boot_abc = "True"
   device_dst_file = "/system/framework/@ohos.geoLocationManager.abc"
 }
