@@ -106,7 +106,7 @@ private:
     int scenario_;
     int fenceId_;
     int32_t uid_;
-    std::vector<char> buffer_;
+    std::vector<char> wantAgentBuffer_;
     std::string bundleName_;
     bool appAliveStatus_;
     int64_t requestExpirationTime_ = 0;

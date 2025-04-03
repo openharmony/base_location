@@ -48,29 +48,6 @@ const int32_t MAX_INT_LENGTH = 9;
 const size_t MAX_ULL_SIZE = 19;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 const int DEFAULT_USERID = 100;
-const std::map<ErrCode, LocationErrCode> locationErrCodeMap = {
-    {ERR_OK, OHOS::Location::ERRCODE_SUCCESS},
-    {LOCATION_ERRCODE_PERMISSION_DENIED, OHOS::Location::ERRCODE_PERMISSION_DENIED},
-    {LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED, OHOS::Location::ERRCODE_SYSTEM_PERMISSION_DENIED},
-    {LOCATION_ERRCODE_EDM_POLICY_ABANDON, OHOS::Location::ERRCODE_EDM_POLICY_ABANDON},
-    {LOCATION_ERRCODE_INVALID_PARAM, OHOS::Location::ERRCODE_INVALID_PARAM},
-    {LOCATION_ERRCODE_NOT_SUPPORTED, OHOS::Location::ERRCODE_NOT_SUPPORTED},
-    {ERRCODE_SERVICE_UNAVAILABLE, OHOS::Location::ERRCODE_SERVICE_UNAVAILABLE},
-    {ERRCODE_SWITCH_OFF, OHOS::Location::ERRCODE_SWITCH_OFF},
-    {ERRCODE_LOCATING_FAIL, OHOS::Location::ERRCODE_LOCATING_FAIL},
-    {ERRCODE_LOCATING_NETWORK_FAIL, OHOS::Location::ERRCODE_LOCATING_NETWORK_FAIL},
-    {ERRCODE_LOCATING_ACC_FAIL, OHOS::Location::ERRCODE_LOCATING_ACC_FAIL},
-    {ERRCODE_LOCATING_CACHE_FAIL, OHOS::Location::ERRCODE_LOCATING_CACHE_FAIL},
-    {ERRCODE_REVERSE_GEOCODING_FAIL, OHOS::Location::ERRCODE_REVERSE_GEOCODING_FAIL},
-    {ERRCODE_GEOCODING_FAIL, OHOS::Location::ERRCODE_GEOCODING_FAIL},
-    {ERRCODE_COUNTRYCODE_FAIL, OHOS::Location::ERRCODE_COUNTRYCODE_FAIL},
-    {ERRCODE_GEOFENCE_FAIL, OHOS::Location::ERRCODE_GEOFENCE_FAIL},
-    {ERRCODE_NO_RESPONSE, OHOS::Location::ERRCODE_NO_RESPONSE},
-    {ERRCODE_SCAN_FAIL, OHOS::Location::ERRCODE_SCAN_FAIL},
-    {ERRCODE_WIFI_IS_NOT_CONNECTED, OHOS::Location::ERRCODE_WIFI_IS_NOT_CONNECTED},
-    {ERRCODE_GEOFENCE_EXCEED_MAXIMUM, OHOS::Location::ERRCODE_GEOFENCE_EXCEED_MAXIMUM},
-    {ERRCODE_GEOFENCE_INCORRECT_ID, OHOS::Location::ERRCODE_GEOFENCE_INCORRECT_ID}
-};
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {
@@ -552,12 +529,15 @@ bool CommonUtils::IsValidForStoull(const std::string input, size_t size)
 
 LocationErrCode CommonUtils::ErrCodeToLocationErrCode(ErrCode errorCode)
 {
-    auto it = locationErrCodeMap.find(errorCode);
-    if (it != locationErrCodeMap.end()) {
-        return it->second;
+    LocationErrCode locationErrCode = ERRCODE_SERVICE_UNAVAILABLE;
+    if (errorCode == ERRCODE_SUCCESS || errorCode >= ERRCODE_SERVICE_UNAVAILABLE) {
+        locationErrCode = static_cast<LocationErrCode>(errorCode);
+    } else if (errorCode > LOCATION_ERRCODE_MIN) {
+        locationErrCode = static_cast<LocationErrCode>(errorCode - LOCATION_ERRCODE_MIN);
+    } else {
+        locationErrCode = ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGE(COMMON_UTILS, "Invalid error code.");
-    return ERRCODE_SERVICE_UNAVAILABLE;
+    return locationErrCode;
 }
 } // namespace Location
 } // namespace OHOS
