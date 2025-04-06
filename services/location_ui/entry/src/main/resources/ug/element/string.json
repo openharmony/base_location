@@ -216,6 +216,34 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"\u200f«%s» نى ئۇلامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"ئۇلاش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"ئۇلاشنى جەزملەش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"چەكلەش",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
