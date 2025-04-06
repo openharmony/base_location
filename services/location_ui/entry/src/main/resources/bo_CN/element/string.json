@@ -216,6 +216,34 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"%sལ་འབྲེལ་མཐུད་བྱེད་དམ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"འབྲེལ་མཐུད།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"འབྲེལ་མཐུད་གཏན་འཁེལ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"དང་ལེན་མི་བྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
