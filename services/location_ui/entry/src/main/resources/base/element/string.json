@@ -255,7 +255,10 @@
     },
     {
       "name":"p2p_wsc_pbc_dialog_title",
-      "value":"Connection request"
+      "value":"Connection request",
+      "attr":{
+        "priority":"translate"
+      }
     },
     {
       "name":"p2p_wsc_pbc_dialog_text",
