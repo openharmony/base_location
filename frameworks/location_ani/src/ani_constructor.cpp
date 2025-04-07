@@ -283,10 +283,10 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         return ANI_ERROR;
     }
 
-    static const char *className = "L@ohos/geoLocationManager/ETSGLOBAL;";
-    ani_class cls;
-    if (ANI_OK != env->FindClass(className, &cls)) {
-        std::cerr << "Not found '" << className << "'" << std::endl;
+    static const char *moduleName = "L@ohos/geoLocationManager;";
+    ani_module module;
+    if (ANI_OK != env->FindModule(moduleName, &module)) {
+        std::cerr << "Not found '" << moduleName << "'" << std::endl;
         return ANI_ERROR;
     }
 
@@ -296,8 +296,8 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
             reinterpret_cast<void *>(GetCurrentLocation)},
     };
 
-    if (ANI_OK != env->Class_BindNativeMethods(cls, methods.data(), methods.size())) {
-        std::cerr << "Cannot bind native methods to '" << className << "'" << std::endl;
+    if (ANI_OK != env->Module_BindNativeFunctions(module, methods.data(), methods.size())) {
+        std::cerr << "Cannot bind native methods to '" << moduleName << "'" << std::endl;
         return ANI_ERROR;
     };
 
