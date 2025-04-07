@@ -159,6 +159,22 @@
         {
             "name":"bluetooth_transfer_notification_title",
             "value":"[TS_1039898]_Bluetooth file transfer"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"[TS_1053169]_Allow %s to connect to this device?"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"[TS_1053168]_Allow"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"[TS_1053170]_Connection request"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"[TS_1053167]_Deny"
         }
     ]
 }

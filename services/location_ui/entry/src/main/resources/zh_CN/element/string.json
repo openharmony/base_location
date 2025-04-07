@@ -246,20 +246,32 @@
       }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_title",
-      "value":"连接确认"
+        "name":"p2p_wsc_pbc_dialog_title",
+        "value":"连接确认",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_text",
-      "value":"是否连接\"%s\"？"
+        "name":"p2p_wsc_pbc_dialog_text",
+        "value":"是否连接\"%s\"？",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_no_button",
-      "value":"拒绝"
+        "name":"p2p_wsc_pbc_dialog_no_button",
+        "value":"拒绝",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_ok_button",
-      "value":"连接"
+        "name":"p2p_wsc_pbc_dialog_ok_button",
+        "value":"连接",
+        "attr":{
+            "priority":"translate"
+        }
     }
   ]
 }

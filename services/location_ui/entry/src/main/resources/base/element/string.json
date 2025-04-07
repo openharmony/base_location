@@ -254,20 +254,32 @@
       }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_title",
-      "value":"Connection request"
+        "name":"p2p_wsc_pbc_dialog_title",
+        "value":"Connection request",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_text",
-      "value":"Allow %s to connect to this device?"
+        "name":"p2p_wsc_pbc_dialog_text",
+        "value":"Allow %s to connect to this device?",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_no_button",
-      "value":"Deny"
+        "name":"p2p_wsc_pbc_dialog_no_button",
+        "value":"Deny",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_ok_button",
-      "value":"Allow"
+        "name":"p2p_wsc_pbc_dialog_ok_button",
+        "value":"Allow",
+        "attr":{
+            "priority":"translate"
+        }
     }
   ]
 }

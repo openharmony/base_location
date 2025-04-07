@@ -228,6 +228,34 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"連接「%s」？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"連接",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"連接確認",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"拒絕",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
