@@ -504,7 +504,7 @@ void LocatorRequiredDataManager::ReportBluetoohScanResult(
         if (CommonUtils::IsAppBelongCurrentAccount(identity) &&
             PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId()) &&
             HookUtils::ExecuteHookWhenReportBluetoohScanResult(identity.GetBundleName(), TYPE_WHITE_LIST_BLE) &&
-            !LocatorAbility::GetInstance()->IsProxyPid(identity.GetPid())) {
+            !ProxyFreezeManager::GetInstance()->IsProxyPid(identity.GetPid())) {
             bluetoohScanResultCallback->OnBluetoohScanResultChange(bluetoothScanResult);
         }
     }
