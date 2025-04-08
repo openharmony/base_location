@@ -26,18 +26,25 @@
 #include "locator_ability.h"
 #include "locationhub_ipc_interface_code.h"
 #include "permission_manager.h"
+#include "locator_callback_host.h"
+#include "geo_convert_callback_host.h"
+#include "gnss_status_callback_host.h"
+#include "location_error_callback_napi.h"
+#include "bluetooth_scan_result_callback_napi.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
-const int32_t LOCATION_PERM_NUM = 6;
+const int32_t LOCATION_PERM_NUM = 7;
 const int32_t WAIT_EVENT_TIME = 3;
+const int32_t MIN_SIZE_NUM = 10;
 void MockNativePermission()
 {
     const char *perms[] = {
         ACCESS_LOCATION.c_str(), ACCESS_APPROXIMATELY_LOCATION.c_str(),
         ACCESS_BACKGROUND_LOCATION.c_str(), MANAGE_SECURE_SETTINGS.c_str(),
         ACCESS_CONTROL_LOCATION_SWITCH.c_str(), ACCESS_LOCATION_SWITCH_IGNORED.c_str(),
+        ACCESS_MOCK_LOCATION.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
@@ -320,6 +327,10 @@ bool LocatorAbilityStub015FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    RequestConfig requestConfig;
+    requestParcel.WriteParcelable(&requestConfig);
+    sptr<LocatorCallbackHost> cb = new (std::nothrow) LocatorCallbackHost();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -337,6 +348,8 @@ bool LocatorAbilityStub016FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<LocatorCallbackHost> cb = new (std::nothrow) LocatorCallbackHost();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -421,6 +434,10 @@ bool LocatorAbilityStub021FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<GeoConvertCallbackHost> cb = new (std::nothrow) GeoConvertCallbackHost();
+    requestParcel.WriteRemoteObject(cb->AsObject());
+    GeocodeConvertLocationRequest request;
+    requestParcel.WriteParcelable(&request);
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -438,6 +455,10 @@ bool LocatorAbilityStub022FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<GeoConvertCallbackHost> cb = new (std::nothrow) GeoConvertCallbackHost();
+    requestParcel.WriteRemoteObject(cb->AsObject());
+    GeocodeConvertAddressRequest request;
+    requestParcel.WriteParcelable(&request);
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -523,6 +544,10 @@ bool LocatorAbilityStub027FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    requestParcel.WriteInt32(1);
+    requestParcel.WriteInt32(1);
+    sptr<CachedLocationsCallbackNapi> cb = new (std::nothrow) CachedLocationsCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -540,6 +565,8 @@ bool LocatorAbilityStub028FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<GnssStatusCallbackHost> cb = new (std::nothrow) GnssStatusCallbackHost();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -557,6 +584,8 @@ bool LocatorAbilityStub029FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<NmeaMessageCallbackNapi> cb = new (std::nothrow) NmeaMessageCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -574,6 +603,8 @@ bool LocatorAbilityStub030FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<NmeaMessageCallbackNapi> cb = new (std::nothrow) NmeaMessageCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -625,6 +656,8 @@ bool LocatorAbilityStub033FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<CachedLocationsCallbackNapi> cb = new (std::nothrow) CachedLocationsCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -642,6 +675,8 @@ bool LocatorAbilityStub034FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<GnssStatusCallbackHost> cb = new (std::nothrow) GnssStatusCallbackHost();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -659,6 +694,8 @@ bool LocatorAbilityStub035FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<NmeaMessageCallbackNapi> cb = new (std::nothrow) NmeaMessageCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -676,6 +713,8 @@ bool LocatorAbilityStub036FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<NmeaMessageCallbackNapi> cb = new (std::nothrow) NmeaMessageCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -708,6 +747,8 @@ bool LocatorAbilityStub038FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<LocationErrorCallbackNapi> cb = new (std::nothrow) LocationErrorCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -724,6 +765,8 @@ bool LocatorAbilityStub039FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<LocationErrorCallbackNapi> cb = new (std::nothrow) LocationErrorCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -804,6 +847,10 @@ bool LocatorAbilityStub044FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    LocatingRequiredDataConfig dataConfig;
+    requestParcel.WriteParcelable(&dataConfig);
+    sptr<LocatingRequiredDataCallbackNapi> cb = new (std::nothrow) LocatingRequiredDataCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -820,6 +867,8 @@ bool LocatorAbilityStub045FuzzTest(const char* data, size_t size)
 {
     MessageParcel requestParcel;
     requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<LocatingRequiredDataCallbackNapi> cb = new (std::nothrow) LocatingRequiredDataCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
     requestParcel.WriteBuffer(data, size);
     requestParcel.RewindRead(0);
 
@@ -879,6 +928,42 @@ bool LocatorAbilityStub048FuzzTest(const char* data, size_t size)
         requestParcel, reply, option);
     return true;
 }
+
+bool LocatorAbilityStub049FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<BluetoothScanResultCallbackNapi> cb = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::START_SCAN_BLUETOOTH_DEVICE),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub050FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    sptr<BluetoothScanResultCallbackNapi> cb = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    requestParcel.WriteRemoteObject(cb->AsObject());
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::STOP_SCAN_BLUETOOTH_DEVICE),
+        requestParcel, reply, option);
+
+    return true;
+}
 } // namespace OHOS
 
 void GeoCodeFuzzTest(const char* ch, size_t size)
@@ -899,6 +984,14 @@ void SwitchFuzzTest(const char* ch, size_t size)
     OHOS::LocatorAbilityStub048FuzzTest(ch, size);
 }
 
+void ScanFuzzTest(const char* ch, size_t size)
+{
+    OHOS::LocatorAbilityStub044FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub045FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub049FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub050FuzzTest(ch, size);
+}
+
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -907,6 +1000,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::MockNativePermission();
         GeoCodeFuzzTest(ch, size);
         SwitchFuzzTest(ch, size);
+        ScanFuzzTest(ch, size);
         OHOS::LocatorAbilityStub001FuzzTest(ch, size);
         OHOS::LocatorAbilityStub003FuzzTest(ch, size);
         OHOS::LocatorAbilityStub004FuzzTest(ch, size);
@@ -942,8 +1036,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub041FuzzTest(ch, size);
         OHOS::LocatorAbilityStub042FuzzTest(ch, size);
         OHOS::LocatorAbilityStub043FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub044FuzzTest(ch, size);
-        OHOS::LocatorAbilityStub045FuzzTest(ch, size);
         OHOS::LocatorAbilityStub047FuzzTest(ch, size);
         sleep(OHOS::WAIT_EVENT_TIME);
         free(ch);

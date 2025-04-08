@@ -3025,25 +3025,6 @@ void LocatorCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remo
     }
 }
 
-SwitchCallbackDeathRecipient::SwitchCallbackDeathRecipient()
-{
-}
-
-SwitchCallbackDeathRecipient::~SwitchCallbackDeathRecipient()
-{
-}
-
-void SwitchCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
-{
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility != nullptr) {
-        locatorAbility->RemoveUnloadTask(DEFAULT_CODE);
-        locatorAbility->UnregisterSwitchCallback(remote.promote());
-        locatorAbility->PostUnloadTask(DEFAULT_CODE);
-        LBSLOGI(LOCATOR, "switch callback OnRemoteDied");
-    }
-}
-
 ScanCallbackDeathRecipient::ScanCallbackDeathRecipient()
 {
 }

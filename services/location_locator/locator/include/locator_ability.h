@@ -347,13 +347,6 @@ public:
 private:
     int32_t tokenId_;
 };
-
-class SwitchCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-    SwitchCallbackDeathRecipient();
-    ~SwitchCallbackDeathRecipient() override;
-};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATOR_ABILITY_H

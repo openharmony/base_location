@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "bluetooh_scan_result_callback_napi.h"
+#include "bluetooth_scan_result_callback_napi.h"
 
 #include "ipc_object_stub.h"
 #include "ipc_skeleton.h"
