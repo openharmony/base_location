@@ -122,7 +122,7 @@
     },
     {
       "name":"wifipro_auto_connect_dialog_context",
-      "value":"Allow connection to %s using the password for the current WLAN network?",
+      "value":"Allow connection to a better network \"%s\" using the password for the current WLAN network?",
       "attr":{
           "priority":"translate"
       }
@@ -171,7 +171,7 @@
     },
     {
         "name":"stop_idle_tether_notification_action_text",
-        "value":"Enable hotspot",
+        "value":"Turn on hotspot",
         "attr":{
             "priority":"translate"
       }
@@ -254,20 +254,32 @@
       }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_title",
-      "value":"Connection request"
+        "name":"p2p_wsc_pbc_dialog_title",
+        "value":"Connection request",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_text",
-      "value":"Allow %s to connect to this device?"
+        "name":"p2p_wsc_pbc_dialog_text",
+        "value":"Allow %s to connect to this device?",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_no_button",
-      "value":"Deny"
+        "name":"p2p_wsc_pbc_dialog_no_button",
+        "value":"Deny",
+        "attr":{
+            "priority":"translate"
+        }
     },
     {
-      "name":"p2p_wsc_pbc_dialog_ok_button",
-      "value":"Allow"
+        "name":"p2p_wsc_pbc_dialog_ok_button",
+        "value":"Allow",
+        "attr":{
+            "priority":"translate"
+        }
     }
   ]
 }

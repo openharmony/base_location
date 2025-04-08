@@ -124,19 +124,21 @@ enum LocationErrCode {
     ERRCODE_EDM_POLICY_ABANDON = 203,         /* This feature is prohibited by enterprise management policies. */
     ERRCODE_INVALID_PARAM = 401,              /* Parameter error. */
     ERRCODE_NOT_SUPPORTED = 801,              /* Capability not supported. */
-    IPC_ERRCODE_PERMISSION_DENIED = 3300201,        /* Permission denied. */
-    IPC_ERRCODE_SYSTEM_PERMISSION_DENIED = 3300202, /* System API is not allowed called by third HAP. */
-    IPC_ERRCODE_EDM_POLICY_ABANDON = 3300203,       /* This feature is prohibited by enterprise management policies. */
-    IPC_ERRCODE_INVALID_PARAM = 3300401,            /* Parameter error. */
-    IPC_ERRCODE_NOT_SUPPORTED = 3300801,            /* Capability not supported. */
+    LOCATION_ERRCODE_MIN = 3300000,
+    LOCATION_ERRCODE_PERMISSION_DENIED = 3300201,        /* Permission denied. */
+    LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED = 3300202, /* System API is not allowed called by third HAP. */
+    /* This feature is prohibited by enterprise management policies. */
+    LOCATION_ERRCODE_EDM_POLICY_ABANDON = 3300203,
+    LOCATION_ERRCODE_INVALID_PARAM = 3300401,            /* Parameter error. */
+    LOCATION_ERRCODE_NOT_SUPPORTED = 3300801,            /* Capability not supported. */
     ERRCODE_SERVICE_UNAVAILABLE = 3301000,    /* Location service is unavailable. */
     ERRCODE_SWITCH_OFF = 3301100,             /* The location switch is off. */
     ERRCODE_LOCATING_FAIL = 3301200,          /* Failed to obtain the geographical location. */
-    ERRCODE_LOCATING_NETWORK_FAIL = 3301201,
     /* The network locating is failed because the network cannot be accessed. */
-    ERRCODE_LOCATING_ACC_FAIL = 3301203,
+    ERRCODE_LOCATING_NETWORK_FAIL = 3301201,
     /* The positioning result does not meet the precision requirement (maxAccuracy) */
     /* in the positioning request parameters. */
+    ERRCODE_LOCATING_ACC_FAIL = 3301203,
     ERRCODE_LOCATING_CACHE_FAIL = 3301204,    /* The system does not have a cache locaiton. */
     ERRCODE_REVERSE_GEOCODING_FAIL = 3301300, /* Reverse geocoding query failed */
     ERRCODE_GEOCODING_FAIL = 3301400,         /* Geocoding query failed */
@@ -144,8 +146,8 @@ enum LocationErrCode {
     ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
     ERRCODE_SCAN_FAIL = 3301800,              /* Failed to start WiFi or Bluetooth scanning. */
+    /* Failed to obtain the hotpot MAC address because the Wi-Fi is not connected. */
     ERRCODE_WIFI_IS_NOT_CONNECTED = 3301900,
-        /* Failed to obtain the hotpot MAC address because the Wi-Fi is not connected. */
     ERRCODE_GEOFENCE_EXCEED_MAXIMUM = 3301601, /* The number of geofences exceeds the maximum. */
     ERRCODE_GEOFENCE_INCORRECT_ID = 3301602 /* Failed to delete a geofence due to an incorrect ID. */
 };

@@ -227,7 +227,7 @@ HWTEST_F(GnssAbilityTest, RegisterGnssStatusCallback001, TestSize.Level1)
      * @tc.steps: step2. test register gnss status callback
      * @tc.expected: log info : "SendRegisterMsgToRemote callback is nullptr".
      */
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, proxy_->RegisterGnssStatusCallback(client, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, proxy_->RegisterGnssStatusCallback(client, identity));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterGnssStatusCallback001 end");
 }
 
@@ -281,7 +281,7 @@ HWTEST_F(GnssAbilityTest, UnregisterGnssStatusCallback001, TestSize.Level1)
      * @tc.steps: step2. test unregister gnss status callback
      * @tc.expected: log info : "unregister an invalid gnssStatus callback".
      */
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, proxy_->UnregisterGnssStatusCallback(client));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, proxy_->UnregisterGnssStatusCallback(client));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterGnssStatusCallback001 end");
 }
 
@@ -307,7 +307,7 @@ HWTEST_F(GnssAbilityTest, RegisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.steps: step2. test register nmea message callback
      * @tc.expected: log info : "register an invalid nmea callback".
      */
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, proxy_->RegisterNmeaMessageCallback(client, identity));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, proxy_->RegisterNmeaMessageCallback(client, identity));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterNmeaMessageCallback001 end");
 }
 
@@ -361,7 +361,7 @@ HWTEST_F(GnssAbilityTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
      * @tc.steps: step2. test unregister nmea message callback
      * @tc.expected: log info : "unregister an invalid nmea callback".
      */
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, proxy_->UnregisterNmeaMessageCallback(client));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, proxy_->UnregisterNmeaMessageCallback(client));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterNmeaMessageCallback001 end");
 }
 
@@ -388,7 +388,7 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback001, TestSize.Level1)
      * @tc.steps: step2. test register cached call back if call back is null.
      * @tc.expected: log info : "register an invalid cached location callback"
      */
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, proxy_->RegisterCachedCallback(requestConfig, callback));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, proxy_->RegisterCachedCallback(requestConfig, callback));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback001 end");
 }
 
@@ -413,7 +413,7 @@ HWTEST_F(GnssAbilityTest, RegisterCachedCallback003, TestSize.Level1)
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED,
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED,
         proxy_->RegisterCachedCallback(requestConfig, cachedLocationCallbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterCachedCallback003 end");
 }
@@ -439,14 +439,15 @@ HWTEST_F(GnssAbilityTest, RegisterAndUnregisterCachedCallback002, TestSize.Level
      * @tc.steps: step2. test register cached call back if call back is not null.
      * @tc.expected: no exception happens
      */
-    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED,
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED,
         proxy_->RegisterCachedCallback(requestConfig, cachedLocationCallbackStub_->AsObject()));
 
     /*
      * @tc.steps: step3. test unregister cached call back if call back is not null.
      * @tc.expected: no exception happens.
      */
-    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED, proxy_->UnregisterCachedCallback(cachedLocationCallbackStub_->AsObject()));
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED,
+        proxy_->UnregisterCachedCallback(cachedLocationCallbackStub_->AsObject()));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RegisterAndUnregisterCachedCallback002 end");
 }
 
@@ -469,7 +470,7 @@ HWTEST_F(GnssAbilityTest, UnregisterCachedCallback001, TestSize.Level1)
      * @tc.steps: step2. test unregister cached call back if call back is null.
      * @tc.expected: log info : "register an invalid cached location callback"
      */
-    EXPECT_EQ(IPC_ERRCODE_INVALID_PARAM, proxy_->UnregisterCachedCallback(callback));
+    EXPECT_EQ(LOCATION_ERRCODE_INVALID_PARAM, proxy_->UnregisterCachedCallback(callback));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] UnregisterCachedCallback001 end");
 }
 
@@ -488,7 +489,7 @@ HWTEST_F(GnssAbilityTest, GetCachedGnssLocationsSize001, TestSize.Level1)
      * @tc.expected: size equals -1.
      */
     int size = -1;
-    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED, proxy_->GetCachedGnssLocationsSize(size));
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, proxy_->GetCachedGnssLocationsSize(size));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetCachedGnssLocationsSize001 end");
 }
 
@@ -506,7 +507,7 @@ HWTEST_F(GnssAbilityTest, FlushCachedGnssLocations001, TestSize.Level1)
      * @tc.steps: step1. test flush cached gnss locations.
      * @tc.expected: reply code unsupport
      */
-    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED, proxy_->FlushCachedGnssLocations());
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, proxy_->FlushCachedGnssLocations());
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] FlushCachedGnssLocations001 end");
 }
 
@@ -620,7 +621,7 @@ HWTEST_F(GnssAbilityTest, GnssLocationMock001, TestSize.Level1)
 
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
     EXPECT_EQ(false, ability_->IsMockEnabled());
-    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssLocationMock001 begin");
 }
 

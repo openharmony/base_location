@@ -37,7 +37,7 @@ bool PermissionManager::CheckPermission(const std::string &permission, uint32_t 
     int result = Security::AccessToken::PERMISSION_DENIED;
     if (tokenFirstCaller == 0) {
         if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_INVALID) {
-            LBSLOGD(LOCATOR, "tokenid = %{public}d has no permission.permission name=%{public}s",
+            LBSLOGD(LOCATOR, "id = %{public}d has no permission.permission name=%{public}s",
                 callerToken, permission.c_str());
             return false;
         } else {
@@ -49,7 +49,7 @@ bool PermissionManager::CheckPermission(const std::string &permission, uint32_t 
     if (result == Security::AccessToken::PERMISSION_GRANTED) {
         return true;
     } else {
-        LBSLOGD(LOCATOR, "tokenid = %{public}d has no permission.permission name=%{public}s",
+        LBSLOGD(LOCATOR, "id = %{public}d has no permission.permission name=%{public}s",
             callerToken, permission.c_str());
         return false;
     }
@@ -90,7 +90,7 @@ bool PermissionManager::CheckCallingPermission(pid_t callingUid, pid_t callingPi
 {
     if (callingUid != static_cast<pid_t>(getuid()) || callingPid != getpid()) {
         LBSLOGE(LOCATOR, "uid pid not match locationhub process.");
-        reply.WriteInt32(IPC_ERRCODE_PERMISSION_DENIED);
+        reply.WriteInt32(LOCATION_ERRCODE_PERMISSION_DENIED);
         return false;
     }
     return true;

@@ -102,7 +102,7 @@
         },
         {
             "name":"wifipro_auto_connect_dialog_context",
-            "value":"[TS_993894]_Allow connection to %s using the password for the current WLAN network?"
+            "value":"[TS_993894]_Allow connection to a better network \"%s\" using the password for the current WLAN network?"
         },
         {
             "name":"stop_idle_tether_notification_message",
@@ -110,7 +110,7 @@
         },
         {
             "name":"stop_idle_tether_notification_action_text",
-            "value":"[TS_1019078]_Enable hotspot"
+            "value":"[TS_1019078]_Turn on hotspot"
         },
         {
             "name":"condition_netshare_hotspot_close",
@@ -159,6 +159,22 @@
         {
             "name":"bluetooth_transfer_notification_title",
             "value":"[TS_1039898]_Bluetooth file transfer"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"[TS_1053169]_Allow %s to connect to this device?"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"[TS_1053168]_Allow"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"[TS_1053170]_Connection request"
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"[TS_1053167]_Deny"
         }
     ]
 }

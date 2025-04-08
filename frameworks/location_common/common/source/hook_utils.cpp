@@ -215,5 +215,27 @@ bool HookUtils::ExecuteHookWhenApproximatelyLocation(std::string packageName)
         LocationProcessStage::APPROXIMATELY_LOCATION_PROCESS, (void *)&approximatelyLocationStruct, nullptr);
     return approximatelyLocationStruct.needApproximate;
 }
+
+bool HookUtils::ExecuteHookWhenStartScanBluetoohDevice(const std::string& packageName, const std::string& type)
+{
+    ScanStruct scanStruct;
+    scanStruct.packageName = packageName;
+    scanStruct.type = type;
+    scanStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::START_SCAN_BLUETOOTH_DEVICE_PROCESS, (void *)&scanStruct, nullptr);
+    return scanStruct.result;
+}
+
+bool HookUtils::ExecuteHookWhenReportBluetoohScanResult(const std::string& packageName, const std::string& type)
+{
+    ScanStruct scanStruct;
+    scanStruct.packageName = packageName;
+    scanStruct.type = type;
+    scanStruct.result = false;
+    ExecuteHook(
+        LocationProcessStage::REPORT_BLUETOOTH_SCAN_RESULT_PROCESS, (void *)&scanStruct, nullptr);
+    return scanStruct.result;
+}
 } // namespace Location
 } // namespace OHOS

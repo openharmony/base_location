@@ -114,7 +114,7 @@
         },
         {
             "name":"wifipro_auto_connect_dialog_context",
-            "value":"نۆۋەتتىكى WLAN تور ئاچقۇچى ئارقىلىق %s غا ئۇلاشقا قوشۇلامسىز؟",
+            "value":"نۆۋەتتىكى WLAN ئاچقۇچ ئارقىلىق تېخىمۇ ياخشى بولغان %s غا ئۇلامسىز؟",
             "attr":{
                 "priority":"translate"
             }
@@ -213,6 +213,34 @@
         {
             "name":"share_name",
             "value":"كۆكچىش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"\u200f«%s» نى ئۇلامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"ئۇلاش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"ئۇلاشنى جەزملەش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"چەكلەش",
             "attr":{
                 "priority":"translate"
             }

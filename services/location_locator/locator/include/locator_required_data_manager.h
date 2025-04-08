@@ -221,17 +221,12 @@ public:
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
     void ReportBluetoohScanResult(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
-    bool CheckLocationPermission(AppIdentity &identity);
-    bool CheckScanWhiteList(const std::string& bundleName, const std::string& type);
-    std::string GetScanWhiteListStr();
     void StartScanBluetoohDevice(sptr<IBluetoothScanResultCallback> callback, AppIdentity identity);
     void StopScanBluetoohDevice(sptr<IRemoteObject> callbackObj);
     void StartBluetoothScan();
     void StoptBluetoothScan();
     void RemoveBluetoohScanCallback(sptr<IRemoteObject> callbackObj);
     void RemoveBluetoohScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj);
-    void UpdateQueryScanWhitListTimestamp();
-    int64_t GetQueryScanWhitListTimestamp();
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
     bool IsConnecting();
     static LocatorRequiredDataManager* GetInstance();
@@ -279,8 +274,6 @@ private:
     int64_t wifiScanCompleteTimestamp_ = 0;
     std::mutex lastStillTimeMutex_;
     int64_t lastStillTime_ = 0;
-    int64_t queryScanWhitListTimestamp_ = 0;
-    std::string scanWhiteListStr_;
 };
 
 class BluetoohScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

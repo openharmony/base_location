@@ -190,7 +190,7 @@ HWTEST_F(NetworkAbilityTest, NetworkLocationMock001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetMocked(timeInterval, locations));
     
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->DisableMock());
-    EXPECT_EQ(IPC_ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, proxy_->SetMocked(timeInterval, locations));
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] NetworkLocationMock001 end");
 }
 

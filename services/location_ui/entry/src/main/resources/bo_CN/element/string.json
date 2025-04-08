@@ -114,7 +114,7 @@
         },
         {
             "name":"wifipro_auto_connect_dialog_context",
-            "value":"མིག་སྔའི་ WLAN དྲ་རྒྱའི་གསང་བའི་ལྡེ་མིག་བཀོལ་སྤྱོད་ཚོད་ལྟ་བྱ་རྒྱུ་དབང་སྤྲོད་བྱས་ནས་ %s ལ་སྦྲེལ་མཐུད་བྱེད་པ།",
+            "value":"མིག་སྔའི་ WLAN ཡི་ལྡེ་མིག་སྤྱད་དེ་དྲ་རྒྱ་སྔར་ལས་ལེགས་པ་༼%s༽ལ་འབྲེལ་མཐུད་བྱེད་པར་དབང་སྤྲོད་བྱེད།",
             "attr":{
                 "priority":"translate"
             }
@@ -213,6 +213,34 @@
         {
             "name":"share_name",
             "value":"སོ་སྔོན།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"%sལ་འབྲེལ་མཐུད་བྱེད་དམ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"འབྲེལ་མཐུད།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"འབྲེལ་མཐུད་གཏན་འཁེལ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"དང་ལེན་མི་བྱེད།",
             "attr":{
                 "priority":"translate"
             }
