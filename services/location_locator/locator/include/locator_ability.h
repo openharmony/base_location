@@ -130,8 +130,6 @@ public:
     ErrCode GetSwitchState(int32_t& state) override;
     ErrCode EnableAbility(bool isEnabled) override;
     ErrCode EnableAbilityForUser(bool isEnabled, int32_t userId) override;
-    LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid);
-    LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     ErrCode RegisterGnssStatusCallback(const sptr<IRemoteObject>& cb) override;
     ErrCode UnregisterGnssStatusCallback(const sptr<IRemoteObject>& cb) override;
     ErrCode RegisterNmeaMessageCallback(const sptr<IRemoteObject>& cb) override;

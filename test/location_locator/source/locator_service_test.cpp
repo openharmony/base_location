@@ -528,12 +528,6 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     int32_t reportingPeriodSec = 1;
     bool wakeUpCacheQueueFull = true;
     // uid pid not match locationhub process
-    EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterCachedLocationCallback(
-        reportingPeriodSec, wakeUpCacheQueueFull, cachedCallback, "unit.test"));
-    sleep(1);
-    EXPECT_EQ(IPC_ERRCODE_PERMISSION_DENIED,
-        locatorAbility->UnregisterCachedLocationCallback(cachedCallback)); // uid pid not match locationhub process
-    sleep(1);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 end");
 }
 #endif

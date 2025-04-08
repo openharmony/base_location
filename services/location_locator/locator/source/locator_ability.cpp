@@ -135,7 +135,6 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true,
         AppExecFwk::ThreadMode::FFRT));
-    switchCallbacks_ = std::make_unique<std::map<pid_t, sptr<ISwitchCallback>>>();
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
@@ -628,59 +627,6 @@ ErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(int32_t type, bool isCon
         return IPC_ERRCODE_PERMISSION_DENIED;
     }
     return LocationConfigManager::GetInstance()->SetPrivacyTypeState(type, isConfirmed);
-}
-
-LocationErrCode LocatorAbility::RegisterSwitchCallback(const sptr<IRemoteObject>& callback, pid_t uid)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR, "register an invalid switch callback");
-        return IPC_ERRCODE_INVALID_PARAM;
-    }
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) SwitchCallbackDeathRecipient());
-    callback->AddDeathRecipient(death);
-    sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
-    if (switchCallback == nullptr) {
-        LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return IPC_ERRCODE_INVALID_PARAM;
-    }
-    std::unique_lock<std::mutex> lock(switchMutex_);
-    switchCallbacks_->erase(uid);
-    if (switchCallbacks_->size() <= MAX_SWITCH_CALLBACKS_NUM) {
-        switchCallbacks_->insert(std::make_pair(uid, switchCallback));
-    } else {
-        LBSLOGE(LOCATOR, "RegisterSwitchCallback num max");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR, "after uid:%{public}d register, switch callback size:%{public}s",
-        uid, std::to_string(switchCallbacks_->size()).c_str());
-    return ERRCODE_SUCCESS;
-}
-
-LocationErrCode LocatorAbility::UnregisterSwitchCallback(const sptr<IRemoteObject>& callback)
-{
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR, "unregister an invalid switch callback");
-        return IPC_ERRCODE_INVALID_PARAM;
-    }
-    sptr<ISwitchCallback> switchCallback = iface_cast<ISwitchCallback>(callback);
-    if (switchCallback == nullptr) {
-        LBSLOGE(LOCATOR, "cast switch callback fail!");
-        return IPC_ERRCODE_INVALID_PARAM;
-    }
-
-    std::unique_lock<std::mutex> lock(switchMutex_);
-    pid_t uid = -1;
-    for (auto iter = switchCallbacks_->begin(); iter != switchCallbacks_->end(); iter++) {
-        sptr<IRemoteObject> remoteObject = (iter->second)->AsObject();
-        if (remoteObject == callback) {
-            uid = iter->first;
-            break;
-        }
-    }
-    switchCallbacks_->erase(uid);
-    LBSLOGD(LOCATOR, "after uid:%{public}d unregister, switch callback size:%{public}s",
-        uid, std::to_string(switchCallbacks_->size()).c_str());
-    return ERRCODE_SUCCESS;
 }
 
 #ifdef FEATURE_GNSS_SUPPORT
