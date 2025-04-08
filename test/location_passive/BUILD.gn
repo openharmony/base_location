@@ -14,7 +14,7 @@
 import("//base/location/config.gni")
 import("//build/test.gni")
 
-module_output_path = "location/service"
+module_output_path = "location/location"
 
 if (location_feature_with_passive) {
   PASSIVE_UNIT_TEST_DIR = "$LOCATION_ROOT_DIR/test/location_passive"

@@ -55,10 +55,10 @@ void LocatorAgentManagerTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-HWTEST_F(LocatorAgentManagerTest, StartGnssLocatingTest001, TestSize.Level1)
+HWTEST_F(LocatorAgentManagerTest, StartGnssLocatingTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocatorAgentManagerTest, StartGnssLocatingTest001, TestSize.Level1";
+        << "LocatorAgentManagerTest, StartGnssLocatingTest001, TestSize.Level0";
     LBSLOGI(LOCATOR_STANDARD, "[LocatorAgentManagerTest] StartGnssLocatingTest001 begin");
     auto locatorAgentManager = std::make_shared<LocatorAgentManager>();
     static OHOS::Location::LocationCallbackIfaces locationCallback;
@@ -66,10 +66,10 @@ HWTEST_F(LocatorAgentManagerTest, StartGnssLocatingTest001, TestSize.Level1)
     LBSLOGI(LOCATOR_STANDARD, "[LocatorAgentManagerTest] StartGnssLocatingTest001 end");
 }
 
-HWTEST_F(LocatorAgentManagerTest, StopGnssLocatingTest001, TestSize.Level1)
+HWTEST_F(LocatorAgentManagerTest, StopGnssLocatingTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocatorAgentManagerTest, StopGnssLocatingTest001, TestSize.Level1";
+        << "LocatorAgentManagerTest, StopGnssLocatingTest001, TestSize.Level0";
     LBSLOGI(LOCATOR_STANDARD, "[LocatorAgentManagerTest] StopGnssLocatingTest001 begin");
     auto locatorAgentManager = std::make_shared<LocatorAgentManager>();
     locatorAgentManager->StopGnssLocating();

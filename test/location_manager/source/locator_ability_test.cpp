@@ -132,10 +132,10 @@ void LocatorAbilityTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-HWTEST_F(LocatorAbilityTest, locatorServiceSwitchCallback001, TestSize.Level1)
+HWTEST_F(LocatorAbilityTest, locatorServiceSwitchCallback001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, locatorServiceSwitchCallback001, TestSize.Level1";
+        << "LocatorAbilityTest, locatorServiceSwitchCallback001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceSwitchCallback001 begin");
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
@@ -204,7 +204,7 @@ HWTEST_F(LocatorAbilityTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
 }
 #endif
 
-HWTEST_F(LocatorAbilityTest, locatorServiceStartAndStop001, TestSize.Level1)
+HWTEST_F(LocatorAbilityTest, locatorServiceStartAndStop001, TestSize.Level0)
 {
     auto locatorAbility =
         sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());

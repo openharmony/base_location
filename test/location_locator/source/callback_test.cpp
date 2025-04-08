@@ -80,10 +80,10 @@ HWTEST_F(CallbackTest, OnCacheLocationsReport001, TestSize.Level1)
 }
 #endif
 
-HWTEST_F(CallbackTest, OnSwitchChange001, TestSize.Level1)
+HWTEST_F(CallbackTest, OnSwitchChange001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, OnSwitchChange001, TestSize.Level1";
+        << "CallbackTest, OnSwitchChange001, TestSize.Level0";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] OnSwitchChange001 begin");
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
@@ -115,10 +115,10 @@ HWTEST_F(CallbackTest, OnMessageChange001, TestSize.Level1)
 }
 #endif
 
-HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level1)
+HWTEST_F(CallbackTest, LocationCallbackProxy001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CallbackTest, LocationCallbackProxy001, TestSize.Level1";
+        << "CallbackTest, LocationCallbackProxy001, TestSize.Level0";
     LBSLOGI(LOCATOR_CALLBACK, "[CallbackTest] LocationCallbackProxy001 begin");
     auto locatorCallbackHost =
         sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());

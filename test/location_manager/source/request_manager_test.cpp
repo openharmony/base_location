@@ -121,19 +121,19 @@ void RequestManagerTest::VerifyRequestField(std::shared_ptr<Request>& request)
     EXPECT_EQ(true, request->GetApproximatelyPermState());
 }
 
-HWTEST_F(RequestManagerTest, InitSystemListeners001, TestSize.Level1)
+HWTEST_F(RequestManagerTest, InitSystemListeners001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "RequestManagerTest, InitSystemListeners001, TestSize.Level1";
+        << "RequestManagerTest, InitSystemListeners001, TestSize.Level0";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] InitSystemListeners001 begin");
     EXPECT_EQ(true, requestManager_->InitSystemListeners());
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] InitSystemListeners001 end");
 }
 
-HWTEST_F(RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1)
+HWTEST_F(RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level1";
+        << "RequestManagerTest, HandleStartAndStopLocating001, TestSize.Level0";
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStartAndStopLocating001 begin");
     ASSERT_TRUE(requestManager_ != nullptr);
     auto locatorAbility = LocatorAbility::GetInstance();

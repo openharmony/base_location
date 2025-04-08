@@ -124,10 +124,10 @@ void NetworkAbilityTest::MockNativePermission()
  * @tc.desc: Build Request, marshall and unmarshall data Then Send it
  * @tc.type: FUNC
  */
-HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, SendLocationRequest001, TestSize.Level1";
+        << "NetworkAbilityTest, SendLocationRequest001, TestSize.Level0";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SendLocationRequest001 begin");
     /*
      * @tc.steps: step1. build location request data.
@@ -159,10 +159,10 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
  * @tc.desc: Test disable and enable system ability
  * @tc.type: FUNC
  */
-HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1";
+        << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level0";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 begin");
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false));
     /*

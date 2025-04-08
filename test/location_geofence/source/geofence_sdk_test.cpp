@@ -29,10 +29,10 @@ void GeofenceSdkTest::TearDown()
 {
 }
 
-HWTEST_F(GeofenceSdkTest, AddGnssGeofenceTest001, TestSize.Level1)
+HWTEST_F(GeofenceSdkTest, AddGnssGeofenceTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GeofenceSdkTest, AddGnssGeofenceTest001, TestSize.Level1";
+        << "GeofenceSdkTest, AddGnssGeofenceTest001, TestSize.Level0";
     LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceSdkTest] AddGnssGeofenceTest001 begin");
     ASSERT_TRUE(geofenceManager_ != nullptr);
     std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
@@ -40,10 +40,10 @@ HWTEST_F(GeofenceSdkTest, AddGnssGeofenceTest001, TestSize.Level1)
     LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceSdkTest] AddGnssGeofenceTest001 end");
 }
 
-HWTEST_F(GeofenceSdkTest, RemoveGnssGeofenceTest001, TestSize.Level1)
+HWTEST_F(GeofenceSdkTest, RemoveGnssGeofenceTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GeofenceSdkTest, RemoveGnssGeofenceTest001, TestSize.Level1";
+        << "GeofenceSdkTest, RemoveGnssGeofenceTest001, TestSize.Level0";
     LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceSdkTest] RemoveGnssGeofenceTest001 begin");
     ASSERT_TRUE(geofenceManager_ != nullptr);
     std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();

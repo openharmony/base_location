@@ -47,19 +47,19 @@ std::string LocationConfigManagerTest::GetLocationSwitchConfigPath()
     return filePath;
 }
 
-HWTEST_F(LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.Level1)
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.Level1";
+        << "LocationConfigManagerTest, LocationConfigManagerInitTest001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerInitTest001 begin");
     EXPECT_EQ(0, LocationConfigManager::GetInstance()->Init());
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerInitTest001 end");
 }
 
-HWTEST_F(LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, TestSize.Level1)
+HWTEST_F(LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, TestSize.Level1";
+        << "LocationConfigManagerTest, LocationConfigManagerSwitchStateTest001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] LocationConfigManagerSwitchStateTest001 begin");
     EXPECT_EQ(0,
         LocationConfigManager::GetInstance()->SetLocationSwitchState(STATE_CLOSE));

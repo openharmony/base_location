@@ -45,10 +45,10 @@ HWTEST_F(CountryCodeManagerTest, GetIsoCountryCode001, TestSize.Level1)
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetIsoCountryCode001 end");
 }
 
-HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level1)
+HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level1";
+        << "CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level0";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback001 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
@@ -58,10 +58,10 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Leve
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback001 end");
 }
 
-HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level1)
+HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level1";
+        << "CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level0";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback002 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
@@ -70,10 +70,10 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Leve
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback002 end");
 }
 
-HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level1)
+HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level1";
+        << "CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level0";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback003 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);

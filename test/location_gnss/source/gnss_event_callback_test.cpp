@@ -69,10 +69,10 @@ void GnssEventCallbackTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportLocation001, TestSize.Level1)
+HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportLocation001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssEventCallbackTest, GnssEventCallbackReportLocation001, TestSize.Level1";
+        << "GnssEventCallbackTest, GnssEventCallbackReportLocation001, TestSize.Level0";
     LBSLOGI(GNSS_TEST, "[GnssEventCallbackTest] GnssEventCallbackReportLocation001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
@@ -89,10 +89,10 @@ HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportLocation001, TestSize.Lev
     LBSLOGI(GNSS_TEST, "[GnssEventCallbackTest] GnssEventCallbackReportLocation001 end");
 }
 
-HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level1)
+HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level1";
+        << "GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus001, TestSize.Level0";
     LBSLOGI(GNSS_TEST, "[GnssEventCallbackTest] GnssEventCallbackReportGnssWorkingStatus001 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);
@@ -101,10 +101,10 @@ HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus001, Tes
     LBSLOGI(GNSS_TEST, "[GnssEventCallbackTest] GnssEventCallbackReportGnssWorkingStatus001 end");
 }
 
-HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus002, TestSize.Level1)
+HWTEST_F(GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus002, TestSize.Level1";
+        << "GnssEventCallbackTest, GnssEventCallbackReportGnssWorkingStatus002, TestSize.Level0";
     LBSLOGI(GNSS_TEST, "[GnssEventCallbackTest] GnssEventCallbackReportGnssWorkingStatus002 begin");
     sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
     EXPECT_NE(nullptr, gnssCallback);

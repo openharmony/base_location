@@ -96,10 +96,10 @@ void PassiveAbilityTest::MockNativePermission()
  * @tc.desc: Build Request, marshall and unmarshall data Then Send it
  * @tc.type: FUNC
  */
-HWTEST_F(PassiveAbilityTest, SendLocationRequest001, TestSize.Level1)
+HWTEST_F(PassiveAbilityTest, SendLocationRequest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "PassiveAbilityStubTest, SendLocationRequest001, TestSize.Level1";
+        << "PassiveAbilityStubTest, SendLocationRequest001, TestSize.Level0";
     LBSLOGI(PASSIVE_TEST, "[PassiveAbilityStubTest] SendLocationRequest001 begin");
     /*
      * @tc.steps: step1. build location request data.
