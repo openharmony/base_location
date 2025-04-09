@@ -25,7 +25,7 @@
 #include "nmea_message_callback_napi.h"
 #include "request_config.h"
 #include "location_error_callback_napi.h"
-#include "bluetooh_scan_result_callback_napi.h"
+#include "bluetooth_scan_result_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
