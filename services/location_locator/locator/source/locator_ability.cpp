@@ -1729,28 +1729,7 @@ ErrCode LocatorAbility::ProxyForFreeze(const std::vector<int32_t>& pidList, bool
     if (!PermissionManager::CheckRssProcessName(identity.GetTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    size_t size = pidList.size();
-    size = size > MAX_BUFF_SIZE ? MAX_BUFF_SIZE : size;
-    std::set<int> pids;
-    for (size_t i = 0; i < size; i++) {
-        pids.insert(pidList[i]);
-    }
-    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
-    lock.lock();
-    if (isProxy) {
-        for (auto it = pids.begin(); it != pids.end(); it++) {
-            proxyPids_.insert(*it);
-            LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
-                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
-        }
-    } else {
-        for (auto it = pids.begin(); it != pids.end(); it++) {
-            proxyPids_.erase(*it);
-            LBSLOGI(LOCATOR, "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
-                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
-        }
-    }
-    lock.unlock();
+    ProxyFreezeManager::GetInstance()->ProxyForFreeze(pidList, isProxy);
     if (GetActiveRequestNum() <= 0) {
         LBSLOGD(LOCATOR, "no active request, do not refresh.");
         return ERRCODE_SUCCESS;
@@ -1768,10 +1747,7 @@ ErrCode LocatorAbility::ResetAllProxy()
     if (!PermissionManager::CheckRssProcessName(identity.GetTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    std::unique_lock<std::mutex> lock(proxyPidsMutex_, std::defer_lock);
-    lock.lock();
-    proxyPids_.clear();
-    lock.unlock();
+    ProxyFreezeManager::GetInstance()->ResetAllProxy();
     if (GetActiveRequestNum() <= 0) {
         LBSLOGD(LOCATOR, "no active request, do not refresh.");
         return ERRCODE_SUCCESS;
@@ -1779,12 +1755,6 @@ ErrCode LocatorAbility::ResetAllProxy()
     // for proxy uid update, should send message to refresh requests
     ApplyRequests(0);
     return ERRCODE_SUCCESS;
-}
-
-bool LocatorAbility::IsProxyPid(int32_t pid)
-{
-    std::unique_lock<std::mutex> lock(proxyPidsMutex_);
-    return proxyPids_.find(pid) != proxyPids_.end();
 }
 
 void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,

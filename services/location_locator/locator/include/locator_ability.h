@@ -43,6 +43,7 @@
 #include "locator_msdp_monitor_manager.h"
 #endif
 #include "idata_types.h"
+#include "proxy_freeze_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -193,7 +194,6 @@ public:
     void RegisterLocationPrivacyAction();
     ErrCode ProxyForFreeze(const std::vector<int32_t>& pidList, bool isProxy) override;
     ErrCode ResetAllProxy() override;
-    bool IsProxyPid(int32_t pid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);
