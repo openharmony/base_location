@@ -368,12 +368,9 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
             cacheGnssLocation_ = *location;
             UpdateLastLocation(location);
         }
-    } else if (abilityName == NETWORK_ABILITY) {
+    } else if (abilityName == NETWORK_ABILITY && location->GetLocationSourceType() != INDOOR_TYPE) {
         cacheNlpLocation_ = *location;
         UpdateLastLocation(location);
-        if (location->GetLocationSourceType() == INDOOR_TYPE) {
-            cacheIndoorLocation_ = *location;
-        }
     } else {
         UpdateLastLocation(location);
     }
@@ -410,15 +407,16 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::unique_ptr<Location> cacheLocation = nullptr;
     std::string packageName = request->GetPackageName();
     int cachedTime = 0;
-    if (HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName)) {
+    bool indoorFlag = false;
+    if (HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, indoorFlag)) {
         cachedTime = LONG_CACHE_DURATION;
     } else {
         cachedTime = CACHED_TIME;
     }
-    if (!CommonUtils::DoubleEqual(cacheIndoorLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheIndoorLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
-        cacheLocation = std::make_unique<Location>(cacheIndoorLocation_);
-    } else if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
+    if (indoorFlag && request->GetNlpRequestType() == NlpRequestType::PRIORITY_TYPE_INDOOR) {
+        cachedTime = 0;
+    }
+    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
     } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&

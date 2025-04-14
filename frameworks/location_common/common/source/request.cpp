@@ -62,6 +62,7 @@ Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     SetFirstTokenId(identity.GetFirstTokenId());
     SetPackageName(identity.GetBundleName());
     SetRequestConfig(*requestConfig);
+    SetNlpRequestType();
     requestConfig_->SetTimeStamp(CommonUtils::GetCurrentTime());
     SetLocatorCallBack(callback);
     SetUuid(CommonUtils::GenerateUuid());
@@ -344,7 +345,10 @@ void Request::SetNlpRequestType()
         (requestConfig_->GetScenario() == SCENE_UNSET && requestConfig_->GetPriority() == PRIORITY_ACCURACY) ||
         (requestConfig_->GetScenario() == SCENE_UNSET && requestConfig_->GetPriority() == PRIORITY_FAST_FIRST_FIX) ||
         requestConfig_->GetScenario() == LOCATION_SCENE_HIGH_POWER_CONSUMPTION ||
-        (requestConfig_->GetScenario() == SCENE_UNSET && requestConfig_->GetPriority() == LOCATION_PRIORITY_ACCURACY)) {
+        (requestConfig_->GetScenario() == SCENE_UNSET &&
+            requestConfig_->GetPriority() == LOCATION_PRIORITY_ACCURACY) ||
+        (requestConfig_->GetScenario() == SCENE_UNSET &&
+            requestConfig_->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED)) {
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR;
     } else {
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;
