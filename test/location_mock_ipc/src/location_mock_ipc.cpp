@@ -158,10 +158,10 @@ HWTEST_F(LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Leve
 #endif
 
 #ifdef FEATURE_PASSIVE_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Level1)
+HWTEST_F(LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Level1";
+        << "LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockPassiveStubCallingPermission001 begin");
 
     auto passiveAbilityStub = sptr<PassiveAbility>(new (std::nothrow) PassiveAbility());

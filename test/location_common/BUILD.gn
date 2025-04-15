@@ -14,7 +14,7 @@
 import("//base/location/config.gni")
 import("//build/test.gni")
 
-module_output_path = "location/common"
+module_output_path = "location/location"
 
 ohos_unittest("LocationCommonTest") {
   module_out_path = module_output_path

@@ -53,10 +53,10 @@ void WorkRecordTest::VerifyMarshalling(std::unique_ptr<WorkRecord>& workrecord)
     EXPECT_EQ("deviceId", parcel.ReadString());
 }
 
-HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1)
+HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level1";
+        << "WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddAndRemoveWorkRecord001 begin");
     std::unique_ptr<WorkRecord> emptyWorkrecord = std::make_unique<WorkRecord>();
     EXPECT_EQ(false, emptyWorkrecord->Remove("emptyRecord"));

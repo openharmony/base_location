@@ -62,7 +62,7 @@ void LocationApproximatelyPermissionTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocationTest001, TestSize.Level1)
+HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocationTest001, TestSize.Level0)
 {
     std::shared_ptr<Request> request = std::make_shared<Request>();
     request->SetTokenId(tokenId_);

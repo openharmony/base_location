@@ -128,7 +128,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
  * @tc.desc: Test get address from system ability by coordinate.
  * @tc.type: FUNC
  */
-HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1";
@@ -157,7 +157,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level1";
@@ -195,10 +195,10 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level1)
  * @tc.desc: Test get address from system ability by location name.
  * @tc.type: FUNC
  */
-HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1";
+        << "GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level0";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 begin");
 
     /*
@@ -298,10 +298,10 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate002, TestSi
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate002 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertInit001, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GeoConvertInit001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertInit001, TestSize.Level1";
+        << "GeoConvertServiceTest, GeoConvertInit001, TestSize.Level0";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertInit001 begin");
     service_->registerToService_  = true;
     service_->Init();

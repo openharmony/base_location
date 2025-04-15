@@ -229,7 +229,7 @@ HWTEST_F(LocationCommonTest, GeoAddressTest002, TestSize.Level1)
  * @tc.desc: read from parcel.
  * @tc.type: FUNC
  */
-HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level1)
+HWTEST_F(LocationCommonTest, LocationTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "LocationCommonTest, LocationTest001, TestSize.Level1";
@@ -328,7 +328,7 @@ HWTEST_F(LocationCommonTest, SateLLiteStatusTest001, TestSize.Level1)
  * @tc.desc: read from parcel.
  * @tc.type: FUNC
  */
-HWTEST_F(LocationCommonTest, RequestConfigTest001, TestSize.Level1)
+HWTEST_F(LocationCommonTest, RequestConfigTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "LocationCommonTest, RequestConfigTest001, TestSize.Level1";

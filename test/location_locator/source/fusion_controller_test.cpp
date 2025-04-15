@@ -41,20 +41,20 @@ void FusionControllerTest::TearDown()
     fusionController_ = nullptr;
 }
 
-HWTEST_F(FusionControllerTest, ActiveFusionStrategies001, TestSize.Level1)
+HWTEST_F(FusionControllerTest, ActiveFusionStrategies001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "FusionControllerTest, ActiveFusionStrategies001, TestSize.Level1";
+        << "FusionControllerTest, ActiveFusionStrategies001, TestSize.Level0";
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies001 begin");
     fusionController_->ActiveFusionStrategies(SCENE_NAVIGATION);
     EXPECT_EQ(FUSION_DEFAULT_FLAG, fusionController_->fusedFlag_);
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies001 end");
 }
 
-HWTEST_F(FusionControllerTest, ActiveFusionStrategies002, TestSize.Level1)
+HWTEST_F(FusionControllerTest, ActiveFusionStrategies002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "FusionControllerTest, ActiveFusionStrategies002, TestSize.Level1";
+        << "FusionControllerTest, ActiveFusionStrategies002, TestSize.Level0";
     LBSLOGI(FUSION_CONTROLLER, "[FusionControllerTest] ActiveFusionStrategies002 begin");
     fusionController_->ActiveFusionStrategies(SCENE_TRAJECTORY_TRACKING);
     EXPECT_EQ(FUSION_DEFAULT_FLAG, fusionController_->fusedFlag_);
