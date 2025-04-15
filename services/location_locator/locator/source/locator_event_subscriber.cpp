@@ -48,9 +48,9 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         locatorAbility->UpdateSaAbility();
     } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
-        locatorAbility->EnableAbility(true);
+        locatorAbility->SetSwitchState(true);
     } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {
-        locatorAbility->EnableAbility(false);
+        locatorAbility->SetSwitchState(false);
     } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED.compare(action) == 0) {
         int stateCode = event.GetCode();
         if (stateCode == static_cast<int>(SIM_STATE_READY)) {
