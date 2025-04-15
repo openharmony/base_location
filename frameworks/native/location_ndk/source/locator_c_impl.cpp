@@ -239,7 +239,7 @@ void RemoveLocationCallBack(const Location_RequestConfig* requestConfig)
             continue;
         }
         if (requestConfig == g_locationCallbackVector[i]->GetRequestConfig()) {
-            g_locationCallbackVector[i]->SetRequestConfig(nullptr);
+            g_locationCallbackVector[i]->SetRequestConfigValid(false);
             break;
         }
     }

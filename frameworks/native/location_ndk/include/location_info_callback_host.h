@@ -42,8 +42,19 @@ public:
         return requestConfig_;
     }
 
+    inline void SetRequestConfigValid(bool isValid)
+    {
+        isValid_ = isValid;
+    }
+
+    inline bool IsRequestConfigValid()
+    {
+        return isValid_;
+    }
+
 private:
     const Location_RequestConfig* requestConfig_ = nullptr;
+    bool isValid_ = true;
 };
 } // namespace Location
 } // namespace OHOS
