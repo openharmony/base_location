@@ -220,6 +220,7 @@ public:
     ErrCode SubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
     ErrCode UnSubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
     ErrCode GetCurrentWifiBssidForLocating(std::string& bssid) override;
+    LocationErrCode SetSwitchState(bool isEnabled);
 
 private:
     bool Init();
@@ -241,7 +242,6 @@ private:
     bool SetLocationhubStateToSyspara(int value);
     void SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable);
     void GetAppIdentityInfo(AppIdentity& identity);
-    LocationErrCode SetSwitchState(bool isEnabled);
     LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId);
     bool CheckLocationSwitchState();
     bool CheckLocationPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid);
