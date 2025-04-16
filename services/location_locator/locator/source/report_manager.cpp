@@ -36,7 +36,6 @@ const int MAX_SA_SCHEDULING_JITTER_MS = 200;
 static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 40.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 30.0; // Unit m
 static constexpr int CACHED_TIME = 25;
-static constexpr int LONG_CACHE_DURATION = 60;
 static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
 static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
 
@@ -407,15 +406,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::unique_ptr<Location> cacheLocation = nullptr;
     std::string packageName = request->GetPackageName();
     int cachedTime = 0;
-    bool indoorFlag = false;
-    if (HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, indoorFlag)) {
-        cachedTime = LONG_CACHE_DURATION;
-    } else {
-        cachedTime = CACHED_TIME;
-    }
-    if (indoorFlag && request->GetNlpRequestType() == NlpRequestType::PRIORITY_TYPE_INDOOR) {
-        cachedTime = 0;
-    }
+    cachedTime = HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, request->GetNlpRequestType());
     if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
