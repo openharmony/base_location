@@ -20,6 +20,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "location_log.h"
+#include "locator_service_proxy.h"
 
 namespace OHOS {
 namespace Location {
@@ -203,7 +204,7 @@ sptr<ILocatorService> LocatorAgentManager::InitLocatorAgent(sptr<IRemoteObject>&
         return nullptr;
     }
     std::unique_lock<std::mutex> lock(mutex_);
-    client_ = iface_cast<ILocatorService>(saObject);
+    client_ = iface_cast<LocatorServiceProxy>(saObject);
     if (!client_ || !client_->AsObject()) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: get locator service failed.", __func__);
         return nullptr;
