@@ -95,6 +95,8 @@ typedef struct {
     bool deviceStillState;
     bool deviceIdleState;
     bool result;
+    int nlpRequestType;
+    int cacheTime;
     std::string abilityName;
     std::string bundleName;
 } LocatorRequestStruct;
@@ -152,7 +154,7 @@ public:
         std::string bundleName);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
-    static bool ExecuteHookReportManagerGetCacheLocation(std::string packageName);
+    static int ExecuteHookReportManagerGetCacheLocation(std::string packageName, int nlpRequestType);
     static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
     static bool ExecuteHookWhenPreStartLocating(std::string packageName);
     static bool ExecuteHookWhenAddNetworkRequest(std::string uuid);
