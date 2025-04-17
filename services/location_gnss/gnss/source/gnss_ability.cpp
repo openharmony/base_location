@@ -62,6 +62,8 @@
 #include "xcollie/xcollie_define.h"
 #endif
 
+#include "parameters.h"
+
 namespace OHOS {
 namespace Location {
 namespace {
@@ -85,6 +87,7 @@ constexpr int NLP_FIX_VALID_TIME = 2;
 const int64_t INVALID_TIME = 0;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int64_t MILL_TO_NANOS = 1000000;
+static const std::string SYSPARAM_GPS_SUPPORT = "const.location.gps.support";
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -1003,8 +1006,18 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
     }
 }
 
+bool GnssAbility::IsSupportGps()
+{
+    return OHOS::system::GetBoolParameter(SYSPARAM_GPS_SUPPORT, true);
+}
+
 bool GnssAbility::EnableGnss()
 {
+    if (!IsSupportGps()) {
+        LBSLOGD(GNSS, "Is Not Support Gps");
+        return false;
+    }
+
     if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
@@ -1072,6 +1085,11 @@ void GnssAbility::RestGnssWorkStatus()
 
 void GnssAbility::StartGnss()
 {
+    if (!IsSupportGps()) {
+        LBSLOGD(GNSS, "Is Not Support Gps");
+        return;
+    }
+
     sptr<IGnssInterface> gnssInterface = IGnssInterface::Get();
     if (gnssInterface == nullptr) {
         LBSLOGE(GNSS, "gnssInterface is nullptr");
