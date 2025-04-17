@@ -58,6 +58,7 @@
 #include "permission_manager.h"
 #include "geofence_request.h"
 #include "location_data_rdb_manager.h"
+#include "proxy_freeze_manager.h"
 
 using namespace testing::ext;
 
@@ -1777,13 +1778,13 @@ HWTEST_F(LocatorServiceTest, locatorServiceProxyForFreeze001, TestSize.Level1)
     std::set<int> pidList;
     pidList.insert(SYSTEM_UID);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, true));
-    EXPECT_EQ(true, locatorAbility->IsProxyPid(SYSTEM_UID));
+    EXPECT_EQ(true, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, false));
-    EXPECT_EQ(false, locatorAbility->IsProxyPid(SYSTEM_UID));
+    EXPECT_EQ(false, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, true));
-    EXPECT_EQ(true, locatorAbility->IsProxyPid(SYSTEM_UID));
+    EXPECT_EQ(true, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ResetAllProxy());
-    EXPECT_EQ(false, locatorAbility->IsProxyPid(SYSTEM_UID));
+    EXPECT_EQ(false, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyForFreeze001 end");
 }
 

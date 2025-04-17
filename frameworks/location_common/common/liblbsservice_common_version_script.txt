@@ -30,6 +30,7 @@
     "*ExecuteHookWhenSimStateChange*";
     "*ExecuteHookWhenApproximatelyLocation*";
     "*BluetoothScanResult*";
+    "*ProxyFreezeManager*";
   local:
     *;
 };

@@ -42,6 +42,7 @@
 #include "location_log_event_ids.h"
 #include "location_data_rdb_manager.h"
 #include "permission_manager.h"
+#include "proxy_freeze_manager.h"
 
 #ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
@@ -981,7 +982,8 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         auto callback = pair.first;
         sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
-        if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity) &&
+            !ProxyFreezeManager::GetInstance()->IsProxyPid(nmeaIdentity.GetPid())) {
             nmeaCallback->OnMessageChange(timestamp, nmea);
         }
     }
@@ -994,7 +996,8 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         auto callback = pair.first;
         sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
         AppIdentity gnssStatusIdentity = pair.second;
-        if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity) &&
+            !ProxyFreezeManager::GetInstance()->IsProxyPid(gnssStatusIdentity.GetPid())) {
             gnssStatusCallback->OnStatusChange(sv);
         }
     }

@@ -313,8 +313,7 @@ bool ReportManager::ResultCheck(const std::unique_ptr<Location>& location,
     if (request == nullptr || location == nullptr) {
         return false;
     }
-    auto locatorAbility = LocatorAbility::GetInstance();
-    if (locatorAbility->IsProxyPid(request->GetPid())) {
+    if (ProxyFreezeManager::GetInstance()->IsProxyPid(request->GetPid())) {
         LBSLOGE(REPORT_MANAGER, "pid:%{public}d is proxy by freeze, no need to report", request->GetPid());
         return false;
     }
