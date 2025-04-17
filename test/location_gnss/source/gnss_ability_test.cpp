@@ -1344,6 +1344,11 @@ HWTEST_F(GnssAbilityTest, GnssStartGnss001, TestSize.Level1)
 
 HWTEST_F(GnssAbilityTest, GnssEnableGnss001, TestSize.Level1)
 {
+    if (!ability_->IsSupportGps()) {
+        EXPECT_EQ(false, ability_->EnableGnss());
+        return;
+    }
+
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, GnssEnableGnss001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEnableGnss001 begin");
@@ -1355,6 +1360,11 @@ HWTEST_F(GnssAbilityTest, GnssEnableGnss001, TestSize.Level1)
 
 HWTEST_F(GnssAbilityTest, GnssEnableGnss002, TestSize.Level1)
 {
+    if (!ability_->IsSupportGps()) {
+        EXPECT_EQ(false, ability_->EnableGnss());
+        return;
+    }
+
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, GnssEnableGnss002, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEnableGnss002 begin");
