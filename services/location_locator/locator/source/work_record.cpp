@@ -39,6 +39,8 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
         int timeInterval = parcel.ReadInt32();
         std::string uuid = parcel.ReadString();
         int nlpRequestType = parcel.ReadInt32();
+        uint32_t tokenId = parcel.ReadUint32();
+        uint32_t firstTokenId = parcel.ReadUint32();
 
         std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
         requestConfig->SetTimeInterval(timeInterval);
@@ -49,6 +51,8 @@ void WorkRecord::ReadFromParcel(Parcel& parcel)
         request->SetRequestConfig(*requestConfig);
         request->SetUuid(uuid);
         request->SetNlpRequestType(nlpRequestType);
+        request->SetTokenId(tokenId);
+        request->SetFirstTokenId(firstTokenId);
         Add(request);
     }
     deviceId_ = parcel.ReadString();
@@ -72,6 +76,8 @@ bool WorkRecord::Marshalling(Parcel& parcel) const
         parcel.WriteInt32(timeInterval_[i]);
         parcel.WriteString(uuid_[i]);
         parcel.WriteInt32(nlpRequestType_[i]);
+        parcel.WriteUint32(tokenId_[i]);
+        parcel.WriteUint32(firstTokenId_[i]);
     }
     parcel.WriteString(deviceId_);
     return true;
@@ -111,6 +117,10 @@ std::string WorkRecord::ToString()
             result += ",";
             result += uuid_[i];
             result += "; ";
+            result += std::to_string(tokenId_[i]);
+            result += "; ";
+            result += std::to_string(firstTokenId_[i]);
+            result += "; ";
         }
     }
     result += "]";
@@ -142,6 +152,24 @@ int WorkRecord::GetPid(int index)
         return pids_[index];
     }
     return -1;
+}
+
+uint32_t WorkRecord::GetTokenId(int index)
+{
+    std::unique_lock<std::mutex> lock(workRecordMutex_);
+    if (index >= 0 && index < num_) {
+        return tokenId_[index];
+    }
+    return 0;
+}
+
+uint32_t WorkRecord::GetFirstTokenId(int index)
+{
+    std::unique_lock<std::mutex> lock(workRecordMutex_);
+    if (index >= 0 && index < num_) {
+        return firstTokenId_[index];
+    }
+    return 0;
 }
 
 int WorkRecord::GetTimeInterval(int index)
@@ -194,6 +222,8 @@ bool WorkRecord::Add(const std::shared_ptr<Request>& request)
     timeInterval_.push_back(request->GetRequestConfig()->GetTimeInterval());
     uuid_.push_back(request->GetUuid());
     nlpRequestType_.push_back(request->GetNlpRequestType());
+    tokenId_.push_back(request->GetTokenId());
+    firstTokenId_.push_back(request->GetFirstTokenId());
     num_++;
     return true;
 }
@@ -207,6 +237,8 @@ bool WorkRecord::Add(WorkRecord &workRecord, int32_t index)
     timeInterval_.push_back(workRecord.GetTimeInterval(index));
     uuid_.push_back(workRecord.GetUuid(index));
     nlpRequestType_.push_back(workRecord.GetNlpRequestType(index));
+    tokenId_.push_back(workRecord.GetTokenId(index));
+    firstTokenId_.push_back(workRecord.GetFirstTokenId(index));
     num_++;
     return true;
 }
@@ -234,6 +266,8 @@ bool WorkRecord::Remove(int uid, int pid, std::string name, std::string uuid)
     timeInterval_.erase(timeInterval_.begin() + i);
     uuid_.erase(uuid_.begin() + i);
     nlpRequestType_.erase(nlpRequestType_.begin() + i);
+    tokenId_.erase(tokenId_.begin() + i);
+    firstTokenId_.erase(firstTokenId_.begin() + i);
     num_--;
     return true;
 }
@@ -259,6 +293,8 @@ bool WorkRecord::Remove(std::string name)
     timeInterval_.erase(timeInterval_.begin() + i);
     uuid_.erase(uuid_.begin() + i);
     nlpRequestType_.erase(nlpRequestType_.begin() + i);
+    tokenId_.erase(tokenId_.begin() + i);
+    firstTokenId_.erase(firstTokenId_.begin() + i);
     num_--;
     return true;
 }
@@ -289,6 +325,8 @@ void WorkRecord::Clear()
     std::vector<int>().swap(timeInterval_);
     std::vector<std::string>().swap(uuid_);
     std::vector<int>().swap(nlpRequestType_);
+    std::vector<uint32_t>().swap(tokenId_);
+    std::vector<uint32_t>().swap(firstTokenId_);
     num_ = 0;
 }
 

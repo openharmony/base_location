@@ -30,6 +30,8 @@ namespace Location {
 const int UNKNOW_ERROR = -1;
 const int MAX_SIZE = 100;
 const char* LOCATION_PRIVACY_MODE = "persist.location.privacy_mode";
+constexpr const char* LOCATION_GNSS_ENABLE_STATE = "persist.location.gnss_enable_state";
+constexpr const char* LOCATION_NLP_ENABLE_STATE = "persist.location.nlp_enable_state";
 LocationConfigManager* LocationConfigManager::GetInstance()
 {
     static LocationConfigManager gLocationConfigManager;
@@ -235,6 +237,24 @@ bool LocationConfigManager::GetAgnssServerAddr(std::string& name)
 int LocationConfigManager::GetAgnssServerPort()
 {
     return GetIntParameter(AGNSS_SERVER_PORT);
+}
+
+int LocationConfigManager::GetGnssEnableState()
+{
+    int gnssEnableState = GetIntParameter(LOCATION_GNSS_ENABLE_STATE);
+    if (gnssEnableState == UNKNOW_ERROR) {
+        return 1;
+    }
+    return gnssEnableState;
+}
+
+int LocationConfigManager::GetNlpEnableState()
+{
+    int nlpEnableState = GetIntParameter(LOCATION_NLP_ENABLE_STATE);
+    if (nlpEnableState == UNKNOW_ERROR) {
+        return 1;
+    }
+    return nlpEnableState;
 }
 
 int LocationConfigManager::SetLocationSwitchState(int state)
