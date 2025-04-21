@@ -43,6 +43,7 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/locator/source/self_request_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/poi_info_manager.cpp",
 ]
 
 ohos_shared_library("lbsservice_locator") {
@@ -86,6 +87,7 @@ ohos_shared_library("lbsservice_locator") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "cJSON:cjson",
   ]
 
   defines = []
@@ -217,6 +219,7 @@ ohos_static_library("lbsservice_locator_static") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "cJSON:cjson",
   ]
 
   defines = []

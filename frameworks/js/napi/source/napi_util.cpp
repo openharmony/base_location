@@ -135,6 +135,8 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueDouble(env, "directionAccuracy", locationInfo->GetDirectionAccuracy(), result);
     SetValueInt64(env, "uncertaintyOfTimeSinceBoot", locationInfo->GetUncertaintyOfTimeSinceBoot(), result);
     SetValueInt32(env, "sourceType", locationInfo->GetLocationSourceType(), result);
+    napi_value poiJsObj = CreatePoiInfoJsObj(env, locationInfo->GetPoiInfo());
+    SetValuePoi(env, "poi", poiJsObj, result);
 }
 
 void BluetoohScanResultToJs(const napi_env& env, const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult,
@@ -145,6 +147,56 @@ void BluetoohScanResultToJs(const napi_env& env, const std::unique_ptr<Bluetooth
     SetValueInt64(env, "rssi", bluetoothScanResult->GetRssi(), result);
     SetValueBool(env, "connectable", bluetoothScanResult->GetConnectable(), result);
     SetValueArrayBuffer(env, "data", bluetoothScanResult->GetData(), result);
+}
+
+napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo)
+{
+    napi_value jsObject = nullptr;
+    if (poiInfo.poiArray.size() == 0) {
+        napi_get_undefined(env, &jsObject);
+        return jsObject;
+    }
+    NAPI_CALL(env, napi_create_object(env, &jsObject));
+    napi_value jsArray = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &jsArray));
+    size_t index = 0;
+    for (auto poi : poiInfo.poiArray) {
+        napi_value jsPoiObject = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &jsPoiObject));
+        napi_value jsValue = nullptr;
+        
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.id.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "id", jsValue));
+        NAPI_CALL(env, napi_create_double(env, poi.confidence, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "confidence", jsValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.name.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "name", jsValue));
+        NAPI_CALL(env, napi_create_double(env, poi.latitude, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "latitude", jsValue));
+        NAPI_CALL(env, napi_create_double(env, poi.longitude, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "longitude", jsValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.administrativeArea.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "administrativeArea", jsValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.subAdministrativeArea.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "subAdministrativeArea", jsValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.locality.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "locality", jsValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.subLocality.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "subLocality", jsValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.address.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "address", jsValue));
+ 
+        napi_value jsIndex = nullptr;
+        NAPI_CALL(env, napi_create_uint32(env, index, &jsIndex));
+        NAPI_CALL(env, napi_set_property(env, jsArray, jsIndex, jsPoiObject));
+ 
+        index++;
+    }
+    NAPI_CALL(env, napi_set_named_property(env, jsObject, "poiArray", jsArray));
+    napi_value jsTimestamp = nullptr;
+    NAPI_CALL(env, napi_create_uint32(env, poiInfo.timestamp, &jsTimestamp));
+    NAPI_CALL(env, napi_set_named_property(env, jsObject, "timestamp", jsTimestamp));
+    return jsObject;
 }
 
 napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& additionsMap)
@@ -275,6 +327,7 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
 {
     int value = 0;
     double valueDouble = 0.0;
+    bool valueBool = false;
     if (JsObjectToInt(env, object, "priority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
     }
@@ -291,6 +344,9 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     }
     if (JsObjectToDouble(env, object, "distanceInterval", valueDouble) == SUCCESS) {
         requestConfig->SetDistanceInterval(valueDouble);
+    }
+    if (JsObjectToBool(env, object, "needPoi", valueBool) == SUCCESS) {
+        requestConfig->SetIsNeedPoi(valueBool);
     }
 }
 
@@ -318,6 +374,7 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
 {
     int value = 0;
     double valueDouble = 0.0;
+    bool valueBool = false;
     if (JsObjectToInt(env, object, "priority", value) == SUCCESS ||
         JsObjectToInt(env, object, "locatingPriority", value) == SUCCESS) {
         requestConfig->SetPriority(value);
@@ -331,6 +388,9 @@ void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object
     if (JsObjectToInt(env, object, "timeoutMs", value) == SUCCESS ||
         JsObjectToInt(env, object, "locatingTimeoutMs", value) == SUCCESS) {
         requestConfig->SetTimeOut(value);
+    }
+    if (JsObjectToBool(env, object, "needPoi", valueBool) == SUCCESS) {
+        requestConfig->SetIsNeedPoi(valueBool);
     }
 }
 
@@ -768,6 +828,12 @@ napi_status SetValueStringArray(const napi_env& env, const char* fieldStr, napi_
 }
 
 napi_status SetValueStringMap(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result)
+{
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
+}
+
+napi_status SetValuePoi(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result)
 {
     NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
     return napi_ok;
