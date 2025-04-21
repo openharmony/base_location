@@ -80,7 +80,7 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
 
 RequestConfig* RequestConfig::Unmarshalling(Parcel& parcel)
 {
-    auto requestConfig = new (std::nothrow) RequestConfig();
+    auto requestConfig = new RequestConfig();
     requestConfig->ReadFromParcel(parcel);
     return requestConfig;
 }

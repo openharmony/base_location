@@ -61,7 +61,7 @@ void GeocodingMockInfo::ReadFromParcel(Parcel& parcel)
 
 GeocodingMockInfo* GeocodingMockInfo::Unmarshalling(Parcel& parcel)
 {
-    auto mockInfo = new (std::nothrow) GeocodingMockInfo();
+    auto mockInfo = new GeocodingMockInfo();
     mockInfo->ReadFromParcel(parcel);
     return mockInfo;
 }
