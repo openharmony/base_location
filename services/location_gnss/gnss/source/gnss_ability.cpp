@@ -1014,7 +1014,7 @@ bool GnssAbility::IsSupportGps()
 bool GnssAbility::EnableGnss()
 {
     if (!IsSupportGps()) {
-        LBSLOGD(GNSS, "Is Not Support Gps");
+        LBSLOGI(GNSS, "Is Not Support Gps");
         return false;
     }
 
@@ -1086,7 +1086,7 @@ void GnssAbility::RestGnssWorkStatus()
 void GnssAbility::StartGnss()
 {
     if (!IsSupportGps()) {
-        LBSLOGD(GNSS, "Is Not Support Gps");
+        LBSLOGI(GNSS, "Is Not Support Gps");
         return;
     }
 
