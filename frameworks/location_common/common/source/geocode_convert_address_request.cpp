@@ -138,7 +138,7 @@ bool GeocodeConvertAddressRequest::Marshalling(Parcel& parcel) const
 
 GeocodeConvertAddressRequest* GeocodeConvertAddressRequest::Unmarshalling(Parcel& parcel)
 {
-    auto geoConvertRequest = new (std::nothrow) GeocodeConvertAddressRequest();
+    auto geoConvertRequest = new GeocodeConvertAddressRequest();
     geoConvertRequest->ReadFromParcel(parcel);
     return geoConvertRequest;
 }

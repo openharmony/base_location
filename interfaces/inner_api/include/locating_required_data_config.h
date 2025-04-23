@@ -112,7 +112,7 @@ public:
 
     static LocatingRequiredDataConfig* Unmarshalling(Parcel& parcel)
     {
-        auto locatingRequiredDataConfig = new (std::nothrow) LocatingRequiredDataConfig();
+        auto locatingRequiredDataConfig = new LocatingRequiredDataConfig();
         locatingRequiredDataConfig->ReadFromParcel(parcel);
         return locatingRequiredDataConfig;
     }

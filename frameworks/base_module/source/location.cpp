@@ -123,7 +123,7 @@ std::shared_ptr<Location> Location::UnmarshallingShared(Parcel& parcel)
 
 Location* Location::Unmarshalling(Parcel& parcel)
 {
-    auto location = new (std::nothrow) Location();
+    auto location = new Location();
     location->ReadFromParcel(parcel);
     return location;
 }
