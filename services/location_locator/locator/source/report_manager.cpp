@@ -393,7 +393,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     }
     if (PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
-        finalLocation = ApproximatelyLocation(location, bundleName);
+        finalLocation = ApproximatelyLocation(location);
         return finalLocation;
     }
     LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
@@ -577,8 +577,7 @@ void ReportManager::UpdateRandom()
     }
 }
 
-std::unique_ptr<Location> ReportManager::ApproximatelyLocation(
-    const std::unique_ptr<Location>& location, std::string bundleName)
+std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique_ptr<Location>& location)
 {
     std::unique_ptr<Location> coarseLocation = std::make_unique<Location>(*location);
     double startLat = coarseLocation->GetLatitude();
@@ -609,15 +608,12 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(
     } else {
         lon = std::round(lon * std::pow(10, 8)) / std::pow(10, 8); // 8 decimal
     }
-    bool needApproximate = HookUtils::ExecuteHookWhenApproximatelyLocation(bundleName);
-    if (needApproximate) {
-        coarseLocation->SetLatitude(lat);
-        coarseLocation->SetLongitude(lon);
-        coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
-        std::vector<std::string> emptyAdds;
-        coarseLocation->SetAdditions(emptyAdds, false);
-        coarseLocation->SetAdditionSize(0);
-    }
+    coarseLocation->SetLatitude(lat);
+    coarseLocation->SetLongitude(lon);
+    coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
+    std::vector<std::string> emptyAdds;
+    coarseLocation->SetAdditions(emptyAdds, false);
+    coarseLocation->SetAdditionSize(0);
     return coarseLocation;
 }
 
