@@ -33,8 +33,8 @@ namespace OHOS {
 namespace Location {
 const long NANOS_PER_MILLI = 1000000L;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
-static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 40.0; // Unit m
-static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 30.0; // Unit m
+static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
+static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 static constexpr int CACHED_TIME = 25;
 static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
 static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
@@ -393,7 +393,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     }
     if (PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
-        finalLocation = ApproximatelyLocation(location, bundleName);
+        finalLocation = ApproximatelyLocation(location);
         return finalLocation;
     }
     LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
@@ -577,8 +577,7 @@ void ReportManager::UpdateRandom()
     }
 }
 
-std::unique_ptr<Location> ReportManager::ApproximatelyLocation(
-    const std::unique_ptr<Location>& location, std::string bundleName)
+std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique_ptr<Location>& location)
 {
     std::unique_ptr<Location> coarseLocation = std::make_unique<Location>(*location);
     double startLat = coarseLocation->GetLatitude();
@@ -609,15 +608,12 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(
     } else {
         lon = std::round(lon * std::pow(10, 8)) / std::pow(10, 8); // 8 decimal
     }
-    bool needApproximate = HookUtils::ExecuteHookWhenApproximatelyLocation(bundleName);
-    if (needApproximate) {
-        coarseLocation->SetLatitude(lat);
-        coarseLocation->SetLongitude(lon);
-        coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
-        std::vector<std::string> emptyAdds;
-        coarseLocation->SetAdditions(emptyAdds, false);
-        coarseLocation->SetAdditionSize(0);
-    }
+    coarseLocation->SetLatitude(lat);
+    coarseLocation->SetLongitude(lon);
+    coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
+    std::vector<std::string> emptyAdds;
+    coarseLocation->SetAdditions(emptyAdds, false);
+    coarseLocation->SetAdditionSize(0);
     return coarseLocation;
 }
 
