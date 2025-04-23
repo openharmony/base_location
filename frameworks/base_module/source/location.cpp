@@ -23,6 +23,7 @@ namespace OHOS {
 namespace Location {
 static constexpr double MIN_LATITUDE = -90.0;
 static constexpr double MIN_LONGITUDE = -180.0;
+static constexpr int MAX_POI_ARRAY_SIZE = 20;
 
 Location::Location()
 {
@@ -72,6 +73,7 @@ Location::Location(const Location& location)
     locationSourceType_ = location.GetLocationSourceType();
     uuid_ = location.GetUuid();
     fieldValidity_ = location.GetFieldValidity();
+    poiInfo_ = location.GetPoiInfo();
 }
 
 void Location::ReadFromParcel(Parcel& parcel)
@@ -97,6 +99,7 @@ void Location::ReadFromParcel(Parcel& parcel)
     uuid_ = Str16ToStr8(parcel.ReadString16());
     fieldValidity_ = parcel.ReadInt32();
     VectorString16ToVectorString8(additions);
+    poiInfo_ = ReadPoiInfoFromParcel(parcel);
 }
 
 void Location::VectorString16ToVectorString8(const std::vector<std::u16string>& additions)
@@ -156,7 +159,8 @@ bool Location::Marshalling(Parcel& parcel) const
            parcel.WriteDouble(uncertaintyOfTimeSinceBoot_) &&
            parcel.WriteInt32(locationSourceType_) &&
            parcel.WriteString16(Str8ToStr16(uuid_)) &&
-           parcel.WriteInt32(fieldValidity_);
+           parcel.WriteInt32(fieldValidity_) &&
+           WritePoiInfoToParcel(poiInfo_, parcel);
 }
 
 std::vector<std::u16string> Location::VectorString8ToVectorString16() const
@@ -167,6 +171,49 @@ std::vector<std::u16string> Location::VectorString8ToVectorString16() const
         additions.push_back(additionString);
     }
     return additions;
+}
+
+bool Location::WritePoiInfoToParcel(const PoiInfo& data, Parcel& parcel)
+{
+    parcel.WriteUint64(data.timestamp);
+    parcel.WriteUint32(data.poiArray.size());
+    for (const auto& poi : data.poiArray) {
+        parcel.WriteString(poi.id);
+        parcel.WriteDouble(poi.confidence);
+        parcel.WriteString(poi.name);
+        parcel.WriteDouble(poi.latitude);
+        parcel.WriteDouble(poi.longitude);
+        parcel.WriteString(poi.administrativeArea);
+        parcel.WriteString(poi.subAdministrativeArea);
+        parcel.WriteString(poi.locality);
+        parcel.WriteString(poi.subLocality);
+        parcel.WriteString(poi.address);
+    }
+    return 0;
+}
+ 
+PoiInfo Location::ReadPoiInfoFromParcel(Parcel& parcel)
+{
+    PoiInfo data;
+    data.timestamp = parcel.ReadUint64();
+    uint32_t size = parcel.ReadUint32();
+    if (size > MAX_POI_ARRAY_SIZE) {
+        size = MAX_POI_ARRAY_SIZE;
+    }
+    data.poiArray.resize(size);
+    for (auto& poi : data.poiArray) {
+        poi.id = parcel.ReadString();
+        poi.confidence = parcel.ReadDouble();
+        poi.name = parcel.ReadString();
+        poi.latitude = parcel.ReadDouble();
+        poi.longitude = parcel.ReadDouble();
+        poi.administrativeArea = parcel.ReadString();
+        poi.subAdministrativeArea = parcel.ReadString();
+        poi.locality = parcel.ReadString();
+        poi.subLocality = parcel.ReadString();
+        poi.address = parcel.ReadString();
+    }
+    return data;
 }
 
 std::string Location::ToString() const

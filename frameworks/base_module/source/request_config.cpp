@@ -31,6 +31,7 @@ RequestConfig::RequestConfig()
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = DEFAULT_TIMEOUT_5S;
     timestamp_ = 0;
+    isNeedPoi_ = false;
 }
 
 RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
@@ -42,6 +43,7 @@ RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
     fixNumber_ = 0; // no fix size limit for reporting location
     timeOut_ = DEFAULT_TIMEOUT_5S;
     timestamp_ = 0;
+    isNeedPoi_ = false;
 }
 
 void RequestConfig::Set(RequestConfig& requestConfig)
@@ -54,6 +56,7 @@ void RequestConfig::Set(RequestConfig& requestConfig)
     fixNumber_ = requestConfig.GetFixNumber();
     timeOut_ = requestConfig.GetTimeOut();
     timestamp_ = requestConfig.GetTimeStamp();
+    isNeedPoi_ = requestConfig.GetIsNeedPoi();
 }
 
 bool RequestConfig::IsSame(RequestConfig& requestConfig)
@@ -76,6 +79,7 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
     maxAccuracy_ = parcel.ReadFloat();
     fixNumber_ = parcel.ReadInt32();
     timeOut_ = parcel.ReadInt32();
+    isNeedPoi_ = parcel.ReadBool();
 }
 
 RequestConfig* RequestConfig::Unmarshalling(Parcel& parcel)
@@ -93,7 +97,8 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
            parcel.WriteDouble(distanceInterval_) &&
            parcel.WriteFloat(maxAccuracy_) &&
            parcel.WriteInt32(fixNumber_) &&
-           parcel.WriteInt32(timeOut_);
+           parcel.WriteInt32(timeOut_) &&
+           parcel.WriteBool(isNeedPoi_);
 }
 
 bool RequestConfig::IsRequestForAccuracy()
@@ -117,7 +122,8 @@ std::string RequestConfig::ToString() const
         ", distanceInterval : " + std::to_string(distanceInterval_) +
         ", maxAccuracy : " + std::to_string(maxAccuracy_) +
         ", fixNumber : " + std::to_string(fixNumber_) +
-        ", timeOut : " + std::to_string(timeOut_);
+        ", timeOut : " + std::to_string(timeOut_) +
+        ", isNeedPoiInfomation : " + std::to_string(isNeedPoi_);
     return str;
 }
 } // namespace Location

@@ -35,8 +35,10 @@ public:
     void UnRegisterMovementCallBack();
     void UpdateStillMovementState(bool stillState);
     bool GetStillMovementState();
+    uint64_t GetEnterStillTime();
 
     std::atomic_bool isDeviceStillState_;
+    std::atomic_uint64_t enterStillTime_; // utc time millsec
 
 private:
     void Init();

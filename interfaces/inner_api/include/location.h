@@ -22,6 +22,25 @@
 
 namespace OHOS {
 namespace Location {
+
+typedef struct Poi {
+    std::string id = "";
+    double confidence = 0.0;
+    std::string name = "";
+    double latitude = 0.0;
+    double longitude = 0.0;
+    std::string administrativeArea = "";
+    std::string subAdministrativeArea = "";
+    std::string locality = "";
+    std::string subLocality = "";
+    std::string address = "";
+} Poi;
+ 
+typedef struct PoiInfo {
+    std::vector<Poi> poiArray;
+    uint64_t timestamp = 0;
+} PoiInfo;
+
 class Location : public Parcelable {
 public:
     Location();
@@ -238,11 +257,6 @@ public:
         return additionsMap_;
     }
 
-    inline void AdditionsMapInsert(std::string key, std::string value)
-    {
-        additionsMap_[key] = value;
-    }
-
     inline int32_t GetFieldValidity() const
     {
         return fieldValidity_;
@@ -251,6 +265,16 @@ public:
     inline void SetFieldValidity(int32_t fieldValidity)
     {
         fieldValidity_ = fieldValidity;
+    }
+
+    inline PoiInfo GetPoiInfo() const
+    {
+        return poiInfo_;
+    }
+ 
+    inline void SetPoiInfo(PoiInfo poiInfo)
+    {
+        poiInfo_ = poiInfo;
     }
 
     void ReadFromParcel(Parcel& parcel);
@@ -263,6 +287,8 @@ public:
     bool AdditionEqual(const std::unique_ptr<Location>& location);
     void VectorString16ToVectorString8(const std::vector<std::u16string>& additions);
     std::vector<std::u16string> VectorString8ToVectorString16() const;
+    static bool WritePoiInfoToParcel(const PoiInfo& data, Parcel& parcel);
+    static PoiInfo ReadPoiInfoFromParcel(Parcel& parcel);
 private:
     double latitude_;
     double longitude_;
@@ -286,6 +312,7 @@ private:
     int32_t locationSourceType_;
     std::string uuid_;
     int32_t fieldValidity_;
+    PoiInfo poiInfo_;
 };
 } // namespace Location
 } // namespace OHOS
