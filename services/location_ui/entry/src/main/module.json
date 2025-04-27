@@ -129,6 +129,16 @@
                 "scheme": "file",
                 "utd": "general.composite-object",
                 "maxFileSupported": 1
+              },
+              {
+                "scheme": "file",
+                "utd": "general.zip-archive",
+                "maxFileSupported": 1
+              },
+              {
+                "scheme": "file",
+                "utd": "general.tar-archive",
+                "maxFileSupported": 1
               }
             ]
           }
