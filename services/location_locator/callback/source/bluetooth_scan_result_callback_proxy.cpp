@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-#include "bluetooh_scan_result_callback_proxy.h"
+#include "bluetooth_scan_result_callback_proxy.h"
 #include "message_option.h"
 #include "location_log.h"
 
 namespace OHOS {
 namespace Location {
-BluetoohScanResultCallbackProxy::BluetoohScanResultCallbackProxy(const sptr<IRemoteObject> &impl)
+BluetoothScanResultCallbackProxy::BluetoothScanResultCallbackProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IBluetoothScanResultCallback>(impl)
 {
 }
 
-void BluetoohScanResultCallbackProxy::OnBluetoohScanResultChange(
+void BluetoothScanResultCallbackProxy::OnBluetoothScanResultChange(
     const std::unique_ptr<BluetoothScanResult>& data)
 {
     MessageParcel dataParcel;
@@ -37,7 +37,7 @@ void BluetoohScanResultCallbackProxy::OnBluetoohScanResultChange(
     int error = Remote()->SendRequest(RECEIVE_INFO_EVENT, dataParcel, reply, option);
     if (error != ERR_OK) {
         LBSLOGE(LOCATING_DATA_CALLBACK,
-            "BluetoohScanResultCallbackProxy::OnBluetoohScanResultChange Transact ErrCode = %{public}d", error);
+            "BluetoothScanResultCallbackProxy::OnBluetoothScanResultChange Transact ErrCode = %{public}d", error);
     }
 }
 } // namespace Location

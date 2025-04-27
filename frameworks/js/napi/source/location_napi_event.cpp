@@ -1632,8 +1632,8 @@ bool OffAllBluetoothScanResultChangeCallback(const napi_env& env)
         if (callbackHost == nullptr) {
             continue;
         }
-        auto bluetoohScanResultCallback = sptr<IBluetoothScanResultCallback>(callbackHost);
-        LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(bluetoohScanResultCallback);
+        auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(callbackHost);
+        LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;

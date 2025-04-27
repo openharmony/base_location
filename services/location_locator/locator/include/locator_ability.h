@@ -63,7 +63,7 @@ public:
     void InitLocatorHandlerEventMap();
     void ConstructDbHandleMap();
     void ConstructGeocodeHandleMap();
-    void ConstructBluetoohScanHandleMap();
+    void ConstructBluetoothScanHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -77,8 +77,8 @@ private:
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event);
-    void StartScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
-    void StopScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StartScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);

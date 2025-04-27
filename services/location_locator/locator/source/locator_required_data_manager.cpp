@@ -197,70 +197,70 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
     return ERRCODE_SUCCESS;
 }
 
-void LocatorRequiredDataManager::StartScanBluetoohDevice(sptr<IBluetoothScanResultCallback> callback,
+void LocatorRequiredDataManager::StartScanBluetoothDevice(sptr<IBluetoothScanResultCallback> callback,
     AppIdentity identity)
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
         return;
     }
-    if (!HookUtils::ExecuteHookWhenStartScanBluetoohDevice(identity.GetBundleName(), TYPE_WHITE_LIST_BLE)) {
+    if (!HookUtils::ExecuteHookWhenStartScanBluetoothDevice(identity.GetBundleName(), TYPE_WHITE_LIST_BLE)) {
         return;
     }
 #ifdef BLUETOOTH_ENABLE
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow)
-        BluetoohScanCallbackDeathRecipient());
+        BluetoothScanCallbackDeathRecipient());
     if (callback->AsObject() != nullptr) {
         callback->AsObject()->AddDeathRecipient(death);
     }
     {
-        std::lock_guard<std::mutex> lock(bluetoohcallbacksMapMutex_);
-        if (bluetoohcallbacksMap_.size() <= MAX_CALLBACKS_MAP_NUM) {
-            bluetoohcallbacksMap_.insert(std::make_pair(callback->AsObject(), std::make_pair(identity, death)));
+        std::lock_guard<std::mutex> lock(bluetoothcallbacksMapMutex_);
+        if (bluetoothcallbacksMap_.size() <= MAX_CALLBACKS_MAP_NUM) {
+            bluetoothcallbacksMap_.insert(std::make_pair(callback->AsObject(), std::make_pair(identity, death)));
         } else {
             LBSLOGE(LOCATOR, "%{public}s fail,Exceeded the maximum number limit", __func__);
             return;
         }
-        LBSLOGI(LOCATOR, "after StartScanBluetoohDevice, callback size:%{public}zu",
-            bluetoohcallbacksMap_.size());
+        LBSLOGI(LOCATOR, "after StartScanBluetoothDevice, callback size:%{public}zu",
+            bluetoothcallbacksMap_.size());
     }
     SendStartBluetoothScanEvent();
 #endif
 }
 
-void LocatorRequiredDataManager::StopScanBluetoohDevice(sptr<IRemoteObject> callbackObj)
+void LocatorRequiredDataManager::StopScanBluetoothDevice(sptr<IRemoteObject> callbackObj)
 {
 #ifdef BLUETOOTH_ENABLE
-    RemoveBluetoohScanCallbackDeathRecipientByCallback(callbackObj);
-    RemoveBluetoohScanCallback(callbackObj);
+    RemoveBluetoothScanCallbackDeathRecipientByCallback(callbackObj);
+    RemoveBluetoothScanCallback(callbackObj);
     SendStopBluetoothScanEvent();
 #endif
 }
 
-void LocatorRequiredDataManager::RemoveBluetoohScanCallback(sptr<IRemoteObject> callbackObj)
+void LocatorRequiredDataManager::RemoveBluetoothScanCallback(sptr<IRemoteObject> callbackObj)
 {
     if (callbackObj == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s, callbackObj is nullptr", __func__);
         return;
     }
-    std::unique_lock<std::mutex> lock(bluetoohcallbacksMapMutex_);
-    auto iter = bluetoohcallbacksMap_.find(callbackObj);
-    if (iter != bluetoohcallbacksMap_.end()) {
-        bluetoohcallbacksMap_.erase(iter);
+    std::unique_lock<std::mutex> lock(bluetoothcallbacksMapMutex_);
+    auto iter = bluetoothcallbacksMap_.find(callbackObj);
+    if (iter != bluetoothcallbacksMap_.end()) {
+        bluetoothcallbacksMap_.erase(iter);
     }
-    LBSLOGI(LOCATOR, "after RemoveBluetoohScanCallback, callback size:%{public}zu",
-        bluetoohcallbacksMap_.size());
+    LBSLOGI(LOCATOR, "after RemoveBluetoothScanCallback, callback size:%{public}zu",
+        bluetoothcallbacksMap_.size());
 }
 
-void LocatorRequiredDataManager::RemoveBluetoohScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj)
+void LocatorRequiredDataManager::RemoveBluetoothScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj)
 {
     if (callbackObj == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s, callbackObj is nullptr", __func__);
         return;
     }
     {
-        std::unique_lock<std::mutex> lock(bluetoohcallbacksMapMutex_);
-        for (auto iter = bluetoohcallbacksMap_.begin(); iter != bluetoohcallbacksMap_.end();) {
+        std::unique_lock<std::mutex> lock(bluetoothcallbacksMapMutex_);
+        for (auto iter = bluetoothcallbacksMap_.begin(); iter != bluetoothcallbacksMap_.end();) {
             auto callback = iter->first;
             auto deathRecipientPair = iter->second;
             auto death = deathRecipientPair.second;
@@ -305,7 +305,7 @@ std::vector<std::shared_ptr<LocatingRequiredData>> LocatorBleCallbackWapper::Get
     return res;
 }
 
-std::unique_ptr<BluetoothScanResult> LocatorBleCallbackWapper::GetBluetoohScanResultByBle(
+std::unique_ptr<BluetoothScanResult> LocatorBleCallbackWapper::GetBluetoothScanResultByBle(
     const Bluetooth::BleScanResult &result)
 {
     std::unique_ptr<BluetoothScanResult> res = std::make_unique<BluetoothScanResult>();
@@ -342,8 +342,8 @@ void LocatorBluetoothHost::OnDeviceAddrChanged(const std::string &address) {}
 
 void LocatorBleCallbackWapper::OnScanCallback(const Bluetooth::BleScanResult &result)
 {
-    std::unique_ptr<BluetoothScanResult> res = GetBluetoohScanResultByBle(result);
-    LocatorRequiredDataManager::GetInstance()->ReportBluetoohScanResult(res);
+    std::unique_ptr<BluetoothScanResult> res = GetBluetoothScanResultByBle(result);
+    LocatorRequiredDataManager::GetInstance()->ReportBluetoothScanResult(res);
 }
 
 void LocatorBleCallbackWapper::OnFoundOrLostCallback(const Bluetooth::BleScanResult &result, uint8_t callbackType) {}
@@ -487,25 +487,25 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
     }
 }
 
-void LocatorRequiredDataManager::ReportBluetoohScanResult(
+void LocatorRequiredDataManager::ReportBluetoothScanResult(
     const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult)
 {
-    std::unique_lock<std::mutex> lock(bluetoohcallbacksMapMutex_);
-    for (const auto& pair : bluetoohcallbacksMap_) {
+    std::unique_lock<std::mutex> lock(bluetoothcallbacksMapMutex_);
+    for (const auto& pair : bluetoothcallbacksMap_) {
         auto callback = pair.first;
-        sptr<IBluetoothScanResultCallback> bluetoohScanResultCallback =
+        sptr<IBluetoothScanResultCallback> bluetoothScanResultCallback =
             iface_cast<IBluetoothScanResultCallback>(callback);
-        if (bluetoohScanResultCallback == nullptr) {
-            LBSLOGW(LOCATOR, "ReportBluetoohScanResult nullptr callback.");
+        if (bluetoothScanResultCallback == nullptr) {
+            LBSLOGW(LOCATOR, "ReportBluetoothScanResult nullptr callback.");
             continue;
         }
         auto deathRecipientPair = pair.second;
         AppIdentity identity = deathRecipientPair.first;
         if (CommonUtils::IsAppBelongCurrentAccount(identity) &&
             PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId()) &&
-            HookUtils::ExecuteHookWhenReportBluetoohScanResult(identity.GetBundleName(), TYPE_WHITE_LIST_BLE) &&
+            HookUtils::ExecuteHookWhenReportBluetoothScanResult(identity.GetBundleName(), TYPE_WHITE_LIST_BLE) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(identity.GetPid())) {
-            bluetoohScanResultCallback->OnBluetoohScanResultChange(bluetoothScanResult);
+            bluetoothScanResultCallback->OnBluetoothScanResultChange(bluetoothScanResult);
         }
     }
 }
@@ -538,8 +538,8 @@ void LocatorRequiredDataManager::StartBluetoothScan()
         return;
     }
     {
-        std::lock_guard<std::mutex> lock(bluetoohcallbacksMapMutex_);
-        if (bluetoohcallbacksMap_.size() > 1) {
+        std::lock_guard<std::mutex> lock(bluetoothcallbacksMapMutex_);
+        if (bluetoothcallbacksMap_.size() > 1) {
             return;
         }
     }
@@ -559,8 +559,8 @@ void LocatorRequiredDataManager::StoptBluetoothScan()
         return;
     }
     {
-        std::lock_guard<std::mutex> lock(bluetoohcallbacksMapMutex_);
-        if (bluetoohcallbacksMap_.size() != 0) {
+        std::lock_guard<std::mutex> lock(bluetoothcallbacksMapMutex_);
+        if (bluetoothcallbacksMap_.size() != 0) {
             return;
         }
     }
@@ -765,18 +765,18 @@ void WifiSdkHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     }
 }
 
-BluetoohScanCallbackDeathRecipient::BluetoohScanCallbackDeathRecipient()
+BluetoothScanCallbackDeathRecipient::BluetoothScanCallbackDeathRecipient()
 {
 }
  
-BluetoohScanCallbackDeathRecipient::~BluetoohScanCallbackDeathRecipient()
+BluetoothScanCallbackDeathRecipient::~BluetoothScanCallbackDeathRecipient()
 {
 }
  
-void BluetoohScanCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+void BluetoothScanCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    LBSLOGI(LOCATOR, "bluetooh scan callback OnRemoteDied");
-    LocatorRequiredDataManager::GetInstance()->StopScanBluetoohDevice(remote.promote());
+    LBSLOGI(LOCATOR, "bluetooth scan callback OnRemoteDied");
+    LocatorRequiredDataManager::GetInstance()->StopScanBluetoothDevice(remote.promote());
 }
 } // namespace Location
 } // namespace OHOS

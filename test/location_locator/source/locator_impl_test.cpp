@@ -47,6 +47,7 @@
 #endif
 #include "request_config.h"
 #include "locating_required_data_callback_napi.h"
+#include "bluetooth_scan_result_callback_napi.h"
 #include "locator_agent.h"
 #include "permission_manager.h"
 #include "geofence_request.h"
@@ -539,6 +540,178 @@ HWTEST_F(LocatorImplTest, locatorImplUnRegisterLocatingRequiredDataCallback001, 
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnRegisterLocatingRequiredDataCallback001 end");
 }
 
+HWTEST_F(LocatorImplTest, locatorImplSubscribeBluetoothScanResultChange001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplSubscribeBluetoothScanResultChange001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeBluetoothScanResultChange001 begin");
+    auto bluetoothScanResultCallbackHost =
+        sptr<BluetoothScanResultCallbackNapi>(new (std::nothrow) BluetoothScanResultCallbackNapi());
+    auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
+    locatorImpl_->SubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeBluetoothScanResultChange001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplSubscribeBluetoothScanResultChange002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplSubscribeBluetoothScanResultChange002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeBluetoothScanResultChange002 begin");
+    auto bluetoothScanResultCallbackHost =
+        sptr<BluetoothScanResultCallbackNapi>(new (std::nothrow) BluetoothScanResultCallbackNapi());
+    auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
+    bluetoothScanResultCallback = nullptr;
+    locatorImpl_->SubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplSubscribeBluetoothScanResultChange002 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplUnSubscribeBluetoothScanResultChange001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplUnSubscribeBluetoothScanResultChange001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeBluetoothScanResultChange001 begin");
+    auto bluetoothScanResultCallbackHost =
+        sptr<BluetoothScanResultCallbackNapi>(new (std::nothrow) BluetoothScanResultCallbackNapi());
+    auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
+    locatorImpl_->UnSubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeBluetoothScanResultChange001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplUnSubscribeBluetoothScanResultChange002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplUnSubscribeBluetoothScanResultChange002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeBluetoothScanResultChange002 begin");
+    auto bluetoothScanResultCallbackHost =
+        sptr<BluetoothScanResultCallbackNapi>(new (std::nothrow) BluetoothScanResultCallbackNapi());
+    auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
+    bluetoothScanResultCallback = nullptr;
+    locatorImpl_->UnSubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUnSubscribeBluetoothScanResultChange002 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplUpdateCallbackResumingState001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplUpdateCallbackResumingState001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUpdateCallbackResumingState001 begin");
+    locatorImpl_->UpdateCallbackResumingState(true);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplUpdateCallbackResumingState001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplIsCallbackResuming001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplIsCallbackResuming001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsCallbackResuming001 begin");
+    locatorImpl_->IsCallbackResuming();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsCallbackResuming001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplIsLocationCallbackRegistered001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplIsLocationCallbackRegistered001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsLocationCallbackRegistered001 begin");
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
+
+    if (locatorCallbackHostForTest) {
+        locatorCallbackHostForTest->SetFixNumber(1);
+    }
+    std::unique_ptr<RequestConfig> requestConfigPtr = std::make_unique<RequestConfig>();
+    requestConfigPtr->SetScenario(SCENE_NAVIGATION);
+    sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    locatorImpl_->AddLocationCallBack(requestConfigPtr, callbackPtr);
+    locatorImpl_->IsLocationCallbackRegistered(callbackPtr);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsLocationCallbackRegistered001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplIsLocationCallbackRegistered002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplIsLocationCallbackRegistered002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsLocationCallbackRegistered002 begin");
+    sptr<IRemoteObject> callback;
+    locatorImpl_->AddSatelliteStatusChangeCallBack(callback);
+    locatorImpl_->IsSatelliteStatusChangeCallbackRegistered(callback);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsLocationCallbackRegistered002 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplIsNmeaCallbackRegistered001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplIsNmeaCallbackRegistered001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsNmeaCallbackRegistered001 begin");
+    sptr<IRemoteObject> callback;
+    locatorImpl_->AddNmeaCallBack(callback);
+    locatorImpl_->IsNmeaCallbackRegistered(callback);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsNmeaCallbackRegistered001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplHasGnssNetworkRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplHasGnssNetworkRequest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplHasGnssNetworkRequest001 begin");
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
+
+    if (locatorCallbackHostForTest) {
+        locatorCallbackHostForTest->SetFixNumber(1);
+    }
+    std::unique_ptr<RequestConfig> requestConfigPtr = std::make_unique<RequestConfig>();
+    requestConfigPtr->SetScenario(SCENE_NAVIGATION);
+    sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    locatorImpl_->AddLocationCallBack(requestConfigPtr, callbackPtr);
+    locatorImpl_->HasGnssNetworkRequest();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplHasGnssNetworkRequest001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplResumeGnssStatusCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplResumeGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResumeGnssStatusCallback001 begin");
+    sptr<IRemoteObject> callback;
+    locatorImpl_->AddSatelliteStatusChangeCallBack(callback);
+    std::shared_ptr<CallbackResumeManager> callbackResumer = std::make_shared<CallbackResumeManager>();
+    callbackResumer->ResumeCallback();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResumeGnssStatusCallback001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplResumeNmeaMessageCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplResumeNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResumeNmeaMessageCallback001 begin");
+    sptr<IRemoteObject> callback;
+    locatorImpl_->AddNmeaCallBack(callback);
+    std::shared_ptr<CallbackResumeManager> callbackResumer = std::make_shared<CallbackResumeManager>();
+    callbackResumer->ResumeCallback();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResumeNmeaMessageCallback001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplResumeLocating001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplResumeLocating001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResumeLocating001 begin");
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
+
+    if (locatorCallbackHostForTest) {
+        locatorCallbackHostForTest->SetFixNumber(1);
+    }
+    std::unique_ptr<RequestConfig> requestConfigPtr = std::make_unique<RequestConfig>();
+    requestConfigPtr->SetScenario(SCENE_NAVIGATION);
+    sptr<ILocatorCallback> callbackPtr = sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    locatorImpl_->AddLocationCallBack(requestConfigPtr, callbackPtr);
+    std::shared_ptr<CallbackResumeManager> callbackResumer = std::make_shared<CallbackResumeManager>();
+    callbackResumer->ResumeCallback();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplResumeLocating001 end");
+}
+
 HWTEST_F(LocatorImplTest, locatorImplSubscribeLocationError001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -657,6 +830,17 @@ HWTEST_F(LocatorImplTest, OnAddSystemAbility001, TestSize.Level1)
     auto saStatusListener = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
     saStatusListener->OnAddSystemAbility(0, "deviceId");
     LBSLOGI(LOCATOR, "[LocatorImplTest] OnAddSystemAbility001 end");
+}
+
+HWTEST_F(LocatorImplTest, OnAddSystemAbility002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, OnAddSystemAbility002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnAddSystemAbility001 begin");
+    auto saStatusListener = sptr<LocatorSystemAbilityListener>(new LocatorSystemAbilityListener());
+    saStatusListener->OnRemoveSystemAbility(0, "deviceId");
+    saStatusListener->OnAddSystemAbility(0, "deviceId");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] OnAddSystemAbility002 end");
 }
 
 HWTEST_F(LocatorImplTest, OnRemoveSystemAbility001, TestSize.Level1)

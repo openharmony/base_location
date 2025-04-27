@@ -207,7 +207,7 @@ bool HookUtils::ExecuteHookWhenSimStateChange(const std::string& data)
     return locatorRequestStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenStartScanBluetoohDevice(const std::string& packageName, const std::string& type)
+bool HookUtils::ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type)
 {
     ScanStruct scanStruct;
     scanStruct.packageName = packageName;
@@ -218,7 +218,7 @@ bool HookUtils::ExecuteHookWhenStartScanBluetoohDevice(const std::string& packag
     return scanStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenReportBluetoohScanResult(const std::string& packageName, const std::string& type)
+bool HookUtils::ExecuteHookWhenReportBluetoothScanResult(const std::string& packageName, const std::string& type)
 {
     ScanStruct scanStruct;
     scanStruct.packageName = packageName;

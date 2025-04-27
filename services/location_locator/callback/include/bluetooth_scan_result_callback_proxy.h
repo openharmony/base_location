@@ -26,13 +26,13 @@
 
 namespace OHOS {
 namespace Location {
-class BluetoohScanResultCallbackProxy : public IRemoteProxy<IBluetoothScanResultCallback> {
+class BluetoothScanResultCallbackProxy : public IRemoteProxy<IBluetoothScanResultCallback> {
 public:
-    explicit BluetoohScanResultCallbackProxy(const sptr<IRemoteObject> &impl);
-    ~BluetoohScanResultCallbackProxy() = default;
-    void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& data) override;
+    explicit BluetoothScanResultCallbackProxy(const sptr<IRemoteObject> &impl);
+    ~BluetoothScanResultCallbackProxy() = default;
+    void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& data) override;
 private:
-    static inline BrokerDelegator<BluetoohScanResultCallbackProxy> delegator_;
+    static inline BrokerDelegator<BluetoothScanResultCallbackProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS

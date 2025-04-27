@@ -51,7 +51,7 @@ int BluetoothScanResultCallbackNapi::OnRemoteRequest(
     switch (code) {
         case RECEIVE_INFO_EVENT: {
             std::unique_ptr<BluetoothScanResult> res = BluetoothScanResult::Unmarshalling(data);
-            OnBluetoohScanResultChange(res);
+            OnBluetoothScanResultChange(res);
             break;
         }
         default: {
@@ -90,7 +90,7 @@ void BluetoothScanResultCallbackNapi::SetHandleCb(const napi_ref& handlerCb)
     g_registerCallbacks.emplace_back(handlerCb);
 }
 
-bool FindBlueToohCallback(napi_ref cb)
+bool FindBlueToothCallback(napi_ref cb)
 {
     std::unique_lock<std::mutex> guard(g_regCallbackMutex);
     auto iter = std::find(g_registerCallbacks.begin(), g_registerCallbacks.end(), cb);
@@ -100,7 +100,7 @@ bool FindBlueToohCallback(napi_ref cb)
     return true;
 }
 
-void DeleteBlueToohCallback(napi_ref cb)
+void DeleteBlueToothCallback(napi_ref cb)
 {
     std::unique_lock<std::mutex> guard(g_regCallbackMutex);
     for (auto iter = g_registerCallbacks.begin(); iter != g_registerCallbacks.end(); iter++) {
@@ -130,7 +130,7 @@ void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& w
             delete work;
             return;
         }
-        if (!FindBlueToohCallback(context->callback[0])) {
+        if (!FindBlueToothCallback(context->callback[0])) {
             LBSLOGE(BLUETOOTH_CALLBACK, "no valid callback");
             delete context;
             delete work;
@@ -144,7 +144,7 @@ void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& w
         }
         napi_value jsEvent = nullptr;
         CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent), scope, context, work);
-        BluetoohScanResultToJs(context->env, context->bluetoothScanResult, jsEvent);
+        BluetoothScanResultToJs(context->env, context->bluetoothScanResult, jsEvent);
         if (context->callback[0] != nullptr) {
             napi_value undefine = nullptr;
             napi_value handler = nullptr;
@@ -162,7 +162,7 @@ void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& w
     });
 }
 
-void BluetoothScanResultCallbackNapi::OnBluetoohScanResultChange(
+void BluetoothScanResultCallbackNapi::OnBluetoothScanResultChange(
     const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult)
 {
     std::unique_lock<std::mutex> guard(mutex_);
@@ -210,7 +210,7 @@ void BluetoothScanResultCallbackNapi::DeleteHandler()
         LBSLOGE(BLUETOOTH_CALLBACK, "env is nullptr.");
         return;
     }
-    DeleteBlueToohCallback(handlerCb_);
+    DeleteBlueToothCallback(handlerCb_);
     if (handlerCb_ != nullptr) {
         NAPI_CALL_RETURN_VOID(env_, napi_delete_reference(env_, handlerCb_));
         handlerCb_ = nullptr;
