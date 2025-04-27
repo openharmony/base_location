@@ -131,12 +131,7 @@
               },
               {
                 "scheme": "file",
-                "utd": "general.zip-archive",
-                "maxFileSupported": 1
-              },
-              {
-                "scheme": "file",
-                "utd": "general.tar-archive",
+                "utd": "general.archive",
                 "maxFileSupported": 1
               }
             ]
