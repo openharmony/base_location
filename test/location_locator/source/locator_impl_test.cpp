@@ -482,6 +482,23 @@ HWTEST_F(LocatorImplTest, locatorImplNmeaMessageCallbackV9001, TestSize.Level1)
 }
 #endif
 
+HWTEST_F(LocatorImplTest, locatorImplGetDistanceBetweenLocations001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplGetDistanceBetweenLocations001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetDistanceBetweenLocations001 begin");
+    ASSERT_TRUE(locatorImpl_ != nullptr);
+    Location location1;
+    location1.SetLatitude(31.123);
+    location1.SetLongitude(121.123);
+    Location location2;
+    location2.SetLatitude(31.456);
+    location2.SetLongitude(121.456);
+    double distance;
+    locatorImpl_->GetDistanceBetweenLocations(location1, location2, distance);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetDistanceBetweenLocations001 end");
+}
+
 HWTEST_F(LocatorImplTest, locatorImplResetLocatorProxy001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

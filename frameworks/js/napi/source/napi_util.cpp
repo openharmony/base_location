@@ -350,6 +350,25 @@ void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     }
 }
 
+bool JsObjToLocation(const napi_env& env, const napi_value& object,
+    Location& location)
+{
+    double valueDouble = 0.0;
+    if (JsObjectToDouble(env, object, "latitude", valueDouble) == SUCCESS) {
+        location.SetLatitude(valueDouble);
+    } else {
+        LBSLOGE(NAPI_UTILS, "analysis latitude fail.");
+        return false;
+    }
+    if (JsObjectToDouble(env, object, "longitude", valueDouble) == SUCCESS) {
+        location.SetLongitude(valueDouble);
+    } else {
+        LBSLOGE(NAPI_UTILS, "analysis longitude fail.");
+        return false;
+    }
+    return true;
+}
+
 void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& object,
     std::unique_ptr<LocatingRequiredDataConfig>& config)
 {
