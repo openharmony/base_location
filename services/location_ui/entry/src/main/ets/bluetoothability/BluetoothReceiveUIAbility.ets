@@ -50,7 +50,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private cancelTransEvent: string = 'ohos.event.notification.BT.TAP_CANCEL';
     private capsuleNotificationID: number = 100;
     private timeInterval: number = 0;
-    private uriPath: string = '';
+    private receiveDirectory: string = '';
     private fileName: string = '';
     private sandBoxUri: string = '';
     private fileFd: number = -1;
@@ -155,7 +155,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
           case 'usual.event.bluetooth.OPP.FINISH.NOTIFICATION': {
               console.info(TAG, 'jumpUriIsAllowed is ' + this.jumpUriIsAllowed);
               if (this.jumpUriIsAllowed) {
-                  this.oppProfile.setLastReceivedFileUri(this.uriPath);
+                  this.oppProfile.setLastReceivedFileUri(this.receiveDirectory);
               }
               setTimeout(() => {
                   if (this.transfering) {
@@ -225,8 +225,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 this.oppProfile.off('transferStateChange');
             }
         });
-        
-        this.uriPath = data.parameters.uri + '/' + this.fileName;
+
+        this.receiveDirectory = data.parameters.uri;
         const uri = new fileUri.FileUri(data.parameters.uri);
         this.sandBoxUri = uri.path + '/' + this.fileName;
         let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
@@ -268,7 +268,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
 
     async publishReceiveNotification(wantAgentObjReject: WantAgent, wantAgentObjAccept: WantAgent,
         wantAgentObjRemove: WantAgent, fileName: string) {
-        console.info(TAG, 'publishReceiveNotification for ' + fileName);
         let waitTime: number = 50 * 1000;
         let timeout: number = new Date().getTime() + waitTime;
         let notificationRequest: notificationManager.NotificationRequest = {
