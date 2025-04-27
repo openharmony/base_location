@@ -156,8 +156,8 @@ public:
     static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
-    static bool ExecuteHookWhenReportBluetoohScanResult(const std::string& packageName, const std::string& type);
-    static bool ExecuteHookWhenStartScanBluetoohDevice(const std::string& packageName, const std::string& type);
+    static bool ExecuteHookWhenReportBluetoothScanResult(const std::string& packageName, const std::string& type);
+    static bool ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type);
 };
 } // namespace Location
 } // namespace OHOS

@@ -29,8 +29,8 @@
     "*ExecuteHookWhenSetAgnssServer*";
     "*ExecuteHookWhenSimStateChange*";
     "*BluetoothScanResult*";
-    "*ExecuteHookWhenStartScanBluetoohDevice*";
-    "*ExecuteHookWhenReportBluetoohScanResult*";
+    "*ExecuteHookWhenStartScanBluetoothDevice*";
+    "*ExecuteHookWhenReportBluetoothScanResult*";
     "*ProxyFreezeManager*";
   local:
     *;

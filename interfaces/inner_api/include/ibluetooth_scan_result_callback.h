@@ -28,7 +28,7 @@ enum {
         RECEIVE_INFO_EVENT = 1,
     };
     DECLARE_INTERFACE_DESCRIPTOR(u"location.IBluetoothScanResultCallback");
-    virtual void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
+    virtual void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
 };
 } // namespace Location
 } // namespace OHOS

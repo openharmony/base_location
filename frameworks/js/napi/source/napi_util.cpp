@@ -137,7 +137,7 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt32(env, "sourceType", locationInfo->GetLocationSourceType(), result);
 }
 
-void BluetoohScanResultToJs(const napi_env& env, const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult,
+void BluetoothScanResultToJs(const napi_env& env, const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult,
     napi_value& result)
 {
     SetValueUtf8String(env, "deviceId", bluetoothScanResult->GetDeviceId().c_str(), result);

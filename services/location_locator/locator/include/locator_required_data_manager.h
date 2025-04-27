@@ -99,7 +99,7 @@ public:
 
     std::vector<std::shared_ptr<LocatingRequiredData>> GetLocatingRequiredDataByBle(
         const Bluetooth::BleScanResult &result);
-    std::unique_ptr<BluetoothScanResult> GetBluetoohScanResultByBle(const Bluetooth::BleScanResult &result);
+    std::unique_ptr<BluetoothScanResult> GetBluetoothScanResultByBle(const Bluetooth::BleScanResult &result);
 };
 
 class LocatorBluetoothHost : public Bluetooth::BluetoothHostObserver {
@@ -220,13 +220,13 @@ public:
         std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
-    void ReportBluetoohScanResult(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
-    void StartScanBluetoohDevice(sptr<IBluetoothScanResultCallback> callback, AppIdentity identity);
-    void StopScanBluetoohDevice(sptr<IRemoteObject> callbackObj);
+    void ReportBluetoothScanResult(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
+    void StartScanBluetoothDevice(sptr<IBluetoothScanResultCallback> callback, AppIdentity identity);
+    void StopScanBluetoothDevice(sptr<IRemoteObject> callbackObj);
     void StartBluetoothScan();
     void StoptBluetoothScan();
-    void RemoveBluetoohScanCallback(sptr<IRemoteObject> callbackObj);
-    void RemoveBluetoohScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj);
+    void RemoveBluetoothScanCallback(sptr<IRemoteObject> callbackObj);
+    void RemoveBluetoothScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj);
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
     bool IsConnecting();
     static LocatorRequiredDataManager* GetInstance();
@@ -264,10 +264,10 @@ private:
     WifiEvent wifiScanEventCallback_ = {0};
 #endif
     std::mutex mutex_;
-    std::mutex bluetoohcallbacksMapMutex_;
+    std::mutex bluetoothcallbacksMapMutex_;
     std::map<sptr<IRemoteObject>, AppIdentity> callbacksMap_;
     std::map<sptr<IRemoteObject>,
-        std::pair<AppIdentity, sptr<IRemoteObject::DeathRecipient>>> bluetoohcallbacksMap_;
+        std::pair<AppIdentity, sptr<IRemoteObject::DeathRecipient>>> bluetoothcallbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
     std::mutex wifiScanCompleteTimestampMutex_;
@@ -276,10 +276,10 @@ private:
     int64_t lastStillTime_ = 0;
 };
 
-class BluetoohScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+class BluetoothScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    BluetoohScanCallbackDeathRecipient();
-    ~BluetoohScanCallbackDeathRecipient() override;
+    BluetoothScanCallbackDeathRecipient();
+    ~BluetoothScanCallbackDeathRecipient() override;
  
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 };
